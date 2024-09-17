@@ -26,9 +26,9 @@ class FinanceTrackerApp extends StatelessWidget {
         ),
         textTheme: const TextTheme(
           bodyLarge: TextStyle(
-              color: Colors.white), // Updated for newer Flutter versions
+              color: Colors.black), // Updated for newer Flutter versions
           bodyMedium: TextStyle(
-              color: Colors.white), // Updated for newer Flutter versions
+              color: Colors.black), // Updated for newer Flutter versions
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
@@ -309,13 +309,13 @@ class FinanceHomePageState extends State<FinanceHomePage> {
                     int index = _transactions.indexOf(transaction);
                     return ListTile(
                       title: Text(transaction['description'],
-                          style: const TextStyle(color: Colors.white)),
+                          style: const TextStyle(color: Colors.black)),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             '-\$${transaction['amount'].toStringAsFixed(2)}',
-                            style: const TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.black),
                           ),
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
@@ -339,13 +339,13 @@ class FinanceHomePageState extends State<FinanceHomePage> {
                     int index = _incomes.indexOf(income);
                     return ListTile(
                       title: Text(income['description'],
-                          style: const TextStyle(color: Colors.white)),
+                          style: const TextStyle(color: Colors.black)),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             '+\$${income['amount'].toStringAsFixed(2)}',
-                            style: const TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.black),
                           ),
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
