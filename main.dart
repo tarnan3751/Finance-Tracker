@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(FinanceTrackerApp());
+  runApp(const FinanceTrackerApp());
 }
 
 class FinanceTrackerApp extends StatelessWidget {
+  const FinanceTrackerApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,18 +16,21 @@ class FinanceTrackerApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: FinanceHomePage(),
+      home: const FinanceHomePage(),
     );
   }
 }
 
 class FinanceHomePage extends StatefulWidget {
+  const FinanceHomePage({Key? key}) : super(key: key);
+
   @override
-  _FinanceHomePageState createState() => _FinanceHomePageState();
+  FinanceHomePageState createState() => FinanceHomePageState();
 }
 
-class _FinanceHomePageState extends State<FinanceHomePage> {
+class FinanceHomePageState extends State<FinanceHomePage> {
   final List<Map<String, dynamic>> _transactions = [];
+  final List<Map<String, dynamic>> _incomes = [];
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -34,21 +39,24 @@ class _FinanceHomePageState extends State<FinanceHomePage> {
   @override
   void initState() {
     super.initState();
-    _loadTransactions();
+    _loadData();
   }
 
-  // Save transactions to shared_preferences
-  Future<void> _saveTransactions() async {
+  // Save transactions and incomes to shared_preferences
+  Future<void> _saveData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String transactionsJson = jsonEncode(_transactions);
+    String incomesJson = jsonEncode(_incomes);
     await prefs.setString('transactions', transactionsJson);
+    await prefs.setString('incomes', incomesJson);
     await prefs.setDouble('totalBalance', _totalBalance);
   }
 
-  // Load transactions from shared_preferences
-  Future<void> _loadTransactions() async {
+  // Load transactions and incomes from shared_preferences
+  Future<void> _loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? transactionsJson = prefs.getString('transactions');
+    String? incomesJson = prefs.getString('incomes');
     double? savedBalance = prefs.getDouble('totalBalance');
 
     if (transactionsJson != null) {
@@ -62,9 +70,26 @@ class _FinanceHomePageState extends State<FinanceHomePage> {
                   })
               .toList(),
         );
-        _totalBalance = savedBalance ?? 0.0;
       });
     }
+
+    if (incomesJson != null) {
+      List<dynamic> loadedIncomes = jsonDecode(incomesJson);
+      setState(() {
+        _incomes.addAll(
+          loadedIncomes
+              .map((item) => {
+                    'amount': item['amount'],
+                    'description': item['description'],
+                  })
+              .toList(),
+        );
+      });
+    }
+
+    setState(() {
+      _totalBalance = savedBalance ?? 0.0;
+    });
   }
 
   void _addTransaction() {
@@ -74,46 +99,102 @@ class _FinanceHomePageState extends State<FinanceHomePage> {
 
       setState(() {
         _transactions.add({'amount': amount, 'description': description});
-        _totalBalance += amount;
+        _totalBalance -= amount; // Subtract transaction from balance
       });
 
       _amountController.clear();
       _descriptionController.clear();
 
-      _saveTransactions(); // Save transactions when a new one is added
+      _saveData(); // Save transactions and incomes after adding
+    }
+  }
+
+  void _addIncome() {
+    if (_formKey.currentState!.validate()) {
+      final double amount = double.parse(_amountController.text);
+      final String description = _descriptionController.text;
+
+      setState(() {
+        _incomes.add({'amount': amount, 'description': description});
+        _totalBalance += amount; // Add income to balance
+      });
+
+      _amountController.clear();
+      _descriptionController.clear();
+
+      _saveData(); // Save transactions and incomes after adding
     }
   }
 
   // Delete transaction from list and update storage
   void _deleteTransaction(int index) {
     setState(() {
-      _totalBalance -= _transactions[index]['amount'];
+      _totalBalance += _transactions[index]['amount']; // Revert transaction
       _transactions.removeAt(index);
     });
-    _saveTransactions(); // Save the updated list after deletion
+    _saveData(); // Save the updated list after deletion
   }
 
-  // Show confirmation dialog
-  Future<void> _showDeleteConfirmationDialog(int index) async {
+  // Delete income from list and update storage
+  void _deleteIncome(int index) {
+    setState(() {
+      _totalBalance -= _incomes[index]['amount']; // Revert income
+      _incomes.removeAt(index);
+    });
+    _saveData(); // Save the updated list after deletion
+  }
+
+  // Show confirmation dialog for transactions
+  Future<void> _showDeleteTransactionDialog(int index) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // User must tap a button to close the dialog
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Transaction'),
-          content: Text('Are you sure you want to delete this transaction?'),
+          title: const Text('Delete Transaction'),
+          content:
+              const Text('Are you sure you want to delete this transaction?'),
           actions: <Widget>[
             TextButton(
-              child: Text('No'),
+              child: const Text('No'),
               onPressed: () {
-                Navigator.of(context).pop(); // Close dialog and do nothing
+                Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Yes'),
+              child: const Text('Yes'),
               onPressed: () {
                 _deleteTransaction(index); // Delete the transaction
-                Navigator.of(context).pop(); // Close the dialog after deleting
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Show confirmation dialog for incomes
+  Future<void> _showDeleteIncomeDialog(int index) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Income'),
+          content: const Text('Are you sure you want to delete this income?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Yes'),
+              onPressed: () {
+                _deleteIncome(index); // Delete the income
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -126,7 +207,7 @@ class _FinanceHomePageState extends State<FinanceHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Finance Tracker'),
+        title: const Text('Finance Tracker'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -134,16 +215,16 @@ class _FinanceHomePageState extends State<FinanceHomePage> {
           children: [
             Text(
               'Total Balance: \$${_totalBalance.toStringAsFixed(2)}',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Form(
               key: _formKey,
               child: Column(
                 children: [
                   TextFormField(
                     controller: _amountController,
-                    decoration: InputDecoration(labelText: 'Amount'),
+                    decoration: const InputDecoration(labelText: 'Amount'),
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -157,7 +238,7 @@ class _FinanceHomePageState extends State<FinanceHomePage> {
                   ),
                   TextFormField(
                     controller: _descriptionController,
-                    decoration: InputDecoration(labelText: 'Description'),
+                    decoration: const InputDecoration(labelText: 'Description'),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a description';
@@ -165,37 +246,77 @@ class _FinanceHomePageState extends State<FinanceHomePage> {
                       return null;
                     },
                   ),
-                  SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _addTransaction,
-                    child: Text('Add Transaction'),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _addIncome,
+                        child: const Text('Add Income'),
+                      ),
+                      ElevatedButton(
+                        onPressed: _addTransaction,
+                        child: const Text('Add Transaction'),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Expanded(
-              child: ListView.builder(
-                itemCount: _transactions.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(_transactions[index]['description']),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '\$${_transactions[index]['amount'].toStringAsFixed(2)}',
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            _showDeleteConfirmationDialog(index);
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                },
+              child: ListView(
+                children: [
+                  const Text(
+                    'Transactions:',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  ..._transactions.map((transaction) {
+                    int index = _transactions.indexOf(transaction);
+                    return ListTile(
+                      title: Text(transaction['description']),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '-\$${transaction['amount'].toStringAsFixed(2)}',
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              _showDeleteTransactionDialog(index);
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Incomes:',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  ..._incomes.map((income) {
+                    int index = _incomes.indexOf(income);
+                    return ListTile(
+                      title: Text(income['description']),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '+\$${income['amount'].toStringAsFixed(2)}',
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              _showDeleteIncomeDialog(index);
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ],
               ),
             ),
           ],
