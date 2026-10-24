@@ -46,7 +46,10 @@ final class DriftTransactionRepository implements TransactionRepository {
         offset: query.offset,
       ); // SQLite: no limit, with an offset
     }
-    return select.watch().asyncMap(_withChildren).distinct(sameList);
+    return select
+        .watch()
+        .asyncMap((rows) => transactionsWithChildren(_database, rows))
+        .distinct(sameList);
   }
 
   @override
@@ -55,8 +58,9 @@ final class DriftTransactionRepository implements TransactionRepository {
             ..where((t) => t.id.equals(id) & t.deletedAt.isNull()))
           .watchSingleOrNull()
           .asyncMap(
-            (row) async =>
-                row == null ? null : (await _withChildren([row])).single,
+            (row) async => row == null
+                ? null
+                : (await transactionsWithChildren(_database, [row])).single,
           )
           .distinct();
 
@@ -80,65 +84,11 @@ final class DriftTransactionRepository implements TransactionRepository {
         if (account == null) {
           throw AccountNotFoundException(transaction.accountId);
         }
-        final String currency = account.currency;
-        final int amount = minorUnitsIn(transaction.amount, currency)!;
-        final List<int> splitAmounts = [
-          for (final TransactionSplit split in transaction.splits)
-            minorUnitsIn(split.amount, currency)!,
-        ];
-
-        await _database
-            .into(_transactions)
-            .insertOnConflictUpdate(
-              TransactionsCompanion(
-                id: Value(id),
-                accountId: Value(transaction.accountId),
-                amountMinor: Value(amount),
-                currency: Value(currency),
-                date: Value(transaction.date),
-                authorizedDate: Value(transaction.authorizedDate),
-                pending: Value(transaction.pending),
-                pendingTransactionId: Value(transaction.pendingTransactionId),
-                name: Value(transaction.name),
-                merchantName: Value(transaction.merchantName),
-                merchantLogoUrl: Value(transaction.merchantLogoUrl),
-                plaidPrimaryCategory: Value(transaction.plaidPrimaryCategory),
-                plaidDetailedCategory: Value(transaction.plaidDetailedCategory),
-                userCategoryId: Value(transaction.userCategoryId),
-                notes: Value(transaction.notes),
-                receiptPath: Value(transaction.receiptPath),
-                source: Value(transaction.source),
-                createdAt: Value(transaction.createdAt),
-                updatedAt: Value(transaction.updatedAt),
-                syncVersion: Value(transaction.syncVersion),
-              ),
-            );
-        await (_database.delete(
-          _database.transactionTags,
-        )..where((t) => t.transactionId.equals(id))).go();
-        await (_database.delete(
-          _database.transactionSplits,
-        )..where((s) => s.transactionId.equals(id))).go();
-        await _database.batch((batch) {
-          batch.insertAll(_database.transactionTags, [
-            for (int i = 0; i < transaction.tags.length; i++)
-              TransactionTagsCompanion.insert(
-                transactionId: id,
-                position: i,
-                tag: transaction.tags[i],
-              ),
-          ]);
-          batch.insertAll(_database.transactionSplits, [
-            for (int i = 0; i < transaction.splits.length; i++)
-              TransactionSplitsCompanion.insert(
-                transactionId: id,
-                position: i,
-                categoryId: transaction.splits[i].categoryId,
-                amountMinor: splitAmounts[i],
-                note: Value(transaction.splits[i].note),
-              ),
-          ]);
-        });
+        await writeTransactionRow(
+          _database,
+          transaction,
+          currency: account.currency,
+        );
       });
 
   @override
@@ -318,71 +268,148 @@ final class DriftTransactionRepository implements TransactionRepository {
       ]),
     ]);
   }
+}
 
-  // Loads the tags and splits of [rows], in chunks so the IN lists stay far below
-  // SQLite's variable limit.
-  Future<List<Transaction>> _withChildren(List<TransactionRow> rows) async {
-    final Map<String, List<String>> tags = {};
-    final Map<String, List<TransactionSplit>> splits = {};
-    final List<String> ids = [for (final TransactionRow row in rows) row.id];
-    for (int start = 0; start < ids.length; start += 500) {
-      final List<String> chunk = ids.sublist(
-        start,
-        start + 500 > ids.length ? ids.length : start + 500,
-      );
-      final List<TransactionTagRow> tagRows =
-          await (_database.select(_database.transactionTags)
-                ..where((g) => g.transactionId.isIn(chunk))
-                ..orderBy([(g) => OrderingTerm.asc(g.position)]))
-              .get();
-      for (final TransactionTagRow tag in tagRows) {
-        (tags[tag.transactionId] ??= []).add(tag.tag);
-      }
-      final List<TransactionSplitRow> splitRows =
-          await (_database.select(_database.transactionSplits)
-                ..where((s) => s.transactionId.isIn(chunk))
-                ..orderBy([(s) => OrderingTerm.asc(s.position)]))
-              .get();
-      final Map<String, String> currencies = {
-        for (final TransactionRow row in rows) row.id: row.currency,
-      };
-      for (final TransactionSplitRow split in splitRows) {
-        (splits[split.transactionId] ??= []).add(
-          TransactionSplit(
-            categoryId: split.categoryId,
-            amount: Money(split.amountMinor, currencies[split.transactionId]!),
-            note: split.note,
-          ),
-        );
-      }
+/// The transactions [rows] hold, with their tags and splits, loaded in chunks so the IN
+/// lists stay far below SQLite's variable limit. `deletedAt` is the row's.
+Future<List<Transaction>> transactionsWithChildren(
+  AppDatabase database,
+  List<TransactionRow> rows,
+) async {
+  final Map<String, List<String>> tags = {};
+  final Map<String, List<TransactionSplit>> splits = {};
+  final List<String> ids = [for (final TransactionRow row in rows) row.id];
+  for (int start = 0; start < ids.length; start += 500) {
+    final List<String> chunk = ids.sublist(
+      start,
+      start + 500 > ids.length ? ids.length : start + 500,
+    );
+    final List<TransactionTagRow> tagRows =
+        await (database.select(database.transactionTags)
+              ..where((g) => g.transactionId.isIn(chunk))
+              ..orderBy([(g) => OrderingTerm.asc(g.position)]))
+            .get();
+    for (final TransactionTagRow tag in tagRows) {
+      (tags[tag.transactionId] ??= []).add(tag.tag);
     }
-    return [
-      for (final TransactionRow row in rows)
-        Transaction(
-          id: row.id,
-          accountId: row.accountId,
-          amount: Money(row.amountMinor, row.currency),
-          date: row.date,
-          authorizedDate: row.authorizedDate,
-          pending: row.pending,
-          pendingTransactionId: row.pendingTransactionId,
-          name: row.name,
-          merchantName: row.merchantName,
-          merchantLogoUrl: row.merchantLogoUrl,
-          plaidPrimaryCategory: row.plaidPrimaryCategory,
-          plaidDetailedCategory: row.plaidDetailedCategory,
-          userCategoryId: row.userCategoryId,
-          notes: row.notes,
-          tags: tags[row.id] ?? const [],
-          splits: splits[row.id] ?? const [],
-          receiptPath: row.receiptPath,
-          source: row.source,
-          createdAt: row.createdAt,
-          updatedAt: row.updatedAt,
-          syncVersion: row.syncVersion,
+    final List<TransactionSplitRow> splitRows =
+        await (database.select(database.transactionSplits)
+              ..where((s) => s.transactionId.isIn(chunk))
+              ..orderBy([(s) => OrderingTerm.asc(s.position)]))
+            .get();
+    final Map<String, String> currencies = {
+      for (final TransactionRow row in rows) row.id: row.currency,
+    };
+    for (final TransactionSplitRow split in splitRows) {
+      (splits[split.transactionId] ??= []).add(
+        TransactionSplit(
+          categoryId: split.categoryId,
+          amount: Money(split.amountMinor, currencies[split.transactionId]!),
+          note: split.note,
         ),
-    ];
+      );
+    }
   }
+  return [
+    for (final TransactionRow row in rows)
+      Transaction(
+        id: row.id,
+        accountId: row.accountId,
+        amount: Money(row.amountMinor, row.currency),
+        date: row.date,
+        authorizedDate: row.authorizedDate,
+        pending: row.pending,
+        pendingTransactionId: row.pendingTransactionId,
+        name: row.name,
+        merchantName: row.merchantName,
+        merchantLogoUrl: row.merchantLogoUrl,
+        plaidPrimaryCategory: row.plaidPrimaryCategory,
+        plaidDetailedCategory: row.plaidDetailedCategory,
+        userCategoryId: row.userCategoryId,
+        notes: row.notes,
+        tags: tags[row.id] ?? const [],
+        splits: splits[row.id] ?? const [],
+        receiptPath: row.receiptPath,
+        source: row.source,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+        deletedAt: row.deletedAt,
+        syncVersion: row.syncVersion,
+      ),
+  ];
+}
+
+/// Writes [transaction]'s row, replacing its tags and splits, with its amount and splits
+/// in [currency] (the account's for a local edit). `deleted_at` and
+/// `deleted_with_account` are written only when given. Throws
+/// `CurrencyMismatchException` when the amount or a split is in another currency.
+Future<void> writeTransactionRow(
+  AppDatabase database,
+  Transaction transaction, {
+  required String currency,
+  Value<DateTime?> deletedAt = const Value.absent(),
+  Value<bool> deletedWithAccount = const Value.absent(),
+}) async {
+  final String id = transaction.id;
+  final int amount = minorUnitsIn(transaction.amount, currency)!;
+  final List<int> splitAmounts = [
+    for (final TransactionSplit split in transaction.splits)
+      minorUnitsIn(split.amount, currency)!,
+  ];
+  await database
+      .into(database.transactions)
+      .insertOnConflictUpdate(
+        TransactionsCompanion(
+          id: Value(id),
+          accountId: Value(transaction.accountId),
+          amountMinor: Value(amount),
+          currency: Value(currency),
+          date: Value(transaction.date),
+          authorizedDate: Value(transaction.authorizedDate),
+          pending: Value(transaction.pending),
+          pendingTransactionId: Value(transaction.pendingTransactionId),
+          name: Value(transaction.name),
+          merchantName: Value(transaction.merchantName),
+          merchantLogoUrl: Value(transaction.merchantLogoUrl),
+          plaidPrimaryCategory: Value(transaction.plaidPrimaryCategory),
+          plaidDetailedCategory: Value(transaction.plaidDetailedCategory),
+          userCategoryId: Value(transaction.userCategoryId),
+          notes: Value(transaction.notes),
+          receiptPath: Value(transaction.receiptPath),
+          source: Value(transaction.source),
+          createdAt: Value(transaction.createdAt),
+          updatedAt: Value(transaction.updatedAt),
+          deletedAt: deletedAt,
+          syncVersion: Value(transaction.syncVersion),
+          deletedWithAccount: deletedWithAccount,
+        ),
+      );
+  await (database.delete(
+    database.transactionTags,
+  )..where((t) => t.transactionId.equals(id))).go();
+  await (database.delete(
+    database.transactionSplits,
+  )..where((s) => s.transactionId.equals(id))).go();
+  await database.batch((batch) {
+    batch.insertAll(database.transactionTags, [
+      for (int i = 0; i < transaction.tags.length; i++)
+        TransactionTagsCompanion.insert(
+          transactionId: id,
+          position: i,
+          tag: transaction.tags[i],
+        ),
+    ]);
+    batch.insertAll(database.transactionSplits, [
+      for (int i = 0; i < transaction.splits.length; i++)
+        TransactionSplitsCompanion.insert(
+          transactionId: id,
+          position: i,
+          categoryId: transaction.splits[i].categoryId,
+          amountMinor: splitAmounts[i],
+          note: Value(transaction.splits[i].note),
+        ),
+    ]);
+  });
 }
 
 /// [text] with `\`, `%` and `_` escaped by a backslash, for `LIKE ... ESCAPE '\'`.

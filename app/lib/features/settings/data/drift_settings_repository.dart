@@ -21,12 +21,15 @@ final class DriftSettingsRepository implements SettingsRepository {
   final AppDatabase _database;
 
   @override
-  Stream<Settings> watch() =>
-      _database.select(_database.appSettings).watch().map(_fromRows).distinct();
+  Stream<Settings> watch() => _database
+      .select(_database.appSettings)
+      .watch()
+      .map(settingsFromRows)
+      .distinct();
 
   @override
   Future<Settings> read() async =>
-      _fromRows(await _database.select(_database.appSettings).get());
+      settingsFromRows(await _database.select(_database.appSettings).get());
 
   @override
   Future<void> save(Settings settings) => _database.batch((batch) {
@@ -41,30 +44,32 @@ final class DriftSettingsRepository implements SettingsRepository {
       ),
     ]);
   });
+}
 
-  Settings _fromRows(List<AppSettingRow> rows) {
-    final Map<String, Object?> values = {
-      for (final AppSettingRow row in rows) row.key: _decode(row.value),
-    };
-    const Settings defaults = Settings.defaults();
-    final Object? mode = values[_themeMode];
-    final Object? dynamicColor = values[_useDynamicColor];
-    return Settings(
-      themeMode: AppThemeMode.values.firstWhere(
-        (m) => m.name == mode,
-        orElse: () => defaults.themeMode,
-      ),
-      useDynamicColor: dynamicColor is bool
-          ? dynamicColor
-          : defaults.useDynamicColor,
-    );
-  }
+/// The [Settings] the `app_settings` [rows] hold: a missing or unreadable value is that
+/// field's default.
+Settings settingsFromRows(List<AppSettingRow> rows) {
+  final Map<String, Object?> values = {
+    for (final AppSettingRow row in rows) row.key: _decode(row.value),
+  };
+  const Settings defaults = Settings.defaults();
+  final Object? mode = values[_themeMode];
+  final Object? dynamicColor = values[_useDynamicColor];
+  return Settings(
+    themeMode: AppThemeMode.values.firstWhere(
+      (m) => m.name == mode,
+      orElse: () => defaults.themeMode,
+    ),
+    useDynamicColor: dynamicColor is bool
+        ? dynamicColor
+        : defaults.useDynamicColor,
+  );
+}
 
-  Object? _decode(String json) {
-    try {
-      return jsonDecode(json);
-    } on FormatException {
-      return null;
-    }
+Object? _decode(String json) {
+  try {
+    return jsonDecode(json);
+  } on FormatException {
+    return null;
   }
 }

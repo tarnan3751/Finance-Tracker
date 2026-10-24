@@ -30,7 +30,7 @@ final class DriftCategoryRepository implements CategoryRepository {
               (c) => OrderingTerm.asc(c.id),
             ]))
           .watch()
-          .map((rows) => rows.map(_fromRow).toList())
+          .map((rows) => rows.map(categoryFromRow).toList())
           .distinct(sameList);
 
   @override
@@ -38,7 +38,7 @@ final class DriftCategoryRepository implements CategoryRepository {
       (_database.select(_categories)
             ..where((c) => c.id.equals(id) & c.deletedAt.isNull()))
           .watchSingleOrNull()
-          .map((row) => row == null ? null : _fromRow(row))
+          .map((row) => row == null ? null : categoryFromRow(row))
           .distinct();
 
   @override
@@ -49,12 +49,19 @@ final class DriftCategoryRepository implements CategoryRepository {
     if (existing != null && existing.deletedAt != null) {
       throw EntityDeletedException('category', category.id);
     }
-    checkCategoryEdit(existing == null ? null : _fromRow(existing), category);
+    checkCategoryEdit(
+      existing == null ? null : categoryFromRow(existing),
+      category,
+    );
     final DateTime now = _clock.nowUtc();
     await _database
         .into(_categories)
         .insertOnConflictUpdate(
-          _companion(category, createdAt: existing?.createdAt ?? now, now: now),
+          categoryCompanion(
+            category,
+            createdAt: existing?.createdAt ?? now,
+            now: now,
+          ),
         );
   });
 
@@ -81,34 +88,38 @@ final class DriftCategoryRepository implements CategoryRepository {
     await _database.batch(
       (batch) => batch.insertAll(_categories, [
         for (final Category c in systemCategories)
-          _companion(c, createdAt: now, now: now),
+          categoryCompanion(c, createdAt: now, now: now),
       ], mode: InsertMode.insertOrIgnore),
     );
   }
-
-  CategoriesCompanion _companion(
-    Category c, {
-    required DateTime createdAt,
-    required DateTime now,
-  }) => CategoriesCompanion(
-    id: Value(c.id),
-    name: Value(c.name),
-    parentId: Value(c.parentId),
-    isSystem: Value(c.isSystem),
-    icon: Value(c.icon),
-    color: Value(c.color),
-    plaidCategory: Value(c.plaidCategory),
-    createdAt: Value(createdAt),
-    updatedAt: Value(now),
-  );
-
-  Category _fromRow(CategoryRow row) => Category(
-    id: row.id,
-    name: row.name,
-    parentId: row.parentId,
-    isSystem: row.isSystem,
-    icon: row.icon,
-    color: row.color,
-    plaidCategory: row.plaidCategory,
-  );
 }
+
+/// The row of [c], stamped [createdAt] and [now]; `deleted_at` is written only when given.
+CategoriesCompanion categoryCompanion(
+  Category c, {
+  required DateTime createdAt,
+  required DateTime now,
+  Value<DateTime?> deletedAt = const Value.absent(),
+}) => CategoriesCompanion(
+  id: Value(c.id),
+  name: Value(c.name),
+  parentId: Value(c.parentId),
+  isSystem: Value(c.isSystem),
+  icon: Value(c.icon),
+  color: Value(c.color),
+  plaidCategory: Value(c.plaidCategory),
+  createdAt: Value(createdAt),
+  updatedAt: Value(now),
+  deletedAt: deletedAt,
+);
+
+/// The [Category] a row holds.
+Category categoryFromRow(CategoryRow row) => Category(
+  id: row.id,
+  name: row.name,
+  parentId: row.parentId,
+  isSystem: row.isSystem,
+  icon: row.icon,
+  color: row.color,
+  plaidCategory: row.plaidCategory,
+);

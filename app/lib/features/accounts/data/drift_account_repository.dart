@@ -53,9 +53,13 @@ final class DriftAccountRepository implements AccountRepository {
       throw EntityDeletedException('account', account.id);
     }
     final String currency = account.currencyCode;
-    final int? current = minorUnitsIn(account.currentBalance, currency);
-    final int? available = minorUnitsIn(account.availableBalance, currency);
-    final int? limit = minorUnitsIn(account.creditLimit, currency);
+    final DateTime now = _clock.nowUtc();
+    // Built first, so a balance in another currency is refused before anything else.
+    final AccountsCompanion row = accountCompanion(
+      account,
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+    );
     if (existing != null && existing.currency != currency) {
       final TypedResult? any =
           await (_database.selectOnly(_database.transactions)
@@ -67,29 +71,7 @@ final class DriftAccountRepository implements AccountRepository {
         throw CurrencyMismatchException(existing.currency, currency);
       }
     }
-    final DateTime now = _clock.nowUtc();
-    await _database
-        .into(_accounts)
-        .insertOnConflictUpdate(
-          AccountsCompanion(
-            id: Value(account.id),
-            itemId: Value(account.itemId),
-            type: Value(account.type),
-            subtype: Value(account.subtype),
-            name: Value(account.name),
-            officialName: Value(account.officialName),
-            mask: Value(account.mask),
-            currency: Value(currency),
-            currentBalanceMinor: Value(current),
-            availableBalanceMinor: Value(available),
-            creditLimitMinor: Value(limit),
-            balancesAsOf: Value(account.balancesAsOf),
-            isHidden: Value(account.isHidden),
-            displayOrder: Value(account.displayOrder),
-            createdAt: Value(existing?.createdAt ?? now),
-            updatedAt: Value(now),
-          ),
-        );
+    await _database.into(_accounts).insertOnConflictUpdate(row);
   });
 
   @override
@@ -191,6 +173,39 @@ final class DriftAccountRepository implements AccountRepository {
                 : Money(row.read<int>('total'), row.read<String>('currency')),
         },
       );
+}
+
+/// The row of [account], stamped [createdAt] and [updatedAt]; `deleted_at` is written only
+/// when given. Throws `CurrencyMismatchException` when a balance is in another currency
+/// than the account's.
+AccountsCompanion accountCompanion(
+  Account account, {
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt = const Value.absent(),
+}) {
+  final String currency = account.currencyCode;
+  return AccountsCompanion(
+    id: Value(account.id),
+    itemId: Value(account.itemId),
+    type: Value(account.type),
+    subtype: Value(account.subtype),
+    name: Value(account.name),
+    officialName: Value(account.officialName),
+    mask: Value(account.mask),
+    currency: Value(currency),
+    currentBalanceMinor: Value(minorUnitsIn(account.currentBalance, currency)),
+    availableBalanceMinor: Value(
+      minorUnitsIn(account.availableBalance, currency),
+    ),
+    creditLimitMinor: Value(minorUnitsIn(account.creditLimit, currency)),
+    balancesAsOf: Value(account.balancesAsOf),
+    isHidden: Value(account.isHidden),
+    displayOrder: Value(account.displayOrder),
+    createdAt: Value(createdAt),
+    updatedAt: Value(updatedAt),
+    deletedAt: deletedAt,
+  );
 }
 
 /// The [Account] a row holds.
