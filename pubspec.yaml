@@ -15,3 +15,10 @@ workspace:
   - packages/contract_test
   - packages/sync_engine
   - tools/persona_engine
+
+# The sqlite3 package's build hook bundles SQLite3 Multiple Ciphers instead of plain SQLite,
+# so the app's database is encrypted at rest (PLAN.md §12; docs/reference/data.md).
+hooks:
+  user_defines:
+    sqlite3:
+      source: sqlite3mc
