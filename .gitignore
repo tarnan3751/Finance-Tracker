@@ -41,3 +41,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Private planning notes (kept out of the repo on purpose)
+PLAN.md
+notes/
