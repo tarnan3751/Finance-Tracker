@@ -1,0 +1,94 @@
+/// The settings screen's Sync section (dev and prod): the status of the last session, the
+/// outbox, changes held back by a clock far ahead, changes the server refused for good,
+/// records this version cannot show, and "Sync now". Counts and times only, never a
+/// change's content.
+library;
+
+import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/sync/sync_controller.dart';
+import 'package:finance_tracker/core/sync/sync_status.dart';
+import 'package:finance_tracker/core/time/clock.dart';
+import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
+import 'package:finance_tracker/l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_models/shared_models.dart';
+import 'package:timezone/timezone.dart' as tz;
+
+/// The Sync section.
+class SyncSection extends ConsumerWidget {
+  const SyncSection({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final SyncStatus status = ref.watch(syncControllerProvider);
+    final Clock clock = ref.watch(clockProvider);
+    String local(DateTime utc) => DateFormat.yMMMd().add_jm().format(
+      tz.TZDateTime.from(utc, clock.location),
+    );
+
+    final bool signedIn =
+        status.phase == SyncPhase.idle || status.phase == SyncPhase.running;
+    final DateTime? lastSyncAt = status.lastSyncAt;
+    final String summary = switch (status) {
+      SyncStatus(phase: SyncPhase.signedOut || SyncPhase.unavailable) =>
+        l10n.syncSignedOut,
+      SyncStatus(phase: SyncPhase.running) => l10n.syncRunning,
+      SyncStatus(failure: SyncFailure.offline) => l10n.syncFailedOffline,
+      SyncStatus(failure: SyncFailure.server) => l10n.syncFailedServer,
+      SyncStatus(failure: SyncFailure.other) => l10n.syncFailedOther,
+      _ when lastSyncAt != null => l10n.syncLastAt(local(lastSyncAt)),
+      _ => l10n.syncNever,
+    };
+    final ledger = status.ledger;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SettingsSectionHeader(l10n.settingsSync),
+        ListTile(
+          leading: const Icon(Icons.sync),
+          title: Text(l10n.syncStatus),
+          subtitle: Text(summary),
+        ),
+        if (signedIn && ledger != null) ...[
+          ListTile(
+            leading: const Icon(Icons.outbox_outlined),
+            title: Text(l10n.syncPending(ledger.pending)),
+          ),
+          if (status.lastSummary?.heldByClockDrift ?? false)
+            ListTile(
+              leading: const Icon(Icons.schedule),
+              title: Text(l10n.syncClockDrift),
+            ),
+          if (ledger.lastRejected case final Hlc last when ledger.rejected > 0)
+            ListTile(
+              leading: const Icon(Icons.block),
+              title: Text(l10n.syncRejected(ledger.rejected, local(last.wall))),
+            ),
+          if (ledger.held > 0)
+            ListTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: Text(l10n.syncHeld(ledger.held)),
+            ),
+        ],
+        if (signedIn)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: FilledButton.tonalIcon(
+                onPressed: status.phase == SyncPhase.idle
+                    ? () => ref.read(syncControllerProvider.notifier).syncNow()
+                    : null,
+                icon: const Icon(Icons.sync),
+                label: Text(l10n.syncNow),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}

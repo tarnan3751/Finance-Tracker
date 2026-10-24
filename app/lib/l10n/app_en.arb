@@ -1147,5 +1147,89 @@
   "settingsServerFake": "In-app fake server",
   "@settingsServerFake": {
     "description": "Value of the Server row when the dev build runs on the in-app fake server."
+  },
+  "settingsSync": "Sync",
+  "@settingsSync": {
+    "description": "Heading of the settings section showing how this device's data syncs with the user's other devices."
+  },
+  "syncStatus": "Status",
+  "@syncStatus": {
+    "description": "Label of the row showing whether and when this device last synced."
+  },
+  "syncSignedOut": "Sign in to sync your data between devices",
+  "@syncSignedOut": {
+    "description": "Status shown when nobody is signed in, so nothing syncs."
+  },
+  "syncRunning": "Syncing…",
+  "@syncRunning": {
+    "description": "Status shown while a sync is running."
+  },
+  "syncNever": "Not synced yet",
+  "@syncNever": {
+    "description": "Status shown before the first sync has finished."
+  },
+  "syncLastAt": "Last synced {time}",
+  "@syncLastAt": {
+    "description": "Status after a successful sync; time is the date and time it finished, in the device's time zone.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "Oct 24, 2026 3:00 PM"
+      }
+    }
+  },
+  "syncFailedOffline": "The last sync could not reach the server",
+  "@syncFailedOffline": {
+    "description": "Status when the last sync failed because the server was unreachable."
+  },
+  "syncFailedServer": "The server could not complete the last sync",
+  "@syncFailedServer": {
+    "description": "Status when the server answered the last sync with an error."
+  },
+  "syncFailedOther": "The last sync did not finish",
+  "@syncFailedOther": {
+    "description": "Status when the last sync failed for another reason."
+  },
+  "syncPending": "{count, plural, =0{Every change is synced} =1{1 change waiting to sync} other{{count} changes waiting to sync}}",
+  "@syncPending": {
+    "description": "How many local changes have not reached the server yet.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "syncClockDrift": "A device's clock is far ahead, so some changes wait until it catches up",
+  "@syncClockDrift": {
+    "description": "Shown when a device's clock is more than an hour ahead, which holds changes back until real time catches up."
+  },
+  "syncRejected": "{count, plural, =1{1 change was refused by the server, the latest made {time}} other{{count} changes were refused by the server, the latest made {time}}}",
+  "@syncRejected": {
+    "description": "How many local changes the server refused for good, and when the latest of them was made (device time zone).",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      },
+      "time": {
+        "type": "String",
+        "example": "Oct 24, 2026 3:00 PM"
+      }
+    }
+  },
+  "syncHeld": "{count, plural, =1{1 synced record this version of the app cannot show yet} other{{count} synced records this version of the app cannot show yet}}",
+  "@syncHeld": {
+    "description": "How many records from other devices this device keeps but cannot show (from a newer app version, or incomplete).",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "syncNow": "Sync now",
+  "@syncNow": {
+    "description": "Button that starts a sync at once."
   }
 }

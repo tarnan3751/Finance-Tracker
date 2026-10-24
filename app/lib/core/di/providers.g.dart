@@ -453,6 +453,150 @@ final class ChangeRecorderProvider
 
 String _$changeRecorderHash() => r'12d25ee7e97c97cffb45f8dff0debccf12ae5c12';
 
+/// The server's id for this device while someone is signed in, else null: the node the
+/// device's sync clock adopts. Null until the session is wired to it.
+
+@ProviderFor(syncDeviceId)
+final syncDeviceIdProvider = SyncDeviceIdProvider._();
+
+/// The server's id for this device while someone is signed in, else null: the node the
+/// device's sync clock adopts. Null until the session is wired to it.
+
+final class SyncDeviceIdProvider
+    extends $FunctionalProvider<String?, String?, String?>
+    with $Provider<String?> {
+  /// The server's id for this device while someone is signed in, else null: the node the
+  /// device's sync clock adopts. Null until the session is wired to it.
+  SyncDeviceIdProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'syncDeviceIdProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$syncDeviceIdHash();
+
+  @$internal
+  @override
+  $ProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  String? create(Ref ref) {
+    return syncDeviceId(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(String? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<String?>(value),
+    );
+  }
+}
+
+String _$syncDeviceIdHash() => r'18a03fa8bebc7e1a78a678b977fe009b1d2e0f59';
+
+/// The relay the device syncs through while someone is signed in, else null. Null until
+/// the API layer is wired to it.
+
+@ProviderFor(syncRelay)
+final syncRelayProvider = SyncRelayProvider._();
+
+/// The relay the device syncs through while someone is signed in, else null. Null until
+/// the API layer is wired to it.
+
+final class SyncRelayProvider
+    extends $FunctionalProvider<SyncRelay?, SyncRelay?, SyncRelay?>
+    with $Provider<SyncRelay?> {
+  /// The relay the device syncs through while someone is signed in, else null. Null until
+  /// the API layer is wired to it.
+  SyncRelayProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'syncRelayProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$syncRelayHash();
+
+  @$internal
+  @override
+  $ProviderElement<SyncRelay?> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  SyncRelay? create(Ref ref) {
+    return syncRelay(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SyncRelay? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SyncRelay?>(value),
+    );
+  }
+}
+
+String _$syncRelayHash() => r'17e6aa32c08822386716766006274b0c70a2c8ee';
+
+/// How long after the last local change a sync session starts.
+
+@ProviderFor(syncDebounce)
+final syncDebounceProvider = SyncDebounceProvider._();
+
+/// How long after the last local change a sync session starts.
+
+final class SyncDebounceProvider
+    extends $FunctionalProvider<Duration, Duration, Duration>
+    with $Provider<Duration> {
+  /// How long after the last local change a sync session starts.
+  SyncDebounceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'syncDebounceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$syncDebounceHash();
+
+  @$internal
+  @override
+  $ProviderElement<Duration> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  Duration create(Ref ref) {
+    return syncDebounce(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Duration value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Duration>(value),
+    );
+  }
+}
+
+String _$syncDebounceHash() => r'c2ba3054ead3d6775d154f2cb91eea025f9e1bc4';
+
 /// The accounts.
 
 @ProviderFor(accountRepository)

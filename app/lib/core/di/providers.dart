@@ -117,6 +117,20 @@ ChangeRecorder changeRecorder(Ref ref) {
   );
 }
 
+/// The server's id for this device while someone is signed in, else null: the node the
+/// device's sync clock adopts. Null until the session is wired to it.
+@Riverpod(keepAlive: true)
+String? syncDeviceId(Ref ref) => null;
+
+/// The relay the device syncs through while someone is signed in, else null. Null until
+/// the API layer is wired to it.
+@Riverpod(keepAlive: true)
+SyncRelay? syncRelay(Ref ref) => null;
+
+/// How long after the last local change a sync session starts.
+@Riverpod(keepAlive: true)
+Duration syncDebounce(Ref ref) => const Duration(seconds: 3);
+
 /// The accounts.
 @Riverpod(keepAlive: true)
 AccountRepository accountRepository(Ref ref) => InMemoryAccountRepository(

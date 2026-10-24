@@ -853,4 +853,74 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsServerFake => 'In-app fake server';
+
+  @override
+  String get settingsSync => 'Sync';
+
+  @override
+  String get syncStatus => 'Status';
+
+  @override
+  String get syncSignedOut => 'Sign in to sync your data between devices';
+
+  @override
+  String get syncRunning => 'Syncing…';
+
+  @override
+  String get syncNever => 'Not synced yet';
+
+  @override
+  String syncLastAt(String time) {
+    return 'Last synced $time';
+  }
+
+  @override
+  String get syncFailedOffline => 'The last sync could not reach the server';
+
+  @override
+  String get syncFailedServer => 'The server could not complete the last sync';
+
+  @override
+  String get syncFailedOther => 'The last sync did not finish';
+
+  @override
+  String syncPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes waiting to sync',
+      one: '1 change waiting to sync',
+      zero: 'Every change is synced',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncClockDrift =>
+      'A device\'s clock is far ahead, so some changes wait until it catches up';
+
+  @override
+  String syncRejected(int count, String time) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes were refused by the server, the latest made $time',
+      one: '1 change was refused by the server, the latest made $time',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String syncHeld(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count synced records this version of the app cannot show yet',
+      one: '1 synced record this version of the app cannot show yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncNow => 'Sync now';
 }

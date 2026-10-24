@@ -1515,6 +1515,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'In-app fake server'**
   String get settingsServerFake;
+
+  /// Heading of the settings section showing how this device's data syncs with the user's other devices.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync'**
+  String get settingsSync;
+
+  /// Label of the row showing whether and when this device last synced.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get syncStatus;
+
+  /// Status shown when nobody is signed in, so nothing syncs.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to sync your data between devices'**
+  String get syncSignedOut;
+
+  /// Status shown while a sync is running.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing…'**
+  String get syncRunning;
+
+  /// Status shown before the first sync has finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Not synced yet'**
+  String get syncNever;
+
+  /// Status after a successful sync; time is the date and time it finished, in the device's time zone.
+  ///
+  /// In en, this message translates to:
+  /// **'Last synced {time}'**
+  String syncLastAt(String time);
+
+  /// Status when the last sync failed because the server was unreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'The last sync could not reach the server'**
+  String get syncFailedOffline;
+
+  /// Status when the server answered the last sync with an error.
+  ///
+  /// In en, this message translates to:
+  /// **'The server could not complete the last sync'**
+  String get syncFailedServer;
+
+  /// Status when the last sync failed for another reason.
+  ///
+  /// In en, this message translates to:
+  /// **'The last sync did not finish'**
+  String get syncFailedOther;
+
+  /// How many local changes have not reached the server yet.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Every change is synced} =1{1 change waiting to sync} other{{count} changes waiting to sync}}'**
+  String syncPending(int count);
+
+  /// Shown when a device's clock is more than an hour ahead, which holds changes back until real time catches up.
+  ///
+  /// In en, this message translates to:
+  /// **'A device\'s clock is far ahead, so some changes wait until it catches up'**
+  String get syncClockDrift;
+
+  /// How many local changes the server refused for good, and when the latest of them was made (device time zone).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change was refused by the server, the latest made {time}} other{{count} changes were refused by the server, the latest made {time}}}'**
+  String syncRejected(int count, String time);
+
+  /// How many records from other devices this device keeps but cannot show (from a newer app version, or incomplete).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 synced record this version of the app cannot show yet} other{{count} synced records this version of the app cannot show yet}}'**
+  String syncHeld(int count);
+
+  /// Button that starts a sync at once.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get syncNow;
 }
 
 class _AppLocalizationsDelegate

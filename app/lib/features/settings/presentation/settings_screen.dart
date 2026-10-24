@@ -1,8 +1,10 @@
-/// The Settings tab: Account (`features/auth/presentation/account_section.dart`),
-/// Appearance (theme mode, dynamic color), Data (category management) and About (app
-/// name, version and build, flavor, the time zone dates are computed in).
+/// The Settings tab: Account (`features/auth/presentation/account_section.dart`), Sync
+/// (dev and prod, `sync_section.dart`), Appearance (theme mode, dynamic color), Data
+/// (category management) and About (app name, version and build, flavor, the time zone
+/// dates are computed in).
 library;
 
+import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/features/auth/presentation/account_section.dart';
@@ -10,6 +12,7 @@ import 'package:finance_tracker/features/settings/application/package_info.dart'
 import 'package:finance_tracker/features/settings/application/settings_controller.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
+import 'package:finance_tracker/features/settings/presentation/sync_section.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,6 +40,8 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         children: [
           const AccountSection(),
+          if (ref.watch(appConfigProvider).flavor != Flavor.demo)
+            const SyncSection(),
           SettingsSectionHeader(l10n.settingsAppearance),
           if (settings == null)
             const LinearProgressIndicator()
