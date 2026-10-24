@@ -3,8 +3,9 @@
 /// Run from `server/` (`tools/run_server.sh` does): reads `.env` and the environment,
 /// opens and migrates the database at `DATABASE_PATH`, seeds the seed user when one is
 /// configured, and serves `/v1` on `HOST:PORT`. Prints one line with the base URL and the
-/// Plaid mode. A bad configuration exits with status 78 and the key it names. Stop it with
-/// Ctrl-C.
+/// Plaid mode; in fake mode, a warning that Plaid data is synthetic and carries
+/// `source: demo`. A bad configuration exits with status 78 and the key it names. Stop it
+/// with Ctrl-C.
 library;
 
 import 'dart:async';
@@ -30,7 +31,8 @@ Future<void> main() async {
   }
   final logs = configureLogging(config.logFormat, stdout);
   final db = AppDatabase.open(config.databasePath);
-  final app = ServerApp(config: config, db: db);
+  final plaid = await FakePlaidClient.load(now: DateTime.now);
+  final app = ServerApp(config: config, db: db, plaid: plaid);
 
   final seedEmail = config.seedUserEmail;
   if (seedEmail != null) {
@@ -52,6 +54,9 @@ Future<void> main() async {
   stdout.writeln(
     'Serving http://${server.address.host}:${server.port}/v1 '
     '(Plaid: ${config.plaidMode.name})',
+  );
+  stdout.writeln(
+    'WARNING: fake Plaid mode. Plaid data is synthetic and carries source: demo.',
   );
 
   late final StreamSubscription<ProcessSignal> stop;

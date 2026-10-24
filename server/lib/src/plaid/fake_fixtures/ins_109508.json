@@ -1,0 +1,265 @@
+{
+  "institution": {
+    "institution_id": "ins_109508",
+    "name": "First Platypus Bank"
+  },
+  "products": ["transactions", "liabilities"],
+  "accounts": [
+    {
+      "account_id": "checking",
+      "name": "Plaid Checking",
+      "official_name": "Plaid Gold Standard 0% Interest Checking",
+      "mask": "0000",
+      "type": "depository",
+      "subtype": "checking",
+      "balances": {
+        "current": "1210.43",
+        "available": "1180.43",
+        "limit": null,
+        "iso_currency_code": "USD",
+        "unofficial_currency_code": null
+      }
+    },
+    {
+      "account_id": "savings",
+      "name": "Plaid Saving",
+      "official_name": "Plaid Silver Standard 0.1% Interest Saving",
+      "mask": "1111",
+      "type": "depository",
+      "subtype": "savings",
+      "balances": {
+        "current": "5200",
+        "available": "5200",
+        "limit": null,
+        "iso_currency_code": "USD",
+        "unofficial_currency_code": null
+      }
+    },
+    {
+      "account_id": "credit",
+      "name": "Plaid Credit Card",
+      "official_name": "Plaid Diamond 12.5% APR Interest Credit Card",
+      "mask": "3333",
+      "type": "credit",
+      "subtype": "credit card",
+      "balances": {
+        "current": "410.27",
+        "available": "1589.73",
+        "limit": "2000",
+        "iso_currency_code": "USD",
+        "unofficial_currency_code": null
+      }
+    }
+  ],
+  "transactions": [
+    {
+      "transaction_id": "tx01",
+      "account_id": "checking",
+      "amount": "-2500",
+      "iso_currency_code": "USD",
+      "date": "2026-09-30",
+      "authorized_date": "2026-09-30",
+      "pending": false,
+      "pending_transaction_id": null,
+      "name": "ACME CORP PAYROLL",
+      "merchant_name": null,
+      "logo_url": null,
+      "personal_finance_category": {"primary": "INCOME", "detailed": "INCOME_WAGES", "confidence_level": "VERY_HIGH"}
+    },
+    {
+      "transaction_id": "tx02",
+      "account_id": "checking",
+      "amount": "1450",
+      "iso_currency_code": "USD",
+      "date": "2026-10-01",
+      "authorized_date": "2026-10-01",
+      "pending": false,
+      "pending_transaction_id": null,
+      "name": "RENT PAYMENT OAKWOOD APTS",
+      "merchant_name": null,
+      "logo_url": null,
+      "personal_finance_category": {"primary": "RENT_AND_UTILITIES", "detailed": "RENT_AND_UTILITIES_RENT", "confidence_level": "HIGH"}
+    },
+    {
+      "transaction_id": "tx03",
+      "account_id": "credit",
+      "amount": "15.49",
+      "iso_currency_code": "USD",
+      "date": "2026-10-01",
+      "authorized_date": "2026-09-30",
+      "pending": false,
+      "pending_transaction_id": null,
+      "name": "NETFLIX.COM",
+      "merchant_name": "Netflix",
+      "logo_url": "https://plaid-merchant-logos.plaid.com/netflix_1.png",
+      "personal_finance_category": {"primary": "ENTERTAINMENT", "detailed": "ENTERTAINMENT_TV_AND_MOVIES", "confidence_level": "VERY_HIGH"}
+    },
+    {
+      "transaction_id": "tx04",
+      "account_id": "credit",
+      "amount": "84.12",
+      "iso_currency_code": "USD",
+      "date": "2026-10-03",
+      "authorized_date": "2026-10-02",
+      "pending": false,
+      "pending_transaction_id": null,
+      "name": "WHOLEFDS MKT 10234",
+      "merchant_name": "Whole Foods",
+      "logo_url": null,
+      "personal_finance_category": {"primary": "FOOD_AND_DRINK", "detailed": "FOOD_AND_DRINK_GROCERIES", "confidence_level": "HIGH"}
+    },
+    {
+      "transaction_id": "tx05",
+      "account_id": "credit",
+      "amount": "5.75",
+      "iso_currency_code": "USD",
+      "date": "2026-10-06",
+      "authorized_date": "2026-10-06",
+      "pending": false,
+      "pending_transaction_id": null,
+      "name": "STARBUCKS STORE 0451",
+      "merchant_name": "Starbucks",
+      "logo_url": null,
+      "personal_finance_category": {"primary": "FOOD_AND_DRINK", "detailed": "FOOD_AND_DRINK_COFFEE", "confidence_level": "VERY_HIGH"}
+    },
+    {
+      "transaction_id": "tx06",
+      "account_id": "checking",
+      "amount": "62.30",
+      "iso_currency_code": "USD",
+      "date": "2026-10-08",
+      "authorized_date": "2026-10-07",
+      "pending": false,
+      "pending_transaction_id": null,
+      "name": "PACIFIC GAS AND ELECTRIC",
+      "merchant_name": "PG&E",
+      "logo_url": null,
+      "personal_finance_category": {"primary": "RENT_AND_UTILITIES", "detailed": "RENT_AND_UTILITIES_GAS_AND_ELECTRICITY", "confidence_level": "HIGH"}
+    },
+    {
+      "transaction_id": "tx07",
+      "account_id": "checking",
+      "amount": "200",
+      "iso_currency_code": "USD",
+      "date": "2026-10-10",
+      "authorized_date": "2026-10-10",
+      "pending": false,
+      "pending_transaction_id": null,
+      "name": "TRANSFER TO SAVINGS",
+      "merchant_name": null,
+      "logo_url": null,
+      "personal_finance_category": {"primary": "TRANSFER_OUT", "detailed": "TRANSFER_OUT_SAVINGS", "confidence_level": "HIGH"}
+    },
+    {
+      "transaction_id": "tx08",
+      "account_id": "savings",
+      "amount": "-200",
+      "iso_currency_code": "USD",
+      "date": "2026-10-10",
+      "authorized_date": "2026-10-10",
+      "pending": false,
+      "pending_transaction_id": null,
+      "name": "TRANSFER FROM CHECKING",
+      "merchant_name": null,
+      "logo_url": null,
+      "personal_finance_category": {"primary": "TRANSFER_IN", "detailed": "TRANSFER_IN_SAVINGS", "confidence_level": "HIGH"}
+    },
+    {
+      "transaction_id": "tx09",
+      "account_id": "credit",
+      "amount": "23.40",
+      "iso_currency_code": "USD",
+      "date": "2026-10-13",
+      "authorized_date": "2026-10-12",
+      "pending": false,
+      "pending_transaction_id": null,
+      "name": "UBER *TRIP",
+      "merchant_name": "Uber",
+      "logo_url": null,
+      "personal_finance_category": {"primary": "TRANSPORTATION", "detailed": "TRANSPORTATION_TAXIS_AND_RIDE_SHARES", "confidence_level": "VERY_HIGH"}
+    },
+    {
+      "transaction_id": "tx10",
+      "account_id": "credit",
+      "amount": "112.99",
+      "iso_currency_code": "USD",
+      "date": "2026-10-16",
+      "authorized_date": "2026-10-15",
+      "pending": false,
+      "pending_transaction_id": null,
+      "name": "AMAZON MKTPL",
+      "merchant_name": "Amazon",
+      "logo_url": null,
+      "personal_finance_category": {"primary": "GENERAL_MERCHANDISE", "detailed": "GENERAL_MERCHANDISE_ONLINE_MARKETPLACES", "confidence_level": "HIGH"}
+    },
+    {
+      "transaction_id": "tx11",
+      "account_id": "checking",
+      "amount": "40",
+      "iso_currency_code": "USD",
+      "date": "2026-10-20",
+      "authorized_date": "2026-10-20",
+      "pending": false,
+      "pending_transaction_id": null,
+      "name": "ATM WITHDRAWAL 7731",
+      "merchant_name": null,
+      "logo_url": null,
+      "personal_finance_category": {"primary": "TRANSFER_OUT", "detailed": "TRANSFER_OUT_WITHDRAWAL", "confidence_level": "MEDIUM"}
+    },
+    {
+      "transaction_id": "tx12",
+      "account_id": "credit",
+      "amount": "18.60",
+      "iso_currency_code": "USD",
+      "date": "2026-10-22",
+      "authorized_date": "2026-10-22",
+      "pending": true,
+      "pending_transaction_id": null,
+      "name": "CHIPOTLE 2214",
+      "merchant_name": "Chipotle",
+      "logo_url": null,
+      "personal_finance_category": {"primary": "FOOD_AND_DRINK", "detailed": "FOOD_AND_DRINK_FAST_FOOD", "confidence_level": "HIGH"}
+    }
+  ],
+  "recurring": {
+    "inflow_streams": [],
+    "outflow_streams": [
+      {
+        "stream_id": "stream-netflix",
+        "account_id": "credit",
+        "description": "NETFLIX.COM",
+        "merchant_name": "Netflix",
+        "frequency": "MONTHLY",
+        "average_amount": {"amount": "15.49", "iso_currency_code": "USD", "unofficial_currency_code": null},
+        "last_date": "2026-10-01",
+        "predicted_next_date": "2026-11-01",
+        "is_active": true,
+        "status": "MATURE"
+      }
+    ]
+  },
+  "liabilities": {
+    "credit": [
+      {
+        "account_id": "credit",
+        "aprs": [
+          {
+            "apr_percentage": "12.5",
+            "apr_type": "purchase_apr",
+            "balance_subject_to_apr": "410.27",
+            "interest_charge_amount": "4.27"
+          }
+        ],
+        "is_overdue": false,
+        "last_payment_amount": "168.25",
+        "last_payment_date": "2026-09-22",
+        "last_statement_issue_date": "2026-09-28",
+        "last_statement_balance": "389.80",
+        "minimum_payment_amount": "25",
+        "next_payment_due_date": "2026-10-28"
+      }
+    ],
+    "mortgage": [],
+    "student": []
+  }
+}

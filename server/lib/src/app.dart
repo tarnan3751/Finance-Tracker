@@ -13,12 +13,17 @@ import 'package:finance_tracker_server/src/auth/auth_service.dart';
 import 'package:finance_tracker_server/src/auth/password_hasher.dart';
 import 'package:finance_tracker_server/src/config.dart';
 import 'package:finance_tracker_server/src/contract_version.dart';
+import 'package:finance_tracker_server/src/data/data_routes.dart';
 import 'package:finance_tracker_server/src/db/database.dart';
 import 'package:finance_tracker_server/src/http/api_route.dart';
 import 'package:finance_tracker_server/src/http/pipeline.dart';
 import 'package:finance_tracker_server/src/http/problem.dart';
 import 'package:finance_tracker_server/src/http/rate_limiter.dart';
 import 'package:finance_tracker_server/src/http/wire.dart';
+import 'package:finance_tracker_server/src/plaid/item_service.dart';
+import 'package:finance_tracker_server/src/plaid/plaid_client.dart';
+import 'package:finance_tracker_server/src/plaid/plaid_routes.dart';
+import 'package:finance_tracker_server/src/plaid/token_cipher.dart';
 import 'package:finance_tracker_server/src/sync/change_log_relay.dart';
 import 'package:finance_tracker_server/src/sync/sync_routes.dart';
 import 'package:finance_tracker_server/src/users/user_routes.dart';
@@ -28,13 +33,15 @@ import 'package:shelf_router/shelf_router.dart';
 
 /// The server: its services, routes and handler.
 final class ServerApp {
-  /// A server over [db] configured by [config]. [now] is the clock (UTC), [clientIp] keys
-  /// the rate limiter.
+  /// A server over [db] and [plaid] configured by [config]. [now] is the clock (UTC),
+  /// [clientIp] keys the rate limiter, [delay] waits between Plaid retries.
   ServerApp({
     required this.config,
     required this.db,
+    required this.plaid,
     DateTime Function()? now,
     String Function(Request)? clientIp,
+    Future<void> Function(Duration)? delay,
   }) : now = now ?? DateTime.now,
        clientIp = clientIp ?? socketClientIp {
     auth = AuthService(
@@ -47,10 +54,19 @@ final class ServerApp {
       ),
       now: this.now,
     );
+    items = ItemService(
+      db: db,
+      plaid: plaid,
+      cipher: TokenCipher(config.tokenEncryptionKey),
+      now: this.now,
+      delay: delay,
+    );
     limiter = RateLimiter(now: this.now);
     routes = [
       ...authRoutes(auth),
       ...userRoutes(db: db, auth: auth),
+      ...plaidRoutes(items),
+      ...dataRoutes(db),
       ...syncRoutes(ChangeLogRelay(db: db, now: this.now)),
       ApiRoute(
         'getHealth',
@@ -68,6 +84,9 @@ final class ServerApp {
   /// The database.
   final AppDatabase db;
 
+  /// The Plaid client.
+  final PlaidClient plaid;
+
   /// The server's clock.
   final DateTime Function() now;
 
@@ -76,6 +95,9 @@ final class ServerApp {
 
   /// Authentication.
   late final AuthService auth;
+
+  /// Plaid Items.
+  late final ItemService items;
 
   /// The token bucket.
   late final RateLimiter limiter;
