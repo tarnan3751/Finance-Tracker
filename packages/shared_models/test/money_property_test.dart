@@ -1,4 +1,4 @@
-// Randomized property tests for Money. Deterministic by default: every property draws from
+// Randomized property tests for Money and the HLC packed form. Deterministic by default: every property draws from
 // `Random(seed)` with the default seed 20261024; set SHARED_MODELS_SEED to another integer
 // to explore (`SHARED_MODELS_SEED=7 dart test test/money_property_test.dart`). A failure's
 // reason names the seed, the case index and the inputs, so it reproduces exactly.
@@ -120,6 +120,21 @@ void main() {
       isTrue,
       reason:
           '${at()}: $money * $up/$down by ${mode.name} = $there, back $back',
+    );
+  });
+
+  property('packed HLC strings sort as compareTo', (r, at) {
+    Hlc next() => Hlc(
+      r.nextBool() ? r.nextInt(1000) : r.nextInt(1 << 32) * 1000,
+      r.nextInt(3) == 0 ? 0 : r.nextInt(Hlc.maxCounter + 1),
+      ['a', 'b', 'node-1', 'node-10', 'Z'][r.nextInt(5)],
+    );
+    final a = next();
+    final b = next();
+    expect(
+      a.pack().compareTo(b.pack()).sign,
+      a.compareTo(b).sign,
+      reason: '${at()}: $a vs $b',
     );
   });
 }
