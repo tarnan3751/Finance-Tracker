@@ -218,13 +218,13 @@ final class HttpFinanceApi implements FinanceApi {
   );
 
   @override
-  Future<void> logout(String refreshToken) => _call(
+  Future<void> logout(String refreshToken, {String? accessToken}) => _call(
     '/auth/logout',
     (extra) => _client.getAuthApi().logout(
       refreshRequest: _request<api.RefreshRequest>({
         'refresh_token': refreshToken,
       }),
-      extra: {...extra, noRefreshKey: true},
+      extra: {...extra, noRefreshKey: true, accessTokenKey: ?accessToken},
     ),
   );
 

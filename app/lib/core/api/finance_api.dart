@@ -41,9 +41,10 @@ abstract interface class FinanceApi {
   /// `POST /auth/refresh`. The client refreshes on its own; this is for tests and tools.
   Future<AuthResult> refreshTokens(String refreshToken);
 
-  /// `POST /auth/logout` with this device's [refreshToken]. Never refreshed and retried
+  /// `POST /auth/logout` with this device's [refreshToken], authenticated with
+  /// [accessToken] when given, else with the stored session. Never refreshed and retried
   /// on `token_expired`, since the body carries the refresh token a refresh revokes.
-  Future<void> logout(String refreshToken);
+  Future<void> logout(String refreshToken, {String? accessToken});
 
   // me and devices
 

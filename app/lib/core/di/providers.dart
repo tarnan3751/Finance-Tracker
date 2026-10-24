@@ -9,6 +9,7 @@ library;
 
 import 'dart:async';
 
+import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
@@ -122,6 +123,7 @@ List<Override> overridesFor(AppConfig config) => [
     Flavor.dev || Flavor.prod => _driftOverrides,
     Flavor.demo => _demoOverrides,
   },
+  ...apiOverridesFor(config),
 ];
 
 /// dev and prod: the Drift repositories over the encrypted database.

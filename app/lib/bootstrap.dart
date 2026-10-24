@@ -1,6 +1,6 @@
 /// Startup shared by the three entry points: checks the configuration, sets up logging,
-/// time zones and the locale, opens the local data (dev and prod), then runs the app on
-/// its Riverpod container.
+/// time zones and the locale, opens the local data (dev and prod), reads the stored
+/// session, then runs the app on its Riverpod container.
 library;
 
 import 'package:finance_tracker/app.dart';
@@ -14,6 +14,7 @@ import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/logging/app_log.dart';
 import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/time/time_zone_setup.dart';
+import 'package:finance_tracker/features/auth/application/session_controller.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -62,6 +63,9 @@ Future<void> bootstrap(AppConfig config) async {
       return;
     }
   }
+  // The stored session, read before the first frame so the router never shows the
+  // sign-in screen to a signed-in user; GET /me confirms it in the background.
+  await container.read(sessionControllerProvider.notifier).restored();
   runApp(
     UncontrolledProviderScope(
       container: container,
