@@ -6,7 +6,8 @@
 # `dart run bin/server.dart` in server/, which reads server/.env, migrates and seeds the
 # database under server/data/ and serves on 127.0.0.1:8080. Stop it with Ctrl-C.
 # Writes server/.env (gitignored) and server/data/ (gitignored); never touches a device.
-# The server's Plaid mode is fake in Phase 2: it calls no Plaid API.
+# The Plaid mode is PLAID_MODE in server/.env: fake by default (no Plaid API is called);
+# sandbox calls Plaid with the keys in server/.env, which only the owner sets.
 set -euo pipefail
 
 cd "$(dirname "$0")/../server"

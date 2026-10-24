@@ -98,11 +98,72 @@ void main() {
     }
   });
 
-  test('PLAID_MODE=sandbox is refused until Phase 3', () {
+  test('PLAID_MODE=sandbox needs both keys and never echoes them', () {
     expect(
-      () => ServerConfig.fromValues(_valid({'PLAID_MODE': 'sandbox'})),
-      _error('PLAID_MODE'),
+      () => ServerConfig.fromValues(
+        _valid({'PLAID_MODE': 'sandbox', 'PLAID_SECRET': 'secret-value'}),
+      ),
+      throwsA(
+        isA<ConfigException>()
+            .having((e) => e.message, 'message', contains('PLAID_CLIENT_ID'))
+            .having(
+              (e) => e.message,
+              'message',
+              isNot(contains('secret-value')),
+            ),
+      ),
     );
+    expect(
+      () => ServerConfig.fromValues(
+        _valid({'PLAID_MODE': 'sandbox', 'PLAID_CLIENT_ID': 'client-value'}),
+      ),
+      throwsA(
+        isA<ConfigException>()
+            .having((e) => e.message, 'message', contains('PLAID_SECRET'))
+            .having(
+              (e) => e.message,
+              'message',
+              isNot(contains('client-value')),
+            ),
+      ),
+    );
+    final c = ServerConfig.fromValues(
+      _valid({
+        'PLAID_MODE': 'sandbox',
+        'PLAID_CLIENT_ID': 'client-value',
+        'PLAID_SECRET': 'secret-value',
+        'PLAID_WEBHOOK_URL': 'https://tunnel.example/v1/webhooks/plaid',
+      }),
+    );
+    expect(c.plaidMode, PlaidMode.sandbox);
+    expect(c.plaidClientId, 'client-value');
+    expect(c.plaidSecret, 'secret-value');
+    expect(c.plaidWebhookUrl, 'https://tunnel.example/v1/webhooks/plaid');
+  });
+
+  test('PLAID_ENV and PLAID_WEBHOOK_URL are checked', () {
+    for (final env in ['sandbox', 'development', 'production']) {
+      expect(ServerConfig.fromValues(_valid({'PLAID_ENV': env})).plaidEnv, env);
+    }
+    expect(
+      () => ServerConfig.fromValues(_valid({'PLAID_ENV': 'sandbx'})),
+      _error('PLAID_ENV'),
+    );
+    for (final url in [
+      'http://tunnel.example/hook',
+      'tunnel.example/hook',
+      'https://',
+    ]) {
+      expect(
+        () => ServerConfig.fromValues(_valid({'PLAID_WEBHOOK_URL': url})),
+        _error('PLAID_WEBHOOK_URL'),
+        reason: url,
+      );
+    }
+    expect(ServerConfig.fromValues(_valid()).plaidWebhookUrl, isNull);
+  });
+
+  test('PLAID_MODE is fake or sandbox', () {
     expect(
       () => ServerConfig.fromValues(_valid({'PLAID_MODE': 'live'})),
       _error('PLAID_MODE'),

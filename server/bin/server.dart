@@ -2,10 +2,11 @@
 ///
 /// Run from `server/` (`tools/run_server.sh` does): reads `.env` and the environment,
 /// opens and migrates the database at `DATABASE_PATH`, seeds the seed user when one is
-/// configured, and serves `/v1` on `HOST:PORT`. Prints one line with the base URL and the
-/// Plaid mode; in fake mode, a warning that Plaid data is synthetic and carries
-/// `source: demo`. A bad configuration exits with status 78 and the key it names. Stop it
-/// with Ctrl-C.
+/// configured, builds the Plaid client of `PLAID_MODE` (the fake, or the HTTP client
+/// against `PLAID_ENV` with the keys, which are never printed), and serves `/v1` on
+/// `HOST:PORT`. Prints one line with the base URL and the Plaid mode; in fake mode, a
+/// warning that Plaid data is synthetic and carries `source: demo`. A bad configuration
+/// exits with status 78 and the key it names. Stop it with Ctrl-C.
 library;
 
 import 'dart:async';
@@ -31,7 +32,15 @@ Future<void> main() async {
   }
   final logs = configureLogging(config.logFormat, stdout);
   final db = AppDatabase.open(config.databasePath);
-  final plaid = await FakePlaidClient.load(now: DateTime.now);
+  final PlaidClient plaid = switch (config.plaidMode) {
+    PlaidMode.fake => await FakePlaidClient.load(now: DateTime.now),
+    PlaidMode.sandbox => HttpPlaidClient(
+      clientId: config.plaidClientId!,
+      secret: config.plaidSecret!,
+      baseUrl: Uri.parse(plaidBaseUrls[config.plaidEnv]!),
+      webhookUrl: config.plaidWebhookUrl,
+    ),
+  };
   final app = ServerApp(config: config, db: db, plaid: plaid);
 
   final seedEmail = config.seedUserEmail;
@@ -53,16 +62,20 @@ Future<void> main() async {
   final server = await shelf_io.serve(app.handler, config.host, config.port);
   stdout.writeln(
     'Serving http://${server.address.host}:${server.port}/v1 '
-    '(Plaid: ${config.plaidMode.name})',
+    '(Plaid: ${config.plaidMode.name}'
+    '${config.plaidMode == PlaidMode.sandbox ? ' against ${config.plaidEnv}' : ''})',
   );
-  stdout.writeln(
-    'WARNING: fake Plaid mode. Plaid data is synthetic and carries source: demo.',
-  );
+  if (config.plaidMode == PlaidMode.fake) {
+    stdout.writeln(
+      'WARNING: fake Plaid mode. Plaid data is synthetic and carries source: demo.',
+    );
+  }
 
   late final StreamSubscription<ProcessSignal> stop;
   stop = ProcessSignal.sigint.watch().listen((_) async {
     await stop.cancel();
     await server.close();
+    if (plaid is HttpPlaidClient) plaid.close();
     await db.close();
     await logs.cancel();
   });

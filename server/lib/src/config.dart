@@ -22,9 +22,12 @@ final class ConfigException implements Exception {
   String toString() => 'ConfigException: $message';
 }
 
-/// Which `PlaidClient` the server uses. Phase 2 knows only [fake]; `sandbox` arrives with
-/// the real client in Phase 3 and is refused until then.
-enum PlaidMode { fake }
+/// Which `PlaidClient` the server uses: [fake], canned data stamped `source: demo` with no
+/// keys, or [sandbox], the HTTP client against Plaid's `PLAID_ENV` with the keys.
+enum PlaidMode { fake, sandbox }
+
+/// The environments `PLAID_ENV` may name.
+const plaidEnvironments = {'sandbox', 'development', 'production'};
 
 /// How log records are written: one JSON object per line, or a line for a terminal.
 enum LogFormat { json, text }
@@ -70,6 +73,7 @@ final class ServerConfig {
     this.plaidSecret,
     this.plaidEnv = 'sandbox',
     this.plaidMode = PlaidMode.fake,
+    this.plaidWebhookUrl,
     this.seedUserEmail,
     this.seedUserPassword,
     this.argon2 = Argon2Parameters.owaspBaseline,
@@ -127,14 +131,40 @@ final class ServerConfig {
       throw const ConfigException('HOST must be an IP address');
     }
 
-    final mode = value('PLAID_MODE') ?? 'fake';
-    if (mode == 'sandbox') {
+    final plaidMode = switch (value('PLAID_MODE') ?? 'fake') {
+      'fake' => PlaidMode.fake,
+      'sandbox' => PlaidMode.sandbox,
+      _ => throw const ConfigException('PLAID_MODE must be fake or sandbox'),
+    };
+    final plaidClientId = value('PLAID_CLIENT_ID');
+    final plaidSecret = value('PLAID_SECRET');
+    if (plaidMode == PlaidMode.sandbox) {
+      if (plaidClientId == null) {
+        throw const ConfigException(
+          'PLAID_CLIENT_ID is required when PLAID_MODE=sandbox',
+        );
+      }
+      if (plaidSecret == null) {
+        throw const ConfigException(
+          'PLAID_SECRET is required when PLAID_MODE=sandbox',
+        );
+      }
+    }
+    final plaidEnv = value('PLAID_ENV') ?? 'sandbox';
+    if (!plaidEnvironments.contains(plaidEnv)) {
       throw const ConfigException(
-        'PLAID_MODE=sandbox needs the real Plaid client, which arrives in Phase 3; '
-        'use PLAID_MODE=fake',
+        'PLAID_ENV must be sandbox, development or production',
       );
     }
-    if (mode != 'fake') throw const ConfigException('PLAID_MODE must be fake');
+    final webhookUrl = value('PLAID_WEBHOOK_URL');
+    if (webhookUrl != null) {
+      final uri = Uri.tryParse(webhookUrl);
+      if (uri == null || !uri.isScheme('https') || uri.host.isEmpty) {
+        throw const ConfigException(
+          'PLAID_WEBHOOK_URL must be an absolute https URL',
+        );
+      }
+    }
 
     final seedEmail = value('SEED_USER_EMAIL');
     final seedPassword = value('SEED_USER_PASSWORD');
@@ -176,10 +206,11 @@ final class ServerConfig {
       jwtSecret: key('JWT_SECRET', atLeast: 32),
       jwtSecretPrevious: previous.isEmpty ? null : previous,
       tokenEncryptionKey: key('TOKEN_ENCRYPTION_KEY', exactly: 32),
-      plaidClientId: value('PLAID_CLIENT_ID'),
-      plaidSecret: value('PLAID_SECRET'),
-      plaidEnv: value('PLAID_ENV') ?? 'sandbox',
-      plaidMode: PlaidMode.fake,
+      plaidClientId: plaidClientId,
+      plaidSecret: plaidSecret,
+      plaidEnv: plaidEnv,
+      plaidMode: plaidMode,
+      plaidWebhookUrl: webhookUrl,
       seedUserEmail: seedEmail,
       seedUserPassword: seedPassword,
       argon2: Argon2Parameters(
@@ -209,14 +240,21 @@ final class ServerConfig {
   /// The AES-256-GCM key for Plaid access tokens at rest (`TOKEN_ENCRYPTION_KEY`).
   final List<int> tokenEncryptionKey;
 
-  /// Plaid's client id (`PLAID_CLIENT_ID`); unused in fake mode.
+  /// Plaid's client id (`PLAID_CLIENT_ID`); required in sandbox mode, unused in fake mode.
+  /// Never logged.
   final String? plaidClientId;
 
-  /// Plaid's secret (`PLAID_SECRET`); unused in fake mode.
+  /// Plaid's secret (`PLAID_SECRET`); required in sandbox mode, unused in fake mode. Never
+  /// logged.
   final String? plaidSecret;
 
-  /// Plaid's environment (`PLAID_ENV`).
+  /// Plaid's environment (`PLAID_ENV`): `sandbox`, `development` or `production`; it picks
+  /// the real client's base URL.
   final String plaidEnv;
+
+  /// Where Plaid delivers webhooks (`PLAID_WEBHOOK_URL`, a tunnel to `POST
+  /// /v1/webhooks/plaid`), named in Link and Sandbox tokens; null to rely on polling.
+  final String? plaidWebhookUrl;
 
   /// Whether the Sandbox controls (`/sandbox/...`) may run: only against Plaid's Sandbox
   /// environment, which the fake client stands in for; never in production.
