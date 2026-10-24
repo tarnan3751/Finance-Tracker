@@ -1,0 +1,61 @@
+# CI: the gate on every push and pull request, then the demo debug APK as an artifact and
+# the prod release build as the R8 and obfuscation canary. The Flutter version comes from
+# .fvmrc, so CI runs the same SDK as every lane. The signed release-on-tag workflow is
+# Phase 9.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - id: fvm
+        run: echo "flutter=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.fvm.outputs.flutter }}
+          channel: stable
+          cache: true
+      - run: tools/gates.sh
+
+  apk:
+    needs: gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - id: fvm
+        run: echo "flutter=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.fvm.outputs.flutter }}
+          channel: stable
+          cache: true
+      - name: Build the demo debug APK
+        working-directory: app
+        run: flutter build apk --debug --flavor demo -t lib/main_demo.dart
+      - uses: actions/upload-artifact@v7
+        with:
+          name: finance-tracker-demo-debug
+          path: app/build/app/outputs/flutter-apk/app-demo-debug.apk
+          retention-days: 14
+      - name: Build the prod release APK (R8 and obfuscation canary)
+        working-directory: app
+        run: >-
+          flutter build apk --release --flavor prod -t lib/main_prod.dart
+          --obfuscate --split-debug-info=build/symbols
