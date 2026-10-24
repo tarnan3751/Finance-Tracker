@@ -52,6 +52,80 @@ void main() {
     }
   });
 
+  test('with a mode, extra digits round as text (half-even here)', () {
+    for (final (text, minor) in <(String, int)>[
+      ('10.021521', 1002),
+      ('342.099285', 34210),
+      ('19.569999999999997', 1957),
+      ('12.650000000000002', 1265),
+      ('6.0424743', 604),
+      ('0.125', 12),
+      ('0.135', 14),
+      ('-0.125', -12),
+      ('-0.135', -14),
+      ('0.1250001', 13),
+      ('-0.004', 0),
+      ('12.34', 1234),
+      ('92233720368547758.0749', 9223372036854775807),
+    ]) {
+      expect(
+        plaidMoney(text, 'USD', rounding: RoundingMode.halfEven),
+        Money(minor, 'USD'),
+        reason: text,
+      );
+    }
+    expect(
+      plaidMoney('1.5', 'JPY', rounding: RoundingMode.halfEven),
+      Money(2, 'JPY'),
+    );
+    expect(
+      plaidMoney('2.5', 'JPY', rounding: RoundingMode.halfEven),
+      Money(2, 'JPY'),
+    );
+    expect(
+      () => plaidMoney(
+        '92233720368547758.075',
+        'USD',
+        rounding: RoundingMode.halfEven,
+      ),
+      throwsFormatException,
+    );
+    expect(
+      () => plaidMoney(1.5, 'USD', rounding: RoundingMode.halfEven),
+      throwsArgumentError,
+    );
+  });
+
+  test('every mode decides a dropped remainder', () {
+    Money round(String text, RoundingMode mode) =>
+        plaidMoney(text, 'USD', rounding: mode);
+    expect(round('1.005', RoundingMode.halfUp), Money(101, 'USD'));
+    expect(round('1.005', RoundingMode.halfDown), Money(100, 'USD'));
+    expect(round('1.001', RoundingMode.up), Money(101, 'USD'));
+    expect(round('1.009', RoundingMode.down), Money(100, 'USD'));
+    expect(round('-1.001', RoundingMode.ceiling), Money(-100, 'USD'));
+    expect(round('-1.001', RoundingMode.floor), Money(-101, 'USD'));
+    expect(round('1.001', RoundingMode.ceiling), Money(101, 'USD'));
+  });
+
+  test('with a mode, exponent forms are expanded exactly', () {
+    expect(expandPlaidExponent('1e-07'), '0.0000001');
+    expect(expandPlaidExponent('1.5e-07'), '0.00000015');
+    expect(expandPlaidExponent('-2.5E+3'), '-2500');
+    expect(expandPlaidExponent('1.2345e2'), '123.45');
+    expect(expandPlaidExponent('12.5'), '12.5');
+    expect(
+      plaidMoney('1e-07', 'USD', rounding: RoundingMode.halfEven),
+      Money(0, 'USD'),
+    );
+    expect(
+      plaidMoney('1.2345e2', 'USD', rounding: RoundingMode.halfEven),
+      Money(12345, 'USD'),
+    );
+    expect(plaidDecimal('1.5e-3', exponents: true), '0.0015');
+    expect(() => plaidDecimal('1.5e-3'), throwsFormatException);
+  });
+
   test('optionalPlaidMoney and plaidDecimal', () {
     expect(optionalPlaidMoney(null, 'USD'), isNull);
     expect(plaidDecimal('10.4234'), '10.4234');
