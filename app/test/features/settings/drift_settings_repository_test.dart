@@ -2,6 +2,7 @@
 // values it does not recognize.
 import 'package:drift/native.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
+import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/settings/data/drift_settings_repository.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,6 +14,7 @@ void main() {
   runSettingsRepositoryContract(
     () async => DriftSettingsRepository(
       database = AppDatabase(NativeDatabase.memory()),
+      recorder: const NoChangeRecorder(),
     ),
     dispose: () => database.close(),
   );
@@ -25,14 +27,20 @@ void main() {
       "('theme_mode', '\"sepia\"'), ('use_dynamic_color', 'not json')",
     );
     expect(
-      await DriftSettingsRepository(database).read(),
+      await DriftSettingsRepository(
+        database,
+        recorder: const NoChangeRecorder(),
+      ).read(),
       const Settings.defaults(),
     );
     await database.customStatement(
       "UPDATE app_settings SET value = 'false' WHERE key = 'use_dynamic_color'",
     );
     expect(
-      await DriftSettingsRepository(database).read(),
+      await DriftSettingsRepository(
+        database,
+        recorder: const NoChangeRecorder(),
+      ).read(),
       const Settings.defaults().copyWith(useDynamicColor: false),
     );
   });

@@ -4,14 +4,24 @@ library;
 
 import 'dart:async';
 
+import 'package:finance_tracker/core/sync/change_recorder.dart';
+import 'package:finance_tracker/core/sync/entity_codec.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
 import 'package:finance_tracker/features/settings/domain/settings_repository.dart';
+import 'package:shared_models/shared_models.dart';
 
-/// Settings kept in memory for the life of the object.
+/// Settings kept in memory for the life of the object. Every save records the fields it
+/// changed in the settings record through [recorder], as an update against the current
+/// settings.
 base class InMemorySettingsRepository implements SettingsRepository {
-  /// A repository holding [initial], or the defaults.
-  InMemorySettingsRepository([Settings initial = const Settings.defaults()])
-    : _current = initial;
+  /// A repository holding [initial], or the defaults, recording through [recorder].
+  InMemorySettingsRepository({
+    required this.recorder,
+    Settings initial = const Settings.defaults(),
+  }) : _current = initial;
+
+  /// Where the saves are recorded.
+  final ChangeRecorder recorder;
 
   Settings _current;
   final StreamController<Settings> _changes =
@@ -32,8 +42,15 @@ base class InMemorySettingsRepository implements SettingsRepository {
 
   @override
   Future<void> save(Settings settings) async {
+    final Map<String, Object?> before = settingsRecordJson(_current);
     _current = settings;
     _changes.add(settings);
+    await recorder.record(
+      EntityType.settings,
+      settingsRecordId,
+      before,
+      settingsRecordJson(settings),
+    );
   }
 
   /// Ends every watcher's stream.

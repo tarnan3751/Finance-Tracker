@@ -1,0 +1,275 @@
+// The recording contract: every user-authored write of the account, transaction,
+// category and settings repositories records exactly one change-log entry per entity it
+// changed, and nothing else is recorded (Plaid rows only through their five overrides;
+// derived and demo transactions, linked accounts and the seeding never). The Drift and
+// in-memory implementations run it from test/core/sync/; the demo one records nothing.
+import 'package:finance_tracker/core/sync/entity_codec.dart';
+import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
+import 'package:finance_tracker/features/settings/domain/settings.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_models/shared_models.dart';
+import 'package:sync_engine/sync_engine.dart';
+
+import 'repository_fixture.dart';
+
+/// Registers the recording tests for the fixtures [create] builds, each with a sync store.
+void runRecordingContract(
+  Future<RepositoryFixture> Function() create, {
+  Future<void> Function()? dispose,
+}) {
+  group('recording contract', () {
+    late RepositoryFixture f;
+    late SyncStore sync;
+
+    setUp(() async {
+      f = await create();
+      sync = f.syncStore!;
+    });
+    if (dispose != null) tearDown(dispose);
+
+    // The entries recorded since the last call, as "type/id operation {fields}".
+    int seen = 0;
+    setUp(() => seen = 0);
+    Future<List<String>> recorded() async {
+      final List<ChangeLogEntry> all = await sync.unsynced(limit: 100000);
+      final List<ChangeLogEntry> fresh = all.sublist(seen);
+      seen = all.length;
+      return [
+        for (final ChangeLogEntry e in fresh)
+          '${snakeName(e.entityType)}/${e.entityId} ${e.operation.name} '
+              '${(e.payload.keys.toList()..sort()).join(',')}',
+      ];
+    }
+
+    const String accountFields =
+        'available_balance,balances_as_of,credit_limit,currency_code,'
+        'current_balance,display_order,id,is_hidden,item_id,mask,name,'
+        'official_name,subtype,type';
+    const String transactionFields =
+        'account_id,amount,authorized_date,created_at,date,deleted_with_account,'
+        'id,merchant_logo_url,merchant_name,name,notes,pending,'
+        'pending_transaction_id,plaid_detailed_category,plaid_primary_category,'
+        'receipt_path,source,splits,sync_version,tags,updated_at,user_category_id';
+
+    test('an account: a create, then an update of what changed', () async {
+      await f.accounts.upsert(testAccount('a1'));
+      expect(await recorded(), ['account/a1 create $accountFields']);
+      await f.accounts.upsert(testAccount('a1', name: 'Renamed'));
+      expect(await recorded(), ['account/a1 update name']);
+      await f.accounts.upsert(testAccount('a1', name: 'Renamed'));
+      expect(await recorded(), isEmpty);
+    });
+
+    test('a create with an opening balance records both', () async {
+      await f.accounts.create(
+        testAccount('a1'),
+        openingBalance: testTransaction('t1', 'a1', 1000),
+      );
+      expect(await recorded(), [
+        'account/a1 create $accountFields',
+        'transaction/t1 create $transactionFields',
+      ]);
+    });
+
+    test('a refused write records nothing', () async {
+      await expectLater(
+        f.accounts.create(
+          testAccount('a1'),
+          openingBalance: testTransaction('t1', 'a1', 1000, currency: 'EUR'),
+        ),
+        throwsA(isA<CurrencyMismatchException>()),
+      );
+      await expectLater(
+        f.transactions.upsert(testTransaction('t2', 'nowhere', 1)),
+        throwsA(isA<AccountNotFoundException>()),
+      );
+      expect(await recorded(), isEmpty);
+    });
+
+    test(
+      'an account delete and restore record the account and each transaction '
+      'they change',
+      () async {
+        await f.accounts.upsert(testAccount('a1'));
+        for (final String id in ['t1', 't2', 't3']) {
+          await f.transactions.upsert(testTransaction(id, 'a1', -100));
+        }
+        await f.transactions.delete('t3');
+        await recorded();
+
+        await f.accounts.delete('a1');
+        final List<String> deleted = await recorded();
+        expect(deleted, hasLength(3));
+        expect(deleted, contains('account/a1 delete deleted_at'));
+        expect(
+          deleted,
+          containsAll([
+            'transaction/t1 delete deleted_at,deleted_with_account,updated_at',
+            'transaction/t2 delete deleted_at,deleted_with_account,updated_at',
+          ]),
+        );
+
+        await f.accounts.restore('a1');
+        final List<String> restored = await recorded();
+        expect(restored, hasLength(3));
+        expect(restored, contains('account/a1 update deleted_at'));
+        expect(
+          restored,
+          containsAll([
+            'transaction/t1 update deleted_at,deleted_with_account,updated_at',
+            'transaction/t2 update deleted_at,deleted_with_account,updated_at',
+          ]),
+        );
+        await f.accounts.delete('missing');
+        await f.accounts.restore('a1');
+        expect(await recorded(), isEmpty);
+      },
+    );
+
+    test('a transaction: create, update, delete, restore', () async {
+      await f.accounts.upsert(testAccount('a1'));
+      await recorded();
+      final Transaction t = testTransaction('t1', 'a1', -100, tags: ['a']);
+      await f.transactions.upsert(t);
+      expect(await recorded(), ['transaction/t1 create $transactionFields']);
+      await f.transactions.upsert(t.copyWith(tags: ['b', 'a'], notes: 'n'));
+      expect(await recorded(), ['transaction/t1 update notes,tags']);
+      await f.transactions.delete('t1');
+      expect(await recorded(), ['transaction/t1 delete deleted_at,updated_at']);
+      await f.transactions.restore('t1');
+      expect(await recorded(), ['transaction/t1 update deleted_at,updated_at']);
+    });
+
+    test('a delete records the delete instant as the tombstone', () async {
+      await f.accounts.upsert(testAccount('a1'));
+      await f.transactions.upsert(testTransaction('t1', 'a1', -100));
+      await f.transactions.delete('t1');
+      final ChangeLogEntry delete = (await sync.unsynced()).last;
+      expect(delete.operation, ChangeOperation.delete);
+      expect(
+        delete.payload[deletedAtField],
+        const UtcInstantConverter().toJson(delete.hlc.wall),
+      );
+    });
+
+    test('a Plaid transaction records only the user-owned fields', () async {
+      await f.accounts.upsert(testAccount('a1'));
+      await recorded();
+      final Transaction plaid = testTransaction(
+        'p1',
+        'a1',
+        -100,
+      ).copyWith(source: DataSource.plaid);
+      await f.transactions.upsert(plaid);
+      expect(await recorded(), isEmpty, reason: 'Plaid creates its own rows');
+      await f.transactions.upsert(
+        plaid.copyWith(
+          name: 'Renamed by Plaid',
+          notes: 'mine',
+          tags: ['x'],
+          userCategoryId: 'c1',
+        ),
+      );
+      expect(await recorded(), [
+        'transaction/p1 update notes,tags,user_category_id',
+      ]);
+      await f.transactions.delete('p1');
+      expect(await recorded(), isEmpty);
+    });
+
+    test(
+      'derived and demo transactions and linked accounts are not recorded',
+      () async {
+        await f.accounts.upsert(testAccount('a1'));
+        await recorded();
+        for (final DataSource source in [DataSource.derived, DataSource.demo]) {
+          final Transaction t = testTransaction(
+            't-${source.name}',
+            'a1',
+            -1,
+          ).copyWith(source: source);
+          await f.transactions.upsert(t);
+          await f.transactions.upsert(t.copyWith(notes: 'n'));
+          await f.transactions.delete(t.id);
+        }
+        await f.accounts.upsert(
+          testAccount('linked').copyWith(itemId: 'item-1', name: 'Bank'),
+        );
+        await f.accounts.upsert(
+          testAccount('linked').copyWith(itemId: 'item-1', name: 'Renamed'),
+        );
+        expect(await recorded(), isEmpty);
+      },
+    );
+
+    test(
+      'categories: the seeding is not recorded, edits and deletes are',
+      () async {
+        await f.categories.ensureSeeded();
+        expect(await recorded(), isEmpty);
+        final Category food = (await f.categories
+            .watchById('plaid:FOOD_AND_DRINK')
+            .first)!;
+        await f.categories.upsert(food.copyWith(icon: 'cake'));
+        expect(await recorded(), ['category/plaid:FOOD_AND_DRINK update icon']);
+
+        const Category parent = Category(
+          id: 'u1',
+          name: 'Hobbies',
+          isSystem: false,
+          icon: 'palette',
+          color: 1,
+        );
+        await f.categories.upsert(parent);
+        await f.categories.upsert(
+          parent.copyWith(id: 'u2', name: 'Paint', parentId: 'u1'),
+        );
+        expect(await recorded(), [
+          'category/u1 create color,icon,id,is_system,name,parent_id,plaid_category',
+          'category/u2 create color,icon,id,is_system,name,parent_id,plaid_category',
+        ]);
+        await f.categories.delete('u1');
+        expect(
+          await recorded(),
+          unorderedEquals([
+            'category/u1 delete deleted_at',
+            'category/u2 delete deleted_at',
+          ]),
+        );
+      },
+    );
+
+    test(
+      'settings: each save an update of what changed, from the defaults',
+      () async {
+        await f.settings.save(
+          const Settings(themeMode: AppThemeMode.dark, useDynamicColor: true),
+        );
+        expect(await recorded(), ['settings/local update theme_mode']);
+        await f.settings.save(
+          const Settings(themeMode: AppThemeMode.dark, useDynamicColor: false),
+        );
+        expect(await recorded(), ['settings/local update use_dynamic_color']);
+      },
+    );
+
+    test(
+      'each entry carries the values written, at increasing clocks',
+      () async {
+        await f.accounts.upsert(testAccount('a1'));
+        await f.accounts.upsert(testAccount('a1', displayOrder: 3));
+        final List<ChangeLogEntry> entries = await sync.unsynced();
+        expect(entries.last.payload, {'display_order': 3});
+        expect(entries.first.payload['name'], 'Account a1');
+        expect(entries.first.hlc.compareTo(entries.last.hlc), lessThan(0));
+        expect(entries.every((e) => !e.synced), isTrue);
+        final EntityRecord record = (await sync.read(
+          EntityType.account,
+          'a1',
+        ))!;
+        expect(record.fields['display_order'], 3);
+        expect(record.isComplete, isTrue);
+      },
+    );
+  });
+}

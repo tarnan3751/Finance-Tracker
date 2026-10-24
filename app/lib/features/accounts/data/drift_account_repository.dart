@@ -7,19 +7,29 @@ import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/converters.dart';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/db/repository_support.dart';
+import 'package:finance_tracker/core/sync/change_recorder.dart';
+import 'package:finance_tracker/core/sync/entity_codec.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
 import 'package:finance_tracker/features/transactions/data/drift_transaction_repository.dart';
 import 'package:shared_models/shared_models.dart';
 
 /// Accounts in [AppDatabase]. Audit fields are stamped from the clock: `created_at` on
-/// insert, `updated_at` on every write, `deleted_at` on delete.
+/// insert, `updated_at` on every write, `deleted_at` on delete. Every write records the
+/// account, and each transaction a delete or restore changes, through [_recorder] in the
+/// same database transaction.
 final class DriftAccountRepository implements AccountRepository {
-  /// The repository over [_database], stamping writes from [_clock].
-  DriftAccountRepository(this._database, this._clock);
+  /// The repository over [_database], stamping writes from [_clock] and recording them
+  /// through `recorder`.
+  DriftAccountRepository(
+    this._database,
+    this._clock, {
+    required this._recorder,
+  });
 
   final AppDatabase _database;
   final Clock _clock;
+  final ChangeRecorder _recorder;
 
   $AccountsTable get _accounts => _database.accounts;
 
@@ -72,6 +82,12 @@ final class DriftAccountRepository implements AccountRepository {
       }
     }
     await _database.into(_accounts).insertOnConflictUpdate(row);
+    await _recorder.record(
+      EntityType.account,
+      account.id,
+      existing == null ? null : accountRecordJson(accountFromRow(existing)),
+      accountRecordJson(account),
+    );
   });
 
   @override
@@ -91,13 +107,14 @@ final class DriftAccountRepository implements AccountRepository {
         await DriftTransactionRepository(
           _database,
           _clock,
+          recorder: _recorder,
         ).upsert(openingBalance);
       }
     });
   }
 
   @override
-  Future<void> delete(String id) => _database.transaction(() async {
+  Future<void> delete(String id) => _recorded(id, () async {
     final DateTime now = _clock.nowUtc();
     final int changed =
         await (_database.update(
@@ -105,7 +122,7 @@ final class DriftAccountRepository implements AccountRepository {
         )..where((a) => a.id.equals(id) & a.deletedAt.isNull())).write(
           AccountsCompanion(deletedAt: Value(now), updatedAt: Value(now)),
         );
-    if (changed == 0) return;
+    if (changed == 0) return false;
     await (_database.update(
       _database.transactions,
     )..where((t) => t.accountId.equals(id) & t.deletedAt.isNull())).write(
@@ -115,10 +132,11 @@ final class DriftAccountRepository implements AccountRepository {
         deletedWithAccount: const Value(true),
       ),
     );
+    return true;
   });
 
   @override
-  Future<void> restore(String id) => _database.transaction(() async {
+  Future<void> restore(String id) => _recorded(id, () async {
     final DateTime now = _clock.nowUtc();
     final int changed =
         await (_database.update(
@@ -129,7 +147,7 @@ final class DriftAccountRepository implements AccountRepository {
             updatedAt: Value(now),
           ),
         );
-    if (changed == 0) return;
+    if (changed == 0) return false;
     await (_database.update(_database.transactions)..where(
           (t) => t.accountId.equals(id) & t.deletedWithAccount.equals(true),
         ))
@@ -140,7 +158,56 @@ final class DriftAccountRepository implements AccountRepository {
             deletedWithAccount: const Value(false),
           ),
         );
+    return true;
   });
+
+  // Runs [write], a delete or restore of account [id] that says whether it changed
+  // anything, in one transaction with the records of the account and of each of its
+  // transactions it changed: one entry per entity.
+  Future<void> _recorded(String id, Future<bool> Function() write) =>
+      _database.transaction(() async {
+        final _Snapshot before = await _snapshot(id);
+        if (!await write()) return;
+        final _Snapshot after = await _snapshot(id);
+        await _recorder.record(
+          EntityType.account,
+          id,
+          before.account,
+          after.account!,
+        );
+        await recordEach(
+          _recorder,
+          EntityType.transaction,
+          before.transactions,
+          after.transactions,
+        );
+      });
+
+  // The record fields of account [id] and of every transaction on it.
+  Future<_Snapshot> _snapshot(String id) async {
+    final AccountRow? row = await (_database.select(
+      _accounts,
+    )..where((a) => a.id.equals(id))).getSingleOrNull();
+    final List<TransactionRow> rows = await (_database.select(
+      _database.transactions,
+    )..where((t) => t.accountId.equals(id))).get();
+    final List<Transaction> transactions = await transactionsWithChildren(
+      _database,
+      rows,
+    );
+    return (
+      account: row == null
+          ? null
+          : accountRecordJson(accountFromRow(row), deletedAt: row.deletedAt),
+      transactions: {
+        for (int i = 0; i < rows.length; i++)
+          rows[i].id: transactionRecordJson(
+            transactions[i],
+            deletedWithAccount: rows[i].deletedWithAccount,
+          ),
+      },
+    );
+  }
 
   @override
   Stream<Money?> watchDerivedBalance(String id) =>
@@ -174,6 +241,11 @@ final class DriftAccountRepository implements AccountRepository {
         },
       );
 }
+
+typedef _Snapshot = ({
+  Map<String, Object?>? account,
+  Map<String, Map<String, Object?>> transactions,
+});
 
 /// The row of [account], stamped [createdAt] and [updatedAt]; `deleted_at` is written only
 /// when given. Throws `CurrencyMismatchException` when a balance is in another currency

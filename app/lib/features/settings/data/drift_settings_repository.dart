@@ -7,18 +7,25 @@ library;
 import 'dart:convert';
 
 import 'package:finance_tracker/core/db/app_database.dart';
+import 'package:finance_tracker/core/sync/change_recorder.dart';
+import 'package:finance_tracker/core/sync/entity_codec.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
 import 'package:finance_tracker/features/settings/domain/settings_repository.dart';
+import 'package:shared_models/shared_models.dart';
 
 const String _themeMode = 'theme_mode';
 const String _useDynamicColor = 'use_dynamic_color';
 
-/// Settings in [AppDatabase].
+/// Settings in [AppDatabase]. Every save records the fields it changed in the settings
+/// record `settings/local` through [_recorder], in the same database transaction. The
+/// settings always exist (the defaults before any save), so a save is an update against
+/// what was stored, and first saves on two devices merge field by field.
 final class DriftSettingsRepository implements SettingsRepository {
-  /// The repository over [_database].
-  DriftSettingsRepository(this._database);
+  /// The repository over [_database], recording saves through `recorder`.
+  DriftSettingsRepository(this._database, {required this._recorder});
 
   final AppDatabase _database;
+  final ChangeRecorder _recorder;
 
   @override
   Stream<Settings> watch() => _database
@@ -32,17 +39,28 @@ final class DriftSettingsRepository implements SettingsRepository {
       settingsFromRows(await _database.select(_database.appSettings).get());
 
   @override
-  Future<void> save(Settings settings) => _database.batch((batch) {
-    batch.insertAllOnConflictUpdate(_database.appSettings, [
-      AppSettingsCompanion.insert(
-        key: _themeMode,
-        value: jsonEncode(settings.themeMode.name),
-      ),
-      AppSettingsCompanion.insert(
-        key: _useDynamicColor,
-        value: jsonEncode(settings.useDynamicColor),
-      ),
-    ]);
+  Future<void> save(Settings settings) => _database.transaction(() async {
+    final List<AppSettingRow> rows = await _database
+        .select(_database.appSettings)
+        .get();
+    await _database.batch((batch) {
+      batch.insertAllOnConflictUpdate(_database.appSettings, [
+        AppSettingsCompanion.insert(
+          key: _themeMode,
+          value: jsonEncode(settings.themeMode.name),
+        ),
+        AppSettingsCompanion.insert(
+          key: _useDynamicColor,
+          value: jsonEncode(settings.useDynamicColor),
+        ),
+      ]);
+    });
+    await _recorder.record(
+      EntityType.settings,
+      settingsRecordId,
+      settingsRecordJson(settingsFromRows(rows)),
+      settingsRecordJson(settings),
+    );
   });
 }
 

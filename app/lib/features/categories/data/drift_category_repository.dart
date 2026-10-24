@@ -6,18 +6,29 @@ import 'package:drift/drift.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/db/repository_support.dart';
+import 'package:finance_tracker/core/sync/change_recorder.dart';
+import 'package:finance_tracker/core/sync/entity_codec.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/categories/data/category_defaults.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
 import 'package:shared_models/shared_models.dart';
 
-/// Categories in [AppDatabase]. Audit fields are stamped from the clock.
+/// Categories in [AppDatabase]. Audit fields are stamped from the clock. Every write but
+/// the seeding records each category it changed through [_recorder] in the same database
+/// transaction; the seeded system categories exist on every device, so only their edits
+/// are recorded.
 final class DriftCategoryRepository implements CategoryRepository {
-  /// The repository over [_database], stamping writes from [_clock].
-  DriftCategoryRepository(this._database, this._clock);
+  /// The repository over [_database], stamping writes from [_clock] and recording them
+  /// through `recorder`.
+  DriftCategoryRepository(
+    this._database,
+    this._clock, {
+    required this._recorder,
+  });
 
   final AppDatabase _database;
   final Clock _clock;
+  final ChangeRecorder _recorder;
 
   $CategoriesTable get _categories => _database.categories;
 
@@ -63,6 +74,12 @@ final class DriftCategoryRepository implements CategoryRepository {
             now: now,
           ),
         );
+    await _recorder.record(
+      EntityType.category,
+      category.id,
+      existing == null ? null : categoryRecordJson(categoryFromRow(existing)),
+      categoryRecordJson(category),
+    );
   });
 
   @override
@@ -73,13 +90,23 @@ final class DriftCategoryRepository implements CategoryRepository {
     if (row == null) return;
     if (row.isSystem) throw CategoryNotDeletableException(id);
     final DateTime now = _clock.nowUtc();
-    await (_database.update(_categories)..where(
-          (c) =>
-              (c.id.equals(id) | c.parentId.equals(id)) & c.deletedAt.isNull(),
-        ))
-        .write(
-          CategoriesCompanion(deletedAt: Value(now), updatedAt: Value(now)),
-        );
+    Expression<bool> family($CategoriesTable c) =>
+        (c.id.equals(id) | c.parentId.equals(id)) & c.deletedAt.isNull();
+    final List<CategoryRow> deleted = await (_database.select(
+      _categories,
+    )..where(family)).get();
+    await (_database.update(_categories)..where(family)).write(
+      CategoriesCompanion(deletedAt: Value(now), updatedAt: Value(now)),
+    );
+    for (final CategoryRow before in deleted) {
+      final Category category = categoryFromRow(before);
+      await _recorder.record(
+        EntityType.category,
+        before.id,
+        categoryRecordJson(category),
+        categoryRecordJson(category, deletedAt: now),
+      );
+    }
   });
 
   @override

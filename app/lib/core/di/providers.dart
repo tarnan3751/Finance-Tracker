@@ -3,8 +3,10 @@
 ///
 /// Feature providers live in their feature's `application/` folder; what is here is what
 /// every feature may depend on. With no override, the repositories are the in-memory ones
-/// over one shared [InMemoryStore] (what tests get); [overridesFor] gives dev and prod the
-/// Drift repositories over the encrypted database, and the demo flavor the demo ones.
+/// over one shared [InMemoryStore] (what tests get), recording into an in-memory sync
+/// store; [overridesFor] gives dev and prod the Drift repositories over the encrypted
+/// database, recording into the Drift sync store, and the demo flavor the demo ones,
+/// which record nothing.
 library;
 
 import 'dart:async';
@@ -15,9 +17,12 @@ import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/db/database_key_store.dart';
 import 'package:finance_tracker/core/db/demo_seed.dart';
+import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/db/legacy_import/import_summary.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
+import 'package:finance_tracker/core/sync/change_recorder.dart';
+import 'package:finance_tracker/core/sync/device_clock.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/data/demo_account_repository.dart';
 import 'package:finance_tracker/features/accounts/data/drift_account_repository.dart';
@@ -36,6 +41,7 @@ import 'package:finance_tracker/features/transactions/data/drift_transaction_rep
 import 'package:finance_tracker/features/transactions/data/in_memory_transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:sync_engine/sync_engine.dart';
 
 part 'providers.g.dart';
 
@@ -82,25 +88,63 @@ InMemoryStore inMemoryStore(Ref ref) {
   return store;
 }
 
+/// The sync store the in-memory repositories record into (tests read its outbox).
+@Riverpod(keepAlive: true)
+InMemorySyncStore inMemorySyncStore(Ref ref) => InMemorySyncStore();
+
+/// The sync store over the local database of the dev and prod flavors.
+@Riverpod(keepAlive: true)
+DriftSyncStore driftSyncStore(Ref ref) =>
+    DriftSyncStore(ref.watch(databaseProvider), ref.watch(clockProvider));
+
+/// The device's sync clock and node, over [driftSyncStore]: one instance for every
+/// local edit and every sync session.
+@Riverpod(keepAlive: true)
+DeviceClock deviceClock(Ref ref) =>
+    DeviceClock(ref.watch(driftSyncStoreProvider));
+
+/// Where the repositories record user-authored writes for sync: by default into
+/// [inMemorySyncStore] on a fixed node; [overridesFor] gives dev and prod the Drift store
+/// and the device clock, and the demo flavor no recording.
+@Riverpod(keepAlive: true)
+ChangeRecorder changeRecorder(Ref ref) {
+  final Clock clock = ref.watch(clockProvider);
+  final HlcClock hlc = HlcClock('local-memory');
+  return EngineChangeRecorder(
+    ref.watch(inMemorySyncStoreProvider),
+    () async => hlc,
+    () => clock.nowUtc().millisecondsSinceEpoch,
+  );
+}
+
 /// The accounts.
 @Riverpod(keepAlive: true)
-AccountRepository accountRepository(Ref ref) =>
-    InMemoryAccountRepository(ref.watch(inMemoryStoreProvider));
+AccountRepository accountRepository(Ref ref) => InMemoryAccountRepository(
+  ref.watch(inMemoryStoreProvider),
+  recorder: ref.watch(changeRecorderProvider),
+);
 
 /// The transactions.
 @Riverpod(keepAlive: true)
 TransactionRepository transactionRepository(Ref ref) =>
-    InMemoryTransactionRepository(ref.watch(inMemoryStoreProvider));
+    InMemoryTransactionRepository(
+      ref.watch(inMemoryStoreProvider),
+      recorder: ref.watch(changeRecorderProvider),
+    );
 
 /// The categories.
 @Riverpod(keepAlive: true)
-CategoryRepository categoryRepository(Ref ref) =>
-    InMemoryCategoryRepository(ref.watch(inMemoryStoreProvider));
+CategoryRepository categoryRepository(Ref ref) => InMemoryCategoryRepository(
+  ref.watch(inMemoryStoreProvider),
+  recorder: ref.watch(changeRecorderProvider),
+);
 
 /// Where the app preferences are kept.
 @Riverpod(keepAlive: true)
 SettingsRepository settingsRepository(Ref ref) {
-  final InMemorySettingsRepository repository = InMemorySettingsRepository();
+  final InMemorySettingsRepository repository = InMemorySettingsRepository(
+    recorder: ref.watch(changeRecorderProvider),
+  );
   ref.onDispose(repository.close);
   return repository;
 }
@@ -126,28 +170,43 @@ List<Override> overridesFor(AppConfig config) => [
   ...apiOverridesFor(config),
 ];
 
-/// dev and prod: the Drift repositories over the encrypted database.
+/// dev and prod: the Drift repositories over the encrypted database, recording into the
+/// Drift sync store with the device clock.
 final List<Override> _driftOverrides = [
+  changeRecorderProvider.overrideWith((ref) {
+    final Clock clock = ref.watch(clockProvider);
+    return EngineChangeRecorder(
+      ref.watch(driftSyncStoreProvider),
+      ref.watch(deviceClockProvider).current,
+      () => clock.nowUtc().millisecondsSinceEpoch,
+    );
+  }),
   accountRepositoryProvider.overrideWith(
     (ref) => DriftAccountRepository(
       ref.watch(databaseProvider),
       ref.watch(clockProvider),
+      recorder: ref.watch(changeRecorderProvider),
     ),
   ),
   transactionRepositoryProvider.overrideWith(
     (ref) => DriftTransactionRepository(
       ref.watch(databaseProvider),
       ref.watch(clockProvider),
+      recorder: ref.watch(changeRecorderProvider),
     ),
   ),
   categoryRepositoryProvider.overrideWith(
     (ref) => DriftCategoryRepository(
       ref.watch(databaseProvider),
       ref.watch(clockProvider),
+      recorder: ref.watch(changeRecorderProvider),
     ),
   ),
   settingsRepositoryProvider.overrideWith(
-    (ref) => DriftSettingsRepository(ref.watch(databaseProvider)),
+    (ref) => DriftSettingsRepository(
+      ref.watch(databaseProvider),
+      recorder: ref.watch(changeRecorderProvider),
+    ),
   ),
 ];
 
@@ -156,6 +215,7 @@ final List<Override> _demoOverrides = [
   databaseProvider.overrideWith(
     (ref) => throw StateError('The demo flavor has no database'),
   ),
+  changeRecorderProvider.overrideWithValue(const NoChangeRecorder()),
   inMemoryStoreProvider.overrideWith((ref) {
     final Clock clock = ref.watch(clockProvider);
     final InMemoryStore store = InMemoryStore(clock)..seedSystemCategories();

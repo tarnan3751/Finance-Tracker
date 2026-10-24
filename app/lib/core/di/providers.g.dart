@@ -254,6 +254,205 @@ final class InMemoryStoreProvider
 
 String _$inMemoryStoreHash() => r'3eec0edbaefb6e758cd7a7b12574470341f1dfe1';
 
+/// The sync store the in-memory repositories record into (tests read its outbox).
+
+@ProviderFor(inMemorySyncStore)
+final inMemorySyncStoreProvider = InMemorySyncStoreProvider._();
+
+/// The sync store the in-memory repositories record into (tests read its outbox).
+
+final class InMemorySyncStoreProvider
+    extends
+        $FunctionalProvider<
+          InMemorySyncStore,
+          InMemorySyncStore,
+          InMemorySyncStore
+        >
+    with $Provider<InMemorySyncStore> {
+  /// The sync store the in-memory repositories record into (tests read its outbox).
+  InMemorySyncStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'inMemorySyncStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$inMemorySyncStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<InMemorySyncStore> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  InMemorySyncStore create(Ref ref) {
+    return inMemorySyncStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(InMemorySyncStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<InMemorySyncStore>(value),
+    );
+  }
+}
+
+String _$inMemorySyncStoreHash() => r'1b39734cbcb143ff067a5742ecdaeb93186ea354';
+
+/// The sync store over the local database of the dev and prod flavors.
+
+@ProviderFor(driftSyncStore)
+final driftSyncStoreProvider = DriftSyncStoreProvider._();
+
+/// The sync store over the local database of the dev and prod flavors.
+
+final class DriftSyncStoreProvider
+    extends $FunctionalProvider<DriftSyncStore, DriftSyncStore, DriftSyncStore>
+    with $Provider<DriftSyncStore> {
+  /// The sync store over the local database of the dev and prod flavors.
+  DriftSyncStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'driftSyncStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$driftSyncStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<DriftSyncStore> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  DriftSyncStore create(Ref ref) {
+    return driftSyncStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DriftSyncStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DriftSyncStore>(value),
+    );
+  }
+}
+
+String _$driftSyncStoreHash() => r'7f6b030bf5b3eafe4fd8dfcebc65299de8fa4acc';
+
+/// The device's sync clock and node, over [driftSyncStore]: one instance for every
+/// local edit and every sync session.
+
+@ProviderFor(deviceClock)
+final deviceClockProvider = DeviceClockProvider._();
+
+/// The device's sync clock and node, over [driftSyncStore]: one instance for every
+/// local edit and every sync session.
+
+final class DeviceClockProvider
+    extends $FunctionalProvider<DeviceClock, DeviceClock, DeviceClock>
+    with $Provider<DeviceClock> {
+  /// The device's sync clock and node, over [driftSyncStore]: one instance for every
+  /// local edit and every sync session.
+  DeviceClockProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'deviceClockProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$deviceClockHash();
+
+  @$internal
+  @override
+  $ProviderElement<DeviceClock> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  DeviceClock create(Ref ref) {
+    return deviceClock(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DeviceClock value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DeviceClock>(value),
+    );
+  }
+}
+
+String _$deviceClockHash() => r'b5657fd7141a93eed72a85a8598bd8e034e030bd';
+
+/// Where the repositories record user-authored writes for sync: by default into
+/// [inMemorySyncStore] on a fixed node; [overridesFor] gives dev and prod the Drift store
+/// and the device clock, and the demo flavor no recording.
+
+@ProviderFor(changeRecorder)
+final changeRecorderProvider = ChangeRecorderProvider._();
+
+/// Where the repositories record user-authored writes for sync: by default into
+/// [inMemorySyncStore] on a fixed node; [overridesFor] gives dev and prod the Drift store
+/// and the device clock, and the demo flavor no recording.
+
+final class ChangeRecorderProvider
+    extends $FunctionalProvider<ChangeRecorder, ChangeRecorder, ChangeRecorder>
+    with $Provider<ChangeRecorder> {
+  /// Where the repositories record user-authored writes for sync: by default into
+  /// [inMemorySyncStore] on a fixed node; [overridesFor] gives dev and prod the Drift store
+  /// and the device clock, and the demo flavor no recording.
+  ChangeRecorderProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'changeRecorderProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$changeRecorderHash();
+
+  @$internal
+  @override
+  $ProviderElement<ChangeRecorder> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ChangeRecorder create(Ref ref) {
+    return changeRecorder(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ChangeRecorder value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ChangeRecorder>(value),
+    );
+  }
+}
+
+String _$changeRecorderHash() => r'12d25ee7e97c97cffb45f8dff0debccf12ae5c12';
+
 /// The accounts.
 
 @ProviderFor(accountRepository)
@@ -304,7 +503,7 @@ final class AccountRepositoryProvider
   }
 }
 
-String _$accountRepositoryHash() => r'89c853b025f1130c7c4c5c729d3a91cc85e88d41';
+String _$accountRepositoryHash() => r'2357629cfb29e8e8e503c6cfe9f9697c594663ff';
 
 /// The transactions.
 
@@ -357,7 +556,7 @@ final class TransactionRepositoryProvider
 }
 
 String _$transactionRepositoryHash() =>
-    r'ceaac0f82d3d115a6973c43f700b375503c196ce';
+    r'386f58ca703d12e5483e3591c708326d7172bb44';
 
 /// The categories.
 
@@ -410,7 +609,7 @@ final class CategoryRepositoryProvider
 }
 
 String _$categoryRepositoryHash() =>
-    r'a4f8dd69674e0727d3a6005247bee23c2b2e70f3';
+    r'560f8096426c9864d0d1c462c9a9c2b4c5940c37';
 
 /// Where the app preferences are kept.
 
@@ -463,7 +662,7 @@ final class SettingsRepositoryProvider
 }
 
 String _$settingsRepositoryHash() =>
-    r'f241523d07f20c13474f2de1f202b75004d236a5';
+    r'ae819a2df2ba8cfe68dd3f654206240eb52bf4f7';
 
 /// What the legacy importer did at this launch (`bootstrap`), or null when it did nothing;
 /// Phase 1d shows it once.

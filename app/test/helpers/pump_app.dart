@@ -16,6 +16,7 @@ import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/app_router.dart';
+import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/auth/application/device_name.dart';
 import 'package:finance_tracker/features/settings/application/package_info.dart';
@@ -89,7 +90,8 @@ List<Override> testOverrides({
   packageInfoProvider.overrideWith((ref) async => testPackageInfo),
   settingsRepositoryProvider.overrideWith((ref) {
     final InMemorySettingsRepository repository = InMemorySettingsRepository(
-      const Settings.defaults().copyWith(
+      recorder: const NoChangeRecorder(),
+      initial: const Settings.defaults().copyWith(
         themeMode: brightness == Brightness.dark
             ? AppThemeMode.dark
             : AppThemeMode.light,

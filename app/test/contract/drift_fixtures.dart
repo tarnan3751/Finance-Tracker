@@ -1,11 +1,15 @@
 // Fixtures of the Drift implementation for the contract suites: the three repositories
-// over one fresh in-memory AppDatabase (NativeDatabase.memory, unencrypted; the encrypted
+// and the settings over one fresh in-memory AppDatabase, recording into its sync store (NativeDatabase.memory, unencrypted; the encrypted
 // open path has its own tests in test/core/db/open_database_test.dart).
 import 'package:drift/native.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
+import 'package:finance_tracker/core/db/drift_sync_store.dart';
+import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/accounts/data/drift_account_repository.dart';
 import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
+import 'package:finance_tracker/features/settings/data/drift_settings_repository.dart';
 import 'package:finance_tracker/features/transactions/data/drift_transaction_repository.dart';
+import 'package:sync_engine/sync_engine.dart';
 
 import 'memory_fixtures.dart';
 import 'repository_fixture.dart';
@@ -17,11 +21,28 @@ FixtureFactory driftFixtures() {
     create: () async {
       database = AppDatabase(NativeDatabase.memory());
       final SteppingClock clock = SteppingClock();
+      final DriftSyncStore syncStore = DriftSyncStore(database, clock);
+      final HlcClock hlc = HlcClock('device-a');
+      final ChangeRecorder recorder = EngineChangeRecorder(
+        syncStore,
+        () async => hlc,
+        () => clock.nowUtc().millisecondsSinceEpoch,
+      );
       return RepositoryFixture(
         clock: clock,
-        accounts: DriftAccountRepository(database, clock),
-        transactions: DriftTransactionRepository(database, clock),
-        categories: DriftCategoryRepository(database, clock),
+        syncStore: syncStore,
+        accounts: DriftAccountRepository(database, clock, recorder: recorder),
+        transactions: DriftTransactionRepository(
+          database,
+          clock,
+          recorder: recorder,
+        ),
+        categories: DriftCategoryRepository(
+          database,
+          clock,
+          recorder: recorder,
+        ),
+        settings: DriftSettingsRepository(database, recorder: recorder),
       );
     },
     dispose: () => database.close(),

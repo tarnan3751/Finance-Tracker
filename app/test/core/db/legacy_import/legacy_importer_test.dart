@@ -7,6 +7,7 @@ import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/db/legacy_import/import_summary.dart';
 import 'package:finance_tracker/core/db/legacy_import/legacy_importer.dart';
+import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/data/in_memory_account_repository.dart';
 import 'package:finance_tracker/features/transactions/data/in_memory_transaction_repository.dart';
@@ -33,8 +34,14 @@ void main() {
       tz.getLocation('America/New_York'),
     );
     store = InMemoryStore(clock);
-    accounts = InMemoryAccountRepository(store);
-    transactions = InMemoryTransactionRepository(store);
+    accounts = InMemoryAccountRepository(
+      store,
+      recorder: const NoChangeRecorder(),
+    );
+    transactions = InMemoryTransactionRepository(
+      store,
+      recorder: const NoChangeRecorder(),
+    );
     meta = InMemoryAppMetaStore();
   });
   tearDown(() => store.close());

@@ -15,6 +15,7 @@ import 'dart:async';
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/db/repository_support.dart';
+import 'package:finance_tracker/core/sync/entity_codec.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
 import 'package:finance_tracker/features/categories/data/category_defaults.dart';
@@ -376,6 +377,45 @@ final class InMemoryStore {
     }
     if (added) _changed();
   }
+
+  // Sync records ----------------------------------------------------------------------
+
+  /// The record fields of account [id], deleted or not, or null when there is none.
+  Map<String, Object?>? accountRecord(String id) {
+    final entry = _accounts[id];
+    return entry == null
+        ? null
+        : accountRecordJson(entry.account, deletedAt: entry.deletedAt);
+  }
+
+  /// The record fields of transaction [id], deleted or not, or null when there is none.
+  Map<String, Object?>? transactionRecord(String id) {
+    final Transaction? t = _transactions[id];
+    return t == null
+        ? null
+        : transactionRecordJson(
+            t,
+            deletedWithAccount: _deletedWithAccount.contains(id),
+          );
+  }
+
+  /// The record fields of every transaction on account [accountId], deleted or not, by
+  /// id.
+  Map<String, Map<String, Object?>> transactionRecordsOf(String accountId) => {
+    for (final Transaction t in _transactions.values)
+      if (t.accountId == accountId) t.id: transactionRecord(t.id)!,
+  };
+
+  /// The record fields of category [id] and of its direct children, deleted or not, by
+  /// id.
+  Map<String, Map<String, Object?>> categoryRecordsOf(String id) => {
+    for (final entry in _categories.values)
+      if (entry.category.id == id || entry.category.parentId == id)
+        entry.category.id: categoryRecordJson(
+          entry.category,
+          deletedAt: entry.deletedAt,
+        ),
+  };
 
   // Watching --------------------------------------------------------------------------
 

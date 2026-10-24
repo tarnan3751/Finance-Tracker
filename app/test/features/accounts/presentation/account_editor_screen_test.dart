@@ -5,6 +5,7 @@
 import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/accounts/data/in_memory_account_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:flutter/material.dart';
@@ -223,7 +224,8 @@ void main() {
 
 /// An account repository whose create always fails, as a refused write does.
 final class _RefusingAccountRepository extends InMemoryAccountRepository {
-  _RefusingAccountRepository(super.store);
+  _RefusingAccountRepository(super.store)
+    : super(recorder: const NoChangeRecorder());
 
   @override
   Future<void> create(Account account, {Transaction? openingBalance}) async =>

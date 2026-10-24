@@ -1,5 +1,6 @@
 // SettingsController follows the repository and saves the changes the screen makes.
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/settings/application/settings_controller.dart';
 import 'package:finance_tracker/features/settings/data/in_memory_settings_repository.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
@@ -11,7 +12,7 @@ void main() {
   late ProviderContainer container;
 
   setUp(() {
-    repository = InMemorySettingsRepository();
+    repository = InMemorySettingsRepository(recorder: const NoChangeRecorder());
     addTearDown(repository.close);
     container = ProviderContainer.test(
       overrides: [settingsRepositoryProvider.overrideWithValue(repository)],

@@ -7,6 +7,8 @@ import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/converters.dart';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/db/repository_support.dart';
+import 'package:finance_tracker/core/sync/change_recorder.dart';
+import 'package:finance_tracker/core/sync/entity_codec.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
@@ -17,13 +19,20 @@ import 'package:shared_models/shared_models.dart';
 /// Transactions in [AppDatabase]. A query is one SELECT over `transactions` with the
 /// filters as SQL (see [_filter]); the page's tags and splits are loaded after it. Every
 /// write to a transaction rewrites its row, so watching `transactions` sees tag and split
-/// changes too.
+/// changes too. Every write records the transaction through [_recorder] in the same
+/// database transaction.
 final class DriftTransactionRepository implements TransactionRepository {
-  /// The repository over [_database], stamping deletes from [_clock].
-  DriftTransactionRepository(this._database, this._clock);
+  /// The repository over [_database], stamping deletes from [_clock] and recording writes
+  /// through `recorder`.
+  DriftTransactionRepository(
+    this._database,
+    this._clock, {
+    required this._recorder,
+  });
 
   final AppDatabase _database;
   final Clock _clock;
+  final ChangeRecorder _recorder;
 
   $TransactionsTable get _transactions => _database.transactions;
 
@@ -84,22 +93,36 @@ final class DriftTransactionRepository implements TransactionRepository {
         if (account == null) {
           throw AccountNotFoundException(transaction.accountId);
         }
+        final Map<String, Object?>? before = existing == null
+            ? null
+            : await _recordJson(existing);
         await writeTransactionRow(
           _database,
           transaction,
           currency: account.currency,
         );
+        await _recorder.record(
+          EntityType.transaction,
+          id,
+          before,
+          transactionRecordJson(transaction.copyWith(deletedAt: null)),
+        );
       });
 
   @override
-  Future<void> delete(String id) {
-    final DateTime now = _clock.nowUtc();
-    return (_database.update(
+  Future<void> delete(String id) => _database.transaction(() async {
+    final TransactionRow? row = await (_database.select(
       _transactions,
-    )..where((t) => t.id.equals(id) & t.deletedAt.isNull())).write(
+    )..where((t) => t.id.equals(id) & t.deletedAt.isNull())).getSingleOrNull();
+    if (row == null) return;
+    final DateTime now = _clock.nowUtc();
+    await (_database.update(
+      _transactions,
+    )..where((t) => t.id.equals(id))).write(
       TransactionsCompanion(deletedAt: Value(now), updatedAt: Value(now)),
     );
-  }
+    await _recordChange(row);
+  });
 
   @override
   Future<void> restore(String id) => _database.transaction(() async {
@@ -121,7 +144,27 @@ final class DriftTransactionRepository implements TransactionRepository {
         deletedWithAccount: const Value(false),
       ),
     );
+    await _recordChange(row);
   });
+
+  // Records the change of the transaction [before] held to what its row holds now.
+  Future<void> _recordChange(TransactionRow before) async {
+    final TransactionRow after = await (_database.select(
+      _transactions,
+    )..where((t) => t.id.equals(before.id))).getSingle();
+    await _recorder.record(
+      EntityType.transaction,
+      before.id,
+      await _recordJson(before),
+      await _recordJson(after),
+    );
+  }
+
+  Future<Map<String, Object?>> _recordJson(TransactionRow row) async =>
+      transactionRecordJson(
+        (await transactionsWithChildren(_database, [row])).single,
+        deletedWithAccount: row.deletedWithAccount,
+      );
 
   @override
   Future<int> count(TransactionQuery query) async {

@@ -5,22 +5,31 @@
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
+import 'package:finance_tracker/features/settings/domain/settings_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:shared_models/shared_models.dart';
+import 'package:sync_engine/sync_engine.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-/// The repositories of one implementation, sharing one store.
+/// The repositories of one implementation, sharing one store, and the sync store they
+/// record into (null for the demo implementation, which records nothing).
 final class RepositoryFixture {
   RepositoryFixture({
     required this.accounts,
     required this.transactions,
     required this.categories,
+    required this.settings,
     required this.clock,
+    this.syncStore,
   });
 
   final AccountRepository accounts;
   final TransactionRepository transactions;
   final CategoryRepository categories;
+  final SettingsRepository settings;
+
+  /// Where the writes are recorded.
+  final SyncStore? syncStore;
 
   /// The clock the repositories stamp with.
   final SteppingClock clock;

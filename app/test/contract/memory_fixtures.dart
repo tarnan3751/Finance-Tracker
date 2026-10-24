@@ -3,12 +3,16 @@
 // suites' "fresh repository" cases hold; the real seed has its own test).
 import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
+import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/accounts/data/demo_account_repository.dart';
 import 'package:finance_tracker/features/accounts/data/in_memory_account_repository.dart';
 import 'package:finance_tracker/features/categories/data/demo_category_repository.dart';
 import 'package:finance_tracker/features/categories/data/in_memory_category_repository.dart';
+import 'package:finance_tracker/features/settings/data/demo_settings_repository.dart';
+import 'package:finance_tracker/features/settings/data/in_memory_settings_repository.dart';
 import 'package:finance_tracker/features/transactions/data/demo_transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/data/in_memory_transaction_repository.dart';
+import 'package:sync_engine/sync_engine.dart';
 
 import 'repository_fixture.dart';
 
@@ -18,18 +22,27 @@ typedef FixtureFactory = ({
   Future<void> Function() dispose,
 });
 
-/// The in-memory implementation.
+/// The in-memory implementation, recording into an in-memory sync store.
 FixtureFactory inMemoryFixtures() {
   late InMemoryStore store;
   return (
     create: () async {
       final SteppingClock clock = SteppingClock();
       store = InMemoryStore(clock);
+      final InMemorySyncStore syncStore = InMemorySyncStore();
+      final HlcClock hlc = HlcClock('device-a');
+      final ChangeRecorder recorder = EngineChangeRecorder(
+        syncStore,
+        () async => hlc,
+        () => clock.nowUtc().millisecondsSinceEpoch,
+      );
       return RepositoryFixture(
         clock: clock,
-        accounts: InMemoryAccountRepository(store),
-        transactions: InMemoryTransactionRepository(store),
-        categories: InMemoryCategoryRepository(store),
+        syncStore: syncStore,
+        accounts: InMemoryAccountRepository(store, recorder: recorder),
+        transactions: InMemoryTransactionRepository(store, recorder: recorder),
+        categories: InMemoryCategoryRepository(store, recorder: recorder),
+        settings: InMemorySettingsRepository(recorder: recorder),
       );
     },
     dispose: () => store.close(),
@@ -49,6 +62,7 @@ FixtureFactory demoFixtures() {
         accounts: DemoAccountRepository(store),
         transactions: DemoTransactionRepository(store),
         categories: DemoCategoryRepository(store),
+        settings: DemoSettingsRepository(),
       );
     },
     dispose: () => store.close(),
