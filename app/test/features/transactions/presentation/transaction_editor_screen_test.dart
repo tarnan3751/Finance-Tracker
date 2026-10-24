@@ -180,6 +180,41 @@ void main() {
     expect(store.transaction('demo-txn-02')!.userCategoryId, isNull);
   });
 
+  testWidgets("without a category of the user's own, the bank's is shown", (
+    tester,
+  ) async {
+    final InMemoryStore store = seededStore()
+      ..upsertTransaction(
+        testTransaction('flight', name: 'Airline').copyWith(
+          plaidPrimaryCategory: 'TRAVEL',
+          plaidDetailedCategory: 'TRAVEL_FLIGHTS',
+        ),
+      );
+    await _pumpEditor(tester, store, '/transactions/flight');
+    expect(find.text('Flights'), findsOneWidget);
+    expect(find.text("From your bank's category"), findsOneWidget);
+
+    // A choice of the user's own replaces it; None brings the bank's back.
+    await tester.tap(find.text('Category'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'coffee');
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Coffee'));
+    await tester.pumpAndSettle();
+    expect(find.text('Coffee'), findsOneWidget);
+    expect(find.text("From your bank's category"), findsNothing);
+    await tester.tap(find.text('Category'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('None'));
+    await tester.pumpAndSettle();
+    expect(find.text('Flights'), findsOneWidget);
+    expect(find.text("From your bank's category"), findsOneWidget);
+
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(store.transaction('flight')!.userCategoryId, isNull);
+  });
+
   testWidgets('Manage in the picker opens the categories and comes back', (
     tester,
   ) async {

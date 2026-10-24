@@ -72,6 +72,59 @@ abstract class _$TransactionListController
   }
 }
 
+/// The live categories by id and by Plaid code, from which the screens take each
+/// transaction's effective category (`effectiveCategory`): its user category, else the
+/// system category of its Plaid code.
+
+@ProviderFor(transactionCategoryLookup)
+final transactionCategoryLookupProvider = TransactionCategoryLookupProvider._();
+
+/// The live categories by id and by Plaid code, from which the screens take each
+/// transaction's effective category (`effectiveCategory`): its user category, else the
+/// system category of its Plaid code.
+
+final class TransactionCategoryLookupProvider
+    extends $FunctionalProvider<CategoryLookup, CategoryLookup, CategoryLookup>
+    with $Provider<CategoryLookup> {
+  /// The live categories by id and by Plaid code, from which the screens take each
+  /// transaction's effective category (`effectiveCategory`): its user category, else the
+  /// system category of its Plaid code.
+  TransactionCategoryLookupProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'transactionCategoryLookupProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$transactionCategoryLookupHash();
+
+  @$internal
+  @override
+  $ProviderElement<CategoryLookup> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  CategoryLookup create(Ref ref) {
+    return transactionCategoryLookup(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CategoryLookup value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CategoryLookup>(value),
+    );
+  }
+}
+
+String _$transactionCategoryLookupHash() =>
+    r'df6faa4142c877a10248f7369d2e7ac949f08bef';
+
 /// The list's transactions under its filters, newest first, as many pages as are loaded.
 /// A category filter takes the categories under each chosen one along; date presets are
 /// resolved against [todayProvider], so they move at midnight.

@@ -1,6 +1,7 @@
 /// What the transaction screens show and do: the list under its search and filters, paged
-/// fifty at a time and grouped by date; what the editor and the filter sheet suggest
-/// (tags, recently used categories and accounts); and the editor's writes.
+/// fifty at a time and grouped by date; the lookup that gives each transaction its
+/// effective category; what the editor and the filter sheet suggest (tags, recently used
+/// categories and accounts); and the editor's writes.
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
@@ -8,6 +9,7 @@ import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/transactions/application/transaction_filters.dart';
+import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -48,6 +50,13 @@ class TransactionListController extends _$TransactionListController {
 
 /// The loaded transactions of the list and whether more match.
 typedef TransactionPage = ({List<Transaction> transactions, bool hasMore});
+
+/// The live categories by id and by Plaid code, from which the screens take each
+/// transaction's effective category (`effectiveCategory`): its user category, else the
+/// system category of its Plaid code.
+@riverpod
+CategoryLookup transactionCategoryLookup(Ref ref) =>
+    categoryLookup(ref.watch(categoriesProvider).value ?? const []);
 
 /// The list's transactions under its filters, newest first, as many pages as are loaded.
 /// A category filter takes the categories under each chosen one along; date presets are

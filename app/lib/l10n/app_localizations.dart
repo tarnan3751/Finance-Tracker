@@ -802,6 +802,12 @@ abstract class AppLocalizations {
   /// **'Category'**
   String get transactionCategory;
 
+  /// Caption under the category of a transaction with no category of the user's own, shown when the category comes from the bank's (Plaid's) category code. Choosing a category overrides it.
+  ///
+  /// In en, this message translates to:
+  /// **'From your bank\'s category'**
+  String get transactionCategoryFromBank;
+
   /// Label of the transaction notes field.
   ///
   /// In en, this message translates to:

@@ -2,7 +2,9 @@
 /// amount (parsed in the device locale for the account's currency, never rounded), the
 /// account, the date (today by default, in the device zone), the description, the
 /// category, notes and tags. A new transaction is `manual`; an edited one keeps its
-/// source. Deleting from here offers an undo for five seconds.
+/// source. With no category of the user's own, the category row shows the one its Plaid
+/// code resolves to, captioned as the bank's. Deleting from here offers an undo for five
+/// seconds.
 library;
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
@@ -12,10 +14,10 @@ import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
 import 'package:finance_tracker/features/accounts/presentation/currency_picker.dart';
-import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
 import 'package:finance_tracker/features/categories/presentation/category_picker.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
+import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
 import 'package:finance_tracker/features/transactions/presentation/amount_input.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_dates.dart';
@@ -263,7 +265,16 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
-    final Category? category = ref.watch(categoriesByIdProvider)[_categoryId];
+    final CategoryLookup categories = ref.watch(
+      transactionCategoryLookupProvider,
+    );
+    final Transaction? initial = widget.initial;
+    // The user's choice, else what the bank's category resolves to (shown, not chosen).
+    final Category? chosen = categories.byId[_categoryId];
+    final Category? fromBank = chosen != null || initial == null
+        ? null
+        : plaidCategoryOf(initial, categories.byPlaidCode);
+    final Category? category = chosen ?? fromBank;
     final List<String> knownTags =
         ref.watch(transactionUsageProvider).value?.tags ?? const [];
     final String typed = _tagInput.text.trim().toLowerCase();
@@ -380,7 +391,20 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
                     : categoryColor(context, category.color),
               ),
               title: Text(l10n.transactionCategory),
-              subtitle: Text(category?.name ?? l10n.uncategorized),
+              subtitle: fromBank == null
+                  ? Text(category?.name ?? l10n.uncategorized)
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(fromBank.name),
+                        Text(
+                          l10n.transactionCategoryFromBank,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
               trailing: const Icon(Icons.chevron_right),
               onTap: _pickCategory,
             ),

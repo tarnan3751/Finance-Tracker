@@ -37,5 +37,6 @@ stored color so the deep palette stays visible.
 ## Uncategorized
 
 Deleting a category leaves its transactions' `userCategoryId` as it is (`data.md`,
-**Categories**); every screen shows a transaction whose category is null, deleted or
-unknown as "Uncategorized".
+**Categories**). A transaction whose category is null, deleted or unknown shows the system
+category of its Plaid code (`transactions.md`, **The effective category**), and is
+"Uncategorized" when that resolves to none either.

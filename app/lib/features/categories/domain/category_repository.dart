@@ -11,8 +11,8 @@ import 'package:shared_models/shared_models.dart';
 ///
 /// A system category's name, parent and Plaid code never change; only its icon and color
 /// do, and it is never deleted. A user category's delete is soft. Transactions keep their
-/// `userCategoryId` when its category is deleted; the UI shows such a transaction as
-/// uncategorized.
+/// `userCategoryId` when its category is deleted; the UI treats it as unset (the
+/// transactions' effective category).
 abstract interface class CategoryRepository {
   /// The live categories, by name (ignoring case for ASCII letters), then by id.
   Stream<List<Category>> watchAll();

@@ -12,6 +12,7 @@ import 'package:finance_tracker/features/categories/application/categories_provi
 import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
 import 'package:finance_tracker/features/transactions/application/transaction_filters.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
+import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_dates.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_filter_sheet.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_tile.dart';
@@ -173,7 +174,9 @@ class _TransactionList extends ConsumerWidget {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
     final Map<String, Account> accounts = ref.watch(accountsByIdProvider);
-    final Map<String, Category> categories = ref.watch(categoriesByIdProvider);
+    final CategoryLookup categories = ref.watch(
+      transactionCategoryLookupProvider,
+    );
     final LocalDate today = ref.watch(todayProvider);
     return ListView.builder(
       padding: const EdgeInsets.only(bottom: 88),
@@ -189,7 +192,10 @@ class _TransactionList extends ConsumerWidget {
           case DateHeaderItem(:final LocalDate date):
             return _DateHeader(transactionDateLabel(l10n, date, today));
           case TransactionItem(:final Transaction transaction):
-            final Category? category = categories[transaction.userCategoryId];
+            final Category? category = effectiveCategory(
+              transaction,
+              categories,
+            );
             return TransactionTile(
               key: ValueKey(transaction.id),
               title: transaction.merchantName ?? transaction.name,

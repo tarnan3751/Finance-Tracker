@@ -1,9 +1,10 @@
 /// What the category screens show and do: the live categories, by id and as a two-level
 /// hierarchy, and the writes the editor makes.
 ///
-/// A transaction whose category is null, or names a deleted or unknown one, is
-/// uncategorized: deleting a category leaves its transactions' `userCategoryId` alone
-/// (`docs/reference/data.md`), and every screen shows them as "Uncategorized".
+/// Deleting a category leaves its transactions' `userCategoryId` alone
+/// (`docs/reference/data.md`). A transaction whose category is null, or names a deleted or
+/// unknown one, shows the category of its Plaid code, else "Uncategorized"
+/// (`features/transactions/domain/effective_category.dart`).
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';

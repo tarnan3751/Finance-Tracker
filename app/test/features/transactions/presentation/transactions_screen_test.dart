@@ -84,6 +84,30 @@ void main() {
     expect(find.text('Mystery'), findsOneWidget);
   });
 
+  testWidgets('a bank transaction shows the category of its Plaid code', (
+    tester,
+  ) async {
+    final InMemoryStore store = seededStore()
+      ..upsertTransaction(
+        testTransaction('flight', name: 'Airline').copyWith(
+          plaidPrimaryCategory: 'TRAVEL',
+          plaidDetailedCategory: 'TRAVEL_FLIGHTS',
+        ),
+      )
+      ..upsertTransaction(
+        testTransaction(
+          'clinic',
+          name: 'Clinic',
+        ).copyWith(plaidPrimaryCategory: 'MEDICAL'),
+      );
+    await _pumpList(tester, store);
+
+    expect(find.text('Everyday Checking · Flights'), findsOneWidget);
+    expect(find.text('Everyday Checking · Medical'), findsOneWidget);
+    // userCategoryId is never written by the resolution.
+    expect(store.transaction('flight')!.userCategoryId, isNull);
+  });
+
   testWidgets('outflows and inflows use the finance colors', (tester) async {
     await _pumpList(tester, seededStore());
 

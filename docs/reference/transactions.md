@@ -2,7 +2,8 @@
 
 The transaction list with its search and filters, and the transaction editor, which is
 also a transaction's detail. Code: `app/lib/features/transactions/` (`application/`,
-`presentation/`; the repository and `TransactionQuery` are `data.md`'s). Tests:
+`presentation/`, and `domain/effective_category.dart`; the repository and
+`TransactionQuery` are `data.md`'s). Tests:
 `app/test/features/transactions/`, `app/test/flows/`.
 
 ## The list
@@ -13,8 +14,9 @@ re-read at midnight and on resume), the weekday for
 the rest of the last week, then the full date, through intl's `DateFormat` in the device
 locale (`transaction_dates.dart`). A row (`transaction_tile.dart`, built from plain values,
 no stream per row) shows the category's icon, the merchant name or else the description,
-the account and the category ("Uncategorized" when there is none or it is deleted), the
-amount colored by `FinanceColors`, and a "Pending" label.
+the account and the effective category (**The effective category**; "Uncategorized" when
+there is none), the amount colored by `FinanceColors`, and a "Pending" label. The account
+detail's ledger rows show the effective category too.
 
 - **Paging.** `TransactionListController` holds the filters and how many pages are loaded;
   `transactionPageProvider` watches the repository with `limit` = pages × 50
@@ -38,6 +40,19 @@ amount colored by `FinanceColors`, and a "Pending" label.
 `TransactionFilters` and `DateFilter` are in `application/transaction_filters.dart`;
 `toQuery(today, limit:)` makes the `TransactionQuery`.
 
+## The effective category
+
+A transaction is shown under its effective category (`PLAN.md` §12):
+`userCategoryId` when it names a live category; else the system category whose
+`plaidCategory` is the transaction's `plaidDetailedCategory`; else the one whose
+`plaidCategory` is its `plaidPrimaryCategory`; else none, "Uncategorized". A deleted or
+unknown user category counts as unset. `effectiveCategory` and `plaidCategoryOf`
+(`domain/effective_category.dart`, pure Dart) resolve it from a `CategoryLookup` (the live
+categories by id and by Plaid code), which `transactionCategoryLookupProvider` builds once
+from the categories stream for the list, the account ledger and the editor. The resolution
+never writes `userCategoryId`: it stays the user's explicit choice, so sync and the
+override rules see only what the user did.
+
 ## The editor
 
 `transaction_editor_screen.dart`, for `/transactions/new` and `/transactions/:id`.
@@ -50,7 +65,9 @@ amount colored by `FinanceColors`, and a "Pending" label.
   recently used account, else the first); the date (today by default, from
   the clock); the description (required; it is `Transaction.name`); the category (a
   full-screen picker: search, "None", recently used, the hierarchy, and "Manage" to
-  category management); notes; tags (typed, added on enter or a comma, with suggestions
+  category management; the picker's selection is the user's own choice, and with none
+  the row shows the category the Plaid code resolves to, captioned "From your bank's
+  category", so the user sees what a choice would override); notes; tags (typed, added on enter or a comma, with suggestions
   from the tags in use).
 - **Saving.** A new transaction is `source: manual`, `pending: false`, with `createdAt` and
   `updatedAt` from the clock. An edit changes only the fields above and `updatedAt`; the

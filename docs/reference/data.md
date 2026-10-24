@@ -214,7 +214,9 @@ touches existing rows, so edited icons and colors survive. A system category's n
 parent, Plaid code and system flag never change and it is never deleted
 (`CategoryNotEditableException`, `CategoryNotDeletableException`); nothing creates a new
 system category through `upsert`. Deleting a user category also deletes its live direct
-children. Transactions keep a deleted category's id; the UI shows them uncategorized.
+children. Transactions keep a deleted category's id; the UI treats it as unset, showing
+the category of their Plaid code, else "Uncategorized" (`transactions.md`, **The
+effective category**).
 
 **Settings** (`DriftSettingsRepository`): one `app_settings` row per field, `theme_mode`
 (a JSON string) and `use_dynamic_color` (a JSON bool), so sync can merge them field by

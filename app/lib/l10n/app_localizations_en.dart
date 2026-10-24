@@ -424,6 +424,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transactionCategory => 'Category';
 
   @override
+  String get transactionCategoryFromBank => 'From your bank\'s category';
+
+  @override
   String get transactionNotes => 'Notes';
 
   @override

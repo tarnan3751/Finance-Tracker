@@ -600,6 +600,10 @@
   "@transactionCategory": {
     "description": "Label of the transaction category field."
   },
+  "transactionCategoryFromBank": "From your bank's category",
+  "@transactionCategoryFromBank": {
+    "description": "Caption under the category of a transaction with no category of the user's own, shown when the category comes from the bank's (Plaid's) category code. Choosing a category overrides it."
+  },
   "transactionNotes": "Notes",
   "@transactionNotes": {
     "description": "Label of the transaction notes field."

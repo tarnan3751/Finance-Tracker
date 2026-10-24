@@ -11,8 +11,9 @@ import 'package:finance_tracker/core/widgets/amount_text.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_errors.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_type_style.dart';
-import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
+import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
+import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_dates.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_tile.dart';
@@ -109,7 +110,9 @@ class _Detail extends ConsumerWidget {
     final Money balance =
         ref.watch(derivedBalancesProvider).value?[account.id] ??
         Money.zero(account.currencyCode);
-    final Map<String, Category> categories = ref.watch(categoriesByIdProvider);
+    final CategoryLookup categories = ref.watch(
+      transactionCategoryLookupProvider,
+    );
     final LocalDate today = ref.watch(todayProvider);
     return Scaffold(
       appBar: AppBar(
@@ -166,7 +169,7 @@ class _Detail extends ConsumerWidget {
           }
           final LedgerEntry entry = ledger[index - 1];
           final Transaction transaction = entry.transaction;
-          final Category? category = categories[transaction.userCategoryId];
+          final Category? category = effectiveCategory(transaction, categories);
           return TransactionTile(
             title: transaction.merchantName ?? transaction.name,
             caption: l10n.captionPair(
