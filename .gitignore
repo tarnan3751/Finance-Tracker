@@ -45,3 +45,12 @@ app.*.map.json
 # Private planning notes (kept out of the repo on purpose)
 PLAN.md
 notes/
+
+# Server and build secrets, local state, pinned-SDK and release artifacts
+server/.env
+server/data/
+.fvm/
+key.properties
+*.jks
+*.keystore
+build/symbols/
