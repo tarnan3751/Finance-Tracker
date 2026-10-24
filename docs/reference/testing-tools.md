@@ -23,8 +23,11 @@ The definition of green. Run after every change, at every commit of a series, by
    diagnostics (riverpod_lint's, declared in the root `analysis_options.yaml`) and
    `dart analyze` does; `dart pub get` and `dart analyze --fatal-infos` for pure Dart ones.
    In the workspace, a `pub get` in any member resolves the whole workspace at the root.
-5. **codegen**: for a package that depends on `build_runner`, runs it and fails on any diff
-   in the generated files.
+5. **codegen**: for a Flutter package with an `l10n.yaml`, runs `flutter gen-l10n`; for a
+   package that depends on `build_runner`, runs it; then fails on any diff in the package
+   and on any untracked file in it (`git status --porcelain`), so stale or newly generated
+   localizations, `*.g.dart` or `*.freezed.dart` files that are not committed fail the
+   gate.
 6. **tests**: `flutter test` or `dart test` in every package with a `test/` directory; a
    package without one is skipped, and the gate fails if no package has tests.
 7. **contract**: `tools/check_contract.sh` once it exists (Phase 2).

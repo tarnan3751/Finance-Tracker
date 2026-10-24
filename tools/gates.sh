@@ -10,8 +10,10 @@
 #   4. analyze    flutter analyze then dart analyze --fatal-infos (Flutter packages: flutter
 #                 analyze does not report analyzer-plugin diagnostics such as riverpod_lint's),
 #                 or dart analyze --fatal-infos (pure Dart packages)
-#   5. codegen    generated files are current: build_runner build, then git diff --exit-code
-#                 on *.g.dart, *.freezed.dart and the generated client (packages with build_runner)
+#   5. codegen    generated files are current: flutter gen-l10n (Flutter packages with an
+#                 l10n.yaml) and build_runner build (packages with build_runner), then
+#                 git diff --exit-code on the package, and no untracked file in it
+#                 (git status --porcelain), so a newly generated file is caught too
 #   6. tests      flutter test (Flutter packages) or dart test (pure Dart packages)
 #   7. contract   tools/check_contract.sh, once it exists (Phase 2): the OpenAPI document
 #                 validates and the fakes and the server agree with it
@@ -75,6 +77,7 @@ fi
 
 is_flutter() { grep -qE '^\s+flutter:\s*$|sdk:\s*flutter' "$1/pubspec.yaml"; }
 has_build_runner() { grep -qE '^\s+build_runner:' "$1/pubspec.yaml"; }
+has_l10n() { [ -f "$1/l10n.yaml" ] && is_flutter "$1"; }
 
 # 2. Resolve -------------------------------------------------------------------------
 if $DART pub get >"$scratch/resolve.txt" 2>&1; then
@@ -113,15 +116,23 @@ fi
 # 5. Generated code is current ----------------------------------------------------------
 : >"$scratch/codegen.txt"; gen=0; stale=0
 for p in "${packages[@]}"; do
-  has_build_runner "$p" || continue
+  has_build_runner "$p" || has_l10n "$p" || continue
   gen=$((gen + 1))
-  (cd "$p" && $DART run build_runner build --delete-conflicting-outputs) >"$scratch/codegen-one.txt" 2>&1 || { stale=$((stale + 1)); { echo "== $p (build_runner failed)"; cat "$scratch/codegen-one.txt"; } >>"$scratch/codegen.txt"; continue; }
+  if has_l10n "$p"; then
+    (cd "$p" && $FLUTTER gen-l10n) >"$scratch/codegen-one.txt" 2>&1 || { stale=$((stale + 1)); { echo "== $p (gen-l10n failed)"; cat "$scratch/codegen-one.txt"; } >>"$scratch/codegen.txt"; continue; }
+  fi
+  if has_build_runner "$p"; then
+    (cd "$p" && $DART run build_runner build --delete-conflicting-outputs) >"$scratch/codegen-one.txt" 2>&1 || { stale=$((stale + 1)); { echo "== $p (build_runner failed)"; cat "$scratch/codegen-one.txt"; } >>"$scratch/codegen.txt"; continue; }
+  fi
+  untracked="$(git status --porcelain --untracked-files=all -- "$p" | grep '^??')"
   if ! git diff --exit-code --stat -- "$p" >>"$scratch/codegen.txt" 2>&1; then
     stale=$((stale + 1)); echo "== $p has stale generated files (diff above)" >>"$scratch/codegen.txt"
+  elif [ -n "$untracked" ]; then
+    stale=$((stale + 1)); { echo "$untracked"; echo "== $p has untracked files (above): generated files not committed"; } >>"$scratch/codegen.txt"
   fi
 done
 if [ $gen -eq 0 ]; then
-  report codegen ok "no package uses build_runner yet"
+  report codegen ok "no package generates code yet"
 elif [ $stale -eq 0 ]; then
   report codegen ok "$gen package(s) current"
 else
