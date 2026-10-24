@@ -715,4 +715,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get colorGrey => 'Grey';
+
+  @override
+  String legacyImported(int count, String total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Imported $count entries into “Imported”, totalling $total.',
+      one: 'Imported 1 entry into “Imported”, totalling $total.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String legacyImportSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count entries could not be read and were left in place.',
+      one: '1 entry could not be read and was left in place.',
+    );
+    return '$_temp0';
+  }
 }

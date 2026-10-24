@@ -1305,6 +1305,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Grey'**
   String get colorGrey;
+
+  /// Snack bar shown once after the data of the original app was imported into a new account named Imported.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Imported 1 entry into “Imported”, totalling {total}.} other{Imported {count} entries into “Imported”, totalling {total}.}}'**
+  String legacyImported(int count, String total);
+
+  /// Snack bar text after the import when some entries of the original app could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 entry could not be read and was left in place.} other{{count} entries could not be read and were left in place.}}'**
+  String legacyImportSkipped(int count);
 }
 
 class _AppLocalizationsDelegate

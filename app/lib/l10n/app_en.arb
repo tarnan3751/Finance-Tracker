@@ -973,5 +973,29 @@
   "colorGrey": "Grey",
   "@colorGrey": {
     "description": "Name of the grey swatch in the category color choices."
+  },
+  "legacyImported": "{count, plural, =1{Imported 1 entry into “Imported”, totalling {total}.} other{Imported {count} entries into “Imported”, totalling {total}.}}",
+  "@legacyImported": {
+    "description": "Snack bar shown once after the data of the original app was imported into a new account named Imported.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      },
+      "total": {
+        "type": "String",
+        "example": "$45.00"
+      }
+    }
+  },
+  "legacyImportSkipped": "{count, plural, =1{1 entry could not be read and was left in place.} other{{count} entries could not be read and were left in place.}}",
+  "@legacyImportSkipped": {
+    "description": "Snack bar text after the import when some entries of the original app could not be read.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
   }
 }
