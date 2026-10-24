@@ -526,6 +526,180 @@ abstract class AppLocalizations {
   /// **'Yesterday'**
   String get dateYesterday;
 
+  /// Tooltip of the button that opens the transaction search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get transactionsSearch;
+
+  /// Hint inside the transaction search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search transactions'**
+  String get transactionsSearchHint;
+
+  /// Tooltip of the button that clears and closes the transaction search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Close search'**
+  String get transactionsSearchClose;
+
+  /// Tooltip of the button that opens the transaction filters, and the title of the filter sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get transactionsFilter;
+
+  /// Headline of the transaction list when the search or filters match nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching transactions'**
+  String get transactionsNoMatchHeadline;
+
+  /// Supporting text of the transaction list when the search or filters match nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Try other words or remove a filter.'**
+  String get transactionsNoMatchBody;
+
+  /// Tooltip of the button on an active filter chip that removes that filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove filter {label}'**
+  String filterRemove(String label);
+
+  /// Button of the filter sheet that empties every filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get filterClear;
+
+  /// Button of the filter sheet that applies the chosen filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get filterApply;
+
+  /// Heading of the category filters in the filter sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get filterCategories;
+
+  /// Chip of the filter sheet that opens the category picker to filter by one more category.
+  ///
+  /// In en, this message translates to:
+  /// **'Add category'**
+  String get filterAddCategory;
+
+  /// Heading of the date range choices in the filter sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get filterDate;
+
+  /// Heading of the amount range fields in the filter sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get filterAmount;
+
+  /// Label of the lower bound of the amount filter (an amount, regardless of sign).
+  ///
+  /// In en, this message translates to:
+  /// **'At least'**
+  String get filterAmountMin;
+
+  /// Label of the upper bound of the amount filter (an amount, regardless of sign).
+  ///
+  /// In en, this message translates to:
+  /// **'At most'**
+  String get filterAmountMax;
+
+  /// Heading of the tag filters in the filter sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get filterTags;
+
+  /// Shown in the filter sheet when no transaction has a tag.
+  ///
+  /// In en, this message translates to:
+  /// **'No tags yet.'**
+  String get filterNoTags;
+
+  /// Date filter choice: no date filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Any time'**
+  String get datePresetAny;
+
+  /// Date filter choice: the current calendar month.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get datePresetThisMonth;
+
+  /// Date filter choice: the previous calendar month.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get datePresetLastMonth;
+
+  /// Date filter choice: today and the 89 days before it.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 90 days'**
+  String get datePresetLast90Days;
+
+  /// Date filter choice: the current calendar year.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get datePresetThisYear;
+
+  /// Date filter choice that opens a date range picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom…'**
+  String get datePresetCustom;
+
+  /// A range of dates, both included.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String dateRangeValue(String start, String end);
+
+  /// Chip of an amount filter with both bounds.
+  ///
+  /// In en, this message translates to:
+  /// **'{min} – {max}'**
+  String amountRangeBetween(String min, String max);
+
+  /// Chip of an amount filter with a lower bound only.
+  ///
+  /// In en, this message translates to:
+  /// **'At least {min}'**
+  String amountRangeAtLeast(String min);
+
+  /// Chip of an amount filter with an upper bound only.
+  ///
+  /// In en, this message translates to:
+  /// **'At most {max}'**
+  String amountRangeAtMost(String max);
+
+  /// Error under the upper bound of the amount filter when it is below the lower bound.
+  ///
+  /// In en, this message translates to:
+  /// **'At most must not be less than at least'**
+  String get amountRangeInverted;
+
+  /// A tag as shown on a chip.
+  ///
+  /// In en, this message translates to:
+  /// **'#{tag}'**
+  String tagLabel(String tag);
+
   /// Heading of the settings section for categories and other data.
   ///
   /// In en, this message translates to:
@@ -543,6 +717,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search categories'**
   String get categoriesSearch;
+
+  /// Button of the category picker that opens category management.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get categoriesManage;
 
   /// Button that opens the editor of a new category.
   ///
@@ -567,6 +747,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide the categories under {name}'**
   String categoryCollapse(String name);
+
+  /// Title of the category picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get categoryPickerTitle;
+
+  /// Heading of the recently used categories in the category picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently used'**
+  String get categoryPickerRecent;
+
+  /// Heading of the full category list in the category picker.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get categoryPickerAll;
+
+  /// Category picker choice for no category.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get categoryNone;
 
   /// Shown when the category asked for has been deleted or does not exist.
   ///

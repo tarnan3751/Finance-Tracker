@@ -269,6 +269,105 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dateYesterday => 'Yesterday';
 
   @override
+  String get transactionsSearch => 'Search';
+
+  @override
+  String get transactionsSearchHint => 'Search transactions';
+
+  @override
+  String get transactionsSearchClose => 'Close search';
+
+  @override
+  String get transactionsFilter => 'Filters';
+
+  @override
+  String get transactionsNoMatchHeadline => 'No matching transactions';
+
+  @override
+  String get transactionsNoMatchBody => 'Try other words or remove a filter.';
+
+  @override
+  String filterRemove(String label) {
+    return 'Remove filter $label';
+  }
+
+  @override
+  String get filterClear => 'Clear';
+
+  @override
+  String get filterApply => 'Apply';
+
+  @override
+  String get filterCategories => 'Categories';
+
+  @override
+  String get filterAddCategory => 'Add category';
+
+  @override
+  String get filterDate => 'Date';
+
+  @override
+  String get filterAmount => 'Amount';
+
+  @override
+  String get filterAmountMin => 'At least';
+
+  @override
+  String get filterAmountMax => 'At most';
+
+  @override
+  String get filterTags => 'Tags';
+
+  @override
+  String get filterNoTags => 'No tags yet.';
+
+  @override
+  String get datePresetAny => 'Any time';
+
+  @override
+  String get datePresetThisMonth => 'This month';
+
+  @override
+  String get datePresetLastMonth => 'Last month';
+
+  @override
+  String get datePresetLast90Days => 'Last 90 days';
+
+  @override
+  String get datePresetThisYear => 'This year';
+
+  @override
+  String get datePresetCustom => 'Custom…';
+
+  @override
+  String dateRangeValue(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String amountRangeBetween(String min, String max) {
+    return '$min – $max';
+  }
+
+  @override
+  String amountRangeAtLeast(String min) {
+    return 'At least $min';
+  }
+
+  @override
+  String amountRangeAtMost(String max) {
+    return 'At most $max';
+  }
+
+  @override
+  String get amountRangeInverted => 'At most must not be less than at least';
+
+  @override
+  String tagLabel(String tag) {
+    return '#$tag';
+  }
+
+  @override
   String get settingsData => 'Data';
 
   @override
@@ -276,6 +375,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoriesSearch => 'Search categories';
+
+  @override
+  String get categoriesManage => 'Manage';
 
   @override
   String get categoryAdd => 'Add category';
@@ -298,6 +400,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String categoryCollapse(String name) {
     return 'Hide the categories under $name';
   }
+
+  @override
+  String get categoryPickerTitle => 'Category';
+
+  @override
+  String get categoryPickerRecent => 'Recently used';
+
+  @override
+  String get categoryPickerAll => 'All categories';
+
+  @override
+  String get categoryNone => 'None';
 
   @override
   String get categoryNotFound => 'This category no longer exists.';

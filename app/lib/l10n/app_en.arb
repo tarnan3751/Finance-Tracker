@@ -360,6 +360,166 @@
   "@dateYesterday": {
     "description": "Date header for transactions dated yesterday."
   },
+  "transactionsSearch": "Search",
+  "@transactionsSearch": {
+    "description": "Tooltip of the button that opens the transaction search field."
+  },
+  "transactionsSearchHint": "Search transactions",
+  "@transactionsSearchHint": {
+    "description": "Hint inside the transaction search field."
+  },
+  "transactionsSearchClose": "Close search",
+  "@transactionsSearchClose": {
+    "description": "Tooltip of the button that clears and closes the transaction search field."
+  },
+  "transactionsFilter": "Filters",
+  "@transactionsFilter": {
+    "description": "Tooltip of the button that opens the transaction filters, and the title of the filter sheet."
+  },
+  "transactionsNoMatchHeadline": "No matching transactions",
+  "@transactionsNoMatchHeadline": {
+    "description": "Headline of the transaction list when the search or filters match nothing."
+  },
+  "transactionsNoMatchBody": "Try other words or remove a filter.",
+  "@transactionsNoMatchBody": {
+    "description": "Supporting text of the transaction list when the search or filters match nothing."
+  },
+  "filterRemove": "Remove filter {label}",
+  "@filterRemove": {
+    "description": "Tooltip of the button on an active filter chip that removes that filter.",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "This month"
+      }
+    }
+  },
+  "filterClear": "Clear",
+  "@filterClear": {
+    "description": "Button of the filter sheet that empties every filter."
+  },
+  "filterApply": "Apply",
+  "@filterApply": {
+    "description": "Button of the filter sheet that applies the chosen filters."
+  },
+  "filterCategories": "Categories",
+  "@filterCategories": {
+    "description": "Heading of the category filters in the filter sheet."
+  },
+  "filterAddCategory": "Add category",
+  "@filterAddCategory": {
+    "description": "Chip of the filter sheet that opens the category picker to filter by one more category."
+  },
+  "filterDate": "Date",
+  "@filterDate": {
+    "description": "Heading of the date range choices in the filter sheet."
+  },
+  "filterAmount": "Amount",
+  "@filterAmount": {
+    "description": "Heading of the amount range fields in the filter sheet."
+  },
+  "filterAmountMin": "At least",
+  "@filterAmountMin": {
+    "description": "Label of the lower bound of the amount filter (an amount, regardless of sign)."
+  },
+  "filterAmountMax": "At most",
+  "@filterAmountMax": {
+    "description": "Label of the upper bound of the amount filter (an amount, regardless of sign)."
+  },
+  "filterTags": "Tags",
+  "@filterTags": {
+    "description": "Heading of the tag filters in the filter sheet."
+  },
+  "filterNoTags": "No tags yet.",
+  "@filterNoTags": {
+    "description": "Shown in the filter sheet when no transaction has a tag."
+  },
+  "datePresetAny": "Any time",
+  "@datePresetAny": {
+    "description": "Date filter choice: no date filter."
+  },
+  "datePresetThisMonth": "This month",
+  "@datePresetThisMonth": {
+    "description": "Date filter choice: the current calendar month."
+  },
+  "datePresetLastMonth": "Last month",
+  "@datePresetLastMonth": {
+    "description": "Date filter choice: the previous calendar month."
+  },
+  "datePresetLast90Days": "Last 90 days",
+  "@datePresetLast90Days": {
+    "description": "Date filter choice: today and the 89 days before it."
+  },
+  "datePresetThisYear": "This year",
+  "@datePresetThisYear": {
+    "description": "Date filter choice: the current calendar year."
+  },
+  "datePresetCustom": "Custom…",
+  "@datePresetCustom": {
+    "description": "Date filter choice that opens a date range picker."
+  },
+  "dateRangeValue": "{start} – {end}",
+  "@dateRangeValue": {
+    "description": "A range of dates, both included.",
+    "placeholders": {
+      "start": {
+        "type": "String",
+        "example": "Oct 1, 2026"
+      },
+      "end": {
+        "type": "String",
+        "example": "Oct 24, 2026"
+      }
+    }
+  },
+  "amountRangeBetween": "{min} – {max}",
+  "@amountRangeBetween": {
+    "description": "Chip of an amount filter with both bounds.",
+    "placeholders": {
+      "min": {
+        "type": "String",
+        "example": "$10.00"
+      },
+      "max": {
+        "type": "String",
+        "example": "$50.00"
+      }
+    }
+  },
+  "amountRangeAtLeast": "At least {min}",
+  "@amountRangeAtLeast": {
+    "description": "Chip of an amount filter with a lower bound only.",
+    "placeholders": {
+      "min": {
+        "type": "String",
+        "example": "$10.00"
+      }
+    }
+  },
+  "amountRangeAtMost": "At most {max}",
+  "@amountRangeAtMost": {
+    "description": "Chip of an amount filter with an upper bound only.",
+    "placeholders": {
+      "max": {
+        "type": "String",
+        "example": "$50.00"
+      }
+    }
+  },
+  "amountRangeInverted": "At most must not be less than at least",
+  "@amountRangeInverted": {
+    "description": "Error under the upper bound of the amount filter when it is below the lower bound."
+  },
+  "tagLabel": "#{tag}",
+  "@tagLabel": {
+    "description": "A tag as shown on a chip.",
+    "placeholders": {
+      "tag": {
+        "type": "String",
+        "example": "household"
+      }
+    }
+  },
   "settingsData": "Data",
   "@settingsData": {
     "description": "Heading of the settings section for categories and other data."
@@ -371,6 +531,10 @@
   "categoriesSearch": "Search categories",
   "@categoriesSearch": {
     "description": "Label of the category search field."
+  },
+  "categoriesManage": "Manage",
+  "@categoriesManage": {
+    "description": "Button of the category picker that opens category management."
   },
   "categoryAdd": "Add category",
   "@categoryAdd": {
@@ -403,6 +567,22 @@
         "example": "Food and drink"
       }
     }
+  },
+  "categoryPickerTitle": "Category",
+  "@categoryPickerTitle": {
+    "description": "Title of the category picker."
+  },
+  "categoryPickerRecent": "Recently used",
+  "@categoryPickerRecent": {
+    "description": "Heading of the recently used categories in the category picker."
+  },
+  "categoryPickerAll": "All categories",
+  "@categoryPickerAll": {
+    "description": "Heading of the full category list in the category picker."
+  },
+  "categoryNone": "None",
+  "@categoryNone": {
+    "description": "Category picker choice for no category."
   },
   "categoryNotFound": "This category no longer exists.",
   "@categoryNotFound": {
