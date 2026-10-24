@@ -1,6 +1,9 @@
 /// Plaid Items: Link tokens, the exchange, the Item store, the sync run, refreshes, the
-/// balance refresh, unlinking and the institution logo (`docs/reference/server.md`,
-/// **Items** and **The sync run**).
+/// balance refresh, unlinking, and the institution metadata and logo
+/// (`docs/reference/server.md`, **Items** and **The sync run**). Institution metadata (the
+/// logo and the colour from `/institutions/get_by_id`) is fetched at most once a day per
+/// institution, kept in memory, and written onto every visible Item at that institution;
+/// a failure to fetch it is logged and never fails the exchange.
 ///
 /// This is the code Phase 3 reuses unchanged with the real client: it depends only on
 /// [PlaidClient], and stamps every stored row with the client's `provenance`. Access
@@ -41,6 +44,9 @@ const plaidSyncPageSize = 500;
 /// How often a sync run restarts after `TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION`
 /// before it gives up.
 const maxPaginationRestarts = 3;
+
+/// How long fetched institution metadata is used before it is fetched again.
+const institutionMetadataMaxAge = Duration(days: 1);
 
 /// The waits between the three attempts at `/item/remove`.
 const removeBackoff = [Duration(milliseconds: 500), Duration(seconds: 1)];
@@ -236,7 +242,66 @@ final class ItemService {
       );
     }
     _log.info(LogEvent('item_linked', {'user_id': userId, 'item_id': id}));
-    return itemJson(row, baseUrl);
+    await _institutionMetadata(item.institutionId);
+    final stored = await db.read(
+      (tx) => tx.first('SELECT * FROM items WHERE id = ?', [id]),
+    );
+    return itemJson(stored ?? row, baseUrl);
+  }
+
+  final Map<String, ({PlaidInstitution value, DateTime fetchedAt})>
+  _institutions = {};
+
+  /// Writes [institutionId]'s logo and colour onto every visible Item there, fetching
+  /// them when none were fetched within [institutionMetadataMaxAge]. A failed fetch is
+  /// logged and leaves the rows as they are.
+  Future<void> _institutionMetadata(String institutionId) async {
+    var cached = _institutions[institutionId];
+    if (cached == null ||
+        now().difference(cached.fetchedAt) >= institutionMetadataMaxAge) {
+      try {
+        final value = await plaid.institutionsGetById(institutionId);
+        cached = (value: value, fetchedAt: now());
+        _institutions[institutionId] = cached;
+      } on PlaidException catch (e) {
+        _log.warning(
+          LogEvent('institution_metadata_skipped', {
+            'institution_id': institutionId,
+            'code': e.errorCode,
+            'request_id': ?e.requestId,
+          }),
+        );
+        return;
+      }
+    }
+    final value = cached.value;
+    await db.read(
+      (tx) => tx.execute(
+        'UPDATE items SET institution_logo = ?, institution_primary_color = ? '
+        'WHERE institution_id = ? AND $visibleItem',
+        [value.logo, value.primaryColor, institutionId],
+      ),
+    );
+  }
+
+  /// Fetches the metadata of every institution with a visible Item whose metadata was
+  /// not fetched within [institutionMetadataMaxAge] (the scheduler's daily refresh).
+  Future<void> refreshStaleInstitutions() async {
+    final rows = await db.read(
+      (tx) => tx.select(
+        'SELECT DISTINCT institution_id FROM items WHERE $visibleItem '
+        'ORDER BY institution_id',
+      ),
+    );
+    for (final r in rows) {
+      final id = r['institution_id']! as String;
+      final cached = _institutions[id];
+      if (cached != null &&
+          now().difference(cached.fetchedAt) < institutionMetadataMaxAge) {
+        continue;
+      }
+      await _institutionMetadata(id);
+    }
   }
 
   /// Removes, best effort, an Item exchanged at Plaid that the server will not store, so
