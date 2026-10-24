@@ -8,7 +8,7 @@ void main() {
 }
 
 class FinanceTrackerApp extends StatelessWidget {
-  const FinanceTrackerApp({Key? key}) : super(key: key);
+  const FinanceTrackerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +52,7 @@ class FinanceTrackerApp extends StatelessWidget {
 }
 
 class FinanceHomePage extends StatefulWidget {
-  const FinanceHomePage({Key? key}) : super(key: key);
+  const FinanceHomePage({super.key});
 
   @override
   FinanceHomePageState createState() => FinanceHomePageState();
@@ -74,9 +74,9 @@ class FinanceHomePageState extends State<FinanceHomePage> {
 
   // Save transactions and incomes to shared_preferences
   Future<void> _saveData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String transactionsJson = jsonEncode(_transactions);
-    String incomesJson = jsonEncode(_incomes);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String transactionsJson = jsonEncode(_transactions);
+    final String incomesJson = jsonEncode(_incomes);
     await prefs.setString('transactions', transactionsJson);
     await prefs.setString('incomes', incomesJson);
     await prefs.setDouble('totalBalance', _totalBalance);
@@ -84,39 +84,39 @@ class FinanceHomePageState extends State<FinanceHomePage> {
 
   // Load transactions and incomes from shared_preferences
   Future<void> _loadData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? transactionsJson = prefs.getString('transactions');
-    String? incomesJson = prefs.getString('incomes');
-    double? savedBalance = prefs.getDouble('totalBalance');
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? transactionsJson = prefs.getString('transactions');
+    final String? incomesJson = prefs.getString('incomes');
+    final double? savedBalance = prefs.getDouble('totalBalance');
 
     if (transactionsJson != null) {
-      List<dynamic> loadedTransactions = jsonDecode(transactionsJson);
+      final List<dynamic> loadedTransactions =
+          jsonDecode(transactionsJson) as List<dynamic>;
       setState(() {
         _transactions.addAll(
-          loadedTransactions
-              .map(
-                (item) => {
-                  'amount': item['amount'],
-                  'description': item['description'],
-                },
-              )
-              .toList(),
+          loadedTransactions.map((item) {
+            final Map<String, dynamic> entry = item as Map<String, dynamic>;
+            return {
+              'amount': entry['amount'],
+              'description': entry['description'],
+            };
+          }).toList(),
         );
       });
     }
 
     if (incomesJson != null) {
-      List<dynamic> loadedIncomes = jsonDecode(incomesJson);
+      final List<dynamic> loadedIncomes =
+          jsonDecode(incomesJson) as List<dynamic>;
       setState(() {
         _incomes.addAll(
-          loadedIncomes
-              .map(
-                (item) => {
-                  'amount': item['amount'],
-                  'description': item['description'],
-                },
-              )
-              .toList(),
+          loadedIncomes.map((item) {
+            final Map<String, dynamic> entry = item as Map<String, dynamic>;
+            return {
+              'amount': entry['amount'],
+              'description': entry['description'],
+            };
+          }).toList(),
         );
       });
     }
@@ -163,7 +163,8 @@ class FinanceHomePageState extends State<FinanceHomePage> {
   // Delete transaction from list and update storage
   void _deleteTransaction(int index) {
     setState(() {
-      _totalBalance += _transactions[index]['amount']; // Revert transaction
+      final num amount = _transactions[index]['amount'] as num;
+      _totalBalance += amount; // Revert transaction
       _transactions.removeAt(index);
     });
     _saveData(); // Save the updated list after deletion
@@ -172,7 +173,8 @@ class FinanceHomePageState extends State<FinanceHomePage> {
   // Delete income from list and update storage
   void _deleteIncome(int index) {
     setState(() {
-      _totalBalance -= _incomes[index]['amount']; // Revert income
+      final num amount = _incomes[index]['amount'] as num;
+      _totalBalance -= amount; // Revert income
       _incomes.removeAt(index);
     });
     _saveData(); // Save the updated list after deletion
@@ -314,17 +316,20 @@ class FinanceHomePageState extends State<FinanceHomePage> {
                     ),
                   ),
                   ..._transactions.map((transaction) {
-                    int index = _transactions.indexOf(transaction);
+                    final int index = _transactions.indexOf(transaction);
+                    final String description =
+                        transaction['description'] as String;
+                    final num amount = transaction['amount'] as num;
                     return ListTile(
                       title: Text(
-                        transaction['description'],
+                        description,
                         style: const TextStyle(color: Colors.black),
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '-\$${transaction['amount'].toStringAsFixed(2)}',
+                            '-\$${amount.toStringAsFixed(2)}',
                             style: const TextStyle(color: Colors.black),
                           ),
                           IconButton(
@@ -336,7 +341,7 @@ class FinanceHomePageState extends State<FinanceHomePage> {
                         ],
                       ),
                     );
-                  }).toList(),
+                  }),
                   const SizedBox(height: 16),
                   const Text(
                     'Incomes:',
@@ -347,17 +352,19 @@ class FinanceHomePageState extends State<FinanceHomePage> {
                     ),
                   ),
                   ..._incomes.map((income) {
-                    int index = _incomes.indexOf(income);
+                    final int index = _incomes.indexOf(income);
+                    final String description = income['description'] as String;
+                    final num amount = income['amount'] as num;
                     return ListTile(
                       title: Text(
-                        income['description'],
+                        description,
                         style: const TextStyle(color: Colors.black),
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '+\$${income['amount'].toStringAsFixed(2)}',
+                            '+\$${amount.toStringAsFixed(2)}',
                             style: const TextStyle(color: Colors.black),
                           ),
                           IconButton(
@@ -369,7 +376,7 @@ class FinanceHomePageState extends State<FinanceHomePage> {
                         ],
                       ),
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             ),
