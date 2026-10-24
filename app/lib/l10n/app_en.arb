@@ -109,5 +109,347 @@
   "databaseErrorNoEncryption": "This version of Finance Tracker cannot encrypt data, so it will not open yours. Nothing has been deleted.",
   "@databaseErrorNoEncryption": {
     "description": "Supporting text of the database error screen when the app's database library has no encryption support."
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Button that saves the form being edited."
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Button that closes a dialog without doing anything."
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Button or menu item that deletes the record shown."
+  },
+  "settingsData": "Data",
+  "@settingsData": {
+    "description": "Heading of the settings section for categories and other data."
+  },
+  "categoriesTitle": "Categories",
+  "@categoriesTitle": {
+    "description": "Title of the category management screen, and its entry in Settings."
+  },
+  "categoriesSearch": "Search categories",
+  "@categoriesSearch": {
+    "description": "Label of the category search field."
+  },
+  "categoryAdd": "Add category",
+  "@categoryAdd": {
+    "description": "Button that opens the editor of a new category."
+  },
+  "categorySystem": "Built-in category",
+  "@categorySystem": {
+    "description": "Screen reader label of the lock icon on a built-in (system) category."
+  },
+  "categoryExpand": "{count, plural, =1{Show 1 category under {name}} other{Show {count} categories under {name}}}",
+  "@categoryExpand": {
+    "description": "Tooltip of the button that expands a top-level category.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Food and drink"
+      },
+      "count": {
+        "type": "int",
+        "example": "9"
+      }
+    }
+  },
+  "categoryCollapse": "Hide the categories under {name}",
+  "@categoryCollapse": {
+    "description": "Tooltip of the button that collapses a top-level category.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Food and drink"
+      }
+    }
+  },
+  "categoryNotFound": "This category no longer exists.",
+  "@categoryNotFound": {
+    "description": "Shown when the category asked for has been deleted or does not exist."
+  },
+  "categoryNewTitle": "New category",
+  "@categoryNewTitle": {
+    "description": "Title of the editor of a new category."
+  },
+  "categoryEditTitle": "Edit category",
+  "@categoryEditTitle": {
+    "description": "Title of the editor of an existing category."
+  },
+  "categoryName": "Name",
+  "@categoryName": {
+    "description": "Label of the category name field."
+  },
+  "categoryNameRequired": "Enter a name",
+  "@categoryNameRequired": {
+    "description": "Error under the category name field when it is empty."
+  },
+  "categoryParent": "Under",
+  "@categoryParent": {
+    "description": "Label of the field choosing the top-level category a category sits under."
+  },
+  "categoryParentNone": "Nothing (top level)",
+  "@categoryParentNone": {
+    "description": "Choice of the parent field for a top-level category."
+  },
+  "categoryIcon": "Icon",
+  "@categoryIcon": {
+    "description": "Heading of the icon choices in the category editor."
+  },
+  "categoryColor": "Color",
+  "@categoryColor": {
+    "description": "Heading of the color choices in the category editor."
+  },
+  "categorySystemNote": "A built-in category: only its icon and color can change.",
+  "@categorySystemNote": {
+    "description": "Note at the top of the editor of a built-in (system) category."
+  },
+  "categorySystemReadOnly": "Built-in categories can only change their icon and color.",
+  "@categorySystemReadOnly": {
+    "description": "Snack bar shown when a change to a built-in category is refused."
+  },
+  "categoryDeleteTitle": "Delete “{name}”?",
+  "@categoryDeleteTitle": {
+    "description": "Title of the confirmation before deleting a category.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Coffee"
+      }
+    }
+  },
+  "categoryDeleteBody": "{count, plural, =0{No transactions use it.} =1{1 transaction will become uncategorized.} other{{count} transactions will become uncategorized.}}",
+  "@categoryDeleteBody": {
+    "description": "Body of the confirmation before deleting a category without subcategories.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "categoryDeleteWithChildrenBody": "{children, plural, =1{The 1 category under it goes too.} other{The {children} categories under it go too.}} {count, plural, =0{No transactions use them.} =1{1 transaction will become uncategorized.} other{{count} transactions will become uncategorized.}}",
+  "@categoryDeleteWithChildrenBody": {
+    "description": "Body of the confirmation before deleting a category that has categories under it.",
+    "placeholders": {
+      "children": {
+        "type": "int",
+        "example": "2"
+      },
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "categoryIconPayments": "Payments",
+  "@categoryIconPayments": {
+    "description": "Screen reader label of the payments icon in the category icon choices."
+  },
+  "categoryIconAccountBalance": "Bank",
+  "@categoryIconAccountBalance": {
+    "description": "Screen reader label of the bank icon in the category icon choices."
+  },
+  "categoryIconCreditScore": "Credit score",
+  "@categoryIconCreditScore": {
+    "description": "Screen reader label of the credit score icon in the category icon choices."
+  },
+  "categoryIconCallReceived": "Money in",
+  "@categoryIconCallReceived": {
+    "description": "Screen reader label of the money in icon in the category icon choices."
+  },
+  "categoryIconCallMade": "Money out",
+  "@categoryIconCallMade": {
+    "description": "Screen reader label of the money out icon in the category icon choices."
+  },
+  "categoryIconReceiptLong": "Receipt",
+  "@categoryIconReceiptLong": {
+    "description": "Screen reader label of the receipt icon in the category icon choices."
+  },
+  "categoryIconMovie": "Movie",
+  "@categoryIconMovie": {
+    "description": "Screen reader label of the movie icon in the category icon choices."
+  },
+  "categoryIconRestaurant": "Restaurant",
+  "@categoryIconRestaurant": {
+    "description": "Screen reader label of the restaurant icon in the category icon choices."
+  },
+  "categoryIconShoppingBag": "Shopping bag",
+  "@categoryIconShoppingBag": {
+    "description": "Screen reader label of the shopping bag icon in the category icon choices."
+  },
+  "categoryIconHomeRepairService": "Toolbox",
+  "@categoryIconHomeRepairService": {
+    "description": "Screen reader label of the toolbox icon in the category icon choices."
+  },
+  "categoryIconMedicalServices": "Medical",
+  "@categoryIconMedicalServices": {
+    "description": "Screen reader label of the medical icon in the category icon choices."
+  },
+  "categoryIconSpa": "Spa",
+  "@categoryIconSpa": {
+    "description": "Screen reader label of the spa icon in the category icon choices."
+  },
+  "categoryIconBuild": "Wrench",
+  "@categoryIconBuild": {
+    "description": "Screen reader label of the wrench icon in the category icon choices."
+  },
+  "categoryIconVolunteerActivism": "Charity",
+  "@categoryIconVolunteerActivism": {
+    "description": "Screen reader label of the charity icon in the category icon choices."
+  },
+  "categoryIconDirectionsCar": "Car",
+  "@categoryIconDirectionsCar": {
+    "description": "Screen reader label of the car icon in the category icon choices."
+  },
+  "categoryIconFlight": "Plane",
+  "@categoryIconFlight": {
+    "description": "Screen reader label of the plane icon in the category icon choices."
+  },
+  "categoryIconHouse": "House",
+  "@categoryIconHouse": {
+    "description": "Screen reader label of the house icon in the category icon choices."
+  },
+  "categoryIconCategory": "Shapes",
+  "@categoryIconCategory": {
+    "description": "Screen reader label of the shapes icon in the category icon choices."
+  },
+  "categoryIconLocalGroceryStore": "Groceries",
+  "@categoryIconLocalGroceryStore": {
+    "description": "Screen reader label of the groceries icon in the category icon choices."
+  },
+  "categoryIconLocalCafe": "Coffee",
+  "@categoryIconLocalCafe": {
+    "description": "Screen reader label of the coffee icon in the category icon choices."
+  },
+  "categoryIconLocalBar": "Bar",
+  "@categoryIconLocalBar": {
+    "description": "Screen reader label of the bar icon in the category icon choices."
+  },
+  "categoryIconFastfood": "Fast food",
+  "@categoryIconFastfood": {
+    "description": "Screen reader label of the fast food icon in the category icon choices."
+  },
+  "categoryIconLocalGasStation": "Fuel",
+  "@categoryIconLocalGasStation": {
+    "description": "Screen reader label of the fuel icon in the category icon choices."
+  },
+  "categoryIconDirectionsBus": "Bus",
+  "@categoryIconDirectionsBus": {
+    "description": "Screen reader label of the bus icon in the category icon choices."
+  },
+  "categoryIconTrain": "Train",
+  "@categoryIconTrain": {
+    "description": "Screen reader label of the train icon in the category icon choices."
+  },
+  "categoryIconSchool": "School",
+  "@categoryIconSchool": {
+    "description": "Screen reader label of the school icon in the category icon choices."
+  },
+  "categoryIconChildCare": "Child care",
+  "@categoryIconChildCare": {
+    "description": "Screen reader label of the child care icon in the category icon choices."
+  },
+  "categoryIconPets": "Pets",
+  "@categoryIconPets": {
+    "description": "Screen reader label of the pets icon in the category icon choices."
+  },
+  "categoryIconFitnessCenter": "Fitness",
+  "@categoryIconFitnessCenter": {
+    "description": "Screen reader label of the fitness icon in the category icon choices."
+  },
+  "categoryIconSportsEsports": "Games",
+  "@categoryIconSportsEsports": {
+    "description": "Screen reader label of the games icon in the category icon choices."
+  },
+  "categoryIconMusicNote": "Music",
+  "@categoryIconMusicNote": {
+    "description": "Screen reader label of the music icon in the category icon choices."
+  },
+  "categoryIconMenuBook": "Books",
+  "@categoryIconMenuBook": {
+    "description": "Screen reader label of the books icon in the category icon choices."
+  },
+  "categoryIconPhoneIphone": "Phone",
+  "@categoryIconPhoneIphone": {
+    "description": "Screen reader label of the phone icon in the category icon choices."
+  },
+  "categoryIconWifi": "Internet",
+  "@categoryIconWifi": {
+    "description": "Screen reader label of the internet icon in the category icon choices."
+  },
+  "categoryIconBolt": "Electricity",
+  "@categoryIconBolt": {
+    "description": "Screen reader label of the electricity icon in the category icon choices."
+  },
+  "categoryIconWaterDrop": "Water",
+  "@categoryIconWaterDrop": {
+    "description": "Screen reader label of the water icon in the category icon choices."
+  },
+  "categoryIconSavings": "Savings",
+  "@categoryIconSavings": {
+    "description": "Screen reader label of the savings icon in the category icon choices."
+  },
+  "categoryIconCardGiftcard": "Gift",
+  "@categoryIconCardGiftcard": {
+    "description": "Screen reader label of the gift icon in the category icon choices."
+  },
+  "categoryIconCheckroom": "Clothing",
+  "@categoryIconCheckroom": {
+    "description": "Screen reader label of the clothing icon in the category icon choices."
+  },
+  "categoryIconCelebration": "Celebration",
+  "@categoryIconCelebration": {
+    "description": "Screen reader label of the celebration icon in the category icon choices."
+  },
+  "colorRed": "Red",
+  "@colorRed": {
+    "description": "Name of the red swatch in the category color choices."
+  },
+  "colorPink": "Pink",
+  "@colorPink": {
+    "description": "Name of the pink swatch in the category color choices."
+  },
+  "colorPurple": "Purple",
+  "@colorPurple": {
+    "description": "Name of the purple swatch in the category color choices."
+  },
+  "colorViolet": "Violet",
+  "@colorViolet": {
+    "description": "Name of the violet swatch in the category color choices."
+  },
+  "colorIndigo": "Indigo",
+  "@colorIndigo": {
+    "description": "Name of the indigo swatch in the category color choices."
+  },
+  "colorBlue": "Blue",
+  "@colorBlue": {
+    "description": "Name of the blue swatch in the category color choices."
+  },
+  "colorCyan": "Cyan",
+  "@colorCyan": {
+    "description": "Name of the cyan swatch in the category color choices."
+  },
+  "colorTeal": "Teal",
+  "@colorTeal": {
+    "description": "Name of the teal swatch in the category color choices."
+  },
+  "colorGreen": "Green",
+  "@colorGreen": {
+    "description": "Name of the green swatch in the category color choices."
+  },
+  "colorOrange": "Orange",
+  "@colorOrange": {
+    "description": "Name of the orange swatch in the category color choices."
+  },
+  "colorBrown": "Brown",
+  "@colorBrown": {
+    "description": "Name of the brown swatch in the category color choices."
+  },
+  "colorGrey": "Grey",
+  "@colorGrey": {
+    "description": "Name of the grey swatch in the category color choices."
   }
 }

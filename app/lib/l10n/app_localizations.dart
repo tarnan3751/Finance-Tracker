@@ -243,6 +243,462 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This version of Finance Tracker cannot encrypt data, so it will not open yours. Nothing has been deleted.'**
   String get databaseErrorNoEncryption;
+
+  /// Button that saves the form being edited.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// Button that closes a dialog without doing anything.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// Button or menu item that deletes the record shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// Heading of the settings section for categories and other data.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get settingsData;
+
+  /// Title of the category management screen, and its entry in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categoriesTitle;
+
+  /// Label of the category search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search categories'**
+  String get categoriesSearch;
+
+  /// Button that opens the editor of a new category.
+  ///
+  /// In en, this message translates to:
+  /// **'Add category'**
+  String get categoryAdd;
+
+  /// Screen reader label of the lock icon on a built-in (system) category.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in category'**
+  String get categorySystem;
+
+  /// Tooltip of the button that expands a top-level category.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Show 1 category under {name}} other{Show {count} categories under {name}}}'**
+  String categoryExpand(String name, int count);
+
+  /// Tooltip of the button that collapses a top-level category.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the categories under {name}'**
+  String categoryCollapse(String name);
+
+  /// Shown when the category asked for has been deleted or does not exist.
+  ///
+  /// In en, this message translates to:
+  /// **'This category no longer exists.'**
+  String get categoryNotFound;
+
+  /// Title of the editor of a new category.
+  ///
+  /// In en, this message translates to:
+  /// **'New category'**
+  String get categoryNewTitle;
+
+  /// Title of the editor of an existing category.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit category'**
+  String get categoryEditTitle;
+
+  /// Label of the category name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get categoryName;
+
+  /// Error under the category name field when it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get categoryNameRequired;
+
+  /// Label of the field choosing the top-level category a category sits under.
+  ///
+  /// In en, this message translates to:
+  /// **'Under'**
+  String get categoryParent;
+
+  /// Choice of the parent field for a top-level category.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing (top level)'**
+  String get categoryParentNone;
+
+  /// Heading of the icon choices in the category editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get categoryIcon;
+
+  /// Heading of the color choices in the category editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get categoryColor;
+
+  /// Note at the top of the editor of a built-in (system) category.
+  ///
+  /// In en, this message translates to:
+  /// **'A built-in category: only its icon and color can change.'**
+  String get categorySystemNote;
+
+  /// Snack bar shown when a change to a built-in category is refused.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in categories can only change their icon and color.'**
+  String get categorySystemReadOnly;
+
+  /// Title of the confirmation before deleting a category.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{name}”?'**
+  String categoryDeleteTitle(String name);
+
+  /// Body of the confirmation before deleting a category without subcategories.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No transactions use it.} =1{1 transaction will become uncategorized.} other{{count} transactions will become uncategorized.}}'**
+  String categoryDeleteBody(int count);
+
+  /// Body of the confirmation before deleting a category that has categories under it.
+  ///
+  /// In en, this message translates to:
+  /// **'{children, plural, =1{The 1 category under it goes too.} other{The {children} categories under it go too.}} {count, plural, =0{No transactions use them.} =1{1 transaction will become uncategorized.} other{{count} transactions will become uncategorized.}}'**
+  String categoryDeleteWithChildrenBody(int children, int count);
+
+  /// Screen reader label of the payments icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get categoryIconPayments;
+
+  /// Screen reader label of the bank icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get categoryIconAccountBalance;
+
+  /// Screen reader label of the credit score icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit score'**
+  String get categoryIconCreditScore;
+
+  /// Screen reader label of the money in icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Money in'**
+  String get categoryIconCallReceived;
+
+  /// Screen reader label of the money out icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Money out'**
+  String get categoryIconCallMade;
+
+  /// Screen reader label of the receipt icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get categoryIconReceiptLong;
+
+  /// Screen reader label of the movie icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Movie'**
+  String get categoryIconMovie;
+
+  /// Screen reader label of the restaurant icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurant'**
+  String get categoryIconRestaurant;
+
+  /// Screen reader label of the shopping bag icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping bag'**
+  String get categoryIconShoppingBag;
+
+  /// Screen reader label of the toolbox icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Toolbox'**
+  String get categoryIconHomeRepairService;
+
+  /// Screen reader label of the medical icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical'**
+  String get categoryIconMedicalServices;
+
+  /// Screen reader label of the spa icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Spa'**
+  String get categoryIconSpa;
+
+  /// Screen reader label of the wrench icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrench'**
+  String get categoryIconBuild;
+
+  /// Screen reader label of the charity icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Charity'**
+  String get categoryIconVolunteerActivism;
+
+  /// Screen reader label of the car icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Car'**
+  String get categoryIconDirectionsCar;
+
+  /// Screen reader label of the plane icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Plane'**
+  String get categoryIconFlight;
+
+  /// Screen reader label of the house icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'House'**
+  String get categoryIconHouse;
+
+  /// Screen reader label of the shapes icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Shapes'**
+  String get categoryIconCategory;
+
+  /// Screen reader label of the groceries icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Groceries'**
+  String get categoryIconLocalGroceryStore;
+
+  /// Screen reader label of the coffee icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Coffee'**
+  String get categoryIconLocalCafe;
+
+  /// Screen reader label of the bar icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar'**
+  String get categoryIconLocalBar;
+
+  /// Screen reader label of the fast food icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Fast food'**
+  String get categoryIconFastfood;
+
+  /// Screen reader label of the fuel icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get categoryIconLocalGasStation;
+
+  /// Screen reader label of the bus icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus'**
+  String get categoryIconDirectionsBus;
+
+  /// Screen reader label of the train icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Train'**
+  String get categoryIconTrain;
+
+  /// Screen reader label of the school icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'School'**
+  String get categoryIconSchool;
+
+  /// Screen reader label of the child care icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Child care'**
+  String get categoryIconChildCare;
+
+  /// Screen reader label of the pets icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Pets'**
+  String get categoryIconPets;
+
+  /// Screen reader label of the fitness icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness'**
+  String get categoryIconFitnessCenter;
+
+  /// Screen reader label of the games icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Games'**
+  String get categoryIconSportsEsports;
+
+  /// Screen reader label of the music icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Music'**
+  String get categoryIconMusicNote;
+
+  /// Screen reader label of the books icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Books'**
+  String get categoryIconMenuBook;
+
+  /// Screen reader label of the phone icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get categoryIconPhoneIphone;
+
+  /// Screen reader label of the internet icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Internet'**
+  String get categoryIconWifi;
+
+  /// Screen reader label of the electricity icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Electricity'**
+  String get categoryIconBolt;
+
+  /// Screen reader label of the water icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get categoryIconWaterDrop;
+
+  /// Screen reader label of the savings icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings'**
+  String get categoryIconSavings;
+
+  /// Screen reader label of the gift icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift'**
+  String get categoryIconCardGiftcard;
+
+  /// Screen reader label of the clothing icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Clothing'**
+  String get categoryIconCheckroom;
+
+  /// Screen reader label of the celebration icon in the category icon choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Celebration'**
+  String get categoryIconCelebration;
+
+  /// Name of the red swatch in the category color choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get colorRed;
+
+  /// Name of the pink swatch in the category color choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Pink'**
+  String get colorPink;
+
+  /// Name of the purple swatch in the category color choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple'**
+  String get colorPurple;
+
+  /// Name of the violet swatch in the category color choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Violet'**
+  String get colorViolet;
+
+  /// Name of the indigo swatch in the category color choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Indigo'**
+  String get colorIndigo;
+
+  /// Name of the blue swatch in the category color choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get colorBlue;
+
+  /// Name of the cyan swatch in the category color choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Cyan'**
+  String get colorCyan;
+
+  /// Name of the teal swatch in the category color choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Teal'**
+  String get colorTeal;
+
+  /// Name of the green swatch in the category color choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get colorGreen;
+
+  /// Name of the orange swatch in the category color choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Orange'**
+  String get colorOrange;
+
+  /// Name of the brown swatch in the category color choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Brown'**
+  String get colorBrown;
+
+  /// Name of the grey swatch in the category color choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Grey'**
+  String get colorGrey;
 }
 
 class _AppLocalizationsDelegate

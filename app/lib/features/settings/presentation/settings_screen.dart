@@ -1,8 +1,9 @@
-/// The Settings tab: Appearance (theme mode, dynamic color) and About (app name, version
-/// and build, flavor, the time zone dates are computed in).
+/// The Settings tab: Appearance (theme mode, dynamic color), Data (category management)
+/// and About (app name, version and build, flavor, the time zone dates are computed in).
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/features/settings/application/package_info.dart';
 import 'package:finance_tracker/features/settings/application/settings_controller.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
@@ -68,6 +69,13 @@ class SettingsScreen extends ConsumerWidget {
               onChanged: controller.setUseDynamicColor,
             ),
           ],
+          _SectionHeader(l10n.settingsData),
+          ListTile(
+            leading: const Icon(Icons.category_outlined),
+            title: Text(l10n.categoriesTitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => const CategoriesRoute().push<void>(context),
+          ),
           _SectionHeader(l10n.settingsAbout),
           ListTile(title: Text(l10n.aboutAppName), subtitle: Text(appName)),
           ListTile(

@@ -36,6 +36,25 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
           path: '/settings',
           hasOverriddenOnExit: false,
           factory: $SettingsRoute._fromState,
+          routes: [
+            GoRouteData.$route(
+              path: 'categories',
+              hasOverriddenOnExit: false,
+              factory: $CategoriesRoute._fromState,
+              routes: [
+                GoRouteData.$route(
+                  path: 'new',
+                  hasOverriddenOnExit: false,
+                  factory: $NewCategoryRoute._fromState,
+                ),
+                GoRouteData.$route(
+                  path: ':id',
+                  hasOverriddenOnExit: false,
+                  factory: $EditCategoryRoute._fromState,
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     ),
@@ -92,6 +111,73 @@ mixin $SettingsRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/settings');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $CategoriesRoute on GoRouteData {
+  static CategoriesRoute _fromState(GoRouterState state) =>
+      const CategoriesRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings/categories');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $NewCategoryRoute on GoRouteData {
+  static NewCategoryRoute _fromState(GoRouterState state) =>
+      const NewCategoryRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings/categories/new');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $EditCategoryRoute on GoRouteData {
+  static EditCategoryRoute _fromState(GoRouterState state) =>
+      EditCategoryRoute(state.pathParameters['id']!);
+
+  EditCategoryRoute get _self => this as EditCategoryRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/settings/categories/${Uri.encodeComponent(_self.id)}',
+  );
 
   @override
   void go(BuildContext context) => context.go(location);

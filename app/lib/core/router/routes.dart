@@ -1,20 +1,21 @@
 /// The typed routes (go_router_builder): a stateful shell with one branch per tab, each
 /// branch keeping its own navigation stack.
 ///
-/// | Tab | Path |
+/// | Tab | Paths |
 /// |---|---|
 /// | Accounts | `/accounts` |
 /// | Transactions | `/transactions` |
-/// | Settings | `/settings` |
+/// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id` |
 ///
-/// `/` redirects to `/accounts` (`app_router.dart`). Detail and editor routes
-/// (`/accounts/:id`, `/transactions/:id`, `/transactions/new`) arrive with Phase 1d as
-/// sub-routes of their branch. Navigate with the route classes, for example
-/// `const SettingsRoute().go(context)`, never with path strings.
+/// `/` redirects to `/accounts` (`app_router.dart`). Detail and editor routes are
+/// sub-routes of their branch, so each tab keeps its own stack. Navigate with the route
+/// classes, for example `const SettingsRoute().go(context)`, never with path strings.
 library;
 
 import 'package:finance_tracker/core/router/app_shell.dart';
 import 'package:finance_tracker/features/accounts/presentation/accounts_screen.dart';
+import 'package:finance_tracker/features/categories/presentation/categories_screen.dart';
+import 'package:finance_tracker/features/categories/presentation/category_editor_screen.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
 import 'package:finance_tracker/features/transactions/presentation/transactions_screen.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,18 @@ part 'routes.g.dart';
     ),
     TypedStatefulShellBranch<SettingsBranch>(
       routes: <TypedRoute<RouteData>>[
-        TypedGoRoute<SettingsRoute>(path: '/settings'),
+        TypedGoRoute<SettingsRoute>(
+          path: '/settings',
+          routes: <TypedRoute<RouteData>>[
+            TypedGoRoute<CategoriesRoute>(
+              path: 'categories',
+              routes: <TypedRoute<RouteData>>[
+                TypedGoRoute<NewCategoryRoute>(path: 'new'),
+                TypedGoRoute<EditCategoryRoute>(path: ':id'),
+              ],
+            ),
+          ],
+        ),
       ],
     ),
   ],
@@ -100,4 +112,33 @@ class SettingsRoute extends GoRouteData with $SettingsRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const SettingsScreen();
+}
+
+/// `/settings/categories`: the category hierarchy.
+class CategoriesRoute extends GoRouteData with $CategoriesRoute {
+  const CategoriesRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const CategoriesScreen();
+}
+
+/// `/settings/categories/new`: the editor of a new category.
+class NewCategoryRoute extends GoRouteData with $NewCategoryRoute {
+  const NewCategoryRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const CategoryEditorScreen();
+}
+
+/// `/settings/categories/:id`: the editor of an existing category.
+class EditCategoryRoute extends GoRouteData with $EditCategoryRoute {
+  const EditCategoryRoute(this.id);
+
+  final String id;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      CategoryEditorScreen(categoryId: id);
 }
