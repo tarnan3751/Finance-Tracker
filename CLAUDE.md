@@ -82,7 +82,8 @@ seat that touches them. Agents use the fakes and the demo flavor.
 
 | Area | Code | Reference |
 |---|---|---|
-| Core: `Money`, theme, routing, dependency injection, errors, utilities | `app/lib/core/` | `docs/reference/core.md` (Phase 1) |
+| Core: theme, routing, dependency injection, errors, utilities | `app/lib/core/` | `docs/reference/app-core.md` (Phase 1) |
+| Shared domain: `Money`, `LocalDate`, entities, taxonomy | `packages/shared_models/` | `docs/reference/core.md` |
 | Features, one folder each with `presentation/ application/ domain/ data/` | `app/lib/features/<feature>/` | `docs/reference/<feature>.md` as each lands |
 | Local database: Drift schema, migrations, repositories in three implementations | `app/lib/features/*/data/`, `app/lib/core/db/` | `docs/reference/data.md` (Phase 1) |
 | Sync engine (pure Dart, no Flutter) | `packages/sync_engine/` (Phase 2) | `docs/reference/sync.md` |
