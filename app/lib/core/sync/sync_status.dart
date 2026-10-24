@@ -8,7 +8,7 @@ import 'package:sync_engine/sync_engine.dart';
 
 /// Where sync stands on this device.
 enum SyncPhase {
-  /// The flavor never syncs (demo).
+  /// This build's data does not sync: the demo flavor, or in-memory repositories.
   unavailable,
 
   /// Nobody is signed in, so there is no server to sync with.

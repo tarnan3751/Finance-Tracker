@@ -1,10 +1,11 @@
 /// Runs the device's sync sessions and keeps their status (`docs/reference/sync-app.md`,
 /// **The controller**).
 ///
-/// In dev and prod, while someone is signed in (`syncDeviceIdProvider` and
-/// `syncRelayProvider` both set), a session runs: when the controller starts, when the
-/// app resumes, [SyncController.syncNow], and the debounce (3 s by default) after the
-/// last local change, which it sees as the outbox growing. One session runs at a time; a
+/// When the local data syncs (dev and prod, `localDataSyncsProvider`) and someone is
+/// signed in (`syncDeviceIdProvider`, from the session; `syncRelayProvider`, the API's
+/// relay), a session runs: when the controller starts, when the app resumes,
+/// [SyncController.syncNow], and the debounce (3 s by default) after the last local
+/// change, which it sees as the outbox growing. One session runs at a time; a
 /// trigger during a run runs one more after it. A device change (sign-out, sign-in) lets
 /// a session in flight finish and discards its report. Before each session the device
 /// clock adopts the server's device id, moving the outbox to it. A relay whose log was
@@ -15,6 +16,7 @@ library;
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:finance_tracker/core/api/problems.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/db/tables/sync_meta.dart';
@@ -46,7 +48,8 @@ class SyncController extends _$SyncController {
 
   @override
   SyncStatus build() {
-    if (ref.watch(appConfigProvider).flavor == Flavor.demo) {
+    if (ref.watch(appConfigProvider).flavor == Flavor.demo ||
+        !ref.watch(localDataSyncsProvider)) {
       return SyncStatus.unavailable;
     }
     ref.listen<String?>(
@@ -219,5 +222,10 @@ class SyncController extends _$SyncController {
   }
 }
 
-/// The [SyncFailure] that [error] is.
-SyncFailure classifySyncError(Object error) => SyncFailure.other;
+/// The [SyncFailure] that [error] is: no answer is offline; any other API failure is the
+/// server's.
+SyncFailure classifySyncError(Object error) => switch (error) {
+  NetworkError() => SyncFailure.offline,
+  ApiException() => SyncFailure.server,
+  _ => SyncFailure.other,
+};

@@ -118,6 +118,17 @@ void main() {
     fail('the controller did not settle: ${c.read(syncControllerProvider)}');
   }
 
+  test('in-memory data never syncs, even signed in', () {
+    final ProviderContainer c = ProviderContainer.test(
+      overrides: [
+        appConfigProvider.overrideWithValue(AppConfig.prod()),
+        syncDeviceIdProvider.overrideWithValue('dev-a'),
+        syncRelayProvider.overrideWithValue(relay),
+      ],
+    );
+    expect(c.read(syncControllerProvider), SyncStatus.unavailable);
+  });
+
   test('the demo flavor never syncs', () {
     final ProviderContainer c = ProviderContainer.test(
       overrides: overridesFor(AppConfig.demo()),
@@ -131,6 +142,8 @@ void main() {
       final ProviderContainer c = ProviderContainer.test(
         overrides: [
           appConfigProvider.overrideWithValue(AppConfig.dev()),
+          localDataSyncsProvider.overrideWithValue(true),
+          syncDeviceIdProvider.overrideWithValue(null),
           databaseProvider.overrideWith(
             (ref) => throw StateError('no database'),
           ),

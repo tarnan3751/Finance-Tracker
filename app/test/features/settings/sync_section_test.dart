@@ -1,6 +1,7 @@
 // The settings screen's Sync section: what each status shows, "Sync now", and that the
 // demo flavor has no Sync section.
 import 'package:finance_tracker/core/config/app_config.dart';
+import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:flutter/material.dart';
@@ -24,17 +25,25 @@ final class _FixedSync extends SyncController {
 }
 
 void main() {
-  testWidgets('signed out, it asks to sign in and offers no Sync now', (
-    tester,
-  ) async {
-    await pumpApp(tester, initialLocation: '/settings');
-    expect(find.text('Sync'), findsOneWidget);
-    expect(
-      find.text('Sign in to sync your data between devices'),
-      findsOneWidget,
-    );
-    expect(find.text('Sync now'), findsNothing);
-  });
+  testWidgets(
+    'with no session for sync, it asks to sign in and offers no Sync now',
+    (tester) async {
+      await pumpApp(
+        tester,
+        initialLocation: '/settings',
+        overrides: [
+          localDataSyncsProvider.overrideWithValue(true),
+          syncDeviceIdProvider.overrideWithValue(null),
+        ],
+      );
+      expect(find.text('Sync'), findsOneWidget);
+      expect(
+        find.text('Sign in to sync your data between devices'),
+        findsOneWidget,
+      );
+      expect(find.text('Sync now'), findsNothing);
+    },
+  );
 
   testWidgets(
     'signed in, it shows the last sync, the outbox and what is held back',
@@ -162,6 +171,11 @@ void main() {
       ),
     );
     expect(button.onPressed, isNull);
+  });
+
+  testWidgets('in-memory data has no Sync section', (tester) async {
+    await pumpApp(tester, initialLocation: '/settings');
+    expect(find.text('Sync'), findsNothing);
   });
 
   testWidgets('the demo flavor has no Sync section', (tester) async {

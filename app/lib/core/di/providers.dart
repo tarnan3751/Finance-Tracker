@@ -23,11 +23,14 @@ import 'package:finance_tracker/core/db/legacy_import/import_summary.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/core/sync/device_clock.dart';
+import 'package:finance_tracker/core/sync/http_sync_relay.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/data/demo_account_repository.dart';
 import 'package:finance_tracker/features/accounts/data/drift_account_repository.dart';
 import 'package:finance_tracker/features/accounts/data/in_memory_account_repository.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
+import 'package:finance_tracker/features/auth/application/session_controller.dart';
+import 'package:finance_tracker/features/auth/domain/session_state.dart';
 import 'package:finance_tracker/features/categories/data/demo_category_repository.dart';
 import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
 import 'package:finance_tracker/features/categories/data/in_memory_category_repository.dart';
@@ -42,6 +45,7 @@ import 'package:finance_tracker/features/transactions/data/in_memory_transaction
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:persona_engine/persona_engine.dart' show DemoSeed, PersonaId;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 
 part 'providers.g.dart';
@@ -119,14 +123,30 @@ ChangeRecorder changeRecorder(Ref ref) {
 }
 
 /// The server's id for this device while someone is signed in, else null: the node the
-/// device's sync clock adopts. Null until the session is wired to it.
+/// device's sync clock adopts.
 @Riverpod(keepAlive: true)
-String? syncDeviceId(Ref ref) => null;
+String? syncDeviceId(Ref ref) => switch (ref.watch(sessionControllerProvider)) {
+  SignedIn(:final Device device) => device.id,
+  _ => null,
+};
 
-/// The relay the device syncs through while someone is signed in, else null. Null until
-/// the API layer is wired to it.
+/// The relay the device syncs through while someone is signed in, else null: the API's
+/// sync endpoints, as this device.
 @Riverpod(keepAlive: true)
-SyncRelay? syncRelay(Ref ref) => null;
+SyncRelay? syncRelay(Ref ref) {
+  final String? deviceId = ref.watch(syncDeviceIdProvider);
+  return deviceId == null
+      ? null
+      : HttpSyncRelay(
+          FinanceApiSyncEndpoints(ref.watch(financeApiProvider)),
+          deviceId: deviceId,
+        );
+}
+
+/// Whether this build's local data syncs: the Drift data of dev and prod, through
+/// [overridesFor]. The in-memory data of the tests and the demo flavor never does.
+@Riverpod(keepAlive: true)
+bool localDataSyncs(Ref ref) => false;
 
 /// How long after the last local change a sync session starts.
 @Riverpod(keepAlive: true)
@@ -205,8 +225,9 @@ List<Override> overridesFor(AppConfig config) => [
 ];
 
 /// dev and prod: the Drift repositories over the encrypted database, recording into the
-/// Drift sync store with the device clock.
+/// Drift sync store with the device clock, and that data syncs.
 final List<Override> _driftOverrides = [
+  localDataSyncsProvider.overrideWithValue(true),
   changeRecorderProvider.overrideWith((ref) {
     final Clock clock = ref.watch(clockProvider);
     return EngineChangeRecorder(

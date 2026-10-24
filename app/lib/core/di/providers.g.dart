@@ -454,19 +454,19 @@ final class ChangeRecorderProvider
 String _$changeRecorderHash() => r'12d25ee7e97c97cffb45f8dff0debccf12ae5c12';
 
 /// The server's id for this device while someone is signed in, else null: the node the
-/// device's sync clock adopts. Null until the session is wired to it.
+/// device's sync clock adopts.
 
 @ProviderFor(syncDeviceId)
 final syncDeviceIdProvider = SyncDeviceIdProvider._();
 
 /// The server's id for this device while someone is signed in, else null: the node the
-/// device's sync clock adopts. Null until the session is wired to it.
+/// device's sync clock adopts.
 
 final class SyncDeviceIdProvider
     extends $FunctionalProvider<String?, String?, String?>
     with $Provider<String?> {
   /// The server's id for this device while someone is signed in, else null: the node the
-  /// device's sync clock adopts. Null until the session is wired to it.
+  /// device's sync clock adopts.
   SyncDeviceIdProvider._()
     : super(
         from: null,
@@ -500,22 +500,22 @@ final class SyncDeviceIdProvider
   }
 }
 
-String _$syncDeviceIdHash() => r'18a03fa8bebc7e1a78a678b977fe009b1d2e0f59';
+String _$syncDeviceIdHash() => r'f4397e0b56d6422f251e0d511f53d3cf27e6600d';
 
-/// The relay the device syncs through while someone is signed in, else null. Null until
-/// the API layer is wired to it.
+/// The relay the device syncs through while someone is signed in, else null: the API's
+/// sync endpoints, as this device.
 
 @ProviderFor(syncRelay)
 final syncRelayProvider = SyncRelayProvider._();
 
-/// The relay the device syncs through while someone is signed in, else null. Null until
-/// the API layer is wired to it.
+/// The relay the device syncs through while someone is signed in, else null: the API's
+/// sync endpoints, as this device.
 
 final class SyncRelayProvider
     extends $FunctionalProvider<SyncRelay?, SyncRelay?, SyncRelay?>
     with $Provider<SyncRelay?> {
-  /// The relay the device syncs through while someone is signed in, else null. Null until
-  /// the API layer is wired to it.
+  /// The relay the device syncs through while someone is signed in, else null: the API's
+  /// sync endpoints, as this device.
   SyncRelayProvider._()
     : super(
         from: null,
@@ -549,7 +549,55 @@ final class SyncRelayProvider
   }
 }
 
-String _$syncRelayHash() => r'17e6aa32c08822386716766006274b0c70a2c8ee';
+String _$syncRelayHash() => r'9f573de51dd7394acac0b90535f9d7da2c38ffc7';
+
+/// Whether this build's local data syncs: the Drift data of dev and prod, through
+/// [overridesFor]. The in-memory data of the tests and the demo flavor never does.
+
+@ProviderFor(localDataSyncs)
+final localDataSyncsProvider = LocalDataSyncsProvider._();
+
+/// Whether this build's local data syncs: the Drift data of dev and prod, through
+/// [overridesFor]. The in-memory data of the tests and the demo flavor never does.
+
+final class LocalDataSyncsProvider extends $FunctionalProvider<bool, bool, bool>
+    with $Provider<bool> {
+  /// Whether this build's local data syncs: the Drift data of dev and prod, through
+  /// [overridesFor]. The in-memory data of the tests and the demo flavor never does.
+  LocalDataSyncsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'localDataSyncsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$localDataSyncsHash();
+
+  @$internal
+  @override
+  $ProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  bool create(Ref ref) {
+    return localDataSyncs(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$localDataSyncsHash() => r'30083c89dc671e1b5868b20511a00537f8757e0a';
 
 /// How long after the last local change a sync session starts.
 
