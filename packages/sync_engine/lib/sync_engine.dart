@@ -5,4 +5,7 @@
 /// Pure Dart; no Flutter, no IO. How to use it: `docs/reference/sync.md`.
 library;
 
+export 'src/diff.dart';
+export 'src/entity_record.dart' show EntityKey, EntityRecord;
 export 'src/hlc_clock.dart';
+export 'src/merge.dart';
