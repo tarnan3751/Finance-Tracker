@@ -34,6 +34,10 @@ base class InMemoryTransactionRepository implements TransactionRepository {
       _recorded(transaction.id, () => store.upsertTransaction(transaction));
 
   @override
+  Future<List<Transaction>> applyPlaid(List<Transaction> page) async =>
+      store.applyPlaidTransactions(page);
+
+  @override
   Future<void> delete(String id) =>
       _recorded(id, () => store.deleteTransaction(id));
 

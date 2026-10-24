@@ -15,9 +15,9 @@ import 'package:finance_tracker/features/transactions/data/drift_transaction_rep
 import 'package:shared_models/shared_models.dart';
 
 /// Accounts in [AppDatabase]. Audit fields are stamped from the clock: `created_at` on
-/// insert, `updated_at` on every write, `deleted_at` on delete. Every write records the
-/// account, and each transaction a delete or restore changes, through [_recorder] in the
-/// same database transaction.
+/// insert, `updated_at` on every write, `deleted_at` on delete. Every local write records
+/// the account, and each transaction a delete or restore changes, through [_recorder] in
+/// the same database transaction; [applyPlaid], the server's, records nothing.
 final class DriftAccountRepository implements AccountRepository {
   /// The repository over [_database], stamping writes from [_clock] and recording them
   /// through `recorder`.
@@ -112,6 +112,63 @@ final class DriftAccountRepository implements AccountRepository {
       }
     });
   }
+
+  @override
+  Future<void> applyPlaid(List<Account> accounts) =>
+      _database.transaction(() async {
+        final List<AccountRow> stored = await _database.select(_accounts).get();
+        final Map<String, AccountRow> byId = {
+          for (final AccountRow row in stored) row.id: row,
+        };
+        int next = stored.fold(
+          0,
+          (n, row) => row.displayOrder >= n ? row.displayOrder + 1 : n,
+        );
+        final DateTime now = _clock.nowUtc();
+        // Built first, so a balance in another currency is refused before any write.
+        final List<AccountsCompanion> rows = [];
+        for (final Account account in accounts) {
+          final AccountRow? existing = byId[account.id];
+          final Account kept = existing == null
+              ? account.copyWith(displayOrder: next++)
+              : account.copyWith(
+                  isHidden: existing.isHidden,
+                  displayOrder: existing.displayOrder,
+                );
+          final AccountsCompanion row = accountCompanion(
+            kept,
+            createdAt: existing?.createdAt ?? now,
+            updatedAt: now,
+            deletedAt: const Value(null),
+          );
+          // An unchanged live row is left alone, so a pull that changes nothing wakes
+          // no watcher.
+          if (existing != null &&
+              existing.deletedAt == null &&
+              accountFromRow(existing) == kept) {
+            continue;
+          }
+          rows.add(row);
+        }
+        for (final AccountsCompanion row in rows) {
+          await _database.into(_accounts).insertOnConflictUpdate(row);
+        }
+        final Set<String> listed = {for (final Account a in accounts) a.id};
+        final List<String> gone = [
+          for (final AccountRow row in stored)
+            if (row.itemId != null &&
+                row.deletedAt == null &&
+                !listed.contains(row.id))
+              row.id,
+        ];
+        if (gone.isNotEmpty) {
+          await (_database.update(
+            _accounts,
+          )..where((a) => a.id.isIn(gone))).write(
+            AccountsCompanion(deletedAt: Value(now), updatedAt: Value(now)),
+          );
+        }
+      });
 
   @override
   Future<void> delete(String id) => _recorded(id, () async {

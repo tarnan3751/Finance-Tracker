@@ -7,6 +7,8 @@ import 'package:finance_tracker/features/accounts/data/demo_account_repository.d
 import 'package:finance_tracker/features/accounts/data/in_memory_account_repository.dart';
 import 'package:finance_tracker/features/categories/data/demo_category_repository.dart';
 import 'package:finance_tracker/features/categories/data/in_memory_category_repository.dart';
+import 'package:finance_tracker/features/items/data/demo_item_repository.dart';
+import 'package:finance_tracker/features/items/data/in_memory_item_repository.dart';
 import 'package:finance_tracker/features/settings/data/demo_settings_repository.dart';
 import 'package:finance_tracker/features/settings/data/in_memory_settings_repository.dart';
 import 'package:finance_tracker/features/transactions/data/demo_transaction_repository.dart';
@@ -43,6 +45,7 @@ FixtureFactory inMemoryFixtures() {
         transactions: InMemoryTransactionRepository(store, recorder: recorder),
         categories: InMemoryCategoryRepository(store, recorder: recorder),
         settings: InMemorySettingsRepository(recorder: recorder),
+        items: InMemoryItemRepository(store),
       );
     },
     dispose: () => store.close(),
@@ -63,6 +66,7 @@ FixtureFactory demoFixtures() {
         transactions: DemoTransactionRepository(store),
         categories: DemoCategoryRepository(store),
         settings: DemoSettingsRepository(),
+        items: DemoItemRepository(store),
       );
     },
     dispose: () => store.close(),

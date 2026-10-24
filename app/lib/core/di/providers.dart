@@ -35,6 +35,10 @@ import 'package:finance_tracker/features/categories/data/demo_category_repositor
 import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
 import 'package:finance_tracker/features/categories/data/in_memory_category_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
+import 'package:finance_tracker/features/items/data/demo_item_repository.dart';
+import 'package:finance_tracker/features/items/data/drift_item_repository.dart';
+import 'package:finance_tracker/features/items/data/in_memory_item_repository.dart';
+import 'package:finance_tracker/features/items/domain/item_repository.dart';
 import 'package:finance_tracker/features/settings/data/demo_settings_repository.dart';
 import 'package:finance_tracker/features/settings/data/drift_settings_repository.dart';
 import 'package:finance_tracker/features/settings/data/in_memory_settings_repository.dart';
@@ -193,6 +197,11 @@ CategoryRepository categoryRepository(Ref ref) => InMemoryCategoryRepository(
   recorder: ref.watch(changeRecorderProvider),
 );
 
+/// The user's Plaid Items.
+@Riverpod(keepAlive: true)
+ItemRepository itemRepository(Ref ref) =>
+    InMemoryItemRepository(ref.watch(inMemoryStoreProvider));
+
 /// Where the app preferences are kept.
 @Riverpod(keepAlive: true)
 SettingsRepository settingsRepository(Ref ref) {
@@ -264,6 +273,9 @@ final List<Override> _driftOverrides = [
       recorder: ref.watch(changeRecorderProvider),
     ),
   ),
+  itemRepositoryProvider.overrideWith(
+    (ref) => DriftItemRepository(ref.watch(databaseProvider)),
+  ),
   settingsRepositoryProvider.overrideWith(
     (ref) => DriftSettingsRepository(
       ref.watch(databaseProvider),
@@ -294,6 +306,9 @@ final List<Override> _demoOverrides = [
   ),
   categoryRepositoryProvider.overrideWith(
     (ref) => DemoCategoryRepository(ref.watch(inMemoryStoreProvider)),
+  ),
+  itemRepositoryProvider.overrideWith(
+    (ref) => DemoItemRepository(ref.watch(inMemoryStoreProvider)),
   ),
   settingsRepositoryProvider.overrideWith((ref) {
     final DemoSettingsRepository repository = DemoSettingsRepository();

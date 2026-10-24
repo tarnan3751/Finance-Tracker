@@ -914,6 +914,52 @@ final class CategoryRepositoryProvider
 String _$categoryRepositoryHash() =>
     r'560f8096426c9864d0d1c462c9a9c2b4c5940c37';
 
+/// The user's Plaid Items.
+
+@ProviderFor(itemRepository)
+final itemRepositoryProvider = ItemRepositoryProvider._();
+
+/// The user's Plaid Items.
+
+final class ItemRepositoryProvider
+    extends $FunctionalProvider<ItemRepository, ItemRepository, ItemRepository>
+    with $Provider<ItemRepository> {
+  /// The user's Plaid Items.
+  ItemRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'itemRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$itemRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<ItemRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ItemRepository create(Ref ref) {
+    return itemRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ItemRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ItemRepository>(value),
+    );
+  }
+}
+
+String _$itemRepositoryHash() => r'4e06709b476bab90530a481baf2c582826909613';
+
 /// Where the app preferences are kept.
 
 @ProviderFor(settingsRepository)

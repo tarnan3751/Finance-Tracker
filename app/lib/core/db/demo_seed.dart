@@ -8,9 +8,10 @@
 /// engine keeps apart from the transactions) is loaded as an "Opening balance"
 /// transaction, `source: demo`, dated that day, as a manual account's opening balance is.
 /// Investment accounts have no transaction history in the engine, so they derive to their
-/// uninvested cash only (holdings arrive with Phase 6). The engine's Items, institutions,
-/// liabilities, holdings, recurring expectations and anomalies are not loaded: the app has
-/// no repositories for them before Phase 3.
+/// uninvested cash only (holdings arrive with Phase 6). The engine's Items are loaded
+/// with their institutions, as the demo's fake server lists them; its liabilities,
+/// holdings, recurring expectations and anomalies are not: the app has no repositories
+/// for them yet.
 library;
 
 import 'package:finance_tracker/core/db/in_memory_store.dart';
@@ -32,10 +33,20 @@ PersonaId initialDemoPersona([
 DemoSeed demoSeedFor(PersonaId persona, LocalDate today) =>
     generateDemoSeed(persona, 1, today);
 
-/// Loads [seed] into [store], through the store's rules: the accounts, an opening balance
-/// transaction for each non-zero opening balance, then the transactions.
+/// Loads [seed] into [store], through the store's rules: the Items with their
+/// institutions, the accounts, an opening balance transaction for each non-zero opening
+/// balance, then the transactions.
 void loadDemoSeed(InMemoryStore store, DemoSeed seed) {
   final GeneratedHousehold household = seed.household;
+  store.applyPlaidItems([
+    for (final Item item in household.items)
+      (
+        item: item,
+        institution: household.institutions.firstWhere(
+          (i) => i.id == item.institutionId,
+        ),
+      ),
+  ], store.clock.nowUtc());
   household.accounts.forEach(store.upsertAccount);
   for (final OpeningBalance opening in household.openingBalances) {
     if (opening.amount.isZero) continue;

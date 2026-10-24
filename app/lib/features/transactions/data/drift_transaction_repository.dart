@@ -19,8 +19,8 @@ import 'package:shared_models/shared_models.dart';
 /// Transactions in [AppDatabase]. A query is one SELECT over `transactions` with the
 /// filters as SQL (see [_filter]); the page's tags and splits are loaded after it. Every
 /// write to a transaction rewrites its row, so watching `transactions` sees tag and split
-/// changes too. Every write records the transaction through [_recorder] in the same
-/// database transaction.
+/// changes too. Every local write records the transaction through [_recorder] in the
+/// same database transaction; [applyPlaid], the server's, records nothing.
 final class DriftTransactionRepository implements TransactionRepository {
   /// The repository over [_database], stamping deletes from [_clock] and recording writes
   /// through `recorder`.
@@ -107,6 +107,42 @@ final class DriftTransactionRepository implements TransactionRepository {
           before,
           transactionRecordJson(transaction.copyWith(deletedAt: null)),
         );
+      });
+
+  @override
+  Future<List<Transaction>> applyPlaid(List<Transaction> page) =>
+      _database.transaction(() async {
+        final Map<String, Transaction> stored = {};
+        final List<String> ids = [for (final Transaction t in page) t.id];
+        for (int start = 0; start < ids.length; start += 500) {
+          final List<String> chunk = ids.sublist(
+            start,
+            start + 500 > ids.length ? ids.length : start + 500,
+          );
+          final List<TransactionRow> rows = await (_database.select(
+            _transactions,
+          )..where((t) => t.id.isIn(chunk))).get();
+          for (final Transaction t in await transactionsWithChildren(
+            _database,
+            rows,
+          )) {
+            stored[t.id] = t;
+          }
+        }
+        final List<Transaction> inserted = [];
+        for (final Transaction t in page) {
+          final Transaction? old = stored[t.id];
+          if (old == null && t.deletedAt != null) continue;
+          final Transaction row = old == null ? t : withPlaidOverrides(t, old);
+          await writeTransactionRow(
+            _database,
+            row,
+            currency: row.amount.currencyCode,
+            deletedAt: Value(row.deletedAt),
+          );
+          if (old == null) inserted.add(row);
+        }
+        return inserted;
       });
 
   @override

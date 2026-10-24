@@ -1,6 +1,6 @@
-/// The accounts, transactions and categories held in memory: the shared state behind the
-/// in-memory repositories (tests) and the demo ones (the demo flavor, loaded with the demo
-/// seed).
+/// The accounts, transactions, categories and Plaid Items held in memory: the shared state
+/// behind the in-memory repositories (tests) and the demo ones (the demo flavor, loaded
+/// with the demo seed).
 ///
 /// One store backs all three repositories because they depend on each other: a derived
 /// balance sums the store's transactions, a transaction's currency is checked against its
@@ -20,6 +20,8 @@ import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
 import 'package:finance_tracker/features/categories/data/category_defaults.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
+import 'package:finance_tracker/features/items/domain/item_repository.dart';
+import 'package:finance_tracker/features/items/domain/linked_bank.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
@@ -37,7 +39,11 @@ final class InMemoryStore {
   final Set<String> _deletedWithAccount = {};
   final Map<String, ({Category category, DateTime? deletedAt})> _categories =
       {};
+  final Map<String, LinkedBank> _items = {};
   final StreamController<void> _changes = StreamController<void>.broadcast();
+
+  /// The clock the store stamps with.
+  Clock get clock => _clock;
 
   // Accounts --------------------------------------------------------------------------
 
@@ -147,6 +153,54 @@ final class InMemoryStore {
     _changed();
   }
 
+  /// `AccountRepository.applyPlaid`: [accounts] is the server's whole list of linked
+  /// accounts.
+  void applyPlaidAccounts(List<Account> accounts) {
+    final DateTime now = _clock.nowUtc();
+    int next = _accounts.values.fold(
+      0,
+      (n, e) => e.account.displayOrder >= n ? e.account.displayOrder + 1 : n,
+    );
+    // Every account is checked before any is written.
+    for (final Account account in accounts) {
+      for (final Money? balance in [
+        account.currentBalance,
+        account.availableBalance,
+        account.creditLimit,
+      ]) {
+        if (balance != null && balance.currencyCode != account.currencyCode) {
+          throw CurrencyMismatchException(
+            account.currencyCode,
+            balance.currencyCode,
+          );
+        }
+      }
+    }
+    final Set<String> listed = {};
+    for (final Account account in accounts) {
+      listed.add(account.id);
+      final existing = _accounts[account.id];
+      _accounts[account.id] = (
+        account: existing == null
+            ? account.copyWith(displayOrder: next++)
+            : account.copyWith(
+                isHidden: existing.account.isHidden,
+                displayOrder: existing.account.displayOrder,
+              ),
+        deletedAt: null,
+      );
+    }
+    for (final entry in _accounts.values.toList()) {
+      final Account a = entry.account;
+      if (a.itemId != null &&
+          entry.deletedAt == null &&
+          !listed.contains(a.id)) {
+        _accounts[a.id] = (account: a, deletedAt: now);
+      }
+    }
+    _changed();
+  }
+
   /// The derived balance of every live account, as `AccountRepository` documents.
   Map<String, Money?> derivedBalances() => {
     for (final Account a in accounts()) a.id: _derivedBalance(a),
@@ -218,6 +272,23 @@ final class InMemoryStore {
         );
       }
     }
+  }
+
+  /// `TransactionRepository.applyPlaid`; returns the transactions it inserted.
+  List<Transaction> applyPlaidTransactions(List<Transaction> page) {
+    final List<Transaction> inserted = [];
+    for (final Transaction t in page) {
+      final Transaction? old = _transactions[t.id];
+      if (old == null) {
+        if (t.deletedAt != null) continue;
+        _transactions[t.id] = t;
+        inserted.add(t);
+        continue;
+      }
+      _transactions[t.id] = withPlaidOverrides(t, old);
+    }
+    _changed();
+    return inserted;
   }
 
   /// `TransactionRepository.watchUsage`'s value.
@@ -382,6 +453,59 @@ final class InMemoryStore {
       added = true;
     }
     if (added) _changed();
+  }
+
+  // Items -----------------------------------------------------------------------------
+
+  /// The stored Items, ordered as `ItemRepository.watchAll` documents.
+  List<LinkedBank> items() => _items.values.toList()
+    ..sort((a, b) {
+      final int byName = compareNoCase(a.institution.name, b.institution.name);
+      return byName != 0 ? byName : compareBinary(a.id, b.id);
+    });
+
+  /// Item [id], or null.
+  LinkedBank? item(String id) => _items[id];
+
+  /// `ItemRepository.applyPlaid`.
+  void applyPlaidItems(List<ServerItem> items, DateTime pulledAt) {
+    for (final ServerItem item in items) {
+      _putItem(item, pulledAt);
+    }
+    final Set<String> listed = {for (final i in items) i.item.id};
+    _items.removeWhere((id, _) => !listed.contains(id));
+    _changed();
+  }
+
+  /// `ItemRepository.applyPlaidItem`.
+  void applyPlaidItem(ServerItem item, DateTime pulledAt) {
+    _putItem(item, pulledAt);
+    _changed();
+  }
+
+  void _putItem(ServerItem item, DateTime pulledAt) {
+    final LinkedBank? existing = _items[item.item.id];
+    _items[item.item.id] = LinkedBank(
+      item: item.item,
+      institution: item.institution,
+      logo: existing?.institution.logoUrl == item.institution.logoUrl
+          ? existing?.logo
+          : null,
+      pulledAt: pulledAt,
+    );
+  }
+
+  /// `ItemRepository.markLoginRequired`.
+  void markItemLoginRequired(String id) {
+    final LinkedBank? existing = _items[id];
+    if (existing == null) return;
+    _items[id] = existing.withItem(
+      existing.item.copyWith(
+        status: ItemStatus.loginRequired,
+        errorCode: itemLoginRequiredCode,
+      ),
+    );
+    _changed();
   }
 
   // Sync records ----------------------------------------------------------------------

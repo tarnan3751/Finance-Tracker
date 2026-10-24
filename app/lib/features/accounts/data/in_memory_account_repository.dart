@@ -63,6 +63,10 @@ base class InMemoryAccountRepository implements AccountRepository {
   }
 
   @override
+  Future<void> applyPlaid(List<Account> accounts) async =>
+      store.applyPlaidAccounts(accounts);
+
+  @override
   Future<void> delete(String id) =>
       _recorded(id, () => store.deleteAccount(id));
 

@@ -32,6 +32,15 @@ abstract interface class TransactionRepository {
   /// the account's; `EntityDeletedException` when the transaction is deleted.
   Future<void> upsert(Transaction transaction);
 
+  /// Applies [page], a page of the server's Plaid-sourced transactions (`GET
+  /// /transactions`), in one write that records nothing and skips the checks of a local
+  /// edit: each transaction is stored as the server sent it, `source`, audit fields,
+  /// `deletedAt` and `syncVersion` included, keeping the five fields the user owns
+  /// (`userCategoryId`, `notes`, `tags`, `splits`, `receiptPath`) from a stored row. A
+  /// tombstone for a transaction the device never had is skipped. Returns the
+  /// transactions it inserted, live ones only, as stored.
+  Future<List<Transaction>> applyPlaid(List<Transaction> page);
+
   /// Soft-deletes transaction [id], stamping its `updatedAt` from the clock. Does nothing
   /// when there is no such live transaction. Throws `BankDataNotDeletableException` for
   /// a `plaid` transaction: only the bank removes one.

@@ -396,5 +396,96 @@ void runAccountRepositoryContract(
         );
       });
     });
+
+    group('applyPlaid', () {
+      Account linked(
+        String id, {
+        String name = 'Checking',
+        int order = 0,
+        Money? current,
+      }) => Account(
+        id: id,
+        itemId: 'item-1',
+        type: AccountType.depository,
+        subtype: 'checking',
+        name: name,
+        mask: '0000',
+        currencyCode: 'USD',
+        currentBalance: current,
+        balancesAsOf: current == null ? null : DateTime.utc(2026, 10, 24, 6),
+        isHidden: false,
+        displayOrder: order,
+      );
+
+      test(
+        'new linked accounts go after the stored ones, in list order',
+        () async {
+          await accounts.upsert(testAccount('m1', displayOrder: 4));
+          await accounts.applyPlaid([
+            linked('p2', order: 0),
+            linked('p1', order: 9),
+          ]);
+          expect(await accounts.watchById('p2').first, linked('p2', order: 5));
+          expect(await accounts.watchById('p1').first, linked('p1', order: 6));
+        },
+      );
+
+      test(
+        'an update writes the bank fields and keeps hidden and order',
+        () async {
+          await accounts.applyPlaid([linked('p1')]);
+          final Account mine = (await accounts.watchById('p1').first)!.copyWith(
+            isHidden: true,
+            displayOrder: 3,
+          );
+          await accounts.upsert(mine);
+          final Account update = linked(
+            'p1',
+            name: 'Plaid Checking',
+            order: 8,
+            current: Money(12345, 'USD'),
+          );
+          await accounts.applyPlaid([update]);
+          expect(
+            await accounts.watchById('p1').first,
+            update.copyWith(isHidden: true, displayOrder: 3),
+          );
+        },
+      );
+
+      test('a linked account the server no longer lists is deleted; '
+          'listed again, it is back; manual accounts are untouched', () async {
+        await accounts.upsert(testAccount('m1'));
+        await accounts.applyPlaid([linked('p1'), linked('p2', order: 1)]);
+        await accounts.applyPlaid([linked('p2', order: 1)]);
+        expect(await accounts.watchById('p1').first, isNull);
+        expect((await accounts.watchAll().first).map((a) => a.id), [
+          'm1',
+          'p2',
+        ]);
+        await accounts.applyPlaid(const []);
+        expect((await accounts.watchAll().first).map((a) => a.id), ['m1']);
+        await accounts.applyPlaid([linked('p1')]);
+        expect(await accounts.watchById('p1').first, isNotNull);
+      });
+
+      test('a balance in another currency writes nothing', () async {
+        await expectLater(
+          accounts.applyPlaid([
+            linked('p1'),
+            linked('p2', current: Money(1, 'EUR')),
+          ]),
+          throwsA(isA<CurrencyMismatchException>()),
+        );
+        expect(await accounts.watchAll().first, isEmpty);
+      });
+
+      test('nothing is recorded', () async {
+        await accounts.applyPlaid([linked('p1')]);
+        await accounts.applyPlaid([linked('p1', name: 'Renamed')]);
+        await accounts.applyPlaid(const []);
+        expect(await f.syncStore?.unsynced() ?? const [], isEmpty);
+      });
+    });
   });
 }

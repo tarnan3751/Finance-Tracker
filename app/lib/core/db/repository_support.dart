@@ -1,12 +1,14 @@
 /// Rules and helpers the Drift and in-memory repositories share, so the two cannot drift
 /// apart: the category edit rule, the audit-instant rule, the transaction order, SQLite's
 /// text comparisons (ASCII case folding as `LIKE` and `NOCASE` do, UTF-8 byte order as
-/// `BINARY` does), and the equality the repositories' `distinct` streams use.
+/// `BINARY` does), the equality the repositories' `distinct` streams use, and what a
+/// Plaid transaction keeps from the stored row when the server's arrives.
 library;
 
 import 'dart:convert';
 
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
+import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart';
 
 /// Throws [CategoryNotEditableException] when writing [next] over [existing] (null for a
@@ -103,4 +105,25 @@ void checkRecentLimit(int recentLimit) {
   if (recentLimit < 1) {
     throw ArgumentError.value(recentLimit, 'recentLimit', 'must be at least 1');
   }
+}
+
+final Logger _log = Logger('db');
+
+/// [server], a transaction as the server sent it, carrying the five fields the user owns
+/// from [stored], the row already on the device (`PLAN.md` §6.4: Plaid's fields are the
+/// server's, the overrides the user's). Kept splits in another currency than the
+/// server's amount cannot be stored and are dropped; only their count is logged.
+Transaction withPlaidOverrides(Transaction server, Transaction stored) {
+  List<TransactionSplit> splits = stored.splits;
+  if (splits.any((s) => s.amount.currencyCode != server.amount.currencyCode)) {
+    _log.warning('dropped ${splits.length} splits in another currency');
+    splits = const [];
+  }
+  return server.copyWith(
+    userCategoryId: stored.userCategoryId,
+    notes: stored.notes,
+    tags: stored.tags,
+    splits: splits,
+    receiptPath: stored.receiptPath,
+  );
 }

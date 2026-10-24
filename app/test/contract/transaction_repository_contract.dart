@@ -724,6 +724,118 @@ void runTransactionRepositoryContract(
         );
       });
     });
+
+    group('applyPlaid', () {
+      final DateTime at = DateTime.utc(2026, 10, 20, 8);
+      Transaction bank(
+        String id, {
+        int cents = -1599,
+        String name = 'NETFLIX.COM',
+        bool pending = true,
+        DateTime? deletedAt,
+        int version = 1,
+        DataSource source = DataSource.plaid,
+        String accountId = 'a1',
+      }) => Transaction(
+        id: id,
+        accountId: accountId,
+        amount: Money(cents, 'USD'),
+        date: LocalDate(2026, 10, 20),
+        pending: pending,
+        name: name,
+        merchantName: 'Netflix',
+        plaidPrimaryCategory: 'ENTERTAINMENT',
+        source: source,
+        createdAt: at,
+        updatedAt: at,
+        deletedAt: deletedAt,
+        syncVersion: version,
+      );
+
+      test('new transactions are stored as sent and returned', () async {
+        final List<Transaction> page = [
+          bank('p1'),
+          bank('d1', source: DataSource.demo, accountId: 'elsewhere'),
+        ];
+        expect(await transactions.applyPlaid(page), page);
+        expect(await transactions.watchById('p1').first, page[0]);
+        // No account check: the server's row may arrive before its account.
+        expect(await transactions.watchById('d1').first, page[1]);
+      });
+
+      test('an update keeps the five fields the user owns', () async {
+        await transactions.applyPlaid([bank('p1')]);
+        final Transaction mine = bank('p1').copyWith(
+          userCategoryId: 'c1',
+          notes: 'shared',
+          tags: const ['tv'],
+          splits: [
+            TransactionSplit(categoryId: 'c1', amount: Money(-1599, 'USD')),
+          ],
+          receiptPath: 'receipts/1.jpg',
+        );
+        await transactions.upsert(mine);
+        final Transaction posted = bank(
+          'p1',
+          cents: -1699,
+          pending: false,
+          version: 7,
+        ).copyWith(updatedAt: at.add(const Duration(days: 1)));
+        expect(await transactions.applyPlaid([posted]), isEmpty);
+        expect(
+          await transactions.watchById('p1').first,
+          posted.copyWith(
+            userCategoryId: 'c1',
+            notes: 'shared',
+            tags: const ['tv'],
+            splits: mine.splits,
+            receiptPath: 'receipts/1.jpg',
+          ),
+        );
+      });
+
+      test('a tombstone applies as sent; a tombstone of an unknown row is '
+          'skipped', () async {
+        await transactions.applyPlaid([bank('p1')]);
+        final DateTime gone = at.add(const Duration(hours: 1));
+        expect(
+          await transactions.applyPlaid([
+            bank('p1', deletedAt: gone, version: 2),
+            bank('p2', deletedAt: gone, version: 3),
+          ]),
+          isEmpty,
+        );
+        expect(await transactions.watchById('p1').first, isNull);
+        expect(await transactions.watchById('p2').first, isNull);
+        expect(await transactions.count(TransactionQuery.all), 0);
+        // The server's row comes back live: it is live again here.
+        await transactions.applyPlaid([bank('p1', version: 4)]);
+        expect(
+          await transactions.watchById('p1').first,
+          bank('p1', version: 4),
+        );
+      });
+
+      test('the source is the server\'s, and nothing is recorded', () async {
+        final int before = (await f.syncStore?.unsynced())?.length ?? 0;
+        await transactions.applyPlaid([
+          bank('p1'),
+          bank('d1', source: DataSource.demo),
+        ]);
+        await transactions.applyPlaid([
+          bank('p1', name: 'Netflix', version: 2),
+        ]);
+        expect(
+          (await transactions.watchById('p1').first)!.source,
+          DataSource.plaid,
+        );
+        expect(
+          (await transactions.watchById('d1').first)!.source,
+          DataSource.demo,
+        );
+        expect((await f.syncStore?.unsynced())?.length ?? 0, before);
+      });
+    });
   });
 
   group('TransactionQuery', () {

@@ -39,6 +39,16 @@ abstract interface class AccountRepository {
   /// only when its Item is unlinked.
   Future<void> delete(String id);
 
+  /// Applies [accounts], the server's whole list of linked accounts (`GET /accounts`), in
+  /// one write that records nothing and skips the checks of a local edit (the server is
+  /// authoritative): a listed account is inserted or updated with every field the server
+  /// sent and is live, keeping its stored `isHidden` and `displayOrder` (a new one goes
+  /// after every stored account, in list order); a stored linked account the list does
+  /// not hold is soft-deleted (its Item was unlinked, or the bank closed it). Manual
+  /// accounts are never touched. Throws `CurrencyMismatchException` for a balance in
+  /// another currency than its account's, writing nothing.
+  Future<void> applyPlaid(List<Account> accounts);
+
   /// Restores deleted account [id] and exactly the transactions its delete removed
   /// (stamping their `updatedAt`); transactions deleted on their own stay deleted. Does
   /// nothing when the account is not deleted.
