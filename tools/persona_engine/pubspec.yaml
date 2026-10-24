@@ -9,6 +9,9 @@ environment:
 
 resolution: workspace
 
+executables:
+  persona_engine:
+
 dependencies:
   args: ^2.7.0
   collection: ^1.19.1
