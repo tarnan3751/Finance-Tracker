@@ -1,11 +1,12 @@
 // The fake server's datasets from the persona engine: every persona's household is a
 // valid dataset whose Items, accounts and transactions the API serves as the engine gave
 // them; the empty dataset links nothing; and the demo flavor's fake serves the persona
-// the demo shows.
+// the demo shows, linked, with Houndstooth Bank still to link.
 import 'package:finance_tracker/core/api/api_models.dart';
 import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/api/fake/fake_dataset.dart';
 import 'package:finance_tracker/core/api/fake/fake_server.dart';
+import 'package:finance_tracker/core/api/finance_api.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -68,7 +69,8 @@ void main() {
     expect(await client.api.listAccounts(), isEmpty);
   });
 
-  test("the demo flavor's fake serves the persona the demo shows", () async {
+  test("the demo flavor's fake serves the persona the demo shows, and one more "
+      'bank to link', () async {
     final ProviderContainer container = ProviderContainer.test(
       overrides: [
         ...overridesFor(AppConfig.demo()),
@@ -77,9 +79,15 @@ void main() {
     );
     final DemoSeed seed = container.read(demoSeedProvider);
     final FakeDataset dataset = container.read(fakeServerProvider).dataset;
-    expect(
-      dataset.items.map((i) => i.id).toList(),
-      seed.household.items.map((i) => i.id).toList(),
-    );
+    expect(dataset.items.map((i) => i.id).toList(), [
+      ...seed.household.items.map((i) => i.id),
+      'demo-houndstooth',
+    ]);
+    // The demo user has the household's Items; the sample's is there to link.
+    final FinanceApi api = container.read(financeApiProvider);
+    final List<String> linked = [
+      for (final i in await api.listItems()) i.item.id,
+    ];
+    expect(linked, unorderedEquals(seed.household.items.map((i) => i.id)));
   });
 }

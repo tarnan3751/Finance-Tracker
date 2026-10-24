@@ -53,7 +53,7 @@
 ///
 /// Not mirrored: the dev server's rate limiter; a test scripts a 429 with [failNext].
 /// Hooks for tests: [failNext], [failNextNetwork], [latency], [advanceClock], [calls],
-/// [notReadyItems]; [completeLink] for the fake Link launcher.
+/// [notReadyItems], [seededSyncVersionOf]; [completeLink] for the fake Link launcher.
 library;
 
 import 'dart:convert';
@@ -449,16 +449,30 @@ final class FakeServer {
     );
   }
 
-  /// Links every dataset Item to the user [email] and applies it, as a completed sync.
-  void seedLinkedItems(String email) {
+  /// Links the dataset Items [itemIds] (every one by default) to the user [email] and
+  /// applies them, as a completed sync.
+  void seedLinkedItems(String email, {Set<String>? itemIds}) {
     final _User user = _users[email.toLowerCase()]!;
     final _UserData data = _dataOf(user.id);
     for (final FakeItemData item in dataset.items) {
+      if (itemIds != null && !itemIds.contains(item.id)) continue;
       final _LinkedItem linked = data.items[item.id] ??= _LinkedItem(item);
       linked.syncCalls = 1;
       _apply(data, linked);
     }
+    _seededVersions[user.id] = data.version;
   }
+
+  // The `sync_version` each user's data had reached when [seedLinkedItems] applied it.
+  final Map<String, int> _seededVersions = {};
+
+  /// The `sync_version` the user [email]'s Plaid data had reached when [seedLinkedItems]
+  /// last applied it, 0 when it never did: where a client that already holds the seeded
+  /// rows starts its transactions cursor (the demo flavor, whose store is loaded from the
+  /// same seed). Recorded at seeding, so it does not move when a later Link applies new
+  /// rows, whenever the client asks.
+  int seededSyncVersionOf(String email) =>
+      _seededVersions[_users[email.toLowerCase()]!.id] ?? 0;
 
   _User _createUser(String email, String password, String? displayName) {
     final String key = email.toLowerCase();

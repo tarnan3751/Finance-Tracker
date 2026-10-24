@@ -344,6 +344,17 @@ final List<Override> _demoOverrides = [
   itemRepositoryProvider.overrideWith(
     (ref) => DemoItemRepository(ref.watch(inMemoryStoreProvider)),
   ),
+  // The store already holds the seed the fake server applied for the demo user: the
+  // first pull starts after it (the version recorded at seeding, however late the store
+  // is built), and brings only what a Link action adds.
+  plaidPullStoreProvider.overrideWith((ref) {
+    ref.watch(inMemoryStoreProvider);
+    return InMemoryPlaidPullStore(
+      transactionsSince: ref
+          .watch(fakeServerProvider)
+          .seededSyncVersionOf(demoEmail),
+    );
+  }),
   settingsRepositoryProvider.overrideWith((ref) {
     final DemoSettingsRepository repository = DemoSettingsRepository();
     ref.onDispose(repository.close);

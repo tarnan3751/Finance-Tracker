@@ -3,14 +3,16 @@
 ///
 /// - dev and prod: `HttpFinanceApi` on the network, the session in secure storage.
 /// - demo: the in-app fake server behind the real client, over the persona engine's
-///   household the demo shows, seeded with the demo user (`demoEmail`), its Items linked
-///   and synced, and that user signed in, so the demo never shows sign-in and makes no
-///   network call.
+///   household the demo shows plus Houndstooth Bank (`demoLinkableBank`), seeded with the
+///   demo user (`demoEmail`), the household's Items linked and synced, and that user
+///   signed in, so the demo never shows sign-in and makes no network call; linking a bank
+///   in the demo adds Houndstooth Bank.
+/// - dev with `--dart-define=FT_FAKE_SERVER=true`: the same fake over the sample dataset,
+///   empty and signed out, with the session in memory, for the auth flow on the emulator
+///   without a server. The define is ignored in every other flavor. The fake is new in
+///   each process, so a relaunch re-applies its rows over local edits of `demo` rows.
 ///
 /// Wherever the fake server runs, Plaid Link is the fake launcher over it.
-/// - dev with `--dart-define=FT_FAKE_SERVER=true`: the same fake, empty and signed out,
-///   with the session in memory, for the auth flow on the emulator without a server. The
-///   define is ignored in every other flavor.
 library;
 
 import 'package:finance_tracker/core/api/api_config.dart';
@@ -78,9 +80,10 @@ List<Override> apiOverridesFor(AppConfig config) => switch (config.flavor) {
 };
 
 /// The fake server over a dataset, a session in memory and the API on the fake: the
-/// dataset is the demo flavor's persona seed (`demoSeedProvider`) when [personaSeed],
-/// else the sample dated to the clock's today. When [signedIn], the demo user exists,
-/// its Items are linked and synced, and its session is stored. Plaid Link is the fake
+/// dataset is the demo flavor's persona seed (`demoSeedProvider`) followed by
+/// [demoLinkableBank] when [personaSeed], else the sample dated to the clock's today. When
+/// [signedIn], the demo user exists, the persona's Items (with [personaSeed]) or the
+/// sample's are linked and synced, and its session is stored. Plaid Link is the fake
 /// launcher over the fake server.
 List<Override> fakeApiOverrides({
   required bool signedIn,
@@ -88,10 +91,17 @@ List<Override> fakeApiOverrides({
 }) => [
   fakeServerProvider.overrideWith((ref) {
     final Clock clock = ref.watch(clockProvider);
+    final FakeDataset sample = FakeDataset.sample(clock.today());
+    final FakeDataset? persona = personaSeed
+        ? FakeDataset.fromDemoSeed(ref.watch(demoSeedProvider))
+        : null;
     final FakeServer server = FakeServer(
-      dataset: personaSeed
-          ? FakeDataset.fromDemoSeed(ref.watch(demoSeedProvider))
-          : FakeDataset.sample(clock.today()),
+      // The demo's own banks, then one more the demo can link.
+      dataset: persona == null
+          ? sample
+          : FakeDataset(
+              items: [...persona.items, demoLinkableBank(clock.today())],
+            ),
       now: clock.nowUtc,
       localDate: (instant) =>
           LocalDate.fromDateTime(tz.TZDateTime.from(instant, clock.location)),
@@ -103,7 +113,12 @@ List<Override> fakeApiOverrides({
           password: demoPassword,
           displayName: 'Demo',
         )
-        ..seedLinkedItems(demoEmail);
+        ..seedLinkedItems(
+          demoEmail,
+          itemIds: {
+            for (final FakeItemData item in (persona ?? sample).items) item.id,
+          },
+        );
     }
     return server;
   }),
@@ -123,6 +138,29 @@ List<Override> fakeApiOverrides({
     (ref) => FakeLinkLauncher(ref.watch(fakeServerProvider)),
   ),
 ];
+
+/// The bank the demo can link: the sample's accounts and transactions as Item
+/// `demo-houndstooth` at Houndstooth Bank (`ins_109512`, a Sandbox institution no persona
+/// uses, so its card cannot be mistaken for one the demo already has).
+FakeItemData demoLinkableBank(LocalDate today) {
+  const String id = 'demo-houndstooth';
+  final FakeItemData sample = FakeDataset.sample(today).items.single;
+  return FakeItemData(
+    id: id,
+    institution: const Institution(id: 'ins_109512', name: 'Houndstooth Bank'),
+    accounts: [
+      for (final Account a in sample.accounts)
+        a.copyWith(
+          itemId: id,
+          name: a.name.replaceFirst('Platypus', 'Houndstooth'),
+          officialName: null,
+        ),
+    ],
+    transactions: sample.transactions,
+    recurringStreams: sample.recurringStreams,
+    liabilities: sample.liabilities,
+  );
+}
 
 /// The API over `fakeServerProvider`, whatever supplies it.
 final Override fakeFinanceApiOverride = financeApiProvider.overrideWith((ref) {

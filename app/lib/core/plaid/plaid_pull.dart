@@ -208,6 +208,11 @@ extension on PlaidPull {
 /// The [PlaidPullStore] of the tests and the demo flavor, in memory: it lives as long as
 /// the in-memory store it serves, so the demo's persona switch starts it afresh.
 final class InMemoryPlaidPullStore implements PlaidPullStore {
+  /// A store whose transactions cursor starts at [transactionsSince] (null: from 0): the
+  /// demo's starts where its store's seed already is, so its first pull does not apply
+  /// the seeded rows again over the demo's own edits.
+  InMemoryPlaidPullStore({int? transactionsSince}) : _since = transactionsSince;
+
   int? _since;
   DateTime? _pulledAt;
 
