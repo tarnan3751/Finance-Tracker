@@ -29,7 +29,8 @@ docs/       reference/, one file per area
 - The local database is the source of truth; repositories expose streams to the UI.
 - Plaid keys live only on the server; every record carries its source, and synthesized data
   is never presented as bank data.
-- The original UI lives in `app/lib/legacy/` until Phase 1 replaces it.
+- The original one-file UI was replaced in Phase 1; its stored data is what the legacy
+  importer reads.
 
 `CLAUDE.md` is the map of the project: the conventions, the commands and where every area
 lives. `docs/reference/` explains each area in detail, starting with `build.md`.
@@ -92,6 +93,5 @@ installed and the bare `flutter` otherwise.
 
 Finance Tracker began as a one-file Flutter app by its author,
 [tarnan3751](https://github.com/tarnan3751): a manual list of incomes and expenses with a
-running total, their first personal project in Dart. That app is the seed of this one; it
-still runs as the legacy screen, its stored data is what the Phase 1 importer reads, and its
-history remains in this repository.
+running total, their first personal project in Dart. That app is the seed of this one; its
+stored data is what the Phase 1 importer reads, and its history remains in this repository.

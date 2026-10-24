@@ -18,15 +18,17 @@ heading of this file or of a doc.
 
 ## Status
 
-**Phase 0 has landed; Phase 1 is next.** The repository is the pub workspace of **Folder
-layout**, Android only. The original single-file UI runs from `app/lib/legacy/legacy_app.dart`
-in three flavors (`dev`, `demo`, `prod`) through `app/lib/bootstrap.dart`; `server/` is a
-skeleton answering `GET /v1/health`; `packages/shared_models` and `packages/api_client` are
-placeholders; `api/openapi.yaml` holds only the health check; the Android build is Flutter
-3.47's template with the package id, the flavors and the release hardening; CI runs the gate and
-builds the APKs. Phase 1 brings the domain and the local data. `PLAN.md` §4 is the Plaid
-architecture with the verified Sandbox facts, §7.1 the data-coverage and synthesis policy, §8
-the ten phases with sizes, §10 the process, §12 the decisions.
+**Phase 0 has landed; Phase 1 is in progress:** the app runs on its Riverpod and go_router
+core with the settings feature; `packages/shared_models` holds the domain model; the emulator
+harness exists; manual accounts and the encrypted database follow.
+The repository is the pub workspace of **Folder layout**, Android only. The app runs in
+three flavors (`dev`, `demo`, `prod`) through `app/lib/bootstrap.dart`; `server/` is a
+skeleton answering `GET /v1/health`; `packages/api_client` is a placeholder;
+`api/openapi.yaml` holds only the health check; the Android build is Flutter 3.47's template
+with the package id, the flavors and the release hardening; CI runs the gate and builds the
+APKs. `PLAN.md` §4 is the Plaid architecture with the verified Sandbox facts, §7.1 the
+data-coverage and synthesis policy, §8 the ten phases with sizes, §10 the process, §12 the
+decisions.
 
 ## Stack (pinned)
 
