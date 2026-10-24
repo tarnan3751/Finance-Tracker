@@ -1,6 +1,6 @@
 // The transaction list's application layer: the date presets resolved against today, the
-// query the filters make (a category with the ones under it), grouping by date, and
-// paging one page at a time.
+// query the filters make (a category with the ones under it, and their Plaid codes),
+// grouping by date, and paging one page at a time.
 import 'package:finance_tracker/features/transactions/application/transaction_filters.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
@@ -114,6 +114,25 @@ void main() {
         );
 
     expect(query.categoryIds, {'food', 'coffee', 'bars'});
+  });
+
+  test('every category included brings its Plaid code along', () {
+    final TransactionQuery query =
+        const TransactionFilters(categoryIds: {'food'}).toQuery(
+          today,
+          childrenOf: (id) => id == 'food' ? ['coffee', 'mine'] : [],
+          plaidCodeOf: (id) => switch (id) {
+            'food' => 'FOOD_AND_DRINK',
+            'coffee' => 'FOOD_AND_DRINK_COFFEE',
+            _ => null,
+          },
+        );
+
+    expect(query.categoryIds, {'food', 'coffee', 'mine'});
+    expect(query.categoryPlaidCodes, {
+      'FOOD_AND_DRINK',
+      'FOOD_AND_DRINK_COFFEE',
+    });
   });
 
   test('loadMore asks for one page until that page has arrived', () {

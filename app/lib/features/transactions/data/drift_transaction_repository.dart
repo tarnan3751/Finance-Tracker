@@ -229,19 +229,23 @@ final class DriftTransactionRepository implements TransactionRepository {
   Expression<bool> _filter($TransactionsTable t, TransactionQuery q) {
     final List<Expression<bool>> conditions = [t.deletedAt.isNull()];
     if (q.accountIds.isNotEmpty) conditions.add(t.accountId.isIn(q.accountIds));
-    if (q.categoryIds.isNotEmpty) {
+    if (q.categoryIds.isNotEmpty || q.categoryPlaidCodes.isNotEmpty) {
       final $TransactionSplitsTable s = _database.transactionSplits;
-      conditions.add(
-        t.userCategoryId.isIn(q.categoryIds) |
-            existsQuery(
-              _database.selectOnly(s)
-                ..addColumns([s.position])
-                ..where(
-                  s.transactionId.equalsExp(t.id) &
-                      s.categoryId.isIn(q.categoryIds),
-                ),
+      final List<Expression<bool>> any = [
+        t.userCategoryId.isIn(q.categoryIds),
+        existsQuery(
+          _database.selectOnly(s)
+            ..addColumns([s.position])
+            ..where(
+              s.transactionId.equalsExp(t.id) &
+                  s.categoryId.isIn(q.categoryIds),
             ),
-      );
+        ),
+      ];
+      if (q.categoryPlaidCodes.isNotEmpty) {
+        any.add(_byPlaidCode(t, q.categoryPlaidCodes));
+      }
+      conditions.add(Expression.or(any));
     }
     final LocalDateRange? range = q.range;
     if (range != null) {
@@ -286,6 +290,33 @@ final class DriftTransactionRepository implements TransactionRepository {
       );
     }
     return Expression.and(conditions);
+  }
+
+  // Whether t has no live user category and its Plaid code resolves to one of [codes]:
+  // its detailed code when a live category has it, else its primary code
+  // (`effective_category.dart`).
+  Expression<bool> _byPlaidCode($TransactionsTable t, Set<String> codes) {
+    final $CategoriesTable c = _database.categories;
+    // Whether a live category matches [match].
+    Expression<bool> live(Expression<bool> match) => existsQuery(
+      _database.selectOnly(c)
+        ..addColumns([c.id])
+        ..where(match & c.deletedAt.isNull()),
+    );
+    final Expression<bool> detailedResolves = live(
+      c.plaidCategory.equalsExp(t.plaidDetailedCategory),
+    );
+    return Expression.and([
+      t.userCategoryId.isNull() | live(c.id.equalsExp(t.userCategoryId)).not(),
+      Expression.or([
+        Expression.and([t.plaidDetailedCategory.isIn(codes), detailedResolves]),
+        Expression.and([
+          t.plaidPrimaryCategory.isIn(codes),
+          detailedResolves.not(),
+          live(c.plaidCategory.equalsExp(t.plaidPrimaryCategory)),
+        ]),
+      ]),
+    ]);
   }
 
   // Loads the tags and splits of [rows], in chunks so the IN lists stay far below

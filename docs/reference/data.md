@@ -188,7 +188,7 @@ an empty `text` means no filter:
 | Field | Matches | SQL |
 |---|---|---|
 | `accountIds` | on one of the accounts | `account_id IN (...)` |
-| `categoryIds` | the user category, or a split's category, is one of them | `user_category_id IN (...) OR EXISTS (split ...)` |
+| `categoryIds`, `categoryPlaidCodes` | the user category, or a split's category, is one of `categoryIds`; or, with no live user category, the Plaid code that resolves (the detailed code when a live category has it, else the primary) is one of `categoryPlaidCodes` (the effective category, `transactions.md`) | `user_category_id IN (...) OR EXISTS (split ...) OR (no live user category AND the resolving code IN (...))`, the live categories read by `EXISTS` over `categories` |
 | `range` | dated in the half-open range | `date >= start AND date < end` |
 | `text` | in `name`, `merchant_name` or `notes`, ASCII letters case-insensitive | `LIKE '%text%' ESCAPE '\'`, with `\`, `%`, `_` escaped |
 | `pending` | pending or posted | `pending = ?` |

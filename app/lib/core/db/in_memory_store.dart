@@ -19,6 +19,7 @@ import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
 import 'package:finance_tracker/features/categories/data/category_defaults.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
+import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
 import 'package:shared_models/shared_models.dart';
@@ -281,13 +282,30 @@ final class InMemoryStore {
       return isMin ? amount >= bound.minorUnits : amount <= bound.minorUnits;
     }
 
+    final CategoryLookup? lookup = q.categoryPlaidCodes.isEmpty
+        ? null
+        : categoryLookup(categories());
+    bool inCategories(Transaction t) {
+      if (q.categoryIds.contains(t.userCategoryId) ||
+          t.splits.any((s) => q.categoryIds.contains(s.categoryId))) {
+        return true;
+      }
+      if (lookup == null || lookup.byId.containsKey(t.userCategoryId)) {
+        return false;
+      }
+      final String? code = plaidCategoryOf(
+        t,
+        lookup.byPlaidCode,
+      )?.plaidCategory;
+      return q.categoryPlaidCodes.contains(code);
+    }
+
     final List<Transaction> matching = [
       for (final Transaction t in _transactions.values)
         if (t.deletedAt == null &&
             (q.accountIds.isEmpty || q.accountIds.contains(t.accountId)) &&
-            (q.categoryIds.isEmpty ||
-                q.categoryIds.contains(t.userCategoryId) ||
-                t.splits.any((s) => q.categoryIds.contains(s.categoryId))) &&
+            ((q.categoryIds.isEmpty && q.categoryPlaidCodes.isEmpty) ||
+                inCategories(t)) &&
             (q.range == null || q.range!.contains(t.date)) &&
             (text == null ||
                 contains(t.name) ||

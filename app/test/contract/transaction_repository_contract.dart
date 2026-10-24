@@ -456,6 +456,151 @@ void runTransactionRepositoryContract(
       });
     });
 
+    group('query by effective category', () {
+      // The effective category (effective_category.dart): the live user category, else
+      // the system category of the detailed Plaid code, else of the primary code.
+      Transaction coded(
+        String id, {
+        String? user,
+        String? primary,
+        String? detailed,
+      }) => testTransaction(id, 'a1', -100, userCategoryId: user).copyWith(
+        plaidPrimaryCategory: primary,
+        plaidDetailedCategory: detailed,
+      );
+      String sys(String code) => 'plaid:$code';
+      // The query a filter by the categories with Plaid [codes] makes.
+      TransactionQuery byCodes(Set<String> codes) => TransactionQuery(
+        categoryIds: {for (final String code in codes) sys(code)},
+        categoryPlaidCodes: codes,
+      );
+
+      setUp(() async {
+        await f.categories.ensureSeeded();
+        for (final String id in ['mine', 'gone']) {
+          await f.categories.upsert(
+            Category(
+              id: id,
+              name: id,
+              isSystem: false,
+              icon: 'category',
+              color: 0xFF000000,
+            ),
+          );
+        }
+        await f.categories.delete('gone');
+        for (final Transaction t in [
+          coded(
+            'p1',
+            user: 'mine',
+            primary: 'FOOD_AND_DRINK',
+            detailed: 'FOOD_AND_DRINK_GROCERIES',
+          ),
+          coded(
+            'p2',
+            primary: 'FOOD_AND_DRINK',
+            detailed: 'FOOD_AND_DRINK_GROCERIES',
+          ),
+          coded('p3', primary: 'FOOD_AND_DRINK'),
+          coded(
+            'p4',
+            primary: 'FOOD_AND_DRINK',
+            detailed: 'FOOD_AND_DRINK_COFFEE',
+          ),
+          coded(
+            'p5',
+            primary: 'FOOD_AND_DRINK',
+            detailed: 'FOOD_AND_DRINK_NOT_A_CODE',
+          ),
+          coded('p6', user: 'gone', detailed: 'FOOD_AND_DRINK_GROCERIES'),
+          coded('p7'),
+          coded('p8', primary: 'NOT_A_CODE'),
+        ]) {
+          await transactions.upsert(t);
+        }
+      });
+
+      test('by the user category, whatever the codes', () async {
+        expect(await ids(TransactionQuery(categoryIds: {'mine'})), ['p1']);
+        expect(
+          await ids(
+            TransactionQuery(
+              categoryIds: {'mine'},
+              categoryPlaidCodes: {'FOOD_AND_DRINK_GROCERIES'},
+            ),
+          ),
+          ['p6', 'p2', 'p1'],
+        );
+      });
+
+      test(
+        'by the detailed code, a deleted user category counting as unset',
+        () async {
+          final TransactionQuery groceries = byCodes({
+            'FOOD_AND_DRINK_GROCERIES',
+          });
+          expect(await ids(groceries), ['p6', 'p2']);
+          expect(await transactions.count(groceries), 2);
+          // Ids alone match only user categories and splits (the usage counts).
+          expect(
+            await transactions.count(
+              TransactionQuery(categoryIds: {sys('FOOD_AND_DRINK_GROCERIES')}),
+            ),
+            0,
+          );
+        },
+      );
+
+      test(
+        'by the primary code when the detailed code resolves to none',
+        () async {
+          expect(await ids(byCodes({'FOOD_AND_DRINK'})), ['p5', 'p3']);
+        },
+      );
+
+      test('a detailed code that resolves wins over the primary', () async {
+        expect(await ids(byCodes({'FOOD_AND_DRINK_COFFEE'})), ['p4']);
+        expect(
+          await ids(byCodes({'FOOD_AND_DRINK', 'FOOD_AND_DRINK_COFFEE'})),
+          ['p5', 'p4', 'p3'],
+        );
+      });
+
+      test('a transaction with no effective category matches none', () async {
+        final Set<String> every = {
+          for (final Category c in await f.categories.watchAll().first)
+            if (c.plaidCategory case final String code) code,
+        };
+        expect(
+          await ids(
+            TransactionQuery(
+              categoryIds: {'mine', for (final String c in every) sys(c)},
+              categoryPlaidCodes: every,
+            ),
+          ),
+          ['p6', 'p5', 'p4', 'p3', 'p2', 'p1'],
+        );
+      });
+
+      test(
+        'a watcher sees a user category deleted fall back to the code',
+        () async {
+          final Future<void> seen = expectLater(
+            transactions
+                .watch(byCodes({'FOOD_AND_DRINK_GROCERIES'}))
+                .map((page) => [for (final Transaction t in page) t.id]),
+            emitsInOrder([
+              ['p6', 'p2'],
+              ['p6', 'p2', 'p1'],
+            ]),
+          );
+          await pumpEventQueue();
+          await f.categories.delete('mine');
+          await seen;
+        },
+      );
+    });
+
     group('usage', () {
       DateTime at(int minute) => testInstant.add(Duration(minutes: minute));
 
@@ -590,6 +735,14 @@ void runTransactionRepositoryContract(
         TransactionQuery(accountIds: {'b', 'a'}).hashCode,
       );
       expect(TransactionQuery(text: 'x'), isNot(TransactionQuery(text: 'y')));
+      expect(
+        TransactionQuery(categoryPlaidCodes: {'A', 'B'}),
+        TransactionQuery(categoryPlaidCodes: {'B', 'A'}),
+      );
+      expect(
+        TransactionQuery(categoryPlaidCodes: {'A'}),
+        isNot(TransactionQuery(categoryPlaidCodes: {'B'})),
+      );
     });
   });
 }

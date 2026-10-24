@@ -90,23 +90,33 @@ final class TransactionFilters {
       tags.isNotEmpty;
 
   /// The query of these filters on [today], returning at most [limit] transactions. Each
-  /// chosen category brings the categories [childrenOf] it gives along.
+  /// chosen category brings the categories [childrenOf] it gives along, and every
+  /// category included brings its Plaid code ([plaidCodeOf]), so a transaction matches
+  /// on its effective category (`effective_category.dart`).
   TransactionQuery toQuery(
     LocalDate today, {
     int? limit,
     Iterable<String> Function(String id) childrenOf = _noChildren,
-  }) => TransactionQuery(
-    accountIds: accountIds,
-    categoryIds: {
+    String? Function(String id) plaidCodeOf = _noPlaidCode,
+  }) {
+    final Set<String> included = {
       for (final String id in categoryIds) ...[id, ...childrenOf(id)],
-    },
-    range: date?.rangeOn(today),
-    text: text.trim().isEmpty ? null : text.trim(),
-    tags: tags,
-    minAmount: minAmount,
-    maxAmount: maxAmount,
-    limit: limit,
-  );
+    };
+    return TransactionQuery(
+      accountIds: accountIds,
+      categoryIds: included,
+      categoryPlaidCodes: {
+        for (final String id in included)
+          if (plaidCodeOf(id) case final String code) code,
+      },
+      range: date?.rangeOn(today),
+      text: text.trim().isEmpty ? null : text.trim(),
+      tags: tags,
+      minAmount: minAmount,
+      maxAmount: maxAmount,
+      limit: limit,
+    );
+  }
 
   /// A copy with the search text [text].
   TransactionFilters withText(String text) => TransactionFilters(
@@ -177,6 +187,8 @@ final class TransactionFilters {
 }
 
 Iterable<String> _noChildren(String id) => const [];
+
+String? _noPlaidCode(String id) => null;
 
 bool _same(Set<String> a, Set<String> b) =>
     a.length == b.length && a.containsAll(b);

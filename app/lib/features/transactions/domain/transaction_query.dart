@@ -7,7 +7,11 @@ import 'package:shared_models/shared_models.dart';
 /// A query over transactions. Every filter is optional and the filters combine with AND:
 ///
 /// - [accountIds]: on one of these accounts;
-/// - [categoryIds]: with one of these as user category, or a split in one of them;
+/// - [categoryIds] and [categoryPlaidCodes]: with one of [categoryIds] as user category,
+///   or a split in one of them; or, when its user category is unset or names no live
+///   category, whose Plaid code resolves to a category (`effective_category.dart`) whose
+///   `plaidCategory` is one of [categoryPlaidCodes]: its detailed code when a live
+///   category has that code, else its primary code;
 /// - [range]: dated within the half-open range;
 /// - [text]: containing [text] in the name, the merchant name or the notes, ignoring
 ///   case for ASCII letters only (SQLite's `LIKE`; `%`, `_` and `\` match themselves);
@@ -24,6 +28,7 @@ final class TransactionQuery {
   TransactionQuery({
     Set<String> accountIds = const {},
     Set<String> categoryIds = const {},
+    Set<String> categoryPlaidCodes = const {},
     this.range,
     this.text,
     this.pending,
@@ -34,6 +39,7 @@ final class TransactionQuery {
     this.offset = 0,
   }) : accountIds = Set.unmodifiable(accountIds),
        categoryIds = Set.unmodifiable(categoryIds),
+       categoryPlaidCodes = Set.unmodifiable(categoryPlaidCodes),
        tags = Set.unmodifiable(tags) {
     if (limit != null && limit! < 0) {
       throw ArgumentError.value(limit, 'limit', 'must not be negative');
@@ -53,6 +59,7 @@ final class TransactionQuery {
 
   final Set<String> accountIds;
   final Set<String> categoryIds;
+  final Set<String> categoryPlaidCodes;
   final LocalDateRange? range;
   final String? text;
   final bool? pending;
@@ -67,6 +74,7 @@ final class TransactionQuery {
       other is TransactionQuery &&
       _sameSet(other.accountIds, accountIds) &&
       _sameSet(other.categoryIds, categoryIds) &&
+      _sameSet(other.categoryPlaidCodes, categoryPlaidCodes) &&
       other.range == range &&
       other.text == text &&
       other.pending == pending &&
@@ -80,6 +88,7 @@ final class TransactionQuery {
   int get hashCode => Object.hash(
     Object.hashAllUnordered(accountIds),
     Object.hashAllUnordered(categoryIds),
+    Object.hashAllUnordered(categoryPlaidCodes),
     range,
     text,
     pending,
@@ -93,7 +102,7 @@ final class TransactionQuery {
   @override
   String toString() =>
       'TransactionQuery(accounts: $accountIds, categories: $categoryIds, '
-      'range: $range, text: ${text == null ? null : '…'}, pending: $pending, '
+      'codes: $categoryPlaidCodes, range: $range, text: ${text == null ? null : '…'}, pending: $pending, '
       'tags: $tags, amount: $minAmount..$maxAmount, limit: $limit, offset: $offset)';
 }
 

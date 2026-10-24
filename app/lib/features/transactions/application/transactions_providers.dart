@@ -59,8 +59,9 @@ CategoryLookup transactionCategoryLookup(Ref ref) =>
     categoryLookup(ref.watch(categoriesProvider).value ?? const []);
 
 /// The list's transactions under its filters, newest first, as many pages as are loaded.
-/// A category filter takes the categories under each chosen one along; date presets are
-/// resolved against [todayProvider], so they move at midnight.
+/// A category filter takes the categories under each chosen one along and matches the
+/// effective category, through the Plaid codes of the categories included; date presets
+/// are resolved against [todayProvider], so they move at midnight.
 @riverpod
 Stream<TransactionPage> transactionPage(Ref ref) {
   final TransactionListState state = ref.watch(
@@ -69,6 +70,9 @@ Stream<TransactionPage> transactionPage(Ref ref) {
   final LocalDate today = ref.watch(todayProvider);
   final List<Category> categories =
       ref.watch(categoriesProvider).value ?? const [];
+  final Map<String, Category> byId = ref
+      .watch(transactionCategoryLookupProvider)
+      .byId;
   final int limit = state.pages * transactionPageSize;
   return ref
       .watch(transactionRepositoryProvider)
@@ -80,6 +84,7 @@ Stream<TransactionPage> transactionPage(Ref ref) {
             for (final Category c in categories)
               if (c.parentId == id) c.id,
           ],
+          plaidCodeOf: (id) => byId[id]?.plaidCategory,
         ),
       )
       .map(

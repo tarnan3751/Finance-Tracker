@@ -108,6 +108,32 @@ void main() {
     expect(store.transaction('flight')!.userCategoryId, isNull);
   });
 
+  testWidgets('the category filter finds a transaction by its Plaid code', (
+    tester,
+  ) async {
+    final InMemoryStore store = seededStore()
+      ..upsertTransaction(
+        testTransaction('flight', name: 'Airline').copyWith(
+          plaidPrimaryCategory: 'TRAVEL',
+          plaidDetailedCategory: 'TRAVEL_FLIGHTS',
+        ),
+      );
+    await _pumpList(tester, store);
+
+    await _openFilters(tester);
+    await tester.tap(find.text('Add category'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'travel');
+    await tester.pumpAndSettle();
+    // The top-level row comes first; Flights is under it.
+    await tester.tap(find.text('Travel').first);
+    await tester.pumpAndSettle();
+    await _apply(tester);
+
+    expect(find.text('Airline'), findsOneWidget);
+    expect(find.text('Netflix'), findsNothing);
+  });
+
   testWidgets('outflows and inflows use the finance colors', (tester) async {
     await _pumpList(tester, seededStore());
 

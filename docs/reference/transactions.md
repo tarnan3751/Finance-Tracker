@@ -28,7 +28,8 @@ detail's ledger rows show the effective category too.
 - **Search.** The app bar's search field sets `TransactionFilters.text`.
 - **Filters** (`transaction_filter_sheet.dart`, a bottom sheet). Accounts, categories
   (through the category picker; a top-level category takes the categories under it along,
-  the query's category set being expanded with their ids), a date range (`DatePreset`: this month, last month, the
+  the query's category set being expanded with their ids, and every category included
+  brings its Plaid code, so the filter matches the effective category), a date range (`DatePreset`: this month, last month, the
   last 90 days, this year, or a custom range from the range picker), an amount range
   (absolute amounts in one currency, chosen among the accounts' currencies when there is
   more than one; invalid input, or a maximum below the minimum, is an inline error that
@@ -42,7 +43,7 @@ detail's ledger rows show the effective category too.
 
 ## The effective category
 
-A transaction is shown under its effective category (`PLAN.md` §12):
+A transaction is shown and filtered under its effective category (`PLAN.md` §12):
 `userCategoryId` when it names a live category; else the system category whose
 `plaidCategory` is the transaction's `plaidDetailedCategory`; else the one whose
 `plaidCategory` is its `plaidPrimaryCategory`; else none, "Uncategorized". A deleted or
@@ -52,6 +53,14 @@ categories by id and by Plaid code), which `transactionCategoryLookupProvider` b
 from the categories stream for the list, the account ledger and the editor. The resolution
 never writes `userCategoryId`: it stays the user's explicit choice, so sync and the
 override rules see only what the user did.
+
+The category filter matches the same rule: `toQuery` passes the Plaid codes of the
+categories included (`plaidCodeOf`) as `TransactionQuery.categoryPlaidCodes` next to their
+ids, and each repository matches a transaction with no live user category by the code that
+resolves, the detailed one taking precedence over the primary (`data.md`). The counts
+behind "N transactions will become uncategorized" pass ids only, so they count
+`userCategoryId` (and splits): deleting a user category never changes a Plaid-resolved
+category, and system categories cannot be deleted.
 
 ## The editor
 

@@ -101,7 +101,8 @@ final class CategoryActions {
   Future<void> update(Category category) => _categories.upsert(category);
 
   /// How many live transactions are filed under [ids] (directly or through a split): the
-  /// ones a delete of those categories leaves uncategorized.
+  /// ones a delete of those categories leaves without a category of the user's own (a
+  /// Plaid-resolved category is unaffected; `TransactionQuery` without Plaid codes).
   Future<int> transactionCount(Set<String> ids) =>
       _transactions.count(TransactionQuery(categoryIds: ids));
 

@@ -126,15 +126,17 @@ String _$transactionCategoryLookupHash() =>
     r'df6faa4142c877a10248f7369d2e7ac949f08bef';
 
 /// The list's transactions under its filters, newest first, as many pages as are loaded.
-/// A category filter takes the categories under each chosen one along; date presets are
-/// resolved against [todayProvider], so they move at midnight.
+/// A category filter takes the categories under each chosen one along and matches the
+/// effective category, through the Plaid codes of the categories included; date presets
+/// are resolved against [todayProvider], so they move at midnight.
 
 @ProviderFor(transactionPage)
 final transactionPageProvider = TransactionPageProvider._();
 
 /// The list's transactions under its filters, newest first, as many pages as are loaded.
-/// A category filter takes the categories under each chosen one along; date presets are
-/// resolved against [todayProvider], so they move at midnight.
+/// A category filter takes the categories under each chosen one along and matches the
+/// effective category, through the Plaid codes of the categories included; date presets
+/// are resolved against [todayProvider], so they move at midnight.
 
 final class TransactionPageProvider
     extends
@@ -145,8 +147,9 @@ final class TransactionPageProvider
         >
     with $FutureModifier<TransactionPage>, $StreamProvider<TransactionPage> {
   /// The list's transactions under its filters, newest first, as many pages as are loaded.
-  /// A category filter takes the categories under each chosen one along; date presets are
-  /// resolved against [todayProvider], so they move at midnight.
+  /// A category filter takes the categories under each chosen one along and matches the
+  /// effective category, through the Plaid codes of the categories included; date presets
+  /// are resolved against [todayProvider], so they move at midnight.
   TransactionPageProvider._()
     : super(
         from: null,
@@ -173,7 +176,7 @@ final class TransactionPageProvider
   }
 }
 
-String _$transactionPageHash() => r'1535c38f2f70cfec1a78141550c89da193431531';
+String _$transactionPageHash() => r'68e7f26bbd8a40b66d9f98bef5d2b9723df23ed9';
 
 /// The live transaction [id], or null when it does not exist or is deleted.
 
