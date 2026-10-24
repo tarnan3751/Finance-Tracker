@@ -35,6 +35,7 @@ void main() {
       'AuthTokens',
       'Health',
       'SandboxTransaction',
+      'ProvisionJob',
     ]) {
       expect(contract.schema(name), contains('example'), reason: name);
     }

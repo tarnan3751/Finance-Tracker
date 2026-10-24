@@ -614,6 +614,99 @@ void main() {
       );
     });
 
+    test(
+      'a provisioning job completes on the next tick with the persona linked',
+      () async {
+        final FakeClient client = FakeClient.signedIn(server);
+        final ProvisionJob queued = await client.api.provisionPersona(
+          ProvisionPersona.renter,
+          days: 30,
+        );
+        expect(queued.status, ProvisionJobStatus.queued);
+        expect(queued.persona, ProvisionPersona.renter);
+        expect(queued.seed, 1);
+        expect(queued.createdAt, fakeNow);
+        expect(queued.itemIds, isEmpty);
+        await expectLater(
+          client.api.provisionPersona(ProvisionPersona.family),
+          throwsA(isA<Conflict>()),
+        );
+        expect(
+          (await client.api.getProvisionJob(queued.id)).status,
+          ProvisionJobStatus.queued,
+        );
+
+        server.advanceClock(const Duration(seconds: 1));
+        final ProvisionJob done = await client.api.getProvisionJob(queued.id);
+        expect(done.status, ProvisionJobStatus.completed);
+        expect(done.finishedAt, fakeNow.add(const Duration(seconds: 1)));
+        expect(done.itemIds, ['demo-item-renter-platypus']);
+        expect(done.progress, (
+          itemsTotal: 1,
+          itemsLinked: 1,
+          batchesTotal: 0,
+          batchesSent: 0,
+          skipped: 0,
+        ));
+        expect(done.error, isNull);
+        expect([
+          for (final LinkedItem i in await client.api.listItems()) i.item.id,
+        ], contains('demo-item-renter-platypus'));
+        final VersionPage<Transaction> page = await client.api
+            .listTransactions();
+        expect(page.items, isNotEmpty);
+        expect(page.items.map((t) => t.source).toSet(), {DataSource.demo});
+
+        // A finished job does not block the next.
+        final ProvisionJob next = await client.api.provisionPersona(
+          ProvisionPersona.student,
+          seed: 2,
+          days: 60,
+        );
+        expect(next.seed, 2);
+        final FakeClient eve = FakeClient.signedIn(
+          server,
+          email: 'eve@example.com',
+        );
+        await expectLater(
+          eve.api.getProvisionJob(next.id),
+          throwsA(isA<NotFound>()),
+        );
+        await expectLater(
+          client.api.provisionPersona(ProvisionPersona.renter),
+          throwsA(isA<Conflict>()),
+        );
+        await expectLater(
+          eve.api.provisionPersona(ProvisionPersona.renter, days: 29),
+          throwsA(isA<ValidationFailed>()),
+        );
+      },
+    );
+
+    test('a provisioned persona ends on the device\'s date, not UTC\'s', () async {
+      // 15:00 UTC is already the 25th east of UTC+9, and still the 24th here; a
+      // device west of UTC in the evening is the mirror case.
+      final FakeServer east = FakeServer(
+        now: () => fakeNow,
+        localDate: (_) => LocalDate(2026, 10, 25),
+      );
+      final FakeClient client = FakeClient.signedIn(east);
+      final ProvisionJob job = await client.api.provisionPersona(
+        ProvisionPersona.renter,
+        days: 30,
+      );
+      east.advanceClock(const Duration(seconds: 1));
+      await client.api.getProvisionJob(job.id);
+      final List<Transaction> rows = (await client.api.listTransactions(
+        limit: 500,
+      )).items;
+      final LocalDate newest = rows
+          .map((t) => t.date)
+          .reduce((a, b) => a.isAfter(b) ? a : b);
+      expect(newest.isAfter(LocalDate(2026, 10, 25)), isFalse);
+      expect(rows.any((t) => t.date == LocalDate(2026, 10, 25)), isTrue);
+    });
+
     test('a removed Item refuses the sandbox controls', () async {
       final FakeClient client = FakeClient.signedIn(server);
       server.seedLinkedItems('ada@example.com');

@@ -14,6 +14,9 @@
 /// - Every number is written from `Money.toDecimalString()` or an integer scale, never
 ///   through a `double`.
 /// - Mortgages carry no `liability` block: the custom Sandbox does not support one.
+///
+/// [shiftSandboxUserDates] applies the provisioning job's one date shift to a
+/// configuration.
 library;
 
 import 'package:collection/collection.dart';
@@ -134,6 +137,39 @@ SandboxUser _user(
     'roll_dates_forward': false,
     'override_accounts': accounts,
   });
+}
+
+/// Every key whose value is a calendar date in a custom-user configuration.
+const sandboxUserDateKeys = {
+  'date_transacted',
+  'date_posted',
+  'date',
+  'institution_price_as_of',
+  'origination_date',
+  'maturity_date',
+  'next_payment_due_date',
+  'last_payment_date',
+};
+
+/// [config] (a [SandboxUser.config]) with every date moved [days] days: the provisioning
+/// job's one shift, the Item creation day minus the as-of date, for every Item of a
+/// persona alike (`docs/reference/persona.md`, **Dates in Sandbox**). Nothing else
+/// changes; [config] itself is left as it was.
+Map<String, Object?> shiftSandboxUserDates(
+  Map<String, Object?> config,
+  int days,
+) {
+  Object? walk(Object? node) => switch (node) {
+    final Map<String, Object?> map => {
+      for (final MapEntry(:key, :value) in map.entries)
+        key: sandboxUserDateKeys.contains(key) && value is String
+            ? LocalDate.parse(value).addDays(days).toIso()
+            : walk(value),
+    },
+    final List<Object?> list => [for (final e in list) walk(e)],
+    _ => node,
+  };
+  return walk(config)! as Map<String, Object?>;
 }
 
 Map<String, Object?> _identity(IdentitySpec identity) => {

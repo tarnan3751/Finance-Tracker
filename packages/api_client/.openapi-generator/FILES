@@ -48,6 +48,11 @@ lib/src/model/money.dart
 lib/src/model/mortgage_liability.dart
 lib/src/model/problem.dart
 lib/src/model/problem_code.dart
+lib/src/model/provision_job.dart
+lib/src/model/provision_job_status.dart
+lib/src/model/provision_persona.dart
+lib/src/model/provision_progress.dart
+lib/src/model/provision_request.dart
 lib/src/model/pull_page.dart
 lib/src/model/pulled_change_log_entry.dart
 lib/src/model/push_rejection_code.dart

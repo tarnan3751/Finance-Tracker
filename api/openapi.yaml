@@ -870,6 +870,77 @@ paths:
         '502':
           $ref: '#/components/responses/PlaidError'
 
+  /sandbox/provision:
+    post:
+      operationId: provisionPersona
+      tags: [sandbox]
+      summary: Starts provisioning a persona into Sandbox
+      description: >-
+        Starts a job that links one Item per institution of the persona for the caller.
+        Each Item is a Sandbox custom user with the persona's newest transactions; the
+        job then injects the older history, newest first, paced inside Plaid's rate
+        limits (docs/reference/server.md, **Provisioning**). Every date is shifted by one
+        amount, so the persona's as-of date lands on today. The job runs in the server's
+        memory: a restart forgets it, and the Items it linked stay. One job per user at a
+        time: another while one is `queued` or `running` is `409` `conflict`; a finished
+        one does not block. Available when the server's Plaid mode
+        can drive Sandbox (fake or sandbox); never on a production server, where it is
+        `409` `conflict`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProvisionRequest'
+      responses:
+        '202':
+          description: The job, queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvisionJob'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/Internal'
+  /sandbox/provision/{job_id}:
+    get:
+      operationId: getProvisionJob
+      tags: [sandbox]
+      summary: Reports a provisioning job's progress
+      description: >-
+        The job's status and counters. Another user's job, or one a restart forgot, is
+        `404`. Available when the server's Plaid mode
+        can drive Sandbox (fake or sandbox); never on a production server, where it is
+        `409` `conflict`.
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          description: The job's id
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        '200':
+          description: The job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvisionJob'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/Internal'
+
   /health:
     get:
       operationId: getHealth
@@ -2415,6 +2486,120 @@ components:
           maxItems: 10
           items:
             $ref: '#/components/schemas/SandboxTransaction'
+    ProvisionPersona:
+      type: string
+      description: The persona engine's personas (docs/reference/persona.md)
+      enum: [renter, family, student, small_business]
+    ProvisionJobStatus:
+      type: string
+      enum: [queued, running, completed, failed]
+    ProvisionRequest:
+      type: object
+      additionalProperties: false
+      required: [persona]
+      properties:
+        persona:
+          $ref: '#/components/schemas/ProvisionPersona'
+        seed:
+          type: integer
+          format: int32
+          minimum: 1
+          default: 1
+        days:
+          type: integer
+          format: int32
+          minimum: 30
+          maximum: 730
+          default: 730
+      example:
+        persona: family
+        seed: 1
+        days: 730
+    ProvisionProgress:
+      type: object
+      required: [items_total, items_linked, batches_total, batches_sent, skipped]
+      properties:
+        items_total:
+          type: integer
+          format: int32
+          minimum: 0
+        items_linked:
+          type: integer
+          format: int32
+          minimum: 0
+        batches_total:
+          type: integer
+          format: int32
+          minimum: 0
+        batches_sent:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Batches handled, sent or wholly skipped
+        skipped:
+          type: integer
+          format: int32
+          minimum: 0
+          description: >-
+            Transactions left out because their shifted date fell outside Plaid's window
+            (today or up to 730 days back) when they were sent, as when a job outlasts
+            the day after it started
+    ProvisionJob:
+      type: object
+      description: >-
+        A persona provisioning run. Kept in the server's memory: a restart forgets every
+        job, and the Items it linked stay.
+      required: [id, persona, seed, status, created_at, finished_at, progress, error, item_ids]
+      properties:
+        id:
+          type: string
+          readOnly: true
+        persona:
+          $ref: '#/components/schemas/ProvisionPersona'
+        seed:
+          type: integer
+          format: int32
+          minimum: 1
+        status:
+          $ref: '#/components/schemas/ProvisionJobStatus'
+        created_at:
+          type: string
+          format: date-time
+          pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'
+          readOnly: true
+        finished_at:
+          type: string
+          format: date-time
+          pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'
+          nullable: true
+        progress:
+          $ref: '#/components/schemas/ProvisionProgress'
+        error:
+          type: string
+          nullable: true
+          description: >-
+            Why the job failed (the step and Plaid's error code); null unless `failed`;
+            never a token
+        item_ids:
+          type: array
+          description: The Items linked so far, in link order
+          items:
+            type: string
+      example:
+        id: job-1
+        persona: family
+        seed: 1
+        status: running
+        created_at: '2026-10-24T09:30:00.000Z'
+        finished_at: null
+        progress:
+          items_total: 4
+          items_linked: 4
+          batches_total: 412
+          batches_sent: 37
+          skipped: 0
+        error: null
+        item_ids: [item-1, item-2, item-3, item-4]
 
     # Webhooks and health --------------------------------------------------------------------
     PlaidWebhook:

@@ -160,6 +160,17 @@ abstract interface class FinanceApi {
     List<SandboxTransaction> transactions,
   );
 
+  /// `POST /sandbox/provision`: a queued job that links [persona] into Sandbox for this
+  /// user; `Conflict` while another of the user's jobs is queued or running.
+  Future<ProvisionJob> provisionPersona(
+    ProvisionPersona persona, {
+    int seed = 1,
+    int days = 730,
+  });
+
+  /// `GET /sandbox/provision/{job_id}`.
+  Future<ProvisionJob> getProvisionJob(String jobId);
+
   // health
 
   /// `GET /health`.

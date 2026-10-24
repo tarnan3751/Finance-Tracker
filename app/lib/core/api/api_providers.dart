@@ -22,6 +22,8 @@ import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_models/shared_models.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 part 'api_providers.g.dart';
 
@@ -86,6 +88,8 @@ List<Override> fakeApiOverrides({
           ? FakeDataset.fromDemoSeed(ref.watch(demoSeedProvider))
           : FakeDataset.sample(clock.today()),
       now: clock.nowUtc,
+      localDate: (instant) =>
+          LocalDate.fromDateTime(tz.TZDateTime.from(instant, clock.location)),
     );
     if (signedIn) {
       server

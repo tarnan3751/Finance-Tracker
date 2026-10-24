@@ -44,6 +44,11 @@ import 'package:api_client/src/model/money.dart';
 import 'package:api_client/src/model/mortgage_liability.dart';
 import 'package:api_client/src/model/problem.dart';
 import 'package:api_client/src/model/problem_code.dart';
+import 'package:api_client/src/model/provision_job.dart';
+import 'package:api_client/src/model/provision_job_status.dart';
+import 'package:api_client/src/model/provision_persona.dart';
+import 'package:api_client/src/model/provision_progress.dart';
+import 'package:api_client/src/model/provision_request.dart';
 import 'package:api_client/src/model/pull_page.dart';
 import 'package:api_client/src/model/pulled_change_log_entry.dart';
 import 'package:api_client/src/model/push_rejection_code.dart';
@@ -102,6 +107,11 @@ part 'serializers.g.dart';
   MortgageLiability,
   Problem,
   ProblemCode,
+  ProvisionJob,
+  ProvisionJobStatus,
+  ProvisionPersona,
+  ProvisionProgress,
+  ProvisionRequest,
   PullPage,
   PulledChangeLogEntry,
   PushRejectionCode,

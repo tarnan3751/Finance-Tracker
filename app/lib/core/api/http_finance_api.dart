@@ -588,6 +588,44 @@ final class HttpFinanceApi implements FinanceApi {
   );
 
   @override
+  Future<ProvisionJob> provisionPersona(
+    ProvisionPersona persona, {
+    int seed = 1,
+    int days = 730,
+  }) => _call(
+    '/sandbox/provision',
+    (extra) async => ProvisionJob.fromJson(
+      _json(
+        _data(
+          (await _client.getSandboxApi().provisionPersona(
+            provisionRequest: _request<api.ProvisionRequest>({
+              'persona': persona.wire,
+              'seed': seed,
+              'days': days,
+            }),
+            extra: extra,
+          )).data,
+        ),
+      ),
+    ),
+  );
+
+  @override
+  Future<ProvisionJob> getProvisionJob(String jobId) => _call(
+    '/sandbox/provision/{job_id}',
+    (extra) async => ProvisionJob.fromJson(
+      _json(
+        _data(
+          (await _client.getSandboxApi().getProvisionJob(
+            jobId: jobId,
+            extra: extra,
+          )).data,
+        ),
+      ),
+    ),
+  );
+
+  @override
   Future<Health> getHealth() => _call('/health', (extra) async {
     final Map<String, dynamic> json = _json(
       _data((await _client.getHealthApi().getHealth(extra: extra)).data),

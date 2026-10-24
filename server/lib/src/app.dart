@@ -23,6 +23,7 @@ import 'package:finance_tracker_server/src/http/wire.dart';
 import 'package:finance_tracker_server/src/plaid/item_service.dart';
 import 'package:finance_tracker_server/src/plaid/plaid_client.dart';
 import 'package:finance_tracker_server/src/plaid/plaid_routes.dart';
+import 'package:finance_tracker_server/src/plaid/provisioning_service.dart';
 import 'package:finance_tracker_server/src/plaid/sandbox_routes.dart';
 import 'package:finance_tracker_server/src/plaid/sandbox_service.dart';
 import 'package:finance_tracker_server/src/plaid/token_cipher.dart';
@@ -36,7 +37,8 @@ import 'package:shelf_router/shelf_router.dart';
 /// The server: its services, routes and handler.
 final class ServerApp {
   /// A server over [db] and [plaid] configured by [config]. [now] is the clock (UTC),
-  /// [clientIp] keys the rate limiter, [delay] waits between Plaid retries.
+  /// [clientIp] keys the rate limiter, [delay] waits between Plaid retries and paces
+  /// the provisioning jobs.
   ServerApp({
     required this.config,
     required this.db,
@@ -70,12 +72,20 @@ final class ServerApp {
       plaid: plaid,
       now: this.now,
     );
+    provisioning = ProvisioningService(
+      db: db,
+      items: items,
+      sandbox: sandbox,
+      plaid: plaid,
+      now: this.now,
+      delay: delay,
+    );
     limiter = RateLimiter(now: this.now);
     routes = [
       ...authRoutes(auth),
       ...userRoutes(db: db, auth: auth, items: items),
       ...plaidRoutes(items),
-      ...sandboxRoutes(sandbox),
+      ...sandboxRoutes(sandbox, provisioning),
       ...dataRoutes(db),
       ...syncRoutes(ChangeLogRelay(db: db, now: this.now)),
       ApiRoute(
@@ -111,6 +121,9 @@ final class ServerApp {
 
   /// The Sandbox controls.
   late final SandboxService sandbox;
+
+  /// The persona provisioning jobs.
+  late final ProvisioningService provisioning;
 
   /// The token bucket.
   late final RateLimiter limiter;

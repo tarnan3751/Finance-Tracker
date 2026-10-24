@@ -11,6 +11,8 @@ dependencies:
   cryptography: ^2.9.0
   dart_jsonwebtoken: ^3.4.1
   logging: ^1.3.0
+  persona_engine:
+    path: ../tools/persona_engine
   shared_models: any
   shelf: ^1.4.3
   shelf_router: ^1.1.5

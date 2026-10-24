@@ -25,6 +25,44 @@ void main() {
     asOf: asOf,
   );
 
+  test('the date shift moves every date of a custom user and nothing else', () {
+    final date = RegExp(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+    for (final household in [student, family]) {
+      for (final user in sandboxUsers(household)) {
+        final before = writeJson(user.config);
+        final shifted = shiftSandboxUserDates(user.config, 17);
+        expect(writeJson(user.config), before, reason: 'the input is kept');
+        var dates = 0;
+        void compare(Object? a, Object? b, String path) {
+          switch (a) {
+            case final Map<String, Object?> m:
+              final other = b! as Map<String, Object?>;
+              expect(other.keys, m.keys, reason: path);
+              for (final key in m.keys) {
+                compare(m[key], other[key], '$path.$key');
+              }
+            case final List<Object?> l:
+              final other = b! as List<Object?>;
+              expect(other, hasLength(l.length), reason: path);
+              for (var i = 0; i < l.length; i++) {
+                compare(l[i], other[i], '$path[$i]');
+              }
+            case final String s when date.hasMatch(s):
+              dates++;
+              expect(b, LocalDate.parse(s).addDays(17).toIso(), reason: path);
+            case final JsonDecimal d:
+              expect((b! as JsonDecimal).text, d.text, reason: path);
+            default:
+              expect(b, a, reason: path);
+          }
+        }
+
+        compare(user.config, shifted, r'$');
+        expect(dates, greaterThan(0));
+      }
+    }
+  });
+
   test('a custom user has the documented top level', () {
     final user = sandboxUsers(student).first;
     expect(user.config.keys, [

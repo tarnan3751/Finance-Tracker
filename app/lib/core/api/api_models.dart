@@ -638,3 +638,79 @@ final class SandboxTransaction {
     'account_id': ?accountId,
   };
 }
+
+/// The personas `POST /sandbox/provision` takes (`ProvisionPersona`), [wire] the persona
+/// engine's slug.
+enum ProvisionPersona {
+  renter('renter'),
+  family('family'),
+  student('student'),
+  smallBusiness('small_business');
+
+  const ProvisionPersona(this.wire);
+
+  final String wire;
+}
+
+/// A provisioning job's state (`ProvisionJobStatus`).
+enum ProvisionJobStatus { queued, running, completed, failed }
+
+/// A provisioning job's counters (`ProvisionProgress`).
+typedef ProvisionProgress = ({
+  int itemsTotal,
+  int itemsLinked,
+  int batchesTotal,
+  int batchesSent,
+  int skipped,
+});
+
+/// A persona provisioning job (`ProvisionJob`). [error] says why it failed; null unless
+/// [status] is `failed`.
+final class ProvisionJob {
+  const ProvisionJob({
+    required this.id,
+    required this.persona,
+    required this.seed,
+    required this.status,
+    required this.createdAt,
+    this.finishedAt,
+    required this.progress,
+    this.error,
+    required this.itemIds,
+  });
+
+  factory ProvisionJob.fromJson(Map<String, dynamic> json) {
+    final Map<String, dynamic> p = json['progress'] as Map<String, dynamic>;
+    return ProvisionJob(
+      id: json['id'] as String,
+      persona: ProvisionPersona.values.firstWhere(
+        (v) => v.wire == json['persona'],
+      ),
+      seed: json['seed'] as int,
+      status: ProvisionJobStatus.values.byName(json['status'] as String),
+      createdAt: _instant(json['created_at'])!,
+      finishedAt: _instant(json['finished_at']),
+      progress: (
+        itemsTotal: p['items_total'] as int,
+        itemsLinked: p['items_linked'] as int,
+        batchesTotal: p['batches_total'] as int,
+        batchesSent: p['batches_sent'] as int,
+        skipped: p['skipped'] as int,
+      ),
+      error: json['error'] as String?,
+      itemIds: [
+        for (final Object? id in json['item_ids'] as List) id! as String,
+      ],
+    );
+  }
+
+  final String id;
+  final ProvisionPersona persona;
+  final int seed;
+  final ProvisionJobStatus status;
+  final DateTime createdAt;
+  final DateTime? finishedAt;
+  final ProvisionProgress progress;
+  final String? error;
+  final List<String> itemIds;
+}

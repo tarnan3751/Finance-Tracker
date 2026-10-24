@@ -12,8 +12,12 @@
 /// A public token the fake did not mint maps to the default institution (First Platypus
 /// Bank). `/transactions/sync` answers `NOT_READY` on the first call with an empty cursor
 /// for an Item it has just seen, then pages the fixture's transactions by `count`, then
-/// empty pages; `sandboxTransactionsCreate` appends. Transactions created through Sandbox
-/// calls live only as long as the process. The test hooks ([failNext], [onCall],
+/// empty pages; `sandboxTransactionsCreate` appends. A custom user
+/// (`override_username: user_custom`) is built from its configuration instead of a
+/// fixture: its accounts (`starting_balance` as the current balance) and transactions,
+/// at any of the persona engine's institutions, with no liabilities, recurring streams or
+/// investments. Custom users and transactions created through Sandbox calls live only as
+/// long as the process. The test hooks ([failNext], [onCall],
 /// [modifyTransaction], [removeTransaction], [repairLogin]) script what Sandbox would do.
 library;
 
@@ -23,10 +27,20 @@ import 'dart:isolate';
 
 import 'package:finance_tracker_server/src/ids.dart';
 import 'package:finance_tracker_server/src/plaid/plaid_client.dart';
+import 'package:finance_tracker_server/src/plaid/plaid_json.dart';
 import 'package:shared_models/shared_models.dart';
 
 /// The institution a token the fake did not mint maps to.
 const defaultFakeInstitution = 'ins_109508';
+
+/// The institutions a custom user may be created at: the persona engine's non-OAuth
+/// test banks, by name.
+const customUserInstitutions = {
+  'ins_109508': 'First Platypus Bank',
+  'ins_109509': 'First Gingham Credit Union',
+  'ins_109510': 'Tattersall Federal Credit Union',
+  'ins_109511': 'Tartan Bank',
+};
 
 final _publicToken = RegExp(r'^public-sandbox-fake-(ins_[0-9]+)-[0-9a-f-]+$');
 final _accessToken = RegExp(r'^access-sandbox-fake-(ins_[0-9]+)-([0-9a-f-]+)$');
@@ -59,6 +73,9 @@ final class FakePlaidClient implements PlaidClient {
   final DateTime Function() now;
 
   final Map<String, _FakeItem> _items = {};
+
+  /// Custom users by the public token minted for them: a fixture-shaped description.
+  final Map<String, Map<String, Object?>> _customUsers = {};
   final Map<String, List<PlaidException?>> _failures = {};
   var _sandboxCounter = 0;
 
@@ -142,6 +159,13 @@ final class FakePlaidClient implements PlaidClient {
   }
 
   _FakeItem _item(String accessToken) {
+    final known = _items[accessToken];
+    if (known != null) {
+      if (known.removed) {
+        throw const PlaidException('ITEM_ERROR', 'ITEM_NOT_FOUND');
+      }
+      return known;
+    }
     final match = _accessToken.firstMatch(accessToken);
     final fixture = match == null ? null : _fixtures[match[1]];
     if (match == null || fixture == null) {
@@ -198,6 +222,10 @@ final class FakePlaidClient implements PlaidClient {
         _publicToken.firstMatch(publicToken)?[1] ?? defaultFakeInstitution;
     final suffix = newId();
     final accessToken = 'access-sandbox-fake-$institution-$suffix';
+    final custom = _customUsers.remove(publicToken);
+    if (custom != null) {
+      _items[accessToken] = _FakeItem(custom, 'fake-item-$suffix');
+    }
     return (accessToken: accessToken, itemId: _item(accessToken).itemId);
   }
 
@@ -333,12 +361,97 @@ final class FakePlaidClient implements PlaidClient {
   Future<String> sandboxPublicTokenCreate({
     required String institutionId,
     required List<String> products,
+    String? overrideUsername,
+    String? overridePassword,
+    int? daysRequested,
   }) async {
     await _maybeFail('sandboxPublicTokenCreate');
+    final token = 'public-sandbox-fake-$institutionId-${newId()}';
+    if (overrideUsername == 'user_custom') {
+      final name = customUserInstitutions[institutionId];
+      if (name == null) {
+        throw const PlaidException('INVALID_INPUT', 'INVALID_INSTITUTION');
+      }
+      _customUsers[token] = _customFixture(
+        institutionId,
+        name,
+        products,
+        overridePassword ?? '',
+      );
+      return token;
+    }
     if (!_fixtures.containsKey(institutionId)) {
       throw const PlaidException('INVALID_INPUT', 'INVALID_INSTITUTION');
     }
-    return 'public-sandbox-fake-$institutionId-${newId()}';
+    return token;
+  }
+
+  /// A custom user's configuration as a fixture: its accounts and their transactions in
+  /// Plaid's response shapes, no liabilities and no recurring streams. A configuration
+  /// it cannot read is Plaid's `INVALID_FIELD`.
+  static Map<String, Object?> _customFixture(
+    String institutionId,
+    String name,
+    List<String> products,
+    String password,
+  ) {
+    final accounts = <Map<String, Object?>>[];
+    final transactions = <Map<String, Object?>>[];
+    try {
+      final config = decodePlaidJson(password)! as Map<String, Object?>;
+      for (final (i, raw)
+          in (config['override_accounts']! as List<Object?>).indexed) {
+        final account = raw! as Map<String, Object?>;
+        final meta = account['meta']! as Map<String, Object?>;
+        final currency = account['currency']! as String;
+        final accountId = 'acc${i + 1}';
+        accounts.add({
+          'account_id': accountId,
+          'name': meta['name']! as String,
+          'official_name': meta['official_name'],
+          'mask': meta['mask'],
+          'type': account['type']! as String,
+          'subtype': account['subtype'],
+          'balances': {
+            'current': account['starting_balance'],
+            'available': null,
+            'limit': meta['limit'],
+            'iso_currency_code': currency,
+          },
+        });
+        for (final t
+            in (account['transactions'] as List<Object?>?) ?? const []) {
+          final transaction = t! as Map<String, Object?>;
+          transactions.add({
+            'transaction_id': 't${transactions.length + 1}',
+            'account_id': accountId,
+            'amount': transaction['amount'],
+            'iso_currency_code': transaction['currency'] ?? currency,
+            'date': transaction['date_posted']! as String,
+            'authorized_date': transaction['date_transacted'],
+            'pending': false,
+            'name': transaction['description']! as String,
+          });
+        }
+      }
+    } on Object {
+      throw const PlaidException(
+        'INVALID_INPUT',
+        'INVALID_FIELD',
+        'override_password is not a custom-user configuration',
+      );
+    }
+    return {
+      'institution': {'institution_id': institutionId, 'name': name},
+      'products': products,
+      'accounts': accounts,
+      'transactions': transactions,
+      'recurring': {
+        'inflow_streams': <Object?>[],
+        'outflow_streams': <Object?>[],
+      },
+      'liabilities': <String, Object?>{},
+    };
   }
 
   @override

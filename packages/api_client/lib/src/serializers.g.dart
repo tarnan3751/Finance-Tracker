@@ -39,6 +39,11 @@ Serializers _$serializers =
           ..add(MortgageLiability.serializer)
           ..add(Problem.serializer)
           ..add(ProblemCode.serializer)
+          ..add(ProvisionJob.serializer)
+          ..add(ProvisionJobStatus.serializer)
+          ..add(ProvisionPersona.serializer)
+          ..add(ProvisionProgress.serializer)
+          ..add(ProvisionRequest.serializer)
           ..add(PullPage.serializer)
           ..add(PulledChangeLogEntry.serializer)
           ..add(PushRejectionCode.serializer)
@@ -118,6 +123,10 @@ Serializers _$serializers =
               const FullType(SandboxTransaction),
             ]),
             () => ListBuilder<SandboxTransaction>(),
+          )
+          ..addBuilderFactory(
+            const FullType(BuiltList, const [const FullType(String)]),
+            () => ListBuilder<String>(),
           )
           ..addBuilderFactory(
             const FullType(BuiltList, const [const FullType(String)]),

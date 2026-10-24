@@ -1,15 +1,22 @@
-/// The Sandbox control routes: `sandboxResetLogin`, `sandboxFireWebhook` and
-/// `sandboxCreateTransactions` (`docs/reference/server.md`, **Sandbox operations**). The
-/// bodies are read here; the rules are [SandboxService]'s.
+/// The Sandbox control routes: `sandboxResetLogin`, `sandboxFireWebhook`,
+/// `sandboxCreateTransactions`, and the persona provisioning job's `provisionPersona` and
+/// `getProvisionJob` (`docs/reference/server.md`, **Sandbox operations**,
+/// **Provisioning**). The bodies are read here; the rules are [SandboxService]'s and
+/// [ProvisioningService]'s.
 library;
 
 import 'package:finance_tracker_server/src/http/api_route.dart';
 import 'package:finance_tracker_server/src/http/problem.dart';
 import 'package:finance_tracker_server/src/http/wire.dart';
+import 'package:finance_tracker_server/src/plaid/provisioning_service.dart';
 import 'package:finance_tracker_server/src/plaid/sandbox_service.dart';
+import 'package:persona_engine/persona_engine.dart' show PersonaId;
 
-/// The Sandbox routes over [sandbox].
-List<ApiRoute> sandboxRoutes(SandboxService sandbox) => [
+/// The Sandbox routes over [sandbox] and [provisioning].
+List<ApiRoute> sandboxRoutes(
+  SandboxService sandbox,
+  ProvisioningService provisioning,
+) => [
   ApiRoute(
     'sandboxResetLogin',
     'post',
@@ -100,5 +107,47 @@ List<ApiRoute> sandboxRoutes(SandboxService sandbox) => [
       );
       return noContent();
     },
+  ),
+  ApiRoute('provisionPersona', 'post', '/sandbox/provision', (r) async {
+    final body = ObjectReader(await r.json(), const {
+      'persona',
+      'seed',
+      'days',
+    });
+    final persona = body.oneOf('persona', {
+      for (final p in PersonaId.values) p.slug: p,
+    });
+    final seed = body.integer(
+      'seed',
+      required: false,
+      fallback: 1,
+      min: 1,
+      max: 0x7FFFFFFF,
+    );
+    final days = body.integer(
+      'days',
+      required: false,
+      fallback: 730,
+      min: 30,
+      max: 730,
+    );
+    body.check();
+    return jsonResponse(
+      provisioning.start(
+        r.userId,
+        r.deviceId,
+        persona: persona!,
+        seed: seed!,
+        days: days!,
+        baseUrl: r.raw.requestedUri,
+      ),
+      status: 202,
+    );
+  }),
+  ApiRoute(
+    'getProvisionJob',
+    'get',
+    '/sandbox/provision/{job_id}',
+    (r) async => jsonResponse(provisioning.get(r.userId, r.param('job_id'))),
   ),
 ];

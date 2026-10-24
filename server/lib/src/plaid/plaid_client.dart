@@ -724,10 +724,16 @@ abstract interface class PlaidClient {
   /// `/webhook_verification_key/get`: the JWK for [keyId].
   Future<Map<String, Object?>> webhookVerificationKeyGet(String keyId);
 
-  /// `/sandbox/public_token/create`.
+  /// `/sandbox/public_token/create`; with [overrideUsername] `user_custom` and a
+  /// custom-user configuration (JSON text) as [overridePassword], a custom user
+  /// (`docs/reference/persona.md`, **Sandbox custom users**). [daysRequested] is
+  /// `options.transactions.days_requested` (1 to 730).
   Future<String> sandboxPublicTokenCreate({
     required String institutionId,
     required List<String> products,
+    String? overrideUsername,
+    String? overridePassword,
+    int? daysRequested,
   });
 
   /// `/sandbox/item/reset_login`.

@@ -680,6 +680,51 @@ void main() {
       );
       expect(await _status(() => plaid.syncItem(itemId: item)), 202);
 
+      // provisioning
+      final api.ProvisionRequest provision = _model<api.ProvisionRequest>({
+        'persona': 'renter',
+        'seed': 1,
+        'days': 30,
+      });
+      final Response<api.ProvisionJob> job = await sandbox.provisionPersona(
+        provisionRequest: provision,
+      );
+      expect(job.statusCode, 202);
+      expect(
+        await _status(
+          () => sandbox.provisionPersona(provisionRequest: provision),
+        ),
+        409,
+      );
+      expect(
+        (await h.rawSend(
+          'POST',
+          '/sandbox/provision',
+          body: {'persona': 'renter', 'days': 10},
+        )).statusCode,
+        400,
+      );
+      h.server.failNext('provisionPersona', 500);
+      expect(
+        await _status(
+          () => sandbox.provisionPersona(provisionRequest: provision),
+        ),
+        500,
+      );
+      h.server.advanceClock(const Duration(seconds: 1));
+      expect(
+        await _status(() => sandbox.getProvisionJob(jobId: job.data!.id)),
+        200,
+      );
+      expect(await _status(() => sandbox.getProvisionJob(jobId: 'nope')), 404);
+      for (final int status in [409, 500]) {
+        h.server.failNext('getProvisionJob', status);
+        expect(
+          await _status(() => sandbox.getProvisionJob(jobId: job.data!.id)),
+          status,
+        );
+      }
+
       // data, filled
       expect(await _status(data.listAccounts), 200);
       expect(await _status(() => data.listTransactions(limit: 5)), 200);

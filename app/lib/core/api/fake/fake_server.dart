@@ -37,7 +37,10 @@
 ///   `item_login_required` until an update-mode link token is created for it and
 ///   `public-demo-update-<item id>` is exchanged, which repairs it and returns it.
 ///   Fire-webhook is a no-op. Created transactions are appended to the user's data at
-///   once, `source: demo`, in our sign, under new `sync_version`s.
+///   once, `source: demo`, in our sign, under new `sync_version`s. A provisioning job is
+///   queued, and completes on the first `getProvisionJob` after the clock has moved past
+///   its creation: it links the persona's Items from `FakeDataset.fromDemoSeed` for the
+///   user (the demo data, with no injection batches) and applies them.
 /// - **Data.** `/transactions` and `/investments/transactions` page by version with the
 ///   same 409 for a `since` past the user's version.
 /// - **Shapes.** Success bodies are `shared_models` or `api_models` JSON; every 4xx and
@@ -61,6 +64,8 @@ import 'package:finance_tracker/core/api/fake/fake_dataset.dart';
 import 'package:finance_tracker/core/api/fake/fake_http_adapter.dart';
 import 'package:finance_tracker/core/api/fake/fake_validation.dart';
 import 'package:finance_tracker/core/api/token_store.dart';
+import 'package:persona_engine/persona_engine.dart'
+    show PersonaId, generateDemoSeed;
 import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 
@@ -164,6 +169,49 @@ final class _LinkedItem {
   int created = 0;
 }
 
+final class _FakeJob {
+  _FakeJob({
+    required this.id,
+    required this.userId,
+    required this.persona,
+    required this.seed,
+    required this.days,
+    required this.createdAt,
+  });
+
+  final String id;
+  final String userId;
+  final PersonaId persona;
+  final int seed;
+  final int days;
+  final DateTime createdAt;
+
+  /// `queued` or `completed`: the fake's jobs never fail on their own.
+  String status = 'queued';
+  DateTime? finishedAt;
+  final List<String> itemIds = [];
+
+  Map<String, Object?> toJson() => {
+    'id': id,
+    'persona': persona.slug,
+    'seed': seed,
+    'status': status,
+    'created_at': const UtcInstantConverter().toJson(createdAt),
+    'finished_at': finishedAt == null
+        ? null
+        : const UtcInstantConverter().toJson(finishedAt!),
+    'progress': {
+      'items_total': itemIds.length,
+      'items_linked': itemIds.length,
+      'batches_total': 0,
+      'batches_sent': 0,
+      'skipped': 0,
+    },
+    'error': null,
+    'item_ids': [...itemIds],
+  };
+}
+
 final class _UserData {
   _UserData(this.relay);
 
@@ -177,16 +225,24 @@ final class _UserData {
 /// The fake server.
 final class FakeServer {
   /// A server over [dataset] (none by default) whose clock is [now] (the system's, UTC,
-  /// by default), drawing ids and tokens from [random] (secure by default).
-  FakeServer({FakeDataset? dataset, DateTime Function()? now, Random? random})
-    : dataset = dataset ?? FakeDataset(items: const []),
-      _now = now ?? (() => DateTime.now().toUtc()),
-      _random = random ?? Random.secure();
+  /// by default), drawing ids and tokens from [random] (secure by default). [localDate]
+  /// is the device's calendar date at an instant, which a provisioning job generates its
+  /// persona at, as the demo store does (the UTC date by default).
+  FakeServer({
+    FakeDataset? dataset,
+    DateTime Function()? now,
+    Random? random,
+    LocalDate Function(DateTime instant)? localDate,
+  }) : dataset = dataset ?? FakeDataset(items: const []),
+       _now = now ?? (() => DateTime.now().toUtc()),
+       _random = random ?? Random.secure(),
+       _localDate = localDate ?? LocalDate.fromDateTime;
 
   /// What an exchange can link.
   final FakeDataset dataset;
   final DateTime Function() _now;
   final Random _random;
+  final LocalDate Function(DateTime instant) _localDate;
 
   /// The base URL a client of the fake uses; it never leaves the process.
   static final Uri baseUrl = Uri.parse('https://fake.financetracker.test');
@@ -256,6 +312,8 @@ final class FakeServer {
       'POST',
       '/sandbox/items/{item_id}/transactions',
     ),
+    FakeRoute('provisionPersona', 'POST', '/sandbox/provision'),
+    FakeRoute('getProvisionJob', 'GET', '/sandbox/provision/{job_id}'),
     FakeRoute('getHealth', 'GET', '/health', authenticated: false),
   ];
 
@@ -326,6 +384,7 @@ final class FakeServer {
   final Map<String, _Refresh> _refreshByHash = {};
   final Map<String, _Access> _access = {};
   final Map<String, _UserData> _data = {};
+  final Map<String, _FakeJob> _jobs = {};
   int _counter = 0;
 
   String _id(String prefix) => '$prefix-${++_counter}';
@@ -668,6 +727,8 @@ final class FakeServer {
         body(),
         caller!,
       ),
+      'provisionPersona' => _provision(body(), caller!),
+      'getProvisionJob' => _provisionJob(parameters['job_id']!, caller!),
       'sandboxCreateTransactions' => _createTransactions(
         parameters['item_id']!,
         body(),
@@ -1105,6 +1166,86 @@ final class FakeServer {
     }
     linked.created += created.length;
     return _noContent;
+  }
+
+  // --- provisioning ---------------------------------------------------------------------
+
+  FakeResponse _provision(Map<String, Object?> json, _Caller caller) {
+    final FakeReader r = FakeReader(json, const {'persona', 'seed', 'days'});
+    final String? persona = r.oneOf('persona', {
+      for (final PersonaId p in PersonaId.values) p.slug,
+    });
+    final int? seed = r.integer(
+      'seed',
+      required: false,
+      fallback: 1,
+      min: 1,
+      max: 0x7FFFFFFF,
+    );
+    final int? days = r.integer(
+      'days',
+      required: false,
+      fallback: 730,
+      min: 30,
+      max: 730,
+    );
+    r.done();
+    if (_jobs.values.any(
+      (j) => j.userId == caller.user.id && j.status == 'queued',
+    )) {
+      throw const _Problem(
+        409,
+        'conflict',
+        'A provisioning job of this user is already running',
+      );
+    }
+    final _FakeJob job = _FakeJob(
+      id: _id('job'),
+      userId: caller.user.id,
+      persona: PersonaId.fromSlug(persona!),
+      seed: seed!,
+      days: days!,
+      createdAt: now(),
+    );
+    _jobs[job.id] = job;
+    return _ok(job.toJson(), 202);
+  }
+
+  /// The job [jobId]; a queued one completes once the clock has moved past its creation,
+  /// linking the persona's demo Items for the user and applying them.
+  FakeResponse _provisionJob(String jobId, _Caller caller) {
+    final _FakeJob? job = _jobs[jobId];
+    if (job == null || job.userId != caller.user.id) {
+      throw const _Problem(
+        404,
+        'not_found',
+        'No provisioning job with that id',
+      );
+    }
+    if (job.status == 'queued' && now().isAfter(job.createdAt)) {
+      final FakeDataset persona = FakeDataset.fromDemoSeed(
+        generateDemoSeed(
+          job.persona,
+          job.seed,
+          _localDate(now()),
+          days: job.days,
+        ),
+      );
+      final _UserData data = _dataOf(caller.user.id);
+      for (final FakeItemData item in persona.items) {
+        if (data.items[item.id]?.status == ItemStatus.removed) {
+          data.items.remove(item.id);
+        }
+        final _LinkedItem linked = data.items[item.id] ??= _LinkedItem(item);
+        linked.syncCalls = 1;
+        if (!linked.applied) _apply(data, linked);
+        job.itemIds.add(item.id);
+      }
+      job
+        ..status = 'completed'
+        ..finishedAt = now();
+    }
+    return _ok(job.toJson());
   }
 
   Map<String, Object?> _itemJson(_LinkedItem i) => {
