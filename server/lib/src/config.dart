@@ -218,6 +218,10 @@ final class ServerConfig {
   /// Plaid's environment (`PLAID_ENV`).
   final String plaidEnv;
 
+  /// Whether the Sandbox controls (`/sandbox/...`) may run: only against Plaid's Sandbox
+  /// environment, which the fake client stands in for; never in production.
+  bool get canDriveSandbox => plaidEnv == 'sandbox';
+
   /// Which Plaid client to use (`PLAID_MODE`).
   final PlaidMode plaidMode;
 

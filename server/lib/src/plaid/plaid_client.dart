@@ -659,12 +659,15 @@ typedef PlaidInvestmentTransactions = ({
   List<PlaidSecurity> securities,
 });
 
-/// A transaction for `/sandbox/transactions/create`.
+/// A transaction for `/sandbox/transactions/create`, [amount] in Plaid's sign (positive
+/// is money out). [accountId] is Plaid's `account_id`, per transaction; null lets Plaid
+/// pick the Item's checking account.
 typedef SandboxTransaction = ({
   LocalDate dateTransacted,
   LocalDate datePosted,
   Money amount,
   String description,
+  String? accountId,
 });
 
 /// The Plaid calls the server makes.

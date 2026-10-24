@@ -395,7 +395,7 @@ final class ItemService {
   /// `started`. A failure of the background run is logged, not answered.
   Future<Map<String, Object?>> refresh(String userId, String itemId) async {
     final item = await loadActive(userId, itemId);
-    await _itemCall(itemId, () => plaid.transactionsRefresh(item.accessToken));
+    await itemCall(itemId, () => plaid.transactionsRefresh(item.accessToken));
     unawaited(
       sync(userId, itemId).then<void>(
         (_) {},
@@ -425,7 +425,7 @@ final class ItemService {
     String itemId,
   ) => _serialized(itemId, () async {
     final item = await loadActive(userId, itemId);
-    final accounts = await _itemCall(
+    final accounts = await itemCall(
       itemId,
       () => plaid.accountsBalanceGet(item.accessToken),
     );
@@ -472,7 +472,7 @@ final class ItemService {
 
   /// A Plaid call for the Item [itemId]: `ITEM_LOGIN_REQUIRED` marks it `login_required`
   /// and answers 409 `item_login_required`; any other failure is [plaidProblem].
-  Future<T> _itemCall<T>(String itemId, Future<T> Function() call) async {
+  Future<T> itemCall<T>(String itemId, Future<T> Function() call) async {
     try {
       return await call();
     } on PlaidException catch (e) {

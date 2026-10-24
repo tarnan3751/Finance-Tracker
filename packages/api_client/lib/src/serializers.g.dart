@@ -14,12 +14,14 @@ Serializers _$serializers =
           ..add(AuthTokens.serializer)
           ..add(ChangeLogEntry.serializer)
           ..add(ChangeOperation.serializer)
+          ..add(CreateSandboxTransactionsRequest.serializer)
           ..add(CreditLiability.serializer)
           ..add(DataSource.serializer)
           ..add(Device.serializer)
           ..add(EntityType.serializer)
           ..add(ExchangeRequest.serializer)
           ..add(FieldError.serializer)
+          ..add(FireWebhookRequest.serializer)
           ..add(Health.serializer)
           ..add(HealthStatusEnum.serializer)
           ..add(Holding.serializer)
@@ -49,6 +51,7 @@ Serializers _$serializers =
           ..add(RefreshRequest.serializer)
           ..add(RegisterRequest.serializer)
           ..add(RejectedEntry.serializer)
+          ..add(SandboxTransaction.serializer)
           ..add(Security.serializer)
           ..add(StudentLoanLiability.serializer)
           ..add(SyncRun.serializer)
@@ -61,6 +64,7 @@ Serializers _$serializers =
           ..add(ValidationProblem.serializer)
           ..add(ValidationProblemCodeEnum.serializer)
           ..add(ValidationProblemStatusEnum.serializer)
+          ..add(WebhookCode.serializer)
           ..addBuilderFactory(
             const FullType(BuiltList, const [const FullType(Apr)]),
             () => ListBuilder<Apr>(),
@@ -108,6 +112,12 @@ Serializers _$serializers =
               const FullType(PulledChangeLogEntry),
             ]),
             () => ListBuilder<PulledChangeLogEntry>(),
+          )
+          ..addBuilderFactory(
+            const FullType(BuiltList, const [
+              const FullType(SandboxTransaction),
+            ]),
+            () => ListBuilder<SandboxTransaction>(),
           )
           ..addBuilderFactory(
             const FullType(BuiltList, const [const FullType(String)]),

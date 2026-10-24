@@ -593,3 +593,48 @@ final class InvestmentTransaction {
     'sync_version': syncVersion,
   };
 }
+
+/// The webhook codes `POST /sandbox/items/{item_id}/fire-webhook` takes (`WebhookCode`),
+/// [wire] in Plaid's spelling.
+enum SandboxWebhookCode {
+  syncUpdatesAvailable('SYNC_UPDATES_AVAILABLE'),
+  defaultUpdate('DEFAULT_UPDATE'),
+  recurringTransactionsUpdate('RECURRING_TRANSACTIONS_UPDATE'),
+  newAccountsAvailable('NEW_ACCOUNTS_AVAILABLE'),
+  pendingDisconnect('PENDING_DISCONNECT'),
+  userPermissionRevoked('USER_PERMISSION_REVOKED'),
+  loginRepaired('LOGIN_REPAIRED'),
+  error('ERROR');
+
+  const SandboxWebhookCode(this.wire);
+
+  final String wire;
+}
+
+/// A transaction to inject into a Sandbox Item (`SandboxTransaction`). [amount] is in the
+/// app's sign (negative is money out); the client negates it into Plaid's on the wire.
+/// [accountId] is one of the Item's accounts, or null for Plaid's choice (checking).
+final class SandboxTransaction {
+  const SandboxTransaction({
+    required this.dateTransacted,
+    required this.datePosted,
+    required this.amount,
+    required this.description,
+    this.accountId,
+  });
+
+  final LocalDate dateTransacted;
+  final LocalDate datePosted;
+  final Money amount;
+  final String description;
+  final String? accountId;
+
+  /// The contract's JSON, [amount] in Plaid's sign.
+  Map<String, dynamic> toJson() => {
+    'date_transacted': dateTransacted.toJson(),
+    'date_posted': datePosted.toJson(),
+    'amount': (-amount).toJson(),
+    'description': description,
+    'account_id': ?accountId,
+  };
+}

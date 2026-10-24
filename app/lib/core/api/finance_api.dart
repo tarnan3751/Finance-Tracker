@@ -143,6 +143,23 @@ abstract interface class FinanceApi {
   /// `GET /sync/pull`; a [since] past the server's last `seq` throws `SyncCursorInvalid`.
   Future<PullPage> pullChanges({required int since, required int limit});
 
+  // sandbox: development controls; a server that cannot drive Plaid Sandbox answers
+  // `Conflict`, as does a `removed` Item.
+
+  /// `POST /sandbox/items/{item_id}/reset-login`: the Item needs re-authentication from
+  /// its next sync on.
+  Future<void> sandboxResetLogin(String itemId);
+
+  /// `POST /sandbox/items/{item_id}/fire-webhook`.
+  Future<void> sandboxFireWebhook(String itemId, SandboxWebhookCode code);
+
+  /// `POST /sandbox/items/{item_id}/transactions`: one to ten transactions, which the
+  /// Item's next sync delivers.
+  Future<void> sandboxCreateTransactions(
+    String itemId,
+    List<SandboxTransaction> transactions,
+  );
+
   // health
 
   /// `GET /health`.

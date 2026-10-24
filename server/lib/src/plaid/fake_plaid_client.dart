@@ -361,11 +361,16 @@ final class FakePlaidClient implements PlaidClient {
         'at most ten',
       );
     }
-    final account = item.accounts.first;
+    for (final t in transactions) {
+      final accountId = t.accountId ?? item.accounts.first.accountId;
+      if (!item.accounts.any((a) => a.accountId == accountId)) {
+        throw const PlaidException('INVALID_INPUT', 'INVALID_ACCOUNT_ID');
+      }
+    }
     for (final t in transactions) {
       final created = PlaidTransaction(
         transactionId: '${item.itemId}-sandbox-${++_sandboxCounter}',
-        accountId: account.accountId,
+        accountId: t.accountId ?? item.accounts.first.accountId,
         amount: t.amount,
         date: t.datePosted,
         authorizedDate: t.dateTransacted,

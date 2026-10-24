@@ -227,6 +227,7 @@ void main() {
           datePosted: LocalDate(2026, 10, 24),
           amount: Money(899, 'USD'),
           description: 'SPOTIFY',
+          accountId: null,
         ),
       ]);
       final plaidIds = await server.app.db.read(

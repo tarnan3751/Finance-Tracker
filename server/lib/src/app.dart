@@ -23,6 +23,8 @@ import 'package:finance_tracker_server/src/http/wire.dart';
 import 'package:finance_tracker_server/src/plaid/item_service.dart';
 import 'package:finance_tracker_server/src/plaid/plaid_client.dart';
 import 'package:finance_tracker_server/src/plaid/plaid_routes.dart';
+import 'package:finance_tracker_server/src/plaid/sandbox_routes.dart';
+import 'package:finance_tracker_server/src/plaid/sandbox_service.dart';
 import 'package:finance_tracker_server/src/plaid/token_cipher.dart';
 import 'package:finance_tracker_server/src/sync/change_log_relay.dart';
 import 'package:finance_tracker_server/src/sync/sync_routes.dart';
@@ -61,11 +63,19 @@ final class ServerApp {
       now: this.now,
       delay: delay,
     );
+    sandbox = SandboxService(
+      config: config,
+      db: db,
+      items: items,
+      plaid: plaid,
+      now: this.now,
+    );
     limiter = RateLimiter(now: this.now);
     routes = [
       ...authRoutes(auth),
       ...userRoutes(db: db, auth: auth, items: items),
       ...plaidRoutes(items),
+      ...sandboxRoutes(sandbox),
       ...dataRoutes(db),
       ...syncRoutes(ChangeLogRelay(db: db, now: this.now)),
       ApiRoute(
@@ -98,6 +108,9 @@ final class ServerApp {
 
   /// Plaid Items.
   late final ItemService items;
+
+  /// The Sandbox controls.
+  late final SandboxService sandbox;
 
   /// The token bucket.
   late final RateLimiter limiter;

@@ -40,6 +40,11 @@ tags:
     description: The change log of user-authored data
   - name: webhooks
     description: Plaid webhook deliveries
+  - name: sandbox
+    description: >-
+      Plaid Sandbox controls for development: available when the server's Plaid mode can
+      drive Sandbox (fake or sandbox); never on a production server, where every one is
+      `409` `conflict`
   - name: health
     description: Liveness
 
@@ -759,6 +764,111 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/Internal'
+
+  /sandbox/items/{item_id}/reset-login:
+    post:
+      operationId: sandboxResetLogin
+      tags: [sandbox]
+      summary: Forces an Item into the re-authentication state
+      description: >-
+        Calls Plaid's `/sandbox/item/reset_login`. The Item's status becomes
+        `login_required` (with `error_code` `ITEM_LOGIN_REQUIRED`) at the latest on its
+        next sync, and update-mode Link repairs it. Available when the server's Plaid mode
+        can drive Sandbox (fake or sandbox); never on a production server, where it is
+        `409` `conflict`. Another user's Item is
+        `404`; a `removed` Item is `409` `conflict`.
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      responses:
+        '204':
+          description: Plaid reset the Item's login
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/Internal'
+        '502':
+          $ref: '#/components/responses/PlaidError'
+  /sandbox/items/{item_id}/fire-webhook:
+    post:
+      operationId: sandboxFireWebhook
+      tags: [sandbox]
+      summary: Asks Plaid to fire a webhook for an Item
+      description: >-
+        Calls Plaid's `/sandbox/item/fire_webhook`. The delivery reaches
+        `POST /webhooks/plaid` only through a tunnel (PLAN.md §4); with the fake Plaid
+        client it is a no-op. Available when the server's Plaid mode
+        can drive Sandbox (fake or sandbox); never on a production server, where it is
+        `409` `conflict`. Another user's Item is `404`; a `removed`
+        Item is `409` `conflict`.
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FireWebhookRequest'
+      responses:
+        '204':
+          description: Plaid accepted the request
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/Internal'
+        '502':
+          $ref: '#/components/responses/PlaidError'
+  /sandbox/items/{item_id}/transactions:
+    post:
+      operationId: sandboxCreateTransactions
+      tags: [sandbox]
+      summary: Injects transactions into an Item
+      description: >-
+        Calls Plaid's `/sandbox/transactions/create` with one to ten transactions; the
+        Item's next sync delivers them. Dates must be today or up to 730 days in the
+        past; anything else is `400`. Plaid categorizes injected transactions with `LOW`
+        confidence and attaches no merchant or logo (PLAN.md §4). Available when the server's Plaid mode
+        can drive Sandbox (fake or sandbox); never on a production server, where it is
+        `409` `conflict`. Another
+        user's Item is `404`; a `removed` Item is `409` `conflict`.
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSandboxTransactionsRequest'
+      responses:
+        '204':
+          description: Plaid created the transactions
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/Internal'
+        '502':
+          $ref: '#/components/responses/PlaidError'
 
   /health:
     get:
@@ -2226,6 +2336,85 @@ components:
             `since` when nothing new
         has_more:
           type: boolean
+
+    # Sandbox ------------------------------------------------------------------------------
+    WebhookCode:
+      type: string
+      description: >-
+        The webhook codes `/sandbox/item/fire_webhook` can fire, in Plaid's spelling (the
+        one exception to snake_case enums). `PENDING_EXPIRATION` is not fireable in
+        Sandbox (Plaid's documentation) and is not offered.
+      enum:
+        - SYNC_UPDATES_AVAILABLE
+        - DEFAULT_UPDATE
+        - RECURRING_TRANSACTIONS_UPDATE
+        - NEW_ACCOUNTS_AVAILABLE
+        - PENDING_DISCONNECT
+        - USER_PERMISSION_REVOKED
+        - LOGIN_REPAIRED
+        - ERROR
+      x-enum-varnames:
+        - syncUpdatesAvailable
+        - defaultUpdate
+        - recurringTransactionsUpdate
+        - newAccountsAvailable
+        - pendingDisconnect
+        - userPermissionRevoked
+        - loginRepaired
+        - error
+    FireWebhookRequest:
+      type: object
+      additionalProperties: false
+      required: [webhook_code]
+      properties:
+        webhook_code:
+          $ref: '#/components/schemas/WebhookCode'
+      example:
+        webhook_code: SYNC_UPDATES_AVAILABLE
+    SandboxTransaction:
+      type: object
+      additionalProperties: false
+      description: >-
+        A transaction to inject. `amount` is in Plaid's convention, the opposite of this
+        API's: positive is money out of the account. Without `account_id`, Plaid picks
+        the Item's checking account.
+      required: [date_transacted, date_posted, amount, description]
+      properties:
+        date_transacted:
+          type: string
+          format: date
+        date_posted:
+          type: string
+          format: date
+        amount:
+          $ref: '#/components/schemas/Money'
+        description:
+          type: string
+          minLength: 1
+          maxLength: 200
+        account_id:
+          type: string
+          minLength: 1
+          description: One of the Item's accounts (this API's account id)
+      example:
+        date_transacted: '2026-10-23'
+        date_posted: '2026-10-24'
+        amount:
+          minor_units: 1599
+          currency: USD
+        description: NETFLIX.COM
+        account_id: acc-1
+    CreateSandboxTransactionsRequest:
+      type: object
+      additionalProperties: false
+      required: [transactions]
+      properties:
+        transactions:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/SandboxTransaction'
 
     # Webhooks and health --------------------------------------------------------------------
     PlaidWebhook:

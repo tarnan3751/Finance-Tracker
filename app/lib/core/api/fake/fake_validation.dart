@@ -4,6 +4,8 @@
 /// problem is collected before the 400 answer.
 library;
 
+import 'package:shared_models/shared_models.dart';
+
 /// One field's problem: `field` is the key, a path (`entries[3].hlc`), a query
 /// parameter's name, or empty for the body as a whole.
 typedef FakeFieldError = ({String field, String message});
@@ -95,6 +97,66 @@ final class FakeReader {
       return null;
     }
     return value;
+  }
+
+  /// An integer from [min] to [max]; [fallback] when absent and not [required].
+  int? integer(
+    String key, {
+    bool required = true,
+    int? fallback,
+    int? min,
+    int? max,
+  }) {
+    if (!json.containsKey(key)) {
+      if (required) _error(key, 'is required');
+      return fallback;
+    }
+    final Object? value = json[key];
+    if (value is! int ||
+        (min != null && value < min) ||
+        (max != null && value > max)) {
+      _error(
+        key,
+        'must be an integer${min == null ? '' : ' from $min'}'
+        '${max == null ? '' : ' to $max'}',
+      );
+      return null;
+    }
+    return value;
+  }
+
+  /// An ISO calendar date, or null with an error recorded.
+  LocalDate? date(String key) {
+    final String? text = string(key);
+    if (text == null) return null;
+    try {
+      if (RegExp(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$').hasMatch(text)) {
+        return LocalDate.parse(text);
+      }
+    } on FormatException {
+      // reported below
+    }
+    _error(key, 'must be a calendar date');
+    return null;
+  }
+
+  /// A `Money` object, or null with an error recorded.
+  Money? money(String key) {
+    final Map<String, Object?>? raw = object(key);
+    if (raw == null) return null;
+    final FakeReader m = FakeReader(
+      raw,
+      const {'minor_units', 'currency'},
+      prefix: _path(key),
+      errors: errors,
+    );
+    final int? units = m.integer('minor_units', min: -0x7FFFFFFFFFFFFFFF);
+    final String? currency = m.string(
+      'currency',
+      pattern: RegExp(r'^[A-Z]{3}$'),
+    );
+    if (units == null || currency == null) return null;
+    return Money(units, currency);
   }
 
   /// One of [values], or null with an error recorded.

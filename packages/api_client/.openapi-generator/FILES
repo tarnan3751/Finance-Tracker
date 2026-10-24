@@ -7,6 +7,7 @@ lib/src/api/health_api.dart
 lib/src/api/institutions_api.dart
 lib/src/api/me_api.dart
 lib/src/api/plaid_api.dart
+lib/src/api/sandbox_api.dart
 lib/src/api/sync_api.dart
 lib/src/api/webhooks_api.dart
 lib/src/api_util.dart
@@ -22,6 +23,7 @@ lib/src/model/apr.dart
 lib/src/model/auth_tokens.dart
 lib/src/model/change_log_entry.dart
 lib/src/model/change_operation.dart
+lib/src/model/create_sandbox_transactions_request.dart
 lib/src/model/credit_liability.dart
 lib/src/model/data_source.dart
 lib/src/model/date.dart
@@ -29,6 +31,7 @@ lib/src/model/device.dart
 lib/src/model/entity_type.dart
 lib/src/model/exchange_request.dart
 lib/src/model/field_error.dart
+lib/src/model/fire_webhook_request.dart
 lib/src/model/health.dart
 lib/src/model/holding.dart
 lib/src/model/holdings_response.dart
@@ -57,6 +60,7 @@ lib/src/model/recurring_stream.dart
 lib/src/model/refresh_request.dart
 lib/src/model/register_request.dart
 lib/src/model/rejected_entry.dart
+lib/src/model/sandbox_transaction.dart
 lib/src/model/security.dart
 lib/src/model/student_loan_liability.dart
 lib/src/model/sync_run.dart
@@ -67,4 +71,5 @@ lib/src/model/transaction_split.dart
 lib/src/model/update_link_token_request.dart
 lib/src/model/user.dart
 lib/src/model/validation_problem.dart
+lib/src/model/webhook_code.dart
 lib/src/serializers.dart

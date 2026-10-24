@@ -472,6 +472,166 @@ void main() {
     });
   });
 
+  group('sandbox', () {
+    test('reset-login needs update mode, then the update token, to repair', () async {
+      final FakeClient client = FakeClient.signedIn(server);
+      server.seedLinkedItems('ada@example.com');
+      await client.api.sandboxResetLogin('sample-item-1');
+      final LinkedItem broken = (await client.api.listItems()).single;
+      expect(broken.item.status, ItemStatus.loginRequired);
+      expect(broken.item.errorCode, 'ITEM_LOGIN_REQUIRED');
+      for (final Future<Object?> Function() call in [
+        () => client.api.syncItem('sample-item-1'),
+        () => client.api.refreshItem('sample-item-1'),
+        () => client.api.refreshBalances('sample-item-1'),
+      ]) {
+        await expectLater(call(), throwsA(isA<ItemLoginRequired>()));
+      }
+      // Exchanging the update token before an update-mode Link changes nothing.
+      expect(
+        (await client.api.exchangePublicToken(
+          'public-demo-update-sample-item-1',
+        )).item.status,
+        ItemStatus.loginRequired,
+      );
+      await client.api.createUpdateLinkToken(
+        'sample-item-1',
+        androidPackageName: 'dev.tarnan.financetracker',
+      );
+      final LinkedItem repaired = await client.api.exchangePublicToken(
+        'public-demo-update-sample-item-1',
+      );
+      expect(repaired.item.id, 'sample-item-1');
+      expect(repaired.item.status, ItemStatus.healthy);
+      expect(repaired.item.errorCode, isNull);
+      expect(
+        (await client.api.syncItem('sample-item-1')).status,
+        SyncRunStatus.completed,
+      );
+      await expectLater(
+        client.api.exchangePublicToken('public-demo-update-nope'),
+        throwsA(isA<PlaidError>()),
+      );
+    });
+
+    test('fire-webhook is a no-op for every code', () async {
+      final FakeClient client = FakeClient.signedIn(server);
+      server.seedLinkedItems('ada@example.com');
+      for (final SandboxWebhookCode code in SandboxWebhookCode.values) {
+        await client.api.sandboxFireWebhook('sample-item-1', code);
+      }
+      await expectLater(
+        client.api.sandboxFireWebhook('nope', SandboxWebhookCode.defaultUpdate),
+        throwsA(isA<NotFound>()),
+      );
+    });
+
+    test('created transactions are demo rows, in our sign, at the next versions', () async {
+      final FakeClient client = FakeClient.signedIn(server);
+      server.seedLinkedItems('ada@example.com');
+      final LocalDate day = LocalDate(2026, 10, 24);
+      await client.api.sandboxCreateTransactions('sample-item-1', [
+        SandboxTransaction(
+          dateTransacted: day.addDays(-1),
+          datePosted: day,
+          amount: Money(-1599, 'USD'),
+          description: 'SPOTIFY USA',
+        ),
+        SandboxTransaction(
+          dateTransacted: day,
+          datePosted: day,
+          amount: Money(2500, 'USD'),
+          description: 'REFUND',
+          accountId: 'sample-savings',
+        ),
+      ]);
+      final VersionPage<Transaction> page = await client.api.listTransactions(
+        since: 12,
+      );
+      expect(page.items.map((t) => t.syncVersion), [13, 14]);
+      final [Transaction spotify, Transaction refund] = page.items;
+      expect(spotify.amount, Money(-1599, 'USD'));
+      expect(spotify.accountId, 'sample-checking');
+      expect(spotify.date, day);
+      expect(spotify.authorizedDate, day.addDays(-1));
+      expect(spotify.source, DataSource.demo);
+      expect(refund.amount, Money(2500, 'USD'));
+      expect(refund.accountId, 'sample-savings');
+
+      Future<void> refused(SandboxTransaction t) => expectLater(
+        client.api.sandboxCreateTransactions('sample-item-1', [t]),
+        throwsA(isA<ValidationFailed>()),
+      );
+      await refused(
+        SandboxTransaction(
+          dateTransacted: day.addDays(1),
+          datePosted: day.addDays(1),
+          amount: Money(1, 'USD'),
+          description: 'FUTURE',
+        ),
+      );
+      // An amount in another currency than its account's, named or the default.
+      for (final String? account in [null, 'sample-savings']) {
+        await expectLater(
+          client.api.sandboxCreateTransactions('sample-item-1', [
+            SandboxTransaction(
+              dateTransacted: day,
+              datePosted: day,
+              amount: Money(-500, 'EUR'),
+              description: 'EURO',
+              accountId: account,
+            ),
+          ]),
+          throwsA(
+            isA<ValidationFailed>().having(
+              (e) => e.errors.map((f) => f.field),
+              'fields',
+              ['transactions[0].amount'],
+            ),
+          ),
+        );
+      }
+      await refused(
+        SandboxTransaction(
+          dateTransacted: day,
+          datePosted: day,
+          amount: Money(1, 'USD'),
+          description: 'X',
+          accountId: 'nope',
+        ),
+      );
+      await client.api.sandboxResetLogin('sample-item-1');
+      await expectLater(
+        client.api.sandboxCreateTransactions('sample-item-1', [
+          SandboxTransaction(
+            dateTransacted: day,
+            datePosted: day,
+            amount: Money(1, 'USD'),
+            description: 'X',
+          ),
+        ]),
+        throwsA(isA<ItemLoginRequired>()),
+      );
+    });
+
+    test('a removed Item refuses the sandbox controls', () async {
+      final FakeClient client = FakeClient.signedIn(server);
+      server.seedLinkedItems('ada@example.com');
+      await client.api.deleteItem('sample-item-1', history: UnlinkHistory.keep);
+      await expectLater(
+        client.api.sandboxResetLogin('sample-item-1'),
+        throwsA(isA<Conflict>()),
+      );
+      await expectLater(
+        client.api.sandboxFireWebhook(
+          'sample-item-1',
+          SandboxWebhookCode.error,
+        ),
+        throwsA(isA<Conflict>()),
+      );
+    });
+  });
+
   group('hooks and the dataset', () {
     test('failNext answers once with the status and its code', () async {
       final FakeClient client = FakeClient.signedIn(server);

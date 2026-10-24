@@ -20,12 +20,14 @@ import 'package:api_client/src/model/apr.dart';
 import 'package:api_client/src/model/auth_tokens.dart';
 import 'package:api_client/src/model/change_log_entry.dart';
 import 'package:api_client/src/model/change_operation.dart';
+import 'package:api_client/src/model/create_sandbox_transactions_request.dart';
 import 'package:api_client/src/model/credit_liability.dart';
 import 'package:api_client/src/model/data_source.dart';
 import 'package:api_client/src/model/device.dart';
 import 'package:api_client/src/model/entity_type.dart';
 import 'package:api_client/src/model/exchange_request.dart';
 import 'package:api_client/src/model/field_error.dart';
+import 'package:api_client/src/model/fire_webhook_request.dart';
 import 'package:api_client/src/model/health.dart';
 import 'package:api_client/src/model/holding.dart';
 import 'package:api_client/src/model/holdings_response.dart';
@@ -54,6 +56,7 @@ import 'package:api_client/src/model/recurring_stream.dart';
 import 'package:api_client/src/model/refresh_request.dart';
 import 'package:api_client/src/model/register_request.dart';
 import 'package:api_client/src/model/rejected_entry.dart';
+import 'package:api_client/src/model/sandbox_transaction.dart';
 import 'package:api_client/src/model/security.dart';
 import 'package:api_client/src/model/student_loan_liability.dart';
 import 'package:api_client/src/model/sync_run.dart';
@@ -64,6 +67,7 @@ import 'package:api_client/src/model/transaction_split.dart';
 import 'package:api_client/src/model/update_link_token_request.dart';
 import 'package:api_client/src/model/user.dart';
 import 'package:api_client/src/model/validation_problem.dart';
+import 'package:api_client/src/model/webhook_code.dart';
 
 part 'serializers.g.dart';
 
@@ -74,12 +78,14 @@ part 'serializers.g.dart';
   AuthTokens,
   ChangeLogEntry,
   ChangeOperation,
+  CreateSandboxTransactionsRequest,
   CreditLiability,
   DataSource,
   Device,
   EntityType,
   ExchangeRequest,
   FieldError,
+  FireWebhookRequest,
   Health,
   Holding,
   HoldingsResponse,
@@ -108,6 +114,7 @@ part 'serializers.g.dart';
   RefreshRequest,
   RegisterRequest,
   RejectedEntry,
+  SandboxTransaction,
   Security,
   StudentLoanLiability,
   SyncRun,
@@ -118,9 +125,14 @@ part 'serializers.g.dart';
   UpdateLinkTokenRequest,
   User,
   ValidationProblem,
+  WebhookCode,
 ])
 Serializers serializers =
     (_$serializers.toBuilder()
+          ..addBuilderFactory(
+            const FullType(BuiltList, [FullType(SandboxTransaction)]),
+            () => ListBuilder<SandboxTransaction>(),
+          )
           ..addBuilderFactory(
             const FullType(BuiltList, [FullType(MortgageLiability)]),
             () => ListBuilder<MortgageLiability>(),

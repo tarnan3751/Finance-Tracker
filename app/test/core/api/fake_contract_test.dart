@@ -548,6 +548,138 @@ void main() {
         );
       }
 
+      // sandbox
+      final api.SandboxApi sandbox = h.client.getSandboxApi();
+      final api.FireWebhookRequest fire = _model<api.FireWebhookRequest>({
+        'webhook_code': 'SYNC_UPDATES_AVAILABLE',
+      });
+      expect(
+        await _status(
+          () => sandbox.sandboxFireWebhook(
+            itemId: item,
+            fireWebhookRequest: fire,
+          ),
+        ),
+        204,
+      );
+      expect(
+        await _status(
+          () => sandbox.sandboxFireWebhook(
+            itemId: 'nope',
+            fireWebhookRequest: fire,
+          ),
+        ),
+        404,
+      );
+      expect(
+        (await h.rawSend(
+          'POST',
+          '/sandbox/items/$item/fire-webhook',
+          body: {'webhook_code': 'PENDING_EXPIRATION'},
+        )).statusCode,
+        400,
+      );
+      final api.CreateSandboxTransactionsRequest inject =
+          _model<api.CreateSandboxTransactionsRequest>({
+            'transactions': [
+              {
+                'date_transacted': '2026-10-23',
+                'date_posted': '2026-10-24',
+                'amount': {'minor_units': 1599, 'currency': 'USD'},
+                'description': 'NETFLIX.COM',
+                'account_id': 'sample-checking',
+              },
+            ],
+          });
+      expect(
+        await _status(
+          () => sandbox.sandboxCreateTransactions(
+            itemId: item,
+            createSandboxTransactionsRequest: inject,
+          ),
+        ),
+        204,
+      );
+      expect(
+        await _status(
+          () => sandbox.sandboxCreateTransactions(
+            itemId: 'nope',
+            createSandboxTransactionsRequest: inject,
+          ),
+        ),
+        404,
+      );
+      expect(
+        (await h.rawSend(
+          'POST',
+          '/sandbox/items/$item/transactions',
+          body: {'transactions': <Object>[]},
+        )).statusCode,
+        400,
+      );
+      for (final String operation in [
+        'sandboxResetLogin',
+        'sandboxFireWebhook',
+        'sandboxCreateTransactions',
+      ]) {
+        for (final int status in [409, 429, 500, 502]) {
+          h.server.failNext(operation, status);
+          expect(
+            await _status(
+              () => switch (operation) {
+                'sandboxResetLogin' => sandbox.sandboxResetLogin(itemId: item),
+                'sandboxFireWebhook' => sandbox.sandboxFireWebhook(
+                  itemId: item,
+                  fireWebhookRequest: fire,
+                ),
+                _ => sandbox.sandboxCreateTransactions(
+                  itemId: item,
+                  createSandboxTransactionsRequest: inject,
+                ),
+              },
+            ),
+            status,
+          );
+        }
+      }
+      expect(
+        await _status(() => sandbox.sandboxResetLogin(itemId: 'nope')),
+        404,
+      );
+      expect(await _status(() => sandbox.sandboxResetLogin(itemId: item)), 204);
+      expect(await _status(() => plaid.syncItem(itemId: item)), 409);
+      expect(
+        await _status(
+          () => sandbox.sandboxCreateTransactions(
+            itemId: item,
+            createSandboxTransactionsRequest: inject,
+          ),
+        ),
+        409,
+      );
+      expect(
+        await _status(
+          () => plaid.createUpdateLinkToken(
+            itemId: item,
+            updateLinkTokenRequest: _model<api.UpdateLinkTokenRequest>(
+              linkExample,
+            ),
+          ),
+        ),
+        200,
+      );
+      expect(
+        await _status(
+          () => plaid.exchangePublicToken(
+            exchangeRequest: _model<api.ExchangeRequest>({
+              'public_token': 'public-demo-update-$item',
+            }),
+          ),
+        ),
+        201,
+      );
+      expect(await _status(() => plaid.syncItem(itemId: item)), 202);
+
       // data, filled
       expect(await _status(data.listAccounts), 200);
       expect(await _status(() => data.listTransactions(limit: 5)), 200);

@@ -32,6 +32,12 @@
 ///   `removed`, and every call that would reach Plaid for it is 409 `conflict`. The logo
 ///   route serves a dataset Item's `institutionLogo`, and `logo_url` points at it only
 ///   then. The webhook is always 401 `webhook_unverified`.
+/// - **Sandbox.** Reset-login makes the Item `login_required` (`ITEM_LOGIN_REQUIRED`):
+///   sync, refresh, the balance refresh and created transactions answer 409
+///   `item_login_required` until an update-mode link token is created for it and
+///   `public-demo-update-<item id>` is exchanged, which repairs it and returns it.
+///   Fire-webhook is a no-op. Created transactions are appended to the user's data at
+///   once, `source: demo`, in our sign, under new `sync_version`s.
 /// - **Data.** `/transactions` and `/investments/transactions` page by version with the
 ///   same 409 for a `since` past the user's version.
 /// - **Shapes.** Success bodies are `shared_models` or `api_models` JSON; every 4xx and
@@ -150,6 +156,12 @@ final class _LinkedItem {
 
   /// Set by a refresh: the next completed sync re-applies the transactions as modified.
   bool refreshPending = false;
+
+  /// Whether an update-mode link token was created since the login was reset.
+  bool updateTokenIssued = false;
+
+  /// How many transactions were created through Sandbox, for their ids.
+  int created = 0;
 }
 
 final class _UserData {
@@ -228,6 +240,21 @@ final class FakeServer {
       'POST',
       '/webhooks/plaid',
       authenticated: false,
+    ),
+    FakeRoute(
+      'sandboxResetLogin',
+      'POST',
+      '/sandbox/items/{item_id}/reset-login',
+    ),
+    FakeRoute(
+      'sandboxFireWebhook',
+      'POST',
+      '/sandbox/items/{item_id}/fire-webhook',
+    ),
+    FakeRoute(
+      'sandboxCreateTransactions',
+      'POST',
+      '/sandbox/items/{item_id}/transactions',
     ),
     FakeRoute('getHealth', 'GET', '/health', authenticated: false),
   ];
@@ -629,12 +656,23 @@ final class FakeServer {
       'syncItem' => _syncItem(parameters['item_id']!, caller!),
       'refreshItem' => _refreshItem(parameters['item_id']!, caller!),
       'refreshBalances' => _ok([
-        for (final Account a in _active(
+        for (final Account a in _healthy(
           parameters['item_id']!,
           caller!,
         ).data.accounts)
           a.copyWith(itemId: parameters['item_id']).toJson(),
       ]),
+      'sandboxResetLogin' => _resetLogin(parameters['item_id']!, caller!),
+      'sandboxFireWebhook' => _fireWebhook(
+        parameters['item_id']!,
+        body(),
+        caller!,
+      ),
+      'sandboxCreateTransactions' => _createTransactions(
+        parameters['item_id']!,
+        body(),
+        caller!,
+      ),
       'getInstitutionLogo' => _logo(parameters['institution_id']!, caller!),
       'createUpdateLinkToken' => _updateLinkToken(
         parameters['item_id']!,
@@ -820,13 +858,14 @@ final class FakeServer {
     return _ok(_newLinkToken());
   }
 
-  /// [_item] for an update-mode link token: a `removed` Item is 404, as on the server.
+  /// [_item] for an update-mode link token, which it records: a `removed` Item is 404,
+  /// as on the server.
   _LinkedItem _updatable(String itemId, _Caller caller) {
     final _LinkedItem linked = _item(itemId, caller);
     if (linked.status == ItemStatus.removed) {
       throw const _Problem(404, 'not_found', 'The Item was unlinked');
     }
-    return linked;
+    return linked..updateTokenIssued = true;
   }
 
   Map<String, Object?> _newLinkToken() => {
@@ -853,15 +892,32 @@ final class FakeServer {
     return linked;
   }
 
+  /// [_active] for a call that reads or writes the Item's data at Plaid: one that needs
+  /// re-authentication is 409 `item_login_required`.
+  _LinkedItem _healthy(String itemId, _Caller caller) {
+    final _LinkedItem linked = _active(itemId, caller);
+    if (linked.status == ItemStatus.loginRequired) {
+      throw const _Problem(
+        409,
+        'item_login_required',
+        'The Item needs re-authentication through Link in update mode',
+      );
+    }
+    return linked;
+  }
+
   FakeResponse _exchange(Map<String, Object?> json, _Caller caller) {
     final FakeReader r = FakeReader(json, const {'public_token'});
     final String? token = r.string('public_token', minLength: 1);
     r.done();
+    if (token!.startsWith('public-demo-update-')) {
+      return _repair(token.substring('public-demo-update-'.length), caller);
+    }
     if (dataset.items.isEmpty) {
       throw const _Problem(502, 'plaid_error', 'The fake has no Items to link');
     }
     final FakeItemData data =
-        (token!.startsWith('public-demo-')
+        (token.startsWith('public-demo-')
             ? dataset.item(token.substring('public-demo-'.length))
             : null) ??
         dataset.items.first;
@@ -872,6 +928,183 @@ final class FakeServer {
     }
     final _LinkedItem linked = user.items[data.id] ??= _LinkedItem(data);
     return _ok(_itemJson(linked), 201);
+  }
+
+  /// The end of update-mode Link for [itemId]: repaired when an update-mode token was
+  /// created for it since its login was reset; returned either way.
+  FakeResponse _repair(String itemId, _Caller caller) {
+    final _LinkedItem? linked = _dataOf(caller.user.id).items[itemId];
+    if (linked == null || linked.status == ItemStatus.removed) {
+      throw const _Problem(502, 'plaid_error', 'No Item to update');
+    }
+    if (linked.status == ItemStatus.loginRequired && linked.updateTokenIssued) {
+      linked
+        ..status = ItemStatus.healthy
+        ..errorCode = null
+        ..updateTokenIssued = false;
+    }
+    return _ok(_itemJson(linked), 201);
+  }
+
+  // --- sandbox --------------------------------------------------------------------------
+
+  FakeResponse _resetLogin(String itemId, _Caller caller) {
+    _active(itemId, caller)
+      ..status = ItemStatus.loginRequired
+      ..errorCode = 'ITEM_LOGIN_REQUIRED'
+      ..updateTokenIssued = false;
+    return _noContent;
+  }
+
+  static const Set<String> _webhookCodes = {
+    'SYNC_UPDATES_AVAILABLE',
+    'DEFAULT_UPDATE',
+    'RECURRING_TRANSACTIONS_UPDATE',
+    'NEW_ACCOUNTS_AVAILABLE',
+    'PENDING_DISCONNECT',
+    'USER_PERMISSION_REVOKED',
+    'LOGIN_REPAIRED',
+    'ERROR',
+  };
+
+  FakeResponse _fireWebhook(
+    String itemId,
+    Map<String, Object?> json,
+    _Caller caller,
+  ) {
+    final FakeReader r = FakeReader(json, const {'webhook_code'});
+    r.oneOf('webhook_code', _webhookCodes);
+    r.done();
+    _active(itemId, caller);
+    return _noContent;
+  }
+
+  /// "Today" for Plaid's Sandbox: the date at UTC−12, as on the server.
+  LocalDate get _plaidToday =>
+      LocalDate.fromDateTime(now().subtract(const Duration(hours: 12)));
+
+  FakeResponse _createTransactions(
+    String itemId,
+    Map<String, Object?> json,
+    _Caller caller,
+  ) {
+    final FakeReader r = FakeReader(json, const {'transactions'});
+    final List<Object?>? raw = r.list('transactions');
+    final _LinkedItem linked = _item(itemId, caller);
+    final Map<String, String> currencies = {
+      for (final Account a in linked.data.accounts) a.id: a.currencyCode,
+    };
+    // Without an account id, Plaid picks the checking account.
+    final String? fallback =
+        (linked.data.accounts
+                    .where((Account a) => a.subtype == 'checking')
+                    .firstOrNull ??
+                linked.data.accounts.firstOrNull)
+            ?.id;
+    final LocalDate today = _plaidToday;
+    final List<Transaction> created = [];
+    if (raw != null && (raw.isEmpty || raw.length > 10)) {
+      r.errors.add((
+        field: 'transactions',
+        message: 'must hold 1 to 10 transactions',
+      ));
+    } else if (raw != null) {
+      for (final (int i, Object? element) in raw.indexed) {
+        if (element is! Map<String, Object?>) {
+          r.errors.add((
+            field: 'transactions[$i]',
+            message: 'must be an object',
+          ));
+          continue;
+        }
+        final FakeReader t = FakeReader(
+          element,
+          const {
+            'date_transacted',
+            'date_posted',
+            'amount',
+            'description',
+            'account_id',
+          },
+          prefix: 'transactions[$i]',
+          errors: r.errors,
+        );
+        final LocalDate? transacted = t.date('date_transacted');
+        final LocalDate? posted = t.date('date_posted');
+        final Money? amount = t.money('amount');
+        final String? description = t.string(
+          'description',
+          minLength: 1,
+          maxLength: 200,
+        );
+        final String? accountId = t.string(
+          'account_id',
+          required: false,
+          minLength: 1,
+        );
+        for (final (String key, LocalDate? date) in [
+          ('date_transacted', transacted),
+          ('date_posted', posted),
+        ]) {
+          if (date != null &&
+              (date.isAfter(today) || date.isBefore(today.addDays(-730)))) {
+            r.errors.add((
+              field: 'transactions[$i].$key',
+              message: 'must be today or up to 730 days back',
+            ));
+          }
+        }
+        if (accountId != null && !currencies.containsKey(accountId)) {
+          r.errors.add((
+            field: 'transactions[$i].account_id',
+            message: 'is not an account of this Item',
+          ));
+          continue;
+        }
+        final String? currency = currencies[accountId ?? fallback];
+        if (amount != null &&
+            currency != null &&
+            amount.currencyCode != currency) {
+          r.errors.add((
+            field: 'transactions[$i].amount',
+            message: "currency must be the account's",
+          ));
+          continue;
+        }
+        if (transacted == null ||
+            posted == null ||
+            amount == null ||
+            description == null ||
+            fallback == null) {
+          continue;
+        }
+        final DateTime at = now();
+        created.add(
+          Transaction(
+            id: '$itemId-sandbox-${linked.created + created.length + 1}',
+            accountId: accountId ?? fallback,
+            // Plaid's sign on the wire (positive is money out), ours in the store.
+            amount: -amount,
+            date: posted,
+            authorizedDate: transacted,
+            pending: false,
+            name: description,
+            source: DataSource.demo,
+            createdAt: at,
+            updatedAt: at,
+            syncVersion: 0,
+          ),
+        );
+      }
+    }
+    r.done();
+    _healthy(itemId, caller);
+    final _UserData data = _dataOf(caller.user.id);
+    for (final Transaction t in created) {
+      data.transactions[t.id] = t.copyWith(syncVersion: ++data.version);
+    }
+    linked.created += created.length;
+    return _noContent;
   }
 
   Map<String, Object?> _itemJson(_LinkedItem i) => {
@@ -947,7 +1180,7 @@ final class FakeServer {
 
   FakeResponse _syncItem(String itemId, _Caller caller) {
     final _UserData data = _dataOf(caller.user.id);
-    final _LinkedItem linked = _active(itemId, caller);
+    final _LinkedItem linked = _healthy(itemId, caller);
     if (linked.syncCalls++ == 0) {
       return _ok(_run('not_ready', 0, false), 202);
     }
@@ -961,7 +1194,7 @@ final class FakeServer {
   }
 
   FakeResponse _refreshItem(String itemId, _Caller caller) {
-    _active(itemId, caller).refreshPending = true;
+    _healthy(itemId, caller).refreshPending = true;
     return _ok(_run('started', 0, false), 202);
   }
 

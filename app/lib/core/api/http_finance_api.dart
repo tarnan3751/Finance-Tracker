@@ -552,6 +552,42 @@ final class HttpFinanceApi implements FinanceApi {
   // --- health ---------------------------------------------------------------------------
 
   @override
+  Future<void> sandboxResetLogin(String itemId) => _call(
+    '/sandbox/items/{item_id}/reset-login',
+    (extra) =>
+        _client.getSandboxApi().sandboxResetLogin(itemId: itemId, extra: extra),
+  );
+
+  @override
+  Future<void> sandboxFireWebhook(String itemId, SandboxWebhookCode code) =>
+      _call(
+        '/sandbox/items/{item_id}/fire-webhook',
+        (extra) => _client.getSandboxApi().sandboxFireWebhook(
+          itemId: itemId,
+          fireWebhookRequest: _request<api.FireWebhookRequest>({
+            'webhook_code': code.wire,
+          }),
+          extra: extra,
+        ),
+      );
+
+  @override
+  Future<void> sandboxCreateTransactions(
+    String itemId,
+    List<SandboxTransaction> transactions,
+  ) => _call(
+    '/sandbox/items/{item_id}/transactions',
+    (extra) => _client.getSandboxApi().sandboxCreateTransactions(
+      itemId: itemId,
+      createSandboxTransactionsRequest:
+          _request<api.CreateSandboxTransactionsRequest>({
+            'transactions': [for (final t in transactions) t.toJson()],
+          }),
+      extra: extra,
+    ),
+  );
+
+  @override
   Future<Health> getHealth() => _call('/health', (extra) async {
     final Map<String, dynamic> json = _json(
       _data((await _client.getHealthApi().getHealth(extra: extra)).data),

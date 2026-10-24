@@ -139,6 +139,65 @@ final class ObjectReader {
     return value;
   }
 
+  /// An integer from [min] to [max]; [fallback] when absent and not [required].
+  int? integer(
+    String key, {
+    bool required = true,
+    int? fallback,
+    int? min,
+    int? max,
+  }) {
+    if (!json.containsKey(key)) {
+      if (required) errors.add(FieldError(_path(key), 'is required'));
+      return fallback;
+    }
+    final value = json[key];
+    if (value is! int ||
+        (min != null && value < min) ||
+        (max != null && value > max)) {
+      errors.add(
+        FieldError(
+          _path(key),
+          'must be an integer${min == null ? '' : ' from $min'}'
+          '${max == null ? '' : ' to $max'}',
+        ),
+      );
+      return null;
+    }
+    return value;
+  }
+
+  /// An ISO calendar date (`2026-10-24`).
+  LocalDate? date(String key) {
+    final text = string(key);
+    if (text == null) return null;
+    try {
+      if (RegExp(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$').hasMatch(text)) {
+        return LocalDate.parse(text);
+      }
+    } on FormatException {
+      // reported below
+    }
+    errors.add(FieldError(_path(key), 'must be a calendar date'));
+    return null;
+  }
+
+  /// A `Money` object: `minor_units` an integer, `currency` an ISO 4217 code.
+  Money? money(String key) {
+    final raw = object(key);
+    if (raw == null) return null;
+    final m = ObjectReader(
+      raw,
+      const {'minor_units', 'currency'},
+      prefix: _path(key),
+      errors: errors,
+    );
+    final units = m.integer('minor_units', min: -0x7FFFFFFFFFFFFFFF);
+    final currency = m.string('currency', pattern: RegExp(r'^[A-Z]{3}$'));
+    if (units == null || currency == null) return null;
+    return Money(units, currency);
+  }
+
   /// One of [values] by its wire name.
   T? oneOf<T>(String key, Map<String, T> values) {
     final name = string(key);
