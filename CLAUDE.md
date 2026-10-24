@@ -23,10 +23,11 @@ core with the settings feature; `packages/shared_models` holds the domain model;
 harness exists; manual accounts and the encrypted database follow.
 The repository is the pub workspace of **Folder layout**, Android only. The app runs in
 three flavors (`dev`, `demo`, `prod`) through `app/lib/bootstrap.dart`; `server/` is a
-skeleton answering `GET /v1/health`; `packages/api_client` is a placeholder;
-`api/openapi.yaml` holds only the health check; the Android build is Flutter 3.47's template
-with the package id, the flavors and the release hardening; CI runs the gate and builds the
-APKs. `PLAN.md` §4 is the Plaid architecture with the verified Sandbox facts, §7.1 the
+skeleton answering `GET /v1/health`; `api/openapi.yaml` is the v1 contract, with
+`packages/api_client` generated from it and `packages/contract_test` checking against it;
+the Android build is Flutter 3.47's template with the package id, the flavors and the
+release hardening; CI runs the gate, builds the APKs and proves the generated client
+current. `PLAN.md` §4 is the Plaid architecture with the verified Sandbox facts, §7.1 the
 data-coverage and synthesis policy, §8 the ten phases with sizes, §10 the process, §12 the
 decisions.
 
@@ -60,6 +61,7 @@ scripts pick it the same way. Commands marked with a phase do not exist before i
 | Run one package's tests, optionally filtered | `tools/run_tests.sh app "Money"` |
 | Format | `dart format .` |
 | Regenerate code (Phase 1) | `cd app && dart run build_runner build --delete-conflicting-outputs` |
+| Regenerate the API client after a contract change (Phase 2) | `tools/gen_api_client.sh` |
 | Run the app, demo flavor (safe anywhere; no network) | `F run --flavor demo -t lib/main_demo.dart` |
 | Run the app, dev flavor (the owner only: the owner's emulator and the dev server) | `F run --flavor dev -t lib/main_dev.dart` |
 | The dev server (the owner only: reads the Plaid keys) (Phase 2) | `cd server && dart run bin/server.dart` |
@@ -156,10 +158,10 @@ app/             the Flutter application: lib/core, lib/features/<feature>/{pres
                  application,domain,data}, lib/main_{dev,demo,prod}.dart, android/,
                  test/, integration_test/
 server/          the Dart development server: bin/, lib/, test/, .env.example (.env gitignored)
-packages/        shared_models, api_client (generated), sync_engine
+packages/        shared_models, api_client (generated), contract_test, sync_engine
 api/             openapi.yaml, the contract
-tools/           gates.sh, run_tests.sh, land_series.sh; emulator_tests.sh, persona_engine/,
-                 scripts/ as they land
+tools/           gates.sh, run_tests.sh, land_series.sh, gen_api_client.sh,
+                 check_contract.sh; emulator_tests.sh, persona_engine/, scripts/ as they land
 docs/            reference/ (one file per area, written as it lands)
 notes/           gitignored: plaid-sandbox.env and private notes
 .claude/agents/  scout, researcher, developer, reviewer
