@@ -1,6 +1,9 @@
-# Lint configuration for api_client. The same strict block and extra rules apply to every
-# package in the workspace; only the base set differs (flutter_lints for Flutter packages,
-# lints/recommended for pure Dart ones). Fix a finding rather than silencing it.
+# Lint configuration for api_client. The same base set, strict block and extra rules as
+# every other package in the workspace, relaxed only as far as the code openapi-generator's
+# dart-dio generator (built_value) writes under lib/ requires: the rules below are off
+# because that generated code breaks them, and they would be re-broken on every
+# regeneration. Our own code here (test/) is held to them by review. This file is ours,
+# kept by .openapi-generator-ignore.
 include: package:lints/recommended.yaml
 
 analyzer:
@@ -11,22 +14,35 @@ analyzer:
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
+  errors:
+    # openapi-generator dart-dio imports every model and built_value's json_object in each
+    # API file, whether used or not.
+    unused_import: ignore
+    duplicate_import: ignore
 
 linter:
   rules:
-    - always_declare_return_types
-    - always_use_package_imports
-    - avoid_dynamic_calls
-    - avoid_slow_async_io
-    - cancel_subscriptions
-    - close_sinks
-    - directives_ordering
-    - prefer_const_constructors
-    - prefer_const_declarations
-    - prefer_final_locals
-    - prefer_single_quotes
-    - require_trailing_commas
-    - sort_pub_dependencies
-    - unawaited_futures
-    - unnecessary_lambdas
-    - use_super_parameters
+    always_declare_return_types: true
+    always_use_package_imports: true
+    avoid_dynamic_calls: true
+    avoid_slow_async_io: true
+    cancel_subscriptions: true
+    close_sinks: true
+    prefer_const_constructors: true
+    prefer_final_locals: true
+    prefer_single_quotes: true
+    require_trailing_commas: true
+    sort_pub_dependencies: true
+    unawaited_futures: true
+    # Off for openapi-generator dart-dio output, which breaks each of these: unsorted
+    # imports, `final _path = r'/...'` locals in every call, closures in the serializer
+    # builders, enum constructors that could take super parameters, `void updates(...)`
+    # builder parameters and `this.` in the serializers.
+    directives_ordering: false
+    prefer_const_declarations: false
+    unnecessary_lambdas: false
+    use_super_parameters: false
+    no_leading_underscores_for_local_identifiers: false
+    unnecessary_brace_in_string_interps: false
+    unnecessary_this: false
+    use_function_type_syntax_for_parameters: false

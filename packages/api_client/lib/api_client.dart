@@ -1,6 +1,70 @@
-/// The Finance Tracker API client.
-///
-/// Empty until Phase 2, which generates this package from `api/openapi.yaml` with
-/// openapi-generator's `dart-dio` target and replaces it wholesale. Do not edit the
-/// generated code by hand; regenerate it.
-library;
+//
+// AUTO-GENERATED FILE, DO NOT MODIFY!
+//
+
+export 'package:api_client/src/api.dart';
+export 'package:api_client/src/auth/api_key_auth.dart';
+export 'package:api_client/src/auth/basic_auth.dart';
+export 'package:api_client/src/auth/bearer_auth.dart';
+export 'package:api_client/src/auth/oauth.dart';
+export 'package:api_client/src/serializers.dart';
+export 'package:api_client/src/model/date.dart';
+
+export 'package:api_client/src/api/auth_api.dart';
+export 'package:api_client/src/api/data_api.dart';
+export 'package:api_client/src/api/devices_api.dart';
+export 'package:api_client/src/api/health_api.dart';
+export 'package:api_client/src/api/me_api.dart';
+export 'package:api_client/src/api/plaid_api.dart';
+export 'package:api_client/src/api/sync_api.dart';
+export 'package:api_client/src/api/webhooks_api.dart';
+
+export 'package:api_client/src/model/account.dart';
+export 'package:api_client/src/model/account_type.dart';
+export 'package:api_client/src/model/apr.dart';
+export 'package:api_client/src/model/auth_tokens.dart';
+export 'package:api_client/src/model/change_log_entry.dart';
+export 'package:api_client/src/model/change_operation.dart';
+export 'package:api_client/src/model/credit_liability.dart';
+export 'package:api_client/src/model/data_source.dart';
+export 'package:api_client/src/model/device.dart';
+export 'package:api_client/src/model/entity_type.dart';
+export 'package:api_client/src/model/exchange_request.dart';
+export 'package:api_client/src/model/field_error.dart';
+export 'package:api_client/src/model/health.dart';
+export 'package:api_client/src/model/holding.dart';
+export 'package:api_client/src/model/holdings_response.dart';
+export 'package:api_client/src/model/institution.dart';
+export 'package:api_client/src/model/investment_transaction.dart';
+export 'package:api_client/src/model/investment_transaction_page.dart';
+export 'package:api_client/src/model/item.dart';
+export 'package:api_client/src/model/item_status.dart';
+export 'package:api_client/src/model/liabilities.dart';
+export 'package:api_client/src/model/link_token.dart';
+export 'package:api_client/src/model/link_token_request.dart';
+export 'package:api_client/src/model/login_request.dart';
+export 'package:api_client/src/model/money.dart';
+export 'package:api_client/src/model/mortgage_liability.dart';
+export 'package:api_client/src/model/problem.dart';
+export 'package:api_client/src/model/problem_code.dart';
+export 'package:api_client/src/model/pull_page.dart';
+export 'package:api_client/src/model/pulled_change_log_entry.dart';
+export 'package:api_client/src/model/push_request.dart';
+export 'package:api_client/src/model/push_result.dart';
+export 'package:api_client/src/model/recurring_cadence.dart';
+export 'package:api_client/src/model/recurring_source.dart';
+export 'package:api_client/src/model/recurring_status.dart';
+export 'package:api_client/src/model/recurring_stream.dart';
+export 'package:api_client/src/model/refresh_request.dart';
+export 'package:api_client/src/model/register_request.dart';
+export 'package:api_client/src/model/rejected_entry.dart';
+export 'package:api_client/src/model/security.dart';
+export 'package:api_client/src/model/student_loan_liability.dart';
+export 'package:api_client/src/model/sync_run.dart';
+export 'package:api_client/src/model/sync_run_status.dart';
+export 'package:api_client/src/model/transaction.dart';
+export 'package:api_client/src/model/transaction_page.dart';
+export 'package:api_client/src/model/transaction_split.dart';
+export 'package:api_client/src/model/update_link_token_request.dart';
+export 'package:api_client/src/model/user.dart';
+export 'package:api_client/src/model/validation_problem.dart';

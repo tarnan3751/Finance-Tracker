@@ -1,0 +1,6 @@
+# Files of packages/api_client that are ours, not openapi-generator's: tools/gen_api_client.sh
+# never overwrites them (docs/reference/api.md, **The generated client**).
+pubspec.yaml
+analysis_options.yaml
+README.md
+.gitignore

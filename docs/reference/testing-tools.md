@@ -42,6 +42,21 @@ runs it only in its own clone.
 (`app`, `server`, `packages/<name>`); `tools/run_tests.sh app "Money"` runs that package's
 tests whose name contains the text. It writes the same build output as the gate.
 
+## `tools/gen_api_client.sh`: the generated API client
+
+`tools/gen_api_client.sh` regenerates `packages/api_client` from `api/openapi.yaml` with
+openapi-generator 7.26.x (`dart-dio`, `built_value`), runs `dart pub get` at the root (which
+can update `pubspec.lock` when the package's dependencies changed), runs `build_runner` and
+`dart format` in the package, and writes the contract's SHA-256 to
+`packages/api_client/.openapi-source.sha256`. It needs the `openapi-generator` command
+(`brew install openapi-generator`) or `OPENAPI_GENERATOR` naming another, such as
+`java -jar openapi-generator-cli-7.26.0.jar`, and refuses any other generator version.
+`--check` generates into a temporary directory and diffs it against the committed client,
+ignoring our own files and `*.g.dart` (whose freshness is the gate's codegen step); CI runs
+it. Run it after every change to the contract and commit the result
+(`docs/reference/api.md`). It writes `packages/api_client` and possibly `pubspec.lock`, or
+with `--check` only a temporary directory.
+
 ## `tools/land_series.sh`: landing a series
 
 `tools/land_series.sh <patch-dir> <base-commit> <tree-hash> [--dry-run]`, the coordinator's
