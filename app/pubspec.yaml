@@ -9,6 +9,14 @@ environment:
 resolution: workspace
 
 dependencies:
+  api_client:
+    path: ../packages/api_client
+  # The generated client's models are built_value classes.
+  built_value: ^8.13.0
+  # SHA-256 for the in-app fake server's password hashes (core/api/fake/).
+  crypto: ^3.0.7
+  device_info_plus: ^13.3.0
+  dio: ^5.11.0
   # drift, drift_dev and sqlite3 are held to releases at least two weeks old (the versions
   # published on 2026-10-23 are excluded); lift the caps with the next band move.
   drift: ">=2.35.1 <2.35.3"
@@ -36,6 +44,8 @@ dependencies:
   # The native library comes from this package's build hook, which the workspace root's
   # `hooks: user_defines` sets to SQLite3 Multiple Ciphers (encryption at rest).
   sqlite3: ">=3.7.0 <3.8.0"
+  sync_engine:
+    path: ../packages/sync_engine
   timezone: ^0.11.1
   uuid: ^4.6.0
 
@@ -44,6 +54,8 @@ dev_dependencies:
   # 2.16.2 needs analyzer 14, which the workspace cannot reach: Flutter pins test_api
   # 0.7.12, so the server's `test` stops at 1.31.1, which caps analyzer below 14.
   build_runner: 2.16.1
+  contract_test:
+    path: ../packages/contract_test
   drift_dev: ">=2.35.1 <2.35.2"
   flutter_lints: ^6.0.0
   flutter_test:
