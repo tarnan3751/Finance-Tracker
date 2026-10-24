@@ -1,19 +1,28 @@
+/// The original one-file Finance Tracker app, kept as it was until Phase 1 replaces it.
+///
+/// It stores its data in shared_preferences under the keys `transactions` and `incomes`
+/// (JSON lists of `{amount, description}`) and `totalBalance`; those keys are what the
+/// Phase 1 legacy importer reads. Amounts here are `double`, which is exactly what Phase 1
+/// replaces with `Money`; do not copy that pattern anywhere else.
+library;
+
 import 'dart:convert'; // For JSON encoding/decoding
 
+import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const FinanceTrackerApp());
-}
+class LegacyFinanceTrackerApp extends StatelessWidget {
+  const LegacyFinanceTrackerApp({super.key, required this.config});
 
-class FinanceTrackerApp extends StatelessWidget {
-  const FinanceTrackerApp({super.key});
+  final AppConfig config;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Finance Tracker',
+      title: config.appName,
+      // The debug banner sits in the same corner and would hide the flavor banner.
+      debugShowCheckedModeBanner: !config.showsFlavorBanner,
       theme: ThemeData(
         primarySwatch: Colors.purple, // Make the primary color purple
         scaffoldBackgroundColor: Colors.purple[50], // Light purple background
@@ -46,7 +55,13 @@ class FinanceTrackerApp extends StatelessWidget {
           border: OutlineInputBorder(),
         ),
       ),
-      home: const FinanceHomePage(),
+      home: config.showsFlavorBanner
+          ? Banner(
+              message: config.flavor.name.toUpperCase(),
+              location: BannerLocation.topEnd,
+              child: const FinanceHomePage(),
+            )
+          : const FinanceHomePage(),
     );
   }
 }
