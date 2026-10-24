@@ -4,14 +4,14 @@ The app's encrypted local database, the repositories every screen reads from, th
 and the one-time import of the original app's data. Code: `app/lib/core/db/` (schema, open
 path, key store, in-memory store, demo seed, importer) and each feature's `domain/`
 (interfaces) and `data/` (implementations): `features/accounts/`, `features/transactions/`,
-`features/categories/`, `features/settings/`. Tests: `app/test/contract/` (the contract
+`features/categories/`, `features/settings/`, `features/items/`. Tests: `app/test/contract/` (the contract
 suites), `app/test/core/db/`, `app/test/drift/`, `app/integration_test/encrypted_database_test.dart`.
 The entities and `Money` are `shared_models` (`core.md`); the providers and startup are
 `app-core.md`.
 
 ## The database
 
-Drift on SQLite, at schema version 2 (`core/db/app_database.dart`; one file per table under
+Drift on SQLite, at schema version 3 (`core/db/app_database.dart`; one file per table under
 `core/db/tables/`). `app_database.dart` and the tables import no Flutter, so `drift_dev`
 can run them in the Dart VM to dump the schema.
 
@@ -26,8 +26,9 @@ can run them in the Dart VM to dump the schema.
 | `app_meta` | Facts about the install: `legacy_import_done`, `install_date` |
 | `change_log` | The sync outbox (schema 2): one row per local change-log entry (`sync-app.md`) |
 | `record_clocks` | The sync clock of each field of each synced entity, `_create` holding its create's (schema 2) |
-| `sync_meta` | The device's sync state: `pull_cursor`, `last_clock`, `device_id`, `last_sync_at`, `last_report` (schema 2) |
+| `sync_meta` | The device's sync state: `pull_cursor`, `last_clock`, `device_id`, `last_sync_at`, `last_report` (schema 2); the Plaid pull's `plaid_transactions_since`, `plaid_accounts_pulled_at`, `plaid_items_pulled_at`, `plaid_pulled_at` (`sync-app.md`) |
 | `held_records` | Sync records the entity tables cannot hold exactly, whole, with why: `incomplete`, `unrepresentable`, `unknown_fields`, `unsupported_type` (schema 2, `sync-app.md`) |
+| `items` | The user's Plaid Items as the server last listed them: institution id, name, logo URL, logo bytes and color, `status` (the `ItemStatus` JSON name), Plaid's `error_code`, `last_successful_sync_at`, `pulled_at` (schema 3; `items.md`) |
 
 How values are stored (`core/db/converters.dart`):
 
@@ -45,7 +46,8 @@ How values are stored (`core/db/converters.dart`):
   Drift's own `DateTimeColumn` is not used: it stores whole seconds.
 - **Enums** are TEXT by name (`textEnum`), never an ordinal. Every enum in schema 1 has
   one-word values, so the name is the JSON name (`test/core/db/app_database_test.dart`
-  checks it); an enum with multi-word values needs a converter that writes the JSON name.
+  checks it); an enum with multi-word values needs a converter that writes the JSON name,
+  as `items.status` has (`ItemStatusColumnConverter`, with a CHECK over the names).
 - **`Uri`** is its TEXT form.
 
 Every entity table (`accounts`, `transactions`, `categories`) has `created_at`,
@@ -133,9 +135,10 @@ and exposes streams that start with the current value and emit again only when i
 
 | Interface | Methods |
 |---|---|
-| `AccountRepository` | `watchAll()` (visible first, then hidden; by `displayOrder`, then id), `watchById`, `upsert`, `create(account, {openingBalance})`, `delete`, `restore`, `watchDerivedBalance(id)`, `watchDerivedBalances()` |
-| `TransactionRepository` | `watch(TransactionQuery)`, `watchById`, `upsert`, `delete`, `restore`, `count(TransactionQuery)`, `watchUsage({recentLimit})` |
+| `AccountRepository` | `watchAll()` (visible first, then hidden; by `displayOrder`, then id), `watchById`, `upsert`, `create(account, {openingBalance})`, `delete`, `restore`, `applyPlaid(accounts)`, `watchDerivedBalance(id)`, `watchDerivedBalances()` |
+| `TransactionRepository` | `watch(TransactionQuery)`, `watchById`, `upsert`, `delete`, `restore`, `applyPlaid(page)`, `count(TransactionQuery)`, `watchUsage({recentLimit})` |
 | `CategoryRepository` | `watchAll()` (by name ignoring ASCII case, then id), `watchById`, `upsert`, `delete`, `ensureSeeded()` |
+| `ItemRepository` | `watchAll()` (by institution name ignoring ASCII case, then id), `watchById`, `applyPlaid(items, pulledAt:)`, `applyPlaidItem`, `saveLogo`, `markLoginRequired` |
 | `SettingsRepository` | `watch()`, `read()`, `save()` |
 
 The rules every implementation keeps:
@@ -145,6 +148,10 @@ The rules every implementation keeps:
   back: an `upsert` of a deleted id throws `EntityDeletedException`
   (`core/db/database_exceptions.dart`), because deletes win over edits, as they will in
   sync.
+- **Bank data is not deleted on the device.** `delete` of a linked account (one with an
+  `itemId`) or of a `plaid` transaction throws `BankDataNotDeletableException`: a linked
+  account goes only when its Item is unlinked, a Plaid transaction only when the bank
+  removes it (`items.md`), so the Plaid apply paths below meet no local tombstone.
 - **The account cascade.** Deleting an account deletes its live transactions and marks
   them (`deleted_with_account`); restoring it restores exactly the marked ones, so one
   deleted on its own stays deleted, even in the same millisecond. Restoring a transaction
@@ -174,6 +181,36 @@ The rules every implementation keeps:
 - **Tags and splits** are replaced as a whole by `upsert`, in the same database
   transaction, and keep their order (duplicates included). Split sums are not checked
   against the amount here.
+
+**The Plaid apply paths** write what the server's Plaid pull brings (`sync-app.md`, **The
+Plaid pull**), record nothing, and skip a local edit's checks (account existence,
+currencies, deleted state), as applying a merged sync record does: the server is
+authoritative.
+
+- `AccountRepository.applyPlaid(accounts)` takes the server's whole list of linked
+  accounts (`GET /accounts`). A listed account is written with every field the server sent
+  and is live (`deleted_at` cleared), keeping the stored `is_hidden`, `display_order` and
+  `created_at`; a new one goes after every stored account (`display_order` from the
+  highest stored one plus one, in list order); an unchanged row is not rewritten. A stored
+  linked account the list does not hold is soft-deleted (no cascade: its transactions'
+  tombstones come from the server). Manual accounts are never touched. A balance in
+  another currency than its account's throws `CurrencyMismatchException` before anything
+  is written.
+- `TransactionRepository.applyPlaid(page)` takes one page of `GET /transactions`. Each
+  transaction is stored as sent, `source`, `created_at`, `updated_at`, `deleted_at` and
+  `sync_version` included, its currency its amount's; one already stored keeps the five
+  fields the user owns (`user_category_id`, `notes`, `tags`, `splits`, `receipt_path`,
+  `withPlaidOverrides` in `repository_support.dart`; splits in another currency than the
+  new amount are dropped, only their count logged) and its `deleted_with_account`. A
+  tombstone for a transaction the device never had is skipped. It returns the live rows
+  it inserted, for the arrival seam.
+- `ItemRepository.applyPlaid(items, pulledAt:)` replaces the stored Items with the
+  server's list and returns them as stored: listed ones upserted with every field, the
+  `removed` status and Plaid's `error_code` included (the logo bytes kept while the logo
+  URL is unchanged), the others removed outright; `applyPlaidItem` writes one (an
+  exchange's answer); `saveLogo` stores fetched bytes against their URL;
+  `markLoginRequired` marks one `login_required` with `ITEM_LOGIN_REQUIRED`, as the server
+  answered.
 
 **Derived balances** are one SQL sum per live account over its live transactions in its
 currency (`LEFT JOIN ... GROUP BY`, watched over `accounts` and `transactions`); pending
@@ -239,7 +276,7 @@ field; a missing or unreadable value reads as that field's default.
 | In memory | `data/in_memory_*_repository.dart`, over `core/db/in_memory_store.dart` | tests, and the default with no override |
 | Demo | `data/demo_*_repository.dart`: the in-memory ones over the demo store | the demo flavor |
 
-The in-memory account, transaction and category repositories share one `InMemoryStore`,
+The in-memory account, transaction, category and item repositories share one `InMemoryStore`,
 because balances, currency checks and the cascade cross repositories; its operations are
 synchronous so the demo seed loads in a provider. Rules both implementations need
 (the category edit rule, the audit-instant rule, the transaction order, SQLite's text
@@ -247,9 +284,12 @@ comparisons, list and map equality) are
 in `core/db/repository_support.dart`.
 
 The contract suites are in `app/test/contract/`, one file per repository:
-`runAccountRepositoryContract`, `runTransactionRepositoryContract` and
-`runCategoryRepositoryContract` take a factory of a `RepositoryFixture` (the three
-repositories of one implementation over one store) and a dispose;
+`runAccountRepositoryContract`, `runTransactionRepositoryContract`,
+`runCategoryRepositoryContract` and `runItemRepositoryContract` take a factory of a
+`RepositoryFixture` (the repositories of one implementation over one store) and a dispose
+(the account and transaction suites' `applyPlaid` groups check the kept fields, the
+tombstones, the order of new accounts, the server's `source` and that nothing is
+recorded);
 `runSettingsRepositoryContract` takes a factory of the repository. Fixtures:
 `memory_fixtures.dart` (in memory, and demo with an empty seed) and `drift_fixtures.dart`
 (an in-memory `AppDatabase`), both with a `SteppingClock` that moves a millisecond per read
@@ -275,9 +315,9 @@ the transactions. The engine keeps each account's opening balance apart from its
 loading it as a transaction, as a manual account's opening balance is, makes each derived
 balance equal the balance the engine reports. **Investment accounts** have no transaction
 history in the engine, so they derive to their uninvested cash only, a known gap until
-Phase 6 brings holdings. The engine's Items, institutions, liabilities, holdings,
-recurring expectations and anomalies are not loaded: the app has no repositories for them
-before Phase 3 (the accounts keep their `demo-item-…` `itemId`). Choosing another persona
+Phase 6 brings holdings. The engine's Items are loaded first, with their institutions
+(the demo's fake server lists the same ones); its liabilities, holdings, recurring
+expectations and anomalies are not: the app has no repositories for them yet. Choosing another persona
 rebuilds the store and the repositories over it, so the demo's own edits are lost. The
 demo flavor's in-app fake server serves the same seed (`FakeDataset.fromDemoSeed`,
 `app-core.md`).
@@ -322,6 +362,10 @@ package id changed (`PLAN.md` §12), it only serves an install that shares the o
 app's data directory.
 
 ## Changing the schema
+
+**Schema 3** added `items`; its step creates the empty table, and `migration_test.dart`
+opens a schema 2 database with manual and Plaid rows, outbox entries and sync state and
+checks they survive.
 
 **Schema 2** added the sync tables (`change_log`, `record_clocks`, `sync_meta`,
 `held_records`). Its step creates them and, in one transaction, backfills the change log

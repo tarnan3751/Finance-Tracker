@@ -115,7 +115,7 @@ submit button with its progress indicator.
 - A successful submission navigates nowhere itself: the router follows the session.
 
 **Settings** (`account_section.dart`): "Signed in as <email>" with the display name,
-Sign out (not in demo), and in dev the server the app talks to ("In-app fake server"
+Linked banks (`items.md`), Sign out (not in demo), and in dev the server the app talks to ("In-app fake server"
 under `FT_FAKE_SERVER`).
 
 ## Tests

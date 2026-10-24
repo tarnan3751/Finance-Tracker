@@ -2,7 +2,7 @@
 
 The account list, an account's detail and the account editor. Code:
 `app/lib/features/accounts/` (`application/`, `presentation/`; the repository is
-`data.md`'s). Tests: `app/test/features/accounts/`, `app/test/flows/`. The routes are in
+`data.md`'s). The linked banks are `items.md`'s. Tests: `app/test/features/accounts/`, `app/test/flows/`. The routes are in
 `app-core.md`, **Routing and the shell**.
 
 ## Balances
@@ -29,11 +29,13 @@ Phase 3's institution-reported balances (`Account.currentBalance`) get a differe
   Hidden accounts are in a collapsed "N hidden accounts" section. A long press drags a
   card (`ReorderableListView`), and the drop writes `displayOrder` 0, 1, 2... to the
   visible accounts whose order changed. With large text the balance moves under the name.
-  "Add account" is the floating button, or the empty state's action.
+  "Add account" is the floating button, or the empty state's action. The app bar's
+  "Linked banks" opens the linked banks (`items.md`).
 - **Detail** (`account_detail_screen.dart`). The type, the derived balance, then the
   transactions newest first, each captioned with its date, category and "Running balance".
   Edit; hide or show; delete, after a confirmation that names the number of transactions
-  going with the account (`AccountRepository.delete` cascades). "Add transaction" opens
+  going with the account (`AccountRepository.delete` cascades). A linked account has no
+  delete: it goes when its bank is unlinked (`items.md`). "Add transaction" opens
   the editor on this account (`/transactions/new?account=<id>`).
 - **Editor** (`account_editor_screen.dart`). Name (required), type (chips with icons),
   currency (a searchable full-screen picker over `Currency.minorUnitDigits`, default the

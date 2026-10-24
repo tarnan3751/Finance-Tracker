@@ -52,7 +52,8 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `databaseKeyStoreProvider` | `core/di/providers.dart` | `SecureDatabaseKeyStore` (`data.md`) |
 | `databaseProvider` | `core/di/providers.dart` | The encrypted `AppDatabase` of dev and prod, closed with the container; a `StateError` in demo |
 | `inMemoryStoreProvider` | `core/di/providers.dart` | The `InMemoryStore` behind the in-memory and demo repositories; the demo flavor's holds the system categories and the demo seed |
-| `accountRepositoryProvider`, `transactionRepositoryProvider`, `categoryRepositoryProvider`, `settingsRepositoryProvider` | `core/di/providers.dart` | In memory by default; Drift in dev and prod and demo in demo, through `overridesFor` |
+| `accountRepositoryProvider`, `transactionRepositoryProvider`, `categoryRepositoryProvider`, `itemRepositoryProvider`, `settingsRepositoryProvider` | `core/di/providers.dart` | In memory by default; Drift in dev and prod and demo in demo, through `overridesFor` |
+| `plaidPullStoreProvider`, `arrivalProcessorProvider`, `plaidPullProvider` | `core/di/providers.dart` | The Plaid pull (`sync-app.md`, **The Plaid pull**): its cursors in memory by default and in `sync_meta` in dev and prod, the arrival seam (nothing yet), and the pull over the API into the repositories |
 | `inMemorySyncStoreProvider`, `driftSyncStoreProvider`, `deviceClockProvider`, `changeRecorderProvider` | `core/di/providers.dart` | The sync stores, the device clock and the recorder the repositories record through: in memory by default, Drift in dev and prod, none in demo (`sync-app.md`) |
 | `syncDeviceIdProvider`, `syncRelayProvider`, `localDataSyncsProvider`, `syncDebounceProvider` | `core/di/providers.dart` | The session's device id and the API's relay as that device while signed in (null otherwise), whether the local data syncs (dev and prod), and the debounce after a local change |
 | `syncControllerProvider` | `core/sync/sync_controller.dart` | The sync status and Sync now (`sync-app.md`) |
@@ -62,6 +63,7 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `goRouterProvider` | `core/router/app_router.dart` | The app's `GoRouter` (`routerFor`), gated on the session in dev and prod, disposed with the container |
 | `tokenStoreProvider`, `fakeServerProvider`, `financeApiProvider`, `appVersionProvider` | `core/api/api_providers.dart` | The API (**The API client**) |
 | `sessionControllerProvider`, `deviceNameProvider` | `features/auth/application/` | The session and the device's name (`auth.md`) |
+| `linkLauncherProvider`, `linkControllerProvider`, `linkPollIntervalProvider`, `linkedBanksProvider` | `features/items/application/` | Plaid Link (plaid_flutter by default, the fake launcher wherever the fake server runs), the Item actions and their state, and the stored Items (`items.md`) |
 | `settingsControllerProvider` | `features/settings/application/settings_controller.dart` | The settings as `AsyncValue<Settings>`, with `setThemeMode` and `setUseDynamicColor` |
 | `packageInfoProvider` | `features/settings/application/package_info.dart` | `PackageInfo.fromPlatform()` for About |
 
@@ -72,8 +74,9 @@ Each feature's own providers (the screens' streams, derived values and writes) a
 `overridesFor(AppConfig)` is the one place a flavor's wiring is decided (it is
 `localDataOverridesFor(config)`, the flavor and its local data, then `apiOverridesFor`;
 a test that brings its own API, such as the two-device integration test sharing one fake
-server, takes the first alone): the Drift repositories for dev and prod, the demo ones for
-demo, and the API's (`apiOverridesFor`: the in-app fake server for demo, and for dev under
+server, takes the first alone): the Drift repositories and the Plaid pull's `sync_meta`
+store for dev and prod, the demo ones for demo, and the API's (`apiOverridesFor`: the
+in-app fake server, with the fake Link launcher over it, for demo, and for dev under
 `FT_FAKE_SERVER`); later phases add theirs there.
 
 riverpod_lint runs as an analyzer plugin declared in the workspace root's
@@ -157,7 +160,9 @@ extra `invalid` checks, with 409 `sync_cursor_invalid`; and the Plaid proxy and 
 endpoints over a `FakeDataset` (`fake_dataset.dart`). A dataset's transactions and
 streams must be `demo`; the fake keeps its ids and assigns only each user's
 `sync_version`s, in a fixed order, when an Item's first sync completes (`not_ready`
-first, as Plaid). `FakeDataset.sample(today)` is one Item, three accounts and a dozen
+first, as Plaid). It remembers each link token's user and update Item, so
+`completeLink(linkToken)` can play Plaid's side of Link for the fake launcher
+(`items.md`). `FakeDataset.sample(today)` is one Item, three accounts and a dozen
 transactions; `FakeDataset.fromDemoSeed(seed)` is the persona engine's household (its
 Items, accounts and transactions; its liabilities and investments are not carried yet);
 `FakeDataset.empty()` has none; a `FakeItemData` may carry `institutionLogo` bytes, which
@@ -167,25 +172,31 @@ rows as modified; the balance refresh answers its accounts; unlinking with
 `history=keep` lists the Item `removed` with its data and refuses every call that would
 reach Plaid with 409 `conflict`. Its Sandbox controls: reset-login makes the Item
 `login_required` until an update-mode link token is created and
-`public-demo-update-<item id>` is exchanged; fire-webhook is a no-op; created
+`public-demo-update-<item id>` is exchanged, or the fake Link launcher completes an
+update-mode Link for it (`completeLink`, which plays Plaid's re-authentication: the app
+never exchanges an update-mode token); fire-webhook is a no-op; created
 transactions are `demo` rows added at once under new versions, refused with a 400 when
 an amount's currency is not its account's (the checking account when none is named); a
 provisioning job is queued and completes on the first `getProvisionJob` after the clock
 moves, linking the persona's demo Items (no injection) generated at the device's date
 (`FakeServer.localDate`, which `fakeApiOverrides` sets from the clock's zone, as the demo
 store does). It does not mirror the server's rate limiter. Test hooks: `failNext`,
-`failNextNetwork`, `latency`, `advanceClock`, `calls`, `seedUser`, `seedSession`,
-`seedLinkedItems`. `test/core/api/fake_contract_test.dart` drives every operation
+`failNextNetwork`, `latency`, `advanceClock`, `calls`, `notReadyItems` (Items whose sync
+stays `not_ready`), `seededSyncVersionOf` (the version a user's data had reached when `seedLinkedItems`
+applied it), `seedUser`, `seedSession`, `seedLinkedItems` (all the dataset's Items,
+or the ones named). `test/core/api/fake_contract_test.dart` drives every operation
 through the generated client against it and checks every request and answer with
 `contract_test` in strict mode.
 
 **Flavors.** `apiOverridesFor(config)`: dev and prod use `HttpFinanceApi` on the network
 with `SecureTokenStore`. Demo uses the fake server over the persona's household the demo shows
-(`demoSeedProvider`, `data.md`, **The demo seed**), with the demo user `demo@financetracker.test` seeded, its Item linked and
-synced, and its session in an `InMemoryTokenStore`, so the demo starts signed in and
+(`demoSeedProvider`, `data.md`, **The demo seed**) followed by Houndstooth Bank
+(`demoLinkableBank`), with the demo user `demo@financetracker.test` seeded, the household's
+Items linked and synced (Houndstooth Bank is left for the demo to link), and its session in an `InMemoryTokenStore`, so the demo starts signed in and
 makes no network call. The dev flavor built with `--dart-define=FT_FAKE_SERVER=true`
-uses the same fake, empty and signed out, with the session in memory; the define is
-ignored in demo and prod.
+uses the same fake over the sample dataset, empty and signed out, with the session in
+memory; the define is ignored in demo and prod. The fake is new in each process, so a
+relaunch under the define re-applies its rows over local edits of those `demo` rows.
 
 ## Routing and the shell
 
@@ -197,6 +208,7 @@ keeping its own navigation stack.
 |---|---|---|---|
 | Accounts | `AccountsRoute` | `/accounts` | `features/accounts/presentation/accounts_screen.dart` |
 | | `NewAccountRoute` | `/accounts/new` | `account_editor_screen.dart` |
+| | `ItemsRoute` | `/accounts/linked-banks` | `features/items/presentation/items_screen.dart` (`items.md`) |
 | | `AccountDetailRoute` | `/accounts/:id` | `account_detail_screen.dart` |
 | | `EditAccountRoute` | `/accounts/:id/edit` | `account_editor_screen.dart` |
 | Transactions | `TransactionsRoute` | `/transactions` | `features/transactions/presentation/transactions_screen.dart` |
@@ -217,7 +229,8 @@ keeping its own navigation stack.
 - Navigate with the route classes (`const SettingsRoute().go(context)`,
   `AccountDetailRoute(id).push(context)`), never with path strings. Detail and editor
   routes are sub-routes of their branch, so each tab keeps its own stack. `/accounts/new`
-  is declared before `/accounts/:id` so it is not read as an id.
+  and `/accounts/linked-banks` are declared before `/accounts/:id` so neither is read as
+  an id.
 - Pushing a route of another branch (a transaction from an account's detail, category
   management from the category picker) puts it on top of the current tab's stack: the
   selected tab does not change, and back returns where the user was.
@@ -297,7 +310,7 @@ the only locale.
 | data | `data/drift_settings_repository.dart` | The Drift implementation (dev and prod): one `app_settings` row per field |
 | data | `data/in_memory_settings_repository.dart`, `data/demo_settings_repository.dart` | The in-memory implementation (tests) and the demo one (the demo flavor) |
 | application | `application/settings_controller.dart` | `SettingsController`, following `watch()`; each change reads, changes and saves, and changes run one after another so two issued together both land |
-| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Data (Categories, opening category management, `categories.md`), About (app name, version and build, flavor, time zone) and Demo data (demo only, `demo_data_section.dart`: the persona the demo shows); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
+| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Data (Categories, opening category management, `categories.md`), About (app name, version and build, flavor, time zone) and Demo data (demo only, `demo_data_section.dart`: the persona the demo shows); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
 
 The repository contract is `test/contract/settings_repository_contract.dart`,
 `runSettingsRepositoryContract(create, {dispose})`; the three implementations each run it

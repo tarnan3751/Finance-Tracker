@@ -84,7 +84,8 @@ category, and system categories cannot be deleted.
   were, so an imported or demo transaction keeps its provenance. The repository's
   `AccountNotFoundException`, `CurrencyMismatchException` and `EntityDeletedException` are
   explained in a snack bar.
-- **Deleting.** Delete soft-deletes and shows "Transaction deleted" with Undo for five
+- **Deleting.** A Plaid transaction has no Delete: only the bank removes one (`data.md`).
+  Delete soft-deletes and shows "Transaction deleted" with Undo for five
   seconds in the tab's own messenger, so it appears on the screen below, above the
   navigation bar, with that screen's floating button lifted over it (`undoDuration`; `persist: false`, since a snack bar with an action otherwise
   stays); Undo calls `TransactionRepository.restore`, and an account deleted in the

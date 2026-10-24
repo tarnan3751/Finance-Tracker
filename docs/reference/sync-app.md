@@ -1,16 +1,18 @@
 # Sync in the app
 
 How the app hosts the sync engine (`sync.md`): what it stores, what it records, how pulled
-changes reach the screens, how it talks to the server, and when sessions run. Code:
+changes reach the screens, how it talks to the server, and when sessions run; and the
+Plaid pull, which brings the server's bank data after each session. Code:
 `app/lib/core/sync/` (the record codec, the recorder, the device clock, the HTTP relay,
-the controller and its status),
+the controller and its status), `app/lib/core/plaid/plaid_pull.dart`,
+`app/lib/core/db/drift_plaid_pull_store.dart`,
 `app/lib/core/db/drift_sync_store.dart`, `app/lib/core/db/sync_backfill.dart`, the
 schema 2 tables under `app/lib/core/db/tables/`, the repositories' writes
 (`data.md`), and `app/lib/features/settings/presentation/sync_section.dart`. Tests:
 `app/test/core/db/drift_sync_store_test.dart`, `app/test/core/sync/`,
 `app/test/contract/recording_contract.dart`, `app/test/drift/migration_test.dart`,
 `app/test/sync/two_device_convergence_test.dart`,
-`app/integration_test/sync_two_devices_test.dart`.
+`app/integration_test/sync_two_devices_test.dart`, `app/test/core/plaid/plaid_pull_test.dart`.
 
 Sync covers the user-authored data the app stores now: accounts, transactions,
 categories and the settings. Other entity types arrive with their phases; a record of one
@@ -75,7 +77,10 @@ keep.
   - `unsupported_type`: an entity the app does not store yet.
 
   A later merge the table can hold exactly writes the row and deletes the held one.
-  Settings → Sync counts held records.
+  `materializeHeld(type, ids)` writes the held records of those entities again: the
+  Plaid pull calls it for the transactions it inserts, so overrides pulled through the
+  change log before their Plaid row existed (held `incomplete`) land on the row. Settings
+  → Sync counts held records.
 
 A live transaction can sit on an account this device does not show (another device
 recorded it while this one deleted the account, a Phase 7 conflict; or it arrived before
@@ -166,16 +171,68 @@ adopts the device id, then runs `SyncSession` with the shared clock. A
 `SyncCursorInvalidException` (the relay's log was reset) saves cursor 0 and runs again once.
 The demo flavor never syncs, and nothing runs, or opens the database, while signed out.
 A failed session is classified: a `NetworkError` is offline, any other `ApiException`
-the server's, anything else other.
+the server's, anything else other. After each successful session the Plaid pull runs
+(**The Plaid pull**), so Sync now covers both; a device change during the pull (a
+sign-out) settles the status for the new device and discards the pull's outcome, as it
+does a session's report; otherwise its outcome is kept in the status apart
+from the session's.
 
 The status (`SyncStatus`) is the phase, the last sync time, the last session's counts
 (`SyncSummary`: pushed, pulled, applied, refused for good, refused for clock drift, pull
 held back), why the last session failed (offline, server, other) and the ledger (entries
 waiting, entries refused for good and the clock of the newest, held records). The time
-and counts persist in `sync_meta`. Settings → Sync (dev and prod) shows them: the last
-sync in the device's zone, the changes waiting, a clock far ahead holding changes back,
-the refused changes with the time of the latest, the records this version cannot show,
-and Sync now. Counts and times only: a change's content is never shown or logged.
+and counts persist in `sync_meta`. The status also has the last whole Plaid pull's time
+(`plaid_pulled_at`, restored at start) and why the last pull failed, classified the same
+way. Settings → Sync (dev and prod) shows them: the last sync in the device's zone, Bank
+data (when it was last updated, or why the update failed), the changes waiting, a clock
+far ahead holding changes back, the refused changes with the time of the latest, the
+records this version cannot show, and Sync now. Counts and times only: a change's content is never shown or logged.
+
+## The Plaid pull
+
+Plaid data is server-authoritative and only pulled, never pushed (`PLAN.md` §6.4).
+`PlaidPull` (`core/plaid/plaid_pull.dart`, `plaidPullProvider`) brings the server's
+Items, linked accounts and Plaid-sourced transactions into the store through the
+repositories' apply paths (`data.md`, **The Plaid apply paths**), which record nothing
+and keep the `source` the server sent. One run:
+
+1. `GET /plaid/items` and `GET /accounts`, applied together in one store transaction:
+   the accounts first (a linked account the list lacks is soft-deleted), then the Items
+   (an Item the list lacks is removed), with `plaid_accounts_pulled_at` and
+   `plaid_items_pulled_at`;
+2. `GET /transactions` from `plaid_transactions_since` (0 at first), 500 a page, through
+   `has_more`. Each page is one store transaction: the page applied, the held records
+   of the rows it inserted materialized, the arrival processor run on those rows, and the
+   cursor saved; a failure anywhere in a page rolls it back and leaves the cursor. A
+   cursor past the server's version (`SyncCursorInvalid`) restarts from 0 once per run,
+   replacing rows by id;
+3. the institution logos the Items lack (never fetched, or their URL changed), through
+   `GET /institutions/{id}/logo`; a failed fetch is logged and tried again next run, and
+   never fails the pull;
+4. `plaid_pulled_at`, when the whole run succeeded.
+
+`run()` is single-flight: a call during a run gets one more run after it, shared by every
+caller during that run, so data a caller has just made the server hold (an Item sync that
+completed) is always pulled. A failure is thrown to the caller; only counts and exception
+types are logged. It runs after each successful sync session (`SyncController`) and after
+each Item action (`items.md`, **The Link controller**); the demo flavor, which has no
+sessions, pulls after its Item actions only.
+
+`PlaidPullStore` keeps the cursors and runs a page's writes as one: `DriftPlaidPullStore`
+(dev and prod) in `sync_meta` and one database transaction; `InMemoryPlaidPullStore` (the
+tests and the demo flavor) beside the in-memory store, so the demo's persona switch
+starts it afresh, its writes not atomic. The demo's starts its transactions cursor at
+the version the fake server's data had reached when it seeded the demo user
+(`FakeServer.seededSyncVersionOf`, recorded at seeding, so it does not matter that the
+store is first built during a Link, after the fake applied the new bank): its store is
+loaded from the same seed, so a pull applies only what a Link action adds, never the
+seed again over the demo's own edits. **The arrival seam**: `ArrivalProcessor.onArrived
+(added)` runs on each page's newly inserted live rows inside the page's transaction, so
+arrival and cursor commit together. It gets the rows as stored after the held records
+were materialized (`PlaidPullStore.materializeHeld` returns them read back), so an
+override another device recorded before the row arrived is already on it and a processor
+never re-reads rows; `arrivalProcessorProvider` is `NoArrivalProcessor`
+until the rules engine fills it, and a processor must not fail on a row it cannot handle.
 
 ## Testing
 
@@ -184,7 +241,8 @@ and Sync now. Counts and times only: a change's content is never shown or logged
 | `test/drift/migration_test.dart` | A schema 1 database with data migrates: rows kept, one create per user-authored row and a delete per deleted one, clocks increasing on one node, the stored records equal to the fold of the entries |
 | `test/core/db/drift_sync_store_test.dart` | The engine's store contract cases; records round-tripping through the tables (randomized transactions included); the held reasons, the row each leaves and their release; unknown fields surviving a local edit; the node substitution; the ledger |
 | `test/contract/recording_contract.dart` | Exactly the entries each write records, in the Drift and in-memory implementations; a refused write records nothing; a Drift write and its entry roll back together |
-| `test/core/sync/sync_controller_test.dart` | The triggers, the debounce (none on top of the start), single flight with one coalesced rerun, a sign-out and sign-in during a held push (one push at a time, each entry once on the relay), the cursor reset, failures in the status, persistence, demo, in-memory data and signed-out |
+| `test/core/sync/sync_controller_test.dart` | The triggers, the debounce (none on top of the start), single flight with one coalesced rerun, a sign-out and sign-in during a held push (one push at a time, each entry once on the relay), the cursor reset, failures in the status, persistence, demo, in-memory data and signed-out, the Plaid pull after a session and its failure kept apart |
+| `test/core/plaid/plaid_pull_test.dart` | Over the fake server into the Drift repositories: everything applied as sent and nothing recorded, paging with the cursor per page, a failed page rolled back and its cursor kept, the cursor reset, an unlinked Item's data going, an override pulled before its row landing on it, single flight; and the in-memory repositories |
 | `test/core/sync/http_sync_relay_test.dart` | The relay over stub endpoints: pass-through, the device check, the cursor exception, a session through it |
 | `test/core/api/fake_dataset_test.dart` | Every persona's household served by the fake server as the engine gave it; the demo flavor's fake on the persona the demo shows |
 | `test/features/transactions/presentation/orphan_transaction_test.dart` | A live transaction on an account this device does not show: labelled by its category, and the editor says the account is gone |
