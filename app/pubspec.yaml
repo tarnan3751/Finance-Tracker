@@ -41,4 +41,5 @@ dev_dependencies:
   riverpod_generator: 4.0.9
 
 flutter:
+  generate: true
   uses-material-design: true

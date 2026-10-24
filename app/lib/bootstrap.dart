@@ -2,11 +2,11 @@
 /// time zones, then runs the app inside its Riverpod `ProviderScope`.
 library;
 
+import 'package:finance_tracker/app.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/logging/app_log.dart';
 import 'package:finance_tracker/core/time/time_zone_setup.dart';
-import 'package:finance_tracker/legacy/legacy_app.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -28,7 +28,7 @@ Future<void> bootstrap(AppConfig config) async {
   runApp(
     ProviderScope(
       overrides: overridesFor(config),
-      child: LegacyFinanceTrackerApp(config: config),
+      child: const FinanceTrackerApp(),
     ),
   );
 }

@@ -1,0 +1,6 @@
+# Localization (flutter gen-l10n): English strings in lib/l10n/app_en.arb; the generated
+# AppLocalizations is committed and the gate checks it is current.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+nullable-getter: false

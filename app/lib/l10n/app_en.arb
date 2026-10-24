@@ -1,0 +1,93 @@
+{
+  "@@locale": "en",
+  "navAccounts": "Accounts",
+  "@navAccounts": {
+    "description": "Label of the Accounts tab in the bottom navigation bar, and the title of the Accounts screen."
+  },
+  "navTransactions": "Transactions",
+  "@navTransactions": {
+    "description": "Label of the Transactions tab in the bottom navigation bar, and the title of the Transactions screen."
+  },
+  "navSettings": "Settings",
+  "@navSettings": {
+    "description": "Label of the Settings tab in the bottom navigation bar, and the title of the Settings screen."
+  },
+  "accountsEmptyHeadline": "No accounts yet",
+  "@accountsEmptyHeadline": {
+    "description": "Headline of the Accounts screen when the user has no accounts."
+  },
+  "accountsEmptyBody": "Accounts you add or connect will appear here.",
+  "@accountsEmptyBody": {
+    "description": "Supporting text of the Accounts screen when the user has no accounts."
+  },
+  "transactionsEmptyHeadline": "No transactions yet",
+  "@transactionsEmptyHeadline": {
+    "description": "Headline of the Transactions screen when there are no transactions."
+  },
+  "transactionsEmptyBody": "Transactions you add or sync will appear here.",
+  "@transactionsEmptyBody": {
+    "description": "Supporting text of the Transactions screen when there are no transactions."
+  },
+  "settingsAppearance": "Appearance",
+  "@settingsAppearance": {
+    "description": "Heading of the settings section for theme and colors."
+  },
+  "settingsThemeMode": "Theme",
+  "@settingsThemeMode": {
+    "description": "Label above the control that chooses between the system, light and dark themes."
+  },
+  "themeModeSystem": "System",
+  "@themeModeSystem": {
+    "description": "Theme choice: follow the device's light or dark setting."
+  },
+  "themeModeLight": "Light",
+  "@themeModeLight": {
+    "description": "Theme choice: always light."
+  },
+  "themeModeDark": "Dark",
+  "@themeModeDark": {
+    "description": "Theme choice: always dark."
+  },
+  "settingsDynamicColor": "Dynamic color",
+  "@settingsDynamicColor": {
+    "description": "Title of the switch that takes the app's colors from the device wallpaper (Material You)."
+  },
+  "settingsDynamicColorSubtitle": "Use colors from your wallpaper when the device provides them",
+  "@settingsDynamicColorSubtitle": {
+    "description": "Explanation under the dynamic color switch."
+  },
+  "settingsAbout": "About",
+  "@settingsAbout": {
+    "description": "Heading of the settings section with the app's name, version, flavor and time zone."
+  },
+  "aboutAppName": "App",
+  "@aboutAppName": {
+    "description": "Label of the row showing the app's name."
+  },
+  "aboutVersion": "Version",
+  "@aboutVersion": {
+    "description": "Label of the row showing the app's version and build number."
+  },
+  "aboutVersionValue": "{version} (build {buildNumber})",
+  "@aboutVersionValue": {
+    "description": "The app's version followed by its build number, for example 1.0.0 (build 1).",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.0.0"
+      },
+      "buildNumber": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "aboutFlavor": "Flavor",
+  "@aboutFlavor": {
+    "description": "Label of the row showing which build flavor runs (dev, demo or prod)."
+  },
+  "aboutTimeZone": "Time zone",
+  "@aboutTimeZone": {
+    "description": "Label of the row showing the time zone the app computes dates in."
+  }
+}
