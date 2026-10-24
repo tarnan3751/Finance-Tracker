@@ -13,15 +13,19 @@ The definition of green. Run after every change, at every commit of a series, by
 
 1. **layout**: `app`, `server`, `packages/shared_models` and `packages/api_client` each
    have a `pubspec.yaml`.
-2. **format**: `dart format --output=none --set-exit-if-changed`.
-3. **analyze**: `flutter pub get` and `flutter analyze` for Flutter packages; `dart pub get`
+2. **resolve**: `dart pub get` at the root, so the package config is current before anything
+   reads it. `dart format` takes each package's language version from the package config; a
+   stale `.dart_tool/` left by an earlier layout made the format step fail at the Phase 0
+   landing, which is why this step exists.
+3. **format**: `dart format --output=none --set-exit-if-changed`.
+4. **analyze**: `flutter pub get` and `flutter analyze` for Flutter packages; `dart pub get`
    and `dart analyze --fatal-infos` for pure Dart ones. In the workspace, a `pub get` in any
    member resolves the whole workspace at the root.
-4. **codegen**: for a package that depends on `build_runner`, runs it and fails on any diff
+5. **codegen**: for a package that depends on `build_runner`, runs it and fails on any diff
    in the generated files.
-5. **tests**: `flutter test` or `dart test` in every package with a `test/` directory; a
+6. **tests**: `flutter test` or `dart test` in every package with a `test/` directory; a
    package without one is skipped, and the gate fails if no package has tests.
-6. **contract**: `tools/check_contract.sh` once it exists (Phase 2).
+7. **contract**: `tools/check_contract.sh` once it exists (Phase 2).
 
 It prints one line per gate, the failing gate's output in full, and exits non-zero when
 any gate fails. It writes `build/` and `.dart_tool/` in the tree it runs in, so an agent

@@ -3,12 +3,15 @@
 # (CLAUDE.md, **Agent workflow**). For every Dart package in the workspace, in order:
 #   1. layout     the packages the map names exist once Phase 0 has landed (app, server,
 #                 packages/*); before that, the original app at the repository root
-#   2. format     dart format --output=none --set-exit-if-changed
-#   3. analyze    flutter analyze (Flutter packages) or dart analyze (pure Dart packages)
-#   4. codegen    generated files are current: build_runner build, then git diff --exit-code
+#   2. resolve    dart pub get at the root, so the package config is current: dart format
+#                 reads each package's language version from it, and a stale .dart_tool left
+#                 by an earlier layout would format in an older style and fail the next gate
+#   3. format     dart format --output=none --set-exit-if-changed
+#   4. analyze    flutter analyze (Flutter packages) or dart analyze (pure Dart packages)
+#   5. codegen    generated files are current: build_runner build, then git diff --exit-code
 #                 on *.g.dart, *.freezed.dart and the generated client (packages with build_runner)
-#   5. tests      flutter test (Flutter packages) or dart test (pure Dart packages)
-#   6. contract   tools/check_contract.sh, once it exists (Phase 2): the OpenAPI document
+#   6. tests      flutter test (Flutter packages) or dart test (pure Dart packages)
+#   7. contract   tools/check_contract.sh, once it exists (Phase 2): the OpenAPI document
 #                 validates and the fakes and the server agree with it
 # Prints one line per gate, the failing gate's output in full, and exits non-zero when any
 # gate fails. Uses `fvm flutter`/`fvm dart` when .fvmrc exists and fvm is installed, else the
@@ -71,7 +74,14 @@ fi
 is_flutter() { grep -qE '^\s+flutter:\s*$|sdk:\s*flutter' "$1/pubspec.yaml"; }
 has_build_runner() { grep -qE '^\s+build_runner:' "$1/pubspec.yaml"; }
 
-# 2. Format --------------------------------------------------------------------------
+# 2. Resolve -------------------------------------------------------------------------
+if $DART pub get >"$scratch/resolve.txt" 2>&1; then
+  report resolve ok ""
+else
+  report resolve FAILED "dart pub get at the root" "$scratch/resolve.txt"
+fi
+
+# 3. Format --------------------------------------------------------------------------
 : >"$scratch/format.txt"
 for p in "${packages[@]}"; do
   (cd "$p" && $DART format --output=none --set-exit-if-changed . ) >>"$scratch/format.txt" 2>&1 || echo "== $p" >>"$scratch/format.txt"
@@ -82,7 +92,7 @@ else
   report format FAILED "run dart format ." "$scratch/format.txt"
 fi
 
-# 3. Analyze -------------------------------------------------------------------------
+# 4. Analyze -------------------------------------------------------------------------
 : >"$scratch/analyze.txt"; bad=0
 for p in "${packages[@]}"; do
   if is_flutter "$p"; then
@@ -98,7 +108,7 @@ else
   report analyze FAILED "$bad of ${#packages[@]} packages" "$scratch/analyze.txt"
 fi
 
-# 4. Generated code is current ----------------------------------------------------------
+# 5. Generated code is current ----------------------------------------------------------
 : >"$scratch/codegen.txt"; gen=0; stale=0
 for p in "${packages[@]}"; do
   has_build_runner "$p" || continue
@@ -116,7 +126,7 @@ else
   report codegen FAILED "$stale of $gen packages stale" "$scratch/codegen.txt"
 fi
 
-# 5. Tests ---------------------------------------------------------------------------
+# 6. Tests ---------------------------------------------------------------------------
 : >"$scratch/tests.txt"; bad=0; ran=0
 for p in "${packages[@]}"; do
   [ -d "$p/test" ] || continue
@@ -136,7 +146,7 @@ else
   report tests FAILED "$bad of $ran packages" "$scratch/tests.txt"
 fi
 
-# 6. Contract (Phase 2) -----------------------------------------------------------------
+# 7. Contract (Phase 2) -----------------------------------------------------------------
 if [ -x tools/check_contract.sh ]; then
   if tools/check_contract.sh >"$scratch/contract.txt" 2>&1; then
     report contract ok "$(tail -1 "$scratch/contract.txt")"
