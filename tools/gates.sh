@@ -16,7 +16,8 @@
 #                 (git status --porcelain), so a newly generated file is caught too
 #   6. tests      flutter test (Flutter packages) or dart test (pure Dart packages)
 #   7. contract   tools/check_contract.sh, once it exists (Phase 2): the OpenAPI document
-#                 validates and the fakes and the server agree with it
+#                 passes the structural check and the generated client is current (the
+#                 fakes and the server are checked against it by their own tests)
 # Prints one line per gate, the failing gate's output in full, and exits non-zero when any
 # gate fails. Uses `fvm flutter`/`fvm dart` when .fvmrc exists and fvm is installed, else the
 # bare commands. Every Flutter or Dart run writes build/ and .dart_tool/ in the tree it runs

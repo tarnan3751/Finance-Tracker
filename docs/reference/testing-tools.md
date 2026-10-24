@@ -30,7 +30,8 @@ The definition of green. Run after every change, at every commit of a series, by
    gate.
 6. **tests**: `flutter test` or `dart test` in every package with a `test/` directory; a
    package without one is skipped, and the gate fails if no package has tests.
-7. **contract**: `tools/check_contract.sh` once it exists (Phase 2).
+7. **contract**: `tools/check_contract.sh` (below): the contract's structural check and
+   the generated client's source hash.
 
 It prints one line per gate, the failing gate's output in full, and exits non-zero when
 any gate fails. It writes `build/` and `.dart_tool/` in the tree it runs in, so an agent
@@ -56,6 +57,16 @@ ignoring our own files and `*.g.dart` (whose freshness is the gate's codegen ste
 it. Run it after every change to the contract and commit the result
 (`docs/reference/api.md`). It writes `packages/api_client` and possibly `pubspec.lock`, or
 with `--check` only a temporary directory.
+
+## `tools/check_contract.sh`: the contract step
+
+The gate's contract step, pure Dart, no Java. It runs `dart run
+contract_test:check_openapi api/openapi.yaml` from `packages/contract_test`, the structural
+check of `docs/reference/api.md`, and compares the SHA-256 of `api/openapi.yaml` with
+`packages/api_client/.openapi-source.sha256`; a mismatch prints "the generated client is
+stale: run tools/gen_api_client.sh". Each failure is printed and the script exits 1; on
+success its last line, which the gate shows, counts the operations and schemas. Bodies are
+validated against the contract by the server's and the fakes' tests, not here.
 
 ## `tools/land_series.sh`: landing a series
 
