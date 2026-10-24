@@ -22,8 +22,9 @@ heading of this file or of a doc.
 core with the settings feature; `packages/shared_models` holds the domain model; the emulator
 harness exists; manual accounts and the encrypted database follow.
 The repository is the pub workspace of **Folder layout**, Android only. The app runs in
-three flavors (`dev`, `demo`, `prod`) through `app/lib/bootstrap.dart`; `server/` is a
-skeleton answering `GET /v1/health`; `api/openapi.yaml` is the v1 contract, with
+three flavors (`dev`, `demo`, `prod`) through `app/lib/bootstrap.dart`; `server/` is the
+development server implementing the contract with a fake Plaid client
+(`docs/reference/server.md`); `api/openapi.yaml` is the v1 contract, with
 `packages/api_client` generated from it and `packages/contract_test` checking against it;
 the Android build is Flutter 3.47's template with the package id, the flavors and the
 release hardening; CI runs the gate, builds the APKs and proves the generated client
@@ -64,7 +65,7 @@ scripts pick it the same way. Commands marked with a phase do not exist before i
 | Regenerate the API client after a contract change (Phase 2) | `tools/gen_api_client.sh` |
 | Run the app, demo flavor (safe anywhere; no network) | `F run --flavor demo -t lib/main_demo.dart` |
 | Run the app, dev flavor (the owner only: the owner's emulator and the dev server) | `F run --flavor dev -t lib/main_dev.dart` |
-| The dev server (the owner only: reads the Plaid keys) (Phase 2) | `cd server && dart run bin/server.dart` |
+| The dev server (the owner only: reads `server/.env`; Plaid is fake until Phase 3) | `tools/run_server.sh` |
 | Emulator integration tests, one run on the machine at a time (Phase 1) | `tools/emulator_tests.sh` |
 | Provision a persona into Sandbox (the owner only) (Phase 3) | `tools/scripts/provision_persona.sh <persona>` |
 | Build a debug APK | `F build apk --debug --flavor dev -t lib/main_dev.dart` |
