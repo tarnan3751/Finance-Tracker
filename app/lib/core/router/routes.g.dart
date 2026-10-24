@@ -46,6 +46,18 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
           path: '/transactions',
           hasOverriddenOnExit: false,
           factory: $TransactionsRoute._fromState,
+          routes: [
+            GoRouteData.$route(
+              path: 'new',
+              hasOverriddenOnExit: false,
+              factory: $NewTransactionRoute._fromState,
+            ),
+            GoRouteData.$route(
+              path: ':id',
+              hasOverriddenOnExit: false,
+              factory: $TransactionRoute._fromState,
+            ),
+          ],
         ),
       ],
     ),
@@ -179,6 +191,56 @@ mixin $TransactionsRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/transactions');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $NewTransactionRoute on GoRouteData {
+  static NewTransactionRoute _fromState(GoRouterState state) =>
+      NewTransactionRoute(account: state.uri.queryParameters['account']);
+
+  NewTransactionRoute get _self => this as NewTransactionRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/transactions/new',
+    queryParams: {if (_self.account != null) 'account': _self.account},
+  );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $TransactionRoute on GoRouteData {
+  static TransactionRoute _fromState(GoRouterState state) =>
+      TransactionRoute(state.pathParameters['id']!);
+
+  TransactionRoute get _self => this as TransactionRoute;
+
+  @override
+  String get location =>
+      GoRouteData.$location('/transactions/${Uri.encodeComponent(_self.id)}');
 
   @override
   void go(BuildContext context) => context.go(location);

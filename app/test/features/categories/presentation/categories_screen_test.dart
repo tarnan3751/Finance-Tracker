@@ -1,6 +1,7 @@
 // Category management: the hierarchy with the system categories locked, expanding and
 // search; adding a user category; a system category changes only its icon and color;
-// deleting a user category counts the transactions it leaves uncategorized.
+// deleting a user category counts the transactions it leaves uncategorized, and they then
+// show as Uncategorized.
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/features/categories/data/category_defaults.dart';
 import 'package:flutter/material.dart';
@@ -166,7 +167,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(store.category('snacks'), isNull);
-    // The transaction keeps the id; the screens show it uncategorized.
+    // The transaction keeps the id; every screen shows it uncategorized.
     expect(store.transaction('chips')!.userCategoryId, 'snacks');
+
+    await tester.tap(find.text('Transactions'));
+    await tester.pumpAndSettle();
+    expect(find.text('Everyday Checking · Uncategorized'), findsNWidgets(2));
+    await tester.tap(find.text('Chips'));
+    await tester.pumpAndSettle();
+    expect(find.text('Uncategorized'), findsOneWidget);
   });
 }

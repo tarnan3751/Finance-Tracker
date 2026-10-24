@@ -268,6 +268,12 @@ abstract class AppLocalizations {
   /// **'Edit'**
   String get edit;
 
+  /// Action of the snack bar shown after a delete, which brings the record back.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
   /// Shown in place of a list when its data could not be read.
   ///
   /// In en, this message translates to:
@@ -508,6 +514,12 @@ abstract class AppLocalizations {
   /// **'Enter the amount without a sign'**
   String get amountUnsigned;
 
+  /// Button that opens the editor of a new transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add transaction'**
+  String get transactionAdd;
+
   /// Label on a transaction the bank has not posted yet.
   ///
   /// In en, this message translates to:
@@ -699,6 +711,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'#{tag}'**
   String tagLabel(String tag);
+
+  /// Tooltip of the button on a tag chip in the editor that removes the tag.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove tag {tag}'**
+  String tagRemove(String tag);
+
+  /// Tooltip of a suggested tag chip in the editor that adds the tag.
+  ///
+  /// In en, this message translates to:
+  /// **'Add tag {tag}'**
+  String tagAdd(String tag);
+
+  /// Title of the editor of a new transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'New transaction'**
+  String get transactionNewTitle;
+
+  /// Title of the editor of an existing transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction'**
+  String get transactionTitle;
+
+  /// Shown when the transaction asked for has been deleted or does not exist.
+  ///
+  /// In en, this message translates to:
+  /// **'This transaction no longer exists.'**
+  String get transactionNotFound;
+
+  /// Headline of the new transaction screen when there is no account to put it on.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an account first'**
+  String get transactionNeedsAccountHeadline;
+
+  /// Supporting text of the new transaction screen when there is no account.
+  ///
+  /// In en, this message translates to:
+  /// **'Every transaction belongs to an account.'**
+  String get transactionNeedsAccountBody;
+
+  /// Segment of the transaction editor for money going out.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get transactionExpense;
+
+  /// Segment of the transaction editor for money coming in.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get transactionIncome;
+
+  /// Label of the transaction amount field.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get transactionAmount;
+
+  /// Label of the transaction account field.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get transactionAccount;
+
+  /// Label of the transaction date field.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get transactionDate;
+
+  /// Label of the transaction description field (the merchant or what it was for).
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get transactionDescription;
+
+  /// Error under the description field when it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a description'**
+  String get transactionDescriptionRequired;
+
+  /// Label of the transaction category field.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get transactionCategory;
+
+  /// Label of the transaction notes field.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get transactionNotes;
+
+  /// Label of the field where tags are typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get transactionTags;
+
+  /// Explanation under the tag field.
+  ///
+  /// In en, this message translates to:
+  /// **'Press enter or type a comma to add a tag'**
+  String get transactionTagsHelper;
+
+  /// Snack bar shown when a transaction cannot be saved because its amount or splits are in another currency than its account.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount must be in the account\'s currency.'**
+  String get transactionCurrencyMismatch;
+
+  /// Snack bar shown after a transaction is deleted, with an Undo action.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction deleted'**
+  String get transactionDeleted;
+
+  /// Snack bar shown when undoing a delete fails because the transaction's account has been deleted since.
+  ///
+  /// In en, this message translates to:
+  /// **'The transaction can\'t come back: its account was deleted.'**
+  String get transactionRestoreNoAccount;
 
   /// Heading of the settings section for categories and other data.
   ///

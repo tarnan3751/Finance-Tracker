@@ -1,6 +1,7 @@
 // An account's detail: the derived balance, the transactions newest first with the
 // running balance after each, hiding, the delete confirmation that counts the
-// transactions going with the account.
+// transactions going with the account, and opening a transaction on top of the detail
+// (the Accounts tab stays selected; back returns to the detail).
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:flutter/material.dart';
@@ -97,6 +98,34 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(store.account(cardId), isNotNull);
+  });
+
+  testWidgets('a transaction opens over the detail and back returns', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      initialLocation: '/accounts/$checkingId',
+      overrides: [storeOverride(seededStore())],
+    );
+
+    await tester.tap(find.text('Card payment'));
+    await tester.pumpAndSettle();
+    expect(
+      find.widgetWithText(AppBar, 'Transaction').hitTestable(),
+      findsOneWidget,
+    );
+    expect(
+      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+      0,
+    );
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(
+      find.widgetWithText(AppBar, 'Everyday Checking').hitTestable(),
+      findsOneWidget,
+    );
   });
 
   testWidgets('a deleted or unknown account says so', (tester) async {

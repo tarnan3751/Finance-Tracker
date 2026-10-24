@@ -122,6 +122,90 @@ final class TransactionPageProvider
 
 String _$transactionPageHash() => r'1535c38f2f70cfec1a78141550c89da193431531';
 
+/// The live transaction [id], or null when it does not exist or is deleted.
+
+@ProviderFor(transaction)
+final transactionProvider = TransactionFamily._();
+
+/// The live transaction [id], or null when it does not exist or is deleted.
+
+final class TransactionProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Transaction?>,
+          Transaction?,
+          Stream<Transaction?>
+        >
+    with $FutureModifier<Transaction?>, $StreamProvider<Transaction?> {
+  /// The live transaction [id], or null when it does not exist or is deleted.
+  TransactionProvider._({
+    required TransactionFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'transactionProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$transactionHash();
+
+  @override
+  String toString() {
+    return r'transactionProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<Transaction?> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<Transaction?> create(Ref ref) {
+    final argument = this.argument as String;
+    return transaction(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TransactionProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$transactionHash() => r'74c2dc86e9958af21acbcd03c85cda370a0df4e4';
+
+/// The live transaction [id], or null when it does not exist or is deleted.
+
+final class TransactionFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<Transaction?>, String> {
+  TransactionFamily._()
+    : super(
+        retry: null,
+        name: r'transactionProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// The live transaction [id], or null when it does not exist or is deleted.
+
+  TransactionProvider call(String id) =>
+      TransactionProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'transactionProvider';
+}
+
 /// What the editor and the filter sheet suggest, from the live transactions: the tags in
 /// use and the most recently used categories and accounts
 /// (`TransactionRepository.watchUsage`).
@@ -171,3 +255,56 @@ final class TransactionUsageProvider
 }
 
 String _$transactionUsageHash() => r'a490a29d0c3b40d516d3f383a85ad49960422ec5';
+
+/// The writes of the transaction editor.
+
+@ProviderFor(transactionActions)
+final transactionActionsProvider = TransactionActionsProvider._();
+
+/// The writes of the transaction editor.
+
+final class TransactionActionsProvider
+    extends
+        $FunctionalProvider<
+          TransactionActions,
+          TransactionActions,
+          TransactionActions
+        >
+    with $Provider<TransactionActions> {
+  /// The writes of the transaction editor.
+  TransactionActionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'transactionActionsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$transactionActionsHash();
+
+  @$internal
+  @override
+  $ProviderElement<TransactionActions> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  TransactionActions create(Ref ref) {
+    return transactionActions(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(TransactionActions value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<TransactionActions>(value),
+    );
+  }
+}
+
+String _$transactionActionsHash() =>
+    r'6ec05b17029004f5cd54d4425c5ca321b365207c';

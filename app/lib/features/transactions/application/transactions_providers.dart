@@ -1,15 +1,18 @@
-/// What the transaction screens show: the list under its search and filters, paged fifty
-/// at a time and grouped by date, and what the filter sheet and the category picker
-/// suggest (tags, recently used categories and accounts).
+/// What the transaction screens show and do: the list under its search and filters, paged
+/// fifty at a time and grouped by date; what the editor and the filter sheet suggest
+/// (tags, recently used categories and accounts); and the editor's writes.
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/transactions/application/transaction_filters.dart';
+import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_models/shared_models.dart';
+import 'package:uuid/uuid.dart';
 
 part 'transactions_providers.g.dart';
 
@@ -109,9 +112,90 @@ List<TransactionListItem> groupByDate(List<Transaction> newestFirst) {
   return items;
 }
 
+/// The live transaction [id], or null when it does not exist or is deleted.
+@riverpod
+Stream<Transaction?> transaction(Ref ref, String id) =>
+    ref.watch(transactionRepositoryProvider).watchById(id);
+
 /// What the editor and the filter sheet suggest, from the live transactions: the tags in
 /// use and the most recently used categories and accounts
 /// (`TransactionRepository.watchUsage`).
 @riverpod
 Stream<TransactionUsage> transactionUsage(Ref ref) =>
     ref.watch(transactionRepositoryProvider).watchUsage();
+
+/// The writes of the transaction editor.
+@riverpod
+TransactionActions transactionActions(Ref ref) => TransactionActions(
+  ref.watch(transactionRepositoryProvider),
+  ref.watch(clockProvider),
+);
+
+/// What the editor enters: everything a user sets on a transaction.
+typedef TransactionDraft = ({
+  String accountId,
+  Money amount,
+  LocalDate date,
+  String name,
+  String? categoryId,
+  String? notes,
+  List<String> tags,
+});
+
+/// Creates, edits, deletes and restores transactions. The repository's typed exceptions
+/// (`AccountNotFoundException`, `CurrencyMismatchException`, `EntityDeletedException`)
+/// reach the caller, which explains them.
+final class TransactionActions {
+  TransactionActions(this._transactions, this._clock);
+
+  final TransactionRepository _transactions;
+  final Clock _clock;
+
+  static const Uuid _uuid = Uuid();
+
+  /// Creates a `manual` transaction from [draft] and returns its id.
+  Future<String> create(TransactionDraft draft) async {
+    final DateTime now = _clock.nowUtc();
+    final String id = _uuid.v4();
+    await _transactions.upsert(
+      Transaction(
+        id: id,
+        accountId: draft.accountId,
+        amount: draft.amount,
+        date: draft.date,
+        pending: false,
+        name: draft.name,
+        userCategoryId: draft.categoryId,
+        notes: draft.notes,
+        tags: draft.tags,
+        source: DataSource.manual,
+        createdAt: now,
+        updatedAt: now,
+        syncVersion: 0,
+      ),
+    );
+    return id;
+  }
+
+  /// Saves [draft] over [existing]. Everything the editor does not show (the source, the
+  /// merchant name, the splits, the Plaid fields, `createdAt`) is kept as it was.
+  Future<void> update(Transaction existing, TransactionDraft draft) =>
+      _transactions.upsert(
+        existing.copyWith(
+          accountId: draft.accountId,
+          amount: draft.amount,
+          date: draft.date,
+          name: draft.name,
+          userCategoryId: draft.categoryId,
+          notes: draft.notes,
+          tags: draft.tags,
+          updatedAt: _clock.nowUtc(),
+        ),
+      );
+
+  /// Deletes transaction [id]; [restore] brings it back.
+  Future<void> delete(String id) => _transactions.delete(id);
+
+  /// Restores deleted transaction [id] (the undo of [delete]).
+  Future<void> restore(String id) => _transactions.restore(id);
+}

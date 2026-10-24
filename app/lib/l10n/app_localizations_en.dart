@@ -106,6 +106,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get edit => 'Edit';
 
   @override
+  String get undo => 'Undo';
+
+  @override
   String get loadFailed =>
       'Something went wrong loading this. Try again later.';
 
@@ -260,6 +263,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get amountUnsigned => 'Enter the amount without a sign';
 
   @override
+  String get transactionAdd => 'Add transaction';
+
+  @override
   String get transactionPending => 'Pending';
 
   @override
@@ -366,6 +372,77 @@ class AppLocalizationsEn extends AppLocalizations {
   String tagLabel(String tag) {
     return '#$tag';
   }
+
+  @override
+  String tagRemove(String tag) {
+    return 'Remove tag $tag';
+  }
+
+  @override
+  String tagAdd(String tag) {
+    return 'Add tag $tag';
+  }
+
+  @override
+  String get transactionNewTitle => 'New transaction';
+
+  @override
+  String get transactionTitle => 'Transaction';
+
+  @override
+  String get transactionNotFound => 'This transaction no longer exists.';
+
+  @override
+  String get transactionNeedsAccountHeadline => 'Add an account first';
+
+  @override
+  String get transactionNeedsAccountBody =>
+      'Every transaction belongs to an account.';
+
+  @override
+  String get transactionExpense => 'Expense';
+
+  @override
+  String get transactionIncome => 'Income';
+
+  @override
+  String get transactionAmount => 'Amount';
+
+  @override
+  String get transactionAccount => 'Account';
+
+  @override
+  String get transactionDate => 'Date';
+
+  @override
+  String get transactionDescription => 'Description';
+
+  @override
+  String get transactionDescriptionRequired => 'Enter a description';
+
+  @override
+  String get transactionCategory => 'Category';
+
+  @override
+  String get transactionNotes => 'Notes';
+
+  @override
+  String get transactionTags => 'Tags';
+
+  @override
+  String get transactionTagsHelper =>
+      'Press enter or type a comma to add a tag';
+
+  @override
+  String get transactionCurrencyMismatch =>
+      'The amount must be in the account\'s currency.';
+
+  @override
+  String get transactionDeleted => 'Transaction deleted';
+
+  @override
+  String get transactionRestoreNoAccount =>
+      'The transaction can\'t come back: its account was deleted.';
 
   @override
   String get settingsData => 'Data';

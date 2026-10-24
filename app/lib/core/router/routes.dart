@@ -4,12 +4,15 @@
 /// | Tab | Paths |
 /// |---|---|
 /// | Accounts | `/accounts`, `/accounts/new`, `/accounts/:id`, `/accounts/:id/edit` |
-/// | Transactions | `/transactions` |
+/// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/:id` |
 /// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id` |
 ///
 /// `/` redirects to `/accounts` (`app_router.dart`). Detail and editor routes are
-/// sub-routes of their branch, so each tab keeps its own stack. Navigate with the route
-/// classes, for example `const SettingsRoute().go(context)`, never with path strings.
+/// sub-routes of their branch, so each tab keeps its own stack; pushing a route of another
+/// branch (a transaction from an account's detail, category management from the category
+/// picker) opens it on top of the current tab's stack, and back returns there. Navigate
+/// with the route classes, for example `const SettingsRoute().go(context)`, never with
+/// path strings.
 library;
 
 import 'package:finance_tracker/core/router/app_shell.dart';
@@ -19,6 +22,7 @@ import 'package:finance_tracker/features/accounts/presentation/accounts_screen.d
 import 'package:finance_tracker/features/categories/presentation/categories_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/category_editor_screen.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
+import 'package:finance_tracker/features/transactions/presentation/transaction_editor_screen.dart';
 import 'package:finance_tracker/features/transactions/presentation/transactions_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -47,7 +51,13 @@ part 'routes.g.dart';
     ),
     TypedStatefulShellBranch<TransactionsBranch>(
       routes: <TypedRoute<RouteData>>[
-        TypedGoRoute<TransactionsRoute>(path: '/transactions'),
+        TypedGoRoute<TransactionsRoute>(
+          path: '/transactions',
+          routes: <TypedRoute<RouteData>>[
+            TypedGoRoute<NewTransactionRoute>(path: 'new'),
+            TypedGoRoute<TransactionRoute>(path: ':id'),
+          ],
+        ),
       ],
     ),
     TypedStatefulShellBranch<SettingsBranch>(
@@ -148,6 +158,29 @@ class TransactionsRoute extends GoRouteData with $TransactionsRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const TransactionsScreen();
+}
+
+/// `/transactions/new`: the editor of a new transaction, on [account] when given.
+class NewTransactionRoute extends GoRouteData with $NewTransactionRoute {
+  const NewTransactionRoute({this.account});
+
+  /// The id of the account the new transaction starts on.
+  final String? account;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      TransactionEditorScreen(initialAccountId: account);
+}
+
+/// `/transactions/:id`: an existing transaction, in the editor that is also its detail.
+class TransactionRoute extends GoRouteData with $TransactionRoute {
+  const TransactionRoute(this.id);
+
+  final String id;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      TransactionEditorScreen(transactionId: id);
 }
 
 /// `/settings`: the settings screen.

@@ -1,6 +1,7 @@
 /// One account: its name, type and balance derived from its transactions, then its
 /// transactions newest first, each with the running balance after it. Edit, hide or show,
-/// and delete (with its transactions, after a confirmation that counts them).
+/// delete (with its transactions, after a confirmation that counts them), and add a
+/// transaction on this account.
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
@@ -140,7 +141,14 @@ class _Detail extends ConsumerWidget {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () =>
+            NewTransactionRoute(account: account.id).push<void>(context),
+        icon: const Icon(Icons.add),
+        label: Text(l10n.transactionAdd),
+      ),
       body: ListView.builder(
+        padding: const EdgeInsets.only(bottom: 88),
         itemCount: 1 + (ledger.isEmpty ? 1 : ledger.length),
         itemBuilder: (context, index) {
           if (index == 0) {
@@ -174,6 +182,7 @@ class _Detail extends ConsumerWidget {
                 : categoryColor(context, category.color),
             pending: transaction.pending,
             runningBalance: entry.balance,
+            onTap: () => TransactionRoute(transaction.id).push<void>(context),
           );
         },
       ),

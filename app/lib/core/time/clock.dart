@@ -16,7 +16,8 @@ import 'package:timezone/timezone.dart' as tz;
 /// `DateTime` that carries microseconds.
 ///
 /// [today] is the local date; [todayLocalMidnight] is the instant that date starts, for
-/// the few callers that need a `DateTime`. Phase 1d moves the UI's date callers onto
+/// the few callers that need a `DateTime`. The UI's "today" (the default date of a new
+/// transaction, the date headers, the date filter presets, the date pickers' today) is
 /// [today].
 abstract interface class Clock {
   /// The current instant, in UTC, truncated to milliseconds.

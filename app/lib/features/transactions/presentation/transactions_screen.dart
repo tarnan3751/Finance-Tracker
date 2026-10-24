@@ -1,9 +1,10 @@
 /// The Transactions tab: every account's transactions, newest first, under date headers,
 /// loaded fifty at a time as the list scrolls. Search from the app bar; filter by account,
 /// category, date range, amount and tag in a bottom sheet, the active filters shown as
-/// removable chips.
+/// removable chips; tap a row to open it; "Add transaction".
 library;
 
+import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
@@ -114,6 +115,14 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           ),
         ],
       ),
+      floatingActionButton:
+          transactions == null || transactions.isEmpty && !filtered
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => const NewTransactionRoute().push<void>(context),
+              icon: const Icon(Icons.add),
+              label: Text(l10n.transactionAdd),
+            ),
       body: Column(
         children: [
           if (filters.hasFilters) _ActiveFilters(filters),
@@ -130,6 +139,12 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                 icon: Icons.receipt_long_outlined,
                 headline: l10n.transactionsEmptyHeadline,
                 body: l10n.transactionsEmptyBody,
+                action: FilledButton.icon(
+                  onPressed: () =>
+                      const NewTransactionRoute().push<void>(context),
+                  icon: const Icon(Icons.add),
+                  label: Text(l10n.transactionAdd),
+                ),
               ),
               final List<Transaction> list =>
                 NotificationListener<ScrollNotification>(
@@ -161,6 +176,7 @@ class _TransactionList extends ConsumerWidget {
     final Map<String, Category> categories = ref.watch(categoriesByIdProvider);
     final LocalDate today = ref.watch(todayProvider);
     return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 88),
       itemCount: items.length + (hasMore ? 1 : 0),
       itemBuilder: (context, index) {
         if (index == items.length) {
@@ -189,6 +205,7 @@ class _TransactionList extends ConsumerWidget {
                   ? theme.colorScheme.outline
                   : categoryColor(context, category.color),
               pending: transaction.pending,
+              onTap: () => TransactionRoute(transaction.id).push<void>(context),
             );
         }
       },

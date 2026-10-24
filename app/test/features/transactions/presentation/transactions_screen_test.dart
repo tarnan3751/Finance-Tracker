@@ -308,10 +308,25 @@ void main() {
     expect(find.text('Rent'), findsWidgets);
   });
 
-  testWidgets('with no transactions, the list says so', (tester) async {
+  testWidgets('with no transactions, the empty state offers to add one', (
+    tester,
+  ) async {
     await _pumpList(tester, seededStore(seed: const DemoSeed.empty()));
 
     expect(find.text('No transactions yet'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Add transaction'));
+    await tester.pumpAndSettle();
+    expect(find.text('Add an account first'), findsOneWidget);
+  });
+
+  testWidgets('tapping a row opens it in the editor', (tester) async {
+    await _pumpList(tester, seededStore());
+
+    await tester.tap(find.text('Shell'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(AppBar, 'Transaction'), findsOneWidget);
+    expect(find.text('SHELL OIL 57442'), findsOneWidget);
   });
 
   testWidgets('2,000 transactions build only the visible rows, paged by 50', (

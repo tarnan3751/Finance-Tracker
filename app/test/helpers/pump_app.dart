@@ -47,6 +47,7 @@ Widget buildTestApp({
   AppConfig? config,
   String initialLocation = '/accounts',
   Brightness brightness = Brightness.light,
+  Clock? clock,
 }) {
   return ProviderScope(
     retry: (_, _) => null,
@@ -55,13 +56,15 @@ Widget buildTestApp({
       config: config,
       initialLocation: initialLocation,
       brightness: brightness,
+      clock: clock,
     ),
     child: const FinanceTrackerApp(),
   );
 }
 
 /// The overrides of a test app: [config] (prod, which draws no flavor banner, by
-/// default) as `appConfigProvider` only, [testClock], [testPackageInfo], settings whose theme mode gives
+/// default) as `appConfigProvider` only, [clock] ([testClock] by default),
+/// [testPackageInfo], settings whose theme mode gives
 /// [brightness], and a router opening at [initialLocation]; then [overrides], which win.
 /// A test that overrides `settingsRepositoryProvider` itself sets the theme mode there.
 List<Override> testOverrides({
@@ -69,9 +72,10 @@ List<Override> testOverrides({
   AppConfig? config,
   String initialLocation = '/accounts',
   Brightness brightness = Brightness.light,
+  Clock? clock,
 }) => [
   appConfigProvider.overrideWithValue(config ?? AppConfig.prod()),
-  clockProvider.overrideWithValue(testClock),
+  clockProvider.overrideWithValue(clock ?? testClock),
   packageInfoProvider.overrideWith((ref) async => testPackageInfo),
   settingsRepositoryProvider.overrideWith((ref) {
     final InMemorySettingsRepository repository = InMemorySettingsRepository(
@@ -101,6 +105,7 @@ Future<void> pumpApp(
   Brightness brightness = Brightness.light,
   double textScale = 1.0,
   Size size = phoneSize,
+  Clock? clock,
 }) async {
   tester.view.physicalSize = size * tester.view.devicePixelRatio;
   addTearDown(tester.view.resetPhysicalSize);
@@ -113,6 +118,7 @@ Future<void> pumpApp(
       config: config,
       initialLocation: initialLocation,
       brightness: brightness,
+      clock: clock,
     ),
   );
   await tester.pumpAndSettle();

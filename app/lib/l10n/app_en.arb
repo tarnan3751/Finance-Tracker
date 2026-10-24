@@ -126,6 +126,10 @@
   "@edit": {
     "description": "Tooltip of the button that opens the editor of the record shown."
   },
+  "undo": "Undo",
+  "@undo": {
+    "description": "Action of the snack bar shown after a delete, which brings the record back."
+  },
   "loadFailed": "Something went wrong loading this. Try again later.",
   "@loadFailed": {
     "description": "Shown in place of a list when its data could not be read."
@@ -348,6 +352,10 @@
   "@amountUnsigned": {
     "description": "Error under an amount field when a negative number is typed where the sign is chosen separately."
   },
+  "transactionAdd": "Add transaction",
+  "@transactionAdd": {
+    "description": "Button that opens the editor of a new transaction."
+  },
   "transactionPending": "Pending",
   "@transactionPending": {
     "description": "Label on a transaction the bank has not posted yet."
@@ -519,6 +527,102 @@
         "example": "household"
       }
     }
+  },
+  "tagRemove": "Remove tag {tag}",
+  "@tagRemove": {
+    "description": "Tooltip of the button on a tag chip in the editor that removes the tag.",
+    "placeholders": {
+      "tag": {
+        "type": "String",
+        "example": "household"
+      }
+    }
+  },
+  "tagAdd": "Add tag {tag}",
+  "@tagAdd": {
+    "description": "Tooltip of a suggested tag chip in the editor that adds the tag.",
+    "placeholders": {
+      "tag": {
+        "type": "String",
+        "example": "household"
+      }
+    }
+  },
+  "transactionNewTitle": "New transaction",
+  "@transactionNewTitle": {
+    "description": "Title of the editor of a new transaction."
+  },
+  "transactionTitle": "Transaction",
+  "@transactionTitle": {
+    "description": "Title of the editor of an existing transaction."
+  },
+  "transactionNotFound": "This transaction no longer exists.",
+  "@transactionNotFound": {
+    "description": "Shown when the transaction asked for has been deleted or does not exist."
+  },
+  "transactionNeedsAccountHeadline": "Add an account first",
+  "@transactionNeedsAccountHeadline": {
+    "description": "Headline of the new transaction screen when there is no account to put it on."
+  },
+  "transactionNeedsAccountBody": "Every transaction belongs to an account.",
+  "@transactionNeedsAccountBody": {
+    "description": "Supporting text of the new transaction screen when there is no account."
+  },
+  "transactionExpense": "Expense",
+  "@transactionExpense": {
+    "description": "Segment of the transaction editor for money going out."
+  },
+  "transactionIncome": "Income",
+  "@transactionIncome": {
+    "description": "Segment of the transaction editor for money coming in."
+  },
+  "transactionAmount": "Amount",
+  "@transactionAmount": {
+    "description": "Label of the transaction amount field."
+  },
+  "transactionAccount": "Account",
+  "@transactionAccount": {
+    "description": "Label of the transaction account field."
+  },
+  "transactionDate": "Date",
+  "@transactionDate": {
+    "description": "Label of the transaction date field."
+  },
+  "transactionDescription": "Description",
+  "@transactionDescription": {
+    "description": "Label of the transaction description field (the merchant or what it was for)."
+  },
+  "transactionDescriptionRequired": "Enter a description",
+  "@transactionDescriptionRequired": {
+    "description": "Error under the description field when it is empty."
+  },
+  "transactionCategory": "Category",
+  "@transactionCategory": {
+    "description": "Label of the transaction category field."
+  },
+  "transactionNotes": "Notes",
+  "@transactionNotes": {
+    "description": "Label of the transaction notes field."
+  },
+  "transactionTags": "Tags",
+  "@transactionTags": {
+    "description": "Label of the field where tags are typed."
+  },
+  "transactionTagsHelper": "Press enter or type a comma to add a tag",
+  "@transactionTagsHelper": {
+    "description": "Explanation under the tag field."
+  },
+  "transactionCurrencyMismatch": "The amount must be in the account's currency.",
+  "@transactionCurrencyMismatch": {
+    "description": "Snack bar shown when a transaction cannot be saved because its amount or splits are in another currency than its account."
+  },
+  "transactionDeleted": "Transaction deleted",
+  "@transactionDeleted": {
+    "description": "Snack bar shown after a transaction is deleted, with an Undo action."
+  },
+  "transactionRestoreNoAccount": "The transaction can't come back: its account was deleted.",
+  "@transactionRestoreNoAccount": {
+    "description": "Snack bar shown when undoing a delete fails because the transaction's account has been deleted since."
   },
   "settingsData": "Data",
   "@settingsData": {
