@@ -156,4 +156,8 @@ application, and each test file's `main` is the entry point, so no `-t` is given
 `app_launch_test.dart` starts the app through `bootstrap(AppConfig.demo())`, as
 `main_demo.dart` does, and checks that a `MaterialApp` titled with the demo app name is up
 and that the Accounts tab shows the demo seed's accounts with their derived balances.
-CI does not run them yet.
+`auth_flow_test.dart` finds the demo signed in as the demo user, then, when the run is
+given `--dart-define=FT_FAKE_SERVER=true` (`tools/emulator_tests.sh integration --
+--dart-define=FT_FAKE_SERVER=true`; skipped without it), starts the dev flavor on the
+in-app fake server and registers, signs out, signs in, makes a request after the access
+token expired and signs out (`auth.md`). CI does not run them yet.

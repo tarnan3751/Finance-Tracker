@@ -139,16 +139,20 @@ Using it: `ApiClient(dio: ..., basePathOverride: ...)` and its `getAuthApi()`,
 Models are built_value classes; `Date` is the generated calendar-date type. Names to know:
 the generated `Money`, `Date`, `Transaction`, `Account` and the other models share names
 with `shared_models`, so code that uses both imports one with a prefix and converts at the
-boundary (the app's data layer); `Decimal` and `Hlc` are plain `String`s; a property named
-`source` is `source_`. Only 2xx bodies are deserialized: an error arrives as a
-`DioException` whose response body is the problem JSON. The generated client does not
-enforce HTTPS; the rule that a `prod` build talks only to an HTTPS server (`PLAN.md` §12)
-lives in the app's wrapper around it, which a later lane writes.
+boundary (the app's `core/api/http_finance_api.dart`); `Decimal` and `Hlc` are plain
+`String`s; a property named `source` is `source_`. Only 2xx bodies are deserialized: an
+error arrives as a `DioException` whose response body is the problem JSON. The generated
+client does not enforce HTTPS; the rule that a `prod` build talks only to an HTTPS server
+(`PLAN.md` §12) lives in the app's wrapper around it (`app-core.md`, **The API client**).
+The generated `receivePlaidWebhook` cannot serialize its own body (its serializers have
+no builder factory for `BuiltMap<String, JsonObject>`); nothing calls it, and the fakes'
+contract test sends the webhook with raw Dio.
 
 ## Contract tests
 
 `packages/contract_test` (pure Dart: `yaml`, `json_schema`) validates JSON against the
-contract in any package's tests:
+contract in any package's tests (the server's, and the in-app fake server's in
+`app/test/core/api/fake_contract_test.dart`):
 
 ```dart
 final contract = OpenApiDocument.load(File('../../api/openapi.yaml'));

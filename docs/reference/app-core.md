@@ -1,8 +1,9 @@
 # App core
 
 How the Flutter app is put together around its features: startup, dependency injection,
-routing and the shell, the theme, time, logging, localization, the settings feature, and the
-test helpers every screen's tests use. The database and the repositories are `data.md`. Code: `app/lib/bootstrap.dart`, `app/lib/app.dart`,
+the API client and the in-app fake server, routing and the shell, the theme, time,
+logging, localization, the settings feature, and the test helpers every screen's tests
+use. Signing in and the session are `auth.md`. The database and the repositories are `data.md`. Code: `app/lib/bootstrap.dart`, `app/lib/app.dart`,
 `app/lib/core/`, `app/lib/features/settings/`, `app/lib/l10n/`, `app/test/helpers/`,
 `app/test/flutter_test_config.dart`. The flavors and the Android build are in `build.md`.
 
@@ -26,7 +27,9 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
    logged by type and `runApp(DatabaseErrorApp(failure: ...))` shows a plain error screen
    instead of the app, with a message for a missing cipher, a wrong key, a lost key, or
    anything else;
-8. `runApp(UncontrolledProviderScope(container: container, child: FinanceTrackerApp()))`.
+8. the stored session is read (`sessionControllerProvider`'s `restored()`, `auth.md`),
+   so the first frame is already signed in or out;
+9. `runApp(UncontrolledProviderScope(container: container, child: FinanceTrackerApp()))`.
 
 `FinanceTrackerApp` (`app.dart`) is a `ConsumerWidget` returning `MaterialApp.router` with
 the router, both themes inside a `DynamicColorBuilder`, the theme mode from settings, the
@@ -51,7 +54,9 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `accountRepositoryProvider`, `transactionRepositoryProvider`, `categoryRepositoryProvider`, `settingsRepositoryProvider` | `core/di/providers.dart` | In memory by default; Drift in dev and prod and demo in demo, through `overridesFor` |
 | `legacyImportResultProvider` | `core/di/providers.dart` | The legacy importer's `ImportSummary` at this launch, or null; `AppShell` shows it once and clears it |
 | `todayProvider` | `core/time/today_provider.dart` | The clock's local date, kept current past midnight (**Time**) |
-| `goRouterProvider` | `core/router/app_router.dart` | The app's `GoRouter`, disposed with the container |
+| `goRouterProvider` | `core/router/app_router.dart` | The app's `GoRouter` (`routerFor`), gated on the session in dev and prod, disposed with the container |
+| `tokenStoreProvider`, `fakeServerProvider`, `financeApiProvider`, `appVersionProvider` | `core/api/api_providers.dart` | The API (**The API client**) |
+| `sessionControllerProvider`, `deviceNameProvider` | `features/auth/application/` | The session and the device's name (`auth.md`) |
 | `settingsControllerProvider` | `features/settings/application/settings_controller.dart` | The settings as `AsyncValue<Settings>`, with `setThemeMode` and `setUseDynamicColor` |
 | `packageInfoProvider` | `features/settings/application/package_info.dart` | `PackageInfo.fromPlatform()` for About |
 
@@ -60,13 +65,99 @@ Each feature's own providers (the screens' streams, derived values and writes) a
 `categories.md`).
 
 `overridesFor(AppConfig)` is the one place a flavor's wiring is decided: the Drift
-repositories for dev and prod, the demo ones for demo; later phases add theirs (the fakes)
-there.
+repositories for dev and prod, the demo ones for demo, and the API's
+(`apiOverridesFor`: the in-app fake server for demo, and for dev under
+`FT_FAKE_SERVER`); later phases add theirs there.
 
 riverpod_lint runs as an analyzer plugin declared in the workspace root's
 `analysis_options.yaml` and enabled for the app by including that file from
 `app/analysis_options.yaml`. `dart analyze` reports its diagnostics and `flutter analyze` does
 not, so the gate runs both (`testing-tools.md`).
+
+## The API client
+
+`app/lib/core/api/`: the app's only way to the server (`PLAN.md` §6.5), over the generated
+client (`api.md`), which nothing outside this folder imports.
+
+| File | What |
+|---|---|
+| `finance_api.dart` | `FinanceApi`: one method per contract operation (the webhook receiver aside), taking and returning `shared_models` values, the sync engine's `PushResult` and `PullPage`, and `api_models.dart`'s values; and `sessionEnded`, fired when the client ended the session itself |
+| `api_models.dart` | The values without a `shared_models` entity yet: `AuthResult`, `LinkToken`, `LinkedItem` (an `Item` with its `Institution`), `SyncRun`, `VersionPage<T>`, `Health`, and the liability, holding, security and investment-transaction values (`Money` amounts, `LocalDate` dates, `Decimal` strings), each with the contract's JSON |
+| `http_finance_api.dart` | `HttpFinanceApi`: the implementation over the generated client |
+| `api_config.dart` | `buildDio(config, {adapter, baseUrl, version})`, `apiBaseUrl`, `contractVersion` |
+| `auth_interceptor.dart` | Bearer tokens and the single-flight refresh |
+| `problems.dart` | `ApiException` and its subtypes |
+| `token_store.dart` | `TokenStore`, `Session`, `SecureTokenStore`, `InMemoryTokenStore` (`auth.md`) |
+| `api_providers.dart` | The providers and `apiOverridesFor(config)` |
+| `fake/` | The in-app fake server |
+
+- **The boundary.** `HttpFinanceApi` converts through the contract's JSON: a generated
+  model is serialized back and read with the `shared_models` entity's (or
+  `api_models`') `fromJson`, a request is the entity's JSON deserialized into the
+  generated model. So the generated `source_` comes back as `source`, `minor_units` stays
+  an `int`, `Decimal` values stay strings, `Date` becomes `LocalDate` and instants stay
+  UTC milliseconds. Pushed entries travel without `synced`; pulled ones come back
+  `synced: true`, without `seq`, their payload plain JSON. A refused push entry's `code`
+  becomes the engine's `PushRejectionReason`.
+- **`buildDio`.** The base URL is the flavor's server URL plus `/v1` (dev:
+  `http://10.0.2.2:8080/v1`). In prod a non-`https` URL is a `StateError` before any
+  request (`PLAN.md` §12: Dart's `HttpClient` ignores Android's network security config,
+  so the rule holds here and in `bootstrap`). Certificate checks are never relaxed: the
+  adapter is Dio's default with no `createHttpClient` or `validateCertificate`. A build
+  with no server URL fails every request as a `NetworkError` (`notConfigured`). Timeouts
+  are 10 s to connect and 30 s to receive; every request sends `User-Agent:
+  finance-tracker/<version> (<flavor>)`. In dev only, `DevLogInterceptor` logs one line
+  per answer on the `api` logger: method, path template, status, duration and the
+  server's `X-Request-Id`, never a body, a query or a token.
+- **Errors.** Every failure is an `ApiException`: `InvalidCredentials`, `EmailTaken`,
+  `TokenExpired`, `TokenRevoked`, `NotFound`, `Conflict`, `ItemLoginRequired`,
+  `PlaidError`, `RateLimited(retryAfter)`, `SyncCursorInvalid(since)`,
+  `ValidationFailed(errors)`, `ServerError` (`internal`, `webhook_unverified`, a code
+  this build does not know, an answer it cannot read: any failure converting a 2xx body,
+  and a push rejection or sync status this build does not know) and `NetworkError(kind)`
+  (no answer: connection, timeout, cancelled, bad certificate, not configured). A caller
+  branches on the type. `toString` names only the type, status and code; nothing that
+  carries a token (`Session`, `AuthResult`, `LinkToken`) prints it.
+- **Tokens and refresh** (`auth_interceptor.dart`). Every operation the contract secures
+  gets `Authorization: Bearer` with the stored access token (or a token the call names,
+  while signing in). On 401 `token_expired` the request waits for one refresh shared by
+  every request that needs it, then is sent again, once: the server rotates refresh tokens
+  with reuse detection and no grace window (`server.md`, **Tokens**), so a refresh starts
+  only when none is in flight and the stored access token is still the one the request
+  carried; otherwise the request is simply sent again with the newer token. A refused
+  refresh (any 401) or a 401 `token_revoked` clears the stored session, but only while it
+  still holds the tokens the failing call used, and fires `sessionEnded`. Refreshed tokens
+  are written, and sessions cleared, through `TokenStore.update`, so the check and the
+  write are one step. A refresh that
+  fails any other way keeps the session and is not retried (if only its answer was lost,
+  a retry would present a revoked token). Nothing is retried after a network error.
+  Logout and calls with their own token are never refreshed.
+
+**The fake server** (`fake/`). `FakeServer` implements every contract operation in
+process behind a Dio adapter (`FakeHttpAdapter`), so the generated client, the wrapper
+and the interceptor run unchanged with no network. Its header lists the dev server's
+rules it follows: unique lower-cased emails; a device and a refresh-token family per
+sign-in; opaque access tokens valid 15 minutes on its clock; rotation with reuse detection;
+the live-family bearer check; logout, device removal and account deletion; passwords as
+salted SHA-256 (the fake only); one `InMemorySyncRelay` per user behind the server's two
+extra `invalid` checks, with 409 `sync_cursor_invalid`; and the Plaid proxy and data
+endpoints over a `FakeDataset` (`fake_dataset.dart`). A dataset's transactions and
+streams must be `demo`; the fake keeps its ids and assigns only each user's
+`sync_version`s, in a fixed order, when an Item's first sync completes (`not_ready`
+first, as Plaid). `FakeDataset.sample(today)` is one Item, three accounts and a dozen
+transactions. It does not mirror the server's rate limiter. Test hooks: `failNext`,
+`failNextNetwork`, `latency`, `advanceClock`, `calls`, `seedUser`, `seedSession`,
+`seedLinkedItems`. `test/core/api/fake_contract_test.dart` drives every operation
+through the generated client against it and checks every request and answer with
+`contract_test` in strict mode.
+
+**Flavors.** `apiOverridesFor(config)`: dev and prod use `HttpFinanceApi` on the network
+with `SecureTokenStore`. Demo uses the fake server over the sample dataset dated to the
+clock's today, with the demo user `demo@financetracker.test` seeded, its Item linked and
+synced, and its session in an `InMemoryTokenStore`, so the demo starts signed in and
+makes no network call. The dev flavor built with `--dart-define=FT_FAKE_SERVER=true`
+uses the same fake, empty and signed out, with the session in memory; the define is
+ignored in demo and prod.
 
 ## Routing and the shell
 
@@ -89,7 +180,12 @@ keeping its own navigation stack.
 | | `EditCategoryRoute` | `/settings/categories/:id` | `category_editor_screen.dart` |
 
 - The router opens at `/accounts`, and `/` redirects there (`createRouter` in
-  `app_router.dart`, which tests use to open at another location).
+  `app_router.dart`; `routerFor(ref, initialLocation:)` builds the flavor's router, which
+  tests use to open at another location).
+- **The session gate.** Outside the shell, `SignInRoute` (`/sign-in`) and
+  `RegisterRoute` (`/register`) are the auth screens. In dev and prod the router follows
+  the session (`refreshListenable`): a signed-out user goes to `/sign-in`, a signed-in one
+  on an auth screen to `/accounts` (`auth.md`, **The gate**). The demo flavor has no gate.
 - Navigate with the route classes (`const SettingsRoute().go(context)`,
   `AccountDetailRoute(id).push(context)`), never with path strings. Detail and editor
   routes are sub-routes of their branch, so each tab keeps its own stack. `/accounts/new`
@@ -173,7 +269,7 @@ the only locale.
 | data | `data/drift_settings_repository.dart` | The Drift implementation (dev and prod): one `app_settings` row per field |
 | data | `data/in_memory_settings_repository.dart`, `data/demo_settings_repository.dart` | The in-memory implementation (tests) and the demo one (the demo flavor) |
 | application | `application/settings_controller.dart` | `SettingsController`, following `watch()`; each change reads, changes and saves, and changes run one after another so two issued together both land |
-| presentation | `presentation/settings_screen.dart` | Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Data (Categories, opening category management, `categories.md`) and About (app name, version and build, flavor, time zone) |
+| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Data (Categories, opening category management, `categories.md`) and About (app name, version and build, flavor, time zone); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
 
 The repository contract is `test/contract/settings_repository_contract.dart`,
 `runSettingsRepositoryContract(create, {dispose})`; the three implementations each run it
@@ -182,13 +278,20 @@ The repository contract is `test/contract/settings_repository_contract.dart`,
 ## Tests
 
 - **`test/helpers/pump_app.dart`.** `pumpApp(tester, {overrides, config, initialLocation,
-  brightness, textScale, size, clock})` pumps the real app at phone size (412 by 915) and settles.
+  brightness, textScale, size, clock, signedIn})` pumps the real app at phone size (412 by 915) and settles.
   `buildTestApp` is the same app as a widget, for goldens; `testOverrides` is its override
   list: the flavor (prod by default) as `appConfigProvider` only, not the flavor's
   `overridesFor` wiring, so every test runs on the in-memory repositories; the `clock`
   passed, else `testClock` (24 October 2026, 15:00 UTC, in UTC); `testPackageInfo` (1.0.0, build 1); settings whose
-  theme mode gives `brightness`; and a router at `initialLocation`; then the test's own
-  overrides, which win. Riverpod's retry is off so a failing provider fails at once.
+  theme mode gives `brightness`; the API on the in-app fake server
+  (`fakeApiOverrides`), with the demo user signed in unless `signedIn: false`, the device
+  named "Pixel 6" and the app version pinned; and the flavor's router (`routerFor`, so dev
+  and prod go through the session gate) at `initialLocation`; then the test's own
+  overrides, which win. Riverpod's retry is off so a failing provider fails at once. A
+  widget test reads the fake server with `ProviderScope.containerOf(...)` and
+  `fakeServerProvider`; it must not `await` a client call itself (the client's Dio steps
+  run on zero-length timers, which only `pump` advances), but start it and
+  `pumpAndSettle`.
 - **Goldens** use `alchemist`. `test/flutter_test_config.dart` runs every test with CI
   goldens on (Ahem, text drawn as blocks, identical on every OS; written to `goldens/ci/`
   next to the test, committed, compared by the gate and CI). Platform goldens (real fonts,
