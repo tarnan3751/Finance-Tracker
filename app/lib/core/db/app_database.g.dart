@@ -4079,6 +4079,1401 @@ class AppMetaCompanion extends UpdateCompanion<AppMetaRow> {
   }
 }
 
+class $ChangeLogTable extends ChangeLog
+    with TableInfo<$ChangeLogTable, ChangeLogRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChangeLogTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _seqMeta = const VerificationMeta('seq');
+  @override
+  late final GeneratedColumn<int> seq = GeneratedColumn<int>(
+    'seq',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _entityTypeMeta = const VerificationMeta(
+    'entityType',
+  );
+  @override
+  late final GeneratedColumn<String> entityType = GeneratedColumn<String>(
+    'entity_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entityIdMeta = const VerificationMeta(
+    'entityId',
+  );
+  @override
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
+    'entity_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _operationMeta = const VerificationMeta(
+    'operation',
+  );
+  @override
+  late final GeneratedColumn<String> operation = GeneratedColumn<String>(
+    'operation',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _payloadMeta = const VerificationMeta(
+    'payload',
+  );
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+    'payload',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _hlcMeta = const VerificationMeta('hlc');
+  @override
+  late final GeneratedColumn<String> hlc = GeneratedColumn<String>(
+    'hlc',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncedMeta = const VerificationMeta('synced');
+  @override
+  late final GeneratedColumn<bool> synced = GeneratedColumn<bool>(
+    'synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("synced" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _rejectedReasonMeta = const VerificationMeta(
+    'rejectedReason',
+  );
+  @override
+  late final GeneratedColumn<String> rejectedReason = GeneratedColumn<String>(
+    'rejected_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    seq,
+    entityType,
+    entityId,
+    operation,
+    payload,
+    hlc,
+    deviceId,
+    synced,
+    rejectedReason,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'change_log';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ChangeLogRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('seq')) {
+      context.handle(
+        _seqMeta,
+        seq.isAcceptableOrUnknown(data['seq']!, _seqMeta),
+      );
+    }
+    if (data.containsKey('entity_type')) {
+      context.handle(
+        _entityTypeMeta,
+        entityType.isAcceptableOrUnknown(data['entity_type']!, _entityTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityTypeMeta);
+    }
+    if (data.containsKey('entity_id')) {
+      context.handle(
+        _entityIdMeta,
+        entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityIdMeta);
+    }
+    if (data.containsKey('operation')) {
+      context.handle(
+        _operationMeta,
+        operation.isAcceptableOrUnknown(data['operation']!, _operationMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_operationMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(
+        _payloadMeta,
+        payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    if (data.containsKey('hlc')) {
+      context.handle(
+        _hlcMeta,
+        hlc.isAcceptableOrUnknown(data['hlc']!, _hlcMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_hlcMeta);
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('synced')) {
+      context.handle(
+        _syncedMeta,
+        synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta),
+      );
+    }
+    if (data.containsKey('rejected_reason')) {
+      context.handle(
+        _rejectedReasonMeta,
+        rejectedReason.isAcceptableOrUnknown(
+          data['rejected_reason']!,
+          _rejectedReasonMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {seq};
+  @override
+  ChangeLogRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ChangeLogRow(
+      seq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}seq'],
+      )!,
+      entityType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_type'],
+      )!,
+      entityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_id'],
+      )!,
+      operation: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}operation'],
+      )!,
+      payload: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload'],
+      )!,
+      hlc: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}hlc'],
+      )!,
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      synced: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}synced'],
+      )!,
+      rejectedReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rejected_reason'],
+      ),
+    );
+  }
+
+  @override
+  $ChangeLogTable createAlias(String alias) {
+    return $ChangeLogTable(attachedDatabase, alias);
+  }
+}
+
+class ChangeLogRow extends DataClass implements Insertable<ChangeLogRow> {
+  final int seq;
+  final String entityType;
+  final String entityId;
+  final String operation;
+  final String payload;
+  final String hlc;
+  final String deviceId;
+  final bool synced;
+  final String? rejectedReason;
+  const ChangeLogRow({
+    required this.seq,
+    required this.entityType,
+    required this.entityId,
+    required this.operation,
+    required this.payload,
+    required this.hlc,
+    required this.deviceId,
+    required this.synced,
+    this.rejectedReason,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['seq'] = Variable<int>(seq);
+    map['entity_type'] = Variable<String>(entityType);
+    map['entity_id'] = Variable<String>(entityId);
+    map['operation'] = Variable<String>(operation);
+    map['payload'] = Variable<String>(payload);
+    map['hlc'] = Variable<String>(hlc);
+    map['device_id'] = Variable<String>(deviceId);
+    map['synced'] = Variable<bool>(synced);
+    if (!nullToAbsent || rejectedReason != null) {
+      map['rejected_reason'] = Variable<String>(rejectedReason);
+    }
+    return map;
+  }
+
+  ChangeLogCompanion toCompanion(bool nullToAbsent) {
+    return ChangeLogCompanion(
+      seq: Value(seq),
+      entityType: Value(entityType),
+      entityId: Value(entityId),
+      operation: Value(operation),
+      payload: Value(payload),
+      hlc: Value(hlc),
+      deviceId: Value(deviceId),
+      synced: Value(synced),
+      rejectedReason: rejectedReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rejectedReason),
+    );
+  }
+
+  factory ChangeLogRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ChangeLogRow(
+      seq: serializer.fromJson<int>(json['seq']),
+      entityType: serializer.fromJson<String>(json['entityType']),
+      entityId: serializer.fromJson<String>(json['entityId']),
+      operation: serializer.fromJson<String>(json['operation']),
+      payload: serializer.fromJson<String>(json['payload']),
+      hlc: serializer.fromJson<String>(json['hlc']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      synced: serializer.fromJson<bool>(json['synced']),
+      rejectedReason: serializer.fromJson<String?>(json['rejectedReason']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'seq': serializer.toJson<int>(seq),
+      'entityType': serializer.toJson<String>(entityType),
+      'entityId': serializer.toJson<String>(entityId),
+      'operation': serializer.toJson<String>(operation),
+      'payload': serializer.toJson<String>(payload),
+      'hlc': serializer.toJson<String>(hlc),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'synced': serializer.toJson<bool>(synced),
+      'rejectedReason': serializer.toJson<String?>(rejectedReason),
+    };
+  }
+
+  ChangeLogRow copyWith({
+    int? seq,
+    String? entityType,
+    String? entityId,
+    String? operation,
+    String? payload,
+    String? hlc,
+    String? deviceId,
+    bool? synced,
+    Value<String?> rejectedReason = const Value.absent(),
+  }) => ChangeLogRow(
+    seq: seq ?? this.seq,
+    entityType: entityType ?? this.entityType,
+    entityId: entityId ?? this.entityId,
+    operation: operation ?? this.operation,
+    payload: payload ?? this.payload,
+    hlc: hlc ?? this.hlc,
+    deviceId: deviceId ?? this.deviceId,
+    synced: synced ?? this.synced,
+    rejectedReason: rejectedReason.present
+        ? rejectedReason.value
+        : this.rejectedReason,
+  );
+  ChangeLogRow copyWithCompanion(ChangeLogCompanion data) {
+    return ChangeLogRow(
+      seq: data.seq.present ? data.seq.value : this.seq,
+      entityType: data.entityType.present
+          ? data.entityType.value
+          : this.entityType,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      operation: data.operation.present ? data.operation.value : this.operation,
+      payload: data.payload.present ? data.payload.value : this.payload,
+      hlc: data.hlc.present ? data.hlc.value : this.hlc,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      synced: data.synced.present ? data.synced.value : this.synced,
+      rejectedReason: data.rejectedReason.present
+          ? data.rejectedReason.value
+          : this.rejectedReason,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChangeLogRow(')
+          ..write('seq: $seq, ')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('operation: $operation, ')
+          ..write('payload: $payload, ')
+          ..write('hlc: $hlc, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('synced: $synced, ')
+          ..write('rejectedReason: $rejectedReason')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    seq,
+    entityType,
+    entityId,
+    operation,
+    payload,
+    hlc,
+    deviceId,
+    synced,
+    rejectedReason,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ChangeLogRow &&
+          other.seq == this.seq &&
+          other.entityType == this.entityType &&
+          other.entityId == this.entityId &&
+          other.operation == this.operation &&
+          other.payload == this.payload &&
+          other.hlc == this.hlc &&
+          other.deviceId == this.deviceId &&
+          other.synced == this.synced &&
+          other.rejectedReason == this.rejectedReason);
+}
+
+class ChangeLogCompanion extends UpdateCompanion<ChangeLogRow> {
+  final Value<int> seq;
+  final Value<String> entityType;
+  final Value<String> entityId;
+  final Value<String> operation;
+  final Value<String> payload;
+  final Value<String> hlc;
+  final Value<String> deviceId;
+  final Value<bool> synced;
+  final Value<String?> rejectedReason;
+  const ChangeLogCompanion({
+    this.seq = const Value.absent(),
+    this.entityType = const Value.absent(),
+    this.entityId = const Value.absent(),
+    this.operation = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.hlc = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.synced = const Value.absent(),
+    this.rejectedReason = const Value.absent(),
+  });
+  ChangeLogCompanion.insert({
+    this.seq = const Value.absent(),
+    required String entityType,
+    required String entityId,
+    required String operation,
+    required String payload,
+    required String hlc,
+    required String deviceId,
+    this.synced = const Value.absent(),
+    this.rejectedReason = const Value.absent(),
+  }) : entityType = Value(entityType),
+       entityId = Value(entityId),
+       operation = Value(operation),
+       payload = Value(payload),
+       hlc = Value(hlc),
+       deviceId = Value(deviceId);
+  static Insertable<ChangeLogRow> custom({
+    Expression<int>? seq,
+    Expression<String>? entityType,
+    Expression<String>? entityId,
+    Expression<String>? operation,
+    Expression<String>? payload,
+    Expression<String>? hlc,
+    Expression<String>? deviceId,
+    Expression<bool>? synced,
+    Expression<String>? rejectedReason,
+  }) {
+    return RawValuesInsertable({
+      if (seq != null) 'seq': seq,
+      if (entityType != null) 'entity_type': entityType,
+      if (entityId != null) 'entity_id': entityId,
+      if (operation != null) 'operation': operation,
+      if (payload != null) 'payload': payload,
+      if (hlc != null) 'hlc': hlc,
+      if (deviceId != null) 'device_id': deviceId,
+      if (synced != null) 'synced': synced,
+      if (rejectedReason != null) 'rejected_reason': rejectedReason,
+    });
+  }
+
+  ChangeLogCompanion copyWith({
+    Value<int>? seq,
+    Value<String>? entityType,
+    Value<String>? entityId,
+    Value<String>? operation,
+    Value<String>? payload,
+    Value<String>? hlc,
+    Value<String>? deviceId,
+    Value<bool>? synced,
+    Value<String?>? rejectedReason,
+  }) {
+    return ChangeLogCompanion(
+      seq: seq ?? this.seq,
+      entityType: entityType ?? this.entityType,
+      entityId: entityId ?? this.entityId,
+      operation: operation ?? this.operation,
+      payload: payload ?? this.payload,
+      hlc: hlc ?? this.hlc,
+      deviceId: deviceId ?? this.deviceId,
+      synced: synced ?? this.synced,
+      rejectedReason: rejectedReason ?? this.rejectedReason,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (seq.present) {
+      map['seq'] = Variable<int>(seq.value);
+    }
+    if (entityType.present) {
+      map['entity_type'] = Variable<String>(entityType.value);
+    }
+    if (entityId.present) {
+      map['entity_id'] = Variable<String>(entityId.value);
+    }
+    if (operation.present) {
+      map['operation'] = Variable<String>(operation.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (hlc.present) {
+      map['hlc'] = Variable<String>(hlc.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (synced.present) {
+      map['synced'] = Variable<bool>(synced.value);
+    }
+    if (rejectedReason.present) {
+      map['rejected_reason'] = Variable<String>(rejectedReason.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChangeLogCompanion(')
+          ..write('seq: $seq, ')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('operation: $operation, ')
+          ..write('payload: $payload, ')
+          ..write('hlc: $hlc, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('synced: $synced, ')
+          ..write('rejectedReason: $rejectedReason')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $RecordClocksTable extends RecordClocks
+    with TableInfo<$RecordClocksTable, RecordClockRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RecordClocksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _entityTypeMeta = const VerificationMeta(
+    'entityType',
+  );
+  @override
+  late final GeneratedColumn<String> entityType = GeneratedColumn<String>(
+    'entity_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entityIdMeta = const VerificationMeta(
+    'entityId',
+  );
+  @override
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
+    'entity_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fieldMeta = const VerificationMeta('field');
+  @override
+  late final GeneratedColumn<String> field = GeneratedColumn<String>(
+    'field',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _hlcMeta = const VerificationMeta('hlc');
+  @override
+  late final GeneratedColumn<String> hlc = GeneratedColumn<String>(
+    'hlc',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [entityType, entityId, field, hlc];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'record_clocks';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<RecordClockRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('entity_type')) {
+      context.handle(
+        _entityTypeMeta,
+        entityType.isAcceptableOrUnknown(data['entity_type']!, _entityTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityTypeMeta);
+    }
+    if (data.containsKey('entity_id')) {
+      context.handle(
+        _entityIdMeta,
+        entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityIdMeta);
+    }
+    if (data.containsKey('field')) {
+      context.handle(
+        _fieldMeta,
+        field.isAcceptableOrUnknown(data['field']!, _fieldMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fieldMeta);
+    }
+    if (data.containsKey('hlc')) {
+      context.handle(
+        _hlcMeta,
+        hlc.isAcceptableOrUnknown(data['hlc']!, _hlcMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_hlcMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {entityType, entityId, field};
+  @override
+  RecordClockRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RecordClockRow(
+      entityType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_type'],
+      )!,
+      entityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_id'],
+      )!,
+      field: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}field'],
+      )!,
+      hlc: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}hlc'],
+      )!,
+    );
+  }
+
+  @override
+  $RecordClocksTable createAlias(String alias) {
+    return $RecordClocksTable(attachedDatabase, alias);
+  }
+}
+
+class RecordClockRow extends DataClass implements Insertable<RecordClockRow> {
+  final String entityType;
+  final String entityId;
+  final String field;
+  final String hlc;
+  const RecordClockRow({
+    required this.entityType,
+    required this.entityId,
+    required this.field,
+    required this.hlc,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['entity_type'] = Variable<String>(entityType);
+    map['entity_id'] = Variable<String>(entityId);
+    map['field'] = Variable<String>(field);
+    map['hlc'] = Variable<String>(hlc);
+    return map;
+  }
+
+  RecordClocksCompanion toCompanion(bool nullToAbsent) {
+    return RecordClocksCompanion(
+      entityType: Value(entityType),
+      entityId: Value(entityId),
+      field: Value(field),
+      hlc: Value(hlc),
+    );
+  }
+
+  factory RecordClockRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RecordClockRow(
+      entityType: serializer.fromJson<String>(json['entityType']),
+      entityId: serializer.fromJson<String>(json['entityId']),
+      field: serializer.fromJson<String>(json['field']),
+      hlc: serializer.fromJson<String>(json['hlc']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'entityType': serializer.toJson<String>(entityType),
+      'entityId': serializer.toJson<String>(entityId),
+      'field': serializer.toJson<String>(field),
+      'hlc': serializer.toJson<String>(hlc),
+    };
+  }
+
+  RecordClockRow copyWith({
+    String? entityType,
+    String? entityId,
+    String? field,
+    String? hlc,
+  }) => RecordClockRow(
+    entityType: entityType ?? this.entityType,
+    entityId: entityId ?? this.entityId,
+    field: field ?? this.field,
+    hlc: hlc ?? this.hlc,
+  );
+  RecordClockRow copyWithCompanion(RecordClocksCompanion data) {
+    return RecordClockRow(
+      entityType: data.entityType.present
+          ? data.entityType.value
+          : this.entityType,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      field: data.field.present ? data.field.value : this.field,
+      hlc: data.hlc.present ? data.hlc.value : this.hlc,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RecordClockRow(')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('field: $field, ')
+          ..write('hlc: $hlc')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(entityType, entityId, field, hlc);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RecordClockRow &&
+          other.entityType == this.entityType &&
+          other.entityId == this.entityId &&
+          other.field == this.field &&
+          other.hlc == this.hlc);
+}
+
+class RecordClocksCompanion extends UpdateCompanion<RecordClockRow> {
+  final Value<String> entityType;
+  final Value<String> entityId;
+  final Value<String> field;
+  final Value<String> hlc;
+  final Value<int> rowid;
+  const RecordClocksCompanion({
+    this.entityType = const Value.absent(),
+    this.entityId = const Value.absent(),
+    this.field = const Value.absent(),
+    this.hlc = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RecordClocksCompanion.insert({
+    required String entityType,
+    required String entityId,
+    required String field,
+    required String hlc,
+    this.rowid = const Value.absent(),
+  }) : entityType = Value(entityType),
+       entityId = Value(entityId),
+       field = Value(field),
+       hlc = Value(hlc);
+  static Insertable<RecordClockRow> custom({
+    Expression<String>? entityType,
+    Expression<String>? entityId,
+    Expression<String>? field,
+    Expression<String>? hlc,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (entityType != null) 'entity_type': entityType,
+      if (entityId != null) 'entity_id': entityId,
+      if (field != null) 'field': field,
+      if (hlc != null) 'hlc': hlc,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RecordClocksCompanion copyWith({
+    Value<String>? entityType,
+    Value<String>? entityId,
+    Value<String>? field,
+    Value<String>? hlc,
+    Value<int>? rowid,
+  }) {
+    return RecordClocksCompanion(
+      entityType: entityType ?? this.entityType,
+      entityId: entityId ?? this.entityId,
+      field: field ?? this.field,
+      hlc: hlc ?? this.hlc,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (entityType.present) {
+      map['entity_type'] = Variable<String>(entityType.value);
+    }
+    if (entityId.present) {
+      map['entity_id'] = Variable<String>(entityId.value);
+    }
+    if (field.present) {
+      map['field'] = Variable<String>(field.value);
+    }
+    if (hlc.present) {
+      map['hlc'] = Variable<String>(hlc.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RecordClocksCompanion(')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('field: $field, ')
+          ..write('hlc: $hlc, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SyncMetaTable extends SyncMeta
+    with TableInfo<$SyncMetaTable, SyncMetaRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncMetaTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _keyMeta = const VerificationMeta('key');
+  @override
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+    'key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+    'value',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [key, value];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_meta';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyncMetaRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('key')) {
+      context.handle(
+        _keyMeta,
+        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_keyMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+        _valueMeta,
+        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {key};
+  @override
+  SyncMetaRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncMetaRow(
+      key: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}key'],
+      )!,
+      value: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value'],
+      )!,
+    );
+  }
+
+  @override
+  $SyncMetaTable createAlias(String alias) {
+    return $SyncMetaTable(attachedDatabase, alias);
+  }
+}
+
+class SyncMetaRow extends DataClass implements Insertable<SyncMetaRow> {
+  final String key;
+  final String value;
+  const SyncMetaRow({required this.key, required this.value});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['key'] = Variable<String>(key);
+    map['value'] = Variable<String>(value);
+    return map;
+  }
+
+  SyncMetaCompanion toCompanion(bool nullToAbsent) {
+    return SyncMetaCompanion(key: Value(key), value: Value(value));
+  }
+
+  factory SyncMetaRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncMetaRow(
+      key: serializer.fromJson<String>(json['key']),
+      value: serializer.fromJson<String>(json['value']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'key': serializer.toJson<String>(key),
+      'value': serializer.toJson<String>(value),
+    };
+  }
+
+  SyncMetaRow copyWith({String? key, String? value}) =>
+      SyncMetaRow(key: key ?? this.key, value: value ?? this.value);
+  SyncMetaRow copyWithCompanion(SyncMetaCompanion data) {
+    return SyncMetaRow(
+      key: data.key.present ? data.key.value : this.key,
+      value: data.value.present ? data.value.value : this.value,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncMetaRow(')
+          ..write('key: $key, ')
+          ..write('value: $value')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(key, value);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncMetaRow &&
+          other.key == this.key &&
+          other.value == this.value);
+}
+
+class SyncMetaCompanion extends UpdateCompanion<SyncMetaRow> {
+  final Value<String> key;
+  final Value<String> value;
+  final Value<int> rowid;
+  const SyncMetaCompanion({
+    this.key = const Value.absent(),
+    this.value = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SyncMetaCompanion.insert({
+    required String key,
+    required String value,
+    this.rowid = const Value.absent(),
+  }) : key = Value(key),
+       value = Value(value);
+  static Insertable<SyncMetaRow> custom({
+    Expression<String>? key,
+    Expression<String>? value,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (key != null) 'key': key,
+      if (value != null) 'value': value,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SyncMetaCompanion copyWith({
+    Value<String>? key,
+    Value<String>? value,
+    Value<int>? rowid,
+  }) {
+    return SyncMetaCompanion(
+      key: key ?? this.key,
+      value: value ?? this.value,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (key.present) {
+      map['key'] = Variable<String>(key.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncMetaCompanion(')
+          ..write('key: $key, ')
+          ..write('value: $value, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $HeldRecordsTable extends HeldRecords
+    with TableInfo<$HeldRecordsTable, HeldRecordRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $HeldRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _entityTypeMeta = const VerificationMeta(
+    'entityType',
+  );
+  @override
+  late final GeneratedColumn<String> entityType = GeneratedColumn<String>(
+    'entity_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entityIdMeta = const VerificationMeta(
+    'entityId',
+  );
+  @override
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
+    'entity_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fieldsMeta = const VerificationMeta('fields');
+  @override
+  late final GeneratedColumn<String> fields = GeneratedColumn<String>(
+    'fields',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _reasonMeta = const VerificationMeta('reason');
+  @override
+  late final GeneratedColumn<String> reason = GeneratedColumn<String>(
+    'reason',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [entityType, entityId, fields, reason];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'held_records';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<HeldRecordRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('entity_type')) {
+      context.handle(
+        _entityTypeMeta,
+        entityType.isAcceptableOrUnknown(data['entity_type']!, _entityTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityTypeMeta);
+    }
+    if (data.containsKey('entity_id')) {
+      context.handle(
+        _entityIdMeta,
+        entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityIdMeta);
+    }
+    if (data.containsKey('fields')) {
+      context.handle(
+        _fieldsMeta,
+        fields.isAcceptableOrUnknown(data['fields']!, _fieldsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fieldsMeta);
+    }
+    if (data.containsKey('reason')) {
+      context.handle(
+        _reasonMeta,
+        reason.isAcceptableOrUnknown(data['reason']!, _reasonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_reasonMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {entityType, entityId};
+  @override
+  HeldRecordRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return HeldRecordRow(
+      entityType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_type'],
+      )!,
+      entityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_id'],
+      )!,
+      fields: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}fields'],
+      )!,
+      reason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reason'],
+      )!,
+    );
+  }
+
+  @override
+  $HeldRecordsTable createAlias(String alias) {
+    return $HeldRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class HeldRecordRow extends DataClass implements Insertable<HeldRecordRow> {
+  final String entityType;
+  final String entityId;
+  final String fields;
+  final String reason;
+  const HeldRecordRow({
+    required this.entityType,
+    required this.entityId,
+    required this.fields,
+    required this.reason,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['entity_type'] = Variable<String>(entityType);
+    map['entity_id'] = Variable<String>(entityId);
+    map['fields'] = Variable<String>(fields);
+    map['reason'] = Variable<String>(reason);
+    return map;
+  }
+
+  HeldRecordsCompanion toCompanion(bool nullToAbsent) {
+    return HeldRecordsCompanion(
+      entityType: Value(entityType),
+      entityId: Value(entityId),
+      fields: Value(fields),
+      reason: Value(reason),
+    );
+  }
+
+  factory HeldRecordRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return HeldRecordRow(
+      entityType: serializer.fromJson<String>(json['entityType']),
+      entityId: serializer.fromJson<String>(json['entityId']),
+      fields: serializer.fromJson<String>(json['fields']),
+      reason: serializer.fromJson<String>(json['reason']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'entityType': serializer.toJson<String>(entityType),
+      'entityId': serializer.toJson<String>(entityId),
+      'fields': serializer.toJson<String>(fields),
+      'reason': serializer.toJson<String>(reason),
+    };
+  }
+
+  HeldRecordRow copyWith({
+    String? entityType,
+    String? entityId,
+    String? fields,
+    String? reason,
+  }) => HeldRecordRow(
+    entityType: entityType ?? this.entityType,
+    entityId: entityId ?? this.entityId,
+    fields: fields ?? this.fields,
+    reason: reason ?? this.reason,
+  );
+  HeldRecordRow copyWithCompanion(HeldRecordsCompanion data) {
+    return HeldRecordRow(
+      entityType: data.entityType.present
+          ? data.entityType.value
+          : this.entityType,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      fields: data.fields.present ? data.fields.value : this.fields,
+      reason: data.reason.present ? data.reason.value : this.reason,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HeldRecordRow(')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('fields: $fields, ')
+          ..write('reason: $reason')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(entityType, entityId, fields, reason);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is HeldRecordRow &&
+          other.entityType == this.entityType &&
+          other.entityId == this.entityId &&
+          other.fields == this.fields &&
+          other.reason == this.reason);
+}
+
+class HeldRecordsCompanion extends UpdateCompanion<HeldRecordRow> {
+  final Value<String> entityType;
+  final Value<String> entityId;
+  final Value<String> fields;
+  final Value<String> reason;
+  final Value<int> rowid;
+  const HeldRecordsCompanion({
+    this.entityType = const Value.absent(),
+    this.entityId = const Value.absent(),
+    this.fields = const Value.absent(),
+    this.reason = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  HeldRecordsCompanion.insert({
+    required String entityType,
+    required String entityId,
+    required String fields,
+    required String reason,
+    this.rowid = const Value.absent(),
+  }) : entityType = Value(entityType),
+       entityId = Value(entityId),
+       fields = Value(fields),
+       reason = Value(reason);
+  static Insertable<HeldRecordRow> custom({
+    Expression<String>? entityType,
+    Expression<String>? entityId,
+    Expression<String>? fields,
+    Expression<String>? reason,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (entityType != null) 'entity_type': entityType,
+      if (entityId != null) 'entity_id': entityId,
+      if (fields != null) 'fields': fields,
+      if (reason != null) 'reason': reason,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  HeldRecordsCompanion copyWith({
+    Value<String>? entityType,
+    Value<String>? entityId,
+    Value<String>? fields,
+    Value<String>? reason,
+    Value<int>? rowid,
+  }) {
+    return HeldRecordsCompanion(
+      entityType: entityType ?? this.entityType,
+      entityId: entityId ?? this.entityId,
+      fields: fields ?? this.fields,
+      reason: reason ?? this.reason,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (entityType.present) {
+      map['entity_type'] = Variable<String>(entityType.value);
+    }
+    if (entityId.present) {
+      map['entity_id'] = Variable<String>(entityId.value);
+    }
+    if (fields.present) {
+      map['fields'] = Variable<String>(fields.value);
+    }
+    if (reason.present) {
+      map['reason'] = Variable<String>(reason.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HeldRecordsCompanion(')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('fields: $fields, ')
+          ..write('reason: $reason, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $AccountsTable accounts = $AccountsTable(this);
@@ -4091,6 +5486,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CategoriesTable categories = $CategoriesTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
   late final $AppMetaTable appMeta = $AppMetaTable(this);
+  late final $ChangeLogTable changeLog = $ChangeLogTable(this);
+  late final $RecordClocksTable recordClocks = $RecordClocksTable(this);
+  late final $SyncMetaTable syncMeta = $SyncMetaTable(this);
+  late final $HeldRecordsTable heldRecords = $HeldRecordsTable(this);
   late final Index transactionsAccountDate = Index(
     'transactions_account_date',
     'CREATE INDEX transactions_account_date ON transactions (account_id, date)',
@@ -4111,6 +5510,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'categories_parent',
     'CREATE INDEX categories_parent ON categories (parent_id)',
   );
+  late final Index changeLogOutbox = Index(
+    'change_log_outbox',
+    'CREATE INDEX change_log_outbox ON change_log (synced, rejected_reason, hlc)',
+  );
+  late final Index recordClocksHlc = Index(
+    'record_clocks_hlc',
+    'CREATE INDEX record_clocks_hlc ON record_clocks (hlc)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4123,11 +5530,17 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     categories,
     appSettings,
     appMeta,
+    changeLog,
+    recordClocks,
+    syncMeta,
+    heldRecords,
     transactionsAccountDate,
     transactionsUserCategory,
     transactionsPendingTransaction,
     transactionTagsTag,
     categoriesParent,
+    changeLogOutbox,
+    recordClocksHlc,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

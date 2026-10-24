@@ -2,7 +2,10 @@
 /// (`docs/reference/data.md`).
 ///
 /// Schema 1 has the accounts, transactions (with their tags and splits) and categories,
-/// the app settings and the install's metadata. Every schema change follows the procedure
+/// the app settings and the install's metadata. Schema 2 adds the sync state: the
+/// outbox (`change_log`), the field clocks (`record_clocks`), the device's sync facts
+/// (`sync_meta`) and the records the entity tables cannot hold yet (`held_records`); its
+/// migration backfills the change log from the existing rows (`sync_backfill.dart`). Every schema change follows the procedure
 /// in `data.md`: bump [AppDatabase.schemaVersion], write the step in `onUpgrade`, dump the
 /// schema, regenerate the test helpers, and add the migration test. How the file is found,
 /// keyed and opened is `open_database.dart`; this file stays free of Flutter so the schema
@@ -11,22 +14,30 @@ library;
 
 import 'package:drift/drift.dart';
 import 'package:finance_tracker/core/db/converters.dart';
+import 'package:finance_tracker/core/db/sync_backfill.dart';
 import 'package:finance_tracker/core/db/tables/accounts.dart';
 import 'package:finance_tracker/core/db/tables/app_meta.dart';
 import 'package:finance_tracker/core/db/tables/app_settings.dart';
 import 'package:finance_tracker/core/db/tables/categories.dart';
+import 'package:finance_tracker/core/db/tables/change_log.dart';
+import 'package:finance_tracker/core/db/tables/held_records.dart';
+import 'package:finance_tracker/core/db/tables/record_clocks.dart';
+import 'package:finance_tracker/core/db/tables/sync_meta.dart';
 import 'package:finance_tracker/core/db/tables/transaction_splits.dart';
 import 'package:finance_tracker/core/db/tables/transaction_tags.dart';
 import 'package:finance_tracker/core/db/tables/transactions.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart';
+import 'package:uuid/uuid.dart';
 
 part 'app_database.g.dart';
 
 final Logger _log = Logger('db');
 
 /// The app's database over [executor]. [logEncryption] (dev only) logs the cipher and the
-/// SQLite3 Multiple Ciphers version once the database is open.
+/// SQLite3 Multiple Ciphers version once the database is open. [wallMillis] and
+/// [newNodeId] are the wall clock and the provisional sync node of the schema 2 backfill
+/// (the system clock and `local-<uuid v4>` unless a test pins them).
 @DriftDatabase(
   tables: [
     Accounts,
@@ -36,24 +47,56 @@ final Logger _log = Logger('db');
     Categories,
     AppSettings,
     AppMeta,
+    ChangeLog,
+    RecordClocks,
+    SyncMeta,
+    HeldRecords,
   ],
 )
 final class AppDatabase extends _$AppDatabase {
   /// A database over [executor].
-  AppDatabase(super.executor, {this.logEncryption = false});
+  AppDatabase(
+    super.executor, {
+    this.logEncryption = false,
+    this.wallMillis = _systemWallMillis,
+    this.newNodeId = provisionalNodeId,
+  });
 
   /// Whether `beforeOpen` logs the cipher in use.
   final bool logEncryption;
 
+  /// The wall clock, UTC milliseconds, the backfill stamps its entries with.
+  final int Function() wallMillis;
+
+  /// The provisional sync node of a database migrated from schema 1.
+  final String Function() newNodeId;
+
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
     onUpgrade: (m, from, to) async {
-      // Schema 1 is the first; each later version adds its step here (data.md).
-      throw StateError('No migration from schema $from to $to');
+      if (from > to) {
+        throw StateError('No migration from schema $from to $to');
+      }
+      if (from < 2) {
+        // One transaction: the tables and the backfill land together or not at all.
+        await transaction(() async {
+          await m.createTable(changeLog);
+          await m.createTable(recordClocks);
+          await m.createTable(syncMeta);
+          await m.createTable(heldRecords);
+          await m.createIndex(changeLogOutbox);
+          await m.createIndex(recordClocksHlc);
+          await backfillChangeLog(
+            this,
+            nodeId: newNodeId(),
+            wallMillis: wallMillis,
+          );
+        });
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
@@ -76,3 +119,9 @@ final class AppDatabase extends _$AppDatabase {
   /// to open surfaces here rather than in the first screen's query.
   Future<void> verifyOpen() => customSelect('SELECT 1').get();
 }
+
+/// A provisional sync node, `local-<uuid v4>`, until the server's device id replaces it
+/// (`docs/reference/sync-app.md`, **The device's node**).
+String provisionalNodeId() => 'local-${const Uuid().v4()}';
+
+int _systemWallMillis() => DateTime.now().millisecondsSinceEpoch;
