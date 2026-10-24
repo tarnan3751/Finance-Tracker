@@ -2,7 +2,7 @@
 
 How the Flutter app is put together around its features: startup, dependency injection,
 routing and the shell, the theme, time, logging, localization, the settings feature, and the
-test helpers every screen's tests use. Code: `app/lib/bootstrap.dart`, `app/lib/app.dart`,
+test helpers every screen's tests use. The database and the repositories are `data.md`. Code: `app/lib/bootstrap.dart`, `app/lib/app.dart`,
 `app/lib/core/`, `app/lib/features/settings/`, `app/lib/l10n/`, `app/test/helpers/`,
 `app/test/flutter_test_config.dart`. The flavors and the Android build are in `build.md`.
 
@@ -15,7 +15,18 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
 2. `WidgetsFlutterBinding.ensureInitialized()`;
 3. `setUpLogging(config.flavor)` and `forwardUncaughtErrors()` (**Logging**);
 4. `setUpTimeZones()` (**Time**);
-5. `runApp(ProviderScope(overrides: overridesFor(config), child: FinanceTrackerApp()))`.
+5. `Intl.defaultLocale` set to the device locale (`deviceLocale()`: the platform locale,
+   canonicalized, or `en_US` when intl has no data for it), so `Money.format` and
+   `Money.parse` without a locale follow the device; a locale change while the app runs is
+   not followed yet;
+6. a `ProviderContainer` with `overridesFor(config)`;
+7. in dev and prod, `openLocalData(container)`: the database opens (`data.md`,
+   **Encryption and the key**), `install_date` is recorded on the first launch, the system
+   categories are seeded and the legacy importer runs once. Any failure to open is
+   logged by type and `runApp(DatabaseErrorApp(failure: ...))` shows a plain error screen
+   instead of the app, with a message for a missing cipher, a wrong key, a lost key, or
+   anything else;
+8. `runApp(UncontrolledProviderScope(container: container, child: FinanceTrackerApp()))`.
 
 `FinanceTrackerApp` (`app.dart`) is a `ConsumerWidget` returning `MaterialApp.router` with
 the router, both themes inside a `DynamicColorBuilder`, the theme mode from settings, the
@@ -34,13 +45,18 @@ the scope's `retry` says otherwise (the tests turn it off).
 |---|---|---|
 | `appConfigProvider` | `core/di/providers.dart` | The flavor's `AppConfig`; throws unless overridden, and `overridesFor(config)` overrides it |
 | `clockProvider` | `core/di/providers.dart` | `SystemClock` (**Time**) |
-| `settingsRepositoryProvider` | `core/di/providers.dart` | `InMemorySettingsRepository` in every flavor until Phase 1c overrides it with Drift for dev and prod |
+| `databaseKeyStoreProvider` | `core/di/providers.dart` | `SecureDatabaseKeyStore` (`data.md`) |
+| `databaseProvider` | `core/di/providers.dart` | The encrypted `AppDatabase` of dev and prod, closed with the container; a `StateError` in demo |
+| `inMemoryStoreProvider` | `core/di/providers.dart` | The `InMemoryStore` behind the in-memory and demo repositories; the demo flavor's holds the system categories and the demo seed |
+| `accountRepositoryProvider`, `transactionRepositoryProvider`, `categoryRepositoryProvider`, `settingsRepositoryProvider` | `core/di/providers.dart` | In memory by default; Drift in dev and prod and demo in demo, through `overridesFor` |
+| `legacyImportResultProvider` | `core/di/providers.dart` | The legacy importer's `ImportSummary` at this launch, or null |
 | `goRouterProvider` | `core/router/app_router.dart` | The app's `GoRouter`, disposed with the container |
 | `settingsControllerProvider` | `features/settings/application/settings_controller.dart` | The settings as `AsyncValue<Settings>`, with `setThemeMode` and `setUseDynamicColor` |
 | `packageInfoProvider` | `features/settings/application/package_info.dart` | `PackageInfo.fromPlatform()` for About |
 
-`overridesFor(AppConfig)` is the one place a flavor's wiring is decided; later phases add
-their flavor-specific overrides (the Drift repositories, the fakes) there.
+`overridesFor(AppConfig)` is the one place a flavor's wiring is decided: the Drift
+repositories for dev and prod, the demo ones for demo; later phases add theirs (the fakes)
+there.
 
 riverpod_lint runs as an analyzer plugin declared in the workspace root's
 `analysis_options.yaml` and enabled for the app by including that file from
@@ -83,10 +99,10 @@ clamped. Everything imports `package:flutter/material.dart`; nothing uses `mater
 `Clock` (`core/time/clock.dart`) is where "now" and "today" come from (`PLAN.md` §6.8):
 `nowUtc()` for audit instants, in UTC and truncated to milliseconds (audit fields are
 millisecond precision, and their JSON converter refuses microseconds);
-`todayLocalMidnight()` for the start of the local day in `location`, the zone.
-`SystemClock` uses `tz.local`; `FixedClock(utc, location)` pins both in tests.
-`todayLocalMidnight()` returns a `DateTime` because the app does not depend on
-`shared_models` (`LocalDate`) yet; Phase 1d adds `LocalDate today()` beside it.
+`today()` for the local date in `location`, the zone, as a `shared_models` `LocalDate`;
+`todayLocalMidnight()` for the instant that day starts, for callers that need a
+`DateTime`. `SystemClock` uses `tz.local`; `FixedClock(utc, location)` pins both in tests.
+The importer and the demo seed use `today()`; Phase 1d moves the UI onto it.
 
 `setUpTimeZones()` (`core/time/time_zone_setup.dart`) loads the full `latest` time zone
 database (not `latest_10y`, `PLAN.md` §12) and sets `tz.local` from
@@ -117,24 +133,26 @@ the only locale.
 | Layer | File | What |
 |---|---|---|
 | domain | `domain/settings.dart` | `Settings`: `themeMode` (`AppThemeMode.system`, `light`, `dark`) and `useDynamicColor`; `Settings.defaults()` is system and on |
-| data | `data/settings_repository.dart` | `SettingsRepository`: `watch()` (current value first, then each save), `read()`, `save()` |
-| data | `data/in_memory_settings_repository.dart` | The in-memory implementation |
+| domain | `domain/settings_repository.dart` | `SettingsRepository`: `watch()` (current value first, then each save), `read()`, `save()` |
+| data | `data/drift_settings_repository.dart` | The Drift implementation (dev and prod): one `app_settings` row per field |
+| data | `data/in_memory_settings_repository.dart`, `data/demo_settings_repository.dart` | The in-memory implementation (tests) and the demo one (the demo flavor) |
 | application | `application/settings_controller.dart` | `SettingsController`, following `watch()`; each change reads, changes and saves, and changes run one after another so two issued together both land |
 | presentation | `presentation/settings_screen.dart` | Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color) and About (app name, version and build, flavor, time zone) |
 
-The repository contract is `test/features/settings/settings_repository_contract.dart`, a
-function taking a factory; the in-memory implementation runs it now and the Drift one
-(Phase 1c) will.
+The repository contract is `test/contract/settings_repository_contract.dart`,
+`runSettingsRepositoryContract(create, {dispose})`; the three implementations each run it
+(`data.md`, **Three implementations, one contract**).
 
 ## Tests
 
 - **`test/helpers/pump_app.dart`.** `pumpApp(tester, {overrides, config, initialLocation,
   brightness, textScale, size})` pumps the real app at phone size (412 by 915) and settles.
   `buildTestApp` is the same app as a widget, for goldens; `testOverrides` is its override
-  list: the flavor (prod by default), `testClock` (24 October 2026, 15:00 UTC, in UTC),
-  `testPackageInfo` (1.0.0, build 1), settings whose theme mode gives `brightness`, and a
-  router at `initialLocation`, then the test's own overrides, which win. Riverpod's retry is
-  off so a failing provider fails at once.
+  list: the flavor (prod by default) as `appConfigProvider` only, not the flavor's
+  `overridesFor` wiring, so every test runs on the in-memory repositories; `testClock`
+  (24 October 2026, 15:00 UTC, in UTC); `testPackageInfo` (1.0.0, build 1); settings whose
+  theme mode gives `brightness`; and a router at `initialLocation`; then the test's own
+  overrides, which win. Riverpod's retry is off so a failing provider fails at once.
 - **Goldens** use `alchemist`. `test/flutter_test_config.dart` runs every test with CI
   goldens on (Ahem, text drawn as blocks, identical on every OS; written to `goldens/ci/`
   next to the test, committed, compared by the gate and CI). Platform goldens (real fonts,
