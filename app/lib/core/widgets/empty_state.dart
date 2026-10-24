@@ -1,5 +1,6 @@
-/// The body of a screen with nothing to show yet: an icon, a headline and a line of
-/// supporting text, centred, scrolling when large text makes it taller than the screen.
+/// The body of a screen with nothing to show yet: an icon, a headline, a line of
+/// supporting text and optionally an action button, centred, scrolling when large text
+/// makes it taller than the screen.
 library;
 
 import 'package:flutter/material.dart';
@@ -11,11 +12,15 @@ class EmptyState extends StatelessWidget {
     required this.icon,
     required this.headline,
     required this.body,
+    this.action,
   });
 
   final IconData icon;
   final String headline;
   final String body;
+
+  /// The button under the text (such as "Add account"), or null for none.
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +46,10 @@ class EmptyState extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
+            if (action case final Widget action) ...[
+              const SizedBox(height: 24),
+              action,
+            ],
           ],
         ),
       ),

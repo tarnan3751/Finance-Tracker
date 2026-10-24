@@ -18,6 +18,25 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
           path: '/accounts',
           hasOverriddenOnExit: false,
           factory: $AccountsRoute._fromState,
+          routes: [
+            GoRouteData.$route(
+              path: 'new',
+              hasOverriddenOnExit: false,
+              factory: $NewAccountRoute._fromState,
+            ),
+            GoRouteData.$route(
+              path: ':id',
+              hasOverriddenOnExit: false,
+              factory: $AccountDetailRoute._fromState,
+              routes: [
+                GoRouteData.$route(
+                  path: 'edit',
+                  hasOverriddenOnExit: false,
+                  factory: $EditAccountRoute._fromState,
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     ),
@@ -70,6 +89,75 @@ mixin $AccountsRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/accounts');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $NewAccountRoute on GoRouteData {
+  static NewAccountRoute _fromState(GoRouterState state) =>
+      const NewAccountRoute();
+
+  @override
+  String get location => GoRouteData.$location('/accounts/new');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $AccountDetailRoute on GoRouteData {
+  static AccountDetailRoute _fromState(GoRouterState state) =>
+      AccountDetailRoute(state.pathParameters['id']!);
+
+  AccountDetailRoute get _self => this as AccountDetailRoute;
+
+  @override
+  String get location =>
+      GoRouteData.$location('/accounts/${Uri.encodeComponent(_self.id)}');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $EditAccountRoute on GoRouteData {
+  static EditAccountRoute _fromState(GoRouterState state) =>
+      EditAccountRoute(state.pathParameters['id']!);
+
+  EditAccountRoute get _self => this as EditAccountRoute;
+
+  @override
+  String get location =>
+      GoRouteData.$location('/accounts/${Uri.encodeComponent(_self.id)}/edit');
 
   @override
   void go(BuildContext context) => context.go(location);

@@ -103,6 +103,172 @@ class AppLocalizationsEn extends AppLocalizations {
   String get delete => 'Delete';
 
   @override
+  String get edit => 'Edit';
+
+  @override
+  String get loadFailed =>
+      'Something went wrong loading this. Try again later.';
+
+  @override
+  String captionPair(String first, String second) {
+    return '$first · $second';
+  }
+
+  @override
+  String amountNegative(String amount) {
+    return 'minus $amount';
+  }
+
+  @override
+  String get balanceFromTransactions => 'from transactions';
+
+  @override
+  String runningBalance(String amount) {
+    return 'Running balance $amount';
+  }
+
+  @override
+  String get uncategorized => 'Uncategorized';
+
+  @override
+  String get accountAdd => 'Add account';
+
+  @override
+  String get accountsTotals => 'Totals';
+
+  @override
+  String accountsHidden(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hidden accounts',
+      one: '1 hidden account',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountNotFound => 'This account no longer exists.';
+
+  @override
+  String get accountNoTransactions => 'No transactions on this account yet.';
+
+  @override
+  String get accountHide => 'Hide account';
+
+  @override
+  String get accountShow => 'Show account';
+
+  @override
+  String get accountHiddenLabel => 'Hidden';
+
+  @override
+  String accountDeleteTitle(String name) {
+    return 'Delete “$name”?';
+  }
+
+  @override
+  String accountDeleteBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'The account and its $count transactions will be deleted.',
+      one: 'The account and its 1 transaction will be deleted.',
+      zero: 'The account will be deleted.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountNewTitle => 'New account';
+
+  @override
+  String get accountEditTitle => 'Edit account';
+
+  @override
+  String get accountName => 'Name';
+
+  @override
+  String get accountNameRequired => 'Enter a name';
+
+  @override
+  String get accountType => 'Type';
+
+  @override
+  String get accountTypeDepository => 'Checking or savings';
+
+  @override
+  String get accountTypeCredit => 'Credit card';
+
+  @override
+  String get accountTypeLoan => 'Loan';
+
+  @override
+  String get accountTypeInvestment => 'Investment';
+
+  @override
+  String get accountTypeOther => 'Other';
+
+  @override
+  String get accountCurrency => 'Currency';
+
+  @override
+  String currencyValue(String code, String symbol) {
+    return '$code ($symbol)';
+  }
+
+  @override
+  String accountCurrencyFixed(String currency) {
+    return '$currency. It can\'t change once the account has transactions.';
+  }
+
+  @override
+  String get accountCurrencyLocked =>
+      'The currency can\'t change: this account has transactions.';
+
+  @override
+  String get accountDeleted => 'This account was deleted.';
+
+  @override
+  String get openingBalance => 'Opening balance (optional)';
+
+  @override
+  String get openingBalanceHelper =>
+      'Negative for money owed. Saved as a transaction.';
+
+  @override
+  String get openingBalanceDate => 'Opening balance date';
+
+  @override
+  String get openingBalanceName => 'Opening balance';
+
+  @override
+  String get currencyPickerTitle => 'Currency';
+
+  @override
+  String get currencyPickerSearch => 'Search currencies';
+
+  @override
+  String get amountRequired => 'Enter an amount';
+
+  @override
+  String amountInvalid(String example) {
+    return 'Enter an amount such as $example';
+  }
+
+  @override
+  String get amountUnsigned => 'Enter the amount without a sign';
+
+  @override
+  String get transactionPending => 'Pending';
+
+  @override
+  String get dateToday => 'Today';
+
+  @override
+  String get dateYesterday => 'Yesterday';
+
+  @override
   String get settingsData => 'Data';
 
   @override

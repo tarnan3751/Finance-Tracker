@@ -3,7 +3,7 @@
 ///
 /// | Tab | Paths |
 /// |---|---|
-/// | Accounts | `/accounts` |
+/// | Accounts | `/accounts`, `/accounts/new`, `/accounts/:id`, `/accounts/:id/edit` |
 /// | Transactions | `/transactions` |
 /// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id` |
 ///
@@ -13,6 +13,8 @@
 library;
 
 import 'package:finance_tracker/core/router/app_shell.dart';
+import 'package:finance_tracker/features/accounts/presentation/account_detail_screen.dart';
+import 'package:finance_tracker/features/accounts/presentation/account_editor_screen.dart';
 import 'package:finance_tracker/features/accounts/presentation/accounts_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/categories_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/category_editor_screen.dart';
@@ -28,7 +30,19 @@ part 'routes.g.dart';
   branches: <TypedStatefulShellBranch<StatefulShellBranchData>>[
     TypedStatefulShellBranch<AccountsBranch>(
       routes: <TypedRoute<RouteData>>[
-        TypedGoRoute<AccountsRoute>(path: '/accounts'),
+        TypedGoRoute<AccountsRoute>(
+          path: '/accounts',
+          routes: <TypedRoute<RouteData>>[
+            // Before `:id`, so `/accounts/new` is not read as an account id.
+            TypedGoRoute<NewAccountRoute>(path: 'new'),
+            TypedGoRoute<AccountDetailRoute>(
+              path: ':id',
+              routes: <TypedRoute<RouteData>>[
+                TypedGoRoute<EditAccountRoute>(path: 'edit'),
+              ],
+            ),
+          ],
+        ),
       ],
     ),
     TypedStatefulShellBranch<TransactionsBranch>(
@@ -94,6 +108,37 @@ class AccountsRoute extends GoRouteData with $AccountsRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const AccountsScreen();
+}
+
+/// `/accounts/new`: the editor of a new account.
+class NewAccountRoute extends GoRouteData with $NewAccountRoute {
+  const NewAccountRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const AccountEditorScreen();
+}
+
+/// `/accounts/:id`: an account's detail, with its transactions and running balance.
+class AccountDetailRoute extends GoRouteData with $AccountDetailRoute {
+  const AccountDetailRoute(this.id);
+
+  final String id;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      AccountDetailScreen(accountId: id);
+}
+
+/// `/accounts/:id/edit`: the editor of an existing account.
+class EditAccountRoute extends GoRouteData with $EditAccountRoute {
+  const EditAccountRoute(this.id);
+
+  final String id;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      AccountEditorScreen(accountId: id);
 }
 
 /// `/transactions`: the transaction list.

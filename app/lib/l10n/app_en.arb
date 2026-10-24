@@ -122,6 +122,244 @@
   "@delete": {
     "description": "Button or menu item that deletes the record shown."
   },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Tooltip of the button that opens the editor of the record shown."
+  },
+  "loadFailed": "Something went wrong loading this. Try again later.",
+  "@loadFailed": {
+    "description": "Shown in place of a list when its data could not be read."
+  },
+  "captionPair": "{first} · {second}",
+  "@captionPair": {
+    "description": "Two pieces of information on one caption line, such as an account name and a category name.",
+    "placeholders": {
+      "first": {
+        "type": "String",
+        "example": "Everyday Checking"
+      },
+      "second": {
+        "type": "String",
+        "example": "Groceries"
+      }
+    }
+  },
+  "amountNegative": "minus {amount}",
+  "@amountNegative": {
+    "description": "What a screen reader says for a negative amount: the word for minus, then the amount without its sign.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$12.50"
+      }
+    }
+  },
+  "balanceFromTransactions": "from transactions",
+  "@balanceFromTransactions": {
+    "description": "Caption under a balance computed by adding up the account's transactions (not reported by a bank)."
+  },
+  "runningBalance": "Running balance {amount}",
+  "@runningBalance": {
+    "description": "Caption on a transaction in an account's detail: the account's balance after this transaction, computed from its transactions.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$1,234.56"
+      }
+    }
+  },
+  "uncategorized": "Uncategorized",
+  "@uncategorized": {
+    "description": "Shown in place of a category name for a transaction with no category, or whose category was deleted."
+  },
+  "accountAdd": "Add account",
+  "@accountAdd": {
+    "description": "Button that opens the editor of a new account."
+  },
+  "accountsTotals": "Totals",
+  "@accountsTotals": {
+    "description": "Heading of the per-currency totals at the top of the account list."
+  },
+  "accountsHidden": "{count, plural, =1{1 hidden account} other{{count} hidden accounts}}",
+  "@accountsHidden": {
+    "description": "Title of the collapsed section of the account list that holds the hidden accounts.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "accountNotFound": "This account no longer exists.",
+  "@accountNotFound": {
+    "description": "Shown when the account asked for has been deleted or does not exist."
+  },
+  "accountNoTransactions": "No transactions on this account yet.",
+  "@accountNoTransactions": {
+    "description": "Shown in an account's detail when it has no transactions."
+  },
+  "accountHide": "Hide account",
+  "@accountHide": {
+    "description": "Menu item that hides the account from the account list (it moves to the Hidden section)."
+  },
+  "accountShow": "Show account",
+  "@accountShow": {
+    "description": "Menu item that moves a hidden account back into the account list."
+  },
+  "accountHiddenLabel": "Hidden",
+  "@accountHiddenLabel": {
+    "description": "Label in an account's detail saying the account is hidden from the account list."
+  },
+  "accountDeleteTitle": "Delete “{name}”?",
+  "@accountDeleteTitle": {
+    "description": "Title of the confirmation before deleting an account.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Everyday Checking"
+      }
+    }
+  },
+  "accountDeleteBody": "{count, plural, =0{The account will be deleted.} =1{The account and its 1 transaction will be deleted.} other{The account and its {count} transactions will be deleted.}}",
+  "@accountDeleteBody": {
+    "description": "Body of the confirmation before deleting an account, saying how many transactions go with it.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "accountNewTitle": "New account",
+  "@accountNewTitle": {
+    "description": "Title of the editor of a new account."
+  },
+  "accountEditTitle": "Edit account",
+  "@accountEditTitle": {
+    "description": "Title of the editor of an existing account."
+  },
+  "accountName": "Name",
+  "@accountName": {
+    "description": "Label of the account name field."
+  },
+  "accountNameRequired": "Enter a name",
+  "@accountNameRequired": {
+    "description": "Error under the account name field when it is empty."
+  },
+  "accountType": "Type",
+  "@accountType": {
+    "description": "Heading above the account type choices."
+  },
+  "accountTypeDepository": "Checking or savings",
+  "@accountTypeDepository": {
+    "description": "Account type: a bank deposit account."
+  },
+  "accountTypeCredit": "Credit card",
+  "@accountTypeCredit": {
+    "description": "Account type: a credit card."
+  },
+  "accountTypeLoan": "Loan",
+  "@accountTypeLoan": {
+    "description": "Account type: a loan or mortgage."
+  },
+  "accountTypeInvestment": "Investment",
+  "@accountTypeInvestment": {
+    "description": "Account type: a brokerage or retirement account."
+  },
+  "accountTypeOther": "Other",
+  "@accountTypeOther": {
+    "description": "Account type: anything else, such as cash."
+  },
+  "accountCurrency": "Currency",
+  "@accountCurrency": {
+    "description": "Label of the account currency field."
+  },
+  "currencyValue": "{code} ({symbol})",
+  "@currencyValue": {
+    "description": "A currency shown as its ISO code and its symbol.",
+    "placeholders": {
+      "code": {
+        "type": "String",
+        "example": "USD"
+      },
+      "symbol": {
+        "type": "String",
+        "example": "$"
+      }
+    }
+  },
+  "accountCurrencyFixed": "{currency}. It can't change once the account has transactions.",
+  "@accountCurrencyFixed": {
+    "description": "The account's currency, when it can no longer be changed.",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "USD ($)"
+      }
+    }
+  },
+  "accountCurrencyLocked": "The currency can't change: this account has transactions.",
+  "@accountCurrencyLocked": {
+    "description": "Snack bar shown when saving an account would change the currency of an account that has transactions."
+  },
+  "accountDeleted": "This account was deleted.",
+  "@accountDeleted": {
+    "description": "Snack bar shown when saving an account that was deleted meanwhile."
+  },
+  "openingBalance": "Opening balance (optional)",
+  "@openingBalance": {
+    "description": "Label of the field for a new account's starting balance."
+  },
+  "openingBalanceHelper": "Negative for money owed. Saved as a transaction.",
+  "@openingBalanceHelper": {
+    "description": "Explanation under the opening balance field."
+  },
+  "openingBalanceDate": "Opening balance date",
+  "@openingBalanceDate": {
+    "description": "Label of the date of a new account's opening balance."
+  },
+  "openingBalanceName": "Opening balance",
+  "@openingBalanceName": {
+    "description": "Description given to the transaction that holds a new account's opening balance."
+  },
+  "currencyPickerTitle": "Currency",
+  "@currencyPickerTitle": {
+    "description": "Title of the currency picker."
+  },
+  "currencyPickerSearch": "Search currencies",
+  "@currencyPickerSearch": {
+    "description": "Label of the search field of the currency picker."
+  },
+  "amountRequired": "Enter an amount",
+  "@amountRequired": {
+    "description": "Error under an amount field that is empty or zero."
+  },
+  "amountInvalid": "Enter an amount such as {example}",
+  "@amountInvalid": {
+    "description": "Error under an amount field whose text is not an amount in the currency (for example, too many decimal places); the example shows the expected format.",
+    "placeholders": {
+      "example": {
+        "type": "String",
+        "example": "1,234.56"
+      }
+    }
+  },
+  "amountUnsigned": "Enter the amount without a sign",
+  "@amountUnsigned": {
+    "description": "Error under an amount field when a negative number is typed where the sign is chosen separately."
+  },
+  "transactionPending": "Pending",
+  "@transactionPending": {
+    "description": "Label on a transaction the bank has not posted yet."
+  },
+  "dateToday": "Today",
+  "@dateToday": {
+    "description": "Date header for transactions dated today."
+  },
+  "dateYesterday": "Yesterday",
+  "@dateYesterday": {
+    "description": "Date header for transactions dated yesterday."
+  },
   "settingsData": "Data",
   "@settingsData": {
     "description": "Heading of the settings section for categories and other data."

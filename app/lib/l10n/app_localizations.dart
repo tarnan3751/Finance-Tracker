@@ -262,6 +262,270 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get delete;
 
+  /// Tooltip of the button that opens the editor of the record shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// Shown in place of a list when its data could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong loading this. Try again later.'**
+  String get loadFailed;
+
+  /// Two pieces of information on one caption line, such as an account name and a category name.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} · {second}'**
+  String captionPair(String first, String second);
+
+  /// What a screen reader says for a negative amount: the word for minus, then the amount without its sign.
+  ///
+  /// In en, this message translates to:
+  /// **'minus {amount}'**
+  String amountNegative(String amount);
+
+  /// Caption under a balance computed by adding up the account's transactions (not reported by a bank).
+  ///
+  /// In en, this message translates to:
+  /// **'from transactions'**
+  String get balanceFromTransactions;
+
+  /// Caption on a transaction in an account's detail: the account's balance after this transaction, computed from its transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Running balance {amount}'**
+  String runningBalance(String amount);
+
+  /// Shown in place of a category name for a transaction with no category, or whose category was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncategorized'**
+  String get uncategorized;
+
+  /// Button that opens the editor of a new account.
+  ///
+  /// In en, this message translates to:
+  /// **'Add account'**
+  String get accountAdd;
+
+  /// Heading of the per-currency totals at the top of the account list.
+  ///
+  /// In en, this message translates to:
+  /// **'Totals'**
+  String get accountsTotals;
+
+  /// Title of the collapsed section of the account list that holds the hidden accounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hidden account} other{{count} hidden accounts}}'**
+  String accountsHidden(int count);
+
+  /// Shown when the account asked for has been deleted or does not exist.
+  ///
+  /// In en, this message translates to:
+  /// **'This account no longer exists.'**
+  String get accountNotFound;
+
+  /// Shown in an account's detail when it has no transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions on this account yet.'**
+  String get accountNoTransactions;
+
+  /// Menu item that hides the account from the account list (it moves to the Hidden section).
+  ///
+  /// In en, this message translates to:
+  /// **'Hide account'**
+  String get accountHide;
+
+  /// Menu item that moves a hidden account back into the account list.
+  ///
+  /// In en, this message translates to:
+  /// **'Show account'**
+  String get accountShow;
+
+  /// Label in an account's detail saying the account is hidden from the account list.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get accountHiddenLabel;
+
+  /// Title of the confirmation before deleting an account.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{name}”?'**
+  String accountDeleteTitle(String name);
+
+  /// Body of the confirmation before deleting an account, saying how many transactions go with it.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{The account will be deleted.} =1{The account and its 1 transaction will be deleted.} other{The account and its {count} transactions will be deleted.}}'**
+  String accountDeleteBody(int count);
+
+  /// Title of the editor of a new account.
+  ///
+  /// In en, this message translates to:
+  /// **'New account'**
+  String get accountNewTitle;
+
+  /// Title of the editor of an existing account.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit account'**
+  String get accountEditTitle;
+
+  /// Label of the account name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get accountName;
+
+  /// Error under the account name field when it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get accountNameRequired;
+
+  /// Heading above the account type choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get accountType;
+
+  /// Account type: a bank deposit account.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking or savings'**
+  String get accountTypeDepository;
+
+  /// Account type: a credit card.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit card'**
+  String get accountTypeCredit;
+
+  /// Account type: a loan or mortgage.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan'**
+  String get accountTypeLoan;
+
+  /// Account type: a brokerage or retirement account.
+  ///
+  /// In en, this message translates to:
+  /// **'Investment'**
+  String get accountTypeInvestment;
+
+  /// Account type: anything else, such as cash.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get accountTypeOther;
+
+  /// Label of the account currency field.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get accountCurrency;
+
+  /// A currency shown as its ISO code and its symbol.
+  ///
+  /// In en, this message translates to:
+  /// **'{code} ({symbol})'**
+  String currencyValue(String code, String symbol);
+
+  /// The account's currency, when it can no longer be changed.
+  ///
+  /// In en, this message translates to:
+  /// **'{currency}. It can\'t change once the account has transactions.'**
+  String accountCurrencyFixed(String currency);
+
+  /// Snack bar shown when saving an account would change the currency of an account that has transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'The currency can\'t change: this account has transactions.'**
+  String get accountCurrencyLocked;
+
+  /// Snack bar shown when saving an account that was deleted meanwhile.
+  ///
+  /// In en, this message translates to:
+  /// **'This account was deleted.'**
+  String get accountDeleted;
+
+  /// Label of the field for a new account's starting balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening balance (optional)'**
+  String get openingBalance;
+
+  /// Explanation under the opening balance field.
+  ///
+  /// In en, this message translates to:
+  /// **'Negative for money owed. Saved as a transaction.'**
+  String get openingBalanceHelper;
+
+  /// Label of the date of a new account's opening balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening balance date'**
+  String get openingBalanceDate;
+
+  /// Description given to the transaction that holds a new account's opening balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening balance'**
+  String get openingBalanceName;
+
+  /// Title of the currency picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get currencyPickerTitle;
+
+  /// Label of the search field of the currency picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Search currencies'**
+  String get currencyPickerSearch;
+
+  /// Error under an amount field that is empty or zero.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount'**
+  String get amountRequired;
+
+  /// Error under an amount field whose text is not an amount in the currency (for example, too many decimal places); the example shows the expected format.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount such as {example}'**
+  String amountInvalid(String example);
+
+  /// Error under an amount field when a negative number is typed where the sign is chosen separately.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the amount without a sign'**
+  String get amountUnsigned;
+
+  /// Label on a transaction the bank has not posted yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get transactionPending;
+
+  /// Date header for transactions dated today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get dateToday;
+
+  /// Date header for transactions dated yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get dateYesterday;
+
   /// Heading of the settings section for categories and other data.
   ///
   /// In en, this message translates to:
