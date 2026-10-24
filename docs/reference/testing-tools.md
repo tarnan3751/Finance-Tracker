@@ -18,9 +18,11 @@ The definition of green. Run after every change, at every commit of a series, by
    stale `.dart_tool/` left by an earlier layout made the format step fail at the Phase 0
    landing, which is why this step exists.
 3. **format**: `dart format --output=none --set-exit-if-changed`.
-4. **analyze**: `flutter pub get` and `flutter analyze` for Flutter packages; `dart pub get`
-   and `dart analyze --fatal-infos` for pure Dart ones. In the workspace, a `pub get` in any
-   member resolves the whole workspace at the root.
+4. **analyze**: `flutter pub get`, `flutter analyze` and then `dart analyze --fatal-infos`
+   for Flutter packages, because `flutter analyze` does not report analyzer-plugin
+   diagnostics (riverpod_lint's, declared in the root `analysis_options.yaml`) and
+   `dart analyze` does; `dart pub get` and `dart analyze --fatal-infos` for pure Dart ones.
+   In the workspace, a `pub get` in any member resolves the whole workspace at the root.
 5. **codegen**: for a package that depends on `build_runner`, runs it and fails on any diff
    in the generated files.
 6. **tests**: `flutter test` or `dart test` in every package with a `test/` directory; a

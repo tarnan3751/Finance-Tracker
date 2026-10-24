@@ -7,7 +7,9 @@
 #                 reads each package's language version from it, and a stale .dart_tool left
 #                 by an earlier layout would format in an older style and fail the next gate
 #   3. format     dart format --output=none --set-exit-if-changed
-#   4. analyze    flutter analyze (Flutter packages) or dart analyze (pure Dart packages)
+#   4. analyze    flutter analyze then dart analyze --fatal-infos (Flutter packages: flutter
+#                 analyze does not report analyzer-plugin diagnostics such as riverpod_lint's),
+#                 or dart analyze --fatal-infos (pure Dart packages)
 #   5. codegen    generated files are current: build_runner build, then git diff --exit-code
 #                 on *.g.dart, *.freezed.dart and the generated client (packages with build_runner)
 #   6. tests      flutter test (Flutter packages) or dart test (pure Dart packages)
@@ -96,7 +98,7 @@ fi
 : >"$scratch/analyze.txt"; bad=0
 for p in "${packages[@]}"; do
   if is_flutter "$p"; then
-    (cd "$p" && $FLUTTER pub get >/dev/null 2>&1; $FLUTTER analyze --no-pub) >"$scratch/analyze-one.txt" 2>&1 || bad=$((bad + 1))
+    (cd "$p" && $FLUTTER pub get >/dev/null 2>&1; $FLUTTER analyze --no-pub && $DART analyze --fatal-infos) >"$scratch/analyze-one.txt" 2>&1 || bad=$((bad + 1))
   else
     (cd "$p" && $DART pub get >/dev/null 2>&1; $DART analyze --fatal-infos) >"$scratch/analyze-one.txt" 2>&1 || bad=$((bad + 1))
   fi
