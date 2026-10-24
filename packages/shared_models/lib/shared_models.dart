@@ -25,5 +25,7 @@ export 'src/entities/user.dart';
 export 'src/money/currency.dart';
 export 'src/money/money.dart';
 export 'src/money/rounding.dart' show RoundingMode;
+export 'src/taxonomy/plaid_category.dart';
+export 'src/taxonomy/plaid_taxonomy.dart';
 export 'src/time/local_date.dart';
 export 'src/time/utc_instant_converter.dart';
