@@ -1,0 +1,12 @@
+{
+  "body": {
+    "display_message": null,
+    "documentation_url": "https://plaid.com/docs/errors/item/#no_investment_accounts",
+    "error_code": "NO_INVESTMENT_ACCOUNTS",
+    "error_message": "There are no valid investment account(s) associated with this Item. See https://plaid.com/docs/errors/item/#no_investment_accounts for more information.",
+    "error_type": "ITEM_ERROR",
+    "request_id": "d813b591350247f",
+    "suggested_action": null
+  },
+  "status": 400
+}

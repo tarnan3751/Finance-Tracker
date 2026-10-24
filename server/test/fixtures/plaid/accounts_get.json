@@ -1,0 +1,158 @@
+{
+  "body": {
+    "accounts": [
+      {
+        "account_id": "3oB3Mjm6GgFPAM77GLMGfMRoAZbeX4sZvBV5K",
+        "apy": null,
+        "balances": {
+          "available": 342.099285,
+          "current": 500,
+          "iso_currency_code": "USD",
+          "limit": null,
+          "unofficial_currency_code": null
+        },
+        "holder_category": "personal",
+        "mask": "1000",
+        "name": "Checking",
+        "official_name": "Plaid checking",
+        "subtype": "checking",
+        "type": "depository"
+      },
+      {
+        "account_id": "xyBav4zpgVsl8KddxNKxSVvEKazP93t6XqKL5",
+        "apy": null,
+        "balances": {
+          "available": 4283.01,
+          "current": 500,
+          "iso_currency_code": "USD",
+          "limit": 4800,
+          "unofficial_currency_code": null
+        },
+        "holder_category": "personal",
+        "mask": "2000",
+        "name": "Credit card",
+        "official_name": "Plaid credit card",
+        "subtype": "credit card",
+        "type": "credit"
+      },
+      {
+        "account_id": "dBdo1WQqDVSdZQggE1QETn76rVmZ8MiJdmnrL",
+        "apy": null,
+        "balances": {
+          "available": null,
+          "current": 500,
+          "iso_currency_code": "USD",
+          "limit": null,
+          "unofficial_currency_code": null
+        },
+        "holder_category": "personal",
+        "mask": "3000",
+        "name": "Mortgage loan",
+        "official_name": "Plaid mortgage",
+        "subtype": "mortgage",
+        "type": "loan"
+      },
+      {
+        "account_id": "aKd1QgjwBVsZ6Mwwl1MlUngvlXr4e5iZbzKVy",
+        "apy": null,
+        "balances": {
+          "available": 25000,
+          "current": 25000,
+          "iso_currency_code": "USD",
+          "limit": null,
+          "unofficial_currency_code": null
+        },
+        "holder_category": "personal",
+        "mask": "4000",
+        "name": "Student loan",
+        "official_name": "Plaid student",
+        "subtype": "student",
+        "type": "loan"
+      },
+      {
+        "account_id": "4Dvx17lXa8HkDzbbG4zGS1o8kNxJZRhJqZR4D",
+        "apy": null,
+        "balances": {
+          "available": null,
+          "current": 500,
+          "iso_currency_code": "USD",
+          "limit": null,
+          "unofficial_currency_code": null
+        },
+        "holder_category": "personal",
+        "mask": "5000",
+        "name": "Auto loan",
+        "official_name": "Plaid auto",
+        "subtype": "auto",
+        "type": "loan"
+      },
+      {
+        "account_id": "N6wlJzWp71TMyjkknXjnSKWLoAzd8ZiybgANM",
+        "apy": null,
+        "balances": {
+          "available": null,
+          "current": 500,
+          "iso_currency_code": "USD",
+          "limit": null,
+          "unofficial_currency_code": null
+        },
+        "holder_category": "personal",
+        "mask": "6000",
+        "name": "Consumer loan",
+        "official_name": "Plaid consumer",
+        "subtype": "consumer",
+        "type": "loan"
+      },
+      {
+        "account_id": "P6eKJ3GgQpTZWkxxezkeUqMWbonJAdIob9ymG",
+        "apy": null,
+        "balances": {
+          "available": null,
+          "current": 500,
+          "iso_currency_code": "USD",
+          "limit": null,
+          "unofficial_currency_code": null
+        },
+        "holder_category": "personal",
+        "mask": "7000",
+        "name": "Line of credit loan",
+        "official_name": "Plaid line of credit",
+        "subtype": "line of credit",
+        "type": "loan"
+      }
+    ],
+    "item": {
+      "available_products": [
+        "assets",
+        "auth",
+        "balance",
+        "identity",
+        "identity_match",
+        "income_verification",
+        "investments",
+        "investments_auth",
+        "liabilities",
+        "recurring_transactions",
+        "signal",
+        "statements",
+        "transactions_refresh",
+        "transfer"
+      ],
+      "billed_products": [
+        "transactions"
+      ],
+      "consent_expiration_time": null,
+      "error": null,
+      "institution_id": "ins_109508",
+      "institution_name": "First Platypus Bank",
+      "item_id": "GA3WJ917yPhb4BvvaZBaiNxDLnljrqiWqxpvK",
+      "products": [
+        "transactions"
+      ],
+      "update_type": "background",
+      "webhook": ""
+    },
+    "request_id": "e3d390cda988ab2"
+  },
+  "status": 200
+}

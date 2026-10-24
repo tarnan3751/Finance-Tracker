@@ -18,7 +18,9 @@
 /// at any of the persona engine's institutions, with no liabilities, recurring streams or
 /// investments. Custom users and transactions created through Sandbox calls live only as
 /// long as the process. The test hooks ([failNext], [onCall],
-/// [modifyTransaction], [removeTransaction], [repairLogin]) script what Sandbox would do.
+/// [modifyTransaction], [removeTransaction], [repairLogin], [addWebhookKey]) script what
+/// Sandbox would do. `institutionsGetById` answers a fixture's institution, with its logo
+/// and colour only when the fixture carries them.
 library;
 
 import 'dart:convert';
@@ -77,6 +79,7 @@ final class FakePlaidClient implements PlaidClient {
   /// Custom users by the public token minted for them: a fixture-shaped description.
   final Map<String, Map<String, Object?>> _customUsers = {};
   final Map<String, List<PlaidException?>> _failures = {};
+  final Map<String, Map<String, Object?>> _webhookKeys = {};
   var _sandboxCounter = 0;
 
   @override
@@ -143,6 +146,11 @@ final class FakePlaidClient implements PlaidClient {
       id: transactionId,
     ));
   }
+
+  /// Serves [jwk] from `webhookVerificationKeyGet` under its `kid`, as Plaid serves the
+  /// key that signs its webhooks.
+  void addWebhookKey(Map<String, Object?> jwk) =>
+      _webhookKeys[jwk['kid']! as String] = jwk;
 
   /// Ends the `ITEM_LOGIN_REQUIRED` state [sandboxItemResetLogin] started, as a completed
   /// update-mode Link would.
@@ -332,7 +340,10 @@ final class FakePlaidClient implements PlaidClient {
   }
 
   @override
-  Future<PlaidRecurring> transactionsRecurringGet(String accessToken) async {
+  Future<PlaidRecurring> transactionsRecurringGet(
+    String accessToken, {
+    String? Function(String accountId)? currencyOf,
+  }) async {
     await _maybeFail('transactionsRecurringGet');
     final item = _healthyItem(accessToken);
     final recurring = item.prefixAccounts(
@@ -351,10 +362,27 @@ final class FakePlaidClient implements PlaidClient {
   @override
   Future<Map<String, Object?>> webhookVerificationKeyGet(String keyId) async {
     await _maybeFail('webhookVerificationKeyGet');
-    throw const PlaidException(
-      'INVALID_INPUT',
-      'INVALID_WEBHOOK_VERIFICATION_KEY_ID',
-    );
+    return _webhookKeys[keyId] ??
+        (throw const PlaidException(
+          'INVALID_INPUT',
+          'INVALID_WEBHOOK_VERIFICATION_KEY_ID',
+        ));
+  }
+
+  @override
+  Future<PlaidInstitution> institutionsGetById(String institutionId) async {
+    await _maybeFail('institutionsGetById');
+    final fixture = _fixtures[institutionId];
+    if (fixture != null) {
+      return PlaidInstitution.fromPlaidJson(
+        fixture['institution']! as Map<String, Object?>,
+      );
+    }
+    final name = customUserInstitutions[institutionId];
+    if (name == null) {
+      throw const PlaidException('INVALID_INPUT', 'INVALID_INSTITUTION');
+    }
+    return PlaidInstitution(institutionId: institutionId, name: name);
   }
 
   @override

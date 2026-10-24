@@ -1,0 +1,11 @@
+{
+  "body": {
+    "display_message": null,
+    "error_code": "INVALID_WEBHOOK_VERIFICATION_KEY_ID",
+    "error_message": "invalid key_id provided. note that key_ids are specific to Plaid environments, and verification requests must be made to the same environment that the webhook was sent from",
+    "error_type": "INVALID_INPUT",
+    "request_id": "05ba4af24435b9e",
+    "suggested_action": null
+  },
+  "status": 400
+}

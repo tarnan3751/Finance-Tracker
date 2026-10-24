@@ -1,5 +1,6 @@
-// The server under test: a ServerApp over an in-memory database, the fake Plaid client,
-// a controllable clock and tiny Argon2 parameters, called through its shelf handler with
+// The server under test: a ServerApp over an in-memory database, a Plaid client (the
+// fake by default, or another such as the HTTP client over recorded fixtures), a
+// controllable clock and tiny Argon2 parameters, called through its shelf handler with
 // no socket. Every call is checked against the contract: the request body with
 // conformsToRequest (unless the test sends an invalid one on purpose), the response with
 // conformsToResponse for the matched operation and status (strict), and its content type.
@@ -110,23 +111,28 @@ String? templateFor(String method, String path) {
 
 /// The server under test.
 final class TestServer {
-  TestServer._(this.app, this.plaid, this.clock);
+  TestServer._(this.app, this.client, this.clock);
 
-  /// A fresh server; [config] defaults to [testConfig].
-  static Future<TestServer> start({ServerConfig? config}) async {
+  /// A fresh server; [config] defaults to [testConfig], [plaid] (given the clock) to the
+  /// fake client.
+  static Future<TestServer> start({
+    ServerConfig? config,
+    PlaidClient Function(TestClock clock)? plaid,
+  }) async {
     final clock = TestClock();
-    final plaid = await FakePlaidClient.load(now: clock.call);
+    final client =
+        plaid?.call(clock) ?? await FakePlaidClient.load(now: clock.call);
     late final TestServer server;
     server = TestServer._(
       ServerApp(
         config: config ?? testConfig,
         db: AppDatabase.inMemory(),
-        plaid: plaid,
+        plaid: client,
         now: clock.call,
         clientIp: (r) => r.headers['x-test-ip'] ?? '10.0.0.1',
         delay: (wait) async => server.onDelay?.call(wait),
       ),
-      plaid,
+      client,
       clock,
     );
     addTearDown(server.app.db.close);
@@ -136,8 +142,11 @@ final class TestServer {
   /// The app.
   final ServerApp app;
 
-  /// The fake Plaid client.
-  final FakePlaidClient plaid;
+  /// The Plaid client.
+  final PlaidClient client;
+
+  /// The Plaid client, when it is the fake.
+  FakePlaidClient get plaid => client as FakePlaidClient;
 
   /// The clock.
   final TestClock clock;

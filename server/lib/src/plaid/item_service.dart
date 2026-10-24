@@ -114,7 +114,11 @@ final class ItemService {
       return await call();
     } on PlaidException catch (e) {
       _log.warning(
-        LogEvent('plaid_error', {'type': e.errorType, 'code': e.errorCode}),
+        LogEvent('plaid_error', {
+          'type': e.errorType,
+          'code': e.errorCode,
+          'request_id': ?e.requestId,
+        }),
       );
       throw plaidProblem(e);
     }
@@ -182,7 +186,11 @@ final class ItemService {
     } on PlaidException catch (e) {
       await _removeOrphan(exchanged.accessToken);
       _log.warning(
-        LogEvent('plaid_error', {'type': e.errorType, 'code': e.errorCode}),
+        LogEvent('plaid_error', {
+          'type': e.errorType,
+          'code': e.errorCode,
+          'request_id': ?e.requestId,
+        }),
       );
       throw plaidProblem(e);
     }
@@ -478,7 +486,11 @@ final class ItemService {
     } on PlaidException catch (e) {
       if (e.isLoginRequired) await _markLoginRequired(itemId);
       _log.warning(
-        LogEvent('plaid_error', {'type': e.errorType, 'code': e.errorCode}),
+        LogEvent('plaid_error', {
+          'type': e.errorType,
+          'code': e.errorCode,
+          'request_id': ?e.requestId,
+        }),
       );
       throw e.isLoginRequired ? _loginRequired : plaidProblem(e);
     }
@@ -547,10 +559,18 @@ final class ItemService {
       }
     }
 
+    final currencies = {
+      ...await _storedCurrencies(itemId),
+      for (final page in pages)
+        for (final a in page.accounts) a.accountId: a.currencyCode,
+    };
     final recurring = products.contains('transactions')
         ? await secondary(
             'recurring',
-            () => plaid.transactionsRecurringGet(item.accessToken),
+            () => plaid.transactionsRecurringGet(
+              item.accessToken,
+              currencyOf: (accountId) => currencies[accountId],
+            ),
           )
         : null;
     final liabilities = products.contains('liabilities')
@@ -634,6 +654,17 @@ final class ItemService {
       'next_cursor_saved': true,
     };
   }
+
+  /// The currencies of the Item's stored accounts, by Plaid's account id.
+  Future<Map<String, String>> _storedCurrencies(String itemId) => db.read(
+    (tx) => {
+      for (final r in tx.select(
+        'SELECT plaid_account_id, currency_code FROM accounts WHERE item_id = ?',
+        [itemId],
+      ))
+        r['plaid_account_id'] as String: r['currency_code'] as String,
+    },
+  );
 
   /// Every page from [startCursor], or null for `NOT_READY`. Restarts from [startCursor]
   /// on a mutation during pagination, up to [maxPaginationRestarts] times.

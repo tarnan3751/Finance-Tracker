@@ -1,0 +1,227 @@
+{
+  "body": {
+    "inflow_streams": [
+      {
+        "account_id": "3oB3Mjm6GgFPAM77GLMGfMRoAZbeX4sZvBV5K",
+        "average_amount": {
+          "amount": -810
+        },
+        "category": [
+          "Food and Drink",
+          "Restaurants"
+        ],
+        "category_id": "13005000",
+        "description": "Sweetgreen inc payroll ppd id",
+        "first_date": "2026-04-24",
+        "frequency": "WEEKLY",
+        "is_active": true,
+        "is_user_modified": false,
+        "last_amount": {
+          "amount": -810
+        },
+        "last_date": "2026-10-23",
+        "last_user_modified_datetime": "0001-01-01T00:00:00Z",
+        "merchant_name": "Sweetgreen",
+        "personal_finance_category": {
+          "confidence_level": "UNKNOWN",
+          "detailed": "FOOD_AND_DRINK_RESTAURANT",
+          "primary": "FOOD_AND_DRINK"
+        },
+        "predicted_next_date": "2026-10-30",
+        "status": "MATURE",
+        "stream_id": "M6wyJrkLjMToQlbbkqlkU6BwdoLpMxf9VZvXb",
+        "transaction_ids": [
+          "WV8a3jrbLGTqV9yyJR9JIp6Jeb8r5nt6KQPMa",
+          "nepyvlWNMVtRameeWgmWHa4zQo1LybUAwM3kL",
+          "br3LZk756VUjNvXXWnvWtqymM4Rk87cmQ6oLA",
+          "m7LmvRE4gVSAJ9ppVd9Vhd4wJ1LgbECgzQ4jq",
+          "yy34wNBoMls1ek44WPkWUy8BjxMmEZc4e8KmE",
+          "R6VzqdbEQgTwjl9983l8hXM8GqwLypua3oPyB",
+          "65mapQKVeWsnEqWWXLqXSp3oQRyraLt8LP1Zp",
+          "X614x7kmgnTRDW99VNWVHn5VKXq7meubqv1Zq",
+          "D6RgJbQN1aT3zwqqXZwXsn8adPjqmbu3xL4Da",
+          "5RxdkeqD4Eh5DZNNJeZJSLgPrDZpaMi5MQGlQ",
+          "J6anJloZ4eTEK4kk8n48UWa7RJXKV6fBqeQ3X",
+          "kPbnv9gdx5swPZ33GJZGh8MrkamRJ1fLK1JnD",
+          "ljWb6v8a9VsQap33xJpxsb7kJdq9xDcp8maQo",
+          "qMXKvrn7bVi85RMMXKRXIALl7MbRJGFgky6GK",
+          "zVMNvP3gaqTver99zNrzikDVymqwgdIlWX3rv",
+          "BAlpJG7aDxhJneVVApeAHKQ9WjdnGxS4nxzEP",
+          "3oB3Mjm6GgFPAM77GLMGfMR6yajZPBHZ3Vm6A",
+          "xyBav4zpgVsl8KddxNKxSVvyp5damxc6vKyjz",
+          "4Dvx17lXa8HkDzbbG4zGS1oKy4lN7aCJ7Rlzz",
+          "N6wlJzWp71TMyjkknXjnSKWngGJAD9SymAXdw",
+          "P6eKJ3GgQpTZWkxxezkeUqMKrxDojecoZyXan",
+          "jNZGvyoxJVIkwlzzdLldSB1N8k4xPpC6qRvdk",
+          "65mapQKVeWsnEqWWXLqXSp3m48Rl9ef8oNP9Q",
+          "dBdo1WQqDVSdZQggE1QETn7z3XkwKPtJWvnMo",
+          "EbN8JmZPw4UQ1R33JyRJsK6EzJP5GqI4KG5RD",
+          "m7LmvRE4gVSAJ9ppVd9Vhd4xP91jAWigvxQjz",
+          "WV8a3jrbLGTqV9yyJR9JIp6lqEbNo1f6mnQMG"
+        ]
+      },
+      {
+        "account_id": "3oB3Mjm6GgFPAM77GLMGfMRoAZbeX4sZvBV5K",
+        "average_amount": {
+          "amount": -0.12
+        },
+        "category": [
+          "Interest",
+          "Interest Earned"
+        ],
+        "category_id": "15001000",
+        "description": "Interest payment",
+        "first_date": "2026-04-24",
+        "frequency": "MONTHLY",
+        "is_active": true,
+        "is_user_modified": false,
+        "last_amount": {
+          "amount": -0.12
+        },
+        "last_date": "2026-10-24",
+        "last_user_modified_datetime": "0001-01-01T00:00:00Z",
+        "merchant_name": "",
+        "personal_finance_category": {
+          "confidence_level": "UNKNOWN",
+          "detailed": "INCOME_INTEREST_EARNED",
+          "primary": "INCOME"
+        },
+        "predicted_next_date": "2026-11-24",
+        "status": "MATURE",
+        "stream_id": "15yzQNnv4psmEZ44lpZlUDqXkn8Wzjf5lvR9Q",
+        "transaction_ids": [
+          "A6QLJAjdx3TXkRDDE6REf1qxdZDG6rC9Ex4wK",
+          "9DVPJ1BldnH9bQ44RVQRUWQBXmZMbjf4a9q1A",
+          "V61dBPKnaAT7VmQQwGmwUxRwNVJy6Eu9eZq1d",
+          "K6abJqgM4QTegZRRv3ZvSmXrnzoJPeiRbDEqx",
+          "dBdo1WQqDVSdZQggE1QETn7qpkRVyxuJenBKM",
+          "vy5xvdK1MVsnMBxxANBAS6JvLaN3VWtq3NZz1",
+          "yy34wNBoMls1ek44WPkWUy8qLlxrgKs4qj8dd"
+        ]
+      }
+    ],
+    "outflow_streams": [
+      {
+        "account_id": "xyBav4zpgVsl8KddxNKxSVvEKazP93t6XqKL5",
+        "average_amount": {
+          "amount": 20
+        },
+        "category": [
+          "Transfer",
+          "Debit"
+        ],
+        "category_id": "21006000",
+        "description": "OPENAI *CHATGPT SUBSCR",
+        "first_date": "2026-04-24",
+        "frequency": "MONTHLY",
+        "is_active": true,
+        "is_user_modified": false,
+        "last_amount": {
+          "amount": 20
+        },
+        "last_date": "2026-10-24",
+        "last_user_modified_datetime": "0001-01-01T00:00:00Z",
+        "merchant_name": "OpenAI",
+        "personal_finance_category": {
+          "confidence_level": "UNKNOWN",
+          "detailed": "TRANSFER_OUT_ACCOUNT_TRANSFER",
+          "primary": "TRANSFER_OUT"
+        },
+        "predicted_next_date": "2026-11-24",
+        "status": "MATURE",
+        "stream_id": "ljWb6v8a9VsQap33xJpxsb7lPAgMy5iZ8AQox",
+        "transaction_ids": [
+          "e3agLAZKPVSQZg88nzgnsEek6oR1DBcr13aGA",
+          "Z6gPaQ398VTW67RREm7EUNQP1ZeDbMueV1Jv7",
+          "15yzQNnv4psmEZ44lpZlUDqvEwVyB4uplPqaB",
+          "pZLqvKGjPVS6XpZZbqpbfQ18BnJkmGfp3QJqN",
+          "gdAEon1zPVsr7xQQGvxGClDMQB5J6WfEq7LGn",
+          "R6VzqdbEQgTwjl9983l8hXMArJqme7cavDojL",
+          "kPbnv9gdx5swPZ33GJZGh8MgZBaAn4uLVN1n8"
+        ]
+      },
+      {
+        "account_id": "xyBav4zpgVsl8KddxNKxSVvEKazP93t6XqKL5",
+        "average_amount": {
+          "amount": 19.569999999999997
+        },
+        "category": [
+          "Service",
+          "Subscription"
+        ],
+        "category_id": "18061000",
+        "description": "Netflix",
+        "first_date": "2026-04-24",
+        "frequency": "MONTHLY",
+        "is_active": true,
+        "is_user_modified": false,
+        "last_amount": {
+          "amount": 19.57
+        },
+        "last_date": "2026-10-24",
+        "last_user_modified_datetime": "0001-01-01T00:00:00Z",
+        "merchant_name": "Netflix",
+        "personal_finance_category": {
+          "confidence_level": "UNKNOWN",
+          "detailed": "ENTERTAINMENT_TV_AND_MOVIES",
+          "primary": "ENTERTAINMENT"
+        },
+        "predicted_next_date": "2026-11-24",
+        "status": "MATURE",
+        "stream_id": "kPbnv9gdx5swPZ33GJZGh8MQWqDEvGuWKRn6n",
+        "transaction_ids": [
+          "7mQ4oZrwaAibDjMM5Vj5ioE4kGZPRDFdLB8q7",
+          "Q6Vrlxn8XoTZRMaagoMgUKLr4ypkdGSwElGVy",
+          "M6wyJrkLjMToQlbbkqlkU6BVjEXvN3uLVR453",
+          "L6jmJK814ZT4zQ88ZlQZIDVZRx6JP7ukGWemR",
+          "oQXlvqAPJVTDgXnnLlXLh4aqVyzA13uo8VpP8",
+          "vy5xvdK1MVsnMBxxANBAS6JvLaN3VWtq3NZxd",
+          "J6anJloZ4eTEK4kk8n48UWazydJLv3fBrae3o"
+        ]
+      },
+      {
+        "account_id": "3oB3Mjm6GgFPAM77GLMGfMRoAZbeX4sZvBV5K",
+        "average_amount": {
+          "amount": 12.650000000000002
+        },
+        "category": [
+          "Service",
+          "Subscription"
+        ],
+        "category_id": "18061000",
+        "description": "Spotify",
+        "first_date": "2026-04-24",
+        "frequency": "MONTHLY",
+        "is_active": true,
+        "is_user_modified": false,
+        "last_amount": {
+          "amount": 12.65
+        },
+        "last_date": "2026-10-24",
+        "last_user_modified_datetime": "0001-01-01T00:00:00Z",
+        "merchant_name": "Spotify",
+        "personal_finance_category": {
+          "confidence_level": "UNKNOWN",
+          "detailed": "ENTERTAINMENT_MUSIC_AND_AUDIO",
+          "primary": "ENTERTAINMENT"
+        },
+        "predicted_next_date": "2026-11-24",
+        "status": "MATURE",
+        "stream_id": "pZLqvKGjPVS6XpZZbqpbfQ1xRejVDZhL3mGlp",
+        "transaction_ids": [
+          "GA3WJ917yPhb4BvvaZBaiNxnkw41m7u6y7G9V",
+          "vy5xvdK1MVsnMBxxANBAS6Jy8NoB1GuqAZvmr",
+          "wwAdvarLbVUwJXjjxLXxheLGoJPR19SPj1Ewm",
+          "r1RrvzbegVi4RLBByrLyI6BwDMxk79u7gkd4v",
+          "aKd1QgjwBVsZ6Mwwl1MlUngPa3qX8yuZLKkw4",
+          "R6VzqdbEQgTwjl9983l8hXMArJqme7cavDolo",
+          "9DVPJ1BldnH9bQ44RVQRUWQvKlmNGkf4WA981"
+        ]
+      }
+    ],
+    "personal_finance_category_version": "v2",
+    "request_id": "7e5f8d079c6b713",
+    "updated_datetime": "2026-10-24T21:51:24Z"
+  },
+  "status": 200
+}

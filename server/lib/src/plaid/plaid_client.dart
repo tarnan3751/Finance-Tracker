@@ -1,14 +1,17 @@
 /// The server's view of Plaid (`docs/reference/server.md`, **PlaidClient**).
 ///
-/// [PlaidClient] has the calls the server makes. Phase 2 implements it with
-/// `FakePlaidClient`; Phase 3 adds the real client over Plaid's REST API. The request and
-/// response types are the server's own records, not Plaid's full shapes. Their
-/// `fromPlaidJson` factories read Plaid's snake_case JSON (the fake's fixtures, the real
-/// client's responses), building `Money` at this boundary with `plaidMoney`, so a JSON
-/// number must reach them as its text or an `int`, never a `double`. Amounts keep
-/// Plaid's sign here (a positive transaction amount is money out of the account);
-/// ingestion flips it into ours.
+/// [PlaidClient] has the calls the server makes: `FakePlaidClient` in fake mode,
+/// `HttpPlaidClient` over Plaid's REST API in sandbox mode. The request and response types
+/// are the server's own records, not Plaid's full shapes. Their `fromPlaidJson` factories
+/// read Plaid's snake_case JSON (the fake's fixtures, the real client's responses),
+/// building `Money` at this boundary with `plaidMoney`, so a JSON number must reach them as
+/// its text or an `int`, never a `double`. Their `rounding` is null for the fake (strict)
+/// and half-even for the real client, whose Sandbox answers carry sub-cent amounts.
+/// Amounts keep Plaid's sign here (a positive transaction amount is money out of the
+/// account); ingestion flips it into ours.
 library;
+
+import 'dart:convert';
 
 import 'package:finance_tracker_server/src/plaid/plaid_money.dart';
 import 'package:shared_models/shared_models.dart';
@@ -16,7 +19,12 @@ import 'package:shared_models/shared_models.dart';
 /// A failure Plaid reported (`error_type`, `error_code`).
 final class PlaidException implements Exception {
   /// A failure.
-  const PlaidException(this.errorType, this.errorCode, [this.message = '']);
+  const PlaidException(
+    this.errorType,
+    this.errorCode, [
+    this.message = '',
+    this.requestId,
+  ]);
 
   /// Plaid's `error_type` (`ITEM_ERROR`, `RATE_LIMIT_EXCEEDED`, ...).
   final String errorType;
@@ -26,6 +34,9 @@ final class PlaidException implements Exception {
 
   /// Plaid's message, for logs.
   final String message;
+
+  /// Plaid's `request_id` for the failed call, when it answered with one.
+  final String? requestId;
 
   /// The Item needs re-authentication through Link in update mode.
   bool get isLoginRequired => errorCode == 'ITEM_LOGIN_REQUIRED';
@@ -115,9 +126,14 @@ final class PlaidAccount {
   });
 
   /// Reads an element of Plaid's `accounts` array.
-  factory PlaidAccount.fromPlaidJson(Map<String, Object?> json) {
+  factory PlaidAccount.fromPlaidJson(
+    Map<String, Object?> json, {
+    RoundingMode? rounding,
+  }) {
     final balances = json['balances']! as Map<String, Object?>;
     final currency = _currency(balances);
+    Money? money(String key) =>
+        optionalPlaidMoney(balances[key], currency, rounding: rounding);
     return PlaidAccount(
       accountId: json['account_id']! as String,
       name: json['name']! as String,
@@ -126,9 +142,9 @@ final class PlaidAccount {
       type: json['type']! as String,
       subtype: json['subtype'] as String?,
       currencyCode: currency,
-      current: optionalPlaidMoney(balances['current'], currency),
-      available: optionalPlaidMoney(balances['available'], currency),
-      limit: optionalPlaidMoney(balances['limit'], currency),
+      current: money('current'),
+      available: money('available'),
+      limit: money('limit'),
     );
   }
 
@@ -181,21 +197,29 @@ final class PlaidTransaction {
     this.detailedCategory,
   });
 
-  /// Reads an element of Plaid's `added` or `modified` array.
-  factory PlaidTransaction.fromPlaidJson(Map<String, Object?> json) {
+  /// Reads an element of Plaid's `added` or `modified` array. The logo is Plaid's
+  /// `logo_url`, else the first `merchant` counterparty's.
+  factory PlaidTransaction.fromPlaidJson(
+    Map<String, Object?> json, {
+    RoundingMode? rounding,
+  }) {
     final category = json['personal_finance_category'] as Map<String, Object?>?;
     final authorized = json['authorized_date'] as String?;
+    final counterpartyLogo = [
+      for (final c in (json['counterparties'] as List<Object?>?) ?? const [])
+        if (c case {'type': 'merchant', 'logo_url': final String url}) url,
+    ].firstOrNull;
     return PlaidTransaction(
       transactionId: json['transaction_id']! as String,
       accountId: json['account_id']! as String,
-      amount: plaidMoney(json['amount']!, _currency(json)),
+      amount: plaidMoney(json['amount']!, _currency(json), rounding: rounding),
       date: LocalDate.parse(json['date']! as String),
       authorizedDate: authorized == null ? null : LocalDate.parse(authorized),
       pending: json['pending']! as bool,
       pendingTransactionId: json['pending_transaction_id'] as String?,
       name: json['name']! as String,
       merchantName: json['merchant_name'] as String?,
-      logoUrl: json['logo_url'] as String?,
+      logoUrl: json['logo_url'] as String? ?? counterpartyLogo,
       primaryCategory: category?['primary'] as String?,
       detailedCategory: category?['detailed'] as String?,
     );
@@ -289,18 +313,32 @@ final class PlaidRecurringStream {
     required this.isActive,
   });
 
-  /// Reads an element of `inflow_streams` or `outflow_streams`.
-  factory PlaidRecurringStream.fromPlaidJson(Map<String, Object?> json) {
+  /// Reads an element of `inflow_streams` or `outflow_streams`; an empty `merchant_name`
+  /// counts as none. Sandbox's `average_amount` may carry no currency code; [currency] is
+  /// then the stream's account's.
+  factory PlaidRecurringStream.fromPlaidJson(
+    Map<String, Object?> json, {
+    RoundingMode? rounding,
+    String? currency,
+  }) {
     final average = json['average_amount']! as Map<String, Object?>;
     final last = json['last_date'] as String?;
     final next = json['predicted_next_date'] as String?;
+    final merchant = json['merchant_name'] as String?;
     return PlaidRecurringStream(
       streamId: json['stream_id']! as String,
       accountId: json['account_id']! as String,
-      merchantName:
-          json['merchant_name'] as String? ?? json['description']! as String,
+      merchantName: merchant == null || merchant.isEmpty
+          ? json['description']! as String
+          : merchant,
       frequency: json['frequency']! as String,
-      averageAmount: plaidMoney(average['amount']!, _currency(average)),
+      averageAmount: plaidMoney(
+        average['amount']!,
+        _currencyOrNull(average) ??
+            currency ??
+            (throw const FormatException('No currency code')),
+        rounding: rounding,
+      ),
       lastDate: last == null ? null : LocalDate.parse(last),
       predictedNextDate: next == null ? null : LocalDate.parse(next),
       isActive: json['is_active']! as bool,
@@ -352,15 +390,17 @@ final class PlaidLiabilities {
   /// account's currency, which Plaid's liability objects do not carry.
   factory PlaidLiabilities.fromPlaidJson(
     Map<String, Object?> json,
-    String Function(String accountId) currencyOf,
-  ) {
+    String Function(String accountId) currencyOf, {
+    RoundingMode? rounding,
+  }) {
     List<Map<String, Object?>> read(
       String kind,
-      Map<String, Object?> Function(Map<String, Object?>, String) shape,
+      Map<String, Object?> Function(Map<String, Object?>, String, RoundingMode?)
+      shape,
     ) => [
       for (final raw in (json[kind] as List<Object?>?) ?? const <Object?>[])
         if (raw case final Map<String, Object?> l)
-          shape(l, currencyOf(l['account_id']! as String)),
+          shape(l, currencyOf(l['account_id']! as String), rounding),
     ];
     return PlaidLiabilities(
       credit: read('credit', _credit),
@@ -378,13 +418,20 @@ final class PlaidLiabilities {
   /// `StudentLoanLiability` objects.
   final List<Map<String, Object?>> student;
 
-  static Map<String, Object?>? _money(Object? value, String currency) =>
-      optionalPlaidMoney(value, currency)?.toJson();
+  static Map<String, Object?>? _money(
+    Object? value,
+    String currency,
+    RoundingMode? r,
+  ) => optionalPlaidMoney(value, currency, rounding: r)?.toJson();
 
-  static String? _decimalOrNull(Object? value) =>
-      value == null ? null : plaidDecimal(value);
+  static String? _decimalOrNull(Object? value, RoundingMode? r) =>
+      value == null ? null : plaidDecimal(value, exponents: r != null);
 
-  static Map<String, Object?> _credit(Map<String, Object?> j, String c) => {
+  static Map<String, Object?> _credit(
+    Map<String, Object?> j,
+    String c,
+    RoundingMode? r,
+  ) => {
     'account_id': j['account_id'],
     'aprs': [
       for (final a in [
@@ -392,78 +439,95 @@ final class PlaidLiabilities {
           raw! as Map<String, Object?>,
       ])
         {
-          'apr_percentage': plaidDecimal(a['apr_percentage']!),
+          'apr_percentage': plaidDecimal(
+            a['apr_percentage']!,
+            exponents: r != null,
+          ),
           'apr_type': a['apr_type'],
-          'balance_subject_to_apr': _money(a['balance_subject_to_apr'], c),
-          'interest_charge_amount': _money(a['interest_charge_amount'], c),
+          'balance_subject_to_apr': _money(a['balance_subject_to_apr'], c, r),
+          'interest_charge_amount': _money(a['interest_charge_amount'], c, r),
         },
     ],
     'is_overdue': j['is_overdue'],
-    'last_payment_amount': _money(j['last_payment_amount'], c),
+    'last_payment_amount': _money(j['last_payment_amount'], c, r),
     'last_payment_date': j['last_payment_date'],
     'last_statement_issue_date': j['last_statement_issue_date'],
-    'last_statement_balance': _money(j['last_statement_balance'], c),
-    'minimum_payment_amount': _money(j['minimum_payment_amount'], c),
+    'last_statement_balance': _money(j['last_statement_balance'], c, r),
+    'minimum_payment_amount': _money(j['minimum_payment_amount'], c, r),
     'next_payment_due_date': j['next_payment_due_date'],
   };
 
-  static Map<String, Object?> _mortgage(Map<String, Object?> j, String c) {
+  static Map<String, Object?> _mortgage(
+    Map<String, Object?> j,
+    String c,
+    RoundingMode? r,
+  ) {
     final rate = j['interest_rate'] as Map<String, Object?>?;
     return {
       'account_id': j['account_id'],
       'loan_type_description': j['loan_type_description'],
       'loan_term': j['loan_term'],
-      'interest_rate_percentage': _decimalOrNull(rate?['percentage']),
+      'interest_rate_percentage': _decimalOrNull(rate?['percentage'], r),
       'interest_rate_type': rate?['type'],
-      'current_late_fee': _money(j['current_late_fee'], c),
-      'escrow_balance': _money(j['escrow_balance'], c),
+      'current_late_fee': _money(j['current_late_fee'], c, r),
+      'escrow_balance': _money(j['escrow_balance'], c, r),
       'has_pmi': j['has_pmi'],
       'has_prepayment_penalty': j['has_prepayment_penalty'],
-      'last_payment_amount': _money(j['last_payment_amount'], c),
+      'last_payment_amount': _money(j['last_payment_amount'], c, r),
       'last_payment_date': j['last_payment_date'],
       'maturity_date': j['maturity_date'],
-      'next_monthly_payment': _money(j['next_monthly_payment'], c),
+      'next_monthly_payment': _money(j['next_monthly_payment'], c, r),
       'next_payment_due_date': j['next_payment_due_date'],
       'origination_date': j['origination_date'],
       'origination_principal_amount': _money(
         j['origination_principal_amount'],
         c,
+        r,
       ),
-      'past_due_amount': _money(j['past_due_amount'], c),
-      'ytd_interest_paid': _money(j['ytd_interest_paid'], c),
-      'ytd_principal_paid': _money(j['ytd_principal_paid'], c),
+      'past_due_amount': _money(j['past_due_amount'], c, r),
+      'ytd_interest_paid': _money(j['ytd_interest_paid'], c, r),
+      'ytd_principal_paid': _money(j['ytd_principal_paid'], c, r),
     };
   }
 
-  static Map<String, Object?> _student(Map<String, Object?> j, String c) {
+  static Map<String, Object?> _student(
+    Map<String, Object?> j,
+    String c,
+    RoundingMode? r,
+  ) {
     final status = j['loan_status'] as Map<String, Object?>?;
     final plan = j['repayment_plan'] as Map<String, Object?>?;
     return {
       'account_id': j['account_id'],
       'loan_name': j['loan_name'],
       'guarantor': j['guarantor'],
-      'interest_rate_percentage': plaidDecimal(j['interest_rate_percentage']!),
+      'interest_rate_percentage': plaidDecimal(
+        j['interest_rate_percentage']!,
+        exponents: r != null,
+      ),
       'is_overdue': j['is_overdue'],
       'expected_payoff_date': j['expected_payoff_date'],
-      'last_payment_amount': _money(j['last_payment_amount'], c),
+      'last_payment_amount': _money(j['last_payment_amount'], c, r),
       'last_payment_date': j['last_payment_date'],
-      'last_statement_balance': _money(j['last_statement_balance'], c),
+      'last_statement_balance': _money(j['last_statement_balance'], c, r),
       'last_statement_issue_date': j['last_statement_issue_date'],
-      'minimum_payment_amount': _money(j['minimum_payment_amount'], c),
+      'minimum_payment_amount': _money(j['minimum_payment_amount'], c, r),
       'next_payment_due_date': j['next_payment_due_date'],
       'origination_date': j['origination_date'],
       'origination_principal_amount': _money(
         j['origination_principal_amount'],
         c,
+        r,
       ),
       'outstanding_interest_amount': _money(
         j['outstanding_interest_amount'],
         c,
+        r,
       ),
       'loan_status_type': status?['type'],
       'repayment_plan_type': plan?['type'],
-      'ytd_interest_paid': _money(j['ytd_interest_paid'], c),
-      'ytd_principal_paid': _money(j['ytd_principal_paid'], c),
+      'ytd_interest_paid': _money(j['ytd_interest_paid'], c, r),
+      'ytd_principal_paid': _money(j['ytd_principal_paid'], c, r),
     };
   }
 }
@@ -483,7 +547,10 @@ final class PlaidSecurity {
   });
 
   /// Reads an element of Plaid's `securities` array.
-  factory PlaidSecurity.fromPlaidJson(Map<String, Object?> json) {
+  factory PlaidSecurity.fromPlaidJson(
+    Map<String, Object?> json, {
+    RoundingMode? rounding,
+  }) {
     final close = json['close_price'];
     final asOf = json['close_price_as_of'] as String?;
     return PlaidSecurity(
@@ -492,7 +559,9 @@ final class PlaidSecurity {
       tickerSymbol: json['ticker_symbol'] as String?,
       type: json['type'] as String?,
       isCashEquivalent: json['is_cash_equivalent'] as bool?,
-      closePrice: close == null ? null : plaidDecimal(close),
+      closePrice: close == null
+          ? null
+          : plaidDecimal(close, exponents: rounding != null),
       closePriceAsOf: asOf == null ? null : LocalDate.parse(asOf),
       currencyCode: _currency(json),
     );
@@ -538,17 +607,32 @@ final class PlaidHolding {
   });
 
   /// Reads an element of Plaid's `holdings` array.
-  factory PlaidHolding.fromPlaidJson(Map<String, Object?> json) {
+  factory PlaidHolding.fromPlaidJson(
+    Map<String, Object?> json, {
+    RoundingMode? rounding,
+  }) {
     final currency = _currency(json);
+    final exponents = rounding != null;
     final asOf = json['institution_price_as_of'] as String?;
     return PlaidHolding(
       accountId: json['account_id']! as String,
       securityId: json['security_id']! as String,
-      quantity: plaidDecimal(json['quantity']!),
-      institutionPrice: plaidDecimal(json['institution_price']!),
+      quantity: plaidDecimal(json['quantity']!, exponents: exponents),
+      institutionPrice: plaidDecimal(
+        json['institution_price']!,
+        exponents: exponents,
+      ),
       institutionPriceAsOf: asOf == null ? null : LocalDate.parse(asOf),
-      institutionValue: plaidMoney(json['institution_value']!, currency),
-      costBasis: optionalPlaidMoney(json['cost_basis'], currency),
+      institutionValue: plaidMoney(
+        json['institution_value']!,
+        currency,
+        rounding: rounding,
+      ),
+      costBasis: optionalPlaidMoney(
+        json['cost_basis'],
+        currency,
+        rounding: rounding,
+      ),
       currencyCode: currency,
     );
   }
@@ -602,8 +686,12 @@ final class PlaidInvestmentTransaction {
   });
 
   /// Reads an element of Plaid's `investment_transactions` array.
-  factory PlaidInvestmentTransaction.fromPlaidJson(Map<String, Object?> json) {
+  factory PlaidInvestmentTransaction.fromPlaidJson(
+    Map<String, Object?> json, {
+    RoundingMode? rounding,
+  }) {
     final currency = _currency(json);
+    final exponents = rounding != null;
     return PlaidInvestmentTransaction(
       investmentTransactionId: json['investment_transaction_id']! as String,
       accountId: json['account_id']! as String,
@@ -612,10 +700,10 @@ final class PlaidInvestmentTransaction {
       name: json['name']! as String,
       type: json['type']! as String,
       subtype: json['subtype'] as String?,
-      quantity: plaidDecimal(json['quantity']!),
-      price: plaidDecimal(json['price']!),
-      amount: plaidMoney(json['amount']!, currency),
-      fees: optionalPlaidMoney(json['fees'], currency),
+      quantity: plaidDecimal(json['quantity']!, exponents: exponents),
+      price: plaidDecimal(json['price']!, exponents: exponents),
+      amount: plaidMoney(json['amount']!, currency, rounding: rounding),
+      fees: optionalPlaidMoney(json['fees'], currency, rounding: rounding),
     );
   }
 
@@ -658,6 +746,63 @@ typedef PlaidInvestmentTransactions = ({
   List<PlaidInvestmentTransaction> transactions,
   List<PlaidSecurity> securities,
 });
+
+/// An institution as `/institutions/get_by_id` describes it with its optional metadata.
+final class PlaidInstitution {
+  /// An institution.
+  const PlaidInstitution({
+    required this.institutionId,
+    required this.name,
+    this.logo,
+    this.primaryColor,
+  });
+
+  /// Reads Plaid's `institution` object. A `logo` that is not base64 of a PNG, or a
+  /// `primary_color` that is not `#rrggbb`, counts as none.
+  factory PlaidInstitution.fromPlaidJson(Map<String, Object?> json) {
+    List<int>? logo;
+    if (json['logo'] case final String text) {
+      try {
+        final bytes = base64.decode(text);
+        var png = bytes.length > _png.length;
+        for (var i = 0; png && i < _png.length; i++) {
+          png = bytes[i] == _png[i];
+        }
+        if (png) logo = bytes;
+      } on FormatException {
+        logo = null;
+      }
+    }
+    int? color;
+    if (json['primary_color'] case final String hex) {
+      try {
+        color = plaidColor(hex);
+      } on FormatException {
+        color = null;
+      }
+    }
+    return PlaidInstitution(
+      institutionId: json['institution_id']! as String,
+      name: json['name']! as String,
+      logo: logo,
+      primaryColor: color,
+    );
+  }
+
+  static const _png = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+
+  /// Plaid's `institution_id`.
+  final String institutionId;
+
+  /// The institution's name.
+  final String name;
+
+  /// The logo's PNG bytes.
+  final List<int>? logo;
+
+  /// The brand colour as the contract's opaque ARGB.
+  final int? primaryColor;
+}
 
 /// A transaction for `/sandbox/transactions/create`, [amount] in Plaid's sign (positive
 /// is money out). [accountId] is Plaid's `account_id`, per transaction; null lets Plaid
@@ -718,11 +863,19 @@ abstract interface class PlaidClient {
     required LocalDate end,
   });
 
-  /// `/transactions/recurring/get`.
-  Future<PlaidRecurring> transactionsRecurringGet(String accessToken);
+  /// `/transactions/recurring/get`. [currencyOf] gives an account's currency (null when the
+  /// server does not know the account) for a stream whose amounts carry none; such a
+  /// stream of an unknown account is left out.
+  Future<PlaidRecurring> transactionsRecurringGet(
+    String accessToken, {
+    String? Function(String accountId)? currencyOf,
+  });
 
   /// `/webhook_verification_key/get`: the JWK for [keyId].
   Future<Map<String, Object?>> webhookVerificationKeyGet(String keyId);
+
+  /// `/institutions/get_by_id` with the optional metadata (logo, colour).
+  Future<PlaidInstitution> institutionsGetById(String institutionId);
 
   /// `/sandbox/public_token/create`; with [overrideUsername] `user_custom` and a
   /// custom-user configuration (JSON text) as [overridePassword], a custom user
@@ -752,10 +905,9 @@ abstract interface class PlaidClient {
   Future<void> transactionsRefresh(String accessToken);
 }
 
-String _currency(Map<String, Object?> json) {
-  final code =
-      json['iso_currency_code'] as String? ??
-      json['unofficial_currency_code'] as String?;
-  if (code == null) throw const FormatException('No currency code');
-  return code;
-}
+String _currency(Map<String, Object?> json) =>
+    _currencyOrNull(json) ?? (throw const FormatException('No currency code'));
+
+String? _currencyOrNull(Map<String, Object?> json) =>
+    json['iso_currency_code'] as String? ??
+    json['unofficial_currency_code'] as String?;

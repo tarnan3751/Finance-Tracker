@@ -1,0 +1,52 @@
+{
+  "body": {
+    "item": {
+      "available_products": [
+        "assets",
+        "auth",
+        "balance",
+        "identity",
+        "identity_match",
+        "income_verification",
+        "investments",
+        "investments_auth",
+        "signal",
+        "statements",
+        "transactions_refresh",
+        "transfer"
+      ],
+      "billed_products": [
+        "liabilities",
+        "recurring_transactions",
+        "transactions"
+      ],
+      "consent_expiration_time": null,
+      "created_at": "2026-10-24T21:51:05Z",
+      "error": {
+        "display_message": null,
+        "documentation_url": "https://plaid.com/docs/errors/item/#item_login_required",
+        "error_code": "ITEM_LOGIN_REQUIRED",
+        "error_message": "the login details of this item have changed (credentials, MFA, or required user action) and a user login is required to update this information. use Link's update mode to restore the item to a good state",
+        "error_type": "ITEM_ERROR"
+      },
+      "institution_id": "ins_109508",
+      "institution_name": "First Platypus Bank",
+      "item_id": "GA3WJ917yPhb4BvvaZBaiNxDLnljrqiWqxpvK",
+      "products": [
+        "liabilities",
+        "transactions"
+      ],
+      "update_type": "background",
+      "webhook": ""
+    },
+    "request_id": "f4e2c18c3d45b90",
+    "status": {
+      "last_webhook": null,
+      "transactions": {
+        "last_failed_update": "2026-10-24T21:51:32.22Z",
+        "last_successful_update": "2026-10-24T21:51:30.402Z"
+      }
+    }
+  },
+  "status": 200
+}

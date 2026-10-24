@@ -1,0 +1,12 @@
+{
+  "body": {
+    "display_message": null,
+    "documentation_url": "https://plaid.com/docs/errors/item/#item_not_found",
+    "error_code": "ITEM_NOT_FOUND",
+    "error_message": "The Item you requested cannot be found. This Item does not exist, has been previously removed via /item/remove, or has had access removed by the user.",
+    "error_type": "ITEM_ERROR",
+    "request_id": "52611be93e757c6",
+    "suggested_action": null
+  },
+  "status": 400
+}

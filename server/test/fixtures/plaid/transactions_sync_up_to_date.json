@@ -1,0 +1,13 @@
+{
+  "body": {
+    "accounts": [],
+    "added": [],
+    "has_more": false,
+    "modified": [],
+    "next_cursor": "CAESJXd3QWR2YXJMYlZVd0pYamp4TFh4aGVMOE5qSjN3bmhQN2sxZzYaDAjS0PTWBhCw1ufzAiIMCNLQ9NYGELDW5/MCKgwI0tD01gYQsNbn8wI=",
+    "removed": [],
+    "request_id": "b115921ba9e7e8b",
+    "transactions_update_status": "HISTORICAL_UPDATE_COMPLETE"
+  },
+  "status": 200
+}
