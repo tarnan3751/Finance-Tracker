@@ -29,6 +29,11 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
               factory: $NewAccountRoute._fromState,
             ),
             GoRouteData.$route(
+              path: 'linked-banks',
+              hasOverriddenOnExit: false,
+              factory: $ItemsRoute._fromState,
+            ),
+            GoRouteData.$route(
               path: ':id',
               hasOverriddenOnExit: false,
               factory: $AccountDetailRoute._fromState,
@@ -126,6 +131,26 @@ mixin $NewAccountRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/accounts/new');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $ItemsRoute on GoRouteData {
+  static ItemsRoute _fromState(GoRouterState state) => const ItemsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/accounts/linked-banks');
 
   @override
   void go(BuildContext context) => context.go(location);

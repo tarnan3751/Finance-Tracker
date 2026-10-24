@@ -1301,5 +1301,225 @@
   "demoPersonaSmallBusinessDetail": "Business and personal accounts, and quarterly taxes",
   "@demoPersonaSmallBusinessDetail": {
     "description": "What the small business owner demo household has."
+  },
+  "itemsTitle": "Linked banks",
+  "@itemsTitle": {
+    "description": "Title of the linked banks screen, and of the entries that open it from Accounts and Settings."
+  },
+  "itemsLink": "Link a bank",
+  "@itemsLink": {
+    "description": "Button that opens Plaid Link to link a new bank."
+  },
+  "itemsEmptyHeadline": "No linked banks",
+  "@itemsEmptyHeadline": {
+    "description": "Headline of the linked banks screen with no bank linked."
+  },
+  "itemsEmptyBody": "Link a bank to see its accounts and transactions here.",
+  "@itemsEmptyBody": {
+    "description": "Body of the linked banks screen with no bank linked."
+  },
+  "itemsStatusConnected": "Connected",
+  "@itemsStatusConnected": {
+    "description": "Status chip of a linked bank that is working."
+  },
+  "itemsStatusNeedsAttention": "Needs attention",
+  "@itemsStatusNeedsAttention": {
+    "description": "Status chip of a linked bank whose login must be repaired, or soon must be."
+  },
+  "itemsStatusError": "Error",
+  "@itemsStatusError": {
+    "description": "Status chip of a linked bank the server reports an error for."
+  },
+  "itemsStatusUnlinked": "Unlinked",
+  "@itemsStatusUnlinked": {
+    "description": "Status chip of a bank unlinked with its history kept."
+  },
+  "itemsStatusLabel": "Status: {status}",
+  "@itemsStatusLabel": {
+    "description": "Screen reader label of a linked bank's status chip.",
+    "placeholders": {
+      "status": {
+        "type": "String",
+        "example": "Connected"
+      }
+    }
+  },
+  "itemsLastSynced": "Last synced {time}",
+  "@itemsLastSynced": {
+    "description": "When the bank was last synced with Plaid, in the device's time zone.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "Oct 24, 2026 3:00 PM"
+      }
+    }
+  },
+  "itemsNeverSynced": "Not synced yet",
+  "@itemsNeverSynced": {
+    "description": "A linked bank that has never synced with Plaid."
+  },
+  "itemsSyncNow": "Sync now",
+  "@itemsSyncNow": {
+    "description": "Button that syncs one linked bank with Plaid and updates its data."
+  },
+  "itemsFix": "Fix connection",
+  "@itemsFix": {
+    "description": "Button that opens Plaid Link to sign in to a bank again."
+  },
+  "itemsUnlink": "Unlink",
+  "@itemsUnlink": {
+    "description": "Button that unlinks a bank, after a choice of what happens to its data."
+  },
+  "itemsStepLinking": "Opening Plaid Link…",
+  "@itemsStepLinking": {
+    "description": "Progress while Plaid Link opens or is open."
+  },
+  "itemsStepExchanging": "Connecting your bank…",
+  "@itemsStepExchanging": {
+    "description": "Progress while the new bank is being connected."
+  },
+  "itemsStepSyncing": "Waiting for your bank's data…",
+  "@itemsStepSyncing": {
+    "description": "Progress while the server syncs the bank with Plaid."
+  },
+  "itemsStepPulling": "Updating your accounts…",
+  "@itemsStepPulling": {
+    "description": "Progress while the app brings in the bank's accounts and transactions."
+  },
+  "itemsStepUnlinking": "Unlinking…",
+  "@itemsStepUnlinking": {
+    "description": "Progress while the bank is being unlinked."
+  },
+  "itemsFailedOffline": "Couldn't reach the server. Try again when you're online.",
+  "@itemsFailedOffline": {
+    "description": "A bank action failed because the server was unreachable."
+  },
+  "itemsFailedLoginRequired": "Your bank needs you to sign in again. Use Fix connection.",
+  "@itemsFailedLoginRequired": {
+    "description": "A bank action failed because the bank's login must be repaired."
+  },
+  "itemsFailedRateLimited": "Too many requests. Try again in a minute.",
+  "@itemsFailedRateLimited": {
+    "description": "A bank action failed because the server was rate limiting."
+  },
+  "itemsFailedNotFound": "This bank is no longer linked.",
+  "@itemsFailedNotFound": {
+    "description": "A bank action failed because the bank is gone at the server."
+  },
+  "itemsFailedPlaid": "Plaid couldn't complete the request. Try again later.",
+  "@itemsFailedPlaid": {
+    "description": "A bank action failed because Plaid failed."
+  },
+  "itemsFailedOther": "Something went wrong. Try again.",
+  "@itemsFailedOther": {
+    "description": "A bank action failed for another reason."
+  },
+  "itemsFailedLink": "Plaid Link closed with an error.",
+  "@itemsFailedLink": {
+    "description": "Plaid Link closed with an error and gave no message for the user."
+  },
+  "itemsStillPreparing": "Your bank is still preparing your data. Use Sync now in a minute.",
+  "@itemsStillPreparing": {
+    "description": "The bank is linked but its data was not ready after waiting."
+  },
+  "itemsUnlinkTitle": "Unlink {institution}?",
+  "@itemsUnlinkTitle": {
+    "description": "Title of the unlink dialog.",
+    "placeholders": {
+      "institution": {
+        "type": "String",
+        "example": "First Platypus Bank"
+      }
+    }
+  },
+  "itemsUnlinkKeep": "Keep history on this device and others",
+  "@itemsUnlinkKeep": {
+    "description": "Unlink choice that keeps the bank's accounts and transactions."
+  },
+  "itemsUnlinkKeepDetail": "Its accounts and transactions stay on every device, no longer updated.",
+  "@itemsUnlinkKeepDetail": {
+    "description": "What keeping the history means."
+  },
+  "itemsUnlinkDelete": "Delete its accounts and transactions",
+  "@itemsUnlinkDelete": {
+    "description": "Unlink choice that deletes the bank's accounts and transactions."
+  },
+  "itemsUnlinkDeleteDetail": "They are removed from this device and every other device signed in to your account. Your own notes and categories on them go too.",
+  "@itemsUnlinkDeleteDetail": {
+    "description": "What deleting the history means."
+  },
+  "itemsUnlinkConfirm": "Unlink",
+  "@itemsUnlinkConfirm": {
+    "description": "Confirms the unlink dialog."
+  },
+  "itemsSyncNowLabel": "Sync now, {institution}",
+  "@itemsSyncNowLabel": {
+    "description": "Screen reader label of a linked bank's Sync now button, naming the bank.",
+    "placeholders": {
+      "institution": {
+        "type": "String",
+        "example": "First Platypus Bank"
+      }
+    }
+  },
+  "itemsFixLabel": "Fix connection, {institution}",
+  "@itemsFixLabel": {
+    "description": "Screen reader label of a linked bank's Fix connection button, naming the bank.",
+    "placeholders": {
+      "institution": {
+        "type": "String",
+        "example": "First Platypus Bank"
+      }
+    }
+  },
+  "itemsUnlinkLabel": "Unlink, {institution}",
+  "@itemsUnlinkLabel": {
+    "description": "Screen reader label of a linked bank's Unlink button, naming the bank.",
+    "placeholders": {
+      "institution": {
+        "type": "String",
+        "example": "First Platypus Bank"
+      }
+    }
+  },
+  "itemsDeleteHistory": "Delete history",
+  "@itemsDeleteHistory": {
+    "description": "Button on an unlinked bank whose history was kept: deletes its accounts and transactions."
+  },
+  "itemsDeleteHistoryLabel": "Delete history, {institution}",
+  "@itemsDeleteHistoryLabel": {
+    "description": "Screen reader label of an unlinked bank's Delete history button, naming the bank.",
+    "placeholders": {
+      "institution": {
+        "type": "String",
+        "example": "First Platypus Bank"
+      }
+    }
+  },
+  "itemsDeleteHistoryTitle": "Delete the history of {institution}?",
+  "@itemsDeleteHistoryTitle": {
+    "description": "Title of the dialog confirming the deletion of an unlinked bank's kept history.",
+    "placeholders": {
+      "institution": {
+        "type": "String",
+        "example": "First Platypus Bank"
+      }
+    }
+  },
+  "itemsDeleteHistoryBody": "Its accounts and transactions are removed from this device and every other device signed in to your account. Your own notes and categories on them go too.",
+  "@itemsDeleteHistoryBody": {
+    "description": "What deleting an unlinked bank's kept history does."
+  },
+  "itemsDeleteHistoryConfirm": "Delete",
+  "@itemsDeleteHistoryConfirm": {
+    "description": "Confirms deleting an unlinked bank's kept history."
+  },
+  "itemsStepDeletingHistory": "Deleting its history…",
+  "@itemsStepDeletingHistory": {
+    "description": "Progress while an unlinked bank's kept history is being deleted."
+  },
+  "itemsFailedServer": "The server could not complete the request. Try again later.",
+  "@itemsFailedServer": {
+    "description": "A bank action failed because the server answered with an error."
   }
 }

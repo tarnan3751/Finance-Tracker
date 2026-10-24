@@ -52,8 +52,8 @@
 ///   `X-Request-Id`. `fake_contract_test.dart` validates them against the contract.
 ///
 /// Not mirrored: the dev server's rate limiter; a test scripts a 429 with [failNext].
-/// Hooks for tests: [failNext], [failNextNetwork], [latency], [advanceClock], [calls];
-/// [completeLink] for the fake Link launcher.
+/// Hooks for tests: [failNext], [failNextNetwork], [latency], [advanceClock], [calls],
+/// [notReadyItems]; [completeLink] for the fake Link launcher.
 library;
 
 import 'dart:convert';
@@ -356,6 +356,10 @@ final class FakeServer {
 
   /// The operation ids of every request answered, in order (`unknown` for no route).
   final List<String> calls = [];
+
+  /// The Items whose sync answers `not_ready` while they are here, as Plaid does while
+  /// it is still extracting a new Item.
+  final Set<String> notReadyItems = {};
 
   /// The server's clock: UTC, millisecond precision.
   DateTime now() {
@@ -1374,7 +1378,7 @@ final class FakeServer {
   FakeResponse _syncItem(String itemId, _Caller caller) {
     final _UserData data = _dataOf(caller.user.id);
     final _LinkedItem linked = _healthy(itemId, caller);
-    if (linked.syncCalls++ == 0) {
+    if (linked.syncCalls++ == 0 || notReadyItems.contains(itemId)) {
       return _ok(_run('not_ready', 0, false), 202);
     }
     if (linked.applied && linked.refreshPending) {

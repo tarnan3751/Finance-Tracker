@@ -1,5 +1,5 @@
-/// The Settings screen's Account section: who is signed in, Sign out (not in demo, which
-/// is always the demo user), and in dev the server the app talks to. Nothing while signed
+/// The Settings screen's Account section: who is signed in, the linked banks, Sign out
+/// (not in demo, which is always the demo user), and in dev the server the app talks to. Nothing while signed
 /// out, which outside demo the router never shows.
 library;
 
@@ -7,6 +7,7 @@ import 'package:finance_tracker/core/api/api_config.dart';
 import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
 import 'package:finance_tracker/features/auth/domain/session_state.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
@@ -33,6 +34,12 @@ class AccountSection extends ConsumerWidget {
           leading: const Icon(Icons.account_circle_outlined),
           title: Text(l10n.settingsSignedInAs(session.user.email)),
           subtitle: Text(session.user.displayName),
+        ),
+        ListTile(
+          leading: const Icon(Icons.account_balance_outlined),
+          title: Text(l10n.itemsTitle),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => const ItemsRoute().push<void>(context),
         ),
         if (config.flavor != Flavor.demo)
           ListTile(

@@ -980,4 +980,159 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get demoPersonaSmallBusinessDetail =>
       'Business and personal accounts, and quarterly taxes';
+
+  @override
+  String get itemsTitle => 'Linked banks';
+
+  @override
+  String get itemsLink => 'Link a bank';
+
+  @override
+  String get itemsEmptyHeadline => 'No linked banks';
+
+  @override
+  String get itemsEmptyBody =>
+      'Link a bank to see its accounts and transactions here.';
+
+  @override
+  String get itemsStatusConnected => 'Connected';
+
+  @override
+  String get itemsStatusNeedsAttention => 'Needs attention';
+
+  @override
+  String get itemsStatusError => 'Error';
+
+  @override
+  String get itemsStatusUnlinked => 'Unlinked';
+
+  @override
+  String itemsStatusLabel(String status) {
+    return 'Status: $status';
+  }
+
+  @override
+  String itemsLastSynced(String time) {
+    return 'Last synced $time';
+  }
+
+  @override
+  String get itemsNeverSynced => 'Not synced yet';
+
+  @override
+  String get itemsSyncNow => 'Sync now';
+
+  @override
+  String get itemsFix => 'Fix connection';
+
+  @override
+  String get itemsUnlink => 'Unlink';
+
+  @override
+  String get itemsStepLinking => 'Opening Plaid Link…';
+
+  @override
+  String get itemsStepExchanging => 'Connecting your bank…';
+
+  @override
+  String get itemsStepSyncing => 'Waiting for your bank\'s data…';
+
+  @override
+  String get itemsStepPulling => 'Updating your accounts…';
+
+  @override
+  String get itemsStepUnlinking => 'Unlinking…';
+
+  @override
+  String get itemsFailedOffline =>
+      'Couldn\'t reach the server. Try again when you\'re online.';
+
+  @override
+  String get itemsFailedLoginRequired =>
+      'Your bank needs you to sign in again. Use Fix connection.';
+
+  @override
+  String get itemsFailedRateLimited =>
+      'Too many requests. Try again in a minute.';
+
+  @override
+  String get itemsFailedNotFound => 'This bank is no longer linked.';
+
+  @override
+  String get itemsFailedPlaid =>
+      'Plaid couldn\'t complete the request. Try again later.';
+
+  @override
+  String get itemsFailedOther => 'Something went wrong. Try again.';
+
+  @override
+  String get itemsFailedLink => 'Plaid Link closed with an error.';
+
+  @override
+  String get itemsStillPreparing =>
+      'Your bank is still preparing your data. Use Sync now in a minute.';
+
+  @override
+  String itemsUnlinkTitle(String institution) {
+    return 'Unlink $institution?';
+  }
+
+  @override
+  String get itemsUnlinkKeep => 'Keep history on this device and others';
+
+  @override
+  String get itemsUnlinkKeepDetail =>
+      'Its accounts and transactions stay on every device, no longer updated.';
+
+  @override
+  String get itemsUnlinkDelete => 'Delete its accounts and transactions';
+
+  @override
+  String get itemsUnlinkDeleteDetail =>
+      'They are removed from this device and every other device signed in to your account. Your own notes and categories on them go too.';
+
+  @override
+  String get itemsUnlinkConfirm => 'Unlink';
+
+  @override
+  String itemsSyncNowLabel(String institution) {
+    return 'Sync now, $institution';
+  }
+
+  @override
+  String itemsFixLabel(String institution) {
+    return 'Fix connection, $institution';
+  }
+
+  @override
+  String itemsUnlinkLabel(String institution) {
+    return 'Unlink, $institution';
+  }
+
+  @override
+  String get itemsDeleteHistory => 'Delete history';
+
+  @override
+  String itemsDeleteHistoryLabel(String institution) {
+    return 'Delete history, $institution';
+  }
+
+  @override
+  String itemsDeleteHistoryTitle(String institution) {
+    return 'Delete the history of $institution?';
+  }
+
+  @override
+  String get itemsDeleteHistoryBody =>
+      'Its accounts and transactions are removed from this device and every other device signed in to your account. Your own notes and categories on them go too.';
+
+  @override
+  String get itemsDeleteHistoryConfirm => 'Delete';
+
+  @override
+  String get itemsStepDeletingHistory => 'Deleting its history…';
+
+  @override
+  String get itemsFailedServer =>
+      'The server could not complete the request. Try again later.';
 }

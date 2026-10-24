@@ -1,7 +1,7 @@
 /// The Accounts tab: one card per visible account with its balance derived from its
 /// transactions (labelled so), a total per currency when the accounts hold more than one
 /// (never converted, `PLAN.md` §3), the hidden accounts in a collapsed section, reordering
-/// by long-press, and "Add account".
+/// by long-press, "Add account", and the linked banks from the app bar.
 library;
 
 import 'package:finance_tracker/core/router/routes.dart';
@@ -27,7 +27,16 @@ class AccountsScreen extends ConsumerWidget {
         ref.watch(derivedBalancesProvider).value ?? const {};
     final bool hasAccounts = accounts.value?.isNotEmpty ?? false;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.navAccounts)),
+      appBar: AppBar(
+        title: Text(l10n.navAccounts),
+        actions: [
+          IconButton(
+            tooltip: l10n.itemsTitle,
+            icon: const Icon(Icons.account_balance_outlined),
+            onPressed: () => const ItemsRoute().push<void>(context),
+          ),
+        ],
+      ),
       floatingActionButton: hasAccounts
           ? FloatingActionButton.extended(
               onPressed: () => const NewAccountRoute().push<void>(context),

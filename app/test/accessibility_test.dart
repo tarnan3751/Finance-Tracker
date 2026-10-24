@@ -1,8 +1,9 @@
 // The accessibility baseline for every screen, in light and dark: tap targets are large
 // enough and labelled, text has enough contrast, and nothing overflows at twice the text
-// size. The shell's tabs are checked empty; every screen is also checked on the demo seed
-// (two accounts, twelve transactions, the system categories), and the filter sheet and the
-// category picker open over their screens. The sign-in and registration screens are
+// size. The shell's tabs and the linked banks are checked empty; every screen is also
+// checked on the demo seed (two accounts, twelve transactions, the system categories, and
+// the three test banks), and the filter sheet and the category picker open over their
+// screens. The sign-in and registration screens are
 // checked signed out; their text scale is checked with their errors showing, in
 // test/features/auth/auth_screens_test.dart.
 import 'package:flutter/material.dart';
@@ -33,6 +34,21 @@ final Map<String, _Screen> _screens = {
     open: null,
   ),
   'Settings': (location: '/settings', seeded: false, open: null),
+  'Linked banks (empty)': (
+    location: '/accounts/linked-banks',
+    seeded: false,
+    open: null,
+  ),
+  'Linked banks': (
+    location: '/accounts/linked-banks',
+    seeded: true,
+    open: null,
+  ),
+  'Unlink dialog': (
+    location: '/accounts/linked-banks',
+    seeded: true,
+    open: (tester) => _tapAndSettle(tester, find.text('Unlink').first),
+  ),
   'Accounts': (location: '/accounts', seeded: true, open: null),
   'Account detail': (
     location: '/accounts/$checkingId',
@@ -75,8 +91,13 @@ final Map<String, _Screen> _screens = {
   ),
 };
 
-List<Override> _overrides(_Screen screen) =>
-    screen.seeded ? [storeOverride(seededStore())] : const [];
+List<Override> _overrides(_Screen screen) => screen.seeded
+    ? [
+        storeOverride(
+          seededStore()..applyPlaidItems(testBanks, testClock.nowUtc()),
+        ),
+      ]
+    : const [];
 
 /// The auth screens, which only a signed-out user sees.
 const Map<String, String> _authScreens = {

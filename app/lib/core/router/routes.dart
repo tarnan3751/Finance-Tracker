@@ -3,7 +3,7 @@
 ///
 /// | Tab | Paths |
 /// |---|---|
-/// | Accounts | `/accounts`, `/accounts/new`, `/accounts/:id`, `/accounts/:id/edit` |
+/// | Accounts | `/accounts`, `/accounts/new`, `/accounts/linked-banks`, `/accounts/:id`, `/accounts/:id/edit` |
 /// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/:id` |
 /// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id` |
 ///
@@ -24,6 +24,7 @@ import 'package:finance_tracker/features/auth/presentation/register_screen.dart'
 import 'package:finance_tracker/features/auth/presentation/sign_in_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/categories_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/category_editor_screen.dart';
+import 'package:finance_tracker/features/items/presentation/items_screen.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_editor_screen.dart';
 import 'package:finance_tracker/features/transactions/presentation/transactions_screen.dart';
@@ -40,8 +41,9 @@ part 'routes.g.dart';
         TypedGoRoute<AccountsRoute>(
           path: '/accounts',
           routes: <TypedRoute<RouteData>>[
-            // Before `:id`, so `/accounts/new` is not read as an account id.
+            // Before `:id`, so neither is read as an account id.
             TypedGoRoute<NewAccountRoute>(path: 'new'),
+            TypedGoRoute<ItemsRoute>(path: 'linked-banks'),
             TypedGoRoute<AccountDetailRoute>(
               path: ':id',
               routes: <TypedRoute<RouteData>>[
@@ -130,6 +132,16 @@ class NewAccountRoute extends GoRouteData with $NewAccountRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const AccountEditorScreen();
+}
+
+/// `/accounts/linked-banks`: the linked banks, opened from the Accounts app bar and from
+/// Settings.
+class ItemsRoute extends GoRouteData with $ItemsRoute {
+  const ItemsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const ItemsScreen();
 }
 
 /// `/accounts/:id`: an account's detail, with its transactions and running balance.

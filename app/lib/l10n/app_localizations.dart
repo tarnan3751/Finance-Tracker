@@ -1695,6 +1695,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Business and personal accounts, and quarterly taxes'**
   String get demoPersonaSmallBusinessDetail;
+
+  /// Title of the linked banks screen, and of the entries that open it from Accounts and Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked banks'**
+  String get itemsTitle;
+
+  /// Button that opens Plaid Link to link a new bank.
+  ///
+  /// In en, this message translates to:
+  /// **'Link a bank'**
+  String get itemsLink;
+
+  /// Headline of the linked banks screen with no bank linked.
+  ///
+  /// In en, this message translates to:
+  /// **'No linked banks'**
+  String get itemsEmptyHeadline;
+
+  /// Body of the linked banks screen with no bank linked.
+  ///
+  /// In en, this message translates to:
+  /// **'Link a bank to see its accounts and transactions here.'**
+  String get itemsEmptyBody;
+
+  /// Status chip of a linked bank that is working.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get itemsStatusConnected;
+
+  /// Status chip of a linked bank whose login must be repaired, or soon must be.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention'**
+  String get itemsStatusNeedsAttention;
+
+  /// Status chip of a linked bank the server reports an error for.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get itemsStatusError;
+
+  /// Status chip of a bank unlinked with its history kept.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlinked'**
+  String get itemsStatusUnlinked;
+
+  /// Screen reader label of a linked bank's status chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Status: {status}'**
+  String itemsStatusLabel(String status);
+
+  /// When the bank was last synced with Plaid, in the device's time zone.
+  ///
+  /// In en, this message translates to:
+  /// **'Last synced {time}'**
+  String itemsLastSynced(String time);
+
+  /// A linked bank that has never synced with Plaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Not synced yet'**
+  String get itemsNeverSynced;
+
+  /// Button that syncs one linked bank with Plaid and updates its data.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get itemsSyncNow;
+
+  /// Button that opens Plaid Link to sign in to a bank again.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix connection'**
+  String get itemsFix;
+
+  /// Button that unlinks a bank, after a choice of what happens to its data.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink'**
+  String get itemsUnlink;
+
+  /// Progress while Plaid Link opens or is open.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening Plaid Link…'**
+  String get itemsStepLinking;
+
+  /// Progress while the new bank is being connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting your bank…'**
+  String get itemsStepExchanging;
+
+  /// Progress while the server syncs the bank with Plaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your bank\'s data…'**
+  String get itemsStepSyncing;
+
+  /// Progress while the app brings in the bank's accounts and transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating your accounts…'**
+  String get itemsStepPulling;
+
+  /// Progress while the bank is being unlinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlinking…'**
+  String get itemsStepUnlinking;
+
+  /// A bank action failed because the server was unreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach the server. Try again when you\'re online.'**
+  String get itemsFailedOffline;
+
+  /// A bank action failed because the bank's login must be repaired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bank needs you to sign in again. Use Fix connection.'**
+  String get itemsFailedLoginRequired;
+
+  /// A bank action failed because the server was rate limiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests. Try again in a minute.'**
+  String get itemsFailedRateLimited;
+
+  /// A bank action failed because the bank is gone at the server.
+  ///
+  /// In en, this message translates to:
+  /// **'This bank is no longer linked.'**
+  String get itemsFailedNotFound;
+
+  /// A bank action failed because Plaid failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Plaid couldn\'t complete the request. Try again later.'**
+  String get itemsFailedPlaid;
+
+  /// A bank action failed for another reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Try again.'**
+  String get itemsFailedOther;
+
+  /// Plaid Link closed with an error and gave no message for the user.
+  ///
+  /// In en, this message translates to:
+  /// **'Plaid Link closed with an error.'**
+  String get itemsFailedLink;
+
+  /// The bank is linked but its data was not ready after waiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bank is still preparing your data. Use Sync now in a minute.'**
+  String get itemsStillPreparing;
+
+  /// Title of the unlink dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink {institution}?'**
+  String itemsUnlinkTitle(String institution);
+
+  /// Unlink choice that keeps the bank's accounts and transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep history on this device and others'**
+  String get itemsUnlinkKeep;
+
+  /// What keeping the history means.
+  ///
+  /// In en, this message translates to:
+  /// **'Its accounts and transactions stay on every device, no longer updated.'**
+  String get itemsUnlinkKeepDetail;
+
+  /// Unlink choice that deletes the bank's accounts and transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete its accounts and transactions'**
+  String get itemsUnlinkDelete;
+
+  /// What deleting the history means.
+  ///
+  /// In en, this message translates to:
+  /// **'They are removed from this device and every other device signed in to your account. Your own notes and categories on them go too.'**
+  String get itemsUnlinkDeleteDetail;
+
+  /// Confirms the unlink dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink'**
+  String get itemsUnlinkConfirm;
+
+  /// Screen reader label of a linked bank's Sync now button, naming the bank.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now, {institution}'**
+  String itemsSyncNowLabel(String institution);
+
+  /// Screen reader label of a linked bank's Fix connection button, naming the bank.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix connection, {institution}'**
+  String itemsFixLabel(String institution);
+
+  /// Screen reader label of a linked bank's Unlink button, naming the bank.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink, {institution}'**
+  String itemsUnlinkLabel(String institution);
+
+  /// Button on an unlinked bank whose history was kept: deletes its accounts and transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete history'**
+  String get itemsDeleteHistory;
+
+  /// Screen reader label of an unlinked bank's Delete history button, naming the bank.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete history, {institution}'**
+  String itemsDeleteHistoryLabel(String institution);
+
+  /// Title of the dialog confirming the deletion of an unlinked bank's kept history.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the history of {institution}?'**
+  String itemsDeleteHistoryTitle(String institution);
+
+  /// What deleting an unlinked bank's kept history does.
+  ///
+  /// In en, this message translates to:
+  /// **'Its accounts and transactions are removed from this device and every other device signed in to your account. Your own notes and categories on them go too.'**
+  String get itemsDeleteHistoryBody;
+
+  /// Confirms deleting an unlinked bank's kept history.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get itemsDeleteHistoryConfirm;
+
+  /// Progress while an unlinked bank's kept history is being deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting its history…'**
+  String get itemsStepDeletingHistory;
+
+  /// A bank action failed because the server answered with an error.
+  ///
+  /// In en, this message translates to:
+  /// **'The server could not complete the request. Try again later.'**
+  String get itemsFailedServer;
 }
 
 class _AppLocalizationsDelegate
