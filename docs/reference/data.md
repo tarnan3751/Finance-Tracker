@@ -287,7 +287,8 @@ from `bootstrap` in dev and prod after the database opens, unless
 A failure (a repository or storage exception) is logged by type and does not stop startup;
 with `legacy_import_done` unset, the import runs again at the next launch. It returns an
 `ImportSummary { transactions; total; skipped; }`, or null when it did nothing;
-`bootstrap` leaves it in `legacyImportResultProvider` for Phase 1d's snackbar. Because the
+`bootstrap` leaves it in `legacyImportResultProvider`, which the app shell shows once as a
+snack bar (`app-core.md`, **Routing and the shell**). Because the
 package id changed (`PLAN.md` §12), it only serves an install that shares the original
 app's data directory.
 

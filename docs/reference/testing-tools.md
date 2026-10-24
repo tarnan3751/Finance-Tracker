@@ -154,5 +154,6 @@ only.
 `IntegrationTestWidgetsFlutterBinding`; the `--flavor demo` build supplies the demo
 application, and each test file's `main` is the entry point, so no `-t` is given.
 `app_launch_test.dart` starts the app through `bootstrap(AppConfig.demo())`, as
-`main_demo.dart` does, and checks that a `MaterialApp` titled with the demo app name is up.
+`main_demo.dart` does, and checks that a `MaterialApp` titled with the demo app name is up
+and that the Accounts tab shows the demo seed's accounts with their derived balances.
 CI does not run them yet.
