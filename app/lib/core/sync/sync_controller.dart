@@ -10,7 +10,9 @@
 /// a session in flight finish and discards its report. Before each session the device
 /// clock adopts the server's device id, moving the outbox to it. A relay whose log was
 /// reset (`SyncCursorInvalidException`) resets the pull cursor to 0 and runs again once.
-/// The demo flavor never syncs.
+/// After each successful session the Plaid pull runs (`core/plaid/plaid_pull.dart`), so
+/// Sync now covers both; its time and failure are in the status apart from the
+/// session's. The demo flavor never syncs.
 library;
 
 import 'dart:async';
@@ -128,8 +130,12 @@ class SyncController extends _$SyncController {
   Future<void> _restoreThenSync(DriftSyncStore store) async {
     final String? at = await store.meta(SyncMetaKeys.lastSyncAt);
     final String? report = await store.meta(SyncMetaKeys.lastReport);
+    final DateTime? pulledAt = await ref
+        .read(plaidPullStoreProvider)
+        .pulledAt();
     if (!ref.mounted) return;
     state = state.copyWith(
+      plaidPulledAt: pulledAt,
       lastSyncAt: at == null
           ? null
           : DateTime.fromMillisecondsSinceEpoch(int.parse(at), isUtc: true),
@@ -207,11 +213,12 @@ class SyncController extends _$SyncController {
         return;
       }
       state = state.copyWith(
-        phase: SyncPhase.idle,
         lastSyncAt: at,
         lastSummary: summary,
         failure: null,
       );
+      if (!await _pullPlaid(deviceId)) return;
+      state = state.copyWith(phase: SyncPhase.idle, failure: null);
     } on Object catch (e) {
       _log.warning('sync failed: ${e.runtimeType}');
       if (!ref.mounted) return;
@@ -224,6 +231,38 @@ class SyncController extends _$SyncController {
         failure: classifySyncError(e),
       );
     }
+  }
+
+  // The Plaid pull after a session of [deviceId]; its outcome goes into the status,
+  // never thrown. Returns false, the status settled for whoever is signed in now, when
+  // the controller is gone or the device changed during the pull (a sign-out then must
+  // not be overwritten by the pull's outcome).
+  Future<bool> _pullPlaid(String deviceId) async {
+    bool stillOurs() {
+      if (!ref.mounted) return false;
+      if (ref.read(syncDeviceIdProvider) == deviceId) return true;
+      _settleAfterDeviceChange();
+      return false;
+    }
+
+    try {
+      await ref.read(plaidPullProvider).run();
+      final DateTime? at = await ref.read(plaidPullStoreProvider).pulledAt();
+      if (!stillOurs()) return false;
+      state = state.copyWith(
+        failure: state.failure,
+        plaidPulledAt: at,
+        plaidFailure: null,
+      );
+    } on Object catch (e) {
+      _log.warning('plaid pull failed: ${e.runtimeType}');
+      if (!stillOurs()) return false;
+      state = state.copyWith(
+        failure: state.failure,
+        plaidFailure: classifySyncError(e),
+      );
+    }
+    return true;
   }
 }
 

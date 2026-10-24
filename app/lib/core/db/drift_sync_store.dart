@@ -143,6 +143,29 @@ final class DriftSyncStore implements SyncStore {
     }
   });
 
+  /// Writes again each held record of the entities [ids] of [type], so one that waited
+  /// for its row (`incomplete`: a Plaid transaction's overrides pulled before the Plaid
+  /// pull brought the row) is laid over the row that now exists and stops being held.
+  Future<void> materializeHeld(EntityType type, List<String> ids) =>
+      _database.transaction(() async {
+        final String name = snakeName(type);
+        for (int start = 0; start < ids.length; start += 500) {
+          final List<String> chunk = ids.sublist(
+            start,
+            start + 500 > ids.length ? ids.length : start + 500,
+          );
+          final List<HeldRecordRow> held =
+              await (_database.select(_database.heldRecords)..where(
+                    (h) => h.entityType.equals(name) & h.entityId.isIn(chunk),
+                  ))
+                  .get();
+          for (final HeldRecordRow row in held) {
+            final EntityRecord? record = await read(type, row.entityId);
+            if (record != null) await write(record);
+          }
+        }
+      });
+
   Future<HeldRecordRow?> _held(String type, String id) =>
       (_database.select(_database.heldRecords)
             ..where((h) => h.entityType.equals(type) & h.entityId.equals(id)))

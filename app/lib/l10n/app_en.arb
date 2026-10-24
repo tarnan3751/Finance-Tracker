@@ -1190,6 +1190,36 @@
   "@syncFailedOther": {
     "description": "Status when the last sync failed for another reason."
   },
+  "syncBankData": "Bank data",
+  "@syncBankData": {
+    "description": "Title of the Sync section row about pulling the linked banks' Items, accounts and transactions from the server."
+  },
+  "syncBankDataPulledAt": "Updated {time}",
+  "@syncBankDataPulledAt": {
+    "description": "Subtitle of the bank data row after a successful pull; time is when it finished, in the device's time zone.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "Oct 24, 2026 3:00 PM"
+      }
+    }
+  },
+  "syncBankDataNever": "Not updated yet",
+  "@syncBankDataNever": {
+    "description": "Subtitle of the bank data row before the first pull."
+  },
+  "syncBankDataFailedOffline": "The last update could not reach the server",
+  "@syncBankDataFailedOffline": {
+    "description": "Subtitle of the bank data row when the last pull failed because the server was unreachable."
+  },
+  "syncBankDataFailedServer": "The server could not complete the last update",
+  "@syncBankDataFailedServer": {
+    "description": "Subtitle of the bank data row when the server answered the last pull with an error."
+  },
+  "syncBankDataFailedOther": "The last update did not finish",
+  "@syncBankDataFailedOther": {
+    "description": "Subtitle of the bank data row when the last pull failed for another reason."
+  },
   "syncPending": "{count, plural, =0{Every change is synced} =1{1 change waiting to sync} other{{count} changes waiting to sync}}",
   "@syncPending": {
     "description": "How many local changes have not reached the server yet.",

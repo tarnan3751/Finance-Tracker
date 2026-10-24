@@ -1,11 +1,17 @@
 // Two (and three) devices, each the real app wiring over its own Drift database (the
 // Drift repositories, the recorder, the device clock, the sync controller), syncing
 // through one relay: scripted conflicts and a seeded random run, after which every
-// device's entity tables and sync records are the same (sync-app.md, **Testing**).
+// device's entity tables and sync records are the same (sync-app.md, **Testing**). The
+// Plaid pull after each session goes to an in-app fake server with no bank linked, so it
+// brings nothing and never touches the network.
 import 'dart:math';
 
 import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
+import 'package:finance_tracker/core/api/api_providers.dart';
+import 'package:finance_tracker/core/api/fake/fake_dataset.dart';
+import 'package:finance_tracker/core/api/fake/fake_server.dart';
+import 'package:finance_tracker/core/api/token_store.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
@@ -28,6 +34,10 @@ import 'package:sync_engine/sync_engine.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../contract/repository_fixture.dart';
+
+/// The server the Plaid pull of every device asks: no bank linked.
+final FakeServer _bankless = FakeServer(dataset: FakeDataset.empty())
+  ..seedUser(email: demoEmail, password: demoPassword);
 
 /// Virtual time shared by every device: each read moves it a millisecond on.
 final class World {
@@ -98,6 +108,17 @@ final class Device {
         syncRelayProvider.overrideWithValue(deviceId == null ? null : relay),
         // Sessions run only when a test says so.
         syncDebounceProvider.overrideWithValue(const Duration(days: 1)),
+        fakeServerProvider.overrideWithValue(_bankless),
+        tokenStoreProvider.overrideWith(
+          (ref) => InMemoryTokenStore(
+            session: _bankless.seedSession(
+              email: demoEmail,
+              password: demoPassword,
+            ),
+          ),
+        ),
+        appVersionProvider.overrideWith((ref) async => '1.0.0'),
+        fakeFinanceApiOverride,
       ],
       retry: (_, _) => null,
     );
@@ -566,7 +587,9 @@ void main() {
         devices.remove(d);
       }
     }
-  });
+    // Twenty-five runs of sessions that each end with a Plaid pull: past the default
+    // 30 s on a loaded machine.
+  }, timeout: const Timeout.factor(3));
 }
 
 /// Names the seed in a failure.

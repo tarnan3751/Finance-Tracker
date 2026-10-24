@@ -17,10 +17,12 @@ import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/db/database_key_store.dart';
 import 'package:finance_tracker/core/db/demo_seed.dart';
+import 'package:finance_tracker/core/db/drift_plaid_pull_store.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/db/legacy_import/import_summary.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
+import 'package:finance_tracker/core/plaid/plaid_pull.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/core/sync/device_clock.dart';
 import 'package:finance_tracker/core/sync/http_sync_relay.dart';
@@ -212,6 +214,32 @@ SettingsRepository settingsRepository(Ref ref) {
   return repository;
 }
 
+/// Where the Plaid pull keeps its cursors: in memory by default (beside the in-memory
+/// store, so a new store starts it afresh), `sync_meta` in dev and prod.
+@Riverpod(keepAlive: true)
+PlaidPullStore plaidPullStore(Ref ref) {
+  ref.watch(inMemoryStoreProvider);
+  return InMemoryPlaidPullStore();
+}
+
+/// What the Plaid pull does with the transactions it inserts: nothing until the rules
+/// engine (Phase 3e).
+@Riverpod(keepAlive: true)
+ArrivalProcessor arrivalProcessor(Ref ref) => const NoArrivalProcessor();
+
+/// The Plaid pull over the API into the repositories (`core/plaid/plaid_pull.dart`):
+/// run after each sync session and after each Item action.
+@Riverpod(keepAlive: true)
+PlaidPull plaidPull(Ref ref) => PlaidPull(
+  api: ref.watch(financeApiProvider),
+  store: ref.watch(plaidPullStoreProvider),
+  items: ref.watch(itemRepositoryProvider),
+  accounts: ref.watch(accountRepositoryProvider),
+  transactions: ref.watch(transactionRepositoryProvider),
+  clock: ref.watch(clockProvider),
+  arrival: ref.watch(arrivalProcessorProvider),
+);
+
 /// What the legacy importer did at this launch (`bootstrap`), or null when it did nothing;
 /// Phase 1d shows it once.
 @Riverpod(keepAlive: true)
@@ -275,6 +303,12 @@ final List<Override> _driftOverrides = [
   ),
   itemRepositoryProvider.overrideWith(
     (ref) => DriftItemRepository(ref.watch(databaseProvider)),
+  ),
+  plaidPullStoreProvider.overrideWith(
+    (ref) => DriftPlaidPullStore(
+      ref.watch(databaseProvider),
+      ref.watch(driftSyncStoreProvider),
+    ),
   ),
   settingsRepositoryProvider.overrideWith(
     (ref) => DriftSettingsRepository(

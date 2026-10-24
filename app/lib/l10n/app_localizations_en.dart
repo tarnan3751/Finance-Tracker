@@ -884,6 +884,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncFailedOther => 'The last sync did not finish';
 
   @override
+  String get syncBankData => 'Bank data';
+
+  @override
+  String syncBankDataPulledAt(String time) {
+    return 'Updated $time';
+  }
+
+  @override
+  String get syncBankDataNever => 'Not updated yet';
+
+  @override
+  String get syncBankDataFailedOffline =>
+      'The last update could not reach the server';
+
+  @override
+  String get syncBankDataFailedServer =>
+      'The server could not complete the last update';
+
+  @override
+  String get syncBankDataFailedOther => 'The last update did not finish';
+
+  @override
   String syncPending(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

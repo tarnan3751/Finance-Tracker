@@ -1,6 +1,7 @@
 // The sync controller: when sessions run (start, local changes after the debounce,
 // resume, Sync now), one at a time, the cursor reset, the node adoption, the status and
-// its persistence; and that it never runs in demo or while signed out.
+// its persistence, the Plaid pull after each session (against the in-app fake server);
+// and that it never runs in demo or while signed out.
 import 'dart:async';
 
 import 'package:drift/native.dart';
@@ -92,6 +93,7 @@ void main() {
     final ProviderContainer container = ProviderContainer.test(
       overrides: [
         ...overridesFor(AppConfig.dev()),
+        ...fakeApiOverrides(signedIn: true),
         databaseProvider.overrideWithValue(database),
         clockProvider.overrideWithValue(clock),
         syncDeviceIdProvider.overrideWithValue(deviceId),
@@ -180,6 +182,40 @@ void main() {
     final SyncStatus restored = await settled(again, pulls: 2);
     expect(restored.lastSyncAt, isNotNull);
   });
+
+  test('the Plaid pull runs after the session', () async {
+    final ProviderContainer c = device();
+    c.read(syncControllerProvider);
+    final SyncStatus status = await settled(c);
+    expect(status.plaidFailure, isNull);
+    expect(status.plaidPulledAt, isNotNull);
+    expect(
+      (await c.read(itemRepositoryProvider).watchAll().first).map((b) => b.id),
+      ['sample-item-1'],
+    );
+    expect(
+      await c.read(accountRepositoryProvider).watchAll().first,
+      hasLength(3),
+    );
+  });
+
+  test(
+    'a failed Plaid pull is in the status, apart from the session',
+    () async {
+      final ProviderContainer c = device();
+      c.read(fakeServerProvider).failNext('listItems', 500);
+      c.read(syncControllerProvider);
+      final SyncStatus status = await settled(c);
+      expect(status.failure, isNull);
+      expect(status.plaidFailure, SyncFailure.server);
+      expect(status.plaidPulledAt, isNull);
+
+      await c.read(syncControllerProvider.notifier).syncNow();
+      final SyncStatus after = c.read(syncControllerProvider);
+      expect(after.plaidFailure, isNull);
+      expect(after.plaidPulledAt, isNotNull);
+    },
+  );
 
   test('a local change syncs after the debounce', () async {
     final ProviderContainer c = device();
@@ -320,6 +356,38 @@ void main() {
     await c.read(syncControllerProvider.notifier).syncNow();
     expect(relay.inner.entries.last.deviceId, 'dev-b');
     expect(c.read(syncControllerProvider).failure, isNull);
+  });
+
+  test('a sign-out during the Plaid pull leaves the status signed out', () async {
+    final ProviderContainer c = ProviderContainer.test(
+      overrides: [
+        ...overridesFor(AppConfig.dev()),
+        ...fakeApiOverrides(signedIn: true),
+        databaseProvider.overrideWithValue(database),
+        clockProvider.overrideWithValue(clock),
+        syncDeviceIdProvider.overrideWith((ref) => ref.watch(_device)),
+        syncRelayProvider.overrideWith(
+          (ref) => ref.watch(_device) == null ? null : relay,
+        ),
+      ],
+      retry: (_, _) => null,
+    );
+    // Every answer of the fake (the pull's, not the relay's) takes a while.
+    c.read(fakeServerProvider).latency = const Duration(milliseconds: 300);
+    c.read(syncControllerProvider);
+    while (relay.pulls == 0) {
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+    }
+    // The session's relay pull is done; the Plaid pull is waiting on the fake.
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    expect(c.read(syncControllerProvider).phase, SyncPhase.running);
+    c.read(_device.notifier).set(null);
+    c.read(syncControllerProvider);
+    await Future<void>.delayed(const Duration(seconds: 2));
+    final SyncStatus status = c.read(syncControllerProvider);
+    expect(status.phase, SyncPhase.signedOut);
+    expect(status.plaidFailure, isNull);
+    expect(status.plaidPulledAt, isNull);
   });
 
   testWidgets('a device change met while a widget builds is applied after the '

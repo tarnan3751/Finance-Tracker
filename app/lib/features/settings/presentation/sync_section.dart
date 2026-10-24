@@ -1,6 +1,7 @@
 /// The settings screen's Sync section (dev and prod): the status of the last session, the
 /// outbox, changes held back by a clock far ahead, changes the server refused for good,
-/// records this version cannot show, and "Sync now". Counts and times only, never a
+/// records this version cannot show, when the bank data was last pulled (or why it
+/// failed), and "Sync now", which runs both. Counts and times only, never a
 /// change's content.
 library;
 
@@ -53,6 +54,22 @@ class SyncSection extends ConsumerWidget {
           title: Text(l10n.syncStatus),
           subtitle: Text(summary),
         ),
+        if (signedIn)
+          ListTile(
+            leading: const Icon(Icons.account_balance_outlined),
+            title: Text(l10n.syncBankData),
+            subtitle: Text(switch (status) {
+              SyncStatus(plaidFailure: SyncFailure.offline) =>
+                l10n.syncBankDataFailedOffline,
+              SyncStatus(plaidFailure: SyncFailure.server) =>
+                l10n.syncBankDataFailedServer,
+              SyncStatus(plaidFailure: SyncFailure.other) =>
+                l10n.syncBankDataFailedOther,
+              SyncStatus(:final DateTime plaidPulledAt) =>
+                l10n.syncBankDataPulledAt(local(plaidPulledAt)),
+              _ => l10n.syncBankDataNever,
+            }),
+          ),
         if (signedIn && ledger != null) ...[
           ListTile(
             leading: const Icon(Icons.outbox_outlined),

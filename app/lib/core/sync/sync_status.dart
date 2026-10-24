@@ -1,5 +1,6 @@
 /// What the sync status shows (`docs/reference/sync-app.md`, **The controller**): the
-/// controller's state and the summary of a session it keeps. No payloads, ever. Pure
+/// controller's state, the summary of a session it keeps, and how the Plaid pull after
+/// it went. No payloads, ever. Pure
 /// Dart, no Flutter import.
 library;
 
@@ -130,6 +131,8 @@ final class SyncStatus {
     this.lastSummary,
     this.failure,
     this.ledger,
+    this.plaidPulledAt,
+    this.plaidFailure,
   });
 
   /// The status of a flavor that never syncs.
@@ -155,19 +158,32 @@ final class SyncStatus {
   /// The outbox and held-record counts, once read.
   final SyncLedger? ledger;
 
-  /// A copy with the given fields replaced; [failure] is replaced even when null.
+  /// When the last whole Plaid pull finished, UTC; null before the first.
+  final DateTime? plaidPulledAt;
+
+  /// Why the last Plaid pull failed, or null when it did not.
+  final SyncFailure? plaidFailure;
+
+  /// A copy with the given fields replaced; [failure] is replaced even when null, and
+  /// [plaidFailure] whenever it is given, null included.
   SyncStatus copyWith({
     SyncPhase? phase,
     DateTime? lastSyncAt,
     SyncSummary? lastSummary,
     required SyncFailure? failure,
     SyncLedger? ledger,
+    DateTime? plaidPulledAt,
+    Object? plaidFailure = _unchanged,
   }) => SyncStatus(
     phase: phase ?? this.phase,
     lastSyncAt: lastSyncAt ?? this.lastSyncAt,
     lastSummary: lastSummary ?? this.lastSummary,
     failure: failure,
     ledger: ledger ?? this.ledger,
+    plaidPulledAt: plaidPulledAt ?? this.plaidPulledAt,
+    plaidFailure: identical(plaidFailure, _unchanged)
+        ? this.plaidFailure
+        : plaidFailure as SyncFailure?,
   );
 
   @override
@@ -177,13 +193,25 @@ final class SyncStatus {
       other.lastSyncAt == lastSyncAt &&
       other.lastSummary == lastSummary &&
       other.failure == failure &&
-      other.ledger == ledger;
+      other.ledger == ledger &&
+      other.plaidPulledAt == plaidPulledAt &&
+      other.plaidFailure == plaidFailure;
 
   @override
-  int get hashCode =>
-      Object.hash(phase, lastSyncAt, lastSummary, failure, ledger);
+  int get hashCode => Object.hash(
+    phase,
+    lastSyncAt,
+    lastSummary,
+    failure,
+    ledger,
+    plaidPulledAt,
+    plaidFailure,
+  );
 
   @override
   String toString() =>
-      'SyncStatus(${phase.name}, last $lastSyncAt, failure $failure, $ledger)';
+      'SyncStatus(${phase.name}, last $lastSyncAt, failure $failure, $ledger, '
+      'plaid $plaidPulledAt $plaidFailure)';
 }
+
+const Object _unchanged = Object();

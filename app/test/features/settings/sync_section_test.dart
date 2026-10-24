@@ -1,5 +1,5 @@
-// The settings screen's Sync section: what each status shows, "Sync now", and that the
-// demo flavor has no Sync section.
+// The settings screen's Sync section: what each status shows (the bank data's pull
+// included), "Sync now", and that the demo flavor has no Sync section.
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
@@ -152,6 +152,35 @@ void main() {
       findsOneWidget,
     );
   });
+
+  final DateTime pulled = DateTime.utc(2026, 10, 24, 15, 5);
+  for (final (SyncStatus status, String text) in [
+    (const SyncStatus(phase: SyncPhase.idle), 'Not updated yet'),
+    (
+      SyncStatus(phase: SyncPhase.idle, plaidPulledAt: pulled),
+      'Updated Oct 24, 2026 3:05\u202fPM',
+    ),
+    (
+      SyncStatus(
+        phase: SyncPhase.idle,
+        plaidPulledAt: pulled,
+        plaidFailure: SyncFailure.server,
+      ),
+      'The server could not complete the last update',
+    ),
+  ]) {
+    testWidgets('the bank data row says "$text"', (tester) async {
+      await pumpApp(
+        tester,
+        initialLocation: '/settings',
+        overrides: [
+          syncControllerProvider.overrideWith(() => _FixedSync(status)),
+        ],
+      );
+      expect(find.text('Bank data'), findsOneWidget);
+      expect(find.text(text), findsOneWidget);
+    });
+  }
 
   testWidgets('Sync now waits while a session runs', (tester) async {
     await pumpApp(

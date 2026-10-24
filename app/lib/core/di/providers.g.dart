@@ -1013,6 +1013,158 @@ final class SettingsRepositoryProvider
 String _$settingsRepositoryHash() =>
     r'ae819a2df2ba8cfe68dd3f654206240eb52bf4f7';
 
+/// Where the Plaid pull keeps its cursors: in memory by default (beside the in-memory
+/// store, so a new store starts it afresh), `sync_meta` in dev and prod.
+
+@ProviderFor(plaidPullStore)
+final plaidPullStoreProvider = PlaidPullStoreProvider._();
+
+/// Where the Plaid pull keeps its cursors: in memory by default (beside the in-memory
+/// store, so a new store starts it afresh), `sync_meta` in dev and prod.
+
+final class PlaidPullStoreProvider
+    extends $FunctionalProvider<PlaidPullStore, PlaidPullStore, PlaidPullStore>
+    with $Provider<PlaidPullStore> {
+  /// Where the Plaid pull keeps its cursors: in memory by default (beside the in-memory
+  /// store, so a new store starts it afresh), `sync_meta` in dev and prod.
+  PlaidPullStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'plaidPullStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$plaidPullStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<PlaidPullStore> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  PlaidPullStore create(Ref ref) {
+    return plaidPullStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PlaidPullStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PlaidPullStore>(value),
+    );
+  }
+}
+
+String _$plaidPullStoreHash() => r'd709e2b573f3075367004dffce0fe76d43590c0a';
+
+/// What the Plaid pull does with the transactions it inserts: nothing until the rules
+/// engine (Phase 3e).
+
+@ProviderFor(arrivalProcessor)
+final arrivalProcessorProvider = ArrivalProcessorProvider._();
+
+/// What the Plaid pull does with the transactions it inserts: nothing until the rules
+/// engine (Phase 3e).
+
+final class ArrivalProcessorProvider
+    extends
+        $FunctionalProvider<
+          ArrivalProcessor,
+          ArrivalProcessor,
+          ArrivalProcessor
+        >
+    with $Provider<ArrivalProcessor> {
+  /// What the Plaid pull does with the transactions it inserts: nothing until the rules
+  /// engine (Phase 3e).
+  ArrivalProcessorProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'arrivalProcessorProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$arrivalProcessorHash();
+
+  @$internal
+  @override
+  $ProviderElement<ArrivalProcessor> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ArrivalProcessor create(Ref ref) {
+    return arrivalProcessor(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ArrivalProcessor value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ArrivalProcessor>(value),
+    );
+  }
+}
+
+String _$arrivalProcessorHash() => r'b34c437af51c702161d42af14549386283cbbe01';
+
+/// The Plaid pull over the API into the repositories (`core/plaid/plaid_pull.dart`):
+/// run after each sync session and after each Item action.
+
+@ProviderFor(plaidPull)
+final plaidPullProvider = PlaidPullProvider._();
+
+/// The Plaid pull over the API into the repositories (`core/plaid/plaid_pull.dart`):
+/// run after each sync session and after each Item action.
+
+final class PlaidPullProvider
+    extends $FunctionalProvider<PlaidPull, PlaidPull, PlaidPull>
+    with $Provider<PlaidPull> {
+  /// The Plaid pull over the API into the repositories (`core/plaid/plaid_pull.dart`):
+  /// run after each sync session and after each Item action.
+  PlaidPullProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'plaidPullProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$plaidPullHash();
+
+  @$internal
+  @override
+  $ProviderElement<PlaidPull> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  PlaidPull create(Ref ref) {
+    return plaidPull(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PlaidPull value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PlaidPull>(value),
+    );
+  }
+}
+
+String _$plaidPullHash() => r'16fdcc9a18e9f3938591ebec6222bbc1ef7df0c5';
+
 /// What the legacy importer did at this launch (`bootstrap`), or null when it did nothing;
 /// Phase 1d shows it once.
 

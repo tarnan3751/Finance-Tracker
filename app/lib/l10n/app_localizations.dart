@@ -1570,6 +1570,42 @@ abstract class AppLocalizations {
   /// **'The last sync did not finish'**
   String get syncFailedOther;
 
+  /// Title of the Sync section row about pulling the linked banks' Items, accounts and transactions from the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank data'**
+  String get syncBankData;
+
+  /// Subtitle of the bank data row after a successful pull; time is when it finished, in the device's time zone.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {time}'**
+  String syncBankDataPulledAt(String time);
+
+  /// Subtitle of the bank data row before the first pull.
+  ///
+  /// In en, this message translates to:
+  /// **'Not updated yet'**
+  String get syncBankDataNever;
+
+  /// Subtitle of the bank data row when the last pull failed because the server was unreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'The last update could not reach the server'**
+  String get syncBankDataFailedOffline;
+
+  /// Subtitle of the bank data row when the server answered the last pull with an error.
+  ///
+  /// In en, this message translates to:
+  /// **'The server could not complete the last update'**
+  String get syncBankDataFailedServer;
+
+  /// Subtitle of the bank data row when the last pull failed for another reason.
+  ///
+  /// In en, this message translates to:
+  /// **'The last update did not finish'**
+  String get syncBankDataFailedOther;
+
   /// How many local changes have not reached the server yet.
   ///
   /// In en, this message translates to:
