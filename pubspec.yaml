@@ -13,3 +13,4 @@ workspace:
   - packages/shared_models
   - packages/api_client
   - packages/contract_test
+  - packages/sync_engine
