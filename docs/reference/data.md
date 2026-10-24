@@ -11,7 +11,7 @@ The entities and `Money` are `shared_models` (`core.md`); the providers and star
 
 ## The database
 
-Drift on SQLite, at schema version 1 (`core/db/app_database.dart`; one file per table under
+Drift on SQLite, at schema version 2 (`core/db/app_database.dart`; one file per table under
 `core/db/tables/`). `app_database.dart` and the tables import no Flutter, so `drift_dev`
 can run them in the Dart VM to dump the schema.
 
@@ -24,6 +24,10 @@ can run them in the Dart VM to dump the schema.
 | `categories` | The system categories and the user's |
 | `app_settings` | The app preferences: `key` is the field name, `value` its JSON |
 | `app_meta` | Facts about the install: `legacy_import_done`, `install_date` |
+| `change_log` | The sync outbox (schema 2): one row per local change-log entry (`sync-app.md`) |
+| `record_clocks` | The sync clock of each field of each synced entity, `_create` holding its create's (schema 2) |
+| `sync_meta` | The device's sync state: `pull_cursor`, `last_clock`, `device_id`, `last_sync_at`, `last_report` (schema 2) |
+| `held_records` | Sync records the entity tables cannot hold exactly, whole, with why: `incomplete`, `unrepresentable`, `unknown_fields`, `unsupported_type` (schema 2, `sync-app.md`) |
 
 How values are stored (`core/db/converters.dart`):
 
@@ -162,6 +166,11 @@ The rules every implementation keeps:
   and restore, the cascade included, stamps `updatedAt` with the clock, so Phase 2's sync
   sees the change. `Account` and `Category` carry none: the repositories stamp
   `created_at` on insert and `updated_at` on every write, deletes and restores included.
+- **Recording.** Every user-authored write records one change-log entry per entity it
+  changed, through the repository's `ChangeRecorder`, in the same database transaction
+  (`sync-app.md`, **Recording**); the seeding of the system categories and the reads
+  record nothing. The Drift repositories record into the Drift sync store, the in-memory
+  ones into an `InMemorySyncStore`, the demo ones nothing.
 - **Tags and splits** are replaced as a whole by `upsert`, in the same database
   transaction, and keep their order (duplicates included). Split sums are not checked
   against the amount here.
@@ -246,19 +255,37 @@ repositories of one implementation over one store) and a dispose;
 (an in-memory `AppDatabase`), both with a `SteppingClock` that moves a millisecond per read
 so two deletes never share an instant. Each implementation has a test file under
 `test/features/<feature>/data/` (settings: `test/features/settings/`) that calls its
-suite. A new repository gets a contract file and one test file per implementation; a new
-rule gets a contract case, not an implementation test.
+suite. `recording_contract.dart` (`runRecordingContract`) checks the entries every write
+records; the Drift and in-memory implementations run it from `test/core/sync/`, and the
+demo ones are checked to record nothing. A new repository gets a contract file and one
+test file per implementation; a new rule gets a contract case, not an implementation
+test.
 
 ## The demo seed
 
-`core/db/demo_seed.dart`. `buildDemoSeed(today)` returns a `DemoSeed { accounts;
-transactions; }`: two manual USD accounts (`demo-checking`, `demo-card`) and twelve
-transactions between 58 days and 1 day before `today`, categorized with the system
-categories, two with tags and one with splits, one pending, all `source: DataSource.demo`.
-It is deterministic for a day (fixed ids, audit instants at noon UTC of each date). The
-demo flavor's `inMemoryStoreProvider` seeds the system categories and loads
-`buildDemoSeed(clock.today())` with `loadDemoSeed`, which goes through the store's rules.
-Phase 2's persona engine replaces the content and produces the same `DemoSeed` shape.
+`core/db/demo_seed.dart`. The demo flavor's data is the persona engine's demo seed
+(`persona.md`): `demoSeedProvider` is `generateDemoSeed(persona, 1, clock.today())` over the
+engine's full window, for the persona `demoPersonaProvider` holds: `initialDemoPersona()`
+(the `FT_DEMO_PERSONA` dart-define's slug, `renter` when unset or unknown) at start, then
+what Settings → Demo data selects. The demo `inMemoryStoreProvider` seeds the system
+categories and loads it with `loadDemoSeed`, through the store's rules: the household's
+accounts, then one `Opening balance` transaction (`source: demo`, id
+`<account>-opening`) per non-zero opening balance, dated the day before the window, then
+the transactions. The engine keeps each account's opening balance apart from its history;
+loading it as a transaction, as a manual account's opening balance is, makes each derived
+balance equal the balance the engine reports. **Investment accounts** have no transaction
+history in the engine, so they derive to their uninvested cash only, a known gap until
+Phase 6 brings holdings. The engine's Items, institutions, liabilities, holdings,
+recurring expectations and anomalies are not loaded: the app has no repositories for them
+before Phase 3 (the accounts keep their `demo-item-…` `itemId`). Choosing another persona
+rebuilds the store and the repositories over it, so the demo's own edits are lost. The
+demo flavor's in-app fake server serves the same seed (`FakeDataset.fromDemoSeed`,
+`app-core.md`).
+
+The screen tests keep the Phase 1 hand-written seed as a fixture,
+`test/helpers/test_seed.dart` (`buildDemoSeed(today)`: two manual USD accounts,
+`demo-checking` and `demo-card`, and twelve transactions between 58 days and 1 day before
+`today`), which `seededStore()` loads.
 
 ## The legacy importer
 
@@ -295,6 +322,16 @@ package id changed (`PLAN.md` §12), it only serves an install that shares the o
 app's data directory.
 
 ## Changing the schema
+
+**Schema 2** added the sync tables (`change_log`, `record_clocks`, `sync_meta`,
+`held_records`). Its step creates them and, in one transaction, backfills the change log
+(`core/db/sync_backfill.dart`): every user-authored row (accounts with no Item, user
+categories, `manual` and `import` transactions, stored settings) becomes a `create` entry at
+a fresh clock of a provisional `local-<uuid>` node, with field clocks for every field; a row
+already soft-deleted also gets a `delete` entry, and its `deleted_at` becomes that entry's
+instant, as merging the entries anywhere gives. `migration_test.dart` opens a schema 1
+database with data and checks the rows, the entries and that the stored records equal the
+fold of the entries.
 
 Every schema change follows these steps, in one series:
 

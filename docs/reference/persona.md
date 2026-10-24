@@ -177,7 +177,8 @@ transactions. Audit fields are the posting date at 00:00Z, and `syncVersion` is 
 (amounts as `{minor_units, currency}`): institutions, items, accounts and transactions.
 Next to them are the package's own records: opening balances, transfers, recurring
 expectations, holdings, investment transactions, liabilities and anomalies. The app calls
-`generateDemoSeed` directly; the JSON is for inspection and the goldens.
+`generateDemoSeed` directly, with seed 1 as of the device's today, for the persona the demo
+flavor shows (`data.md`, **The demo seed**); the JSON is for inspection and the goldens.
 
 ## Sandbox custom users
 

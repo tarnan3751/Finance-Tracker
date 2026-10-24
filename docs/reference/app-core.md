@@ -28,7 +28,8 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
    instead of the app, with a message for a missing cipher, a wrong key, a lost key, or
    anything else;
 8. the stored session is read (`sessionControllerProvider`'s `restored()`, `auth.md`),
-   so the first frame is already signed in or out;
+   so the first frame is already signed in or out; then the sync controller starts
+   (`sync-app.md`, **The controller**);
 9. `runApp(UncontrolledProviderScope(container: container, child: FinanceTrackerApp()))`.
 
 `FinanceTrackerApp` (`app.dart`) is a `ConsumerWidget` returning `MaterialApp.router` with
@@ -52,6 +53,10 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `databaseProvider` | `core/di/providers.dart` | The encrypted `AppDatabase` of dev and prod, closed with the container; a `StateError` in demo |
 | `inMemoryStoreProvider` | `core/di/providers.dart` | The `InMemoryStore` behind the in-memory and demo repositories; the demo flavor's holds the system categories and the demo seed |
 | `accountRepositoryProvider`, `transactionRepositoryProvider`, `categoryRepositoryProvider`, `settingsRepositoryProvider` | `core/di/providers.dart` | In memory by default; Drift in dev and prod and demo in demo, through `overridesFor` |
+| `inMemorySyncStoreProvider`, `driftSyncStoreProvider`, `deviceClockProvider`, `changeRecorderProvider` | `core/di/providers.dart` | The sync stores, the device clock and the recorder the repositories record through: in memory by default, Drift in dev and prod, none in demo (`sync-app.md`) |
+| `syncDeviceIdProvider`, `syncRelayProvider`, `localDataSyncsProvider`, `syncDebounceProvider` | `core/di/providers.dart` | The session's device id and the API's relay as that device while signed in (null otherwise), whether the local data syncs (dev and prod), and the debounce after a local change |
+| `syncControllerProvider` | `core/sync/sync_controller.dart` | The sync status and Sync now (`sync-app.md`) |
+| `demoPersonaProvider`, `demoSeedProvider` | `core/di/providers.dart` | The persona the demo flavor shows and its demo seed (`data.md`, **The demo seed**) |
 | `legacyImportResultProvider` | `core/di/providers.dart` | The legacy importer's `ImportSummary` at this launch, or null; `AppShell` shows it once and clears it |
 | `todayProvider` | `core/time/today_provider.dart` | The clock's local date, kept current past midnight (**Time**) |
 | `goRouterProvider` | `core/router/app_router.dart` | The app's `GoRouter` (`routerFor`), gated on the session in dev and prod, disposed with the container |
@@ -145,15 +150,17 @@ endpoints over a `FakeDataset` (`fake_dataset.dart`). A dataset's transactions a
 streams must be `demo`; the fake keeps its ids and assigns only each user's
 `sync_version`s, in a fixed order, when an Item's first sync completes (`not_ready`
 first, as Plaid). `FakeDataset.sample(today)` is one Item, three accounts and a dozen
-transactions. It does not mirror the server's rate limiter. Test hooks: `failNext`,
+transactions; `FakeDataset.fromDemoSeed(seed)` is the persona engine's household (its
+Items, accounts and transactions; its liabilities and investments are not carried yet);
+`FakeDataset.empty()` has none. It does not mirror the server's rate limiter. Test hooks: `failNext`,
 `failNextNetwork`, `latency`, `advanceClock`, `calls`, `seedUser`, `seedSession`,
 `seedLinkedItems`. `test/core/api/fake_contract_test.dart` drives every operation
 through the generated client against it and checks every request and answer with
 `contract_test` in strict mode.
 
 **Flavors.** `apiOverridesFor(config)`: dev and prod use `HttpFinanceApi` on the network
-with `SecureTokenStore`. Demo uses the fake server over the sample dataset dated to the
-clock's today, with the demo user `demo@financetracker.test` seeded, its Item linked and
+with `SecureTokenStore`. Demo uses the fake server over the persona's household the demo shows
+(`demoSeedProvider`, `data.md`, **The demo seed**), with the demo user `demo@financetracker.test` seeded, its Item linked and
 synced, and its session in an `InMemoryTokenStore`, so the demo starts signed in and
 makes no network call. The dev flavor built with `--dart-define=FT_FAKE_SERVER=true`
 uses the same fake, empty and signed out, with the session in memory; the define is
@@ -269,7 +276,7 @@ the only locale.
 | data | `data/drift_settings_repository.dart` | The Drift implementation (dev and prod): one `app_settings` row per field |
 | data | `data/in_memory_settings_repository.dart`, `data/demo_settings_repository.dart` | The in-memory implementation (tests) and the demo one (the demo flavor) |
 | application | `application/settings_controller.dart` | `SettingsController`, following `watch()`; each change reads, changes and saves, and changes run one after another so two issued together both land |
-| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Data (Categories, opening category management, `categories.md`) and About (app name, version and build, flavor, time zone); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
+| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Data (Categories, opening category management, `categories.md`), About (app name, version and build, flavor, time zone) and Demo data (demo only, `demo_data_section.dart`: the persona the demo shows); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
 
 The repository contract is `test/contract/settings_repository_contract.dart`,
 `runSettingsRepositoryContract(create, {dispose})`; the three implementations each run it
@@ -302,7 +309,7 @@ The repository contract is `test/contract/settings_repository_contract.dart`,
   committing the CI ones. The shell's goldens (`test/core/router/app_shell_golden_test.dart`)
   hide Flutter's DEBUG banner, which is not part of the app.
 - **Test data.** `test/helpers/seed.dart`: `seededStore()` is an `InMemoryStore` on the test
-  clock (or the `clock` passed) with the system categories and the demo seed dated to that
+  clock (or the `clock` passed) with the system categories and the test seed (`test/helpers/test_seed.dart`, the Phase 1 demo seed) dated to that
   clock's today (or a seed the test passes), and `storeOverride(store)` puts the in-memory repositories on it;
   the test keeps the store to read back what a screen wrote. `testTransaction(...)` builds a
   manual transaction relative to the test clock. Widget tests whose rows must all be laid

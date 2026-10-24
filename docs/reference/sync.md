@@ -260,6 +260,8 @@ Failures, and why a rerun is always safe:
 
 ## The host's responsibilities
 
+The app's side of these is `sync-app.md`.
+
 - **Filter Plaid-sourced rows** before `recordChange`, by `source`, in the app's
   repositories (see the top of this file).
 - **Share one `HlcClock`** between the device's `LocalEditor` and `SyncSession`, and
