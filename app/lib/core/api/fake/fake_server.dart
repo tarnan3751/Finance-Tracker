@@ -22,6 +22,9 @@
 ///   409 `sync_cursor_invalid`.
 /// - **Plaid.** Over a [FakeDataset]: a link token, then an exchange that links the
 ///   dataset Item a `public-demo-<item id>` token names (any other token links the first);
+///   the fake remembers each link token's user and update Item, so [completeLink] can
+///   play Plaid's side of Link for the fake launcher (the next Item the user has not
+///   linked, or the update-mode Item repaired);
 ///   exchanging an Item already linked returns it again. A sync answers `not_ready` once,
 ///   then `completed`, applying the Item's rows with their ids as given and the next
 ///   `sync_version`s of the user (transactions in dataset order, then investment
@@ -49,7 +52,8 @@
 ///   `X-Request-Id`. `fake_contract_test.dart` validates them against the contract.
 ///
 /// Not mirrored: the dev server's rate limiter; a test scripts a 429 with [failNext].
-/// Hooks for tests: [failNext], [failNextNetwork], [latency], [advanceClock], [calls].
+/// Hooks for tests: [failNext], [failNextNetwork], [latency], [advanceClock], [calls];
+/// [completeLink] for the fake Link launcher.
 library;
 
 import 'dart:convert';
@@ -120,6 +124,10 @@ const Object invalidJson = _InvalidJson();
 final class _InvalidJson {
   const _InvalidJson();
 }
+
+/// What Plaid's side of a Link session gives the fake launcher: the public token Link
+/// would return and the institution the user picked.
+typedef FakeLink = ({String publicToken, Institution institution});
 
 /// A scripted failure of the next call to an operation.
 typedef _Failure = ({int? status, String? code});
@@ -240,6 +248,9 @@ final class FakeServer {
 
   /// What an exchange can link.
   final FakeDataset dataset;
+
+  // Each link token handed out: its user, and the Item of an update-mode token.
+  final Map<String, ({String userId, String? updateItemId})> _linkTokens = {};
   final DateTime Function() _now;
   final Random _random;
   final LocalDate Function(DateTime instant) _localDate;
@@ -904,7 +915,7 @@ final class FakeServer {
     );
     r.done();
     if (update != null) _updatable(update, caller);
-    return _ok(_newLinkToken());
+    return _ok(_newLinkToken(caller, update));
   }
 
   FakeResponse _updateLinkToken(
@@ -916,7 +927,7 @@ final class FakeServer {
     r.string('android_package_name', pattern: packageNameShape);
     r.done();
     _updatable(itemId, caller);
-    return _ok(_newLinkToken());
+    return _ok(_newLinkToken(caller, itemId));
   }
 
   /// [_item] for an update-mode link token, which it records: a `removed` Item is 404,
@@ -929,12 +940,47 @@ final class FakeServer {
     return linked..updateTokenIssued = true;
   }
 
-  Map<String, Object?> _newLinkToken() => {
-    'link_token': _secret('link-fake'),
-    'expiration': const UtcInstantConverter().toJson(
-      now().add(const Duration(hours: 4)),
-    ),
-  };
+  Map<String, Object?> _newLinkToken(_Caller caller, String? updateItemId) {
+    final String token = _secret('link-fake');
+    _linkTokens[token] = (userId: caller.user.id, updateItemId: updateItemId);
+    return {
+      'link_token': token,
+      'expiration': const UtcInstantConverter().toJson(
+        now().add(const Duration(hours: 4)),
+      ),
+    };
+  }
+
+  /// Plaid's side of a Link session opened with [linkToken], for the fake launcher. For
+  /// an update-mode token, Link re-authenticates the Item (as [_repair] does for the
+  /// exchange path) and hands out `public-demo-update-<item id>`, which the app never
+  /// exchanges. Otherwise `public-demo-<item id>` of the first dataset Item the token's
+  /// user has not linked (or has unlinked), or of the first Item when every one is
+  /// linked. A token this server did not hand out is an [ArgumentError].
+  FakeLink completeLink(String linkToken) {
+    final ({String userId, String? updateItemId})? link =
+        _linkTokens[linkToken];
+    if (link == null) throw ArgumentError.value(linkToken, 'linkToken');
+    final _UserData user = _dataOf(link.userId);
+    if (link.updateItemId case final String itemId) {
+      final _LinkedItem linked = user.items[itemId]!;
+      _reauthenticate(linked);
+      return (
+        publicToken: 'public-demo-update-$itemId',
+        institution: linked.data.institution,
+      );
+    }
+    final FakeItemData item = dataset.items.firstWhere(
+      (i) =>
+          !user.items.containsKey(i.id) ||
+          user.items[i.id]!.status == ItemStatus.removed,
+      orElse: () => dataset.items.first,
+    );
+    return (
+      publicToken: 'public-demo-${item.id}',
+      institution: item.institution,
+    );
+  }
 
   _LinkedItem _item(String itemId, _Caller caller) =>
       _dataOf(caller.user.id).items[itemId] ??
@@ -965,6 +1011,17 @@ final class FakeServer {
       );
     }
     return linked;
+  }
+
+  // Update-mode Link finishing: repairs [linked] when an update-mode token was created
+  // for it since its login was reset.
+  void _reauthenticate(_LinkedItem linked) {
+    if (linked.status == ItemStatus.loginRequired && linked.updateTokenIssued) {
+      linked
+        ..status = ItemStatus.healthy
+        ..errorCode = null
+        ..updateTokenIssued = false;
+    }
   }
 
   FakeResponse _exchange(Map<String, Object?> json, _Caller caller) {
@@ -998,12 +1055,7 @@ final class FakeServer {
     if (linked == null || linked.status == ItemStatus.removed) {
       throw const _Problem(502, 'plaid_error', 'No Item to update');
     }
-    if (linked.status == ItemStatus.loginRequired && linked.updateTokenIssued) {
-      linked
-        ..status = ItemStatus.healthy
-        ..errorCode = null
-        ..updateTokenIssued = false;
-    }
+    _reauthenticate(linked);
     return _ok(_itemJson(linked), 201);
   }
 

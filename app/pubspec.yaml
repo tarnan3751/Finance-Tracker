@@ -38,6 +38,8 @@ dependencies:
   # The demo flavor's data: the persona engine's demo seed, generated at startup.
   persona_engine:
     path: ../tools/persona_engine
+  # Plaid Link (MIT), behind the items feature's LinkLauncher, used by dev and prod.
+  plaid_flutter: 5.2.1
   riverpod_annotation: 4.0.7
   shared_models:
     path: ../packages/shared_models

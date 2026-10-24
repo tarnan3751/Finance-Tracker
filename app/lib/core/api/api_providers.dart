@@ -6,6 +6,8 @@
 ///   household the demo shows, seeded with the demo user (`demoEmail`), its Items linked
 ///   and synced, and that user signed in, so the demo never shows sign-in and makes no
 ///   network call.
+///
+/// Wherever the fake server runs, Plaid Link is the fake launcher over it.
 /// - dev with `--dart-define=FT_FAKE_SERVER=true`: the same fake, empty and signed out,
 ///   with the session in memory, for the auth flow on the emulator without a server. The
 ///   define is ignored in every other flavor.
@@ -20,6 +22,8 @@ import 'package:finance_tracker/core/api/token_store.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/clock.dart';
+import 'package:finance_tracker/features/items/application/link_launcher_provider.dart';
+import 'package:finance_tracker/features/items/data/fake_link_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_models/shared_models.dart';
@@ -76,7 +80,8 @@ List<Override> apiOverridesFor(AppConfig config) => switch (config.flavor) {
 /// The fake server over a dataset, a session in memory and the API on the fake: the
 /// dataset is the demo flavor's persona seed (`demoSeedProvider`) when [personaSeed],
 /// else the sample dated to the clock's today. When [signedIn], the demo user exists,
-/// its Items are linked and synced, and its session is stored.
+/// its Items are linked and synced, and its session is stored. Plaid Link is the fake
+/// launcher over the fake server.
 List<Override> fakeApiOverrides({
   required bool signedIn,
   bool personaSeed = false,
@@ -114,6 +119,9 @@ List<Override> fakeApiOverrides({
     return InMemoryTokenStore(session: session, installUserId: session.userId);
   }),
   fakeFinanceApiOverride,
+  linkLauncherProvider.overrideWith(
+    (ref) => FakeLinkLauncher(ref.watch(fakeServerProvider)),
+  ),
 ];
 
 /// The API over `fakeServerProvider`, whatever supplies it.

@@ -109,8 +109,11 @@ smoke run working on any machine. Keystores are gitignored (`*.jks`, `*.keystore
 
 - The release build type sets `isMinifyEnabled` and `isShrinkResources`, with
   `proguard-android-optimize.txt` plus `app/android/app/proguard-rules.pro`. The keep
-  rules cover `com.plaid.**` only (the Plaid SDK, Phase 3); the app's own classes are not
-  kept. The encrypted database needs none: SQLite3 Multiple Ciphers is a native library
+  rules cover `com.plaid.**` (the Plaid SDK behind `plaid_flutter`) and the no-argument
+  constructor of every Room database: the Plaid SDK brings WorkManager, which creates its
+  Room database by reflection at startup, and without the rule the release app crashes on
+  launch (`NoSuchMethodException: WorkDatabase_Impl.<init>`). The app's own classes are
+  not kept. The encrypted database needs none: SQLite3 Multiple Ciphers is a native library
   reached over FFI, and R8 only touches Java and Kotlin code. R8 accepts rules for absent
   packages, so no `-dontwarn` is needed yet. R8's mapping lands in
   `app/build/app/outputs/mapping/<flavor>Release/mapping.txt`.
