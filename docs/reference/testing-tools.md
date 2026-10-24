@@ -93,6 +93,32 @@ from `server/.env.example`, filling `JWT_SECRET`, `TOKEN_ENCRYPTION_KEY` and
 calls no Plaid API. It reads `server/.env`, so it is the owner's command; a lane runs it
 only in its own clone, with no real keys (there are none in a clone).
 
+## `tools/scripts/provision_persona.sh`: persona provisioning
+
+`tools/scripts/provision_persona.sh <renter|family|student|small_business> [--seed N]
+[--days D] [--server URL]` drives the dev server's provisioning job
+(`docs/reference/server.md`, **Provisioning**). It signs in as the seed user
+(`SEED_USER_EMAIL` and `SEED_USER_PASSWORD` from the environment, else from
+`server/.env`), POSTs `/sandbox/provision`, and polls the job every 5 s, printing one
+progress line (`running  items 1/1  batches 3/8  skipped 0`), refreshing the access token
+when it expires. It exits 0 when the job completes, 1 when it fails (with the job's
+error) or a request fails or gets no answer (with a `provision_persona:` message), 2 on
+a usage error. The server defaults to `http://localhost:8080/v1`.
+
+It signs out only when the job has finished (`completed` or `failed`) or never started.
+On Ctrl-C, and on any failure after the job started, the device stays signed in,
+because the job links its Items through it; Ctrl-C stops the polling, not the job.
+
+It never prints or traces a token or a password: it turns tracing off (`set +x`), and
+the values reach `curl` and `jq` only through pipes and files in a private temporary
+directory, never as an argument or a shell variable, so even a forced `bash -x` shows
+neither. It needs `curl` and `jq`, and writes only that directory.
+
+Against a sandbox-mode server it creates real Sandbox Items, which is the coordinator's
+seat only. A lane points it at a fake-mode server started from its own clone (for example
+`PORT=18080 tools/run_server.sh`, then `--server http://127.0.0.1:18080/v1`), where the
+whole job runs against the fake client with `source: demo` data, paced in real time.
+
 ## `tools/emulator_tests.sh`: the emulator harness
 
 Runs the app on the harness's own headless Android Virtual Device, `ft-lane`, under a

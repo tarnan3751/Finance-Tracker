@@ -138,6 +138,9 @@ obvious from the field list:
   enrichment fallback's normalized name, and the fallback only fills a null one.
 - `Budget.periodStartDay` is 1 to 28; JSON outside that range is rejected in every
   build, not only by the debug-mode assertion.
+- `Item.errorCode` is Plaid's error code (`ITEM_LOGIN_REQUIRED`, ...) while the status is
+  `loginRequired` or `error`, else null; `ItemStatus.removed` is an Item unlinked with its
+  history kept, whose accounts and transactions stay.
 - Enums that mirror Plaid fall back instead of throwing on a new value: `ItemStatus` and
   `RecurringCadence` to `unknown`, `AccountType` to `other`. Account `subtype` is an open
   string.

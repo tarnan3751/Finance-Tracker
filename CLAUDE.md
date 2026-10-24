@@ -70,7 +70,7 @@ scripts pick it the same way. Commands marked with a phase do not exist before i
 | Run the app, dev flavor (the owner only: the owner's emulator and the dev server) | `F run --flavor dev -t lib/main_dev.dart` |
 | The dev server (the owner only: reads `server/.env`; Plaid is fake until Phase 3) | `tools/run_server.sh` |
 | Emulator integration tests, one run on the machine at a time (Phase 1) | `tools/emulator_tests.sh` |
-| Provision a persona into Sandbox (the owner only) (Phase 3) | `tools/scripts/provision_persona.sh <persona>` |
+| Provision a persona into Sandbox (the owner only) | `tools/scripts/provision_persona.sh <persona>` |
 | Build a debug APK | `F build apk --debug --flavor dev -t lib/main_dev.dart` |
 | Build the release APK (R8, obfuscated) | `F build apk --release --flavor prod -t lib/main_prod.dart --obfuscate --split-debug-info=build/symbols` |
 | Land a delivered series | `tools/land_series.sh <patch-dir> <base-commit> <tree-hash>` |

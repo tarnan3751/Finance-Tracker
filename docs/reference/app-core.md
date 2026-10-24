@@ -114,6 +114,12 @@ client (`api.md`), which nothing outside this folder imports.
   finance-tracker/<version> (<flavor>)`. In dev only, `DevLogInterceptor` logs one line
   per answer on the `api` logger: method, path template, status, duration and the
   server's `X-Request-Id`, never a body, a query or a token.
+- **Bytes.** `getInstitutionLogo` returns the PNG as `Uint8List`. `Institution.logoUrl`
+  points at that bearer-secured route, so the app fetches logos through this method,
+  never by loading the URL. A problem answered to the bytes route arrives as bytes and
+  is decoded like any other.
+- **Signs.** `SandboxTransaction.amount` is in the app's sign (negative is money out);
+  `HttpFinanceApi` negates it into the contract's Plaid sign.
 - **Errors.** Every failure is an `ApiException`: `InvalidCredentials`, `EmailTaken`,
   `TokenExpired`, `TokenRevoked`, `NotFound`, `Conflict`, `ItemLoginRequired`,
   `PlaidError`, `RateLimited(retryAfter)`, `SyncCursorInvalid(since)`,
@@ -152,7 +158,20 @@ streams must be `demo`; the fake keeps its ids and assigns only each user's
 first, as Plaid). `FakeDataset.sample(today)` is one Item, three accounts and a dozen
 transactions; `FakeDataset.fromDemoSeed(seed)` is the persona engine's household (its
 Items, accounts and transactions; its liabilities and investments are not carried yet);
-`FakeDataset.empty()` has none. It does not mirror the server's rate limiter. Test hooks: `failNext`,
+`FakeDataset.empty()` has none; a `FakeItemData` may carry `institutionLogo` bytes, which
+the logo route serves and `logo_url` then points at. The fake also mirrors contract 0.3.0's
+Item operations: a refresh answers `started` and makes the next sync re-apply the Item's
+rows as modified; the balance refresh answers its accounts; unlinking with
+`history=keep` lists the Item `removed` with its data and refuses every call that would
+reach Plaid with 409 `conflict`. Its Sandbox controls: reset-login makes the Item
+`login_required` until an update-mode link token is created and
+`public-demo-update-<item id>` is exchanged; fire-webhook is a no-op; created
+transactions are `demo` rows added at once under new versions, refused with a 400 when
+an amount's currency is not its account's (the checking account when none is named); a
+provisioning job is queued and completes on the first `getProvisionJob` after the clock
+moves, linking the persona's demo Items (no injection) generated at the device's date
+(`FakeServer.localDate`, which `fakeApiOverrides` sets from the clock's zone, as the demo
+store does). It does not mirror the server's rate limiter. Test hooks: `failNext`,
 `failNextNetwork`, `latency`, `advanceClock`, `calls`, `seedUser`, `seedSession`,
 `seedLinkedItems`. `test/core/api/fake_contract_test.dart` drives every operation
 through the generated client against it and checks every request and answer with

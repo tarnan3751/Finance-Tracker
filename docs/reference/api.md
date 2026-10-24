@@ -8,10 +8,10 @@ implement the contract; none of them defines a shape of its own (`PLAN.md` §6.5
 
 ## The contract
 
-OpenAPI **3.0.3**, `info.version` `0.2.1`, every path under `/v1`. The servers are the dev
+OpenAPI **3.0.3**, `info.version` `0.3.0`, every path under `/v1`. The servers are the dev
 server from the emulator (`http://10.0.2.2:8080/v1`) and from the machine
 (`http://localhost:8080/v1`). Operations are grouped by tag: `auth`, `me`, `devices`,
-`plaid`, `data`, `sync`, `webhooks`, `health`; each has a camelCase `operationId`, which is
+`plaid`, `institutions`, `data`, `sync`, `webhooks`, `sandbox`, `health`; each has a camelCase `operationId`, which is
 the generated client's method name, a summary and a description that states its behaviour.
 
 **Security.** `bearerAuth` (HTTP bearer, a JWT access token) is declared for the whole
@@ -21,7 +21,10 @@ instead and answers `401` to a delivery it cannot verify.
 
 **Conventions.**
 
-- JSON throughout, snake_case properties, enums as their snake_case names.
+- JSON throughout, snake_case properties, enums as their snake_case names. Two
+  exceptions: `getInstitutionLogo` answers `image/png` bytes (`type: string, format:
+  binary`), and `WebhookCode` keeps Plaid's spelling (`SYNC_UPDATES_AVAILABLE`), with
+  `x-enum-varnames` giving the generated client camelCase constants.
 - **`Money`** is `{minor_units: int64, currency: ^[A-Z]{3}$}`, `minor_units` at least
   `-(2^63 - 1)`. Every amount, balance, limit and total is `Money`; no amount is ever a JSON
   number. A nullable amount is `allOf: [$ref Money]` with `nullable: true`, because OAS 3.0
@@ -71,6 +74,31 @@ outbox; `reason` is free text for logs. `/accounts`, `/transactions`, `/liabilit
 `/recurring` carry Plaid-sourced data only; manual data syncs through the change log
 (`PLAN.md` §6.4).
 
+## Items and the Sandbox controls
+
+- **`Item.error_code`** is Plaid's code while the Item is `login_required` or `error`, else
+  null.
+- **Refreshes.** `refreshItem` calls Plaid's `/transactions/refresh` and starts a sync run
+  in the background, answering `202` `started`; `refreshBalances` answers the Item's
+  accounts with the balances Plaid just reported.
+- **Unlinking.** `DELETE /plaid/items/{item_id}?history=` takes `delete` (the default:
+  the accounts and other rows go, the transactions become tombstones, the Item leaves
+  the list and its accounts leave `GET /accounts`, whose absence is the signal) or `keep`
+  (the data stays, and the Item stays listed with status `removed`). Every call that
+  would reach Plaid for a `removed` Item (sync, refresh, balances, the Sandbox
+  controls) is `409` `conflict`; its update-link token is `404`.
+- **Logos.** `Institution.logo_url` is the absolute URL of `GET
+  /institutions/{institution_id}/logo` (built from the request's own scheme and host)
+  when the server holds the institution's logo, else null; the route is bearer-secured
+  and answers the PNG, or `404` when the caller has no Item there with a logo.
+  `primary_color` is ARGB, converted from Plaid's `#rrggbb`.
+- **Sandbox** (tag `sandbox`): `sandboxResetLogin`, `sandboxFireWebhook`,
+  `sandboxCreateTransactions` (one to ten `SandboxTransaction`s, the amount in Plaid's
+  sign, positive is money out; dates today or up to 730 days back), and the
+  provisioning job `provisionPersona` and `getProvisionJob` (`ProvisionJob`, its
+  `progress` counters and `error`). Each is `409` `conflict` on a server that cannot drive
+  Sandbox, `404` for another user's Item or job.
+
 ## Errors
 
 Every 4xx and 5xx answer is `application/problem+json` (RFC 9457): `type`
@@ -84,7 +112,7 @@ machine-readable reason. `ValidationProblem` is always `status` 400 with `code`
 | `ValidationFailed` | 400 | `validation_failed` (a malformed body or one outside the contract) |
 | `Unauthorized` | 401 | `invalid_credentials`, `token_expired`, `token_revoked`; `webhook_unverified` for an unverified webhook |
 | `NotFound` | 404 | `not_found` |
-| `Conflict` | 409 | `email_taken`, `conflict`, `item_login_required` |
+| `Conflict` | 409 | `email_taken`, `conflict` (a `removed` Item, a server that cannot drive Sandbox, a provisioning job already running), `item_login_required` |
 | `RateLimited` | 429 | `rate_limited`, with `Retry-After` in seconds |
 | `Internal` | 500 | `internal` |
 | `PlaidError` | 502 | `plaid_error` |
@@ -135,7 +163,9 @@ Flutter and the Android build keep the configured Temurin 17. CI runs the Maven 
 on Temurin 17, and the two give byte-identical output.
 
 Using it: `ApiClient(dio: ..., basePathOverride: ...)` and its `getAuthApi()`,
-`getDataApi()`, `getSyncApi()` and the other per-tag APIs, one method per `operationId`.
+`getDataApi()`, `getSyncApi()`, `getInstitutionsApi()`, `getSandboxApi()` and the other
+per-tag APIs, one method per `operationId`. `getInstitutionLogo` answers
+`Response<Uint8List>`; its error body arrives as bytes too.
 Models are built_value classes; `Date` is the generated calendar-date type. Names to know:
 the generated `Money`, `Date`, `Transaction`, `Account` and the other models share names
 with `shared_models`, so code that uses both imports one with a prefix and converts at the
@@ -163,8 +193,10 @@ expect(entry.toJson(), conformsToSchema(contract, 'Account'));
 ```
 
 Paths are the document's templates. A response declared without a body (a 204) matches
-only null or an empty string. `OpenApiDocument` also answers `schema(name)`,
-`requestSchema(path, method)` and `responseSchema(path, method, status)`; `JsonValidator`
+only null or an empty string, and an `image/png` one only non-empty bytes (a
+`List<int>`). `OpenApiDocument` also answers `schema(name)`,
+`requestSchema(path, method)`, `responseSchema(path, method, status)` and
+`responseMediaType(path, method, status)`; `JsonValidator`
 returns the errors as readable lines (`/current_balance: ...`).
 
 The validator translates OAS 3.0 to JSON Schema draft 7 (the rules are in the header of
@@ -196,7 +228,8 @@ the gate, reports every violation and exits 1:
 
 - the document parses and is OpenAPI 3.0.x; every path starts with `/`;
 - every operation has a unique `operationId`, a summary and at least one 2xx response; a
-  2xx response has an `application/json` schema, and a 204 has no body;
+  2xx response has an `application/json` schema or is only `image/png` bytes
+  (`type: string, format: binary`), and a 204 has no body;
 - every 4xx and 5xx response is `application/problem+json` with `Problem` or
   `ValidationProblem`;
 - every `$ref` resolves, and every `required` name is a declared property;

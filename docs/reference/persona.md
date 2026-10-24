@@ -9,8 +9,10 @@ ways:
 2. **Plaid Sandbox custom users**, one per institution, for `/sandbox/public_token/create`;
 3. **injection batches** for `/sandbox/transactions/create`, with a manifest.
 
-The engine never calls Plaid. Provisioning Sandbox from these files is Phase 3's
-`tools/scripts/provision_persona.sh`, and only the coordinator runs it.
+The engine never calls Plaid. The development server's provisioning job provisions a
+persona into Sandbox from these outputs through the engine's Dart API, driven by
+`tools/scripts/provision_persona.sh` or the developer menu (`docs/reference/server.md`,
+**Provisioning**); against real Sandbox only the coordinator runs it.
 
 ## Using it
 
@@ -189,7 +191,7 @@ per https://plaid.com/docs/api/sandbox/#sandboxpublic_tokencreate):
 
 - Top level: `version: 2`, a `seed`, `roll_dates_forward: false` and `override_accounts`.
   No `inflow_model`, which would add Plaid's own transactions. No `mfa` or `force_error`.
-  The dates are the generator's; the provisioning script shifts them (**Dates in
+  The dates are the generator's; the provisioning job shifts them (**Dates in
   Sandbox**, below).
 - Account fields:
   - `type`, `subtype`, `starting_balance` and `currency`;
@@ -211,7 +213,7 @@ per https://plaid.com/docs/api/sandbox/#sandboxpublic_tokencreate):
 - **Limits.** At most ten accounts. At most 240 transactions (`customUserTransactionBudget`,
   ten below Plaid's "approximately 250"). The compact form stays at or below 50,000 bytes
   (Plaid: "approximately 55kb"); the files are written indented for review, and the size is
-  measured compact because that is what the provisioning script stringifies.
+  measured compact because that is what the provisioning job stringifies.
 
 **Which transactions go where** (`splitForSandbox`): per institution, every transaction on
 an account that rejects injection goes in the custom user. Student loan accounts reject it
@@ -231,7 +233,7 @@ accrual only on the student loans and the mortgage, and none on the cards.
 
 `injection_<institution>.json` holds the injected transactions in batches of at most ten
 (`date_transacted`, `date_posted`, `amount`, `description`, `iso_currency_code`, and
-`account`, the generator's account key, which the provisioning script maps to the Item's
+`account`, the generator's account key, which the provisioning job maps to the Item's
 Plaid `account_id`). The batches run **newest first**, so an interrupted run leaves a
 shorter history with no gap. The brief first said oldest first; the coordinator changed it
 at the plan review.
@@ -246,12 +248,19 @@ and to be confirmed against Sandbox in Phase 3.
 ## Dates in Sandbox
 
 Every file holds the generator's dates, ending on the as-of date. Before any call, the
-provisioning script shifts **every date of every Item of the persona by one amount**:
+provisioning job shifts **every date of every Item of the persona by one amount**:
 the Item creation date minus `as_of`. That covers the custom users' transaction,
 investment, holding and liability dates and every injection batch. The as-of date then
 lands on the creation day, and the legs of a transfer between two Items stay on one date.
 The window is at most 730 days and ends on the as-of date, so every shifted date is within
 Plaid's "present date or up to 730 days in the past".
+
+The job generates at the engine's default as-of date (the goldens' date, 2026-10-24), so a
+provisioned persona is the committed `days730` fixtures moved by the shift, and takes the
+creation day as Plaid's today reckoned at UTC−12, a date never ahead of Plaid's in any
+zone (`PLAN.md` §12). `shiftSandboxUserDates(config, days)` moves every date of a custom
+user (the keys in `sandboxUserDateKeys`) and nothing else; the job shifts the injected
+transactions' dates itself.
 
 `PLAN.md` §7.1 says the custom users have `roll_dates_forward` on. That was changed at
 implementation, and the decision is recorded in §12. With the flag on, Plaid shifts each
@@ -287,7 +296,7 @@ under a tier A brief that says so (`CLAUDE.md`, **Tiers**).
 | `balance_test.dart` | Closure; transfer pairing; loans replayed month by month from their opening; positions are their opening plus their buys; depository accounts never end a day below zero |
 | `recurrence_test.dart` | Every expectation occurs once per scheduled date within tolerance, in range, with no extras; monthly subscriptions once a month |
 | `coverage_test.dart` | All 18 primary categories used; every code is Plaid v2; anomalies two or three a year, both kinds, each new merchant exactly once; weekly and seasonal shapes visible |
-| `sandbox_limits_test.dart`, `sandbox_output_test.dart` | The limits, the partition, no student-loan injection, signs, starting balances, the liability blocks, newest-first batches, the interest switch |
+| `sandbox_limits_test.dart`, `sandbox_output_test.dart` | The limits, the partition, no student-loan injection, signs, starting balances, the liability blocks, newest-first batches, the interest switch, the date shift moving every date and nothing else |
 | `provenance_test.dart` | Every record is `demo`, in the model and the JSON; no clock, `dart:math` or `double` in `lib/` |
 | `determinism_test.dart` | Same seed, same bytes; another seed differs; the goldens match |
 | `property_test.dart` | Every invariant (closure, pairing, dates, the depository floor, provenance, loans, positions, anomalies, the Sandbox limits) over 100 seeds per persona; and over 15 as-of dates from 2024 to 2030 (month ends, leap days, year ends, around a semester's disbursement) times windows of 1, 2, 7, 31, 120, 365 and 730 days, which also checks that the as-of state does not depend on the window |
