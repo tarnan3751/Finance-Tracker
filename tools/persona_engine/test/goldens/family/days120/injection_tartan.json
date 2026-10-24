@@ -1,0 +1,11 @@
+{
+  "generator": "persona_engine",
+  "format_version": 1,
+  "persona": "family",
+  "seed": 1,
+  "institution": "tartan",
+  "plaid_institution_id": "ins_109511",
+  "as_of": "2026-10-24",
+  "order": "newest_first",
+  "batches": []
+}

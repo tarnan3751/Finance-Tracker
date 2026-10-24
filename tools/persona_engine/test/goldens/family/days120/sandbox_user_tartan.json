@@ -1,0 +1,108 @@
+{
+  "version": 2,
+  "seed": "family-1-tartan",
+  "roll_dates_forward": false,
+  "override_accounts": [
+    {
+      "type": "loan",
+      "subtype": "mortgage",
+      "starting_balance": 315570.30,
+      "currency": "USD",
+      "meta": {
+        "name": "Home Mortgage",
+        "official_name": "Tartan Bank 30 Year Fixed Mortgage",
+        "mask": "6604"
+      },
+      "identity": {
+        "names": [
+          "Morgan Patel",
+          "Riley Patel"
+        ],
+        "phone_numbers": [
+          {
+            "data": "6145550188",
+            "primary": true,
+            "type": "mobile"
+          }
+        ],
+        "emails": [
+          {
+            "data": "patel.household@example.com",
+            "primary": true,
+            "type": "primary"
+          }
+        ],
+        "addresses": [
+          {
+            "data": {
+              "city": "Columbus",
+              "region": "OH",
+              "street": "42 Juniper Lane",
+              "postal_code": "43215",
+              "country": "US"
+            },
+            "primary": true
+          }
+        ]
+      },
+      "transactions": [
+        {
+          "date_transacted": "2026-07-01",
+          "date_posted": "2026-07-01",
+          "amount": 1652.85,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-01",
+          "date_posted": "2026-07-01",
+          "amount": -2093.44,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-03",
+          "date_posted": "2026-08-03",
+          "amount": 1650.55,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-03",
+          "date_posted": "2026-08-03",
+          "amount": -2093.44,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-01",
+          "date_posted": "2026-09-01",
+          "amount": 1648.24,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-01",
+          "date_posted": "2026-09-01",
+          "amount": -2093.44,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-01",
+          "date_posted": "2026-10-01",
+          "amount": 1645.93,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-01",
+          "date_posted": "2026-10-01",
+          "amount": -2093.44,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        }
+      ]
+    }
+  ]
+}

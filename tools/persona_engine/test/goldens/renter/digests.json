@@ -1,0 +1,14 @@
+{
+  "generator": "persona_engine",
+  "format_version": 1,
+  "persona": "renter",
+  "seed": 1,
+  "as_of": "2026-10-24",
+  "days": 730,
+  "fnv1a64": {
+    "demo_seed.json": "6a156c9b40fd6cce",
+    "injection_manifest.json": "1b0f4a2b78a24912",
+    "injection_platypus.json": "53e15baedcc24647",
+    "sandbox_user_platypus.json": "74cad772f26dd4f7"
+  }
+}

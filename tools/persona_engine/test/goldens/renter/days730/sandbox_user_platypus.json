@@ -1,0 +1,1829 @@
+{
+  "version": 2,
+  "seed": "renter-1-platypus",
+  "roll_dates_forward": false,
+  "override_accounts": [
+    {
+      "type": "depository",
+      "subtype": "checking",
+      "starting_balance": 7297.54,
+      "currency": "USD",
+      "meta": {
+        "name": "Everyday Checking",
+        "official_name": "Platypus Everyday Checking",
+        "mask": "4417"
+      },
+      "identity": {
+        "names": [
+          "Jordan Avery"
+        ],
+        "phone_numbers": [
+          {
+            "data": "4155550134",
+            "primary": true,
+            "type": "mobile"
+          }
+        ],
+        "emails": [
+          {
+            "data": "jordan.avery@example.com",
+            "primary": true,
+            "type": "primary"
+          }
+        ],
+        "addresses": [
+          {
+            "data": {
+              "city": "San Francisco",
+              "region": "CA",
+              "street": "1180 Valencia Street, Apt 4",
+              "postal_code": "94110",
+              "country": "US"
+            },
+            "primary": true
+          }
+        ]
+      },
+      "transactions": [
+        {
+          "date_transacted": "2026-08-03",
+          "date_posted": "2026-08-03",
+          "amount": -666.33,
+          "description": "DOORDASH DASHER PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-03",
+          "date_posted": "2026-08-03",
+          "amount": 1650.00,
+          "description": "OAKWOOD APARTMENTS RENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-05",
+          "date_posted": "2026-08-05",
+          "amount": -315.80,
+          "description": "UBER DRIVER PAYOUT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-05",
+          "date_posted": "2026-08-05",
+          "amount": 250.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-10",
+          "date_posted": "2026-08-10",
+          "amount": -889.56,
+          "description": "DOORDASH DASHER PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-10",
+          "date_posted": "2026-08-10",
+          "amount": 86.94,
+          "description": "PGANDE WEB ONLINE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-12",
+          "date_posted": "2026-08-12",
+          "amount": -306.14,
+          "description": "UBER DRIVER PAYOUT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-14",
+          "date_posted": "2026-08-14",
+          "amount": 1889.94,
+          "description": "PLATYPUS CARD PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-17",
+          "date_posted": "2026-08-17",
+          "amount": -921.69,
+          "description": "DOORDASH DASHER PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-19",
+          "date_posted": "2026-08-19",
+          "amount": -338.90,
+          "description": "UBER DRIVER PAYOUT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-24",
+          "date_posted": "2026-08-24",
+          "amount": -922.67,
+          "description": "DOORDASH DASHER PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-26",
+          "date_posted": "2026-08-26",
+          "amount": -300.09,
+          "description": "UBER DRIVER PAYOUT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-31",
+          "date_posted": "2026-08-31",
+          "amount": -923.72,
+          "description": "DOORDASH DASHER PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-01",
+          "date_posted": "2026-09-01",
+          "amount": 1650.00,
+          "description": "OAKWOOD APARTMENTS RENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-02",
+          "date_posted": "2026-09-02",
+          "amount": -565.15,
+          "description": "UBER DRIVER PAYOUT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-05",
+          "date_posted": "2026-09-05",
+          "amount": 250.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-07",
+          "date_posted": "2026-09-07",
+          "amount": -487.55,
+          "description": "DOORDASH DASHER PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-09",
+          "date_posted": "2026-09-09",
+          "amount": -519.29,
+          "description": "UBER DRIVER PAYOUT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-09",
+          "date_posted": "2026-09-09",
+          "amount": 66.20,
+          "description": "PGANDE WEB ONLINE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-14",
+          "date_posted": "2026-09-14",
+          "amount": -470.33,
+          "description": "DOORDASH DASHER PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-14",
+          "date_posted": "2026-09-14",
+          "amount": 3307.45,
+          "description": "PLATYPUS CARD PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-16",
+          "date_posted": "2026-09-16",
+          "amount": -455.03,
+          "description": "UBER DRIVER PAYOUT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-17",
+          "date_posted": "2026-09-17",
+          "amount": 3.33,
+          "description": "ATM FEE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-21",
+          "date_posted": "2026-09-21",
+          "amount": -908.32,
+          "description": "DOORDASH DASHER PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-23",
+          "date_posted": "2026-09-23",
+          "amount": -416.89,
+          "description": "UBER DRIVER PAYOUT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-28",
+          "date_posted": "2026-09-28",
+          "amount": -725.27,
+          "description": "DOORDASH DASHER PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-30",
+          "date_posted": "2026-09-30",
+          "amount": -298.07,
+          "description": "UBER DRIVER PAYOUT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-01",
+          "date_posted": "2026-10-01",
+          "amount": 1650.00,
+          "description": "OAKWOOD APARTMENTS RENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-05",
+          "date_posted": "2026-10-05",
+          "amount": -891.87,
+          "description": "DOORDASH DASHER PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-05",
+          "date_posted": "2026-10-05",
+          "amount": 250.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-07",
+          "date_posted": "2026-10-07",
+          "amount": -479.01,
+          "description": "UBER DRIVER PAYOUT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-09",
+          "date_posted": "2026-10-09",
+          "amount": 49.40,
+          "description": "PGANDE WEB ONLINE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-12",
+          "date_posted": "2026-10-12",
+          "amount": -567.70,
+          "description": "DOORDASH DASHER PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-15",
+          "date_posted": "2026-10-15",
+          "amount": 2636.80,
+          "description": "PLATYPUS CARD PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-19",
+          "date_posted": "2026-10-19",
+          "amount": -493.50,
+          "description": "DOORDASH DASHER PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-21",
+          "date_posted": "2026-10-21",
+          "amount": -298.49,
+          "description": "UBER DRIVER PAYOUT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-22",
+          "date_posted": "2026-10-22",
+          "amount": 68.68,
+          "description": "ATM WITHDRAWAL 0412 MAIN ST",
+          "currency": "USD"
+        }
+      ]
+    },
+    {
+      "type": "depository",
+      "subtype": "savings",
+      "starting_balance": 10026.73,
+      "currency": "USD",
+      "meta": {
+        "name": "Savings",
+        "official_name": "Platypus High Yield Savings",
+        "mask": "8820",
+        "apy": 4.00
+      },
+      "identity": {
+        "names": [
+          "Jordan Avery"
+        ],
+        "phone_numbers": [
+          {
+            "data": "4155550134",
+            "primary": true,
+            "type": "mobile"
+          }
+        ],
+        "emails": [
+          {
+            "data": "jordan.avery@example.com",
+            "primary": true,
+            "type": "primary"
+          }
+        ],
+        "addresses": [
+          {
+            "data": {
+              "city": "San Francisco",
+              "region": "CA",
+              "street": "1180 Valencia Street, Apt 4",
+              "postal_code": "94110",
+              "country": "US"
+            },
+            "primary": true
+          }
+        ]
+      },
+      "transactions": [
+        {
+          "date_transacted": "2026-07-31",
+          "date_posted": "2026-07-31",
+          "amount": -30.61,
+          "description": "INTEREST PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-05",
+          "date_posted": "2026-08-05",
+          "amount": -250.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-31",
+          "date_posted": "2026-08-31",
+          "amount": -31.54,
+          "description": "INTEREST PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-05",
+          "date_posted": "2026-09-05",
+          "amount": -250.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-30",
+          "date_posted": "2026-09-30",
+          "amount": -32.48,
+          "description": "INTEREST PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-05",
+          "date_posted": "2026-10-05",
+          "amount": -250.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        }
+      ]
+    },
+    {
+      "type": "credit",
+      "subtype": "credit card",
+      "starting_balance": 3645.22,
+      "currency": "USD",
+      "meta": {
+        "name": "Platypus Rewards Card",
+        "official_name": "Platypus Rewards Visa Signature",
+        "mask": "3091",
+        "limit": 8000.00
+      },
+      "identity": {
+        "names": [
+          "Jordan Avery"
+        ],
+        "phone_numbers": [
+          {
+            "data": "4155550134",
+            "primary": true,
+            "type": "mobile"
+          }
+        ],
+        "emails": [
+          {
+            "data": "jordan.avery@example.com",
+            "primary": true,
+            "type": "primary"
+          }
+        ],
+        "addresses": [
+          {
+            "data": {
+              "city": "San Francisco",
+              "region": "CA",
+              "street": "1180 Valencia Street, Apt 4",
+              "postal_code": "94110",
+              "country": "US"
+            },
+            "primary": true
+          }
+        ]
+      },
+      "transactions": [
+        {
+          "date_transacted": "2026-07-31",
+          "date_posted": "2026-08-02",
+          "amount": 123.57,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-31",
+          "date_posted": "2026-08-02",
+          "amount": 43.04,
+          "description": "DOORDASH*THAI BASIL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-01",
+          "date_posted": "2026-08-02",
+          "amount": 36.27,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-01",
+          "date_posted": "2026-08-02",
+          "amount": 33.63,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-01",
+          "date_posted": "2026-08-03",
+          "amount": 55.44,
+          "description": "TST* THE OLD TAVERN",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-02",
+          "date_posted": "2026-08-03",
+          "amount": 94.30,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-02",
+          "date_posted": "2026-08-03",
+          "amount": 11.07,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-03",
+          "date_posted": "2026-08-03",
+          "amount": 14.00,
+          "description": "LEMONADE INSURANCE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-03",
+          "date_posted": "2026-08-03",
+          "amount": 41.96,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-03",
+          "date_posted": "2026-08-03",
+          "amount": 8.39,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-03",
+          "date_posted": "2026-08-05",
+          "amount": 21.35,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-05",
+          "date_posted": "2026-08-05",
+          "amount": 312.37,
+          "description": "DOORDASH*THAI BASIL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-06",
+          "date_posted": "2026-08-06",
+          "amount": 64.81,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-06",
+          "date_posted": "2026-08-06",
+          "amount": 4.59,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-06",
+          "date_posted": "2026-08-06",
+          "amount": 32.51,
+          "description": "WALGREENS #7714",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-07",
+          "date_posted": "2026-08-07",
+          "amount": 15.49,
+          "description": "NETFLIX.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-07",
+          "date_posted": "2026-08-07",
+          "amount": 8.65,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-07",
+          "date_posted": "2026-08-07",
+          "amount": 11.06,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-06",
+          "date_posted": "2026-08-08",
+          "amount": 10.88,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-06",
+          "date_posted": "2026-08-08",
+          "amount": 47.41,
+          "description": "TARGET T-0871",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-08",
+          "date_posted": "2026-08-09",
+          "amount": 21.22,
+          "description": "DOORDASH*THAI BASIL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-09",
+          "date_posted": "2026-08-10",
+          "amount": 57.12,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-09",
+          "date_posted": "2026-08-10",
+          "amount": 31.87,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-09",
+          "date_posted": "2026-08-10",
+          "amount": 70.45,
+          "description": "AMZN Mktp US*7Y2QF1",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-11",
+          "date_posted": "2026-08-12",
+          "amount": 76.15,
+          "description": "SAFEWAY #0985",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-11",
+          "date_posted": "2026-08-12",
+          "amount": 8.34,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-11",
+          "date_posted": "2026-08-12",
+          "amount": 46.82,
+          "description": "DOORDASH*THAI BASIL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-11",
+          "date_posted": "2026-08-12",
+          "amount": 53.11,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-12",
+          "date_posted": "2026-08-12",
+          "amount": 11.99,
+          "description": "Spotify USA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-12",
+          "date_posted": "2026-08-12",
+          "amount": 88.65,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-12",
+          "date_posted": "2026-08-12",
+          "amount": 5.11,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-12",
+          "date_posted": "2026-08-12",
+          "amount": 33.78,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-13",
+          "date_posted": "2026-08-13",
+          "amount": 76.50,
+          "description": "TARGET T-1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-14",
+          "date_posted": "2026-08-14",
+          "amount": 70.00,
+          "description": "COMCAST XFINITY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-14",
+          "date_posted": "2026-08-14",
+          "amount": -1889.94,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-14",
+          "date_posted": "2026-08-14",
+          "amount": 899.35,
+          "description": "VCA ANIMAL HOSPITAL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-14",
+          "date_posted": "2026-08-15",
+          "amount": 18.77,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-15",
+          "date_posted": "2026-08-15",
+          "amount": 45.70,
+          "description": "DOORDASH*THAI BASIL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-14",
+          "date_posted": "2026-08-16",
+          "amount": 27.05,
+          "description": "TST* THE OLD TAVERN",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-15",
+          "date_posted": "2026-08-16",
+          "amount": 63.94,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-16",
+          "date_posted": "2026-08-16",
+          "amount": 17.46,
+          "description": "TST* THE OLD TAVERN",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-16",
+          "date_posted": "2026-08-17",
+          "amount": 60.14,
+          "description": "AMAZON.COM*9H31P0",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-17",
+          "date_posted": "2026-08-17",
+          "amount": 24.99,
+          "description": "PLANET FITNESS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-17",
+          "date_posted": "2026-08-18",
+          "amount": 8.04,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-18",
+          "date_posted": "2026-08-18",
+          "amount": 17.99,
+          "description": "HULU 877-8244858",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-18",
+          "date_posted": "2026-08-18",
+          "amount": 4.13,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-18",
+          "date_posted": "2026-08-18",
+          "amount": 51.77,
+          "description": "TARGET T-0871",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-19",
+          "date_posted": "2026-08-19",
+          "amount": 33.14,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-18",
+          "date_posted": "2026-08-20",
+          "amount": 62.06,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-19",
+          "date_posted": "2026-08-20",
+          "amount": 4.25,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-19",
+          "date_posted": "2026-08-20",
+          "amount": 10.81,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-19",
+          "date_posted": "2026-08-20",
+          "amount": 84.31,
+          "description": "AMAZON.COM*2K4LM8",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-20",
+          "date_posted": "2026-08-20",
+          "amount": 55.00,
+          "description": "T-MOBILE AUTOPAY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-20",
+          "date_posted": "2026-08-21",
+          "amount": 5.28,
+          "description": "SQ *BLUE BOTTLE COFFEE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-20",
+          "date_posted": "2026-08-22",
+          "amount": 97.30,
+          "description": "SAFEWAY #0985",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-21",
+          "date_posted": "2026-08-22",
+          "amount": 37.20,
+          "description": "SAFEWAY #1711",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-22",
+          "date_posted": "2026-08-22",
+          "amount": 2.99,
+          "description": "APPLE.COM/BILL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-22",
+          "date_posted": "2026-08-22",
+          "amount": 14.28,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-22",
+          "date_posted": "2026-08-24",
+          "amount": 48.68,
+          "description": "DOORDASH*THAI BASIL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-23",
+          "date_posted": "2026-08-24",
+          "amount": 52.30,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-24",
+          "date_posted": "2026-08-24",
+          "amount": 13.12,
+          "description": "INTEREST CHARGE ON PURCHASES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-24",
+          "date_posted": "2026-08-24",
+          "amount": 8.46,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-24",
+          "date_posted": "2026-08-25",
+          "amount": 24.89,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-24",
+          "date_posted": "2026-08-25",
+          "amount": 46.23,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-25",
+          "date_posted": "2026-08-25",
+          "amount": 49.57,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-26",
+          "date_posted": "2026-08-26",
+          "amount": 4.61,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-25",
+          "date_posted": "2026-08-27",
+          "amount": 72.33,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-27",
+          "date_posted": "2026-08-27",
+          "amount": 7.29,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-26",
+          "date_posted": "2026-08-28",
+          "amount": 126.74,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-27",
+          "date_posted": "2026-08-28",
+          "amount": 50.64,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-28",
+          "date_posted": "2026-08-28",
+          "amount": 44.97,
+          "description": "AMAZON.COM*9H31P0",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-27",
+          "date_posted": "2026-08-29",
+          "amount": 21.20,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-29",
+          "date_posted": "2026-08-29",
+          "amount": 85.92,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-29",
+          "date_posted": "2026-08-29",
+          "amount": 68.74,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-29",
+          "date_posted": "2026-08-29",
+          "amount": 39.16,
+          "description": "TARGET T-1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-30",
+          "date_posted": "2026-08-30",
+          "amount": 16.19,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-30",
+          "date_posted": "2026-08-31",
+          "amount": 7.53,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-30",
+          "date_posted": "2026-09-01",
+          "amount": 102.87,
+          "description": "SAFEWAY #1711",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-31",
+          "date_posted": "2026-09-01",
+          "amount": 8.60,
+          "description": "SQ *BLUE BOTTLE COFFEE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-01",
+          "date_posted": "2026-09-01",
+          "amount": 6.19,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-02",
+          "date_posted": "2026-09-03",
+          "amount": 7.33,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-03",
+          "date_posted": "2026-09-03",
+          "amount": 14.00,
+          "description": "LEMONADE INSURANCE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-03",
+          "date_posted": "2026-09-05",
+          "amount": 94.05,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-04",
+          "date_posted": "2026-09-05",
+          "amount": 84.42,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-05",
+          "date_posted": "2026-09-06",
+          "amount": 57.64,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-05",
+          "date_posted": "2026-09-07",
+          "amount": 66.44,
+          "description": "SAFEWAY #1711",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-05",
+          "date_posted": "2026-09-07",
+          "amount": 37.52,
+          "description": "TARGET T-1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-06",
+          "date_posted": "2026-09-07",
+          "amount": 23.68,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-07",
+          "date_posted": "2026-09-07",
+          "amount": 15.49,
+          "description": "NETFLIX.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-08",
+          "date_posted": "2026-09-09",
+          "amount": 8.87,
+          "description": "SQ *BLUE BOTTLE COFFEE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-09",
+          "date_posted": "2026-09-10",
+          "amount": 30.00,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-10",
+          "date_posted": "2026-09-10",
+          "amount": 8.08,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-10",
+          "date_posted": "2026-09-11",
+          "amount": 47.50,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-11",
+          "date_posted": "2026-09-11",
+          "amount": 36.58,
+          "description": "TST* THE OLD TAVERN",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-11",
+          "date_posted": "2026-09-12",
+          "amount": 9.08,
+          "description": "SQ *BLUE BOTTLE COFFEE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-12",
+          "date_posted": "2026-09-12",
+          "amount": 11.99,
+          "description": "Spotify USA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-13",
+          "date_posted": "2026-09-13",
+          "amount": 60.43,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-12",
+          "date_posted": "2026-09-14",
+          "amount": 86.04,
+          "description": "SAFEWAY #1711",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-13",
+          "date_posted": "2026-09-14",
+          "amount": 49.47,
+          "description": "TST* THE OLD TAVERN",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-14",
+          "date_posted": "2026-09-14",
+          "amount": 70.00,
+          "description": "COMCAST XFINITY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-14",
+          "date_posted": "2026-09-14",
+          "amount": -3307.45,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-16",
+          "date_posted": "2026-09-16",
+          "amount": 6.03,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-16",
+          "date_posted": "2026-09-17",
+          "amount": 22.45,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-17",
+          "date_posted": "2026-09-17",
+          "amount": 24.99,
+          "description": "PLANET FITNESS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-17",
+          "date_posted": "2026-09-17",
+          "amount": 45.19,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-17",
+          "date_posted": "2026-09-17",
+          "amount": 54.48,
+          "description": "TST* THE OLD TAVERN",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-18",
+          "date_posted": "2026-09-18",
+          "amount": 17.99,
+          "description": "HULU 877-8244858",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-17",
+          "date_posted": "2026-09-19",
+          "amount": 21.93,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-18",
+          "date_posted": "2026-09-19",
+          "amount": 136.03,
+          "description": "WHOLEFDS MKT #10571",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-18",
+          "date_posted": "2026-09-19",
+          "amount": 20.76,
+          "description": "CVS/PHARMACY #04321",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-19",
+          "date_posted": "2026-09-19",
+          "amount": 66.30,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-19",
+          "date_posted": "2026-09-20",
+          "amount": 32.60,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-20",
+          "date_posted": "2026-09-20",
+          "amount": 55.00,
+          "description": "T-MOBILE AUTOPAY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-20",
+          "date_posted": "2026-09-20",
+          "amount": 10.66,
+          "description": "LYFT *RIDE SUN 2PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-19",
+          "date_posted": "2026-09-21",
+          "amount": 97.59,
+          "description": "WHOLEFDS MKT #10571",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-21",
+          "date_posted": "2026-09-21",
+          "amount": 7.04,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-21",
+          "date_posted": "2026-09-21",
+          "amount": 44.16,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-22",
+          "date_posted": "2026-09-22",
+          "amount": 2.99,
+          "description": "APPLE.COM/BILL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-22",
+          "date_posted": "2026-09-22",
+          "amount": 44.83,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-23",
+          "date_posted": "2026-09-24",
+          "amount": 68.53,
+          "description": "SAFEWAY #1711",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-24",
+          "date_posted": "2026-09-24",
+          "amount": 22.96,
+          "description": "INTEREST CHARGE ON PURCHASES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-24",
+          "date_posted": "2026-09-24",
+          "amount": 4.57,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-24",
+          "date_posted": "2026-09-25",
+          "amount": 24.28,
+          "description": "DOORDASH*THAI BASIL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-25",
+          "date_posted": "2026-09-25",
+          "amount": 7.58,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-25",
+          "date_posted": "2026-09-26",
+          "amount": 41.14,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-25",
+          "date_posted": "2026-09-26",
+          "amount": 8.70,
+          "description": "WALGREENS #7714",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-26",
+          "date_posted": "2026-09-26",
+          "amount": 19.73,
+          "description": "AMZN Mktp US*7Y2QF1",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-25",
+          "date_posted": "2026-09-27",
+          "amount": 17.82,
+          "description": "AMAZON.COM*2K4LM8",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-26",
+          "date_posted": "2026-09-27",
+          "amount": 24.85,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-27",
+          "date_posted": "2026-09-27",
+          "amount": 4.17,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-27",
+          "date_posted": "2026-09-27",
+          "amount": 28.33,
+          "description": "TST* THE OLD TAVERN",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-27",
+          "date_posted": "2026-09-27",
+          "amount": 17.66,
+          "description": "CVS/PHARMACY #04321",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-28",
+          "date_posted": "2026-09-28",
+          "amount": 85.82,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-28",
+          "date_posted": "2026-09-28",
+          "amount": 62.67,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-27",
+          "date_posted": "2026-09-29",
+          "amount": 63.30,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-28",
+          "date_posted": "2026-09-29",
+          "amount": 5.31,
+          "description": "SQ *BLUE BOTTLE COFFEE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-29",
+          "date_posted": "2026-09-30",
+          "amount": 18.27,
+          "description": "SAFEWAY #1711",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-29",
+          "date_posted": "2026-09-30",
+          "amount": 36.13,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-30",
+          "date_posted": "2026-10-01",
+          "amount": 62.10,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-01",
+          "date_posted": "2026-10-01",
+          "amount": 37.17,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-01",
+          "date_posted": "2026-10-01",
+          "amount": 5.10,
+          "description": "SQ *BLUE BOTTLE COFFEE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-30",
+          "date_posted": "2026-10-02",
+          "amount": 48.17,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-30",
+          "date_posted": "2026-10-02",
+          "amount": 16.58,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-02",
+          "date_posted": "2026-10-02",
+          "amount": 12.61,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-03",
+          "date_posted": "2026-10-03",
+          "amount": 14.00,
+          "description": "LEMONADE INSURANCE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-04",
+          "date_posted": "2026-10-04",
+          "amount": 49.03,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-04",
+          "date_posted": "2026-10-05",
+          "amount": 48.11,
+          "description": "SAFEWAY #0985",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-04",
+          "date_posted": "2026-10-05",
+          "amount": 28.80,
+          "description": "TST* THE OLD TAVERN",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-06",
+          "date_posted": "2026-10-07",
+          "amount": 6.03,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-07",
+          "date_posted": "2026-10-07",
+          "amount": 15.49,
+          "description": "NETFLIX.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-07",
+          "date_posted": "2026-10-08",
+          "amount": 3.97,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-07",
+          "date_posted": "2026-10-08",
+          "amount": 61.71,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-08",
+          "date_posted": "2026-10-08",
+          "amount": 8.23,
+          "description": "SQ *BLUE BOTTLE COFFEE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-09",
+          "date_posted": "2026-10-09",
+          "amount": 33.29,
+          "description": "SAFEWAY #1711",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-08",
+          "date_posted": "2026-10-10",
+          "amount": 15.87,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-09",
+          "date_posted": "2026-10-10",
+          "amount": 6.89,
+          "description": "SQ *BLUE BOTTLE COFFEE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-10",
+          "date_posted": "2026-10-10",
+          "amount": 21.45,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-10",
+          "date_posted": "2026-10-10",
+          "amount": 31.40,
+          "description": "TST* THE OLD TAVERN",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-10",
+          "date_posted": "2026-10-10",
+          "amount": 37.08,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-10",
+          "date_posted": "2026-10-10",
+          "amount": 117.00,
+          "description": "AMZN Mktp US*7Y2QF1",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-12",
+          "date_posted": "2026-10-12",
+          "amount": 11.99,
+          "description": "Spotify USA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-12",
+          "date_posted": "2026-10-12",
+          "amount": 77.47,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-12",
+          "date_posted": "2026-10-13",
+          "amount": 57.80,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-13",
+          "date_posted": "2026-10-13",
+          "amount": 7.12,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-13",
+          "date_posted": "2026-10-13",
+          "amount": 33.30,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-14",
+          "date_posted": "2026-10-14",
+          "amount": 70.00,
+          "description": "COMCAST XFINITY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-15",
+          "date_posted": "2026-10-15",
+          "amount": -2636.80,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-15",
+          "date_posted": "2026-10-15",
+          "amount": 94.93,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-14",
+          "date_posted": "2026-10-16",
+          "amount": 95.44,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-15",
+          "date_posted": "2026-10-16",
+          "amount": 7.56,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-16",
+          "date_posted": "2026-10-16",
+          "amount": 117.04,
+          "description": "SAFEWAY #1711",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-16",
+          "date_posted": "2026-10-16",
+          "amount": 6.65,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-16",
+          "date_posted": "2026-10-17",
+          "amount": 63.49,
+          "description": "TARGET T-1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-17",
+          "date_posted": "2026-10-17",
+          "amount": 24.99,
+          "description": "PLANET FITNESS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-17",
+          "date_posted": "2026-10-17",
+          "amount": 5.65,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-17",
+          "date_posted": "2026-10-17",
+          "amount": 21.70,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-17",
+          "date_posted": "2026-10-17",
+          "amount": 34.27,
+          "description": "TST* THE OLD TAVERN",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-16",
+          "date_posted": "2026-10-18",
+          "amount": 12.14,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-18",
+          "date_posted": "2026-10-18",
+          "amount": 17.99,
+          "description": "HULU 877-8244858",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-17",
+          "date_posted": "2026-10-19",
+          "amount": 85.72,
+          "description": "SAFEWAY #1711",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-18",
+          "date_posted": "2026-10-20",
+          "amount": 23.12,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-19",
+          "date_posted": "2026-10-20",
+          "amount": 21.23,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-20",
+          "date_posted": "2026-10-20",
+          "amount": 55.00,
+          "description": "T-MOBILE AUTOPAY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-20",
+          "date_posted": "2026-10-20",
+          "amount": 88.55,
+          "description": "SAFEWAY #0985",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-20",
+          "date_posted": "2026-10-20",
+          "amount": 7.94,
+          "description": "SQ *BLUE BOTTLE COFFEE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-22",
+          "date_posted": "2026-10-22",
+          "amount": 2.99,
+          "description": "APPLE.COM/BILL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-22",
+          "date_posted": "2026-10-22",
+          "amount": 8.66,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-21",
+          "date_posted": "2026-10-23",
+          "amount": 92.16,
+          "description": "SAFEWAY #0985",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-22",
+          "date_posted": "2026-10-23",
+          "amount": 14.79,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-22",
+          "date_posted": "2026-10-23",
+          "amount": 59.80,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-23",
+          "date_posted": "2026-10-23",
+          "amount": 56.87,
+          "description": "WHOLEFDS MKT #10571",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-23",
+          "date_posted": "2026-10-23",
+          "amount": 21.90,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-23",
+          "date_posted": "2026-10-24",
+          "amount": 59.99,
+          "description": "TST* THE OLD TAVERN",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-23",
+          "date_posted": "2026-10-24",
+          "amount": 138.33,
+          "description": "TARGET T-1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-24",
+          "date_posted": "2026-10-24",
+          "amount": 18.30,
+          "description": "INTEREST CHARGE ON PURCHASES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-24",
+          "date_posted": "2026-10-24",
+          "amount": 72.03,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-24",
+          "date_posted": "2026-10-24",
+          "amount": 28.97,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        }
+      ],
+      "liability": {
+        "type": "credit",
+        "purchase_apr": 24.99,
+        "last_payment_amount": 2636.80,
+        "last_statement_balance": 3544.22,
+        "minimum_payment_amount": 106.33,
+        "is_overdue": false
+      }
+    }
+  ]
+}

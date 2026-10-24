@@ -1,0 +1,654 @@
+{
+  "version": 2,
+  "seed": "student-1-gingham",
+  "roll_dates_forward": false,
+  "override_accounts": [
+    {
+      "type": "loan",
+      "subtype": "student",
+      "starting_balance": 10792.76,
+      "currency": "USD",
+      "meta": {
+        "name": "Undergraduate Loan",
+        "official_name": "Gingham Student Loan",
+        "mask": "9031"
+      },
+      "identity": {
+        "names": [
+          "Sam Rivera"
+        ],
+        "phone_numbers": [
+          {
+            "data": "5125550147",
+            "primary": true,
+            "type": "mobile"
+          }
+        ],
+        "emails": [
+          {
+            "data": "sam.rivera@example.com",
+            "primary": true,
+            "type": "primary"
+          }
+        ],
+        "addresses": [
+          {
+            "data": {
+              "city": "Austin",
+              "region": "TX",
+              "street": "2501 Nueces Street, Unit 12",
+              "postal_code": "78705",
+              "country": "US"
+            },
+            "primary": true
+          }
+        ]
+      },
+      "transactions": [
+        {
+          "date_transacted": "2024-10-28",
+          "date_posted": "2024-10-28",
+          "amount": 68.44,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2024-10-28",
+          "date_posted": "2024-10-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2024-11-28",
+          "date_posted": "2024-11-28",
+          "amount": 67.51,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2024-11-28",
+          "date_posted": "2024-11-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2024-12-28",
+          "date_posted": "2024-12-28",
+          "amount": 66.57,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2024-12-28",
+          "date_posted": "2024-12-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-01-28",
+          "date_posted": "2025-01-28",
+          "amount": 65.63,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-01-28",
+          "date_posted": "2025-01-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-02-28",
+          "date_posted": "2025-02-28",
+          "amount": 64.68,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-02-28",
+          "date_posted": "2025-02-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-28",
+          "date_posted": "2025-03-28",
+          "amount": 63.73,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-28",
+          "date_posted": "2025-03-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-28",
+          "date_posted": "2025-04-28",
+          "amount": 62.77,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-28",
+          "date_posted": "2025-04-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-28",
+          "date_posted": "2025-05-28",
+          "amount": 61.81,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-28",
+          "date_posted": "2025-05-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-28",
+          "date_posted": "2025-06-28",
+          "amount": 60.85,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-28",
+          "date_posted": "2025-06-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-28",
+          "date_posted": "2025-07-28",
+          "amount": 59.88,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-28",
+          "date_posted": "2025-07-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-28",
+          "date_posted": "2025-08-28",
+          "amount": 58.91,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-28",
+          "date_posted": "2025-08-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-28",
+          "date_posted": "2025-09-28",
+          "amount": 57.94,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-28",
+          "date_posted": "2025-09-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-28",
+          "date_posted": "2025-10-28",
+          "amount": 56.96,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-28",
+          "date_posted": "2025-10-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-28",
+          "date_posted": "2025-11-28",
+          "amount": 55.97,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-28",
+          "date_posted": "2025-11-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-28",
+          "date_posted": "2025-12-28",
+          "amount": 54.98,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-28",
+          "date_posted": "2025-12-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-28",
+          "date_posted": "2026-01-28",
+          "amount": 53.99,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-28",
+          "date_posted": "2026-01-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-28",
+          "date_posted": "2026-02-28",
+          "amount": 53.00,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-28",
+          "date_posted": "2026-02-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-28",
+          "date_posted": "2026-03-28",
+          "amount": 52.00,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-28",
+          "date_posted": "2026-03-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-28",
+          "date_posted": "2026-04-28",
+          "amount": 50.99,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-28",
+          "date_posted": "2026-04-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-28",
+          "date_posted": "2026-05-28",
+          "amount": 49.98,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-28",
+          "date_posted": "2026-05-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-28",
+          "date_posted": "2026-06-28",
+          "amount": 48.97,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-28",
+          "date_posted": "2026-06-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-28",
+          "date_posted": "2026-07-28",
+          "amount": 47.96,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-28",
+          "date_posted": "2026-07-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-28",
+          "date_posted": "2026-08-28",
+          "amount": 46.93,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-28",
+          "date_posted": "2026-08-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-28",
+          "date_posted": "2026-09-28",
+          "amount": 45.91,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-28",
+          "date_posted": "2026-09-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        }
+      ],
+      "liability": {
+        "type": "student",
+        "origination_date": "2019-08-24",
+        "principal": 27000.00,
+        "nominal_apr": 4.99,
+        "loan_name": "Gingham Undergraduate Direct Loan",
+        "repayment_model": {
+          "type": "standard",
+          "non_repayment_months": 6,
+          "repayment_months": 120
+        },
+        "is_federal": true,
+        "minimum_payment_amount": 293.47
+      }
+    },
+    {
+      "type": "loan",
+      "subtype": "student",
+      "starting_balance": 35179.02,
+      "currency": "USD",
+      "meta": {
+        "name": "Graduate Loan",
+        "official_name": "Gingham Graduate Student Loan",
+        "mask": "9047"
+      },
+      "identity": {
+        "names": [
+          "Sam Rivera"
+        ],
+        "phone_numbers": [
+          {
+            "data": "5125550147",
+            "primary": true,
+            "type": "mobile"
+          }
+        ],
+        "emails": [
+          {
+            "data": "sam.rivera@example.com",
+            "primary": true,
+            "type": "primary"
+          }
+        ],
+        "addresses": [
+          {
+            "data": {
+              "city": "Austin",
+              "region": "TX",
+              "street": "2501 Nueces Street, Unit 12",
+              "postal_code": "78705",
+              "country": "US"
+            },
+            "primary": true
+          }
+        ]
+      },
+      "transactions": [
+        {
+          "date_transacted": "2024-10-28",
+          "date_posted": "2024-10-28",
+          "amount": 35.76,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2024-11-28",
+          "date_posted": "2024-11-28",
+          "amount": 35.95,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2024-12-28",
+          "date_posted": "2024-12-28",
+          "amount": 36.15,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-01-12",
+          "date_posted": "2025-01-12",
+          "amount": 6500.00,
+          "description": "GINGHAM STUDENT LN DISBURSEMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-01-28",
+          "date_posted": "2025-01-28",
+          "amount": 71.71,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-02-28",
+          "date_posted": "2025-02-28",
+          "amount": 72.10,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-28",
+          "date_posted": "2025-03-28",
+          "amount": 72.50,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-28",
+          "date_posted": "2025-04-28",
+          "amount": 72.89,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-28",
+          "date_posted": "2025-05-28",
+          "amount": 73.29,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-28",
+          "date_posted": "2025-06-28",
+          "amount": 73.69,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-28",
+          "date_posted": "2025-07-28",
+          "amount": 74.09,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-20",
+          "date_posted": "2025-08-20",
+          "amount": 6500.00,
+          "description": "GINGHAM STUDENT LN DISBURSEMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-28",
+          "date_posted": "2025-08-28",
+          "amount": 109.86,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-28",
+          "date_posted": "2025-09-28",
+          "amount": 110.46,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-28",
+          "date_posted": "2025-10-28",
+          "amount": 111.06,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-28",
+          "date_posted": "2025-11-28",
+          "amount": 111.67,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-28",
+          "date_posted": "2025-12-28",
+          "amount": 112.27,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-12",
+          "date_posted": "2026-01-12",
+          "amount": 6500.00,
+          "description": "GINGHAM STUDENT LN DISBURSEMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-28",
+          "date_posted": "2026-01-28",
+          "amount": 148.25,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-28",
+          "date_posted": "2026-02-28",
+          "amount": 149.06,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-28",
+          "date_posted": "2026-03-28",
+          "amount": 149.87,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-28",
+          "date_posted": "2026-04-28",
+          "amount": 150.69,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-28",
+          "date_posted": "2026-05-28",
+          "amount": 151.51,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-28",
+          "date_posted": "2026-06-28",
+          "amount": 152.33,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-28",
+          "date_posted": "2026-07-28",
+          "amount": 153.16,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-20",
+          "date_posted": "2026-08-20",
+          "amount": 6500.00,
+          "description": "GINGHAM STUDENT LN DISBURSEMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-28",
+          "date_posted": "2026-08-28",
+          "amount": 189.37,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-28",
+          "date_posted": "2026-09-28",
+          "amount": 190.40,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        }
+      ],
+      "liability": {
+        "type": "student",
+        "origination_date": "2024-08-24",
+        "principal": 6500.00,
+        "nominal_apr": 6.53,
+        "loan_name": "Gingham Graduate Direct Loan",
+        "repayment_model": {
+          "type": "standard",
+          "non_repayment_months": 30,
+          "repayment_months": 120
+        },
+        "is_federal": true
+      }
+    }
+  ]
+}

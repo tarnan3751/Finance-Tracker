@@ -1,0 +1,16 @@
+{
+  "generator": "persona_engine",
+  "format_version": 1,
+  "persona": "student",
+  "seed": 1,
+  "as_of": "2026-10-24",
+  "days": 730,
+  "fnv1a64": {
+    "demo_seed.json": "9dcf2aa1f84fd892",
+    "injection_gingham.json": "455bfafd0f93183a",
+    "injection_manifest.json": "dc78a5833732799c",
+    "injection_platypus.json": "44d61d33ebba98e7",
+    "sandbox_user_gingham.json": "6ef3b6792e8d0520",
+    "sandbox_user_platypus.json": "6b8c619fd2ae6d82"
+  }
+}

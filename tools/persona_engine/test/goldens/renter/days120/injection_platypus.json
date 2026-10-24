@@ -1,0 +1,636 @@
+{
+  "generator": "persona_engine",
+  "format_version": 1,
+  "persona": "renter",
+  "seed": 1,
+  "institution": "platypus",
+  "plaid_institution_id": "ins_109508",
+  "as_of": "2026-10-24",
+  "order": "newest_first",
+  "batches": [
+    [
+      {
+        "date_transacted": "2026-07-25",
+        "date_posted": "2026-07-25",
+        "amount": 19.77,
+        "description": "UBER *TRIP HELP.UBER.COM",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-25",
+        "date_posted": "2026-07-25",
+        "amount": 7.12,
+        "description": "STARBUCKS STORE 11240",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-24",
+        "date_posted": "2026-07-25",
+        "amount": 48.83,
+        "description": "DOORDASH*THAI BASIL",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-24",
+        "date_posted": "2026-07-24",
+        "amount": 4.43,
+        "description": "INTEREST CHARGE ON PURCHASES",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-23",
+        "date_posted": "2026-07-24",
+        "amount": 61.20,
+        "description": "CHEVRON 0091633",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-23",
+        "date_posted": "2026-07-23",
+        "amount": 12.66,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-23",
+        "date_posted": "2026-07-23",
+        "amount": 57.76,
+        "description": "TRADER JOE'S #552",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-22",
+        "date_posted": "2026-07-23",
+        "amount": 13.30,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-22",
+        "date_posted": "2026-07-22",
+        "amount": 5.29,
+        "description": "STARBUCKS STORE 08812",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-22",
+        "date_posted": "2026-07-22",
+        "amount": 2.99,
+        "description": "APPLE.COM/BILL",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-22",
+        "date_posted": "2026-07-22",
+        "amount": -431.47,
+        "description": "UBER DRIVER PAYOUT",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-21",
+        "date_posted": "2026-07-22",
+        "amount": 52.86,
+        "description": "CHEVRON 0091633",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-20",
+        "date_posted": "2026-07-22",
+        "amount": 44.14,
+        "description": "DOORDASH*THAI BASIL",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-20",
+        "date_posted": "2026-07-20",
+        "amount": 9.02,
+        "description": "STARBUCKS STORE 08812",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-20",
+        "date_posted": "2026-07-20",
+        "amount": 55.00,
+        "description": "T-MOBILE AUTOPAY",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-20",
+        "date_posted": "2026-07-20",
+        "amount": -652.05,
+        "description": "DOORDASH DASHER PAYMENT",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-19",
+        "date_posted": "2026-07-20",
+        "amount": 38.29,
+        "description": "SHELL OIL 57444212",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-18",
+        "date_posted": "2026-07-20",
+        "amount": 40.27,
+        "description": "TST* THE OLD TAVERN",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-19",
+        "date_posted": "2026-07-19",
+        "amount": 41.96,
+        "description": "DOORDASH*THAI BASIL",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-18",
+        "date_posted": "2026-07-19",
+        "amount": 12.52,
+        "description": "UBER *TRIP HELP.UBER.COM",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-18",
+        "date_posted": "2026-07-19",
+        "amount": 42.07,
+        "description": "DOORDASH*THAI BASIL",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-18",
+        "date_posted": "2026-07-19",
+        "amount": 9.82,
+        "description": "SQ *BLUE BOTTLE COFFEE",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-17",
+        "date_posted": "2026-07-19",
+        "amount": 19.88,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-18",
+        "date_posted": "2026-07-18",
+        "amount": 17.99,
+        "description": "HULU 877-8244858",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-17",
+        "date_posted": "2026-07-18",
+        "amount": 50.52,
+        "description": "SHELL OIL 57444212",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-17",
+        "date_posted": "2026-07-17",
+        "amount": 94.30,
+        "description": "SAFEWAY #1711",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-17",
+        "date_posted": "2026-07-17",
+        "amount": 24.99,
+        "description": "PLANET FITNESS",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-16",
+        "date_posted": "2026-07-16",
+        "amount": 14.36,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-14",
+        "date_posted": "2026-07-16",
+        "amount": 15.40,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-15",
+        "date_posted": "2026-07-15",
+        "amount": 18.93,
+        "description": "SWEETGREEN MISSION",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-15",
+        "date_posted": "2026-07-15",
+        "amount": -637.50,
+        "description": "PAYMENT - THANK YOU",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-15",
+        "date_posted": "2026-07-15",
+        "amount": 637.50,
+        "description": "PLATYPUS CARD PAYMENT",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-15",
+        "date_posted": "2026-07-15",
+        "amount": -523.82,
+        "description": "UBER DRIVER PAYOUT",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-14",
+        "date_posted": "2026-07-14",
+        "amount": 20.69,
+        "description": "UBER *TRIP HELP.UBER.COM",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-14",
+        "date_posted": "2026-07-14",
+        "amount": 70.00,
+        "description": "COMCAST XFINITY",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-13",
+        "date_posted": "2026-07-14",
+        "amount": 9.17,
+        "description": "STARBUCKS STORE 11240",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-13",
+        "date_posted": "2026-07-13",
+        "amount": -543.69,
+        "description": "DOORDASH DASHER PAYMENT",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-11",
+        "date_posted": "2026-07-13",
+        "amount": 58.16,
+        "description": "WHOLEFDS MKT #10571",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-12",
+        "date_posted": "2026-07-12",
+        "amount": 9.06,
+        "description": "STARBUCKS STORE 11240",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-12",
+        "date_posted": "2026-07-12",
+        "amount": 11.99,
+        "description": "Spotify USA",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-10",
+        "date_posted": "2026-07-12",
+        "amount": 18.00,
+        "description": "SAFEWAY #0985",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-10",
+        "date_posted": "2026-07-11",
+        "amount": 55.12,
+        "description": "TST* THE OLD TAVERN",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-09",
+        "date_posted": "2026-07-10",
+        "amount": 20.48,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-09",
+        "date_posted": "2026-07-10",
+        "amount": 85.85,
+        "description": "TRADER JOE'S #127",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-08",
+        "date_posted": "2026-07-10",
+        "amount": 71.45,
+        "description": "WHOLEFDS MKT #10234",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-09",
+        "date_posted": "2026-07-09",
+        "amount": 85.13,
+        "description": "PGANDE WEB ONLINE",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-08",
+        "date_posted": "2026-07-09",
+        "amount": 4.09,
+        "description": "STARBUCKS STORE 11240",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-08",
+        "date_posted": "2026-07-08",
+        "amount": -528.32,
+        "description": "UBER DRIVER PAYOUT",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-07",
+        "date_posted": "2026-07-08",
+        "amount": 39.19,
+        "description": "DOORDASH*THAI BASIL",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-07",
+        "date_posted": "2026-07-07",
+        "amount": 15.49,
+        "description": "NETFLIX.COM",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-06",
+        "date_posted": "2026-07-07",
+        "amount": 30.38,
+        "description": "UBER *TRIP",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-06",
+        "date_posted": "2026-07-07",
+        "amount": 10.29,
+        "description": "SQ *BLUE BOTTLE COFFEE",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-06",
+        "date_posted": "2026-07-06",
+        "amount": -637.84,
+        "description": "DOORDASH DASHER PAYMENT",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-05",
+        "date_posted": "2026-07-05",
+        "amount": 11.92,
+        "description": "UBER *TRIP HELP.UBER.COM",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-05",
+        "date_posted": "2026-07-05",
+        "amount": -250.00,
+        "description": "ONLINE TRANSFER FROM CHECKING",
+        "iso_currency_code": "USD",
+        "account": "savings"
+      },
+      {
+        "date_transacted": "2026-07-05",
+        "date_posted": "2026-07-05",
+        "amount": 250.00,
+        "description": "ONLINE TRANSFER TO SAVINGS",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-04",
+        "date_posted": "2026-07-05",
+        "amount": 13.76,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-03",
+        "date_posted": "2026-07-05",
+        "amount": 41.98,
+        "description": "TARGET T-1234",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-03",
+        "date_posted": "2026-07-04",
+        "amount": 14.84,
+        "description": "TRADER JOE'S #552",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-02",
+        "date_posted": "2026-07-04",
+        "amount": 44.24,
+        "description": "TRADER JOE'S #127",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-03",
+        "date_posted": "2026-07-03",
+        "amount": 14.00,
+        "description": "LEMONADE INSURANCE",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-01",
+        "date_posted": "2026-07-01",
+        "amount": 1650.00,
+        "description": "OAKWOOD APARTMENTS RENT",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-01",
+        "date_posted": "2026-07-01",
+        "amount": -489.97,
+        "description": "UBER DRIVER PAYOUT",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-06-30",
+        "date_posted": "2026-07-01",
+        "amount": 40.37,
+        "description": "AMZN Mktp US*7Y2QF1",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-06-30",
+        "date_posted": "2026-07-01",
+        "amount": 23.78,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-06-29",
+        "date_posted": "2026-07-01",
+        "amount": 32.05,
+        "description": "TRADER JOE'S #552",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-06-30",
+        "date_posted": "2026-06-30",
+        "amount": -11.67,
+        "description": "INTEREST PAYMENT",
+        "iso_currency_code": "USD",
+        "account": "savings"
+      },
+      {
+        "date_transacted": "2026-06-30",
+        "date_posted": "2026-06-30",
+        "amount": 62.37,
+        "description": "SHELL OIL 57441108",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-06-28",
+        "date_posted": "2026-06-30",
+        "amount": 31.61,
+        "description": "DOORDASH*THAI BASIL",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-06-29",
+        "date_posted": "2026-06-29",
+        "amount": 12.39,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-06-29",
+        "date_posted": "2026-06-29",
+        "amount": 5.38,
+        "description": "STARBUCKS STORE 11240",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-06-29",
+        "date_posted": "2026-06-29",
+        "amount": -504.84,
+        "description": "DOORDASH DASHER PAYMENT",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-06-27",
+        "date_posted": "2026-06-29",
+        "amount": 63.88,
+        "description": "TST* THE OLD TAVERN",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-06-28",
+        "date_posted": "2026-06-28",
+        "amount": 99.26,
+        "description": "ATM WITHDRAWAL 0412 MAIN ST",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-06-27",
+        "date_posted": "2026-06-28",
+        "amount": 11.47,
+        "description": "UBER *TRIP HELP.UBER.COM",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-06-27",
+        "date_posted": "2026-06-27",
+        "amount": 5.30,
+        "description": "STARBUCKS STORE 08812",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ]
+  ]
+}

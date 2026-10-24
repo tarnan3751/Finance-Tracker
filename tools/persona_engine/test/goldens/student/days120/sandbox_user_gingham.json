@@ -1,0 +1,213 @@
+{
+  "version": 2,
+  "seed": "student-1-gingham",
+  "roll_dates_forward": false,
+  "override_accounts": [
+    {
+      "type": "loan",
+      "subtype": "student",
+      "starting_balance": 10792.76,
+      "currency": "USD",
+      "meta": {
+        "name": "Undergraduate Loan",
+        "official_name": "Gingham Student Loan",
+        "mask": "9031"
+      },
+      "identity": {
+        "names": [
+          "Sam Rivera"
+        ],
+        "phone_numbers": [
+          {
+            "data": "5125550147",
+            "primary": true,
+            "type": "mobile"
+          }
+        ],
+        "emails": [
+          {
+            "data": "sam.rivera@example.com",
+            "primary": true,
+            "type": "primary"
+          }
+        ],
+        "addresses": [
+          {
+            "data": {
+              "city": "Austin",
+              "region": "TX",
+              "street": "2501 Nueces Street, Unit 12",
+              "postal_code": "78705",
+              "country": "US"
+            },
+            "primary": true
+          }
+        ]
+      },
+      "transactions": [
+        {
+          "date_transacted": "2026-06-28",
+          "date_posted": "2026-06-28",
+          "amount": 48.97,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-28",
+          "date_posted": "2026-06-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-28",
+          "date_posted": "2026-07-28",
+          "amount": 47.96,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-28",
+          "date_posted": "2026-07-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-28",
+          "date_posted": "2026-08-28",
+          "amount": 46.93,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-28",
+          "date_posted": "2026-08-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-28",
+          "date_posted": "2026-09-28",
+          "amount": 45.91,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-28",
+          "date_posted": "2026-09-28",
+          "amount": -293.47,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        }
+      ],
+      "liability": {
+        "type": "student",
+        "origination_date": "2019-08-24",
+        "principal": 27000.00,
+        "nominal_apr": 4.99,
+        "loan_name": "Gingham Undergraduate Direct Loan",
+        "repayment_model": {
+          "type": "standard",
+          "non_repayment_months": 6,
+          "repayment_months": 120
+        },
+        "is_federal": true,
+        "minimum_payment_amount": 293.47
+      }
+    },
+    {
+      "type": "loan",
+      "subtype": "student",
+      "starting_balance": 35179.02,
+      "currency": "USD",
+      "meta": {
+        "name": "Graduate Loan",
+        "official_name": "Gingham Graduate Student Loan",
+        "mask": "9047"
+      },
+      "identity": {
+        "names": [
+          "Sam Rivera"
+        ],
+        "phone_numbers": [
+          {
+            "data": "5125550147",
+            "primary": true,
+            "type": "mobile"
+          }
+        ],
+        "emails": [
+          {
+            "data": "sam.rivera@example.com",
+            "primary": true,
+            "type": "primary"
+          }
+        ],
+        "addresses": [
+          {
+            "data": {
+              "city": "Austin",
+              "region": "TX",
+              "street": "2501 Nueces Street, Unit 12",
+              "postal_code": "78705",
+              "country": "US"
+            },
+            "primary": true
+          }
+        ]
+      },
+      "transactions": [
+        {
+          "date_transacted": "2026-06-28",
+          "date_posted": "2026-06-28",
+          "amount": 152.33,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-28",
+          "date_posted": "2026-07-28",
+          "amount": 153.16,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-20",
+          "date_posted": "2026-08-20",
+          "amount": 6500.00,
+          "description": "GINGHAM STUDENT LN DISBURSEMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-28",
+          "date_posted": "2026-08-28",
+          "amount": 189.37,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-28",
+          "date_posted": "2026-09-28",
+          "amount": 190.40,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        }
+      ],
+      "liability": {
+        "type": "student",
+        "origination_date": "2024-08-24",
+        "principal": 6500.00,
+        "nominal_apr": 6.53,
+        "loan_name": "Gingham Graduate Direct Loan",
+        "repayment_model": {
+          "type": "standard",
+          "non_repayment_months": 30,
+          "repayment_months": 120
+        },
+        "is_federal": true
+      }
+    }
+  ]
+}

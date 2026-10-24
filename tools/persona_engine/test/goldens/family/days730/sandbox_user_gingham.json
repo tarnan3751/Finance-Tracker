@@ -1,0 +1,803 @@
+{
+  "version": 2,
+  "seed": "family-1-gingham",
+  "roll_dates_forward": false,
+  "override_accounts": [
+    {
+      "type": "loan",
+      "subtype": "auto",
+      "starting_balance": 13791.80,
+      "currency": "USD",
+      "meta": {
+        "name": "SUV Loan",
+        "official_name": "Gingham Auto Loan",
+        "mask": "2208"
+      },
+      "identity": {
+        "names": [
+          "Morgan Patel",
+          "Riley Patel"
+        ],
+        "phone_numbers": [
+          {
+            "data": "6145550188",
+            "primary": true,
+            "type": "mobile"
+          }
+        ],
+        "emails": [
+          {
+            "data": "patel.household@example.com",
+            "primary": true,
+            "type": "primary"
+          }
+        ],
+        "addresses": [
+          {
+            "data": {
+              "city": "Columbus",
+              "region": "OH",
+              "street": "42 Juniper Lane",
+              "postal_code": "43215",
+              "country": "US"
+            },
+            "primary": true
+          }
+        ]
+      },
+      "transactions": [
+        {
+          "date_transacted": "2024-11-15",
+          "date_posted": "2024-11-15",
+          "amount": 96.48,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2024-11-15",
+          "date_posted": "2024-11-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2024-12-16",
+          "date_posted": "2024-12-16",
+          "amount": 94.88,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2024-12-16",
+          "date_posted": "2024-12-16",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-01-15",
+          "date_posted": "2025-01-15",
+          "amount": 93.27,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-01-15",
+          "date_posted": "2025-01-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-02-17",
+          "date_posted": "2025-02-17",
+          "amount": 91.66,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-02-17",
+          "date_posted": "2025-02-17",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-17",
+          "date_posted": "2025-03-17",
+          "amount": 90.04,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-17",
+          "date_posted": "2025-03-17",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-15",
+          "date_posted": "2025-04-15",
+          "amount": 88.41,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-15",
+          "date_posted": "2025-04-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-15",
+          "date_posted": "2025-05-15",
+          "amount": 86.78,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-15",
+          "date_posted": "2025-05-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-16",
+          "date_posted": "2025-06-16",
+          "amount": 85.14,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-16",
+          "date_posted": "2025-06-16",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-15",
+          "date_posted": "2025-07-15",
+          "amount": 83.49,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-15",
+          "date_posted": "2025-07-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-15",
+          "date_posted": "2025-08-15",
+          "amount": 81.83,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-15",
+          "date_posted": "2025-08-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-15",
+          "date_posted": "2025-09-15",
+          "amount": 80.17,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-15",
+          "date_posted": "2025-09-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-15",
+          "date_posted": "2025-10-15",
+          "amount": 78.51,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-15",
+          "date_posted": "2025-10-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-17",
+          "date_posted": "2025-11-17",
+          "amount": 76.83,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-17",
+          "date_posted": "2025-11-17",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-15",
+          "date_posted": "2025-12-15",
+          "amount": 75.15,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-15",
+          "date_posted": "2025-12-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-15",
+          "date_posted": "2026-01-15",
+          "amount": 73.46,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-15",
+          "date_posted": "2026-01-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-16",
+          "date_posted": "2026-02-16",
+          "amount": 71.77,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-16",
+          "date_posted": "2026-02-16",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-16",
+          "date_posted": "2026-03-16",
+          "amount": 70.07,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-16",
+          "date_posted": "2026-03-16",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-15",
+          "date_posted": "2026-04-15",
+          "amount": 68.36,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-15",
+          "date_posted": "2026-04-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-15",
+          "date_posted": "2026-05-15",
+          "amount": 66.64,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-15",
+          "date_posted": "2026-05-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-15",
+          "date_posted": "2026-06-15",
+          "amount": 64.92,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-15",
+          "date_posted": "2026-06-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-15",
+          "date_posted": "2026-07-15",
+          "amount": 63.19,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-15",
+          "date_posted": "2026-07-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-17",
+          "date_posted": "2026-08-17",
+          "amount": 61.45,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-17",
+          "date_posted": "2026-08-17",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-15",
+          "date_posted": "2026-09-15",
+          "amount": 59.71,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-15",
+          "date_posted": "2026-09-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-15",
+          "date_posted": "2026-10-15",
+          "amount": 57.96,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-15",
+          "date_posted": "2026-10-15",
+          "amount": -489.35,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        }
+      ],
+      "liability": {
+        "type": "loan",
+        "interest_rate": {
+          "percentage": 4.89,
+          "type": "fixed"
+        },
+        "principal_balance": 13791.80,
+        "origination_principal_amount": 26000.00,
+        "loan_term_months": 60,
+        "maturity_date": "2029-04-24",
+        "payment_frequency": "monthly",
+        "next_payment_amount": 489.35,
+        "next_payment_due_date": "2026-11-16",
+        "last_payment_date": "2026-10-15",
+        "last_payment_amount": 489.35,
+        "ytd_interest_paid": 657.53
+      }
+    },
+    {
+      "type": "loan",
+      "subtype": "auto",
+      "starting_balance": 6472.49,
+      "currency": "USD",
+      "meta": {
+        "name": "Sedan Loan",
+        "official_name": "Gingham Auto Loan",
+        "mask": "2215"
+      },
+      "identity": {
+        "names": [
+          "Morgan Patel",
+          "Riley Patel"
+        ],
+        "phone_numbers": [
+          {
+            "data": "6145550188",
+            "primary": true,
+            "type": "mobile"
+          }
+        ],
+        "emails": [
+          {
+            "data": "patel.household@example.com",
+            "primary": true,
+            "type": "primary"
+          }
+        ],
+        "addresses": [
+          {
+            "data": {
+              "city": "Columbus",
+              "region": "OH",
+              "street": "42 Juniper Lane",
+              "postal_code": "43215",
+              "country": "US"
+            },
+            "primary": true
+          }
+        ]
+      },
+      "transactions": [
+        {
+          "date_transacted": "2024-11-22",
+          "date_posted": "2024-11-22",
+          "amount": 72.32,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2024-11-22",
+          "date_posted": "2024-11-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2024-12-23",
+          "date_posted": "2024-12-23",
+          "amount": 70.86,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2024-12-23",
+          "date_posted": "2024-12-23",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-01-22",
+          "date_posted": "2025-01-22",
+          "amount": 69.39,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-01-22",
+          "date_posted": "2025-01-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-02-24",
+          "date_posted": "2025-02-24",
+          "amount": 67.92,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-02-24",
+          "date_posted": "2025-02-24",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-24",
+          "date_posted": "2025-03-24",
+          "amount": 66.43,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-24",
+          "date_posted": "2025-03-24",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-22",
+          "date_posted": "2025-04-22",
+          "amount": 64.94,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-22",
+          "date_posted": "2025-04-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-22",
+          "date_posted": "2025-05-22",
+          "amount": 63.44,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-22",
+          "date_posted": "2025-05-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-23",
+          "date_posted": "2025-06-23",
+          "amount": 61.93,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-23",
+          "date_posted": "2025-06-23",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-22",
+          "date_posted": "2025-07-22",
+          "amount": 60.42,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-22",
+          "date_posted": "2025-07-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-22",
+          "date_posted": "2025-08-22",
+          "amount": 58.89,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-22",
+          "date_posted": "2025-08-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-22",
+          "date_posted": "2025-09-22",
+          "amount": 57.36,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-22",
+          "date_posted": "2025-09-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-22",
+          "date_posted": "2025-10-22",
+          "amount": 55.82,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-22",
+          "date_posted": "2025-10-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-24",
+          "date_posted": "2025-11-24",
+          "amount": 54.27,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-24",
+          "date_posted": "2025-11-24",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-22",
+          "date_posted": "2025-12-22",
+          "amount": 52.71,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-22",
+          "date_posted": "2025-12-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-22",
+          "date_posted": "2026-01-22",
+          "amount": 51.14,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-22",
+          "date_posted": "2026-01-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-23",
+          "date_posted": "2026-02-23",
+          "amount": 49.57,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-23",
+          "date_posted": "2026-02-23",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-23",
+          "date_posted": "2026-03-23",
+          "amount": 47.98,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-23",
+          "date_posted": "2026-03-23",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-22",
+          "date_posted": "2026-04-22",
+          "amount": 46.39,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-22",
+          "date_posted": "2026-04-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-22",
+          "date_posted": "2026-05-22",
+          "amount": 44.79,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-22",
+          "date_posted": "2026-05-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-22",
+          "date_posted": "2026-06-22",
+          "amount": 43.18,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-22",
+          "date_posted": "2026-06-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-22",
+          "date_posted": "2026-07-22",
+          "amount": 41.56,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-22",
+          "date_posted": "2026-07-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-24",
+          "date_posted": "2026-08-24",
+          "amount": 39.94,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-24",
+          "date_posted": "2026-08-24",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-22",
+          "date_posted": "2026-09-22",
+          "amount": 38.30,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-22",
+          "date_posted": "2026-09-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-22",
+          "date_posted": "2026-10-22",
+          "amount": 36.66,
+          "description": "INTEREST CHARGED",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-22",
+          "date_posted": "2026-10-22",
+          "amount": -342.33,
+          "description": "PAYMENT RECEIVED - THANK YOU",
+          "currency": "USD"
+        }
+      ],
+      "liability": {
+        "type": "loan",
+        "interest_rate": {
+          "percentage": 6.49,
+          "type": "fixed"
+        },
+        "principal_balance": 6472.49,
+        "origination_principal_amount": 17500.00,
+        "loan_term_months": 60,
+        "maturity_date": "2028-06-24",
+        "payment_frequency": "monthly",
+        "next_payment_amount": 342.33,
+        "next_payment_due_date": "2026-11-23",
+        "last_payment_date": "2026-10-22",
+        "last_payment_amount": 342.33,
+        "ytd_interest_paid": 439.51
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "generator": "persona_engine",
+  "format_version": 1,
+  "persona": "small_business",
+  "seed": 1,
+  "as_of": "2026-10-24",
+  "include_interest_legs": true,
+  "order": "newest_first",
+  "date_shift": "add (Item creation date - as_of) days to every date in every sandbox_user and injection file of this persona, the same shift for every Item",
+  "pacing": {
+    "interval_seconds_per_item": 35,
+    "basis": "Plaid's rate-limit table: /sandbox/transactions/create 2 per minute per Item, 50 per minute per client; documented, to be confirmed against Sandbox in Phase 3"
+  },
+  "items": [
+    {
+      "institution": "platypus",
+      "plaid_institution_id": "ins_109508",
+      "sandbox_user_file": "sandbox_user_platypus.json",
+      "injection_file": "injection_platypus.json",
+      "custom_user_transactions": 239,
+      "injected_transactions": 1013,
+      "batch_count": 102,
+      "estimated_duration_seconds": 3535
+    },
+    {
+      "institution": "gingham",
+      "plaid_institution_id": "ins_109509",
+      "sandbox_user_file": "sandbox_user_gingham.json",
+      "injection_file": "injection_gingham.json",
+      "custom_user_transactions": 240,
+      "injected_transactions": 512,
+      "batch_count": 52,
+      "estimated_duration_seconds": 1785
+    }
+  ]
+}

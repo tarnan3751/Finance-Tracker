@@ -1,0 +1,1784 @@
+{
+  "version": 2,
+  "seed": "small_business-1-gingham",
+  "roll_dates_forward": false,
+  "override_accounts": [
+    {
+      "type": "depository",
+      "subtype": "checking",
+      "starting_balance": 78338.45,
+      "currency": "USD",
+      "meta": {
+        "name": "Business Checking",
+        "official_name": "Gingham Business Checking",
+        "mask": "7120"
+      },
+      "identity": {
+        "names": [
+          "Casey Nakamura"
+        ],
+        "phone_numbers": [
+          {
+            "data": "5035550162",
+            "primary": true,
+            "type": "mobile"
+          }
+        ],
+        "emails": [
+          {
+            "data": "casey@northlight-studio.example.com",
+            "primary": true,
+            "type": "primary"
+          }
+        ],
+        "addresses": [
+          {
+            "data": {
+              "city": "Portland",
+              "region": "OR",
+              "street": "815 SE Belmont Street",
+              "postal_code": "97214",
+              "country": "US"
+            },
+            "primary": true
+          }
+        ]
+      },
+      "transactions": [
+        {
+          "date_transacted": "2026-02-10",
+          "date_posted": "2026-02-10",
+          "amount": -2120.58,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-15",
+          "date_posted": "2026-02-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-17",
+          "date_posted": "2026-02-17",
+          "amount": -1636.58,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-21",
+          "date_posted": "2026-02-21",
+          "amount": 3910.61,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-24",
+          "date_posted": "2026-02-24",
+          "amount": -2876.50,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-01",
+          "date_posted": "2026-03-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-02",
+          "date_posted": "2026-03-02",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-03",
+          "date_posted": "2026-03-03",
+          "amount": -1702.36,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-03",
+          "date_posted": "2026-03-03",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-05",
+          "date_posted": "2026-03-05",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-10",
+          "date_posted": "2026-03-10",
+          "amount": -1784.20,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-15",
+          "date_posted": "2026-03-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-17",
+          "date_posted": "2026-03-17",
+          "amount": -2831.62,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-24",
+          "date_posted": "2026-03-24",
+          "amount": -1926.54,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-24",
+          "date_posted": "2026-03-24",
+          "amount": 726.45,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-31",
+          "date_posted": "2026-03-31",
+          "amount": -2160.84,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-01",
+          "date_posted": "2026-04-01",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-01",
+          "date_posted": "2026-04-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-03",
+          "date_posted": "2026-04-03",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-06",
+          "date_posted": "2026-04-06",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-07",
+          "date_posted": "2026-04-07",
+          "amount": -2969.78,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-14",
+          "date_posted": "2026-04-14",
+          "amount": -1626.24,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-15",
+          "date_posted": "2026-04-15",
+          "amount": 9000.00,
+          "description": "IRS USATAXPYMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-15",
+          "date_posted": "2026-04-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-21",
+          "date_posted": "2026-04-21",
+          "amount": -2477.42,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-21",
+          "date_posted": "2026-04-21",
+          "amount": 943.40,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-28",
+          "date_posted": "2026-04-28",
+          "amount": -2360.82,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-01",
+          "date_posted": "2026-05-01",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-01",
+          "date_posted": "2026-05-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-04",
+          "date_posted": "2026-05-04",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-05",
+          "date_posted": "2026-05-05",
+          "amount": -2802.36,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-05",
+          "date_posted": "2026-05-05",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-12",
+          "date_posted": "2026-05-12",
+          "amount": -2629.88,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-15",
+          "date_posted": "2026-05-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-19",
+          "date_posted": "2026-05-19",
+          "amount": -1815.66,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-22",
+          "date_posted": "2026-05-22",
+          "amount": 1515.85,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-26",
+          "date_posted": "2026-05-26",
+          "amount": -2530.22,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-01",
+          "date_posted": "2026-06-01",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-01",
+          "date_posted": "2026-06-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-02",
+          "date_posted": "2026-06-02",
+          "amount": -1696.20,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-03",
+          "date_posted": "2026-06-03",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-05",
+          "date_posted": "2026-06-05",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-09",
+          "date_posted": "2026-06-09",
+          "amount": -1567.72,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-15",
+          "date_posted": "2026-06-15",
+          "amount": 9000.00,
+          "description": "IRS USATAXPYMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-15",
+          "date_posted": "2026-06-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-16",
+          "date_posted": "2026-06-16",
+          "amount": -2649.68,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-21",
+          "date_posted": "2026-06-21",
+          "amount": 1299.81,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-23",
+          "date_posted": "2026-06-23",
+          "amount": -2291.74,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-30",
+          "date_posted": "2026-06-30",
+          "amount": -2970.00,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-01",
+          "date_posted": "2026-07-01",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-01",
+          "date_posted": "2026-07-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-03",
+          "date_posted": "2026-07-03",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-06",
+          "date_posted": "2026-07-06",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-07",
+          "date_posted": "2026-07-07",
+          "amount": -2328.92,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-14",
+          "date_posted": "2026-07-14",
+          "amount": -1884.30,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-15",
+          "date_posted": "2026-07-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-21",
+          "date_posted": "2026-07-21",
+          "amount": -2763.20,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-22",
+          "date_posted": "2026-07-22",
+          "amount": 975.03,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-28",
+          "date_posted": "2026-07-28",
+          "amount": -2452.34,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-01",
+          "date_posted": "2026-08-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-03",
+          "date_posted": "2026-08-03",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-03",
+          "date_posted": "2026-08-03",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-04",
+          "date_posted": "2026-08-04",
+          "amount": -2053.04,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-05",
+          "date_posted": "2026-08-05",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-11",
+          "date_posted": "2026-08-11",
+          "amount": -2500.96,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-15",
+          "date_posted": "2026-08-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-18",
+          "date_posted": "2026-08-18",
+          "amount": -2705.34,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-21",
+          "date_posted": "2026-08-21",
+          "amount": 1088.15,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-25",
+          "date_posted": "2026-08-25",
+          "amount": -2800.60,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-01",
+          "date_posted": "2026-09-01",
+          "amount": -2817.32,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-01",
+          "date_posted": "2026-09-01",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-01",
+          "date_posted": "2026-09-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-03",
+          "date_posted": "2026-09-03",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-07",
+          "date_posted": "2026-09-07",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-08",
+          "date_posted": "2026-09-08",
+          "amount": -2540.56,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-15",
+          "date_posted": "2026-09-15",
+          "amount": -2536.82,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-15",
+          "date_posted": "2026-09-15",
+          "amount": 9000.00,
+          "description": "IRS USATAXPYMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-15",
+          "date_posted": "2026-09-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-21",
+          "date_posted": "2026-09-21",
+          "amount": 1238.03,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-22",
+          "date_posted": "2026-09-22",
+          "amount": -2847.90,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-29",
+          "date_posted": "2026-09-29",
+          "amount": -2030.82,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-01",
+          "date_posted": "2026-10-01",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-01",
+          "date_posted": "2026-10-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-05",
+          "date_posted": "2026-10-05",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-05",
+          "date_posted": "2026-10-05",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-06",
+          "date_posted": "2026-10-06",
+          "amount": -2902.24,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-13",
+          "date_posted": "2026-10-13",
+          "amount": -2713.92,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-15",
+          "date_posted": "2026-10-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-20",
+          "date_posted": "2026-10-20",
+          "amount": -1660.78,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-22",
+          "date_posted": "2026-10-22",
+          "amount": 869.22,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        }
+      ]
+    },
+    {
+      "type": "credit",
+      "subtype": "credit card",
+      "starting_balance": 856.18,
+      "currency": "USD",
+      "meta": {
+        "name": "Business Card",
+        "official_name": "Gingham Business Rewards Card",
+        "mask": "7144",
+        "limit": 20000.00
+      },
+      "identity": {
+        "names": [
+          "Casey Nakamura"
+        ],
+        "phone_numbers": [
+          {
+            "data": "5035550162",
+            "primary": true,
+            "type": "mobile"
+          }
+        ],
+        "emails": [
+          {
+            "data": "casey@northlight-studio.example.com",
+            "primary": true,
+            "type": "primary"
+          }
+        ],
+        "addresses": [
+          {
+            "data": {
+              "city": "Portland",
+              "region": "OR",
+              "street": "815 SE Belmont Street",
+              "postal_code": "97214",
+              "country": "US"
+            },
+            "primary": true
+          }
+        ]
+      },
+      "transactions": [
+        {
+          "date_transacted": "2026-02-07",
+          "date_posted": "2026-02-08",
+          "amount": 12.52,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-09",
+          "date_posted": "2026-02-11",
+          "amount": 164.12,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-11",
+          "date_posted": "2026-02-12",
+          "amount": 14.05,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-12",
+          "date_posted": "2026-02-13",
+          "amount": 23.88,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-13",
+          "date_posted": "2026-02-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-21",
+          "date_posted": "2026-02-21",
+          "amount": -3910.61,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-21",
+          "date_posted": "2026-02-21",
+          "amount": 12.39,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-27",
+          "date_posted": "2026-02-27",
+          "amount": 126.95,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-27",
+          "date_posted": "2026-02-27",
+          "amount": 29.56,
+          "description": "LYFT *RIDE SUN 2PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-01",
+          "date_posted": "2026-03-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-02",
+          "date_posted": "2026-03-02",
+          "amount": 311.08,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-06",
+          "date_posted": "2026-03-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-06",
+          "date_posted": "2026-03-07",
+          "amount": 27.42,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-08",
+          "date_posted": "2026-03-08",
+          "amount": 7.67,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-10",
+          "date_posted": "2026-03-11",
+          "amount": 17.38,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-12",
+          "date_posted": "2026-03-13",
+          "amount": 19.10,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-13",
+          "date_posted": "2026-03-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-14",
+          "date_posted": "2026-03-14",
+          "amount": 23.71,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-15",
+          "date_posted": "2026-03-15",
+          "amount": 29.18,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-17",
+          "date_posted": "2026-03-17",
+          "amount": 19.87,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-17",
+          "date_posted": "2026-03-19",
+          "amount": 114.25,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-18",
+          "date_posted": "2026-03-19",
+          "amount": 31.45,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-19",
+          "date_posted": "2026-03-20",
+          "amount": 22.98,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-20",
+          "date_posted": "2026-03-20",
+          "amount": 9.08,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-20",
+          "date_posted": "2026-03-20",
+          "amount": 31.48,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-24",
+          "date_posted": "2026-03-24",
+          "amount": -726.45,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-30",
+          "date_posted": "2026-03-30",
+          "amount": 22.10,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-30",
+          "date_posted": "2026-04-01",
+          "amount": 21.32,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-01",
+          "date_posted": "2026-04-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-01",
+          "date_posted": "2026-04-01",
+          "amount": 77.91,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-01",
+          "date_posted": "2026-04-02",
+          "amount": 19.86,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-02",
+          "date_posted": "2026-04-02",
+          "amount": 371.72,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-02",
+          "date_posted": "2026-04-03",
+          "amount": 411.59,
+          "description": "MARRIOTT SAN DIEGO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-06",
+          "date_posted": "2026-04-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-06",
+          "date_posted": "2026-04-06",
+          "amount": 35.24,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-06",
+          "date_posted": "2026-04-07",
+          "amount": 20.75,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-08",
+          "date_posted": "2026-04-08",
+          "amount": 26.62,
+          "description": "LYFT *RIDE SUN 2PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-11",
+          "date_posted": "2026-04-12",
+          "amount": 37.70,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-13",
+          "date_posted": "2026-04-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-14",
+          "date_posted": "2026-04-15",
+          "amount": 136.51,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-17",
+          "date_posted": "2026-04-18",
+          "amount": 19.48,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-20",
+          "date_posted": "2026-04-21",
+          "amount": 22.13,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-21",
+          "date_posted": "2026-04-21",
+          "amount": -943.40,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-26",
+          "date_posted": "2026-04-26",
+          "amount": 170.68,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-01",
+          "date_posted": "2026-05-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-02",
+          "date_posted": "2026-05-02",
+          "amount": 240.56,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-04",
+          "date_posted": "2026-05-05",
+          "amount": 12.40,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-05",
+          "date_posted": "2026-05-06",
+          "amount": 6.32,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-06",
+          "date_posted": "2026-05-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-05",
+          "date_posted": "2026-05-07",
+          "amount": 118.75,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-13",
+          "date_posted": "2026-05-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-13",
+          "date_posted": "2026-05-13",
+          "amount": 173.48,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-18",
+          "date_posted": "2026-05-18",
+          "amount": 353.66,
+          "description": "MARRIOTT SAN DIEGO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-20",
+          "date_posted": "2026-05-21",
+          "amount": 8.95,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-21",
+          "date_posted": "2026-05-21",
+          "amount": 17.20,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-21",
+          "date_posted": "2026-05-22",
+          "amount": 21.15,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-22",
+          "date_posted": "2026-05-22",
+          "amount": -1515.85,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-22",
+          "date_posted": "2026-05-24",
+          "amount": 32.56,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-24",
+          "date_posted": "2026-05-24",
+          "amount": 21.22,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-25",
+          "date_posted": "2026-05-25",
+          "amount": 21.22,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-26",
+          "date_posted": "2026-05-26",
+          "amount": 27.15,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-25",
+          "date_posted": "2026-05-27",
+          "amount": 122.95,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-27",
+          "date_posted": "2026-05-28",
+          "amount": 17.91,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-28",
+          "date_posted": "2026-05-30",
+          "amount": 141.81,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-01",
+          "date_posted": "2026-06-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-02",
+          "date_posted": "2026-06-02",
+          "amount": 233.15,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-06",
+          "date_posted": "2026-06-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-09",
+          "date_posted": "2026-06-10",
+          "amount": 23.01,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-13",
+          "date_posted": "2026-06-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-14",
+          "date_posted": "2026-06-15",
+          "amount": 172.91,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-14",
+          "date_posted": "2026-06-15",
+          "amount": 44.52,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-15",
+          "date_posted": "2026-06-17",
+          "amount": 155.55,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-17",
+          "date_posted": "2026-06-18",
+          "amount": 14.53,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-21",
+          "date_posted": "2026-06-21",
+          "amount": -1299.81,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-24",
+          "date_posted": "2026-06-25",
+          "amount": 29.68,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-25",
+          "date_posted": "2026-06-26",
+          "amount": 19.72,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-27",
+          "date_posted": "2026-06-27",
+          "amount": 104.82,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-28",
+          "date_posted": "2026-06-29",
+          "amount": 31.17,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-30",
+          "date_posted": "2026-06-30",
+          "amount": 30.48,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-01",
+          "date_posted": "2026-07-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-02",
+          "date_posted": "2026-07-02",
+          "amount": 367.54,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-03",
+          "date_posted": "2026-07-03",
+          "amount": 82.68,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-06",
+          "date_posted": "2026-07-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-08",
+          "date_posted": "2026-07-09",
+          "amount": 14.74,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-08",
+          "date_posted": "2026-07-09",
+          "amount": 23.32,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-10",
+          "date_posted": "2026-07-10",
+          "amount": 142.11,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-12",
+          "date_posted": "2026-07-13",
+          "amount": 21.85,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-13",
+          "date_posted": "2026-07-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-14",
+          "date_posted": "2026-07-14",
+          "amount": 9.22,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-14",
+          "date_posted": "2026-07-16",
+          "amount": 95.68,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-22",
+          "date_posted": "2026-07-22",
+          "amount": -975.03,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-22",
+          "date_posted": "2026-07-22",
+          "amount": 21.78,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-25",
+          "date_posted": "2026-07-27",
+          "amount": 20.52,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-28",
+          "date_posted": "2026-07-28",
+          "amount": 49.36,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-27",
+          "date_posted": "2026-07-29",
+          "amount": 22.57,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-31",
+          "date_posted": "2026-08-01",
+          "amount": 69.19,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-01",
+          "date_posted": "2026-08-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-02",
+          "date_posted": "2026-08-02",
+          "amount": 275.12,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-03",
+          "date_posted": "2026-08-03",
+          "amount": 89.34,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-03",
+          "date_posted": "2026-08-04",
+          "amount": 15.12,
+          "description": "LYFT *RIDE SUN 2PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-04",
+          "date_posted": "2026-08-04",
+          "amount": 42.74,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-05",
+          "date_posted": "2026-08-06",
+          "amount": 17.92,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-06",
+          "date_posted": "2026-08-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-06",
+          "date_posted": "2026-08-07",
+          "amount": 15.66,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-08",
+          "date_posted": "2026-08-08",
+          "amount": 19.19,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-09",
+          "date_posted": "2026-08-09",
+          "amount": 20.64,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-11",
+          "date_posted": "2026-08-11",
+          "amount": 15.86,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-11",
+          "date_posted": "2026-08-11",
+          "amount": 20.50,
+          "description": "LYFT *RIDE SUN 2PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-13",
+          "date_posted": "2026-08-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-14",
+          "date_posted": "2026-08-16",
+          "amount": 166.80,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-14",
+          "date_posted": "2026-08-16",
+          "amount": 21.44,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-17",
+          "date_posted": "2026-08-18",
+          "amount": 60.02,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-19",
+          "date_posted": "2026-08-20",
+          "amount": 118.80,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-21",
+          "date_posted": "2026-08-21",
+          "amount": -1088.15,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-21",
+          "date_posted": "2026-08-22",
+          "amount": 26.00,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-24",
+          "date_posted": "2026-08-25",
+          "amount": 23.75,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-25",
+          "date_posted": "2026-08-25",
+          "amount": 25.77,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-28",
+          "date_posted": "2026-08-28",
+          "amount": 23.18,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-01",
+          "date_posted": "2026-09-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-02",
+          "date_posted": "2026-09-02",
+          "amount": 330.74,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-04",
+          "date_posted": "2026-09-05",
+          "amount": 31.30,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-06",
+          "date_posted": "2026-09-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-07",
+          "date_posted": "2026-09-07",
+          "amount": 72.25,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-08",
+          "date_posted": "2026-09-08",
+          "amount": 17.71,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-08",
+          "date_posted": "2026-09-09",
+          "amount": 55.73,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-11",
+          "date_posted": "2026-09-12",
+          "amount": 36.06,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-12",
+          "date_posted": "2026-09-12",
+          "amount": 24.15,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-11",
+          "date_posted": "2026-09-13",
+          "amount": 19.47,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-13",
+          "date_posted": "2026-09-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-14",
+          "date_posted": "2026-09-14",
+          "amount": 12.59,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-21",
+          "date_posted": "2026-09-21",
+          "amount": -1238.03,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-23",
+          "date_posted": "2026-09-23",
+          "amount": 31.94,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-24",
+          "date_posted": "2026-09-24",
+          "amount": 62.64,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-24",
+          "date_posted": "2026-09-24",
+          "amount": 17.26,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-25",
+          "date_posted": "2026-09-26",
+          "amount": 11.96,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-09-29",
+          "date_posted": "2026-09-29",
+          "amount": 16.92,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-01",
+          "date_posted": "2026-10-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-02",
+          "date_posted": "2026-10-02",
+          "amount": 369.92,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-02",
+          "date_posted": "2026-10-03",
+          "amount": 148.82,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-04",
+          "date_posted": "2026-10-05",
+          "amount": 36.30,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-06",
+          "date_posted": "2026-10-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-07",
+          "date_posted": "2026-10-08",
+          "amount": 22.97,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-09",
+          "date_posted": "2026-10-10",
+          "amount": 37.42,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-12",
+          "date_posted": "2026-10-12",
+          "amount": 20.64,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-12",
+          "date_posted": "2026-10-12",
+          "amount": 15.24,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-13",
+          "date_posted": "2026-10-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-15",
+          "date_posted": "2026-10-15",
+          "amount": 17.96,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-19",
+          "date_posted": "2026-10-19",
+          "amount": 33.60,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-22",
+          "date_posted": "2026-10-22",
+          "amount": -869.22,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-10-22",
+          "date_posted": "2026-10-23",
+          "amount": 14.15,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        }
+      ],
+      "liability": {
+        "type": "credit",
+        "purchase_apr": 21.49,
+        "last_payment_amount": 869.22,
+        "last_statement_balance": 869.22,
+        "minimum_payment_amount": 35.00,
+        "is_overdue": false
+      }
+    }
+  ]
+}

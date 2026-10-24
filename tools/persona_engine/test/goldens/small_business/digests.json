@@ -1,0 +1,16 @@
+{
+  "generator": "persona_engine",
+  "format_version": 1,
+  "persona": "small_business",
+  "seed": 1,
+  "as_of": "2026-10-24",
+  "days": 730,
+  "fnv1a64": {
+    "demo_seed.json": "e5d7809863b62966",
+    "injection_gingham.json": "34091d425e2013d5",
+    "injection_manifest.json": "0bd84fc08f2fb81c",
+    "injection_platypus.json": "2ade4d4b0fe2e1c2",
+    "sandbox_user_gingham.json": "b8c86fcb963af4a0",
+    "sandbox_user_platypus.json": "5a6f4b21130af2bd"
+  }
+}

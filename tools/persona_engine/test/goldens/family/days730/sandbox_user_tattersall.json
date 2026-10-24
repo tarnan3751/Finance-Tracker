@@ -1,0 +1,931 @@
+{
+  "version": 2,
+  "seed": "family-1-tattersall",
+  "roll_dates_forward": false,
+  "override_accounts": [
+    {
+      "type": "investment",
+      "subtype": "401k",
+      "starting_balance": 224709.09,
+      "currency": "USD",
+      "meta": {
+        "name": "401(k)",
+        "official_name": "Tattersall Retirement Savings Plan",
+        "mask": "0401"
+      },
+      "identity": {
+        "names": [
+          "Morgan Patel",
+          "Riley Patel"
+        ],
+        "phone_numbers": [
+          {
+            "data": "6145550188",
+            "primary": true,
+            "type": "mobile"
+          }
+        ],
+        "emails": [
+          {
+            "data": "patel.household@example.com",
+            "primary": true,
+            "type": "primary"
+          }
+        ],
+        "addresses": [
+          {
+            "data": {
+              "city": "Columbus",
+              "region": "OH",
+              "street": "42 Juniper Lane",
+              "postal_code": "43215",
+              "country": "US"
+            },
+            "primary": true
+          }
+        ]
+      },
+      "transactions": [],
+      "holdings": [
+        {
+          "institution_price": 841.09,
+          "institution_price_as_of": "2026-10-24",
+          "cost_basis": 68420.46,
+          "quantity": 201.036,
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "institution_price": 76.43,
+          "institution_price_as_of": "2026-10-24",
+          "cost_basis": 34227.18,
+          "quantity": 570.350,
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "institution_price": 84.31,
+          "institution_price_as_of": "2026-10-24",
+          "cost_basis": 11402.07,
+          "quantity": 142.659,
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        }
+      ],
+      "investment_transactions": [
+        {
+          "date": "2026-01-30",
+          "name": "BUY VTI",
+          "quantity": 0.392,
+          "price": 687.72,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-01-30",
+          "name": "BUY VXUS",
+          "quantity": 2.137,
+          "price": 63.20,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-01-30",
+          "name": "BUY BND",
+          "quantity": 0.532,
+          "price": 84.50,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-02-13",
+          "name": "BUY VTI",
+          "quantity": 0.395,
+          "price": 683.13,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-02-13",
+          "name": "BUY VXUS",
+          "quantity": 2.063,
+          "price": 65.55,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-02-13",
+          "name": "BUY BND",
+          "quantity": 0.537,
+          "price": 83.90,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-02-27",
+          "name": "BUY VTI",
+          "quantity": 0.403,
+          "price": 669.46,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-02-27",
+          "name": "BUY VXUS",
+          "quantity": 2.097,
+          "price": 64.44,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-02-27",
+          "name": "BUY BND",
+          "quantity": 0.541,
+          "price": 83.28,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-03-13",
+          "name": "BUY VTI",
+          "quantity": 0.388,
+          "price": 695.55,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-03-13",
+          "name": "BUY VXUS",
+          "quantity": 2.038,
+          "price": 66.32,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-03-13",
+          "name": "BUY BND",
+          "quantity": 0.534,
+          "price": 84.35,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-03-27",
+          "name": "BUY VTI",
+          "quantity": 0.374,
+          "price": 722.26,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-03-27",
+          "name": "BUY VXUS",
+          "quantity": 2.021,
+          "price": 66.87,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-03-27",
+          "name": "BUY BND",
+          "quantity": 0.541,
+          "price": 83.26,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-04-10",
+          "name": "BUY VTI",
+          "quantity": 0.348,
+          "price": 774.40,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-04-10",
+          "name": "BUY VXUS",
+          "quantity": 1.922,
+          "price": 70.25,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-04-10",
+          "name": "BUY BND",
+          "quantity": 0.531,
+          "price": 84.65,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-04-24",
+          "name": "BUY VTI",
+          "quantity": 0.340,
+          "price": 794.02,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-04-24",
+          "name": "BUY VXUS",
+          "quantity": 1.904,
+          "price": 71.02,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-04-24",
+          "name": "BUY BND",
+          "quantity": 0.535,
+          "price": 84.11,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-05-08",
+          "name": "BUY VTI",
+          "quantity": 0.336,
+          "price": 803.28,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-05-08",
+          "name": "BUY VXUS",
+          "quantity": 1.935,
+          "price": 69.84,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-05-08",
+          "name": "BUY BND",
+          "quantity": 0.536,
+          "price": 83.95,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-05-22",
+          "name": "BUY VTI",
+          "quantity": 0.342,
+          "price": 788.60,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-05-22",
+          "name": "BUY VXUS",
+          "quantity": 1.923,
+          "price": 70.28,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-05-22",
+          "name": "BUY BND",
+          "quantity": 0.530,
+          "price": 84.94,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-06-05",
+          "name": "BUY VTI",
+          "quantity": 0.325,
+          "price": 830.76,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-06-05",
+          "name": "BUY VXUS",
+          "quantity": 1.952,
+          "price": 69.24,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-06-05",
+          "name": "BUY BND",
+          "quantity": 0.530,
+          "price": 85.01,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-06-19",
+          "name": "BUY VTI",
+          "quantity": 0.325,
+          "price": 830.89,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-06-19",
+          "name": "BUY VXUS",
+          "quantity": 1.931,
+          "price": 69.98,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-06-19",
+          "name": "BUY BND",
+          "quantity": 0.528,
+          "price": 85.19,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-07-03",
+          "name": "BUY VTI",
+          "quantity": 0.309,
+          "price": 872.55,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-07-03",
+          "name": "BUY VXUS",
+          "quantity": 1.926,
+          "price": 70.15,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-07-03",
+          "name": "BUY BND",
+          "quantity": 0.540,
+          "price": 83.38,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-07-17",
+          "name": "BUY VTI",
+          "quantity": 0.301,
+          "price": 895.64,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-07-17",
+          "name": "BUY VXUS",
+          "quantity": 1.897,
+          "price": 71.23,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-07-17",
+          "name": "BUY BND",
+          "quantity": 0.538,
+          "price": 83.72,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-07-31",
+          "name": "BUY VTI",
+          "quantity": 0.297,
+          "price": 909.48,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-07-31",
+          "name": "BUY VXUS",
+          "quantity": 1.871,
+          "price": 72.27,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-07-31",
+          "name": "BUY BND",
+          "quantity": 0.541,
+          "price": 83.22,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-08-14",
+          "name": "BUY VTI",
+          "quantity": 0.316,
+          "price": 854.53,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-08-14",
+          "name": "BUY VXUS",
+          "quantity": 1.810,
+          "price": 74.65,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-08-14",
+          "name": "BUY BND",
+          "quantity": 0.532,
+          "price": 84.56,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-08-28",
+          "name": "BUY VTI",
+          "quantity": 0.315,
+          "price": 856.95,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-08-28",
+          "name": "BUY VXUS",
+          "quantity": 1.819,
+          "price": 74.26,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-08-28",
+          "name": "BUY BND",
+          "quantity": 0.535,
+          "price": 84.09,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-09-11",
+          "name": "BUY VTI",
+          "quantity": 0.324,
+          "price": 832.61,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-09-11",
+          "name": "BUY VXUS",
+          "quantity": 1.832,
+          "price": 73.73,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-09-11",
+          "name": "BUY BND",
+          "quantity": 0.538,
+          "price": 83.62,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-09-25",
+          "name": "BUY VTI",
+          "quantity": 0.316,
+          "price": 854.60,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-09-25",
+          "name": "BUY VXUS",
+          "quantity": 1.838,
+          "price": 73.50,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-09-25",
+          "name": "BUY BND",
+          "quantity": 0.536,
+          "price": 83.97,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-10-09",
+          "name": "BUY VTI",
+          "quantity": 0.324,
+          "price": 833.01,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-10-09",
+          "name": "BUY VXUS",
+          "quantity": 1.861,
+          "price": 72.59,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-10-09",
+          "name": "BUY BND",
+          "quantity": 0.537,
+          "price": 83.80,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-10-23",
+          "name": "BUY VTI",
+          "quantity": 0.319,
+          "price": 846.42,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VTI",
+            "name": "Vanguard Total Stock Market ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-10-23",
+          "name": "BUY VXUS",
+          "quantity": 1.784,
+          "price": 75.70,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "VXUS",
+            "name": "Vanguard Total International Stock ETF",
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2026-10-23",
+          "name": "BUY BND",
+          "quantity": 0.532,
+          "price": 84.62,
+          "fees": 0,
+          "type": "buy",
+          "currency": "USD",
+          "security": {
+            "ticker_symbol": "BND",
+            "name": "Vanguard Total Bond Market ETF",
+            "currency": "USD"
+          }
+        }
+      ]
+    }
+  ]
+}

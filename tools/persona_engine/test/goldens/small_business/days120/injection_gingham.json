@@ -1,0 +1,11 @@
+{
+  "generator": "persona_engine",
+  "format_version": 1,
+  "persona": "small_business",
+  "seed": 1,
+  "institution": "gingham",
+  "plaid_institution_id": "ins_109509",
+  "as_of": "2026-10-24",
+  "order": "newest_first",
+  "batches": []
+}

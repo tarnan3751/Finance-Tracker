@@ -1,0 +1,1014 @@
+{
+  "generator": "persona_engine",
+  "format_version": 1,
+  "persona": "family",
+  "seed": 1,
+  "institution": "platypus",
+  "plaid_institution_id": "ins_109508",
+  "as_of": "2026-10-24",
+  "order": "newest_first",
+  "batches": [
+    [
+      {
+        "date_transacted": "2026-08-05",
+        "date_posted": "2026-08-05",
+        "amount": 26.28,
+        "description": "MCDONALD'S F3398",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-08-04",
+        "date_posted": "2026-08-05",
+        "amount": 85.41,
+        "description": "KROGER #0441",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-08-04",
+        "date_posted": "2026-08-04",
+        "amount": 22.99,
+        "description": "NETFLIX.COM",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-08-03",
+        "date_posted": "2026-08-04",
+        "amount": 64.61,
+        "description": "OLD NAVY ON-LINE",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-08-03",
+        "date_posted": "2026-08-04",
+        "amount": 65.39,
+        "description": "SHELL OIL 57441108",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-08-03",
+        "date_posted": "2026-08-04",
+        "amount": 11.71,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-08-03",
+        "date_posted": "2026-08-03",
+        "amount": 31.55,
+        "description": "WHOLEFDS MKT #10234",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-08-03",
+        "date_posted": "2026-08-03",
+        "amount": 1400.00,
+        "description": "BRIGHT HORIZONS TUITION",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-08-03",
+        "date_posted": "2026-08-03",
+        "amount": 2093.44,
+        "description": "TARTAN BANK MORTGAGE PMT",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-08-02",
+        "date_posted": "2026-08-03",
+        "amount": 14.79,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-08-01",
+        "date_posted": "2026-08-03",
+        "amount": 89.36,
+        "description": "OLD NAVY ON-LINE",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-08-01",
+        "date_posted": "2026-08-03",
+        "amount": 143.89,
+        "description": "COSTCO WHSE #0123",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-08-02",
+        "date_posted": "2026-08-02",
+        "amount": 171.98,
+        "description": "THE HOME DEPOT #0612",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-08-02",
+        "date_posted": "2026-08-02",
+        "amount": 34.11,
+        "description": "OLD NAVY ON-LINE",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-08-02",
+        "date_posted": "2026-08-02",
+        "amount": -3800.00,
+        "description": "ONLINE TRANSFER FROM CHECKING",
+        "iso_currency_code": "USD",
+        "account": "savings"
+      },
+      {
+        "date_transacted": "2026-08-02",
+        "date_posted": "2026-08-02",
+        "amount": 3800.00,
+        "description": "ONLINE TRANSFER TO SAVINGS",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-08-02",
+        "date_posted": "2026-08-02",
+        "amount": -500.00,
+        "description": "ONLINE TRANSFER FROM CHECKING",
+        "iso_currency_code": "USD",
+        "account": "savings"
+      },
+      {
+        "date_transacted": "2026-08-02",
+        "date_posted": "2026-08-02",
+        "amount": 500.00,
+        "description": "ONLINE TRANSFER TO SAVINGS",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-08-01",
+        "date_posted": "2026-08-02",
+        "amount": 25.16,
+        "description": "CHUCK E. CHEESE 0388",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-08-01",
+        "date_posted": "2026-08-02",
+        "amount": 32.67,
+        "description": "WHOLEFDS MKT #10234",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-31",
+        "date_posted": "2026-08-02",
+        "amount": 119.92,
+        "description": "AMZN Mktp US*7Y2QF1",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-31",
+        "date_posted": "2026-08-02",
+        "amount": 38.39,
+        "description": "GAP KIDS #2231",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-31",
+        "date_posted": "2026-07-31",
+        "amount": -65.75,
+        "description": "INTEREST PAYMENT",
+        "iso_currency_code": "USD",
+        "account": "savings"
+      },
+      {
+        "date_transacted": "2026-07-31",
+        "date_posted": "2026-07-31",
+        "amount": 31.97,
+        "description": "WHOLEFDS MKT #10571",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-31",
+        "date_posted": "2026-07-31",
+        "amount": -2640.00,
+        "description": "BRIGHTPATH SCHOOLS DIR DEP",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-31",
+        "date_posted": "2026-07-31",
+        "amount": -3189.86,
+        "description": "LAKESHORE MEDICAL GRP PAYROLL",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-30",
+        "date_posted": "2026-07-31",
+        "amount": 78.64,
+        "description": "CHUCK E. CHEESE 0388",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-30",
+        "date_posted": "2026-07-31",
+        "amount": 21.96,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-29",
+        "date_posted": "2026-07-31",
+        "amount": 35.52,
+        "description": "AMAZON.COM*2K4LM8",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-30",
+        "date_posted": "2026-07-30",
+        "amount": 149.84,
+        "description": "KROGER #0441",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-29",
+        "date_posted": "2026-07-30",
+        "amount": 21.34,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-28",
+        "date_posted": "2026-07-30",
+        "amount": 49.80,
+        "description": "AMAZON.COM*2K4LM8",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-28",
+        "date_posted": "2026-07-29",
+        "amount": 29.65,
+        "description": "SHELL OIL 57441108",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-28",
+        "date_posted": "2026-07-29",
+        "amount": 19.72,
+        "description": "TRADER JOE'S #127",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-26",
+        "date_posted": "2026-07-28",
+        "amount": 41.50,
+        "description": "KROGER #0441",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-27",
+        "date_posted": "2026-07-27",
+        "amount": 44.00,
+        "description": "PELOTON* MEMBERSHIP",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-27",
+        "date_posted": "2026-07-27",
+        "amount": 45.00,
+        "description": "WASTE MANAGEMENT",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-25",
+        "date_posted": "2026-07-27",
+        "amount": 52.68,
+        "description": "AMAZON.COM*2K4LM8",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-25",
+        "date_posted": "2026-07-26",
+        "amount": 64.83,
+        "description": "SHELL OIL 57444212",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-24",
+        "date_posted": "2026-07-26",
+        "amount": 90.21,
+        "description": "AMZN Mktp US*7Y2QF1",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-24",
+        "date_posted": "2026-07-26",
+        "amount": 88.73,
+        "description": "OLD NAVY ON-LINE",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-25",
+        "date_posted": "2026-07-25",
+        "amount": 11.99,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-25",
+        "date_posted": "2026-07-25",
+        "amount": 145.64,
+        "description": "KROGER #0441",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-23",
+        "date_posted": "2026-07-25",
+        "amount": 105.80,
+        "description": "WHOLEFDS MKT #10234",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-22",
+        "date_posted": "2026-07-23",
+        "amount": 236.33,
+        "description": "THE HOME DEPOT #0612",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-22",
+        "date_posted": "2026-07-23",
+        "amount": 15.33,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-22",
+        "date_posted": "2026-07-22",
+        "amount": 342.33,
+        "description": "GINGHAM CU AUTO LOAN 2215",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-21",
+        "date_posted": "2026-07-22",
+        "amount": 45.39,
+        "description": "GAP KIDS #2231",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-21",
+        "date_posted": "2026-07-21",
+        "amount": 59.65,
+        "description": "WHOLEFDS MKT #10234",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-20",
+        "date_posted": "2026-07-20",
+        "amount": 69.97,
+        "description": "SHELL OIL 57441108",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-20",
+        "date_posted": "2026-07-20",
+        "amount": 14.20,
+        "description": "MCDONALD'S F3398",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-19",
+        "date_posted": "2026-07-20",
+        "amount": 20.01,
+        "description": "MCDONALD'S F3398",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-19",
+        "date_posted": "2026-07-20",
+        "amount": 189.71,
+        "description": "COSTCO WHSE #0123",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-19",
+        "date_posted": "2026-07-19",
+        "amount": 138.98,
+        "description": "THE HOME DEPOT #0612",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-19",
+        "date_posted": "2026-07-19",
+        "amount": 27.71,
+        "description": "AMAZON.COM*9H31P0",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-19",
+        "date_posted": "2026-07-19",
+        "amount": 80.59,
+        "description": "TARGET T-1234",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-19",
+        "date_posted": "2026-07-19",
+        "amount": 43.93,
+        "description": "SHELL OIL 57444212",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-19",
+        "date_posted": "2026-07-19",
+        "amount": 165.00,
+        "description": "VERIZON WIRELESS PAYMENTS",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-18",
+        "date_posted": "2026-07-19",
+        "amount": 39.11,
+        "description": "OLIVE GARDEN 0021",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-18",
+        "date_posted": "2026-07-18",
+        "amount": 66.57,
+        "description": "CHEVRON 0091633",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-17",
+        "date_posted": "2026-07-18",
+        "amount": 30.50,
+        "description": "CHEVRON 0091633",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-17",
+        "date_posted": "2026-07-17",
+        "amount": -3211.16,
+        "description": "LAKESHORE MEDICAL GRP PAYROLL",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-15",
+        "date_posted": "2026-07-17",
+        "amount": 63.82,
+        "description": "TRADER JOE'S #552",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-16",
+        "date_posted": "2026-07-16",
+        "amount": 18.66,
+        "description": "CVS/PHARMACY #04321",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-16",
+        "date_posted": "2026-07-16",
+        "amount": 36.19,
+        "description": "CHEVRON 0091633",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-16",
+        "date_posted": "2026-07-16",
+        "amount": 39.69,
+        "description": "KROGER #0441",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-16",
+        "date_posted": "2026-07-16",
+        "amount": 19.99,
+        "description": "Spotify USA",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-15",
+        "date_posted": "2026-07-16",
+        "amount": 72.24,
+        "description": "TARGET T-0871",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-15",
+        "date_posted": "2026-07-16",
+        "amount": 13.16,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-14",
+        "date_posted": "2026-07-16",
+        "amount": 34.11,
+        "description": "TARGET T-0871",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-15",
+        "date_posted": "2026-07-15",
+        "amount": 489.35,
+        "description": "GINGHAM CU AUTO LOAN PMT",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-15",
+        "date_posted": "2026-07-15",
+        "amount": -2640.00,
+        "description": "BRIGHTPATH SCHOOLS DIR DEP",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-14",
+        "date_posted": "2026-07-15",
+        "amount": 29.37,
+        "description": "AMAZON.COM*9H31P0",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-14",
+        "date_posted": "2026-07-15",
+        "amount": 36.52,
+        "description": "SHELL OIL 57444212",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-13",
+        "date_posted": "2026-07-14",
+        "amount": 84.65,
+        "description": "TRADER JOE'S #552",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-13",
+        "date_posted": "2026-07-13",
+        "amount": 56.50,
+        "description": "CHEVRON 0091633",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-13",
+        "date_posted": "2026-07-13",
+        "amount": 13.40,
+        "description": "MCDONALD'S F3398",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-13",
+        "date_posted": "2026-07-13",
+        "amount": 73.89,
+        "description": "CITY OF OAKDALE WATER",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-12",
+        "date_posted": "2026-07-12",
+        "amount": 45.92,
+        "description": "PETCO 1234",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-12",
+        "date_posted": "2026-07-12",
+        "amount": 66.77,
+        "description": "CHUCK E. CHEESE 0388",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-11",
+        "date_posted": "2026-07-12",
+        "amount": 100.67,
+        "description": "OLIVE GARDEN 0021",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-11",
+        "date_posted": "2026-07-12",
+        "amount": 67.98,
+        "description": "WHOLEFDS MKT #10234",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-10",
+        "date_posted": "2026-07-12",
+        "amount": 76.36,
+        "description": "THE CHEESECAKE FACTORY",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-11",
+        "date_posted": "2026-07-11",
+        "amount": 13.99,
+        "description": "DISNEY PLUS",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-10",
+        "date_posted": "2026-07-11",
+        "amount": 115.56,
+        "description": "AMAZON.COM*9H31P0",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-10",
+        "date_posted": "2026-07-11",
+        "amount": 49.13,
+        "description": "TRADER JOE'S #552",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-09",
+        "date_posted": "2026-07-11",
+        "amount": 62.73,
+        "description": "TRADER JOE'S #127",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-10",
+        "date_posted": "2026-07-10",
+        "amount": 240.63,
+        "description": "IKEA EAST PALO ALTO",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-10",
+        "date_posted": "2026-07-10",
+        "amount": -2200.00,
+        "description": "PAYMENT - THANK YOU",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-10",
+        "date_posted": "2026-07-10",
+        "amount": 2200.00,
+        "description": "PLATYPUS CARD AUTOPAY",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-10",
+        "date_posted": "2026-07-10",
+        "amount": 219.09,
+        "description": "PGANDE WEB ONLINE",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-07",
+        "date_posted": "2026-07-09",
+        "amount": 95.13,
+        "description": "WHOLEFDS MKT #10234",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-08",
+        "date_posted": "2026-07-08",
+        "amount": 14.40,
+        "description": "MCDONALD'S F3398",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-08",
+        "date_posted": "2026-07-08",
+        "amount": 90.00,
+        "description": "COMCAST XFINITY",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-07",
+        "date_posted": "2026-07-08",
+        "amount": 62.99,
+        "description": "OLD NAVY ON-LINE",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-07",
+        "date_posted": "2026-07-08",
+        "amount": 66.68,
+        "description": "SHELL OIL 57441108",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-06",
+        "date_posted": "2026-07-08",
+        "amount": 23.10,
+        "description": "AMAZON.COM*9H31P0",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-06",
+        "date_posted": "2026-07-06",
+        "amount": 9.95,
+        "description": "CVS/PHARMACY #04321",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-06",
+        "date_posted": "2026-07-06",
+        "amount": 16.76,
+        "description": "CHIPOTLE 1187",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-06",
+        "date_posted": "2026-07-06",
+        "amount": 240.00,
+        "description": "STATE FARM INSURANCE",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-05",
+        "date_posted": "2026-07-06",
+        "amount": 208.76,
+        "description": "THE HOME DEPOT #0612",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-05",
+        "date_posted": "2026-07-06",
+        "amount": 164.20,
+        "description": "KROGER #0441",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-04",
+        "date_posted": "2026-07-06",
+        "amount": 15.87,
+        "description": "TRADER JOE'S #127",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-04",
+        "date_posted": "2026-07-04",
+        "amount": 22.99,
+        "description": "NETFLIX.COM",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-03",
+        "date_posted": "2026-07-04",
+        "amount": 41.37,
+        "description": "TRADER JOE'S #127",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-02",
+        "date_posted": "2026-07-04",
+        "amount": 68.35,
+        "description": "AMAZON.COM*9H31P0",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-02",
+        "date_posted": "2026-07-04",
+        "amount": 36.27,
+        "description": "OLD NAVY ON-LINE",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-03",
+        "date_posted": "2026-07-03",
+        "amount": -3162.51,
+        "description": "LAKESHORE MEDICAL GRP PAYROLL",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-02",
+        "date_posted": "2026-07-02",
+        "amount": 132.44,
+        "description": "WHOLEFDS MKT #10571",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-07-02",
+        "date_posted": "2026-07-02",
+        "amount": -500.00,
+        "description": "ONLINE TRANSFER FROM CHECKING",
+        "iso_currency_code": "USD",
+        "account": "savings"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-07-02",
+        "date_posted": "2026-07-02",
+        "amount": 500.00,
+        "description": "ONLINE TRANSFER TO SAVINGS",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-01",
+        "date_posted": "2026-07-01",
+        "amount": 1400.00,
+        "description": "BRIGHT HORIZONS TUITION",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-07-01",
+        "date_posted": "2026-07-01",
+        "amount": 2093.44,
+        "description": "TARTAN BANK MORTGAGE PMT",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-06-30",
+        "date_posted": "2026-06-30",
+        "amount": -63.75,
+        "description": "INTEREST PAYMENT",
+        "iso_currency_code": "USD",
+        "account": "savings"
+      },
+      {
+        "date_transacted": "2026-06-30",
+        "date_posted": "2026-06-30",
+        "amount": -2640.00,
+        "description": "BRIGHTPATH SCHOOLS DIR DEP",
+        "iso_currency_code": "USD",
+        "account": "checking"
+      },
+      {
+        "date_transacted": "2026-06-28",
+        "date_posted": "2026-06-30",
+        "amount": 51.30,
+        "description": "TARGET T-0871",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-06-29",
+        "date_posted": "2026-06-29",
+        "amount": 65.63,
+        "description": "SHELL OIL 57444212",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-06-27",
+        "date_posted": "2026-06-29",
+        "amount": 128.39,
+        "description": "THE HOME DEPOT #0612",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-06-27",
+        "date_posted": "2026-06-28",
+        "amount": 157.24,
+        "description": "COSTCO WHSE #0123",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-06-27",
+        "date_posted": "2026-06-28",
+        "amount": 115.57,
+        "description": "WHOLEFDS MKT #10571",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ],
+    [
+      {
+        "date_transacted": "2026-06-27",
+        "date_posted": "2026-06-27",
+        "amount": 16.87,
+        "description": "MCDONALD'S F3398",
+        "iso_currency_code": "USD",
+        "account": "card"
+      },
+      {
+        "date_transacted": "2026-06-27",
+        "date_posted": "2026-06-27",
+        "amount": 44.00,
+        "description": "PELOTON* MEMBERSHIP",
+        "iso_currency_code": "USD",
+        "account": "card"
+      }
+    ]
+  ]
+}
