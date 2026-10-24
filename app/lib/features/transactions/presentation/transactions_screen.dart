@@ -199,10 +199,14 @@ class _TransactionList extends ConsumerWidget {
             return TransactionTile(
               key: ValueKey(transaction.id),
               title: transaction.merchantName ?? transaction.name,
-              caption: l10n.captionPair(
-                accounts[transaction.accountId]?.name ?? '',
-                category?.name ?? l10n.uncategorized,
-              ),
+              caption: switch (accounts[transaction.accountId]) {
+                // An account deleted or not yet synced: the category alone.
+                null => category?.name ?? l10n.uncategorized,
+                final Account account => l10n.captionPair(
+                  account.name,
+                  category?.name ?? l10n.uncategorized,
+                ),
+              },
               amount: transaction.amount,
               icon: category == null
                   ? fallbackCategoryIcon

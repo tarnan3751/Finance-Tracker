@@ -67,6 +67,20 @@ class TransactionEditorScreen extends ConsumerWidget {
           body: Center(child: Text(l10n.transactionNotFound)),
         );
       }
+      if (!accounts.any((a) => a.id == transaction.accountId)) {
+        // Its account was deleted (another device may have recorded it meanwhile) or
+        // has not synced yet: nothing to edit it against. Restoring the account brings
+        // it back.
+        return Scaffold(
+          appBar: AppBar(title: Text(transaction.name)),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(l10n.accountNotFound, textAlign: TextAlign.center),
+            ),
+          ),
+        );
+      }
       return _TransactionForm(
         key: ValueKey(transaction.id),
         initial: transaction,
