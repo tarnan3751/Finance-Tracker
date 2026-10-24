@@ -29,6 +29,31 @@ android {
         versionName = flutter.versionName
     }
 
+    // AGP 9 turns resValue off by default; the flavors set app_name through it.
+    buildFeatures {
+        resValues = true
+    }
+
+    // One flavor per entry point (lib/main_<flavor>.dart). None may be named like a build
+    // type (debug, profile, release): AGP refuses that. dev and prod share the application id
+    // registered with Plaid; demo never touches Plaid and installs beside them.
+    flavorDimensions += "flavor"
+    productFlavors {
+        create("dev") {
+            dimension = "flavor"
+            resValue("string", "app_name", "Finance Tracker Dev")
+        }
+        create("demo") {
+            dimension = "flavor"
+            applicationIdSuffix = ".demo"
+            resValue("string", "app_name", "Finance Tracker Demo")
+        }
+        create("prod") {
+            dimension = "flavor"
+            resValue("string", "app_name", "Finance Tracker")
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
