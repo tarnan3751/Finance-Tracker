@@ -1,7 +1,10 @@
 # Lint configuration for the app. The same strict block and extra rules apply to every
 # package in the workspace; only the base set differs (flutter_lints for Flutter packages,
 # lints/recommended for pure Dart ones). Fix a finding rather than silencing it.
-include: package:flutter_lints/flutter.yaml
+include:
+  - package:flutter_lints/flutter.yaml
+  # The analyzer plugins (riverpod_lint), declared at the workspace root.
+  - ../analysis_options.yaml
 
 analyzer:
   language:

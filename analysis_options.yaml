@@ -1,0 +1,11 @@
+# Workspace-root analysis options: the analyzer plugins. The analyzer loads a plugin only
+# from the options file at the root of the pub workspace, and enables its rules for a file
+# only when that file's own options include this file, so a member that wants the plugin
+# lists `../analysis_options.yaml` (or the right relative path) in its `include:`.
+#
+# riverpod_lint 3.1 is an analysis_server_plugin, not a custom_lint package. `dart analyze`
+# reports its diagnostics; `flutter analyze` does not, which is why the gate runs both on
+# Flutter packages. The analysis server resolves the plugin on its own, so it is not a
+# dev dependency of any member.
+plugins:
+  riverpod_lint: ^3.1.9
