@@ -1,0 +1,8 @@
+# Platform goldens (alchemist, real fonts) differ between macOS, Linux and Windows and are
+# a local aid only; the CI goldens under goldens/ci/ are committed.
+**/goldens/macos/
+**/goldens/linux/
+**/goldens/windows/
+
+# The diff images a failing golden comparison writes next to its test.
+**/failures/
