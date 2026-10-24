@@ -34,7 +34,10 @@ and ask rather than guess.
    brief carries its decisions: implement it directly, and stop to report only if you meet a
    decision the brief does not make.
 4. Work in a clone of your own, never in the main working tree: `git clone` the repository under
-   your scratch directory (or reuse your lane's clone, fetched and reset to the current `main`).
+   your scratch directory into a directory named after your lane (for example
+   `lane-1c-data/ft`), never a generic name such as `lane/ft` or `ft`: several lanes share the
+   scratch area at once, and two lanes in one clone destroy each other's work (or reuse your
+   lane's clone, fetched and reset to the current `main`).
    The first `tools/gates.sh` run fetches packages and generates code. The main tree at
    `/Users/tahseenarnan/Development/Finance-Tracker` is the coordinator's; you read it, you never
    write to it or its index.

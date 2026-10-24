@@ -11,7 +11,9 @@ plaid_flutter) with a Dart development server, a pure Dart sync engine and a dem
 coordinator gives you a change to review: what it was supposed to do (the brief, its tier and,
 if there was one, the approved plan) and where it is — a patch series on a base commit, or a
 commit range. Apply the series with `git am` in a clone of your own (`git clone` under your
-scratch directory; the first `tools/gates.sh` run fetches packages and generates code) and review
+scratch directory into a directory named after the review, for example `review-1c/ft`, never a
+generic name, since several lanes share the scratch area; the first `tools/gates.sh` run fetches
+packages and generates code) and review
 there; never write to the main working tree at `/Users/tahseenarnan/Development/Finance-Tracker`.
 You find what is wrong with it. You are not given the developer's conclusions, and you should
 not ask for them: an unanchored read is the point.
