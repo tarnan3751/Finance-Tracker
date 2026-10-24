@@ -1,0 +1,16 @@
+name: finance_tracker_server
+description: The Finance Tracker development server. Never deployed.
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+resolution: workspace
+
+dependencies:
+  shelf: ^1.4.3
+  shelf_router: ^1.1.5
+
+dev_dependencies:
+  lints: ^6.1.0
+  test: ^1.31.1

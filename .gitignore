@@ -23,13 +23,13 @@ migrate_working_dir/
 
 # Flutter/Dart/Pub related
 **/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
 .pub-cache/
 .pub/
 /build/
+app/build/
 
 # Symbolication related
 app.*.symbols
@@ -38,9 +38,11 @@ app.*.symbols
 app.*.map.json
 
 # Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+app/android/app/debug
+app/android/app/profile
+app/android/app/release
+app/android/.gradle/
+app/android/local.properties
 
 # Private planning notes (kept out of the repo on purpose)
 PLAN.md
@@ -53,4 +55,4 @@ server/data/
 key.properties
 *.jks
 *.keystore
-build/symbols/
+**/build/symbols/

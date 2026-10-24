@@ -1,0 +1,34 @@
+# The API contract (CLAUDE.md, **One API contract**). Phase 0 placeholder: the health check
+# only, so the layout and the gate's contract hook have a target. Phase 2 writes the
+# contract, and the in-app fakes, the development server and the generated client
+# (packages/api_client) implement it.
+openapi: 3.0.3
+info:
+  title: Finance Tracker API
+  version: 0.1.0
+servers:
+  - url: http://10.0.2.2:8080/v1
+    description: The development server, as reached from the Android emulator
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Reports that the server is up
+      responses:
+        '200':
+          description: The server is up
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+components:
+  schemas:
+    Health:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - ok

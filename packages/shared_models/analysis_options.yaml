@@ -1,0 +1,32 @@
+# Lint configuration for shared_models. The same strict block and extra rules apply to every
+# package in the workspace; only the base set differs (flutter_lints for Flutter packages,
+# lints/recommended for pure Dart ones). Fix a finding rather than silencing it.
+include: package:lints/recommended.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+
+linter:
+  rules:
+    - always_declare_return_types
+    - always_use_package_imports
+    - avoid_dynamic_calls
+    - avoid_slow_async_io
+    - cancel_subscriptions
+    - close_sinks
+    - directives_ordering
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - prefer_final_locals
+    - prefer_single_quotes
+    - require_trailing_commas
+    - sort_pub_dependencies
+    - unawaited_futures
+    - unnecessary_lambdas
+    - use_super_parameters
