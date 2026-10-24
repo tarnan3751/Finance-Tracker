@@ -15,6 +15,7 @@ import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/db/database_key_store.dart';
 import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
+import 'package:finance_tracker/core/db/legacy_import/import_summary.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/data/demo_account_repository.dart';
@@ -101,6 +102,17 @@ SettingsRepository settingsRepository(Ref ref) {
   final InMemorySettingsRepository repository = InMemorySettingsRepository();
   ref.onDispose(repository.close);
   return repository;
+}
+
+/// What the legacy importer did at this launch (`bootstrap`), or null when it did nothing;
+/// Phase 1d shows it once.
+@Riverpod(keepAlive: true)
+class LegacyImportResult extends _$LegacyImportResult {
+  @override
+  ImportSummary? build() => null;
+
+  /// Records the importer's [summary].
+  void record(ImportSummary? summary) => state = summary;
 }
 
 /// The provider overrides that make up the app for [config].

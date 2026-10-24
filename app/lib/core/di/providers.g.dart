@@ -464,3 +464,66 @@ final class SettingsRepositoryProvider
 
 String _$settingsRepositoryHash() =>
     r'f241523d07f20c13474f2de1f202b75004d236a5';
+
+/// What the legacy importer did at this launch (`bootstrap`), or null when it did nothing;
+/// Phase 1d shows it once.
+
+@ProviderFor(LegacyImportResult)
+final legacyImportResultProvider = LegacyImportResultProvider._();
+
+/// What the legacy importer did at this launch (`bootstrap`), or null when it did nothing;
+/// Phase 1d shows it once.
+final class LegacyImportResultProvider
+    extends $NotifierProvider<LegacyImportResult, ImportSummary?> {
+  /// What the legacy importer did at this launch (`bootstrap`), or null when it did nothing;
+  /// Phase 1d shows it once.
+  LegacyImportResultProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'legacyImportResultProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$legacyImportResultHash();
+
+  @$internal
+  @override
+  LegacyImportResult create() => LegacyImportResult();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ImportSummary? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ImportSummary?>(value),
+    );
+  }
+}
+
+String _$legacyImportResultHash() =>
+    r'f382269369b051ea53ee7ea3d698f5fe95241207';
+
+/// What the legacy importer did at this launch (`bootstrap`), or null when it did nothing;
+/// Phase 1d shows it once.
+
+abstract class _$LegacyImportResult extends $Notifier<ImportSummary?> {
+  ImportSummary? build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<ImportSummary?, ImportSummary?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<ImportSummary?, ImportSummary?>,
+              ImportSummary?,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

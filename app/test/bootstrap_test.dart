@@ -1,6 +1,6 @@
 // What bootstrap does around the app in dev and prod: opening the local data records the
-// install date once and seeds the categories, and the screen shown when the database
-// cannot be opened.
+// install date once, seeds the categories and imports the original app's data, and the
+// screen shown when the database cannot be opened.
 import 'dart:io';
 
 import 'package:drift/native.dart';
@@ -9,15 +9,22 @@ import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
+import 'package:finance_tracker/core/db/legacy_import/import_summary.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/clock.dart';
+import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
 import 'package:finance_tracker/features/categories/data/category_defaults.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:shared_models/shared_models.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
+
+class _FailingAccounts extends Mock implements AccountRepository {}
 
 void main() {
   setUpAll(tzdata.initializeTimeZones);
@@ -38,8 +45,9 @@ void main() {
       addTearDown(database.close);
 
       // 02:00 UTC on 25 October is 22:00 on 24 October in New York.
+      SharedPreferences.setMockInitialValues({});
       final ProviderContainer first = container(DateTime.utc(2026, 10, 25, 2));
-      await openLocalData(first);
+      await openLocalData(first, locale: 'en_US');
       expect(
         await DriftAppMetaStore(database).read('install_date'),
         '2026-10-24',
@@ -49,10 +57,79 @@ void main() {
         hasLength(systemCategories.length),
       );
 
-      await openLocalData(container(DateTime.utc(2026, 12, 1)));
+      await openLocalData(
+        container(DateTime.utc(2026, 12, 1)),
+        locale: 'en_US',
+      );
       expect(
         await DriftAppMetaStore(database).read('install_date'),
         '2026-10-24',
+      );
+    },
+  );
+
+  test(
+    'openLocalData imports the original app once and keeps the summary',
+    () async {
+      final AppDatabase database = AppDatabase(NativeDatabase.memory());
+      addTearDown(database.close);
+      SharedPreferences.setMockInitialValues({
+        'transactions': '[{"amount":12.5,"description":"Lunch"}]',
+        'incomes': '[{"amount":100.0,"description":"Gift"}]',
+        'totalBalance': 87.5,
+      });
+      final ProviderContainer container = ProviderContainer.test(
+        overrides: [
+          ...overridesFor(AppConfig.prod()),
+          databaseProvider.overrideWithValue(database),
+        ],
+      );
+
+      await openLocalData(container, locale: 'en_GB');
+
+      expect(
+        container.read(legacyImportResultProvider),
+        ImportSummary(transactions: 2, total: Money(8750, 'GBP'), skipped: 0),
+      );
+      expect(
+        (await container.read(accountRepositoryProvider).watchAll().first)
+            .single
+            .currencyCode,
+        'GBP',
+      );
+    },
+  );
+
+  test(
+    'a failing import does not stop startup and runs again next time',
+    () async {
+      final AppDatabase database = AppDatabase(NativeDatabase.memory());
+      addTearDown(database.close);
+      SharedPreferences.setMockInitialValues({
+        'transactions': '[{"amount":1.0,"description":"x"}]',
+      });
+      final _FailingAccounts accounts = _FailingAccounts();
+      when(
+        accounts.watchAll,
+      ).thenAnswer((_) => Stream.error(const FileSystemException('disk full')));
+      final ProviderContainer container = ProviderContainer.test(
+        overrides: [
+          appConfigProvider.overrideWithValue(AppConfig.prod()),
+          databaseProvider.overrideWithValue(database),
+          accountRepositoryProvider.overrideWithValue(accounts),
+        ],
+      );
+
+      await openLocalData(container, locale: 'en_US');
+
+      expect(container.read(legacyImportResultProvider), isNull);
+      expect(
+        await DriftAppMetaStore(database).read('legacy_import_done'),
+        isNull,
+      );
+      expect(
+        (await SharedPreferences.getInstance()).containsKey('transactions'),
+        isTrue,
       );
     },
   );
@@ -89,7 +166,7 @@ void main() {
             databaseProvider.overrideWithValue(damaged),
           ],
         );
-        await openLocalData(container);
+        await openLocalData(container, locale: 'en_US');
       } catch (e) {
         failure = e;
       }
