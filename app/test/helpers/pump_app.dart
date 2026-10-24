@@ -1,6 +1,8 @@
 // Builds and pumps the real app for widget and golden tests: the real ProviderScope,
 // FinanceTrackerApp (router, themes, localizations, flavor banner), with the dependencies
 // a test must pin overridden: the flavor, the clock, the package info and the settings.
+// The flavor's own wiring (overridesFor: the Drift or demo repositories) is not applied,
+// so every test runs on the in-memory repositories whatever its flavor.
 //
 //   await pumpApp(tester, initialLocation: '/settings', brightness: Brightness.dark);
 //
@@ -59,7 +61,7 @@ Widget buildTestApp({
 }
 
 /// The overrides of a test app: [config] (prod, which draws no flavor banner, by
-/// default), [testClock], [testPackageInfo], settings whose theme mode gives
+/// default) as `appConfigProvider` only, [testClock], [testPackageInfo], settings whose theme mode gives
 /// [brightness], and a router opening at [initialLocation]; then [overrides], which win.
 /// A test that overrides `settingsRepositoryProvider` itself sets the theme mode there.
 List<Override> testOverrides({
@@ -68,7 +70,7 @@ List<Override> testOverrides({
   String initialLocation = '/accounts',
   Brightness brightness = Brightness.light,
 }) => [
-  ...overridesFor(config ?? AppConfig.prod()),
+  appConfigProvider.overrideWithValue(config ?? AppConfig.prod()),
   clockProvider.overrideWithValue(testClock),
   packageInfoProvider.overrideWith((ref) async => testPackageInfo),
   settingsRepositoryProvider.overrideWith((ref) {

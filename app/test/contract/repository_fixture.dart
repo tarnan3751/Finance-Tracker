@@ -1,0 +1,110 @@
+// What the account, transaction and category contract suites run against: the three
+// repositories of one implementation over one backing store (an in-memory store, or one
+// Drift database), and the clock their deletes are stamped with. Each implementation's
+// test file builds a fixture per test; the suites never see which implementation it is.
+import 'package:finance_tracker/core/time/clock.dart';
+import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
+import 'package:finance_tracker/features/categories/domain/category_repository.dart';
+import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
+import 'package:shared_models/shared_models.dart';
+import 'package:timezone/timezone.dart' as tz;
+
+/// The repositories of one implementation, sharing one store.
+final class RepositoryFixture {
+  RepositoryFixture({
+    required this.accounts,
+    required this.transactions,
+    required this.categories,
+    required this.clock,
+  });
+
+  final AccountRepository accounts;
+  final TransactionRepository transactions;
+  final CategoryRepository categories;
+
+  /// The clock the repositories stamp with.
+  final SteppingClock clock;
+}
+
+/// A clock that moves one millisecond forward on every read of [nowUtc], so the stamps of
+/// two writes differ, unless [frozen], when every read gives the same instant. Starts at
+/// 24 October 2026, 15:00 UTC, in UTC.
+final class SteppingClock implements Clock {
+  int _millis = DateTime.utc(2026, 10, 24, 15).millisecondsSinceEpoch;
+
+  /// Whether the clock has stopped.
+  bool frozen = false;
+
+  @override
+  DateTime nowUtc() => DateTime.fromMillisecondsSinceEpoch(
+    frozen ? _millis : _millis++,
+    isUtc: true,
+  );
+
+  @override
+  DateTime todayLocalMidnight() {
+    final tz.TZDateTime now = tz.TZDateTime.fromMillisecondsSinceEpoch(
+      tz.UTC,
+      _millis,
+    );
+    return tz.TZDateTime(tz.UTC, now.year, now.month, now.day);
+  }
+
+  @override
+  LocalDate today() => LocalDate.fromDateTime(todayLocalMidnight());
+
+  @override
+  tz.Location get location => tz.UTC;
+}
+
+/// An audit instant for test records.
+final DateTime testInstant = DateTime.utc(2026, 10, 1, 9);
+
+/// A manual account.
+Account testAccount(
+  String id, {
+  String currency = 'USD',
+  int displayOrder = 0,
+  bool isHidden = false,
+  String? name,
+}) => Account(
+  id: id,
+  type: AccountType.depository,
+  name: name ?? 'Account $id',
+  currencyCode: currency,
+  isHidden: isHidden,
+  displayOrder: displayOrder,
+);
+
+/// A manual transaction of [minorUnits] on [accountId].
+Transaction testTransaction(
+  String id,
+  String accountId,
+  int minorUnits, {
+  String currency = 'USD',
+  LocalDate? date,
+  DateTime? createdAt,
+  String name = 'Purchase',
+  String? merchantName,
+  String? notes,
+  String? userCategoryId,
+  bool pending = false,
+  List<String> tags = const [],
+  List<TransactionSplit> splits = const [],
+}) => Transaction(
+  id: id,
+  accountId: accountId,
+  amount: Money(minorUnits, currency),
+  date: date ?? LocalDate(2026, 10, 1),
+  pending: pending,
+  name: name,
+  merchantName: merchantName,
+  notes: notes,
+  userCategoryId: userCategoryId,
+  tags: tags,
+  splits: splits,
+  source: DataSource.manual,
+  createdAt: createdAt ?? testInstant,
+  updatedAt: createdAt ?? testInstant,
+  syncVersion: 0,
+);

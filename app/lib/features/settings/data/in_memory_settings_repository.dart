@@ -1,5 +1,5 @@
-/// A [SettingsRepository] held in memory: the default until the Drift implementation
-/// (Phase 1c), and the one tests use.
+/// A [SettingsRepository] held in memory: what tests use, and the base of the demo
+/// flavor's.
 library;
 
 import 'dart:async';
@@ -8,7 +8,7 @@ import 'package:finance_tracker/features/settings/domain/settings.dart';
 import 'package:finance_tracker/features/settings/domain/settings_repository.dart';
 
 /// Settings kept in memory for the life of the object.
-final class InMemorySettingsRepository implements SettingsRepository {
+base class InMemorySettingsRepository implements SettingsRepository {
   /// A repository holding [initial], or the defaults.
   InMemorySettingsRepository([Settings initial = const Settings.defaults()])
     : _current = initial;

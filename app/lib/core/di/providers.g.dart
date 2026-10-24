@@ -102,14 +102,219 @@ final class ClockProvider extends $FunctionalProvider<Clock, Clock, Clock>
 
 String _$clockHash() => r'55214d6539f7396a3ae1aa23b06eea79fdac0ebe';
 
-/// Where the app preferences are kept: in memory by default; Phase 1c overrides it with
-/// the Drift implementation for dev and prod.
+/// The state behind the in-memory and demo repositories: empty by default; the demo
+/// flavor's holds the system categories and the demo seed.
+
+@ProviderFor(inMemoryStore)
+final inMemoryStoreProvider = InMemoryStoreProvider._();
+
+/// The state behind the in-memory and demo repositories: empty by default; the demo
+/// flavor's holds the system categories and the demo seed.
+
+final class InMemoryStoreProvider
+    extends $FunctionalProvider<InMemoryStore, InMemoryStore, InMemoryStore>
+    with $Provider<InMemoryStore> {
+  /// The state behind the in-memory and demo repositories: empty by default; the demo
+  /// flavor's holds the system categories and the demo seed.
+  InMemoryStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'inMemoryStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$inMemoryStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<InMemoryStore> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  InMemoryStore create(Ref ref) {
+    return inMemoryStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(InMemoryStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<InMemoryStore>(value),
+    );
+  }
+}
+
+String _$inMemoryStoreHash() => r'3eec0edbaefb6e758cd7a7b12574470341f1dfe1';
+
+/// The accounts.
+
+@ProviderFor(accountRepository)
+final accountRepositoryProvider = AccountRepositoryProvider._();
+
+/// The accounts.
+
+final class AccountRepositoryProvider
+    extends
+        $FunctionalProvider<
+          AccountRepository,
+          AccountRepository,
+          AccountRepository
+        >
+    with $Provider<AccountRepository> {
+  /// The accounts.
+  AccountRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'accountRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$accountRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<AccountRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  AccountRepository create(Ref ref) {
+    return accountRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AccountRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AccountRepository>(value),
+    );
+  }
+}
+
+String _$accountRepositoryHash() => r'89c853b025f1130c7c4c5c729d3a91cc85e88d41';
+
+/// The transactions.
+
+@ProviderFor(transactionRepository)
+final transactionRepositoryProvider = TransactionRepositoryProvider._();
+
+/// The transactions.
+
+final class TransactionRepositoryProvider
+    extends
+        $FunctionalProvider<
+          TransactionRepository,
+          TransactionRepository,
+          TransactionRepository
+        >
+    with $Provider<TransactionRepository> {
+  /// The transactions.
+  TransactionRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'transactionRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$transactionRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<TransactionRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  TransactionRepository create(Ref ref) {
+    return transactionRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(TransactionRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<TransactionRepository>(value),
+    );
+  }
+}
+
+String _$transactionRepositoryHash() =>
+    r'ceaac0f82d3d115a6973c43f700b375503c196ce';
+
+/// The categories.
+
+@ProviderFor(categoryRepository)
+final categoryRepositoryProvider = CategoryRepositoryProvider._();
+
+/// The categories.
+
+final class CategoryRepositoryProvider
+    extends
+        $FunctionalProvider<
+          CategoryRepository,
+          CategoryRepository,
+          CategoryRepository
+        >
+    with $Provider<CategoryRepository> {
+  /// The categories.
+  CategoryRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'categoryRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$categoryRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<CategoryRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CategoryRepository create(Ref ref) {
+    return categoryRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CategoryRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CategoryRepository>(value),
+    );
+  }
+}
+
+String _$categoryRepositoryHash() =>
+    r'a4f8dd69674e0727d3a6005247bee23c2b2e70f3';
+
+/// Where the app preferences are kept.
 
 @ProviderFor(settingsRepository)
 final settingsRepositoryProvider = SettingsRepositoryProvider._();
 
-/// Where the app preferences are kept: in memory by default; Phase 1c overrides it with
-/// the Drift implementation for dev and prod.
+/// Where the app preferences are kept.
 
 final class SettingsRepositoryProvider
     extends
@@ -119,8 +324,7 @@ final class SettingsRepositoryProvider
           SettingsRepository
         >
     with $Provider<SettingsRepository> {
-  /// Where the app preferences are kept: in memory by default; Phase 1c overrides it with
-  /// the Drift implementation for dev and prod.
+  /// Where the app preferences are kept.
   SettingsRepositoryProvider._()
     : super(
         from: null,
