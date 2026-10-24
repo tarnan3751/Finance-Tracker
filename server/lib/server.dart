@@ -10,6 +10,10 @@ import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
+export 'src/config.dart';
+export 'src/db/database.dart' show AppDatabase;
+export 'src/logging.dart' show LogEvent, configureLogging, formatRecord;
+
 /// Builds the handler that serves every route of the API under `/v1`.
 Handler buildHandler() {
   final router = Router()..get('/v1/health', _health);
