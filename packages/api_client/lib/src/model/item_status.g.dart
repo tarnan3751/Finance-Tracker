@@ -10,6 +10,7 @@ const ItemStatus _$healthy = const ItemStatus._('healthy');
 const ItemStatus _$loginRequired = const ItemStatus._('loginRequired');
 const ItemStatus _$error = const ItemStatus._('error');
 const ItemStatus _$pendingExpiration = const ItemStatus._('pendingExpiration');
+const ItemStatus _$removed = const ItemStatus._('removed');
 const ItemStatus _$unknown = const ItemStatus._('unknown');
 
 ItemStatus _$valueOf(String name) {
@@ -22,6 +23,8 @@ ItemStatus _$valueOf(String name) {
       return _$error;
     case 'pendingExpiration':
       return _$pendingExpiration;
+    case 'removed':
+      return _$removed;
     case 'unknown':
       return _$unknown;
     default:
@@ -34,6 +37,7 @@ final BuiltSet<ItemStatus> _$values = BuiltSet<ItemStatus>(const <ItemStatus>[
   _$loginRequired,
   _$error,
   _$pendingExpiration,
+  _$removed,
   _$unknown,
 ]);
 
@@ -43,6 +47,7 @@ class _$ItemStatusMeta {
   ItemStatus get loginRequired => _$loginRequired;
   ItemStatus get error => _$error;
   ItemStatus get pendingExpiration => _$pendingExpiration;
+  ItemStatus get removed => _$removed;
   ItemStatus get unknown => _$unknown;
   ItemStatus valueOf(String name) => _$valueOf(name);
   BuiltSet<ItemStatus> get values => _$values;
@@ -61,6 +66,7 @@ class _$ItemStatusSerializer implements PrimitiveSerializer<ItemStatus> {
     'loginRequired': 'login_required',
     'error': 'error',
     'pendingExpiration': 'pending_expiration',
+    'removed': 'removed',
     'unknown': 'unknown',
   };
   static const Map<Object, String> _fromWire = const <Object, String>{
@@ -68,6 +74,7 @@ class _$ItemStatusSerializer implements PrimitiveSerializer<ItemStatus> {
     'login_required': 'loginRequired',
     'error': 'error',
     'pending_expiration': 'pendingExpiration',
+    'removed': 'removed',
     'unknown': 'unknown',
   };
 

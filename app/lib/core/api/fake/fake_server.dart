@@ -25,8 +25,13 @@
 ///   exchanging an Item already linked returns it again. A sync answers `not_ready` once,
 ///   then `completed`, applying the Item's rows with their ids as given and the next
 ///   `sync_version`s of the user (transactions in dataset order, then investment
-///   transactions). Deleting an Item tombstones its transactions under new versions. The
-///   webhook is always 401 `webhook_unverified`.
+///   transactions). A refresh answers `started` and makes the next sync re-apply the
+///   Item's transactions as modified; the balance refresh answers the Item's accounts.
+///   Unlinking with `history=delete` (the default) tombstones its transactions under new
+///   versions and drops its accounts; with `keep` the data stays and the Item is listed
+///   `removed`, and every call that would reach Plaid for it is 409 `conflict`. The logo
+///   route serves a dataset Item's `institutionLogo`, and `logo_url` points at it only
+///   then. The webhook is always 401 `webhook_unverified`.
 /// - **Data.** `/transactions` and `/investments/transactions` page by version with the
 ///   same 409 for a `since` past the user's version.
 /// - **Shapes.** Success bodies are `shared_models` or `api_models` JSON; every 4xx and
@@ -40,6 +45,7 @@ library;
 
 import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
@@ -139,6 +145,11 @@ final class _LinkedItem {
   int syncCalls = 0;
   DateTime? lastSuccessfulSyncAt;
   bool applied = false;
+  ItemStatus status = ItemStatus.healthy;
+  String? errorCode;
+
+  /// Set by a refresh: the next completed sync re-applies the transactions as modified.
+  bool refreshPending = false;
 }
 
 final class _UserData {
@@ -192,6 +203,13 @@ final class FakeServer {
     FakeRoute('listItems', 'GET', '/plaid/items'),
     FakeRoute('deleteItem', 'DELETE', '/plaid/items/{item_id}'),
     FakeRoute('syncItem', 'POST', '/plaid/items/{item_id}/sync'),
+    FakeRoute('refreshItem', 'POST', '/plaid/items/{item_id}/refresh'),
+    FakeRoute('refreshBalances', 'POST', '/plaid/items/{item_id}/balances'),
+    FakeRoute(
+      'getInstitutionLogo',
+      'GET',
+      '/institutions/{institution_id}/logo',
+    ),
     FakeRoute(
       'createUpdateLinkToken',
       'POST',
@@ -603,8 +621,21 @@ final class FakeServer {
         for (final _LinkedItem i in _dataOf(caller!.user.id).items.values)
           _itemJson(i),
       ]),
-      'deleteItem' => _deleteItem(parameters['item_id']!, caller!),
+      'deleteItem' => _deleteItem(
+        parameters['item_id']!,
+        request.query,
+        caller!,
+      ),
       'syncItem' => _syncItem(parameters['item_id']!, caller!),
+      'refreshItem' => _refreshItem(parameters['item_id']!, caller!),
+      'refreshBalances' => _ok([
+        for (final Account a in _active(
+          parameters['item_id']!,
+          caller!,
+        ).data.accounts)
+          a.copyWith(itemId: parameters['item_id']).toJson(),
+      ]),
+      'getInstitutionLogo' => _logo(parameters['institution_id']!, caller!),
       'createUpdateLinkToken' => _updateLinkToken(
         parameters['item_id']!,
         body(),
@@ -773,7 +804,7 @@ final class FakeServer {
       minLength: 1,
     );
     r.done();
-    if (update != null) _item(update, caller);
+    if (update != null) _updatable(update, caller);
     return _ok(_newLinkToken());
   }
 
@@ -785,8 +816,17 @@ final class FakeServer {
     final FakeReader r = FakeReader(json, const {'android_package_name'});
     r.string('android_package_name', pattern: packageNameShape);
     r.done();
-    _item(itemId, caller);
+    _updatable(itemId, caller);
     return _ok(_newLinkToken());
+  }
+
+  /// [_item] for an update-mode link token: a `removed` Item is 404, as on the server.
+  _LinkedItem _updatable(String itemId, _Caller caller) {
+    final _LinkedItem linked = _item(itemId, caller);
+    if (linked.status == ItemStatus.removed) {
+      throw const _Problem(404, 'not_found', 'The Item was unlinked');
+    }
+    return linked;
   }
 
   Map<String, Object?> _newLinkToken() => {
@@ -799,6 +839,19 @@ final class FakeServer {
   _LinkedItem _item(String itemId, _Caller caller) =>
       _dataOf(caller.user.id).items[itemId] ??
       (throw const _Problem(404, 'not_found', 'No Item with that id'));
+
+  /// [_item] for a call that would reach Plaid: a `removed` Item is 409 `conflict`.
+  _LinkedItem _active(String itemId, _Caller caller) {
+    final _LinkedItem linked = _item(itemId, caller);
+    if (linked.status == ItemStatus.removed) {
+      throw const _Problem(
+        409,
+        'conflict',
+        'The Item was unlinked; link it again to use it',
+      );
+    }
+    return linked;
+  }
 
   FakeResponse _exchange(Map<String, Object?> json, _Caller caller) {
     final FakeReader r = FakeReader(json, const {'public_token'});
@@ -813,6 +866,10 @@ final class FakeServer {
             : null) ??
         dataset.items.first;
     final _UserData user = _dataOf(caller.user.id);
+    if (user.items[data.id]?.status == ItemStatus.removed) {
+      // Linking an unlinked Item again starts it afresh; its kept rows are re-applied.
+      user.items.remove(data.id);
+    }
     final _LinkedItem linked = user.items[data.id] ??= _LinkedItem(data);
     return _ok(_itemJson(linked), 201);
   }
@@ -821,15 +878,51 @@ final class FakeServer {
     ...Item(
       id: i.data.id,
       institutionId: i.data.institution.id,
-      status: ItemStatus.healthy,
+      status: i.status,
       lastSuccessfulSyncAt: i.lastSuccessfulSyncAt,
+      errorCode: i.errorCode,
     ).toJson(),
-    'institution': i.data.institution.toJson(),
+    'institution': i.data.institution
+        .copyWith(
+          logoUrl: i.data.institutionLogo == null
+              ? null
+              : baseUrl.resolve(
+                  '/v1/institutions/'
+                  '${Uri.encodeComponent(i.data.institution.id)}/logo',
+                ),
+        )
+        .toJson(),
   };
 
-  FakeResponse _deleteItem(String itemId, _Caller caller) {
+  FakeResponse _logo(String institutionId, _Caller caller) {
+    for (final _LinkedItem i in _dataOf(
+      caller.user.id,
+    ).items.values.toList().reversed) {
+      final Uint8List? logo = i.data.institutionLogo;
+      if (i.data.institution.id == institutionId && logo != null) {
+        return _ok(logo);
+      }
+    }
+    throw const _Problem(404, 'not_found', 'No logo for that institution');
+  }
+
+  FakeResponse _deleteItem(
+    String itemId,
+    Map<String, String> query,
+    _Caller caller,
+  ) {
+    final String history = query['history'] ?? 'delete';
+    if (history != 'keep' && history != 'delete') {
+      throw FakeValidationException.single('history', 'must be keep or delete');
+    }
     final _UserData data = _dataOf(caller.user.id);
     final _LinkedItem linked = _item(itemId, caller);
+    if (history == 'keep') {
+      linked
+        ..status = ItemStatus.removed
+        ..errorCode = null;
+      return _noContent;
+    }
     final Set<String> accounts = {
       for (final Account a in linked.data.accounts) a.id,
     };
@@ -854,18 +947,33 @@ final class FakeServer {
 
   FakeResponse _syncItem(String itemId, _Caller caller) {
     final _UserData data = _dataOf(caller.user.id);
-    final _LinkedItem linked = _item(itemId, caller);
+    final _LinkedItem linked = _active(itemId, caller);
     if (linked.syncCalls++ == 0) {
       return _ok(_run('not_ready', 0, false), 202);
+    }
+    if (linked.applied && linked.refreshPending) {
+      linked.refreshPending = false;
+      final int modified = _apply(data, linked);
+      return _ok(_run('completed', 0, true, modified: modified), 202);
     }
     final int added = linked.applied ? 0 : _apply(data, linked);
     return _ok(_run('completed', added, true), 202);
   }
 
-  static Map<String, Object?> _run(String status, int added, bool saved) => {
+  FakeResponse _refreshItem(String itemId, _Caller caller) {
+    _active(itemId, caller).refreshPending = true;
+    return _ok(_run('started', 0, false), 202);
+  }
+
+  static Map<String, Object?> _run(
+    String status,
+    int added,
+    bool saved, {
+    int modified = 0,
+  }) => {
     'status': status,
     'added': added,
-    'modified': 0,
+    'modified': modified,
     'removed': 0,
     'next_cursor_saved': saved,
   };

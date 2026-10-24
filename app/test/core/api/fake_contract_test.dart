@@ -3,7 +3,8 @@
 // for the webhook, whose generated method cannot serialize its body, raw Dio), and every
 // request and answer that crosses the adapter is checked with contract_test in strict
 // mode: the request body against the operation's schema, the answer against the schema
-// of its status (which must be declared), the content type and the X-Request-Id. A table
+// of its status (which must be declared; an image/png answer is its bytes), the content
+// type and the X-Request-Id. A table
 // test holds the fake's routes equal to the document's operations, with the same
 // security.
 import 'dart:convert';
@@ -15,8 +16,10 @@ import 'package:built_value/serializer.dart';
 import 'package:contract_test/contract_test.dart';
 import 'package:dio/dio.dart';
 import 'package:finance_tracker/core/api/api_config.dart';
+import 'package:finance_tracker/core/api/fake/fake_dataset.dart';
 import 'package:finance_tracker/core/api/fake/fake_server.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_models/shared_models.dart';
 
 import 'support/fake_api.dart';
 
@@ -47,8 +50,12 @@ final class _RecordingAdapter implements HttpClientAdapter {
       for (final Uint8List chunk in await stream.toList()) ...chunk,
   ];
 
-  static Object? _decode(List<int> bytes) =>
-      bytes.isEmpty ? null : jsonDecode(utf8.decode(bytes));
+  static Object? _decode(List<int> bytes, {String? contentType}) =>
+      contentType == 'image/png'
+      ? bytes
+      : bytes.isEmpty
+      ? null
+      : jsonDecode(utf8.decode(bytes));
 
   @override
   Future<ResponseBody> fetch(
@@ -63,13 +70,15 @@ final class _RecordingAdapter implements HttpClientAdapter {
       cancelFuture,
     );
     final List<int> body = await _bytes(response.stream);
+    final String? contentType =
+        response.headers[Headers.contentTypeHeader]?.single;
     exchanges.add((
       method: options.method,
       path: options.uri.path.replaceFirst('/v1', ''),
       request: _decode(request),
       status: response.statusCode,
-      response: _decode(body),
-      contentType: response.headers[Headers.contentTypeHeader]?.single,
+      response: _decode(body, contentType: contentType),
+      contentType: contentType,
       requestId: response.headers['x-request-id']?.single,
     ));
     return ResponseBody.fromBytes(
@@ -88,6 +97,32 @@ final Serializers _serializers = api.standardSerializers;
 T _model<T>(Map<String, Object?> json) =>
     _serializers.deserialize(json, specifiedType: FullType(T)) as T;
 
+/// A PNG signature and a few bytes: what the fake serves as a logo.
+final Uint8List _logo = Uint8List.fromList([
+  0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 1, 2, 3, //
+]);
+
+/// The sample dataset, its Item's institution with [_logo].
+FakeDataset _sampleWithLogo() => FakeDataset(
+  items: [
+    for (final FakeItemData i in FakeDataset.sample(
+      LocalDate(2026, 10, 24),
+    ).items)
+      FakeItemData(
+        id: i.id,
+        institution: i.institution,
+        accounts: i.accounts,
+        transactions: i.transactions,
+        recurringStreams: i.recurringStreams,
+        liabilities: i.liabilities,
+        holdings: i.holdings,
+        securities: i.securities,
+        investmentTransactions: i.investmentTransactions,
+        institutionLogo: _logo,
+      ),
+  ],
+);
+
 /// The status [call] was answered with.
 Future<int> _status(Future<Response<dynamic>> Function() call) async {
   try {
@@ -99,7 +134,7 @@ Future<int> _status(Future<Response<dynamic>> Function() call) async {
 
 /// The generated client for one signed-in user, plus raw Dio, over one fake server.
 final class _Harness {
-  _Harness() : server = newFakeServer() {
+  _Harness({FakeDataset? dataset}) : server = newFakeServer(dataset: dataset) {
     recorder = _RecordingAdapter(server.adapter);
     final String base = apiBaseUrl(FakeServer.baseUrl);
     client = api.ApiClient(
@@ -172,7 +207,7 @@ final class _Harness {
       if (e.response != null) {
         expect(
           e.contentType,
-          e.status >= 400 ? 'application/problem+json' : 'application/json',
+          _contract.responseMediaType(template, method, e.status),
           reason: what,
         );
       }
@@ -216,7 +251,7 @@ void main() {
   test(
     'every operation, its successes and its documented errors, conform',
     () async {
-      final _Harness h = _Harness();
+      final _Harness h = _Harness(dataset: _sampleWithLogo());
       final api.AuthApi auth = h.client.getAuthApi();
       final api.PlaidApi plaid = h.client.getPlaidApi();
       final api.DataApi data = h.client.getDataApi();
@@ -437,6 +472,41 @@ void main() {
         expect(await _status(() => plaid.syncItem(itemId: item)), status);
       }
 
+      // refresh, balances and the logo
+      expect(await _status(() => plaid.refreshItem(itemId: item)), 202);
+      expect(await _status(() => plaid.syncItem(itemId: item)), 202);
+      expect(await _status(() => plaid.refreshItem(itemId: 'nope')), 404);
+      expect(await _status(() => plaid.refreshBalances(itemId: item)), 200);
+      expect(await _status(() => plaid.refreshBalances(itemId: 'nope')), 404);
+      for (final String operation in ['refreshItem', 'refreshBalances']) {
+        for (final (int status, String? code) in [
+          (409, 'item_login_required'),
+          (429, null),
+          (502, null),
+        ]) {
+          h.server.failNext(operation, status, code: code);
+          expect(
+            await _status(
+              () => operation == 'refreshItem'
+                  ? plaid.refreshItem(itemId: item)
+                  : plaid.refreshBalances(itemId: item),
+            ),
+            status,
+          );
+        }
+      }
+      final api.InstitutionsApi institutions = h.client.getInstitutionsApi();
+      final Response<Uint8List> logo = await institutions.getInstitutionLogo(
+        institutionId: 'ins_109508',
+      );
+      expect(logo.data, _logo);
+      expect(
+        await _status(
+          () => institutions.getInstitutionLogo(institutionId: 'ins_1'),
+        ),
+        404,
+      );
+
       final api.UpdateLinkTokenRequest update =
           _model<api.UpdateLinkTokenRequest>(linkExample);
       expect(
@@ -557,7 +627,21 @@ void main() {
         401,
       );
 
-      // Item deletion
+      // Item deletion: kept, refused while removed, then deleted
+      expect(
+        (await h.rawSend(
+          'DELETE',
+          '/plaid/items/$item?history=archive',
+        )).statusCode,
+        400,
+      );
+      expect(
+        await _status(() => plaid.deleteItem(itemId: item, history: 'keep')),
+        204,
+      );
+      expect(await _status(() => plaid.syncItem(itemId: item)), 409);
+      expect(await _status(() => plaid.refreshItem(itemId: item)), 409);
+      expect(await _status(() => plaid.refreshBalances(itemId: item)), 409);
       h.server.failNext('deleteItem', 502);
       expect(await _status(() => plaid.deleteItem(itemId: item)), 502);
       expect(await _status(() => plaid.deleteItem(itemId: item)), 204);

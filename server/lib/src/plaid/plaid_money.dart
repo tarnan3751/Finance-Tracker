@@ -1,5 +1,5 @@
 /// Plaid's decimal numbers as `Money`, without a `double` (`docs/reference/server.md`,
-/// **Money from Plaid**).
+/// **Money from Plaid**), and Plaid's `#rrggbb` colours as the contract's ARGB.
 ///
 /// Plaid writes amounts as JSON numbers. The fake client's fixtures carry them as strings
 /// or integers, and the Phase 3 client reads them through a number-preserving decode that
@@ -58,4 +58,14 @@ String plaidDecimal(Object value) {
     throw FormatException('Not a decimal', '$value');
   }
   return text;
+}
+
+final _hexColor = RegExp(r'^#([0-9A-Fa-f]{6})$');
+
+/// Plaid's `primary_color` (`#0075a3`) as the contract's opaque ARGB integer
+/// (`0xFF0075A3`); anything else is a [FormatException].
+int plaidColor(String hex) {
+  final match = _hexColor.firstMatch(hex);
+  if (match == null) throw FormatException('Not a #rrggbb colour', hex);
+  return 0xFF000000 | int.parse(match[1]!, radix: 16);
 }

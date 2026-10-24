@@ -13,9 +13,16 @@ import 'package:json_annotation/json_annotation.dart';
 @JsonEnum(fieldRename: FieldRename.snake)
 enum AccountType { depository, credit, loan, investment, other }
 
-/// The health of a Plaid Item.
+/// The health of a Plaid Item; [removed] is an Item unlinked with its history kept.
 @JsonEnum(fieldRename: FieldRename.snake)
-enum ItemStatus { healthy, loginRequired, error, pendingExpiration, unknown }
+enum ItemStatus {
+  healthy,
+  loginRequired,
+  error,
+  pendingExpiration,
+  removed,
+  unknown,
+}
 
 /// Where a transaction or a snapshot came from (`PLAN.md` §7.1). `derived` values are
 /// reconstructed rather than reported and are labelled so in the UI; `demo` values exist

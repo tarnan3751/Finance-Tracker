@@ -28,12 +28,14 @@ _Item _$ItemFromJson(Map<String, dynamic> json) => $checkedCreate(
           const UtcInstantConverter().fromJson,
         ),
       ),
+      errorCode: $checkedConvert('error_code', (v) => v as String?),
     );
     return val;
   },
   fieldKeyMap: const {
     'institutionId': 'institution_id',
     'lastSuccessfulSyncAt': 'last_successful_sync_at',
+    'errorCode': 'error_code',
   },
 );
 
@@ -45,6 +47,7 @@ Map<String, dynamic> _$ItemToJson(_Item instance) => <String, dynamic>{
     instance.lastSuccessfulSyncAt,
     const UtcInstantConverter().toJson,
   ),
+  'error_code': instance.errorCode,
 };
 
 const _$ItemStatusEnumMap = {
@@ -52,6 +55,7 @@ const _$ItemStatusEnumMap = {
   ItemStatus.loginRequired: 'login_required',
   ItemStatus.error: 'error',
   ItemStatus.pendingExpiration: 'pending_expiration',
+  ItemStatus.removed: 'removed',
   ItemStatus.unknown: 'unknown',
 };
 

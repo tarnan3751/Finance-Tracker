@@ -16,6 +16,8 @@ class _$Item extends Item {
   @override
   final DateTime? lastSuccessfulSyncAt;
   @override
+  final String? errorCode;
+  @override
   final Institution institution;
 
   factory _$Item([void Function(ItemBuilder)? updates]) =>
@@ -26,6 +28,7 @@ class _$Item extends Item {
     required this.institutionId,
     required this.status,
     this.lastSuccessfulSyncAt,
+    this.errorCode,
     required this.institution,
   }) : super._();
   @override
@@ -43,6 +46,7 @@ class _$Item extends Item {
         institutionId == other.institutionId &&
         status == other.status &&
         lastSuccessfulSyncAt == other.lastSuccessfulSyncAt &&
+        errorCode == other.errorCode &&
         institution == other.institution;
   }
 
@@ -53,6 +57,7 @@ class _$Item extends Item {
     _$hash = $jc(_$hash, institutionId.hashCode);
     _$hash = $jc(_$hash, status.hashCode);
     _$hash = $jc(_$hash, lastSuccessfulSyncAt.hashCode);
+    _$hash = $jc(_$hash, errorCode.hashCode);
     _$hash = $jc(_$hash, institution.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -65,6 +70,7 @@ class _$Item extends Item {
           ..add('institutionId', institutionId)
           ..add('status', status)
           ..add('lastSuccessfulSyncAt', lastSuccessfulSyncAt)
+          ..add('errorCode', errorCode)
           ..add('institution', institution))
         .toString();
   }
@@ -91,6 +97,10 @@ class ItemBuilder implements Builder<Item, ItemBuilder> {
   set lastSuccessfulSyncAt(DateTime? lastSuccessfulSyncAt) =>
       _$this._lastSuccessfulSyncAt = lastSuccessfulSyncAt;
 
+  String? _errorCode;
+  String? get errorCode => _$this._errorCode;
+  set errorCode(String? errorCode) => _$this._errorCode = errorCode;
+
   InstitutionBuilder? _institution;
   InstitutionBuilder get institution =>
       _$this._institution ??= InstitutionBuilder();
@@ -108,6 +118,7 @@ class ItemBuilder implements Builder<Item, ItemBuilder> {
       _institutionId = $v.institutionId;
       _status = $v.status;
       _lastSuccessfulSyncAt = $v.lastSuccessfulSyncAt;
+      _errorCode = $v.errorCode;
       _institution = $v.institution.toBuilder();
       _$v = null;
     }
@@ -145,6 +156,7 @@ class ItemBuilder implements Builder<Item, ItemBuilder> {
               'status',
             ),
             lastSuccessfulSyncAt: lastSuccessfulSyncAt,
+            errorCode: errorCode,
             institution: institution.build(),
           );
     } catch (_) {

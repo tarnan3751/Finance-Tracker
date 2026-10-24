@@ -1,6 +1,7 @@
 // The lookups of OpenApiDocument against the real contract: component schemas, request
 // and response schemas through $ref, a 204 without a body, and errors for what the
 // contract does not declare.
+import 'package:contract_test/contract_test.dart';
 import 'package:test/test.dart';
 
 import 'support.dart';
@@ -15,8 +16,8 @@ void main() {
     final ids = [
       for (final op in contract.operations) op.operation['operationId'],
     ];
-    expect(ids, hasLength(24));
-    expect(ids.toSet(), hasLength(24));
+    expect(ids, hasLength(27));
+    expect(ids.toSet(), hasLength(27));
   });
 
   test('finds request schemas', () {
@@ -41,6 +42,21 @@ void main() {
 
   test('a 204 has no response schema', () {
     expect(contract.responseSchema('/me', 'delete', 204), isNull);
+  });
+
+  test('reports response media types', () {
+    expect(contract.responseMediaType('/me', 'get', 200), 'application/json');
+    expect(
+      contract.responseMediaType('/me', 'get', 401),
+      'application/problem+json',
+    );
+    expect(contract.responseMediaType('/me', 'delete', 204), isNull);
+    const logo = '/institutions/{institution_id}/logo';
+    expect(contract.responseMediaType(logo, 'get', 200), 'image/png');
+    expect(contract.responseSchema(logo, 'get', 200), isNull);
+    expect([0x89, 0x50], conformsToResponse(contract, logo, 'get', 200));
+    expect(<int>[], isNot(conformsToResponse(contract, logo, 'get', 200)));
+    expect({'a': 1}, isNot(conformsToResponse(contract, logo, 'get', 200)));
   });
 
   test('undeclared operations and statuses are errors', () {

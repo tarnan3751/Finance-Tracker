@@ -2,6 +2,8 @@
 // (rotation, reuse detection, the live-family bearer check, devices, account deletion),
 // the sync relay's rules, the Plaid proxy and the data pages over the dataset, the
 // failure hooks, and the boundary conversions of HttpFinanceApi on the way back.
+import 'dart:typed_data';
+
 import 'package:finance_tracker/core/api/api_models.dart';
 import 'package:finance_tracker/core/api/fake/fake_dataset.dart';
 import 'package:finance_tracker/core/api/fake/fake_server.dart';
@@ -358,8 +360,115 @@ void main() {
       },
     );
 
+    test(
+      'a refresh starts a run whose next sync re-applies the rows as modified',
+      () async {
+        final FakeClient client = FakeClient.signedIn(server);
+        server.seedLinkedItems('ada@example.com');
+        final SyncRun started = await client.api.refreshItem('sample-item-1');
+        expect(started.status, SyncRunStatus.started);
+        expect(started.nextCursorSaved, isFalse);
+        final SyncRun run = await client.api.syncItem('sample-item-1');
+        expect(
+          (run.status, run.added, run.modified),
+          (SyncRunStatus.completed, 0, 12),
+        );
+        final VersionPage<Transaction> after = await client.api
+            .listTransactions(since: 12);
+        expect(after.items, hasLength(12));
+        final SyncRun quiet = await client.api.syncItem('sample-item-1');
+        expect((quiet.added, quiet.modified), (0, 0));
+      },
+    );
+
+    test('the balance refresh answers the Item\'s accounts', () async {
+      final FakeClient client = FakeClient.signedIn(server);
+      server.seedLinkedItems('ada@example.com');
+      expect(
+        await client.api.refreshBalances('sample-item-1'),
+        server.dataset.items.single.accounts,
+      );
+      await expectLater(
+        client.api.refreshBalances('nope'),
+        throwsA(isA<NotFound>()),
+      );
+    });
+
+    test(
+      'unlinking with history kept keeps the data and refuses Plaid calls',
+      () async {
+        final FakeClient client = FakeClient.signedIn(server);
+        server.seedLinkedItems('ada@example.com');
+        final List<Account> accounts = await client.api.listAccounts();
+        await client.api.deleteItem(
+          'sample-item-1',
+          history: UnlinkHistory.keep,
+        );
+        final LinkedItem item = (await client.api.listItems()).single;
+        expect(item.item.status, ItemStatus.removed);
+        expect(item.item.errorCode, isNull);
+        expect(await client.api.listAccounts(), accounts);
+        expect(
+          (await client.api.listTransactions()).items.every(
+            (t) => t.deletedAt == null,
+          ),
+          isTrue,
+        );
+        for (final Future<Object?> Function() call in [
+          () => client.api.syncItem('sample-item-1'),
+          () => client.api.refreshItem('sample-item-1'),
+          () => client.api.refreshBalances('sample-item-1'),
+        ]) {
+          await expectLater(call(), throwsA(isA<Conflict>()));
+        }
+        await client.api.deleteItem('sample-item-1');
+        expect(await client.api.listItems(), isEmpty);
+        expect(await client.api.listAccounts(), isEmpty);
+      },
+    );
+
+    test('the logo route serves a dataset logo, else NotFound', () async {
+      final FakeItemData sample = FakeDataset.sample(LocalDate(2026, 10, 24))
+          .items
+          .single;
+      final Uint8List png = Uint8List.fromList([0x89, 0x50, 0x4E, 0x47, 7]);
+      final FakeServer withLogo = newFakeServer(
+        dataset: FakeDataset(
+          items: [
+            FakeItemData(
+              id: sample.id,
+              institution: sample.institution,
+              accounts: sample.accounts,
+              institutionLogo: png,
+            ),
+          ],
+        ),
+      );
+      final FakeClient client = FakeClient.signedIn(withLogo);
+      final LinkedItem linked = await client.api.exchangePublicToken('any');
+      expect(
+        linked.institution.logoUrl,
+        Uri.parse(
+          'https://fake.financetracker.test/v1/institutions/ins_109508/logo',
+        ),
+      );
+      expect(await client.api.getInstitutionLogo('ins_109508'), png);
+      await expectLater(
+        client.api.getInstitutionLogo('ins_1'),
+        throwsA(isA<NotFound>()),
+      );
+
+      final FakeClient plain = FakeClient.signedIn(server);
+      final LinkedItem none = await plain.api.exchangePublicToken('any');
+      expect(none.institution.logoUrl, isNull);
+      await expectLater(
+        plain.api.getInstitutionLogo('ins_109508'),
+        throwsA(isA<NotFound>()),
+      );
+    });
+
     test('health reports the contract version', () async {
-      expect((await FakeClient(server).api.getHealth()).version, '0.2.1');
+      expect((await FakeClient(server).api.getHealth()).version, '0.3.0');
     });
   });
 

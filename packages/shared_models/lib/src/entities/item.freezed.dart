@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Item {
 
- String get id; String get institutionId;@JsonKey(unknownEnumValue: ItemStatus.unknown) ItemStatus get status;@UtcInstantConverter() DateTime? get lastSuccessfulSyncAt;
+ String get id; String get institutionId;@JsonKey(unknownEnumValue: ItemStatus.unknown) ItemStatus get status;@UtcInstantConverter() DateTime? get lastSuccessfulSyncAt; String? get errorCode;
 /// Create a copy of Item
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $ItemCopyWith<Item> get copyWith => _$ItemCopyWithImpl<Item>(this as Item, _$ide
 @override
 bool operator ==(Object other) {
   final _this = this as Item;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Item&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.institutionId, _this.institutionId) || other.institutionId == _this.institutionId)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.lastSuccessfulSyncAt, _this.lastSuccessfulSyncAt) || other.lastSuccessfulSyncAt == _this.lastSuccessfulSyncAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Item&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.institutionId, _this.institutionId) || other.institutionId == _this.institutionId)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.lastSuccessfulSyncAt, _this.lastSuccessfulSyncAt) || other.lastSuccessfulSyncAt == _this.lastSuccessfulSyncAt)&&(identical(other.errorCode, _this.errorCode) || other.errorCode == _this.errorCode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Item;
-  return Object.hash(runtimeType,_this.id,_this.institutionId,_this.status,_this.lastSuccessfulSyncAt);
+  return Object.hash(runtimeType,_this.id,_this.institutionId,_this.status,_this.lastSuccessfulSyncAt,_this.errorCode);
 }
 
 @override
 String toString() {
   final _this = this as Item;
-  return 'Item(id: ${_this.id}, institutionId: ${_this.institutionId}, status: ${_this.status}, lastSuccessfulSyncAt: ${_this.lastSuccessfulSyncAt})';
+  return 'Item(id: ${_this.id}, institutionId: ${_this.institutionId}, status: ${_this.status}, lastSuccessfulSyncAt: ${_this.lastSuccessfulSyncAt}, errorCode: ${_this.errorCode})';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $ItemCopyWith<$Res>  {
   factory $ItemCopyWith(Item value, $Res Function(Item) _then) = _$ItemCopyWithImpl;
 @useResult
 $Res call({
- String id, String institutionId,@JsonKey(unknownEnumValue: ItemStatus.unknown) ItemStatus status,@UtcInstantConverter() DateTime? lastSuccessfulSyncAt
+ String id, String institutionId,@JsonKey(unknownEnumValue: ItemStatus.unknown) ItemStatus status,@UtcInstantConverter() DateTime? lastSuccessfulSyncAt, String? errorCode
 });
 
 
@@ -71,13 +71,14 @@ class _$ItemCopyWithImpl<$Res>
 
 /// Create a copy of Item
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? institutionId = null,Object? status = null,Object? lastSuccessfulSyncAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? institutionId = null,Object? status = null,Object? lastSuccessfulSyncAt = freezed,Object? errorCode = freezed,}) {
   return _then(Item(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,institutionId: null == institutionId ? _self.institutionId : institutionId // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ItemStatus,lastSuccessfulSyncAt: freezed == lastSuccessfulSyncAt ? _self.lastSuccessfulSyncAt : lastSuccessfulSyncAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -162,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String institutionId, @JsonKey(unknownEnumValue: ItemStatus.unknown)  ItemStatus status, @UtcInstantConverter()  DateTime? lastSuccessfulSyncAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String institutionId, @JsonKey(unknownEnumValue: ItemStatus.unknown)  ItemStatus status, @UtcInstantConverter()  DateTime? lastSuccessfulSyncAt,  String? errorCode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Item() when $default != null:
-return $default(_that.id,_that.institutionId,_that.status,_that.lastSuccessfulSyncAt);case _:
+return $default(_that.id,_that.institutionId,_that.status,_that.lastSuccessfulSyncAt,_that.errorCode);case _:
   return orElse();
 
 }
@@ -183,10 +184,10 @@ return $default(_that.id,_that.institutionId,_that.status,_that.lastSuccessfulSy
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String institutionId, @JsonKey(unknownEnumValue: ItemStatus.unknown)  ItemStatus status, @UtcInstantConverter()  DateTime? lastSuccessfulSyncAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String institutionId, @JsonKey(unknownEnumValue: ItemStatus.unknown)  ItemStatus status, @UtcInstantConverter()  DateTime? lastSuccessfulSyncAt,  String? errorCode)  $default,) {final _that = this;
 switch (_that) {
 case _Item():
-return $default(_that.id,_that.institutionId,_that.status,_that.lastSuccessfulSyncAt);case _:
+return $default(_that.id,_that.institutionId,_that.status,_that.lastSuccessfulSyncAt,_that.errorCode);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -203,10 +204,10 @@ return $default(_that.id,_that.institutionId,_that.status,_that.lastSuccessfulSy
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String institutionId, @JsonKey(unknownEnumValue: ItemStatus.unknown)  ItemStatus status, @UtcInstantConverter()  DateTime? lastSuccessfulSyncAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String institutionId, @JsonKey(unknownEnumValue: ItemStatus.unknown)  ItemStatus status, @UtcInstantConverter()  DateTime? lastSuccessfulSyncAt,  String? errorCode)?  $default,) {final _that = this;
 switch (_that) {
 case _Item() when $default != null:
-return $default(_that.id,_that.institutionId,_that.status,_that.lastSuccessfulSyncAt);case _:
+return $default(_that.id,_that.institutionId,_that.status,_that.lastSuccessfulSyncAt,_that.errorCode);case _:
   return null;
 
 }
@@ -218,13 +219,14 @@ return $default(_that.id,_that.institutionId,_that.status,_that.lastSuccessfulSy
 @JsonSerializable()
 
 class _Item implements Item {
-  const _Item({required this.id, required this.institutionId, @JsonKey(unknownEnumValue: ItemStatus.unknown) required this.status, @UtcInstantConverter() this.lastSuccessfulSyncAt});
+  const _Item({required this.id, required this.institutionId, @JsonKey(unknownEnumValue: ItemStatus.unknown) required this.status, @UtcInstantConverter() this.lastSuccessfulSyncAt, this.errorCode});
   factory _Item.fromJson(Map<String, dynamic> json) => _$ItemFromJson(json);
 
 @override final  String id;
 @override final  String institutionId;
 @override@JsonKey(unknownEnumValue: ItemStatus.unknown) final  ItemStatus status;
 @override@UtcInstantConverter() final  DateTime? lastSuccessfulSyncAt;
+@override final  String? errorCode;
 
 /// Create a copy of Item
 /// with the given fields replaced by the non-null parameter values.
@@ -239,18 +241,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Item&&(identical(other.id, id) || other.id == id)&&(identical(other.institutionId, institutionId) || other.institutionId == institutionId)&&(identical(other.status, status) || other.status == status)&&(identical(other.lastSuccessfulSyncAt, lastSuccessfulSyncAt) || other.lastSuccessfulSyncAt == lastSuccessfulSyncAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Item&&(identical(other.id, id) || other.id == id)&&(identical(other.institutionId, institutionId) || other.institutionId == institutionId)&&(identical(other.status, status) || other.status == status)&&(identical(other.lastSuccessfulSyncAt, lastSuccessfulSyncAt) || other.lastSuccessfulSyncAt == lastSuccessfulSyncAt)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,institutionId,status,lastSuccessfulSyncAt);
+    return Object.hash(runtimeType,id,institutionId,status,lastSuccessfulSyncAt,errorCode);
 }
 
 @override
 String toString() {
-    return 'Item(id: $id, institutionId: $institutionId, status: $status, lastSuccessfulSyncAt: $lastSuccessfulSyncAt)';
+    return 'Item(id: $id, institutionId: $institutionId, status: $status, lastSuccessfulSyncAt: $lastSuccessfulSyncAt, errorCode: $errorCode)';
 }
 
 
@@ -261,7 +263,7 @@ abstract mixin class _$ItemCopyWith<$Res> implements $ItemCopyWith<$Res> {
   factory _$ItemCopyWith(_Item value, $Res Function(_Item) _then) = __$ItemCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String institutionId,@JsonKey(unknownEnumValue: ItemStatus.unknown) ItemStatus status,@UtcInstantConverter() DateTime? lastSuccessfulSyncAt
+ String id, String institutionId,@JsonKey(unknownEnumValue: ItemStatus.unknown) ItemStatus status,@UtcInstantConverter() DateTime? lastSuccessfulSyncAt, String? errorCode
 });
 
 
@@ -278,13 +280,14 @@ class __$ItemCopyWithImpl<$Res>
 
 /// Create a copy of Item
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? institutionId = null,Object? status = null,Object? lastSuccessfulSyncAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? institutionId = null,Object? status = null,Object? lastSuccessfulSyncAt = freezed,Object? errorCode = freezed,}) {
   return _then(_Item(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,institutionId: null == institutionId ? _self.institutionId : institutionId // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ItemStatus,lastSuccessfulSyncAt: freezed == lastSuccessfulSyncAt ? _self.lastSuccessfulSyncAt : lastSuccessfulSyncAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

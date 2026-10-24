@@ -13,6 +13,7 @@ import 'package:api_client/src/api/auth_api.dart';
 import 'package:api_client/src/api/data_api.dart';
 import 'package:api_client/src/api/devices_api.dart';
 import 'package:api_client/src/api/health_api.dart';
+import 'package:api_client/src/api/institutions_api.dart';
 import 'package:api_client/src/api/me_api.dart';
 import 'package:api_client/src/api/plaid_api.dart';
 import 'package:api_client/src/api/sync_api.dart';
@@ -156,6 +157,12 @@ class ApiClient {
   /// by doing that all interceptors will not be executed
   HealthApi getHealthApi() {
     return HealthApi(dio, serializers);
+  }
+
+  /// Get InstitutionsApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  InstitutionsApi getInstitutionsApi() {
+    return InstitutionsApi(dio, serializers);
   }
 
   /// Get MeApi instance, base route and serializer can be overridden by a given but be careful,

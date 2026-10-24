@@ -27,7 +27,7 @@ final class SchemaTooNewException implements Exception {
 }
 
 /// The migrations, oldest first.
-const List<String> migrations = [_v1];
+const List<String> migrations = [_v1, _v2];
 
 /// Applies every migration [db] has not yet applied, each in its own transaction. A rerun
 /// applies nothing.
@@ -261,4 +261,13 @@ CREATE TABLE user_versions (
   user_id TEXT PRIMARY KEY REFERENCES users (id) ON DELETE CASCADE,
   version INTEGER NOT NULL
 );
+''';
+
+/// v2: an Item's Plaid error code, its institution's cached logo (PNG bytes) and ARGB
+/// colour, and the `removed` status (an Item unlinked with its history kept, which keeps
+/// `plaid_removed_at` and stays visible).
+const _v2 = '''
+ALTER TABLE items ADD COLUMN error_code TEXT;
+ALTER TABLE items ADD COLUMN institution_logo BLOB;
+ALTER TABLE items ADD COLUMN institution_primary_color INTEGER;
 ''';

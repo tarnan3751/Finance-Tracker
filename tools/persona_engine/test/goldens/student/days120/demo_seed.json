@@ -25,13 +25,15 @@
       "id": "demo-item-student-platypus",
       "institution_id": "ins_109508",
       "status": "healthy",
-      "last_successful_sync_at": "2026-10-24T00:00:00.000Z"
+      "last_successful_sync_at": "2026-10-24T00:00:00.000Z",
+      "error_code": null
     },
     {
       "id": "demo-item-student-gingham",
       "institution_id": "ins_109509",
       "status": "healthy",
-      "last_successful_sync_at": "2026-10-24T00:00:00.000Z"
+      "last_successful_sync_at": "2026-10-24T00:00:00.000Z",
+      "error_code": null
     }
   ],
   "accounts": [

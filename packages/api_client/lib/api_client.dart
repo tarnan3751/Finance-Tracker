@@ -14,6 +14,7 @@ export 'package:api_client/src/api/auth_api.dart';
 export 'package:api_client/src/api/data_api.dart';
 export 'package:api_client/src/api/devices_api.dart';
 export 'package:api_client/src/api/health_api.dart';
+export 'package:api_client/src/api/institutions_api.dart';
 export 'package:api_client/src/api/me_api.dart';
 export 'package:api_client/src/api/plaid_api.dart';
 export 'package:api_client/src/api/sync_api.dart';

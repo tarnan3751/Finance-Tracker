@@ -114,6 +114,20 @@ final class OpenApiDocument {
     return _contentSchema(deref(response));
   }
 
+  /// The media type of the [status] response of [path] and [method] (its first
+  /// `content` key, such as `application/json` or `image/png`), or null when that
+  /// response has no body; an [ArgumentError] when the response is not declared.
+  String? responseMediaType(String path, String method, int status) {
+    final response = _map(operation(path, method)['responses'])['$status'];
+    if (response == null) {
+      throw ArgumentError(
+        '${method.toUpperCase()} $path declares no $status response',
+      );
+    }
+    final content = _map(deref(response)['content']);
+    return content.isEmpty ? null : content.keys.first;
+  }
+
   /// Follows a local `$ref` (`#/...`) to its target, repeatedly; returns any other node
   /// unchanged. An [ArgumentError] when a reference does not resolve.
   Map<String, Object?> deref(Object? node) {

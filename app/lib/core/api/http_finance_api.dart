@@ -17,6 +17,7 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:api_client/api_client.dart' as api;
 import 'package:built_value/serializer.dart';
@@ -312,30 +313,72 @@ final class HttpFinanceApi implements FinanceApi {
   );
 
   @override
-  Future<void> deleteItem(String itemId) => _call(
+  Future<void> deleteItem(
+    String itemId, {
+    UnlinkHistory history = UnlinkHistory.delete,
+  }) => _call(
     '/plaid/items/{item_id}',
-    (extra) => _client.getPlaidApi().deleteItem(itemId: itemId, extra: extra),
+    (extra) => _client.getPlaidApi().deleteItem(
+      itemId: itemId,
+      history: history.name,
+      extra: extra,
+    ),
   );
 
   @override
-  Future<SyncRun> syncItem(String itemId) =>
-      _call('/plaid/items/{item_id}/sync', (extra) async {
-        final Map<String, dynamic> json = _json(
-          _data(
-            (await _client.getPlaidApi().syncItem(
-              itemId: itemId,
-              extra: extra,
-            )).data,
-          ),
-        );
-        return (
-          status: _known(_runStatuses, json['status']),
-          added: json['added'] as int,
-          modified: json['modified'] as int,
-          removed: json['removed'] as int,
-          nextCursorSaved: json['next_cursor_saved'] as bool,
-        );
-      });
+  Future<SyncRun> syncItem(String itemId) => _call(
+    '/plaid/items/{item_id}/sync',
+    (extra) async => _syncRun(
+      (await _client.getPlaidApi().syncItem(itemId: itemId, extra: extra)).data,
+    ),
+  );
+
+  @override
+  Future<SyncRun> refreshItem(String itemId) => _call(
+    '/plaid/items/{item_id}/refresh',
+    (extra) async => _syncRun(
+      (await _client.getPlaidApi().refreshItem(
+        itemId: itemId,
+        extra: extra,
+      )).data,
+    ),
+  );
+
+  static SyncRun _syncRun(api.SyncRun? data) {
+    final Map<String, dynamic> json = _json(_data(data));
+    return (
+      status: _known(_runStatuses, json['status']),
+      added: json['added'] as int,
+      modified: json['modified'] as int,
+      removed: json['removed'] as int,
+      nextCursorSaved: json['next_cursor_saved'] as bool,
+    );
+  }
+
+  @override
+  Future<List<Account>> refreshBalances(String itemId) => _call(
+    '/plaid/items/{item_id}/balances',
+    (extra) async => [
+      for (final api.Account a in _data(
+        (await _client.getPlaidApi().refreshBalances(
+          itemId: itemId,
+          extra: extra,
+        )).data,
+      ))
+        Account.fromJson(_json(a)),
+    ],
+  );
+
+  @override
+  Future<Uint8List> getInstitutionLogo(String institutionId) => _call(
+    '/institutions/{institution_id}/logo',
+    (extra) async => _data(
+      (await _client.getInstitutionsApi().getInstitutionLogo(
+        institutionId: institutionId,
+        extra: extra,
+      )).data,
+    ),
+  );
 
   @override
   Future<LinkToken> createUpdateLinkToken(

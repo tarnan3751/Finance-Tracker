@@ -17,6 +17,7 @@ part 'item.g.dart';
 /// * [institutionId]
 /// * [status]
 /// * [lastSuccessfulSyncAt]
+/// * [errorCode] - Plaid's error code (`ITEM_LOGIN_REQUIRED`, ...) when `status` is `login_required` or `error`; null otherwise
 /// * [institution]
 @BuiltValue()
 abstract class Item implements Built<Item, ItemBuilder> {
@@ -28,10 +29,14 @@ abstract class Item implements Built<Item, ItemBuilder> {
 
   @BuiltValueField(wireName: r'status')
   ItemStatus get status;
-  // enum statusEnum {  healthy,  login_required,  error,  pending_expiration,  unknown,  };
+  // enum statusEnum {  healthy,  login_required,  error,  pending_expiration,  removed,  unknown,  };
 
   @BuiltValueField(wireName: r'last_successful_sync_at')
   DateTime? get lastSuccessfulSyncAt;
+
+  /// Plaid's error code (`ITEM_LOGIN_REQUIRED`, ...) when `status` is `login_required` or `error`; null otherwise
+  @BuiltValueField(wireName: r'error_code')
+  String? get errorCode;
 
   @BuiltValueField(wireName: r'institution')
   Institution get institution;
@@ -80,6 +85,13 @@ class _$ItemSerializer implements PrimitiveSerializer<Item> {
         : serializers.serialize(
             object.lastSuccessfulSyncAt,
             specifiedType: const FullType.nullable(DateTime),
+          );
+    yield r'error_code';
+    yield object.errorCode == null
+        ? null
+        : serializers.serialize(
+            object.errorCode,
+            specifiedType: const FullType.nullable(String),
           );
     yield r'institution';
     yield serializers.serialize(
@@ -141,6 +153,14 @@ class _$ItemSerializer implements PrimitiveSerializer<Item> {
           ) as DateTime?;
           if (valueDes == null) continue;
           result.lastSuccessfulSyncAt = valueDes;
+          break;
+        case r'error_code':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
+          result.errorCode = valueDes;
           break;
         case r'institution':
           final valueDes = serializers.deserialize(

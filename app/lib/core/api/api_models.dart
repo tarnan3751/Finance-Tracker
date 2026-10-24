@@ -53,6 +53,11 @@ final class LinkToken {
 /// An Item with its institution, as the API embeds it (`Item`).
 typedef LinkedItem = ({Item item, Institution institution});
 
+/// What unlinking an Item does with its data (`deleteItem`'s `history`): [delete] drops
+/// its accounts and tombstones its transactions; [keep] keeps everything and lists the
+/// Item as `removed`.
+enum UnlinkHistory { keep, delete }
+
 /// The outcome of `POST /plaid/items/{id}/sync` (`SyncRunStatus`).
 enum SyncRunStatus { started, notReady, completed }
 

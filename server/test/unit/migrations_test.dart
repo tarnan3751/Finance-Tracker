@@ -53,6 +53,35 @@ void main() {
     expect(db.select('SELECT COUNT(*) AS n FROM users').first['n'], 1);
   });
 
+  test('a v1 database with an Item migrates to v2 and keeps it', () {
+    final db = sqlite3.openInMemory();
+    addTearDown(db.close);
+    db.execute(
+      'CREATE TABLE schema_migrations ('
+      'version INTEGER PRIMARY KEY, applied_at INTEGER NOT NULL)',
+    );
+    db.execute(migrations[0]);
+    db.execute('INSERT INTO schema_migrations VALUES (1, 0)');
+    db.execute("INSERT INTO users VALUES ('u', 'a@b.test', 'h', 'a', 0)");
+    db.execute(
+      'INSERT INTO items (id, user_id, plaid_item_id, institution_id, '
+      'institution_name, products, access_token_ciphertext, access_token_nonce, '
+      "status, created_at) VALUES ('i', 'u', 'p', 'ins_1', 'Bank', '[]', "
+      "x'00', x'00', 'healthy', 0)",
+    );
+    migrate(db);
+    final item = db.select('SELECT * FROM items').single;
+    expect(item['id'], 'i');
+    expect(item['status'], 'healthy');
+    expect(item['error_code'], isNull);
+    expect(item['institution_logo'], isNull);
+    expect(item['institution_primary_color'], isNull);
+    expect(
+      db.select('SELECT MAX(version) AS v FROM schema_migrations').first['v'],
+      migrations.length,
+    );
+  });
+
   test('a database newer than the server is refused', () {
     final db = sqlite3.openInMemory();
     addTearDown(db.close);

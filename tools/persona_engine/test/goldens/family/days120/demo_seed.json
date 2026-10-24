@@ -37,25 +37,29 @@
       "id": "demo-item-family-platypus",
       "institution_id": "ins_109508",
       "status": "healthy",
-      "last_successful_sync_at": "2026-10-24T00:00:00.000Z"
+      "last_successful_sync_at": "2026-10-24T00:00:00.000Z",
+      "error_code": null
     },
     {
       "id": "demo-item-family-tartan",
       "institution_id": "ins_109511",
       "status": "healthy",
-      "last_successful_sync_at": "2026-10-24T00:00:00.000Z"
+      "last_successful_sync_at": "2026-10-24T00:00:00.000Z",
+      "error_code": null
     },
     {
       "id": "demo-item-family-gingham",
       "institution_id": "ins_109509",
       "status": "healthy",
-      "last_successful_sync_at": "2026-10-24T00:00:00.000Z"
+      "last_successful_sync_at": "2026-10-24T00:00:00.000Z",
+      "error_code": null
     },
     {
       "id": "demo-item-family-tattersall",
       "institution_id": "ins_109510",
       "status": "healthy",
-      "last_successful_sync_at": "2026-10-24T00:00:00.000Z"
+      "last_successful_sync_at": "2026-10-24T00:00:00.000Z",
+      "error_code": null
     }
   ],
   "accounts": [

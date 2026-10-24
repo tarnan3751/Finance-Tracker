@@ -9,7 +9,8 @@
 /// (category, notes, tags, splits, receipt) travel through the change log and are always
 /// empty here. Accounts, liabilities, holdings, securities and investment transactions
 /// store their `source` but do not expose it until a later contract change does. Rows of
-/// an Item marked `plaid_removed_at` are hidden from every endpoint.
+/// an Item marked `plaid_removed_at` are hidden from every endpoint, unless the Item was
+/// unlinked with its history kept (status `removed`).
 library;
 
 import 'dart:convert';
@@ -24,11 +25,11 @@ import 'package:shelf/shelf.dart';
 import 'package:sqlite3/sqlite3.dart' show Row;
 
 /// Rows of an Item already removed at Plaid (a deletion that stopped part-way) are
-/// hidden, as the Item is. Rows whose Item row is gone (tombstones of a deleted Item)
-/// stay visible.
+/// hidden, as the Item is; an Item unlinked with its history kept (`removed`) keeps its
+/// rows visible. Rows whose Item row is gone (tombstones of a deleted Item) stay visible.
 const _live =
     'NOT EXISTS (SELECT 1 FROM items i WHERE i.id = x.item_id '
-    'AND i.plaid_removed_at IS NOT NULL)';
+    "AND i.plaid_removed_at IS NOT NULL AND i.status <> 'removed')";
 
 DateTime _instant(int millis) =>
     DateTime.fromMillisecondsSinceEpoch(millis, isUtc: true);
@@ -39,47 +40,44 @@ LocalDate? _date(Object? text) =>
 Money? _money(Object? minor, String currency) =>
     minor == null ? null : Money(minor as int, currency);
 
+/// The contract's `Account` from an `accounts` row.
+Map<String, Object?> accountJson(Map<String, Object?> a) => Account(
+  id: a['id'] as String,
+  itemId: a['item_id'] as String,
+  type: AccountType.values.byName(a['type'] as String),
+  subtype: a['subtype'] as String?,
+  name: a['name'] as String,
+  officialName: a['official_name'] as String?,
+  mask: a['mask'] as String?,
+  currencyCode: a['currency_code'] as String,
+  currentBalance: _money(
+    a['current_balance_minor'],
+    a['currency_code'] as String,
+  ),
+  availableBalance: _money(
+    a['available_balance_minor'],
+    a['currency_code'] as String,
+  ),
+  creditLimit: _money(a['credit_limit_minor'], a['currency_code'] as String),
+  balancesAsOf: a['balances_as_of'] == null
+      ? null
+      : _instant(a['balances_as_of'] as int),
+  isHidden: false,
+  displayOrder: a['display_order'] as int,
+).toJson();
+
 /// The data routes over [db].
 List<ApiRoute> dataRoutes(AppDatabase db) => [
   ApiRoute('listAccounts', 'get', '/accounts', (r) async {
     final rows = await db.read(
       (tx) => tx.select(
         'SELECT a.* FROM accounts a JOIN items i ON i.id = a.item_id '
-        'WHERE a.user_id = ? AND i.plaid_removed_at IS NULL '
+        "WHERE a.user_id = ? AND (i.plaid_removed_at IS NULL OR i.status = 'removed') "
         'ORDER BY a.display_order, a.id',
         [r.userId],
       ),
     );
-    return jsonResponse([
-      for (final a in rows)
-        Account(
-          id: a['id'] as String,
-          itemId: a['item_id'] as String,
-          type: AccountType.values.byName(a['type'] as String),
-          subtype: a['subtype'] as String?,
-          name: a['name'] as String,
-          officialName: a['official_name'] as String?,
-          mask: a['mask'] as String?,
-          currencyCode: a['currency_code'] as String,
-          currentBalance: _money(
-            a['current_balance_minor'],
-            a['currency_code'] as String,
-          ),
-          availableBalance: _money(
-            a['available_balance_minor'],
-            a['currency_code'] as String,
-          ),
-          creditLimit: _money(
-            a['credit_limit_minor'],
-            a['currency_code'] as String,
-          ),
-          balancesAsOf: a['balances_as_of'] == null
-              ? null
-              : _instant(a['balances_as_of'] as int),
-          isHidden: false,
-          displayOrder: a['display_order'] as int,
-        ).toJson(),
-    ]);
+    return jsonResponse([for (final a in rows) accountJson(a)]);
   }),
   ApiRoute('listTransactions', 'get', '/transactions', (r) async {
     final page = await _page(db, r, 'transactions');

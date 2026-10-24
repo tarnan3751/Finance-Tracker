@@ -1,5 +1,7 @@
 // The problem mapper: every contract code to its exception, the answers it cannot read,
 // and failures with no answer.
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:finance_tracker/core/api/problems.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -99,6 +101,19 @@ void main() {
         ),
       );
       expect((cursor as SyncCursorInvalid).since, 42);
+    },
+  );
+
+  test(
+    'a problem read as bytes (an image operation) maps to its exception',
+    () {
+      final ApiException e = ApiException.fromDio(
+        _answer(
+          404,
+          utf8.encode(jsonEncode({'code': 'not_found', 'status': 404})),
+        ),
+      );
+      expect(e, isA<NotFound>());
     },
   );
 

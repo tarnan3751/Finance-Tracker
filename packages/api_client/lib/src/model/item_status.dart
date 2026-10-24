@@ -9,6 +9,7 @@ import 'package:built_value/serializer.dart';
 
 part 'item_status.g.dart';
 
+/// The health of an Item; `removed` is an Item unlinked with its history kept
 class ItemStatus extends EnumClass {
   @BuiltValueEnumConst(wireName: r'healthy')
   static const ItemStatus healthy = _$healthy;
@@ -18,6 +19,8 @@ class ItemStatus extends EnumClass {
   static const ItemStatus error = _$error;
   @BuiltValueEnumConst(wireName: r'pending_expiration')
   static const ItemStatus pendingExpiration = _$pendingExpiration;
+  @BuiltValueEnumConst(wireName: r'removed')
+  static const ItemStatus removed = _$removed;
   @BuiltValueEnumConst(wireName: r'unknown')
   static const ItemStatus unknown = _$unknown;
 

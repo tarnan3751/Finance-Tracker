@@ -9,6 +9,8 @@
 /// `core/api/` imports the generated client.
 library;
 
+import 'dart:typed_data';
+
 import 'package:finance_tracker/core/api/api_models.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
@@ -75,18 +77,37 @@ abstract interface class FinanceApi {
   /// `GET /plaid/items`.
   Future<List<LinkedItem>> listItems();
 
-  /// `DELETE /plaid/items/{item_id}`.
-  Future<void> deleteItem(String itemId);
+  /// `DELETE /plaid/items/{item_id}?history=`: with [UnlinkHistory.keep] the Item stays
+  /// listed as `removed` with its data.
+  Future<void> deleteItem(
+    String itemId, {
+    UnlinkHistory history = UnlinkHistory.delete,
+  });
 
   /// `POST /plaid/items/{item_id}/sync`. `notReady` means retry shortly, never "no
   /// transactions" (`PLAN.md` §4).
   Future<SyncRun> syncItem(String itemId);
+
+  /// `POST /plaid/items/{item_id}/refresh`: Plaid refreshes the Item and a sync run
+  /// starts on the server (`started`).
+  Future<SyncRun> refreshItem(String itemId);
+
+  /// `POST /plaid/items/{item_id}/balances`: the Item's accounts with the balances Plaid
+  /// just reported.
+  Future<List<Account>> refreshBalances(String itemId);
 
   /// `POST /plaid/items/{item_id}/update-link-token`.
   Future<LinkToken> createUpdateLinkToken(
     String itemId, {
     required String androidPackageName,
   });
+
+  // institutions
+
+  /// `GET /institutions/{institution_id}/logo`: the PNG bytes, `NotFound` when there is
+  /// none. `Institution.logoUrl` is this bearer-secured route, so the app fetches the
+  /// bytes here rather than loading the URL itself.
+  Future<Uint8List> getInstitutionLogo(String institutionId);
 
   // data
 

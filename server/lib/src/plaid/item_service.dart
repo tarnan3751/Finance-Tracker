@@ -1,5 +1,6 @@
-/// Plaid Items: Link tokens, the exchange, the Item store, the sync run and removal
-/// (`docs/reference/server.md`, **Items** and **The sync run**).
+/// Plaid Items: Link tokens, the exchange, the Item store, the sync run, refreshes, the
+/// balance refresh, unlinking and the institution logo (`docs/reference/server.md`,
+/// **Items** and **The sync run**).
 ///
 /// This is the code Phase 3 reuses unchanged with the real client: it depends only on
 /// [PlaidClient], and stamps every stored row with the client's `provenance`. Access
@@ -10,7 +11,9 @@
 /// cursor). Runs are serialized per Item. A secondary product that fails is skipped and
 /// logged; the transactions still apply. An Item whose removal at Plaid succeeded, or
 /// that Plaid no longer knows (`ITEM_NOT_FOUND`), carries `plaid_removed_at`; it is
-/// hidden from every Item and data route, and a retried account deletion skips it. An
+/// hidden from every Item and data route, and a retried account deletion skips it, unless
+/// it was unlinked with its history kept: then its status is `removed`, it stays listed
+/// with its data, and every call that would reach Plaid for it is 409 `conflict`. An
 /// exchange whose `/item/get` fails removes the new Item at Plaid before answering, so
 /// none is orphaned there; so does an exchange whose user or device went away while Plaid
 /// was called, which answers 401 `token_revoked`.
@@ -19,6 +22,8 @@ library;
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:finance_tracker_server/src/data/data_routes.dart'
+    show accountJson;
 import 'package:finance_tracker_server/src/data/versions.dart';
 import 'package:finance_tracker_server/src/db/database.dart';
 import 'package:finance_tracker_server/src/http/problem.dart';
@@ -39,6 +44,19 @@ const maxPaginationRestarts = 3;
 
 /// The waits between the three attempts at `/item/remove`.
 const removeBackoff = [Duration(milliseconds: 500), Duration(seconds: 1)];
+
+/// The Items a route may see: those not removed at Plaid, and those unlinked with their
+/// history kept (`removed`). Rows of an Item whose removal stopped part-way stay hidden.
+const visibleItem = "(plaid_removed_at IS NULL OR status = 'removed')";
+
+/// What unlinking does with an Item's data (`deleteItem`'s `history`).
+enum UnlinkHistory {
+  /// The accounts and other rows go, the transactions become tombstones.
+  delete,
+
+  /// Everything stays; the Item is listed as `removed`.
+  keep,
+}
 
 /// The problem a [PlaidException] is answered with: 429 for Plaid's rate limit, 502
 /// `plaid_error` otherwise.
@@ -134,6 +152,9 @@ final class ItemService {
     required String androidPackageName,
   }) async {
     final item = await _load(userId, itemId);
+    if (item.row['status'] == 'removed') {
+      throw const ProblemException.notFound('The Item was unlinked');
+    }
     final token = await _plaid(
       () => plaid.createUpdateLinkToken(
         item.accessToken,
@@ -144,12 +165,14 @@ final class ItemService {
     return _linkTokenJson(token);
   }
 
-  /// Exchanges [publicToken] and stores the new Item; the contract's `Item`.
+  /// Exchanges [publicToken] and stores the new Item; the contract's `Item`, its logo URL
+  /// under [baseUrl].
   Future<Map<String, Object?>> exchange(
     String userId,
     String deviceId,
-    String publicToken,
-  ) async {
+    String publicToken, {
+    required Uri baseUrl,
+  }) async {
     final exchanged = await _plaid(
       () => plaid.exchangePublicToken(publicToken),
     );
@@ -178,7 +201,7 @@ final class ItemService {
       tx.execute(
         'INSERT INTO items (id, user_id, plaid_item_id, institution_id, '
         'institution_name, products, access_token_ciphertext, access_token_nonce, '
-        'status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'status, error_code, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           id,
           userId,
@@ -191,6 +214,7 @@ final class ItemService {
           item.errorCode == 'ITEM_LOGIN_REQUIRED'
               ? 'login_required'
               : 'healthy',
+          item.errorCode == 'ITEM_LOGIN_REQUIRED' ? item.errorCode : null,
           _nowMillis,
         ],
       );
@@ -204,7 +228,7 @@ final class ItemService {
       );
     }
     _log.info(LogEvent('item_linked', {'user_id': userId, 'item_id': id}));
-    return itemJson(row);
+    return itemJson(row, baseUrl);
   }
 
   /// Removes, best effort, an Item exchanged at Plaid that the server will not store, so
@@ -219,23 +243,50 @@ final class ItemService {
     }
   }
 
-  /// The user's Items.
-  Future<List<Map<String, Object?>>> list(String userId) async {
+  /// The user's Items, `removed` ones included, their logo URLs under [baseUrl].
+  Future<List<Map<String, Object?>>> list(
+    String userId, {
+    required Uri baseUrl,
+  }) async {
     final rows = await db.read(
       (tx) => tx.select(
-        'SELECT * FROM items WHERE user_id = ? AND plaid_removed_at IS NULL '
+        'SELECT * FROM items WHERE user_id = ? AND $visibleItem '
         'ORDER BY created_at, id',
         [userId],
       ),
     );
-    return [for (final r in rows) itemJson(r)];
+    return [for (final r in rows) itemJson(r, baseUrl)];
   }
 
-  /// Removes the Item at Plaid, then its rows; its transactions and investment
-  /// transactions stay as tombstones with new versions.
-  Future<void> delete(String userId, String itemId) async {
+  /// Unlinks the Item: removes it at Plaid (unless it is `removed` already), then, with
+  /// [UnlinkHistory.delete], deletes its rows, leaving its transactions and investment
+  /// transactions as tombstones with new versions; with [UnlinkHistory.keep], keeps every
+  /// row and marks the Item `removed`.
+  Future<void> delete(
+    String userId,
+    String itemId, {
+    UnlinkHistory history = UnlinkHistory.delete,
+  }) async {
     final item = await _load(userId, itemId);
-    await removeAtPlaid(item.id, item.accessToken);
+    final alreadyRemoved = item.row['status'] == 'removed';
+    if (!alreadyRemoved) {
+      await removeAtPlaid(
+        item.id,
+        item.accessToken,
+        keepHistory: history == UnlinkHistory.keep,
+      );
+    }
+    if (history == UnlinkHistory.keep) {
+      if (!alreadyRemoved) {
+        _log.info(
+          LogEvent('item_unlinked_kept', {
+            'user_id': userId,
+            'item_id': itemId,
+          }),
+        );
+      }
+      return;
+    }
     await db.transaction((tx) async {
       for (final table in const ['transactions', 'investment_transactions']) {
         final live = tx.select(
@@ -256,8 +307,13 @@ final class ItemService {
   }
 
   /// Calls `/item/remove` up to three times with [removeBackoff] between attempts and
-  /// marks the Item `plaid_removed_at`. When every attempt fails, 502 `plaid_error`.
-  Future<void> removeAtPlaid(String itemId, String accessToken) async {
+  /// marks the Item `plaid_removed_at`; with [keepHistory], also `removed` in the same
+  /// statement, so it stays listed. When every attempt fails, 502 `plaid_error`.
+  Future<void> removeAtPlaid(
+    String itemId,
+    String accessToken, {
+    bool keepHistory = false,
+  }) async {
     for (var attempt = 1; ; attempt++) {
       try {
         await plaid.removeItem(accessToken);
@@ -287,10 +343,13 @@ final class ItemService {
       }
     }
     await db.read(
-      (tx) => tx.execute('UPDATE items SET plaid_removed_at = ? WHERE id = ?', [
-        _nowMillis,
-        itemId,
-      ]),
+      (tx) => tx.execute(
+        keepHistory
+            ? "UPDATE items SET plaid_removed_at = ?, status = 'removed', "
+                  'error_code = NULL WHERE id = ?'
+            : 'UPDATE items SET plaid_removed_at = ? WHERE id = ?',
+        [_nowMillis, itemId],
+      ),
     );
   }
 
@@ -309,15 +368,18 @@ final class ItemService {
 
   /// Runs `/transactions/sync` for the Item, then the Item's other products, and applies
   /// all of it in one transaction; the contract's `SyncRun`.
-  Future<Map<String, Object?>> sync(String userId, String itemId) async {
-    // One run per Item at a time: a second run waits for the first, then starts from
-    // the cursor the first stored, so no page is applied twice.
+  Future<Map<String, Object?>> sync(String userId, String itemId) =>
+      _serialized(itemId, () => _sync(userId, itemId));
+
+  /// Runs [body] after every earlier run for [itemId]: one run per Item at a time, so a
+  /// second sync starts from the cursor the first stored and no page is applied twice.
+  Future<T> _serialized<T>(String itemId, Future<T> Function() body) async {
     final previous = _running[itemId];
     final done = Completer<void>();
     _running[itemId] = done.future;
     try {
       await previous;
-      return await _sync(userId, itemId);
+      return await body();
     } finally {
       done.complete();
       if (identical(_running[itemId], done.future)) {
@@ -328,8 +390,119 @@ final class ItemService {
 
   final Map<String, Future<void>> _running = {};
 
+  /// Calls `/transactions/refresh` for the Item, then starts a sync run in the
+  /// background (after any run in progress); the contract's `SyncRun` with status
+  /// `started`. A failure of the background run is logged, not answered.
+  Future<Map<String, Object?>> refresh(String userId, String itemId) async {
+    final item = await loadActive(userId, itemId);
+    await _itemCall(itemId, () => plaid.transactionsRefresh(item.accessToken));
+    unawaited(
+      sync(userId, itemId).then<void>(
+        (_) {},
+        onError: (Object e) => _log.warning(
+          LogEvent('item_refresh_sync_failed', {
+            'item_id': itemId,
+            'error_type': e.runtimeType.toString(),
+            if (e is ProblemException) 'code': e.code.wire,
+          }),
+        ),
+      ),
+    );
+    _log.info(LogEvent('item_refresh_started', {'item_id': itemId}));
+    return const {
+      'status': 'started',
+      'added': 0,
+      'modified': 0,
+      'removed': 0,
+      'next_cursor_saved': false,
+    };
+  }
+
+  /// Calls `/accounts/balance/get` for the Item, stores the reported balances (new
+  /// accounts included) and returns the Item's accounts as the contract's `Account`s.
+  Future<List<Map<String, Object?>>> refreshBalances(
+    String userId,
+    String itemId,
+  ) => _serialized(itemId, () async {
+    final item = await loadActive(userId, itemId);
+    final accounts = await _itemCall(
+      itemId,
+      () => plaid.accountsBalanceGet(item.accessToken),
+    );
+    final rows = await db.transaction((tx) async {
+      if (tx.first(
+            'SELECT 1 FROM items WHERE id = ? AND user_id = ? '
+            'AND plaid_removed_at IS NULL',
+            [itemId, userId],
+          ) ==
+          null) {
+        throw const ProblemException.notFound('The Item was removed');
+      }
+      _upsertAccounts(tx, userId, itemId, accounts);
+      return tx.select(
+        'SELECT * FROM accounts WHERE item_id = ? ORDER BY display_order, id',
+        [itemId],
+      );
+    });
+    _log.info(
+      LogEvent('item_balances_refreshed', {
+        'item_id': itemId,
+        'accounts': rows.length,
+      }),
+    );
+    return [for (final a in rows) accountJson(a)];
+  });
+
+  /// The newest logo stored for [institutionId] among [userId]'s visible Items; 404 when
+  /// there is none.
+  Future<List<int>> institutionLogo(String userId, String institutionId) async {
+    final row = await db.read(
+      (tx) => tx.first(
+        'SELECT institution_logo FROM items WHERE user_id = ? '
+        'AND institution_id = ? AND institution_logo IS NOT NULL '
+        'AND $visibleItem ORDER BY created_at DESC, id DESC LIMIT 1',
+        [userId, institutionId],
+      ),
+    );
+    if (row == null) {
+      throw const ProblemException.notFound('No logo for that institution');
+    }
+    return row['institution_logo']! as List<int>;
+  }
+
+  /// A Plaid call for the Item [itemId]: `ITEM_LOGIN_REQUIRED` marks it `login_required`
+  /// and answers 409 `item_login_required`; any other failure is [plaidProblem].
+  Future<T> _itemCall<T>(String itemId, Future<T> Function() call) async {
+    try {
+      return await call();
+    } on PlaidException catch (e) {
+      if (e.isLoginRequired) await _markLoginRequired(itemId);
+      _log.warning(
+        LogEvent('plaid_error', {'type': e.errorType, 'code': e.errorCode}),
+      );
+      throw e.isLoginRequired ? _loginRequired : plaidProblem(e);
+    }
+  }
+
+  static const _loginRequired = ProblemException(
+    409,
+    ProblemCode.itemLoginRequired,
+    detail: 'The Item needs re-authentication through Link in update mode',
+  );
+
+  /// Marks the Item `login_required`, unless it was removed at Plaid meanwhile (an
+  /// unlink, kept or not, while the failing call was in flight): a `removed` Item keeps
+  /// its status, so its kept history stays visible.
+  Future<void> _markLoginRequired(String itemId) => db.read(
+    (tx) => tx.execute(
+      "UPDATE items SET status = 'login_required', error_code = ? "
+      'WHERE id = ? AND plaid_removed_at IS NULL',
+      ['ITEM_LOGIN_REQUIRED', itemId],
+    ),
+  );
+
   Future<Map<String, Object?>> _sync(String userId, String itemId) async {
-    final item = await _load(userId, itemId);
+    final item = await loadActive(userId, itemId);
     final startCursor = item.row['cursor'] as String? ?? '';
     final List<TransactionsSyncPage> pages;
     try {
@@ -347,18 +520,8 @@ final class ItemService {
       pages = fetched;
     } on PlaidException catch (e) {
       if (e.isLoginRequired) {
-        await db.read(
-          (tx) => tx.execute(
-            "UPDATE items SET status = 'login_required' WHERE id = ?",
-            [itemId],
-          ),
-        );
-        throw const ProblemException(
-          409,
-          ProblemCode.itemLoginRequired,
-          detail:
-              'The Item needs re-authentication through Link in update mode',
-        );
+        await _markLoginRequired(itemId);
+        throw _loginRequired;
       }
       throw plaidProblem(e);
     }
@@ -425,7 +588,9 @@ final class ItemService {
           null) {
         throw const ProblemException.notFound('The Item was removed');
       }
-      final accounts = _upsertAccounts(tx, userId, itemId, pages);
+      final accounts = _upsertAccounts(tx, userId, itemId, [
+        for (final page in pages) ...page.accounts,
+      ]);
       final counts = _applyTransactions(tx, userId, itemId, accounts, pages);
       if (recurring != null) {
         _replaceRecurring(tx, userId, itemId, accounts, recurring);
@@ -447,7 +612,8 @@ final class ItemService {
       }
       tx.execute(
         "UPDATE items SET cursor = ?, run_start_cursor = ?, status = 'healthy', "
-        'last_successful_sync_at = ? WHERE id = ?',
+        'error_code = NULL, last_successful_sync_at = ? '
+        'WHERE id = ? AND plaid_removed_at IS NULL',
         [pages.last.nextCursor, startCursor, _nowMillis, itemId],
       );
       return counts;
@@ -499,16 +665,16 @@ final class ItemService {
     }
   }
 
-  /// Upserts the accounts every page reported; Plaid's account id to ours.
+  /// Upserts [reported], the last report of an account winning; Plaid's account id to
+  /// ours.
   Map<String, String> _upsertAccounts(
     Tx tx,
     String userId,
     String itemId,
-    List<TransactionsSyncPage> pages,
+    List<PlaidAccount> reported,
   ) {
     final latest = <String, PlaidAccount>{
-      for (final page in pages)
-        for (final a in page.accounts) a.accountId: a,
+      for (final a in reported) a.accountId: a,
     };
     final ids = <String, String>{
       for (final r in tx.select(
@@ -861,14 +1027,14 @@ final class ItemService {
     }
   }
 
+  /// The visible Item [itemId] of [userId] with its access token; 404 otherwise.
   Future<({String id, String accessToken, Map<String, Object?> row})> _load(
     String userId,
     String itemId,
   ) async {
     final row = await db.read(
       (tx) => tx.first(
-        'SELECT * FROM items WHERE id = ? AND user_id = ? '
-        'AND plaid_removed_at IS NULL',
+        'SELECT * FROM items WHERE id = ? AND user_id = ? AND $visibleItem',
         [itemId, userId],
       ),
     );
@@ -877,6 +1043,20 @@ final class ItemService {
     }
     final opened = await _open(row);
     return (id: opened.id, accessToken: opened.accessToken, row: row);
+  }
+
+  /// [_load] for a call that reaches Plaid: a `removed` Item is 409 `conflict`.
+  Future<({String id, String accessToken, Map<String, Object?> row})>
+  loadActive(String userId, String itemId) async {
+    final item = await _load(userId, itemId);
+    if (item.row['status'] == 'removed') {
+      throw const ProblemException(
+        409,
+        ProblemCode.conflict,
+        detail: 'The Item was unlinked; link it again to use it',
+      );
+    }
+    return item;
   }
 
   Future<({String id, String accessToken})> _open(
@@ -917,19 +1097,28 @@ final class ItemService {
   };
 }
 
-/// The contract's `Item` from an `items` row, its institution embedded. Plaid's logo and
-/// colour are not fetched in Phase 2, so both are null.
-Map<String, Object?> itemJson(Map<String, Object?> row) => {
+/// The contract's `Item` from an `items` row, its institution embedded. `logo_url` is
+/// the absolute URL of `GET /institutions/{id}/logo` under [baseUrl] (the request's
+/// scheme and host) when the row holds a logo.
+Map<String, Object?> itemJson(Map<String, Object?> row, Uri baseUrl) => {
   'id': row['id'],
   'institution_id': row['institution_id'],
   'status': row['status'],
   'last_successful_sync_at': optionalInstantJson(
     row['last_successful_sync_at'] as int?,
   ),
+  'error_code': row['error_code'],
   'institution': {
     'id': row['institution_id'],
     'name': row['institution_name'],
-    'logo_url': null,
-    'primary_color': null,
+    'logo_url': row['institution_logo'] == null
+        ? null
+        : baseUrl
+              .resolve(
+                '/v1/institutions/'
+                '${Uri.encodeComponent(row['institution_id']! as String)}/logo',
+              )
+              .toString(),
+    'primary_color': row['institution_primary_color'],
   },
 };

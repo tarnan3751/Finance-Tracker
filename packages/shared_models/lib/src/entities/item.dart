@@ -12,12 +12,15 @@ part 'item.g.dart';
 /// state and is not part of this model.
 @freezed
 abstract class Item with _$Item {
-  /// An Item. [lastSuccessfulSyncAt] is null before its first successful sync.
+  /// An Item. [lastSuccessfulSyncAt] is null before its first successful sync;
+  /// [errorCode] is Plaid's error code (`ITEM_LOGIN_REQUIRED`, ...) while [status] is
+  /// `loginRequired` or `error`, else null.
   const factory Item({
     required String id,
     required String institutionId,
     @JsonKey(unknownEnumValue: ItemStatus.unknown) required ItemStatus status,
     @UtcInstantConverter() DateTime? lastSuccessfulSyncAt,
+    String? errorCode,
   }) = _Item;
 
   /// Reads the snake_case JSON form.

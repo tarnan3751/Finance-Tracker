@@ -56,6 +56,7 @@ _entities = [
       institutionId: 'ins_109508',
       status: ItemStatus.pendingExpiration,
       lastSuccessfulSyncAt: _instant,
+      errorCode: 'ITEM_LOGIN_REQUIRED',
     ),
     const Item(
       id: 'item1',

@@ -4,6 +4,7 @@ lib/src/api/auth_api.dart
 lib/src/api/data_api.dart
 lib/src/api/devices_api.dart
 lib/src/api/health_api.dart
+lib/src/api/institutions_api.dart
 lib/src/api/me_api.dart
 lib/src/api/plaid_api.dart
 lib/src/api/sync_api.dart

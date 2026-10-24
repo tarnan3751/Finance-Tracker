@@ -36,6 +36,19 @@ void main() {
   final wallet = ['paths', '/wallet', 'post'];
   final schemas = ['components', 'schemas'];
 
+  Map<String, Object?> png(Map<String, Object?> schema) => {
+    'image/png': {'schema': schema},
+  };
+
+  test('a 2xx of image/png bytes passes', () {
+    final root = _minimal();
+    _at(root, [...health, 'responses', '200'])['content'] = png({
+      'type': 'string',
+      'format': 'binary',
+    });
+    expect(_check(root), isEmpty);
+  });
+
   final cases = <String, (void Function(Map<String, Object?>), String)>{
     'an OpenAPI version other than 3.0.x': (
       (root) => root['openapi'] = '3.1.0',
@@ -67,6 +80,12 @@ void main() {
     'a 2xx without a schema': (
       (root) => _at(root, [...health, 'responses', '200']).remove('content'),
       'has no application/json schema',
+    ),
+    'a 2xx of image/png that is not binary': (
+      (root) => _at(root, [...health, 'responses', '200'])['content'] = png({
+        'type': 'object',
+      }),
+      'has no application/json schema or image/png body',
     ),
     'a 204 with a body': (
       (root) => _at(root, [...wallet, 'responses', '204'])['content'] = {

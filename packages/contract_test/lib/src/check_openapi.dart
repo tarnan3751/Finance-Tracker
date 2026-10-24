@@ -142,8 +142,11 @@ void _checkResponses(
       success++;
       if (status == '204') {
         if (content != null) violations.add('$where 204 declares a body');
-      } else if (_schemaOf(content, 'application/json') == null) {
-        violations.add('$where $status has no application/json schema');
+      } else if (_schemaOf(content, 'application/json') == null &&
+          !_isPngBody(content)) {
+        violations.add(
+          '$where $status has no application/json schema or image/png body',
+        );
       }
     } else if (status.startsWith('4') || status.startsWith('5')) {
       final schema = _schemaOf(content, 'application/problem+json');
@@ -216,6 +219,15 @@ void _checkBody(
   } on ArgumentError {
     return; // reported by the $ref walk
   }
+}
+
+/// A body that is only `image/png` bytes: `{type: string, format: binary}`.
+bool _isPngBody(Object? content) {
+  if (content is! Map<String, Object?> || content.length != 1) return false;
+  final schema = _schemaOf(content, 'image/png');
+  return schema != null &&
+      schema['type'] == 'string' &&
+      schema['format'] == 'binary';
 }
 
 Map<String, Object?>? _schemaOf(Object? content, String type) {

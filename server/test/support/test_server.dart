@@ -3,6 +3,7 @@
 // no socket. Every call is checked against the contract: the request body with
 // conformsToRequest (unless the test sends an invalid one on purpose), the response with
 // conformsToResponse for the matched operation and status (strict), and its content type.
+// An image/png answer's body is its bytes.
 import 'dart:convert';
 import 'dart:io';
 
@@ -50,7 +51,7 @@ final class TestResponse {
   /// The headers.
   final Map<String, String> headers;
 
-  /// The decoded JSON body, or null for an empty one.
+  /// The decoded JSON body, the bytes of an `image/png` body, or null for an empty one.
   final Object? body;
 
   /// The body as an object.
@@ -177,8 +178,15 @@ final class TestServer {
         },
       ),
     );
-    final content = await response.readAsString();
-    final decoded = content.isEmpty ? null : jsonDecode(content);
+    final bytes = [
+      for (final chunk in await response.read().toList()) ...chunk,
+    ];
+    final png = response.headers['content-type'] == 'image/png';
+    final Object? decoded = png
+        ? bytes
+        : bytes.isEmpty
+        ? null
+        : jsonDecode(utf8.decode(bytes));
     final result = TestResponse(response.statusCode, response.headers, decoded);
     if (template == null) {
       // A path or method outside the contract can only be the router's 404.
@@ -197,7 +205,10 @@ final class TestServer {
       if (response.statusCode >= 400) {
         expect(type, 'application/problem+json');
       } else if (decoded != null) {
-        expect(type, 'application/json');
+        expect(
+          type,
+          contract.responseMediaType(template, method, response.statusCode),
+        );
       }
     }
     return result;

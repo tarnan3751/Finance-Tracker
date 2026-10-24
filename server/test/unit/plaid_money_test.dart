@@ -58,4 +58,13 @@ void main() {
     expect(plaidDecimal(3), '3');
     expect(() => plaidDecimal(1.5), throwsFormatException);
   });
+
+  test("plaidColor reads Plaid's #rrggbb as opaque ARGB", () {
+    expect(plaidColor('#0075a3'), 0xFF0075A3);
+    expect(plaidColor('#FFFFFF'), 0xFFFFFFFF);
+    expect(plaidColor('#000000'), 0xFF000000);
+    for (final text in ['0075a3', '#075a3', '#0075a3ff', '#00g5a3', '']) {
+      expect(() => plaidColor(text), throwsFormatException, reason: text);
+    }
+  });
 }

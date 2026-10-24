@@ -6,7 +6,7 @@
 openapi: 3.0.3
 info:
   title: Finance Tracker API
-  version: 0.2.1
+  version: 0.3.0
   description: >-
     The API between the Finance Tracker app and its server. All JSON, snake_case. Money is
     integer minor units plus an ISO 4217 code (`Money`), never a floating-point number;
@@ -32,6 +32,8 @@ tags:
     description: The user's installations
   - name: plaid
     description: Plaid Link and Items, proxied by the server
+  - name: institutions
+    description: Institution metadata the server caches
   - name: data
     description: Plaid-sourced data, server-authoritative
   - name: sync
@@ -236,7 +238,7 @@ paths:
       summary: Creates a Plaid Link token
       description: >-
         Asks Plaid for a Link token for this user. With `update_item_id`, the token opens
-        Link in update mode for that Item.
+        Link in update mode for that Item; a `removed` Item is `404`.
       requestBody:
         required: true
         content:
@@ -298,7 +300,10 @@ paths:
       operationId: listItems
       tags: [plaid]
       summary: Lists the user's Items
-      description: Every Plaid Item the user has linked, each with its institution.
+      description: >-
+        Every Plaid Item the user has linked, each with its institution, including Items
+        unlinked with their history kept (status `removed`), whose data stays in the data
+        endpoints.
       responses:
         '200':
           description: The Items
@@ -316,15 +321,30 @@ paths:
     delete:
       operationId: deleteItem
       tags: [plaid]
-      summary: Removes an Item
+      summary: Unlinks an Item
       description: >-
-        Removes the Item at Plaid, then its accounts, transactions and other Plaid-sourced
-        rows; their removal reaches devices as tombstones through the data endpoints.
+        Removes the Item at Plaid. With `history=delete` (the default) the server deletes
+        its accounts and other Plaid-sourced rows and turns its transactions and
+        investment transactions into tombstones under new versions; the Item leaves
+        `GET /plaid/items` and its accounts leave `GET /accounts`. With `history=keep` its
+        accounts, transactions and other rows stay as they are, and the Item stays listed
+        with status `removed`. Unlinking a `removed` Item again with `history=delete`
+        drops the kept history; with `keep` it changes nothing.
       parameters:
         - $ref: '#/components/parameters/ItemId'
+        - name: history
+          in: query
+          required: false
+          description: Whether the Item's data stays on the server and every device
+          schema:
+            type: string
+            enum: [keep, delete]
+            default: delete
       responses:
         '204':
-          description: The Item is removed
+          description: The Item is unlinked
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -341,7 +361,8 @@ paths:
       description: >-
         Runs `/transactions/sync` for the Item. `not_ready` means Plaid has not finished the
         Item's first extraction; retry shortly, it does not mean there are no transactions
-        (PLAN.md §4). An Item that needs re-authentication is `409` `item_login_required`.
+        (PLAN.md §4). An Item that needs re-authentication is `409` `item_login_required`;
+        a `removed` Item is `409` `conflict`.
       parameters:
         - $ref: '#/components/parameters/ItemId'
       responses:
@@ -368,7 +389,9 @@ paths:
       operationId: createUpdateLinkToken
       tags: [plaid]
       summary: Creates a Link token in update mode
-      description: A Link token that re-authenticates the Item (`login_required`).
+      description: >-
+        A Link token that re-authenticates the Item (`login_required`). A `removed` Item
+        (unlinked with its history kept) is `404`: link it again instead.
       parameters:
         - $ref: '#/components/parameters/ItemId'
       requestBody:
@@ -396,6 +419,105 @@ paths:
           $ref: '#/components/responses/Internal'
         '502':
           $ref: '#/components/responses/PlaidError'
+
+  /plaid/items/{item_id}/refresh:
+    post:
+      operationId: refreshItem
+      tags: [plaid]
+      summary: Asks Plaid to refresh an Item's transactions now
+      description: >-
+        Calls Plaid's `/transactions/refresh` for the Item, then starts a sync run in the
+        background, after any run of the Item already in progress, and answers at once
+        with status `started`. The run's changes reach devices through
+        `GET /transactions`. An Item that needs re-authentication is `409`
+        `item_login_required`; a `removed` Item is `409` `conflict`.
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      responses:
+        '202':
+          description: The sync run has started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncRun'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/Internal'
+        '502':
+          $ref: '#/components/responses/PlaidError'
+  /plaid/items/{item_id}/balances:
+    post:
+      operationId: refreshBalances
+      tags: [plaid]
+      summary: Fetches an Item's current balances from Plaid
+      description: >-
+        Calls Plaid's `/accounts/balance/get`, stores the reported balances on the Item's
+        accounts with `balances_as_of` set to now, and answers with the Item's accounts.
+        An Item that needs re-authentication is `409` `item_login_required`; a `removed`
+        Item is `409` `conflict`.
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      responses:
+        '200':
+          description: The Item's accounts with the balances just reported
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/Internal'
+        '502':
+          $ref: '#/components/responses/PlaidError'
+
+  /institutions/{institution_id}/logo:
+    get:
+      operationId: getInstitutionLogo
+      tags: [institutions]
+      summary: An institution's logo
+      description: >-
+        The PNG Plaid provided for the institution of one of the user's Items, cached by
+        the server. `Institution.logo_url` is this route's absolute URL when the server
+        holds a logo, else null. `404` when there is no logo, or the user has no Item at
+        that institution.
+      parameters:
+        - name: institution_id
+          in: path
+          required: true
+          description: Plaid's institution id
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        '200':
+          description: The logo
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Internal'
 
   /accounts:
     get:
@@ -798,7 +920,8 @@ components:
       enum: [depository, credit, loan, investment, other]
     ItemStatus:
       type: string
-      enum: [healthy, login_required, error, pending_expiration, unknown]
+      description: The health of an Item; `removed` is an Item unlinked with its history kept
+      enum: [healthy, login_required, error, pending_expiration, removed, unknown]
     DataSource:
       type: string
       description: Provenance (PLAN.md §7.1); `derived` values are labelled in the UI.
@@ -1111,12 +1234,16 @@ components:
           type: string
           format: uri
           nullable: true
+          description: >-
+            The server's `GET /institutions/{institution_id}/logo` URL when it holds the
+            institution's logo
         primary_color:
           type: integer
           format: int64
           minimum: 0
           maximum: 4294967295
           nullable: true
+          description: ARGB, converted from Plaid's `#rrggbb`
       example:
         id: ins_109508
         name: First Platypus Bank
@@ -1128,7 +1255,7 @@ components:
         Mirrors `shared_models` `Item`, with its institution embedded (`shared_models`
         keeps the institution separately, by `institution_id`). The transactions cursor is
         server-only state and is not here.
-      required: [id, institution_id, status, last_successful_sync_at, institution]
+      required: [id, institution_id, status, last_successful_sync_at, error_code, institution]
       properties:
         id:
           type: string
@@ -1142,6 +1269,12 @@ components:
           format: date-time
           pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'
           nullable: true
+        error_code:
+          type: string
+          nullable: true
+          description: >-
+            Plaid's error code (`ITEM_LOGIN_REQUIRED`, ...) when `status` is
+            `login_required` or `error`; null otherwise
         institution:
           $ref: '#/components/schemas/Institution'
       example:
@@ -1149,6 +1282,7 @@ components:
         institution_id: ins_109508
         status: healthy
         last_successful_sync_at: '2026-10-24T09:00:00.000Z'
+        error_code: null
         institution:
           id: ins_109508
           name: First Platypus Bank
@@ -2110,4 +2244,4 @@ components:
           description: The contract version (`info.version`) the server implements
       example:
         status: ok
-        version: 0.2.1
+        version: 0.3.0

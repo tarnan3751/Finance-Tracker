@@ -5,6 +5,8 @@
 /// the type, the status and the code: no header, body, token or address ever reaches it.
 library;
 
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 /// Why a request got no answer.
@@ -75,7 +77,7 @@ sealed class ApiException implements Exception {
     }
     return fromProblem(
       status,
-      response.data,
+      _decoded(response.data),
       retryAfter: response.headers.value('retry-after'),
       since: error.requestOptions.queryParameters['since'],
     );
@@ -120,6 +122,17 @@ sealed class ApiException implements Exception {
       // this build does not know.
       _ => ServerError(status: status, code: code),
     };
+  }
+
+  /// A body read as bytes (an operation whose success is an image) is the problem's
+  /// JSON text; any other body is already decoded.
+  static Object? _decoded(Object? data) {
+    if (data is! List<int>) return data;
+    try {
+      return jsonDecode(utf8.decode(data));
+    } on FormatException {
+      return null;
+    }
   }
 
   static List<FieldError> _fieldErrors(Object? body) {

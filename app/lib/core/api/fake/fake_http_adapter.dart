@@ -1,7 +1,8 @@
 /// The Dio adapter in front of `FakeServer`: it turns a request into a `FakeRequest`
 /// (the path without `/v1`, the query, the headers, the body decoded from JSON) and the
-/// server's answer into a response body, so everything above the adapter (the generated
-/// client, its serializers, the interceptors) runs exactly as against a real server.
+/// server's answer into a response body (JSON, or PNG bytes for a `Uint8List` body), so
+/// everything above the adapter (the generated client, its serializers, the interceptors)
+/// runs exactly as against a real server.
 library;
 
 import 'dart:convert';
@@ -61,6 +62,17 @@ final class FakeHttpAdapter implements HttpClientAdapter {
       },
       body: body,
     ));
+    if (response.body case final Uint8List bytes) {
+      return ResponseBody.fromBytes(
+        bytes,
+        response.status,
+        headers: {
+          Headers.contentTypeHeader: ['image/png'],
+          for (final MapEntry(:key, :value) in response.headers.entries)
+            key.toLowerCase(): [value],
+        },
+      );
+    }
     return ResponseBody.fromString(
       response.body == null ? '' : jsonEncode(response.body),
       response.status,

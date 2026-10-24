@@ -13,8 +13,8 @@ part 'institution.g.dart';
 /// Properties:
 /// * [id] - Plaid's institution id
 /// * [name]
-/// * [logoUrl]
-/// * [primaryColor]
+/// * [logoUrl] - The server's `GET /institutions/{institution_id}/logo` URL when it holds the institution's logo
+/// * [primaryColor] - ARGB, converted from Plaid's `#rrggbb`
 @BuiltValue()
 abstract class Institution implements Built<Institution, InstitutionBuilder> {
   /// Plaid's institution id
@@ -24,9 +24,11 @@ abstract class Institution implements Built<Institution, InstitutionBuilder> {
   @BuiltValueField(wireName: r'name')
   String get name;
 
+  /// The server's `GET /institutions/{institution_id}/logo` URL when it holds the institution's logo
   @BuiltValueField(wireName: r'logo_url')
   String? get logoUrl;
 
+  /// ARGB, converted from Plaid's `#rrggbb`
   @BuiltValueField(wireName: r'primary_color')
   int? get primaryColor;
 

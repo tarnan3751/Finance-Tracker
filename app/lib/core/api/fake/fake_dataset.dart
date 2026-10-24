@@ -9,6 +9,8 @@
 /// [FakeDataset.fromDemoSeed] is the persona engine's household the demo flavor shows.
 library;
 
+import 'dart:typed_data';
+
 import 'package:finance_tracker/core/api/api_models.dart';
 import 'package:persona_engine/persona_engine.dart'
     show DemoSeed, GeneratedHousehold;
@@ -29,6 +31,7 @@ final class FakeItemData {
     this.holdings = const [],
     this.securities = const [],
     this.investmentTransactions = const [],
+    this.institutionLogo,
   }) {
     final Set<String> accountIds = {for (final Account a in accounts) a.id};
     void owned(String accountId, String what) {
@@ -77,6 +80,10 @@ final class FakeItemData {
   final List<Holding> holdings;
   final List<Security> securities;
   final List<InvestmentTransaction> investmentTransactions;
+
+  /// The institution's logo as PNG bytes, served by `getInstitutionLogo`; null for none
+  /// (the persona engine's datasets have none).
+  final Uint8List? institutionLogo;
 }
 
 /// Everything the fake server can link.
