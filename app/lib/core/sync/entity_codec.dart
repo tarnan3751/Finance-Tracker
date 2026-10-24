@@ -74,6 +74,46 @@ DateTime? deletedAtOf(Map<String, Object?> fields) =>
 bool deletedWithAccountOf(Map<String, Object?> fields) =>
     fields[deletedWithAccountField] == true;
 
+/// The record fields this version knows for [type]; empty for the types it does not
+/// store.
+Set<String> knownRecordFields(EntityType type) => switch (type) {
+  EntityType.account => _accountFields,
+  EntityType.transaction => _transactionFields,
+  EntityType.category => _categoryFields,
+  EntityType.settings => const {'theme_mode', 'use_dynamic_color'},
+  _ => const {},
+};
+
+final Set<String> _accountFields = accountRecordJson(
+  const Account(
+    id: '',
+    type: AccountType.other,
+    name: '',
+    currencyCode: 'USD',
+    isHidden: false,
+    displayOrder: 0,
+  ),
+).keys.toSet();
+
+final Set<String> _transactionFields = transactionRecordJson(
+  Transaction(
+    id: '',
+    accountId: '',
+    amount: Money(0, 'USD'),
+    date: LocalDate(2026, 1, 1),
+    pending: false,
+    name: '',
+    source: DataSource.manual,
+    createdAt: DateTime.utc(2026),
+    updatedAt: DateTime.utc(2026),
+    syncVersion: 0,
+  ),
+).keys.toSet();
+
+final Set<String> _categoryFields = categoryRecordJson(
+  const Category(id: '', name: '', isSystem: false, icon: '', color: 0),
+).keys.toSet();
+
 /// The JSON name of [value]: its Dart name in snake case (`recurring_stream`,
 /// `conflicting_duplicate`), as `shared_models` writes enums.
 String snakeName(Enum value) => value.name.replaceAllMapped(

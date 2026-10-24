@@ -7,6 +7,7 @@ import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
+import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/db/tables/record_clocks.dart';
 import 'package:finance_tracker/core/db/tables/sync_meta.dart';
 import 'package:finance_tracker/core/sync/entity_codec.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 
+import '../helpers/pump_app.dart' show testClock;
 import 'generated/schema.dart';
 
 void main() {
@@ -273,6 +275,14 @@ void main() {
           for (final c in e.value.fieldClocks.entries) c.key: c.value.pack(),
           createClockField: e.value.createdAt!.pack(),
         }, reason: e.key);
+      }
+      // And the store reads back exactly the folded records from the migrated rows.
+      final DriftSyncStore store = DriftSyncStore(database, testClock);
+      for (final EntityRecord record in folded.values) {
+        expect(
+          (await store.read(record.type, record.id))!.toCanonicalJson(),
+          record.toCanonicalJson(),
+        );
       }
     });
 
