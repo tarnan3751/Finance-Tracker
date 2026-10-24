@@ -22,6 +22,7 @@ import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/time/time_zone_setup.dart';
 import 'package:finance_tracker/features/auth/application/device_name.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -113,6 +114,22 @@ Future<void> pumpUntil(
   fail('$finder did not appear');
 }
 
+/// Taps Sync now once it is enabled: a session, and the Plaid pull after it, must have
+/// finished. Scrolls to it first, since the Sync section runs below the fold on a phone.
+Future<void> tapSyncNow(WidgetTester tester) async {
+  await tester.ensureVisible(find.text('Sync now'));
+  await pumpUntil(
+    tester,
+    find.ancestor(
+      of: find.text('Sync now'),
+      matching: find.byWidgetPredicate(
+        (w) => w is ButtonStyleButton && w.onPressed != null,
+      ),
+    ),
+  );
+  await tester.tap(find.text('Sync now'));
+}
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -171,7 +188,7 @@ void main() {
     await tester.tap(find.text('Settings'));
     await pumpUntil(tester, find.text('Sync now'));
     await pumpUntil(tester, find.textContaining('Last synced'));
-    await tester.tap(find.text('Sync now'));
+    await tapSyncNow(tester);
     await pumpUntil(tester, find.text('Every change is synced'));
 
     // B, headless: A's account and transaction arrive; B renames the transaction.
@@ -198,7 +215,7 @@ void main() {
     expect((await b.sync()).failure, isNull);
 
     // A: Sync now brings B's change onto its Transactions tab.
-    await tester.tap(find.text('Sync now'));
+    await tapSyncNow(tester);
     await pumpUntil(tester, find.text('Every change is synced'));
     await tester.tap(find.text('Transactions'));
     await pumpUntil(tester, find.text('Groceries and wine'));
