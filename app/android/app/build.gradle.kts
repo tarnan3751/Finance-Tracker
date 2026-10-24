@@ -4,6 +4,11 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Release signing comes from the environment, never from a file in the repository. With
+// FT_RELEASE_KEYSTORE unset, the release build type falls back to the debug key, so a
+// release-mode smoke run works on any machine.
+val releaseKeystore: String? = System.getenv("FT_RELEASE_KEYSTORE")?.takeIf { it.isNotEmpty() }
+
 android {
     namespace = "dev.tarnan.financetracker"
     // SDK levels are explicit integers rather than the flutter.* properties, so a Flutter
@@ -54,11 +59,36 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            if (releaseKeystore != null) {
+                storeFile = file(releaseKeystore)
+                storePassword = System.getenv("FT_RELEASE_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("FT_RELEASE_KEY_ALIAS")
+                keyPassword = System.getenv("FT_RELEASE_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig =
+                if (releaseKeystore != null) {
+                    signingConfigs.getByName("release")
+                } else {
+                    logger.warn(
+                        "FT_RELEASE_KEYSTORE is not set: the release build is signed with the debug key.",
+                    )
+                    signingConfigs.getByName("debug")
+                }
+            // R8 shrinks and optimizes; proguard-rules.pro keeps what native code looks up
+            // by name. Dart code is obfuscated separately by flutter build --obfuscate.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }

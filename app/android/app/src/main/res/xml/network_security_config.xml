@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Network security for the demo and prod flavors: no cleartext traffic anywhere, system
+     certificates only. The dev flavor overrides this file (src/dev/res/xml) to reach the
+     development server over plain HTTP. Dart's own HttpClient (and so dio) does not read
+     this file; it governs platform networking only, and prod's HTTPS rule is enforced in
+     Dart. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

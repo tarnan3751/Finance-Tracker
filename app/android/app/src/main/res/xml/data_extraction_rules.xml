@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nothing leaves the device through Android backup or device transfer. The database key
+     lives in the Keystore and cannot follow a backup, so a restored database would be
+     unreadable; the app's own encrypted backup (Phase 7) is the only backup path. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" path="." />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" path="." />
+    </device-transfer>
+</data-extraction-rules>
