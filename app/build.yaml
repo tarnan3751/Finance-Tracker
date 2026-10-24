@@ -1,0 +1,10 @@
+# Code generation options for the app. drift_dev: no manager API (the repositories use the
+# query builder), and the SQLite dialect for the schema analysis.
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          generate_manager: false
+          sql:
+            dialect: sqlite
