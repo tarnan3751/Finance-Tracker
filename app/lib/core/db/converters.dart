@@ -4,7 +4,9 @@
 /// - An audit instant is INTEGER epoch milliseconds UTC ([UtcMillisColumnConverter]).
 /// - A `Uri` is its TEXT form ([UriColumnConverter]).
 /// - An enum is TEXT by name, through Drift's `textEnum`; every enum stored in schema 1 has
-///   one-word values, so the Dart name is also its JSON name.
+///   one-word values, so the Dart name is also its JSON name. `ItemStatus` (schema 3) has
+///   multi-word values and is TEXT by its snake_case JSON name
+///   ([ItemStatusColumnConverter]).
 /// - A `Money` is never one column: it is a `<name>_minor` INTEGER beside the row's shared
 ///   `currency` TEXT, put together on read by [moneyOrNull] and taken apart on write by
 ///   [minorUnitsIn], which refuses an amount in another currency than the row's.
@@ -65,6 +67,23 @@ final class UriColumnConverter extends TypeConverter<Uri, String> {
 
   @override
   String toSql(Uri value) => value.toString();
+}
+
+/// `ItemStatus` ↔ TEXT, its snake_case JSON name (`login_required`).
+final class ItemStatusColumnConverter
+    extends TypeConverter<ItemStatus, String> {
+  /// The converter.
+  const ItemStatusColumnConverter();
+
+  @override
+  ItemStatus fromSql(String fromDb) =>
+      ItemStatus.values.firstWhere((s) => toSql(s) == fromDb);
+
+  @override
+  String toSql(ItemStatus value) => value.name.replaceAllMapped(
+    RegExp('[A-Z]'),
+    (m) => '_${m[0]!.toLowerCase()}',
+  );
 }
 
 /// The `Money` of [minorUnits] in the row's [currency], or null when the column is null.

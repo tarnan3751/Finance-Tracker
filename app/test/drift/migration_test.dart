@@ -43,6 +43,12 @@ void main() {
     await verifier.migrateAndValidate(database, 2);
   });
 
+  test('a new database matches the schema 3 dump', () async {
+    final AppDatabase database = AppDatabase(await verifier.startAt(3));
+    addTearDown(database.close);
+    await verifier.migrateAndValidate(database, 3);
+  });
+
   group('schema 1 to 2', () {
     // 2026-10-01 09:00 UTC, the v1 rows' audit instants; 2026-10-02, a v1 delete.
     const int created = 1759309200000;
@@ -300,5 +306,70 @@ void main() {
         expect(await database.select(database.recordClocks).get(), isEmpty);
       },
     );
+  });
+
+  group('schema 2 to 3', () {
+    const int created = 1759309200000; // 2026-10-01 09:00 UTC
+
+    test('keeps every row and adds an empty items table', () async {
+      final schema = await verifier.schemaAt(2);
+      schema.rawDatabase.execute('''
+        INSERT INTO accounts (id, item_id, type, subtype, name, official_name, mask,
+          currency, current_balance_minor, available_balance_minor, credit_limit_minor,
+          balances_as_of, is_hidden, display_order, created_at, updated_at, deleted_at,
+          sync_version)
+        VALUES
+          ('acc-manual', NULL, 'depository', NULL, 'Wallet', NULL, NULL, 'USD',
+           NULL, NULL, NULL, NULL, 0, 0, $created, $created, NULL, 0),
+          ('acc-linked', 'item-1', 'credit', 'credit card', 'Card', NULL, '4242', 'USD',
+           -5000, NULL, 100000, $created, 1, 1, $created, $created, NULL, 3);
+        INSERT INTO transactions (id, account_id, amount_minor, currency, date,
+          authorized_date, pending, pending_transaction_id, name, merchant_name,
+          merchant_logo_url, plaid_primary_category, plaid_detailed_category,
+          user_category_id, notes, receipt_path, source, created_at, updated_at, deleted_at,
+          sync_version, deleted_with_account)
+        VALUES
+          ('t-manual', 'acc-manual', -1250, 'USD', '2026-09-30', NULL, 0, NULL, 'Lunch',
+           NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'manual', $created, $created, NULL,
+           0, 0),
+          ('t-plaid', 'acc-linked', -999, 'USD', '2026-09-29', NULL, 1, NULL, 'NETFLIX',
+           'Netflix', NULL, 'ENTERTAINMENT', NULL, 'user-cat', 'shared', NULL, 'plaid',
+           $created, $created, NULL, 7, 0);
+        INSERT INTO change_log (entity_type, entity_id, operation, payload, hlc,
+          device_id, synced, rejected_reason)
+        VALUES ('transaction', 't-manual', 'create', '{}',
+          '001759309200000-00000-local-test', 'local-test', 1, NULL);
+        INSERT INTO record_clocks (entity_type, entity_id, field, hlc)
+        VALUES ('transaction', 't-manual', 'name', '001759309200000-00000-local-test');
+        INSERT INTO sync_meta (key, value)
+        VALUES ('pull_cursor', '12'), ('device_id', 'local-test');
+      ''');
+      final AppDatabase database = AppDatabase(schema.newConnection());
+      addTearDown(database.close);
+      await verifier.migrateAndValidate(database, 3);
+
+      expect(
+        (await database.select(database.accounts).get()).map((a) => a.id),
+        unorderedEquals(['acc-manual', 'acc-linked']),
+      );
+      final TransactionRow plaid = await (database.select(
+        database.transactions,
+      )..where((t) => t.id.equals('t-plaid'))).getSingle();
+      expect(plaid.source, DataSource.plaid);
+      expect(plaid.userCategoryId, 'user-cat');
+      expect(plaid.syncVersion, 7);
+      expect(await database.select(database.transactions).get(), hasLength(2));
+      expect(await database.select(database.changeLog).get(), hasLength(1));
+      expect(await database.select(database.recordClocks).get(), hasLength(1));
+      expect(
+        {
+          for (final SyncMetaRow m
+              in await database.select(database.syncMeta).get())
+            m.key: m.value,
+        },
+        {'pull_cursor': '12', 'device_id': 'local-test'},
+      );
+      expect(await database.select(database.items).get(), isEmpty);
+    });
   });
 }

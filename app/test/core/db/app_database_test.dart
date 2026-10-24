@@ -1,5 +1,5 @@
-// The schema's constraints: provenance and account type CHECKs that match the enums, the
-// cascade from transactions to their tags and splits, and foreign keys switched on.
+// The schema's constraints: provenance, account type and Item status CHECKs that match
+// the enums (an Item status stored under its JSON name), the cascade from transactions to their tags and splits, and foreign keys switched on.
 import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
@@ -96,6 +96,46 @@ void main() {
     await expectLater(
       database.customStatement(
         "UPDATE accounts SET type = 'brokerage' WHERE id = 'loan'",
+      ),
+      throwsA(isA<SqliteException>()),
+    );
+  });
+
+  test('every ItemStatus value is stored under its JSON name', () async {
+    for (final ItemStatus status in ItemStatus.values) {
+      await database
+          .into(database.items)
+          .insert(
+            ItemsCompanion.insert(
+              id: status.name,
+              institutionId: 'ins_1',
+              institutionName: 'Bank',
+              status: status,
+              pulledAt: at,
+            ),
+          );
+      final QueryRow stored = await database
+          .customSelect(
+            'SELECT status FROM items WHERE id = ?',
+            variables: [Variable.withString(status.name)],
+          )
+          .getSingle();
+      final Object? json = Item(
+        id: 'i',
+        institutionId: 'ins_1',
+        status: status,
+      ).toJson()['status'];
+      expect(stored.read<String>('status'), json);
+      expect(
+        (await (database.select(
+          database.items,
+        )..where((i) => i.id.equals(status.name))).getSingle()).status,
+        status,
+      );
+    }
+    await expectLater(
+      database.customStatement(
+        "UPDATE items SET status = 'broken' WHERE id = 'healthy'",
       ),
       throwsA(isA<SqliteException>()),
     );

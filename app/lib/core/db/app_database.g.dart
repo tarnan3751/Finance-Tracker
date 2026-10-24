@@ -5474,6 +5474,669 @@ class HeldRecordsCompanion extends UpdateCompanion<HeldRecordRow> {
   }
 }
 
+class $ItemsTable extends Items with TableInfo<$ItemsTable, ItemRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _institutionIdMeta = const VerificationMeta(
+    'institutionId',
+  );
+  @override
+  late final GeneratedColumn<String> institutionId = GeneratedColumn<String>(
+    'institution_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _institutionNameMeta = const VerificationMeta(
+    'institutionName',
+  );
+  @override
+  late final GeneratedColumn<String> institutionName = GeneratedColumn<String>(
+    'institution_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<Uri?, String> institutionLogoUrl =
+      GeneratedColumn<String>(
+        'institution_logo_url',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<Uri?>($ItemsTable.$converterinstitutionLogoUrln);
+  static const VerificationMeta _institutionLogoMeta = const VerificationMeta(
+    'institutionLogo',
+  );
+  @override
+  late final GeneratedColumn<Uint8List> institutionLogo =
+      GeneratedColumn<Uint8List>(
+        'institution_logo',
+        aliasedName,
+        true,
+        type: DriftSqlType.blob,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _institutionColorMeta = const VerificationMeta(
+    'institutionColor',
+  );
+  @override
+  late final GeneratedColumn<int> institutionColor = GeneratedColumn<int>(
+    'institution_color',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<ItemStatus, String> status =
+      GeneratedColumn<String>(
+        'status',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<ItemStatus>($ItemsTable.$converterstatus);
+  static const VerificationMeta _errorCodeMeta = const VerificationMeta(
+    'errorCode',
+  );
+  @override
+  late final GeneratedColumn<String> errorCode = GeneratedColumn<String>(
+    'error_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime?, int>
+  lastSuccessfulSyncAt = GeneratedColumn<int>(
+    'last_successful_sync_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  ).withConverter<DateTime?>($ItemsTable.$converterlastSuccessfulSyncAtn);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> pulledAt =
+      GeneratedColumn<int>(
+        'pulled_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($ItemsTable.$converterpulledAt);
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    institutionId,
+    institutionName,
+    institutionLogoUrl,
+    institutionLogo,
+    institutionColor,
+    status,
+    errorCode,
+    lastSuccessfulSyncAt,
+    pulledAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'items';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ItemRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('institution_id')) {
+      context.handle(
+        _institutionIdMeta,
+        institutionId.isAcceptableOrUnknown(
+          data['institution_id']!,
+          _institutionIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_institutionIdMeta);
+    }
+    if (data.containsKey('institution_name')) {
+      context.handle(
+        _institutionNameMeta,
+        institutionName.isAcceptableOrUnknown(
+          data['institution_name']!,
+          _institutionNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_institutionNameMeta);
+    }
+    if (data.containsKey('institution_logo')) {
+      context.handle(
+        _institutionLogoMeta,
+        institutionLogo.isAcceptableOrUnknown(
+          data['institution_logo']!,
+          _institutionLogoMeta,
+        ),
+      );
+    }
+    if (data.containsKey('institution_color')) {
+      context.handle(
+        _institutionColorMeta,
+        institutionColor.isAcceptableOrUnknown(
+          data['institution_color']!,
+          _institutionColorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('error_code')) {
+      context.handle(
+        _errorCodeMeta,
+        errorCode.isAcceptableOrUnknown(data['error_code']!, _errorCodeMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ItemRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ItemRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      institutionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}institution_id'],
+      )!,
+      institutionName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}institution_name'],
+      )!,
+      institutionLogoUrl: $ItemsTable.$converterinstitutionLogoUrln.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}institution_logo_url'],
+        ),
+      ),
+      institutionLogo: attachedDatabase.typeMapping.read(
+        DriftSqlType.blob,
+        data['${effectivePrefix}institution_logo'],
+      ),
+      institutionColor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}institution_color'],
+      ),
+      status: $ItemsTable.$converterstatus.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}status'],
+        )!,
+      ),
+      errorCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error_code'],
+      ),
+      lastSuccessfulSyncAt: $ItemsTable.$converterlastSuccessfulSyncAtn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}last_successful_sync_at'],
+        ),
+      ),
+      pulledAt: $ItemsTable.$converterpulledAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}pulled_at'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $ItemsTable createAlias(String alias) {
+    return $ItemsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<Uri, String> $converterinstitutionLogoUrl =
+      const UriColumnConverter();
+  static TypeConverter<Uri?, String?> $converterinstitutionLogoUrln =
+      NullAwareTypeConverter.wrap($converterinstitutionLogoUrl);
+  static TypeConverter<ItemStatus, String> $converterstatus =
+      const ItemStatusColumnConverter();
+  static TypeConverter<DateTime, int> $converterlastSuccessfulSyncAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime?, int?> $converterlastSuccessfulSyncAtn =
+      NullAwareTypeConverter.wrap($converterlastSuccessfulSyncAt);
+  static TypeConverter<DateTime, int> $converterpulledAt =
+      const UtcMillisColumnConverter();
+}
+
+class ItemRow extends DataClass implements Insertable<ItemRow> {
+  final String id;
+  final String institutionId;
+  final String institutionName;
+  final Uri? institutionLogoUrl;
+  final Uint8List? institutionLogo;
+  final int? institutionColor;
+  final ItemStatus status;
+  final String? errorCode;
+  final DateTime? lastSuccessfulSyncAt;
+  final DateTime pulledAt;
+  const ItemRow({
+    required this.id,
+    required this.institutionId,
+    required this.institutionName,
+    this.institutionLogoUrl,
+    this.institutionLogo,
+    this.institutionColor,
+    required this.status,
+    this.errorCode,
+    this.lastSuccessfulSyncAt,
+    required this.pulledAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['institution_id'] = Variable<String>(institutionId);
+    map['institution_name'] = Variable<String>(institutionName);
+    if (!nullToAbsent || institutionLogoUrl != null) {
+      map['institution_logo_url'] = Variable<String>(
+        $ItemsTable.$converterinstitutionLogoUrln.toSql(institutionLogoUrl),
+      );
+    }
+    if (!nullToAbsent || institutionLogo != null) {
+      map['institution_logo'] = Variable<Uint8List>(institutionLogo);
+    }
+    if (!nullToAbsent || institutionColor != null) {
+      map['institution_color'] = Variable<int>(institutionColor);
+    }
+    {
+      map['status'] = Variable<String>(
+        $ItemsTable.$converterstatus.toSql(status),
+      );
+    }
+    if (!nullToAbsent || errorCode != null) {
+      map['error_code'] = Variable<String>(errorCode);
+    }
+    if (!nullToAbsent || lastSuccessfulSyncAt != null) {
+      map['last_successful_sync_at'] = Variable<int>(
+        $ItemsTable.$converterlastSuccessfulSyncAtn.toSql(lastSuccessfulSyncAt),
+      );
+    }
+    {
+      map['pulled_at'] = Variable<int>(
+        $ItemsTable.$converterpulledAt.toSql(pulledAt),
+      );
+    }
+    return map;
+  }
+
+  ItemsCompanion toCompanion(bool nullToAbsent) {
+    return ItemsCompanion(
+      id: Value(id),
+      institutionId: Value(institutionId),
+      institutionName: Value(institutionName),
+      institutionLogoUrl: institutionLogoUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(institutionLogoUrl),
+      institutionLogo: institutionLogo == null && nullToAbsent
+          ? const Value.absent()
+          : Value(institutionLogo),
+      institutionColor: institutionColor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(institutionColor),
+      status: Value(status),
+      errorCode: errorCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(errorCode),
+      lastSuccessfulSyncAt: lastSuccessfulSyncAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSuccessfulSyncAt),
+      pulledAt: Value(pulledAt),
+    );
+  }
+
+  factory ItemRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ItemRow(
+      id: serializer.fromJson<String>(json['id']),
+      institutionId: serializer.fromJson<String>(json['institutionId']),
+      institutionName: serializer.fromJson<String>(json['institutionName']),
+      institutionLogoUrl: serializer.fromJson<Uri?>(json['institutionLogoUrl']),
+      institutionLogo: serializer.fromJson<Uint8List?>(json['institutionLogo']),
+      institutionColor: serializer.fromJson<int?>(json['institutionColor']),
+      status: serializer.fromJson<ItemStatus>(json['status']),
+      errorCode: serializer.fromJson<String?>(json['errorCode']),
+      lastSuccessfulSyncAt: serializer.fromJson<DateTime?>(
+        json['lastSuccessfulSyncAt'],
+      ),
+      pulledAt: serializer.fromJson<DateTime>(json['pulledAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'institutionId': serializer.toJson<String>(institutionId),
+      'institutionName': serializer.toJson<String>(institutionName),
+      'institutionLogoUrl': serializer.toJson<Uri?>(institutionLogoUrl),
+      'institutionLogo': serializer.toJson<Uint8List?>(institutionLogo),
+      'institutionColor': serializer.toJson<int?>(institutionColor),
+      'status': serializer.toJson<ItemStatus>(status),
+      'errorCode': serializer.toJson<String?>(errorCode),
+      'lastSuccessfulSyncAt': serializer.toJson<DateTime?>(
+        lastSuccessfulSyncAt,
+      ),
+      'pulledAt': serializer.toJson<DateTime>(pulledAt),
+    };
+  }
+
+  ItemRow copyWith({
+    String? id,
+    String? institutionId,
+    String? institutionName,
+    Value<Uri?> institutionLogoUrl = const Value.absent(),
+    Value<Uint8List?> institutionLogo = const Value.absent(),
+    Value<int?> institutionColor = const Value.absent(),
+    ItemStatus? status,
+    Value<String?> errorCode = const Value.absent(),
+    Value<DateTime?> lastSuccessfulSyncAt = const Value.absent(),
+    DateTime? pulledAt,
+  }) => ItemRow(
+    id: id ?? this.id,
+    institutionId: institutionId ?? this.institutionId,
+    institutionName: institutionName ?? this.institutionName,
+    institutionLogoUrl: institutionLogoUrl.present
+        ? institutionLogoUrl.value
+        : this.institutionLogoUrl,
+    institutionLogo: institutionLogo.present
+        ? institutionLogo.value
+        : this.institutionLogo,
+    institutionColor: institutionColor.present
+        ? institutionColor.value
+        : this.institutionColor,
+    status: status ?? this.status,
+    errorCode: errorCode.present ? errorCode.value : this.errorCode,
+    lastSuccessfulSyncAt: lastSuccessfulSyncAt.present
+        ? lastSuccessfulSyncAt.value
+        : this.lastSuccessfulSyncAt,
+    pulledAt: pulledAt ?? this.pulledAt,
+  );
+  ItemRow copyWithCompanion(ItemsCompanion data) {
+    return ItemRow(
+      id: data.id.present ? data.id.value : this.id,
+      institutionId: data.institutionId.present
+          ? data.institutionId.value
+          : this.institutionId,
+      institutionName: data.institutionName.present
+          ? data.institutionName.value
+          : this.institutionName,
+      institutionLogoUrl: data.institutionLogoUrl.present
+          ? data.institutionLogoUrl.value
+          : this.institutionLogoUrl,
+      institutionLogo: data.institutionLogo.present
+          ? data.institutionLogo.value
+          : this.institutionLogo,
+      institutionColor: data.institutionColor.present
+          ? data.institutionColor.value
+          : this.institutionColor,
+      status: data.status.present ? data.status.value : this.status,
+      errorCode: data.errorCode.present ? data.errorCode.value : this.errorCode,
+      lastSuccessfulSyncAt: data.lastSuccessfulSyncAt.present
+          ? data.lastSuccessfulSyncAt.value
+          : this.lastSuccessfulSyncAt,
+      pulledAt: data.pulledAt.present ? data.pulledAt.value : this.pulledAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ItemRow(')
+          ..write('id: $id, ')
+          ..write('institutionId: $institutionId, ')
+          ..write('institutionName: $institutionName, ')
+          ..write('institutionLogoUrl: $institutionLogoUrl, ')
+          ..write('institutionLogo: $institutionLogo, ')
+          ..write('institutionColor: $institutionColor, ')
+          ..write('status: $status, ')
+          ..write('errorCode: $errorCode, ')
+          ..write('lastSuccessfulSyncAt: $lastSuccessfulSyncAt, ')
+          ..write('pulledAt: $pulledAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    institutionId,
+    institutionName,
+    institutionLogoUrl,
+    $driftBlobEquality.hash(institutionLogo),
+    institutionColor,
+    status,
+    errorCode,
+    lastSuccessfulSyncAt,
+    pulledAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ItemRow &&
+          other.id == this.id &&
+          other.institutionId == this.institutionId &&
+          other.institutionName == this.institutionName &&
+          other.institutionLogoUrl == this.institutionLogoUrl &&
+          $driftBlobEquality.equals(
+            other.institutionLogo,
+            this.institutionLogo,
+          ) &&
+          other.institutionColor == this.institutionColor &&
+          other.status == this.status &&
+          other.errorCode == this.errorCode &&
+          other.lastSuccessfulSyncAt == this.lastSuccessfulSyncAt &&
+          other.pulledAt == this.pulledAt);
+}
+
+class ItemsCompanion extends UpdateCompanion<ItemRow> {
+  final Value<String> id;
+  final Value<String> institutionId;
+  final Value<String> institutionName;
+  final Value<Uri?> institutionLogoUrl;
+  final Value<Uint8List?> institutionLogo;
+  final Value<int?> institutionColor;
+  final Value<ItemStatus> status;
+  final Value<String?> errorCode;
+  final Value<DateTime?> lastSuccessfulSyncAt;
+  final Value<DateTime> pulledAt;
+  final Value<int> rowid;
+  const ItemsCompanion({
+    this.id = const Value.absent(),
+    this.institutionId = const Value.absent(),
+    this.institutionName = const Value.absent(),
+    this.institutionLogoUrl = const Value.absent(),
+    this.institutionLogo = const Value.absent(),
+    this.institutionColor = const Value.absent(),
+    this.status = const Value.absent(),
+    this.errorCode = const Value.absent(),
+    this.lastSuccessfulSyncAt = const Value.absent(),
+    this.pulledAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ItemsCompanion.insert({
+    required String id,
+    required String institutionId,
+    required String institutionName,
+    this.institutionLogoUrl = const Value.absent(),
+    this.institutionLogo = const Value.absent(),
+    this.institutionColor = const Value.absent(),
+    required ItemStatus status,
+    this.errorCode = const Value.absent(),
+    this.lastSuccessfulSyncAt = const Value.absent(),
+    required DateTime pulledAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       institutionId = Value(institutionId),
+       institutionName = Value(institutionName),
+       status = Value(status),
+       pulledAt = Value(pulledAt);
+  static Insertable<ItemRow> custom({
+    Expression<String>? id,
+    Expression<String>? institutionId,
+    Expression<String>? institutionName,
+    Expression<String>? institutionLogoUrl,
+    Expression<Uint8List>? institutionLogo,
+    Expression<int>? institutionColor,
+    Expression<String>? status,
+    Expression<String>? errorCode,
+    Expression<int>? lastSuccessfulSyncAt,
+    Expression<int>? pulledAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (institutionId != null) 'institution_id': institutionId,
+      if (institutionName != null) 'institution_name': institutionName,
+      if (institutionLogoUrl != null)
+        'institution_logo_url': institutionLogoUrl,
+      if (institutionLogo != null) 'institution_logo': institutionLogo,
+      if (institutionColor != null) 'institution_color': institutionColor,
+      if (status != null) 'status': status,
+      if (errorCode != null) 'error_code': errorCode,
+      if (lastSuccessfulSyncAt != null)
+        'last_successful_sync_at': lastSuccessfulSyncAt,
+      if (pulledAt != null) 'pulled_at': pulledAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ItemsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? institutionId,
+    Value<String>? institutionName,
+    Value<Uri?>? institutionLogoUrl,
+    Value<Uint8List?>? institutionLogo,
+    Value<int?>? institutionColor,
+    Value<ItemStatus>? status,
+    Value<String?>? errorCode,
+    Value<DateTime?>? lastSuccessfulSyncAt,
+    Value<DateTime>? pulledAt,
+    Value<int>? rowid,
+  }) {
+    return ItemsCompanion(
+      id: id ?? this.id,
+      institutionId: institutionId ?? this.institutionId,
+      institutionName: institutionName ?? this.institutionName,
+      institutionLogoUrl: institutionLogoUrl ?? this.institutionLogoUrl,
+      institutionLogo: institutionLogo ?? this.institutionLogo,
+      institutionColor: institutionColor ?? this.institutionColor,
+      status: status ?? this.status,
+      errorCode: errorCode ?? this.errorCode,
+      lastSuccessfulSyncAt: lastSuccessfulSyncAt ?? this.lastSuccessfulSyncAt,
+      pulledAt: pulledAt ?? this.pulledAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (institutionId.present) {
+      map['institution_id'] = Variable<String>(institutionId.value);
+    }
+    if (institutionName.present) {
+      map['institution_name'] = Variable<String>(institutionName.value);
+    }
+    if (institutionLogoUrl.present) {
+      map['institution_logo_url'] = Variable<String>(
+        $ItemsTable.$converterinstitutionLogoUrln.toSql(
+          institutionLogoUrl.value,
+        ),
+      );
+    }
+    if (institutionLogo.present) {
+      map['institution_logo'] = Variable<Uint8List>(institutionLogo.value);
+    }
+    if (institutionColor.present) {
+      map['institution_color'] = Variable<int>(institutionColor.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(
+        $ItemsTable.$converterstatus.toSql(status.value),
+      );
+    }
+    if (errorCode.present) {
+      map['error_code'] = Variable<String>(errorCode.value);
+    }
+    if (lastSuccessfulSyncAt.present) {
+      map['last_successful_sync_at'] = Variable<int>(
+        $ItemsTable.$converterlastSuccessfulSyncAtn.toSql(
+          lastSuccessfulSyncAt.value,
+        ),
+      );
+    }
+    if (pulledAt.present) {
+      map['pulled_at'] = Variable<int>(
+        $ItemsTable.$converterpulledAt.toSql(pulledAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ItemsCompanion(')
+          ..write('id: $id, ')
+          ..write('institutionId: $institutionId, ')
+          ..write('institutionName: $institutionName, ')
+          ..write('institutionLogoUrl: $institutionLogoUrl, ')
+          ..write('institutionLogo: $institutionLogo, ')
+          ..write('institutionColor: $institutionColor, ')
+          ..write('status: $status, ')
+          ..write('errorCode: $errorCode, ')
+          ..write('lastSuccessfulSyncAt: $lastSuccessfulSyncAt, ')
+          ..write('pulledAt: $pulledAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $AccountsTable accounts = $AccountsTable(this);
@@ -5490,6 +6153,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $RecordClocksTable recordClocks = $RecordClocksTable(this);
   late final $SyncMetaTable syncMeta = $SyncMetaTable(this);
   late final $HeldRecordsTable heldRecords = $HeldRecordsTable(this);
+  late final $ItemsTable items = $ItemsTable(this);
   late final Index transactionsAccountDate = Index(
     'transactions_account_date',
     'CREATE INDEX transactions_account_date ON transactions (account_id, date)',
@@ -5534,6 +6198,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     recordClocks,
     syncMeta,
     heldRecords,
+    items,
     transactionsAccountDate,
     transactionsUserCategory,
     transactionsPendingTransaction,

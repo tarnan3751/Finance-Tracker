@@ -5,7 +5,9 @@
 /// the app settings and the install's metadata. Schema 2 adds the sync state: the
 /// outbox (`change_log`), the field clocks (`record_clocks`), the device's sync facts
 /// (`sync_meta`) and the records the entity tables cannot hold yet (`held_records`); its
-/// migration backfills the change log from the existing rows (`sync_backfill.dart`). Every schema change follows the procedure
+/// migration backfills the change log from the existing rows (`sync_backfill.dart`).
+/// Schema 3 adds the user's Plaid Items (`items`), which the Plaid pull fills; its
+/// migration creates the empty table. Every schema change follows the procedure
 /// in `data.md`: bump [AppDatabase.schemaVersion], write the step in `onUpgrade`, dump the
 /// schema, regenerate the test helpers, and add the migration test. How the file is found,
 /// keyed and opened is `open_database.dart`; this file stays free of Flutter so the schema
@@ -21,6 +23,7 @@ import 'package:finance_tracker/core/db/tables/app_settings.dart';
 import 'package:finance_tracker/core/db/tables/categories.dart';
 import 'package:finance_tracker/core/db/tables/change_log.dart';
 import 'package:finance_tracker/core/db/tables/held_records.dart';
+import 'package:finance_tracker/core/db/tables/items.dart';
 import 'package:finance_tracker/core/db/tables/record_clocks.dart';
 import 'package:finance_tracker/core/db/tables/sync_meta.dart';
 import 'package:finance_tracker/core/db/tables/transaction_splits.dart';
@@ -51,6 +54,7 @@ final Logger _log = Logger('db');
     RecordClocks,
     SyncMeta,
     HeldRecords,
+    Items,
   ],
 )
 final class AppDatabase extends _$AppDatabase {
@@ -72,7 +76,7 @@ final class AppDatabase extends _$AppDatabase {
   final String Function() newNodeId;
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -96,6 +100,9 @@ final class AppDatabase extends _$AppDatabase {
             wallMillis: wallMillis,
           );
         });
+      }
+      if (from < 3) {
+        await m.createTable(items);
       }
     },
     beforeOpen: (details) async {
