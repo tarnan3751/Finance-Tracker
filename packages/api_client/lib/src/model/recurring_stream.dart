@@ -60,7 +60,7 @@ abstract class RecurringStream
 
   @BuiltValueField(wireName: r'source')
   RecurringSource get source_;
-  // enum source_Enum {  plaid,  detected,  user,  };
+  // enum source_Enum {  plaid,  detected,  user,  demo,  };
 
   RecurringStream._();
 

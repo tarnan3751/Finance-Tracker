@@ -21,7 +21,7 @@ class WebhooksApi {
   const WebhooksApi(this._dio, this._serializers);
 
   /// Receives a Plaid webhook delivery
-  /// Verifies the &#x60;Plaid-Verification&#x60; JWT (key from &#x60;/webhook_verification_key/get&#x60;, body hash, freshness) before processing. An unverified delivery is &#x60;401&#x60; and is never processed (PLAN.md §6.5).
+  /// Verifies the &#x60;Plaid-Verification&#x60; JWT (key from &#x60;/webhook_verification_key/get&#x60;, body hash, freshness) before processing. An unverified delivery is &#x60;401&#x60; &#x60;webhook_unverified&#x60; and is never processed (PLAN.md §6.5).
   ///
   /// Parameters:
   /// * [plaidVerification] - The JWT Plaid signs each delivery with

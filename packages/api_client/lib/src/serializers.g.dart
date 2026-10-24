@@ -39,6 +39,7 @@ Serializers _$serializers =
           ..add(ProblemCode.serializer)
           ..add(PullPage.serializer)
           ..add(PulledChangeLogEntry.serializer)
+          ..add(PushRejectionCode.serializer)
           ..add(PushRequest.serializer)
           ..add(PushResult.serializer)
           ..add(RecurringCadence.serializer)

@@ -89,4 +89,5 @@ const _$RecurringSourceEnumMap = {
   RecurringSource.plaid: 'plaid',
   RecurringSource.detected: 'detected',
   RecurringSource.user: 'user',
+  RecurringSource.demo: 'demo',
 };

@@ -8,7 +8,7 @@ implement the contract; none of them defines a shape of its own (`PLAN.md` §6.5
 
 ## The contract
 
-OpenAPI **3.0.3**, `info.version` `0.2.0`, every path under `/v1`. The servers are the dev
+OpenAPI **3.0.3**, `info.version` `0.2.1`, every path under `/v1`. The servers are the dev
 server from the emulator (`http://10.0.2.2:8080/v1`) and from the machine
 (`http://localhost:8080/v1`). Operations are grouped by tag: `auth`, `me`, `devices`,
 `plaid`, `data`, `sync`, `webhooks`, `health`; each has a camelCase `operationId`, which is
@@ -58,11 +58,16 @@ snapshots) have no schema: the payload is a free-form object.
 (the previous page's `next_since`, 0 at first) and `limit` (1 to 500, default 500), and
 return the rows whose `sync_version` (the server's per-user change counter) is greater than
 `since`, ascending, with `next_since` and `has_more`. A removed row comes back once more
-with `deleted_at` set. `GET /sync/pull` pages the change log the same way on `seq`, leaving
+with `deleted_at` set; a `since` greater than the user's current version is a `409`
+(**Errors**). `GET /sync/pull` pages the change log the same way on `seq`, leaving
 out the entries the calling device pushed itself (the token identifies the device) while
 `next_since` still advances past them; a cursor beyond the server's log is a `409`
 (**Errors**). `POST /sync/push` is idempotent on
-`(device_id, hlc)`. `/accounts`, `/transactions`, `/liabilities`, `/investments/*` and
+`(device_id, hlc)`. Each refused entry comes back in `rejected` with a `code`, the sync
+engine's `PushRejectionReason` in snake_case, which decides its fate on the device:
+`clock_drift` (the entry's wall time is more than an hour ahead of the server's) is
+transient and retried, `invalid` and `conflicting_duplicate` are permanent and leave the
+outbox; `reason` is free text for logs. `/accounts`, `/transactions`, `/liabilities`, `/investments/*` and
 `/recurring` carry Plaid-sourced data only; manual data syncs through the change log
 (`PLAN.md` §6.4).
 
@@ -77,7 +82,7 @@ machine-readable reason. `ValidationProblem` is always `status` 400 with `code`
 | Response | Status | `code` |
 |---|---|---|
 | `ValidationFailed` | 400 | `validation_failed` (a malformed body or one outside the contract) |
-| `Unauthorized` | 401 | `invalid_credentials`, `token_expired`, `token_revoked`; an unverified webhook |
+| `Unauthorized` | 401 | `invalid_credentials`, `token_expired`, `token_revoked`; `webhook_unverified` for an unverified webhook |
 | `NotFound` | 404 | `not_found` |
 | `Conflict` | 409 | `email_taken`, `conflict`, `item_login_required` |
 | `RateLimited` | 429 | `rate_limited`, with `Retry-After` in seconds |
@@ -87,7 +92,9 @@ machine-readable reason. `ValidationProblem` is always `status` 400 with `code`
 `GET /sync/pull` also declares its own `409` with `code` `sync_cursor_invalid`: a `since`
 beyond the server's last `seq` means the server's log was wiped or reset, and the client
 resets its cursor to 0 and pulls again (merging entries it already applied is
-idempotent). Every operation declares `500`, every authenticated one `401`, every one with
+idempotent). `GET /transactions` and `GET /investments/transactions` declare the same `409`
+for a `since` beyond the user's current version, with the same recovery: reset to 0 and
+read again, replacing stored rows by id. Every operation declares `500`, every authenticated one `401`, every one with
 a body `400`. A client branches on `code`, never on `title` or `detail`.
 
 ## Versioning

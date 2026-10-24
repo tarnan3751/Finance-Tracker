@@ -9,6 +9,7 @@ part of 'recurring_source.dart';
 const RecurringSource _$plaid = const RecurringSource._('plaid');
 const RecurringSource _$detected = const RecurringSource._('detected');
 const RecurringSource _$user = const RecurringSource._('user');
+const RecurringSource _$demo = const RecurringSource._('demo');
 
 RecurringSource _$valueOf(String name) {
   switch (name) {
@@ -18,13 +19,15 @@ RecurringSource _$valueOf(String name) {
       return _$detected;
     case 'user':
       return _$user;
+    case 'demo':
+      return _$demo;
     default:
       throw ArgumentError(name);
   }
 }
 
 final BuiltSet<RecurringSource> _$values = BuiltSet<RecurringSource>(
-  const <RecurringSource>[_$plaid, _$detected, _$user],
+  const <RecurringSource>[_$plaid, _$detected, _$user, _$demo],
 );
 
 class _$RecurringSourceMeta {
@@ -32,6 +35,7 @@ class _$RecurringSourceMeta {
   RecurringSource get plaid => _$plaid;
   RecurringSource get detected => _$detected;
   RecurringSource get user => _$user;
+  RecurringSource get demo => _$demo;
   RecurringSource valueOf(String name) => _$valueOf(name);
   BuiltSet<RecurringSource> get values => _$values;
 }
@@ -50,11 +54,13 @@ class _$RecurringSourceSerializer
     'plaid': 'plaid',
     'detected': 'detected',
     'user': 'user',
+    'demo': 'demo',
   };
   static const Map<Object, String> _fromWire = const <Object, String>{
     'plaid': 'plaid',
     'detected': 'detected',
     'user': 'user',
+    'demo': 'demo',
   };
 
   @override

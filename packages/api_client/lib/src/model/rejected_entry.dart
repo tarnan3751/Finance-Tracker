@@ -3,15 +3,17 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:api_client/src/model/push_rejection_code.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
 part 'rejected_entry.g.dart';
 
-/// RejectedEntry
+/// A refused entry. `code` decides its fate on the device: `clock_drift` is transient (the entry's wall time is more than an hour ahead of the server's; keep it and retry later), `invalid` and `conflicting_duplicate` are permanent (take it out of the outbox). `reason` is free text for logs.
 ///
 /// Properties:
 /// * [hlc] - A hybrid logical clock timestamp in its packed form `<wall>-<counter>-<node>`: wall milliseconds zero-padded to 15 digits, the counter to 5, then the node id. Packed strings sort in logical order.
+/// * [code]
 /// * [reason] - Why the entry was not stored, for logs
 @BuiltValue()
 abstract class RejectedEntry
@@ -19,6 +21,10 @@ abstract class RejectedEntry
   /// A hybrid logical clock timestamp in its packed form `<wall>-<counter>-<node>`: wall milliseconds zero-padded to 15 digits, the counter to 5, then the node id. Packed strings sort in logical order.
   @BuiltValueField(wireName: r'hlc')
   String get hlc;
+
+  @BuiltValueField(wireName: r'code')
+  PushRejectionCode get code;
+  // enum codeEnum {  clock_drift,  invalid,  conflicting_duplicate,  };
 
   /// Why the entry was not stored, for logs
   @BuiltValueField(wireName: r'reason')
@@ -53,6 +59,11 @@ class _$RejectedEntrySerializer implements PrimitiveSerializer<RejectedEntry> {
     yield serializers.serialize(
       object.hlc,
       specifiedType: const FullType(String),
+    );
+    yield r'code';
+    yield serializers.serialize(
+      object.code,
+      specifiedType: const FullType(PushRejectionCode),
     );
     yield r'reason';
     yield serializers.serialize(
@@ -92,6 +103,13 @@ class _$RejectedEntrySerializer implements PrimitiveSerializer<RejectedEntry> {
             specifiedType: const FullType(String),
           ) as String;
           result.hlc = valueDes;
+          break;
+        case r'code':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(PushRejectionCode),
+          ) as PushRejectionCode;
+          result.code = valueDes;
           break;
         case r'reason':
           final valueDes = serializers.deserialize(

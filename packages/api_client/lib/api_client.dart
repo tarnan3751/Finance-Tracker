@@ -49,6 +49,7 @@ export 'package:api_client/src/model/problem.dart';
 export 'package:api_client/src/model/problem_code.dart';
 export 'package:api_client/src/model/pull_page.dart';
 export 'package:api_client/src/model/pulled_change_log_entry.dart';
+export 'package:api_client/src/model/push_rejection_code.dart';
 export 'package:api_client/src/model/push_request.dart';
 export 'package:api_client/src/model/push_result.dart';
 export 'package:api_client/src/model/recurring_cadence.dart';

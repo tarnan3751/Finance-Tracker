@@ -24,6 +24,9 @@ const ProblemCode _$internal = const ProblemCode._('internal');
 const ProblemCode _$syncCursorInvalid = const ProblemCode._(
   'syncCursorInvalid',
 );
+const ProblemCode _$webhookUnverified = const ProblemCode._(
+  'webhookUnverified',
+);
 
 ProblemCode _$valueOf(String name) {
   switch (name) {
@@ -51,6 +54,8 @@ ProblemCode _$valueOf(String name) {
       return _$internal;
     case 'syncCursorInvalid':
       return _$syncCursorInvalid;
+    case 'webhookUnverified':
+      return _$webhookUnverified;
     default:
       throw ArgumentError(name);
   }
@@ -70,6 +75,7 @@ final BuiltSet<ProblemCode> _$values = BuiltSet<ProblemCode>(
     _$rateLimited,
     _$internal,
     _$syncCursorInvalid,
+    _$webhookUnverified,
   ],
 );
 
@@ -87,6 +93,7 @@ class _$ProblemCodeMeta {
   ProblemCode get rateLimited => _$rateLimited;
   ProblemCode get internal => _$internal;
   ProblemCode get syncCursorInvalid => _$syncCursorInvalid;
+  ProblemCode get webhookUnverified => _$webhookUnverified;
   ProblemCode valueOf(String name) => _$valueOf(name);
   BuiltSet<ProblemCode> get values => _$values;
 }
@@ -112,6 +119,7 @@ class _$ProblemCodeSerializer implements PrimitiveSerializer<ProblemCode> {
     'rateLimited': 'rate_limited',
     'internal': 'internal',
     'syncCursorInvalid': 'sync_cursor_invalid',
+    'webhookUnverified': 'webhook_unverified',
   };
   static const Map<Object, String> _fromWire = const <Object, String>{
     'validation_failed': 'validationFailed',
@@ -126,6 +134,7 @@ class _$ProblemCodeSerializer implements PrimitiveSerializer<ProblemCode> {
     'rate_limited': 'rateLimited',
     'internal': 'internal',
     'sync_cursor_invalid': 'syncCursorInvalid',
+    'webhook_unverified': 'webhookUnverified',
   };
 
   @override

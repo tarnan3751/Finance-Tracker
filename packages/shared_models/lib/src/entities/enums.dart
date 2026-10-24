@@ -23,9 +23,11 @@ enum ItemStatus { healthy, loginRequired, error, pendingExpiration, unknown }
 @JsonEnum(fieldRename: FieldRename.snake)
 enum DataSource { plaid, manual, import, derived, demo }
 
-/// Who found a recurring stream: Plaid, the app's own detector, or the user.
+/// Who found a recurring stream: Plaid, the app's own detector, or the user; [demo] for a
+/// stream from the demo flavor or the dev server's fake Plaid client, which never wears
+/// [plaid] (`PLAN.md` §7.1).
 @JsonEnum(fieldRename: FieldRename.snake)
-enum RecurringSource { plaid, detected, user }
+enum RecurringSource { plaid, detected, user, demo }
 
 /// Whether a recurring stream is still expected to recur.
 @JsonEnum(fieldRename: FieldRename.snake)

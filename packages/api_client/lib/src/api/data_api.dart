@@ -249,7 +249,7 @@ class DataApi {
   }
 
   /// Pages the investment transactions changed since a version
-  /// Paged like &#x60;/transactions&#x60;, on the same per-user change counter.
+  /// Paged like &#x60;/transactions&#x60;, on the same per-user change counter, with the same &#x60;409&#x60; &#x60;sync_cursor_invalid&#x60; for a &#x60;since&#x60; beyond the user&#39;s current version.
   ///
   /// Parameters:
   /// * [since] - The `next_since` of the previous page; 0 for the first
@@ -419,7 +419,7 @@ class DataApi {
   }
 
   /// Pages the Plaid-sourced transactions changed since a version
-  /// Transactions whose &#x60;sync_version&#x60; is greater than &#x60;since&#x60;, in ascending &#x60;sync_version&#x60; order. &#x60;sync_version&#x60; is the server&#39;s per-user change counter; a removed transaction comes back once more with &#x60;deleted_at&#x60; set. Store &#x60;next_since&#x60; and call again while &#x60;has_more&#x60; is true.
+  /// Transactions whose &#x60;sync_version&#x60; is greater than &#x60;since&#x60;, in ascending &#x60;sync_version&#x60; order. &#x60;sync_version&#x60; is the server&#39;s per-user change counter; a removed transaction comes back once more with &#x60;deleted_at&#x60; set. Store &#x60;next_since&#x60; and call again while &#x60;has_more&#x60; is true. A &#x60;since&#x60; greater than the user&#39;s current version (the server&#39;s data was wiped or reset) is &#x60;409&#x60; &#x60;sync_cursor_invalid&#x60;: reset the cursor to 0 and read again; rows already stored are replaced by id.
   ///
   /// Parameters:
   /// * [since] - The `next_since` of the previous page; 0 for the first

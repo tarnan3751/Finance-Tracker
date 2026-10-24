@@ -6,7 +6,7 @@
 openapi: 3.0.3
 info:
   title: Finance Tracker API
-  version: 0.2.0
+  version: 0.2.1
   description: >-
     The API between the Finance Tracker app and its server. All JSON, snake_case. Money is
     integer minor units plus an ISO 4217 code (`Money`), never a floating-point number;
@@ -128,6 +128,8 @@ paths:
           $ref: '#/components/responses/ValidationFailed'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
         '500':
           $ref: '#/components/responses/Internal'
   /auth/logout:
@@ -177,7 +179,9 @@ paths:
         Removes every Plaid Item at Plaid, deletes every row the user owns and revokes every
         session, and answers `204` only when all of that has succeeded. An Item whose removal
         still fails after retries makes the answer `502` `plaid_error`, and nothing is
-        deleted (PLAN.md §6.5).
+        deleted (PLAN.md §6.5). Items already removed at Plaid before that failure stay
+        marked as removed on the server: they are hidden from every endpoint and are not
+        removed again when the deletion is retried.
       responses:
         '204':
           description: The user and all their data are gone
@@ -423,7 +427,9 @@ paths:
         Transactions whose `sync_version` is greater than `since`, in ascending
         `sync_version` order. `sync_version` is the server's per-user change counter; a
         removed transaction comes back once more with `deleted_at` set. Store `next_since`
-        and call again while `has_more` is true.
+        and call again while `has_more` is true. A `since` greater than the user's current
+        version (the server's data was wiped or reset) is `409` `sync_cursor_invalid`:
+        reset the cursor to 0 and read again; rows already stored are replaced by id.
       parameters:
         - $ref: '#/components/parameters/Since'
         - $ref: '#/components/parameters/Limit'
@@ -436,6 +442,14 @@ paths:
                 $ref: '#/components/schemas/TransactionPage'
         '400':
           $ref: '#/components/responses/ValidationFailed'
+        '409':
+          description: >-
+            `since` is beyond the user's current version (`sync_cursor_invalid`); reset
+            the cursor to 0 and read again
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -479,7 +493,9 @@ paths:
       operationId: listInvestmentTransactions
       tags: [data]
       summary: Pages the investment transactions changed since a version
-      description: Paged like `/transactions`, on the same per-user change counter.
+      description: >-
+        Paged like `/transactions`, on the same per-user change counter, with the same
+        `409` `sync_cursor_invalid` for a `since` beyond the user's current version.
       parameters:
         - $ref: '#/components/parameters/Since'
         - $ref: '#/components/parameters/Limit'
@@ -492,6 +508,14 @@ paths:
                 $ref: '#/components/schemas/InvestmentTransactionPage'
         '400':
           $ref: '#/components/responses/ValidationFailed'
+        '409':
+          description: >-
+            `since` is beyond the user's current version (`sync_cursor_invalid`); reset
+            the cursor to 0 and read again
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -588,8 +612,8 @@ paths:
       summary: Receives a Plaid webhook delivery
       description: >-
         Verifies the `Plaid-Verification` JWT (key from `/webhook_verification_key/get`,
-        body hash, freshness) before processing. An unverified delivery is `401` and is
-        never processed (PLAN.md §6.5).
+        body hash, freshness) before processing. An unverified delivery is `401`
+        `webhook_unverified` and is never processed (PLAN.md §6.5).
       security: []
       parameters:
         - name: Plaid-Verification
@@ -688,7 +712,7 @@ components:
     Unauthorized:
       description: >-
         Missing or bad credentials (`invalid_credentials`, `token_expired`,
-        `token_revoked`), or an unverified webhook delivery
+        `token_revoked`), or an unverified webhook delivery (`webhook_unverified`)
       content:
         application/problem+json:
           schema:
@@ -787,7 +811,10 @@ components:
       enum: [active, ended]
     RecurringSource:
       type: string
-      enum: [plaid, detected, user]
+      description: >-
+        Who found the stream: Plaid, the app's own detector or the user; `demo` for a
+        stream from the demo flavor or the dev server's fake Plaid client (PLAN.md §7.1)
+      enum: [plaid, detected, user, demo]
     EntityType:
       type: string
       enum:
@@ -806,6 +833,10 @@ components:
     SyncRunStatus:
       type: string
       enum: [started, not_ready, completed]
+    PushRejectionCode:
+      type: string
+      description: The sync engine's `PushRejectionReason` names in snake_case
+      enum: [clock_drift, invalid, conflicting_duplicate]
     ProblemCode:
       type: string
       enum:
@@ -821,6 +852,7 @@ components:
         - rate_limited
         - internal
         - sync_cursor_invalid
+        - webhook_unverified
 
     # Errors -------------------------------------------------------------------------------
     Problem:
@@ -2029,10 +2061,17 @@ components:
         rejected: []
     RejectedEntry:
       type: object
-      required: [hlc, reason]
+      description: >-
+        A refused entry. `code` decides its fate on the device: `clock_drift` is transient
+        (the entry's wall time is more than an hour ahead of the server's; keep it and
+        retry later), `invalid` and `conflicting_duplicate` are permanent (take it out of
+        the outbox). `reason` is free text for logs.
+      required: [hlc, code, reason]
       properties:
         hlc:
           $ref: '#/components/schemas/Hlc'
+        code:
+          $ref: '#/components/schemas/PushRejectionCode'
         reason:
           type: string
           description: Why the entry was not stored, for logs
@@ -2071,4 +2110,4 @@ components:
           description: The contract version (`info.version`) the server implements
       example:
         status: ok
-        version: 0.2.0
+        version: 0.2.1

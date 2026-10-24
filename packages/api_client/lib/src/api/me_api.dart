@@ -19,7 +19,7 @@ class MeApi {
   const MeApi(this._dio, this._serializers);
 
   /// Deletes the user and everything they own
-  /// Removes every Plaid Item at Plaid, deletes every row the user owns and revokes every session, and answers &#x60;204&#x60; only when all of that has succeeded. An Item whose removal still fails after retries makes the answer &#x60;502&#x60; &#x60;plaid_error&#x60;, and nothing is deleted (PLAN.md §6.5).
+  /// Removes every Plaid Item at Plaid, deletes every row the user owns and revokes every session, and answers &#x60;204&#x60; only when all of that has succeeded. An Item whose removal still fails after retries makes the answer &#x60;502&#x60; &#x60;plaid_error&#x60;, and nothing is deleted (PLAN.md §6.5). Items already removed at Plaid before that failure stay marked as removed on the server: they are hidden from every endpoint and are not removed again when the deletion is retried.
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation

@@ -46,6 +46,7 @@ lib/src/model/problem.dart
 lib/src/model/problem_code.dart
 lib/src/model/pull_page.dart
 lib/src/model/pulled_change_log_entry.dart
+lib/src/model/push_rejection_code.dart
 lib/src/model/push_request.dart
 lib/src/model/push_result.dart
 lib/src/model/recurring_cadence.dart

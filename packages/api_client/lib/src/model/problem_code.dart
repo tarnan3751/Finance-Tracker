@@ -34,6 +34,8 @@ class ProblemCode extends EnumClass {
   static const ProblemCode internal = _$internal;
   @BuiltValueEnumConst(wireName: r'sync_cursor_invalid')
   static const ProblemCode syncCursorInvalid = _$syncCursorInvalid;
+  @BuiltValueEnumConst(wireName: r'webhook_unverified')
+  static const ProblemCode webhookUnverified = _$webhookUnverified;
 
   static Serializer<ProblemCode> get serializer => _$problemCodeSerializer;
 

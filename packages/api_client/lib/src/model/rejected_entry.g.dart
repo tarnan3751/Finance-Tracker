@@ -10,12 +10,18 @@ class _$RejectedEntry extends RejectedEntry {
   @override
   final String hlc;
   @override
+  final PushRejectionCode code;
+  @override
   final String reason;
 
   factory _$RejectedEntry([void Function(RejectedEntryBuilder)? updates]) =>
       (RejectedEntryBuilder()..update(updates))._build();
 
-  _$RejectedEntry._({required this.hlc, required this.reason}) : super._();
+  _$RejectedEntry._({
+    required this.hlc,
+    required this.code,
+    required this.reason,
+  }) : super._();
   @override
   RejectedEntry rebuild(void Function(RejectedEntryBuilder) updates) =>
       (toBuilder()..update(updates)).build();
@@ -26,13 +32,17 @@ class _$RejectedEntry extends RejectedEntry {
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is RejectedEntry && hlc == other.hlc && reason == other.reason;
+    return other is RejectedEntry &&
+        hlc == other.hlc &&
+        code == other.code &&
+        reason == other.reason;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, hlc.hashCode);
+    _$hash = $jc(_$hash, code.hashCode);
     _$hash = $jc(_$hash, reason.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -42,6 +52,7 @@ class _$RejectedEntry extends RejectedEntry {
   String toString() {
     return (newBuiltValueToStringHelper(r'RejectedEntry')
           ..add('hlc', hlc)
+          ..add('code', code)
           ..add('reason', reason))
         .toString();
   }
@@ -55,6 +66,10 @@ class RejectedEntryBuilder
   String? get hlc => _$this._hlc;
   set hlc(String? hlc) => _$this._hlc = hlc;
 
+  PushRejectionCode? _code;
+  PushRejectionCode? get code => _$this._code;
+  set code(PushRejectionCode? code) => _$this._code = code;
+
   String? _reason;
   String? get reason => _$this._reason;
   set reason(String? reason) => _$this._reason = reason;
@@ -67,6 +82,7 @@ class RejectedEntryBuilder
     final $v = _$v;
     if ($v != null) {
       _hlc = $v.hlc;
+      _code = $v.code;
       _reason = $v.reason;
       _$v = null;
     }
@@ -94,6 +110,11 @@ class RejectedEntryBuilder
             hlc,
             r'RejectedEntry',
             'hlc',
+          ),
+          code: BuiltValueNullFieldError.checkNotNull(
+            code,
+            r'RejectedEntry',
+            'code',
           ),
           reason: BuiltValueNullFieldError.checkNotNull(
             reason,
