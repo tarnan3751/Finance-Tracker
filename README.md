@@ -9,9 +9,13 @@ Plaid directly.
 
 ## Status
 
-Phase 0 is done: the repository is a pub workspace, the original one-screen income and
-expense tracker runs unchanged in three flavors (dev, demo, prod), and the build, lints,
-tests and CI are in place. The features arrive phase by phase from here.
+Phase 1 is done: the app is a manual-account finance tracker with an encrypted local
+database (accounts with derived balances, transactions with search and filters, categories
+seeded from Plaid's taxonomy, light and dark themes, a demo flavor with seeded data), and the
+original app's data is imported on first launch where the install shares its data
+directory. Phase 2's contract, generated client, sync engine, persona engine and development
+server have landed too; the app's sign-in, sync and persona demo data are next. Bank data
+through Plaid Sandbox follows in Phase 3.
 
 ## Architecture
 
