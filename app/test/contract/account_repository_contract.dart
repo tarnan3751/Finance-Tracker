@@ -329,5 +329,62 @@ void runAccountRepositoryContract(
         },
       );
     });
+
+    group('create', () {
+      test('writes the account and its opening balance together', () async {
+        final Account a = testAccount('a1');
+        final Transaction opening = testTransaction('o1', 'a1', 50000);
+        await accounts.create(a, openingBalance: opening);
+
+        expect(await accounts.watchById('a1').first, a);
+        expect(await f.transactions.watchById('o1').first, opening);
+        expect(
+          await accounts.watchDerivedBalance('a1').first,
+          Money(50000, 'USD'),
+        );
+      });
+
+      test('without an opening balance it is an upsert', () async {
+        await accounts.create(testAccount('a1'));
+
+        expect(await accounts.watchById('a1').first, testAccount('a1'));
+        expect(await f.transactions.count(TransactionQuery.all), 0);
+      });
+
+      test('an opening balance that fails leaves nothing written', () async {
+        await expectLater(
+          accounts.create(
+            testAccount('a1'),
+            openingBalance: testTransaction('o1', 'a1', 50000, currency: 'EUR'),
+          ),
+          throwsA(isA<CurrencyMismatchException>()),
+        );
+
+        expect(await accounts.watchById('a1').first, isNull);
+        expect(await f.transactions.count(TransactionQuery.all), 0);
+      });
+
+      test('an opening balance on another account is refused', () async {
+        expect(
+          () => accounts.create(
+            testAccount('a1'),
+            openingBalance: testTransaction('o1', 'a2', 100),
+          ),
+          throwsArgumentError,
+        );
+
+        expect(await accounts.watchById('a1').first, isNull);
+      });
+
+      test('a deleted account cannot be created again', () async {
+        await accounts.upsert(testAccount('a1'));
+        await accounts.delete('a1');
+
+        await expectLater(
+          accounts.create(testAccount('a1')),
+          throwsA(isA<EntityDeletedException>()),
+        );
+      });
+    });
   });
 }

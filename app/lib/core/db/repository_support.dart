@@ -97,3 +97,10 @@ bool sameList<T>(List<T> a, List<T> b) {
 bool sameMap<K, V>(Map<K, V> a, Map<K, V> b) =>
     a.length == b.length &&
     a.entries.every((e) => b.containsKey(e.key) && b[e.key] == e.value);
+
+/// `TransactionRepository.watchUsage`'s argument check: [recentLimit] must be at least 1.
+void checkRecentLimit(int recentLimit) {
+  if (recentLimit < 1) {
+    throw ArgumentError.value(recentLimit, 'recentLimit', 'must be at least 1');
+  }
+}

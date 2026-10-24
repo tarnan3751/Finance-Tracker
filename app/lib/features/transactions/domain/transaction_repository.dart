@@ -5,6 +5,7 @@
 library;
 
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
+import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
 import 'package:shared_models/shared_models.dart';
 
 /// Reads and writes transactions with their tags and splits. Every stream starts with the
@@ -42,4 +43,9 @@ abstract interface class TransactionRepository {
 
   /// The number of live transactions matching [query], ignoring its limit and offset.
   Future<int> count(TransactionQuery query);
+
+  /// The distinct tags of the live transactions and their [recentLimit] most recently
+  /// used categories and accounts ([TransactionUsage] documents the order), from queries
+  /// that read only those columns. A [recentLimit] below 1 is an [ArgumentError].
+  Stream<TransactionUsage> watchUsage({int recentLimit = 20});
 }

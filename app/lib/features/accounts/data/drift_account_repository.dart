@@ -9,6 +9,7 @@ import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/db/repository_support.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
+import 'package:finance_tracker/features/transactions/data/drift_transaction_repository.dart';
 import 'package:shared_models/shared_models.dart';
 
 /// Accounts in [AppDatabase]. Audit fields are stamped from the clock: `created_at` on
@@ -90,6 +91,28 @@ final class DriftAccountRepository implements AccountRepository {
           ),
         );
   });
+
+  @override
+  Future<void> create(Account account, {Transaction? openingBalance}) {
+    if (openingBalance != null && openingBalance.accountId != account.id) {
+      throw ArgumentError.value(
+        openingBalance.accountId,
+        'openingBalance',
+        'must be on account ${account.id}',
+      );
+    }
+    // One database transaction: the account's write and the opening balance's (a nested
+    // transaction, a savepoint) commit together or roll back together.
+    return _database.transaction(() async {
+      await upsert(account);
+      if (openingBalance != null) {
+        await DriftTransactionRepository(
+          _database,
+          _clock,
+        ).upsert(openingBalance);
+      }
+    });
+  }
 
   @override
   Future<void> delete(String id) => _database.transaction(() async {

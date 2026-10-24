@@ -129,8 +129,8 @@ and exposes streams that start with the current value and emit again only when i
 
 | Interface | Methods |
 |---|---|
-| `AccountRepository` | `watchAll()` (visible first, then hidden; by `displayOrder`, then id), `watchById`, `upsert`, `delete`, `restore`, `watchDerivedBalance(id)`, `watchDerivedBalances()` |
-| `TransactionRepository` | `watch(TransactionQuery)`, `watchById`, `upsert`, `delete`, `restore`, `count(TransactionQuery)` |
+| `AccountRepository` | `watchAll()` (visible first, then hidden; by `displayOrder`, then id), `watchById`, `upsert`, `create(account, {openingBalance})`, `delete`, `restore`, `watchDerivedBalance(id)`, `watchDerivedBalances()` |
+| `TransactionRepository` | `watch(TransactionQuery)`, `watchById`, `upsert`, `delete`, `restore`, `count(TransactionQuery)`, `watchUsage({recentLimit})` |
 | `CategoryRepository` | `watchAll()` (by name ignoring ASCII case, then id), `watchById`, `upsert`, `delete`, `ensureSeeded()` |
 | `SettingsRepository` | `watch()`, `read()`, `save()` |
 
@@ -145,6 +145,12 @@ The rules every implementation keeps:
   them (`deleted_with_account`); restoring it restores exactly the marked ones, so one
   deleted on its own stays deleted, even in the same millisecond. Restoring a transaction
   whose account is deleted throws `AccountNotFoundException`.
+- **Account creation.** `create(account, openingBalance: transaction)` writes the account
+  as `upsert` does and its opening balance transaction as the transaction repository's
+  `upsert` does, in one write: Drift runs both in one database transaction (the
+  transaction's write a nested one), the in-memory store checks both before writing
+  either. When anything throws, neither is stored. An opening balance on another account
+  is an `ArgumentError`.
 - **Currencies.** An account's balances must be in its currency, and its currency cannot
   change once it has transactions (deleted ones included); a transaction's amount and
   splits must be in its account's currency; otherwise `CurrencyMismatchException`. A
@@ -166,6 +172,14 @@ transactions count; an account with none, or a missing or deleted one, is null.
 `watchDerivedBalances` has a key for every live account. An overflow is an error event.
 These are always derived; a balance the institution reports is the account's
 `currentBalance` (`PLAN.md` §6).
+
+**Usage** (`watchUsage`, `features/transactions/domain/transaction_usage.dart`): the
+distinct tags of the live transactions in BINARY order, and their `recentLimit` (20 by
+default, at least 1) most recently used user categories and accounts, each ordered by the
+newest `created_at` among its transactions, ties by id; splits do not count as use. In
+Drift these are three small queries (`SELECT DISTINCT` over `transaction_tags`, and
+`GROUP BY ... ORDER BY MAX(created_at) DESC LIMIT ?` over `transactions`), so the editor's
+suggestions never read every transaction.
 
 **`TransactionQuery`** (`features/transactions/domain/transaction_query.dart`) is an
 immutable value with equality. Its filters combine with AND, and an empty set, a null or

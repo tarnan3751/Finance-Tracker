@@ -27,6 +27,12 @@ abstract interface class AccountRepository {
   /// would change; `EntityDeletedException` when the account is deleted.
   Future<void> upsert(Account account);
 
+  /// Writes [account] as [upsert] does and, when given, its [openingBalance] transaction
+  /// as `TransactionRepository.upsert` does, in one write: both are stored or neither.
+  /// Throws what either throws, and [ArgumentError] when [openingBalance] is on another
+  /// account.
+  Future<void> create(Account account, {Transaction? openingBalance});
+
   /// Soft-deletes account [id] and, with it, its live transactions (stamping their
   /// `updatedAt`). Does nothing when there is no such live account.
   Future<void> delete(String id);

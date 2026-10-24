@@ -11,6 +11,7 @@ import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
+import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
 import 'package:shared_models/shared_models.dart';
 
 /// Transactions in [AppDatabase]. A query is one SELECT over `transactions` with the
@@ -181,6 +182,47 @@ final class DriftTransactionRepository implements TransactionRepository {
               ..where(_filter(_transactions, query)))
             .getSingle();
     return row.read(count)!;
+  }
+
+  @override
+  Stream<TransactionUsage> watchUsage({int recentLimit = 20}) {
+    checkRecentLimit(recentLimit);
+    final Set<ResultSetImplementation<dynamic, dynamic>> tables = {
+      _transactions,
+      _database.transactionTags,
+    };
+    // The most recently used values of [column] among live transactions: one row per
+    // value, ordered by its newest created_at, ties by the value.
+    Future<List<String>> recent(String column) async => [
+      for (final QueryRow row
+          in await _database
+              .customSelect(
+                'SELECT $column AS id FROM transactions '
+                'WHERE deleted_at IS NULL AND $column IS NOT NULL '
+                'GROUP BY $column ORDER BY MAX(created_at) DESC, $column ASC '
+                'LIMIT ?',
+                variables: [Variable.withInt(recentLimit)],
+                readsFrom: tables,
+              )
+              .get())
+        row.read<String>('id'),
+    ];
+    return _database
+        .customSelect(
+          'SELECT DISTINCT tg.tag AS tag FROM transaction_tags tg '
+          'JOIN transactions t ON t.id = tg.transaction_id '
+          'WHERE t.deleted_at IS NULL ORDER BY tg.tag',
+          readsFrom: tables,
+        )
+        .watch()
+        .asyncMap(
+          (rows) async => TransactionUsage(
+            tags: [for (final QueryRow row in rows) row.read<String>('tag')],
+            recentCategoryIds: await recent('user_category_id'),
+            recentAccountIds: await recent('account_id'),
+          ),
+        )
+        .distinct();
   }
 
   // The query's filters as one SQL condition (TransactionQuery documents each).

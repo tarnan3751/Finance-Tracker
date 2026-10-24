@@ -20,6 +20,7 @@ import 'package:finance_tracker/features/accounts/domain/account_not_found_excep
 import 'package:finance_tracker/features/categories/data/category_defaults.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
+import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
 import 'package:shared_models/shared_models.dart';
 
 /// The in-memory state, its rules, and change notification.
@@ -59,6 +60,33 @@ final class InMemoryStore {
 
   /// `AccountRepository.upsert`.
   void upsertAccount(Account account) {
+    _checkAccount(account);
+    _accounts[account.id] = (account: account, deletedAt: null);
+    _changed();
+  }
+
+  /// `AccountRepository.create`: every check of both writes runs before either is made,
+  /// so a failure leaves the store as it was.
+  void createAccount(Account account, Transaction? openingBalance) {
+    if (openingBalance != null && openingBalance.accountId != account.id) {
+      throw ArgumentError.value(
+        openingBalance.accountId,
+        'openingBalance',
+        'must be on account ${account.id}',
+      );
+    }
+    _checkAccount(account);
+    if (openingBalance != null) _checkTransaction(openingBalance, account);
+    _accounts[account.id] = (account: account, deletedAt: null);
+    if (openingBalance != null) {
+      _transactions[openingBalance.id] = openingBalance.copyWith(
+        deletedAt: null,
+      );
+    }
+    _changed();
+  }
+
+  void _checkAccount(Account account) {
     final existing = _accounts[account.id];
     if (existing != null && existing.deletedAt != null) {
       throw EntityDeletedException('account', account.id);
@@ -83,8 +111,6 @@ final class InMemoryStore {
         account.currencyCode,
       );
     }
-    _accounts[account.id] = (account: account, deletedAt: null);
-    _changed();
   }
 
   /// `AccountRepository.delete`.
@@ -162,12 +188,19 @@ final class InMemoryStore {
 
   /// `TransactionRepository.upsert`.
   void upsertTransaction(Transaction transaction) {
+    _checkTransaction(transaction, account(transaction.accountId));
+    _transactions[transaction.id] = transaction.copyWith(deletedAt: null);
+    _changed();
+  }
+
+  // The checks of an upsert of [transaction] on its live account [owner] (null when
+  // there is none).
+  void _checkTransaction(Transaction transaction, Account? owner) {
     final Transaction? existing = _transactions[transaction.id];
     if (existing != null && existing.deletedAt != null) {
       throw EntityDeletedException('transaction', transaction.id);
     }
     checkAuditInstants(transaction);
-    final Account? owner = account(transaction.accountId);
     if (owner == null) throw AccountNotFoundException(transaction.accountId);
     for (final Money amount in [
       transaction.amount,
@@ -180,8 +213,38 @@ final class InMemoryStore {
         );
       }
     }
-    _transactions[transaction.id] = transaction.copyWith(deletedAt: null);
-    _changed();
+  }
+
+  /// `TransactionRepository.watchUsage`'s value.
+  TransactionUsage usage(int recentLimit) {
+    final Set<String> tags = {};
+    final Map<String, DateTime> categories = {};
+    final Map<String, DateTime> accounts = {};
+    void newest(Map<String, DateTime> into, String id, DateTime at) {
+      final DateTime? seen = into[id];
+      if (seen == null || at.isAfter(seen)) into[id] = at;
+    }
+
+    for (final Transaction t in _transactions.values) {
+      if (t.deletedAt != null) continue;
+      tags.addAll(t.tags);
+      if (t.userCategoryId case final String id) {
+        newest(categories, id, t.createdAt);
+      }
+      newest(accounts, t.accountId, t.createdAt);
+    }
+    List<String> recent(Map<String, DateTime> used) =>
+        (used.keys.toList()..sort((a, b) {
+              final int byTime = used[b]!.compareTo(used[a]!);
+              return byTime != 0 ? byTime : compareBinary(a, b);
+            }))
+            .take(recentLimit)
+            .toList();
+    return TransactionUsage(
+      tags: tags.toList()..sort(compareBinary),
+      recentCategoryIds: recent(categories),
+      recentAccountIds: recent(accounts),
+    );
   }
 
   /// `TransactionRepository.delete`.

@@ -25,6 +25,10 @@ base class InMemoryAccountRepository implements AccountRepository {
   Future<void> upsert(Account account) async => store.upsertAccount(account);
 
   @override
+  Future<void> create(Account account, {Transaction? openingBalance}) async =>
+      store.createAccount(account, openingBalance);
+
+  @override
   Future<void> delete(String id) async => store.deleteAccount(id);
 
   @override

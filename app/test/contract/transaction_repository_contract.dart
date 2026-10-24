@@ -6,6 +6,7 @@ import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
+import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
 
@@ -452,6 +453,116 @@ void runTransactionRepositoryContract(
         await pumpEventQueue();
         await transactions.upsert(later);
         await seen;
+      });
+    });
+
+    group('usage', () {
+      DateTime at(int minute) => testInstant.add(Duration(minutes: minute));
+
+      test('a fresh repository uses nothing', () async {
+        expect(await transactions.watchUsage().first, TransactionUsage.empty);
+      });
+
+      test(
+        'distinct tags; categories and accounts by their newest use',
+        () async {
+          await transactions.upsert(
+            testTransaction(
+              't1',
+              'a1',
+              -1,
+              createdAt: at(1),
+              userCategoryId: 'c1',
+              tags: ['b', 'a', 'b'],
+            ),
+          );
+          await transactions.upsert(
+            testTransaction(
+              't2',
+              'a2',
+              -1,
+              createdAt: at(2),
+              userCategoryId: 'c2',
+              tags: ['B'],
+            ),
+          );
+          await transactions.upsert(
+            testTransaction(
+              't3',
+              'a1',
+              -1,
+              createdAt: at(3),
+              userCategoryId: 'c1',
+            ),
+          );
+          // A tie on createdAt is broken by id; splits do not count as use.
+          await transactions.upsert(
+            testTransaction(
+              't4',
+              'a1',
+              -1,
+              createdAt: at(0),
+              userCategoryId: 'c0',
+              splits: [
+                TransactionSplit(categoryId: 'c9', amount: Money(-1, 'USD')),
+              ],
+            ),
+          );
+          await transactions.upsert(
+            testTransaction(
+              't5',
+              'a2',
+              -1,
+              createdAt: at(0),
+              userCategoryId: 'c3',
+            ),
+          );
+
+          expect(
+            await transactions.watchUsage().first,
+            const TransactionUsage(
+              tags: ['B', 'a', 'b'],
+              recentCategoryIds: ['c1', 'c2', 'c0', 'c3'],
+              recentAccountIds: ['a1', 'a2'],
+            ),
+          );
+          final TransactionUsage limited = await transactions
+              .watchUsage(recentLimit: 1)
+              .first;
+          expect(limited.recentCategoryIds, ['c1']);
+          expect(limited.recentAccountIds, ['a1']);
+          expect(limited.tags, ['B', 'a', 'b']);
+        },
+      );
+
+      test(
+        'deleted transactions do not count; a watcher sees the change',
+        () async {
+          await transactions.upsert(
+            testTransaction('t1', 'a1', -1, userCategoryId: 'c1', tags: ['x']),
+          );
+          final Future<void> seen = expectLater(
+            transactions.watchUsage(),
+            emitsInOrder([
+              const TransactionUsage(
+                tags: ['x'],
+                recentCategoryIds: ['c1'],
+                recentAccountIds: ['a1'],
+              ),
+              TransactionUsage.empty,
+            ]),
+          );
+          await pumpEventQueue();
+          await transactions.delete('t1');
+          await seen;
+        },
+      );
+
+      test('a limit below 1 is refused', () {
+        expect(
+          () => transactions.watchUsage(recentLimit: 0),
+          throwsArgumentError,
+        );
       });
     });
   });
