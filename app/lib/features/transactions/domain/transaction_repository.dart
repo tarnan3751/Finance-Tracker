@@ -33,7 +33,8 @@ abstract interface class TransactionRepository {
   Future<void> upsert(Transaction transaction);
 
   /// Soft-deletes transaction [id], stamping its `updatedAt` from the clock. Does nothing
-  /// when there is no such live transaction.
+  /// when there is no such live transaction. Throws `BankDataNotDeletableException` for
+  /// a `plaid` transaction: only the bank removes one.
   Future<void> delete(String id);
 
   /// Restores deleted transaction [id], stamping its `updatedAt` from the clock. Throws

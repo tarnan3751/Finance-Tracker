@@ -173,7 +173,7 @@ void runRecordingContract(
       expect(await recorded(), [
         'transaction/p1 update notes,tags,user_category_id',
       ]);
-      await f.transactions.delete('p1');
+      await expectLater(f.transactions.delete('p1'), throwsException);
       expect(await recorded(), isEmpty);
     });
 

@@ -1,7 +1,8 @@
 /// One account: its name, type and balance derived from its transactions, then its
 /// transactions newest first, each with the running balance after it. Edit, hide or show,
-/// delete (with its transactions, after a confirmation that counts them), and add a
-/// transaction on this account.
+/// delete (with its transactions, after a confirmation that counts them; not offered for
+/// a linked account, which goes only when its bank is unlinked), and add a transaction on
+/// this account.
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
@@ -136,10 +137,12 @@ class _Detail extends ConsumerWidget {
                   value: _MenuAction.hide,
                   child: Text(l10n.accountHide),
                 ),
-              PopupMenuItem(
-                value: _MenuAction.delete,
-                child: Text(l10n.delete),
-              ),
+              // A linked account goes only when its bank is unlinked.
+              if (account.itemId == null)
+                PopupMenuItem(
+                  value: _MenuAction.delete,
+                  child: Text(l10n.delete),
+                ),
             ],
           ),
         ],

@@ -1,6 +1,6 @@
 // An account's detail: the derived balance, the transactions newest first with the
 // running balance after each, hiding, the delete confirmation that counts the
-// transactions going with the account, and opening a transaction on top of the detail
+// transactions going with the account (no delete for a linked account), and opening a transaction on top of the detail
 // (the Accounts tab stays selected; back returns to the detail).
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
@@ -126,6 +126,21 @@ void main() {
       find.widgetWithText(AppBar, 'Everyday Checking').hitTestable(),
       findsOneWidget,
     );
+  });
+
+  testWidgets('a linked account offers no delete', (tester) async {
+    final InMemoryStore store = seededStore();
+    store.upsertAccount(store.account(cardId)!.copyWith(itemId: 'item-1'));
+    await pumpApp(
+      tester,
+      initialLocation: '/accounts/$cardId',
+      overrides: [storeOverride(store)],
+    );
+
+    await tester.tap(find.byTooltip('Show menu'));
+    await tester.pumpAndSettle();
+    expect(find.text('Hide account'), findsOneWidget);
+    expect(find.text('Delete'), findsNothing);
   });
 
   testWidgets('a deleted or unknown account says so', (tester) async {

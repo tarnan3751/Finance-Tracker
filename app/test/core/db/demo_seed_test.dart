@@ -96,9 +96,10 @@ void main() {
     "choosing another persona reloads the demo's data from its seed",
     () async {
       final ProviderContainer container = demo();
+      // A demo transaction (the demo's accounts are linked, so they cannot go).
       await container
-          .read(accountRepositoryProvider)
-          .delete('demo-renter-checking');
+          .read(transactionRepositoryProvider)
+          .delete('demo-renter-checking-opening');
       container.read(demoPersonaProvider.notifier).select(PersonaId.family);
       final List<Account> accounts = await container
           .read(accountRepositoryProvider)
@@ -117,10 +118,11 @@ void main() {
       );
       container.read(demoPersonaProvider.notifier).select(PersonaId.renter);
       expect(
-        (await container.read(accountRepositoryProvider).watchAll().first).map(
-          (a) => a.id,
-        ),
-        contains('demo-renter-checking'),
+        await container
+            .read(transactionRepositoryProvider)
+            .watchById('demo-renter-checking-opening')
+            .first,
+        isNotNull,
         reason: "the demo's edits are not kept",
       );
     },

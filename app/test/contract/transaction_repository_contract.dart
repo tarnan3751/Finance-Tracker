@@ -142,6 +142,20 @@ void runTransactionRepositoryContract(
       expect(await transactions.watchById('t1').first, t);
     });
 
+    test('a Plaid transaction cannot be deleted', () async {
+      final Transaction plaid = testTransaction(
+        'p1',
+        'a1',
+        -100,
+      ).copyWith(source: DataSource.plaid);
+      await transactions.upsert(plaid);
+      await expectLater(
+        transactions.delete('p1'),
+        throwsA(isA<BankDataNotDeletableException>()),
+      );
+      expect(await transactions.watchById('p1').first, plaid);
+    });
+
     test('a delete hides the transaction; restore brings it back, updatedAt stamped', () async {
       final Transaction t = testTransaction(
         't1',

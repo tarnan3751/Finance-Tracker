@@ -122,6 +122,16 @@ void runAccountRepositoryContract(
       await accounts.delete('missing');
     });
 
+    test('a linked account cannot be deleted', () async {
+      final Account linked = testAccount('a1').copyWith(itemId: 'item-1');
+      await accounts.upsert(linked);
+      await expectLater(
+        accounts.delete('a1'),
+        throwsA(isA<BankDataNotDeletableException>()),
+      );
+      expect(await accounts.watchById('a1').first, linked);
+    });
+
     test(
       'an upsert of a deleted account throws EntityDeletedException',
       () async {

@@ -115,6 +115,11 @@ final class DriftAccountRepository implements AccountRepository {
 
   @override
   Future<void> delete(String id) => _recorded(id, () async {
+    final AccountRow? live = await (_database.select(
+      _accounts,
+    )..where((a) => a.id.equals(id) & a.deletedAt.isNull())).getSingleOrNull();
+    if (live == null) return false;
+    if (live.itemId != null) throw BankDataNotDeletableException('account', id);
     final DateTime now = _clock.nowUtc();
     final int changed =
         await (_database.update(

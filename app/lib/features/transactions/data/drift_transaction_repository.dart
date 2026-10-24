@@ -115,6 +115,9 @@ final class DriftTransactionRepository implements TransactionRepository {
       _transactions,
     )..where((t) => t.id.equals(id) & t.deletedAt.isNull())).getSingleOrNull();
     if (row == null) return;
+    if (row.source == DataSource.plaid) {
+      throw BankDataNotDeletableException('transaction', id);
+    }
     final DateTime now = _clock.nowUtc();
     await (_database.update(
       _transactions,

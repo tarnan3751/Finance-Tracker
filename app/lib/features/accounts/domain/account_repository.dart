@@ -34,7 +34,9 @@ abstract interface class AccountRepository {
   Future<void> create(Account account, {Transaction? openingBalance});
 
   /// Soft-deletes account [id] and, with it, its live transactions (stamping their
-  /// `updatedAt`). Does nothing when there is no such live account.
+  /// `updatedAt`). Does nothing when there is no such live account. Throws
+  /// `BankDataNotDeletableException` for a linked account (one with an `itemId`): it goes
+  /// only when its Item is unlinked.
   Future<void> delete(String id);
 
   /// Restores deleted account [id] and exactly the transactions its delete removed

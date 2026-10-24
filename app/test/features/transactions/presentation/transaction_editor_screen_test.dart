@@ -1,7 +1,8 @@
 // The transaction editor: a new transaction is a manual expense or income on the route's
 // account (else the only one, else the last used), dated today; amounts parse in the
 // account's currency and are never rounded; tags and categories; an edit keeps the
-// source and what the editor does not show; delete offers an undo for five seconds.
+// source and what the editor does not show; delete offers an undo for five seconds, and
+// a Plaid transaction has no Delete.
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/features/categories/data/category_defaults.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
@@ -330,6 +331,16 @@ void main() {
     await tester.tap(find.text('Add account'));
     await tester.pumpAndSettle();
     expect(find.text('New account'), findsOneWidget);
+  });
+
+  testWidgets('a Plaid transaction offers no delete', (tester) async {
+    final InMemoryStore store = seededStore()
+      ..upsertTransaction(
+        testTransaction('bank').copyWith(source: DataSource.plaid),
+      );
+    await _pumpEditor(tester, store, '/transactions/bank');
+    expect(find.widgetWithText(AppBar, 'Transaction'), findsOneWidget);
+    expect(find.byTooltip('Delete'), findsNothing);
   });
 
   testWidgets('a deleted transaction says so', (tester) async {

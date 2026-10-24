@@ -4,7 +4,7 @@
 /// category, notes and tags. A new transaction is `manual`; an edited one keeps its
 /// source. With no category of the user's own, the category row shows the one its Plaid
 /// code resolves to, captioned as the bank's. Deleting from here offers an undo for five
-/// seconds.
+/// seconds; a Plaid transaction has no Delete, since only the bank removes one.
 library;
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
@@ -300,7 +300,8 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
       appBar: AppBar(
         title: Text(_isNew ? l10n.transactionNewTitle : l10n.transactionTitle),
         actions: [
-          if (!_isNew)
+          // Only the bank removes a Plaid transaction.
+          if (!_isNew && initial?.source != DataSource.plaid)
             IconButton(
               tooltip: l10n.delete,
               icon: const Icon(Icons.delete_outline),

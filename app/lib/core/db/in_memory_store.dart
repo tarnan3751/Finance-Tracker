@@ -119,6 +119,9 @@ final class InMemoryStore {
   void deleteAccount(String id) {
     final entry = _accounts[id];
     if (entry == null || entry.deletedAt != null) return;
+    if (entry.account.itemId != null) {
+      throw BankDataNotDeletableException('account', id);
+    }
     final DateTime now = _clock.nowUtc();
     _accounts[id] = (account: entry.account, deletedAt: now);
     for (final Transaction t in _transactions.values.toList()) {
@@ -253,6 +256,9 @@ final class InMemoryStore {
   void deleteTransaction(String id) {
     final Transaction? t = transaction(id);
     if (t == null) return;
+    if (t.source == DataSource.plaid) {
+      throw BankDataNotDeletableException('transaction', id);
+    }
     final DateTime now = _clock.nowUtc();
     _transactions[id] = t.copyWith(deletedAt: now, updatedAt: now);
     _changed();

@@ -3,7 +3,8 @@
 /// The three open failures ([EncryptionUnavailableException], [DatabaseKeyMismatchException],
 /// [DatabaseKeyLostException]) stop startup: `bootstrap` logs the type and shows a plain
 /// error screen; Phase 7's restore flow handles a lost key. [EntityDeletedException] is a
-/// write to a record that was deleted. Pure Dart: these are thrown in the database's
+/// write to a record that was deleted; [BankDataNotDeletableException] a delete of a
+/// linked account or a Plaid transaction. Pure Dart: these are thrown in the database's
 /// background isolate and sent back to the caller.
 library;
 
@@ -65,4 +66,22 @@ final class EntityDeletedException implements Exception {
 
   @override
   String toString() => 'EntityDeletedException: $entity $id is deleted';
+}
+
+/// A delete named a linked account (one with an Item) or a Plaid transaction. Bank data
+/// is the server's (`PLAN.md` §6.4): a linked account goes only when its Item is
+/// unlinked, and a Plaid transaction only when the bank removes it.
+final class BankDataNotDeletableException implements Exception {
+  /// The exception for the [entity] (`account` or `transaction`) with id [id].
+  const BankDataNotDeletableException(this.entity, this.id);
+
+  /// The kind of record.
+  final String entity;
+
+  /// The record's id.
+  final String id;
+
+  @override
+  String toString() =>
+      'BankDataNotDeletableException: $entity $id comes from the bank';
 }
