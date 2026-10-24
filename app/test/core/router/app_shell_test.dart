@@ -1,6 +1,8 @@
 // The three-tab shell: where it opens, the root redirect, switching tabs, and the flavor
 // banner (shown in dev and demo below the status bar, absent in prod).
 import 'package:finance_tracker/core/config/app_config.dart';
+import 'package:finance_tracker/core/router/app_shell.dart';
+import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -101,5 +103,27 @@ void main() {
 
     final MaterialApp app = tester.widget(find.byType(MaterialApp));
     expect(app.title, 'Finance Tracker Demo');
+  });
+
+  testWidgets("a tab's snack bar sits in the tab, above the navigation bar", (
+    tester,
+  ) async {
+    await pumpApp(tester, initialLocation: '/settings');
+
+    final BuildContext screen = tester.element(find.byType(SettingsScreen));
+    final BuildContext root = tester.element(find.byType(AppShell));
+    expect(
+      ScaffoldMessenger.of(screen),
+      isNot(same(ScaffoldMessenger.of(root))),
+      reason: 'each tab has its own messenger',
+    );
+    ScaffoldMessenger.of(screen)
+        .showSnackBar(const SnackBar(content: Text('Saved')));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getBottomLeft(find.byType(SnackBar)).dy,
+      lessThanOrEqualTo(tester.getTopLeft(find.byType(NavigationBar)).dy),
+    );
   });
 }

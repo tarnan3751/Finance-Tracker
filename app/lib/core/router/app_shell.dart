@@ -1,5 +1,10 @@
 /// The scaffold around the three tabs: the current branch's navigator above a Material 3
 /// `NavigationBar`. Only the selected branch is shown; the others keep their state.
+///
+/// Each branch has its own `ScaffoldMessenger`, so a snack bar shown from a tab (Undo
+/// after a delete, a save error) appears in that tab's screen `Scaffold`: above the
+/// navigation bar, lifting the screen's floating button instead of covering it, and
+/// carried over to the screen below when the one that showed it is popped.
 library;
 
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -29,7 +34,11 @@ class AppShell extends StatelessWidget {
         index: current,
         children: [
           for (int i = 0; i < children.length; i++)
-            TickerMode(enabled: i == current, child: children[i]),
+            TickerMode(
+              enabled: i == current,
+              // Per branch, so a snack bar lands in the branch's own screens.
+              child: ScaffoldMessenger(child: children[i]),
+            ),
         ],
       ),
       bottomNavigationBar: NavigationBar(
