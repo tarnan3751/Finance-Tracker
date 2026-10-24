@@ -18,14 +18,15 @@ heading of this file or of a doc.
 
 ## Status
 
-**Planning is complete; Phase 0 has not started.** The repository still has the original
-single-file app at its root (`lib/main.dart`, shared_preferences, six platform folders) plus
-this map, the agent definitions under `.claude/agents/`, the tools under `tools/`, and
-`.gitignore`. Phase 0 moves the app into `app/`, adds `server/`, `packages/` and `api/`, removes
-every platform but Android, and makes the gate's steps real; until then `tools/gates.sh` runs
-what exists at the root. `PLAN.md` §4 is the Plaid architecture with the verified Sandbox facts,
-§7.1 the data-coverage and synthesis policy, §8 the ten phases with sizes, §10 the process, §12
-the decisions.
+**Phase 0 has landed; Phase 1 is next.** The repository is the pub workspace of **Folder
+layout**, Android only. The original single-file UI runs from `app/lib/legacy/legacy_app.dart`
+in three flavors (`dev`, `demo`, `prod`) through `app/lib/bootstrap.dart`; `server/` is a
+skeleton answering `GET /v1/health`; `packages/shared_models` and `packages/api_client` are
+placeholders; `api/openapi.yaml` holds only the health check; the Android build is Flutter
+3.47's template with the package id, the flavors and the release hardening; CI runs the gate and
+builds the APKs. Phase 1 brings the domain and the local data. `PLAN.md` §4 is the Plaid
+architecture with the verified Sandbox facts, §7.1 the data-coverage and synthesis policy, §8
+the ten phases with sizes, §10 the process, §12 the decisions.
 
 ## Stack (pinned)
 
@@ -63,6 +64,7 @@ scripts pick it the same way. Commands marked with a phase do not exist before i
 | Emulator integration tests, one run on the machine at a time (Phase 1) | `tools/emulator_tests.sh` |
 | Provision a persona into Sandbox (the owner only) (Phase 3) | `tools/scripts/provision_persona.sh <persona>` |
 | Build a debug APK | `F build apk --debug --flavor dev -t lib/main_dev.dart` |
+| Build the release APK (R8, obfuscated) | `F build apk --release --flavor prod -t lib/main_prod.dart --obfuscate --split-debug-info=build/symbols` |
 | Land a delivered series | `tools/land_series.sh <patch-dir> <base-commit> <tree-hash>` |
 
 **Any Flutter run writes files**: `build/` and `.dart_tool/` in the tree it runs in, and a `run`
@@ -88,6 +90,7 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | The API contract | `api/openapi.yaml` | same |
 | Development server: auth, sync, Plaid proxy, webhook receiver | `server/` | `docs/reference/server.md` (Phase 2) |
 | Persona engine: demo seed, Sandbox custom users, injection batches | `tools/persona_engine/` (Phase 2) | `docs/reference/persona.md` |
+| Build: workspace, flavors, Android configuration, signing, R8 | `pubspec.yaml`, `app/android/`, `app/lib/core/config/` | `docs/reference/build.md` |
 | Testing and tools: gate, test runner, emulator harness, landing, scripts | `*/test/`, `app/integration_test/`, `tools/` | `docs/reference/testing-tools.md` (Phase 0) |
 
 ## Architecture rules
@@ -136,18 +139,18 @@ away from a second platform. Treat them as hard rules.
 - **One user per install.**
 - **Platform-specific code stays behind interfaces**: widgets, background work, biometrics,
   notifications, so an iOS folder is a build matter, not a refactor.
-- **Three entry points** (`main_dev.dart`, `main_demo.dart`, `main_release.dart`) and matching
-  flavors; a feature that only works in one of them is a bug.
+- **Three entry points** (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) and matching
+  flavors (`dev`, `demo`, `prod`); a feature that only works in one of them is a bug.
 - **Accessibility is not optional**: every chart has a tabular equivalent, every control a
   semantics label, every layout survives font scaling.
 
 ## Folder layout
 
-Phase 0 produces this layout; before it, the Flutter app sits at the repository root.
+Phase 0 produced this layout; the folders a later phase adds arrive with that phase.
 
 ```
 app/             the Flutter application: lib/core, lib/features/<feature>/{presentation,
-                 application,domain,data}, lib/main_{dev,demo,release}.dart, android/,
+                 application,domain,data}, lib/main_{dev,demo,prod}.dart, android/,
                  test/, integration_test/
 server/          the Dart development server: bin/, lib/, test/, .env.example (.env gitignored)
 packages/        shared_models, api_client (generated), sync_engine
