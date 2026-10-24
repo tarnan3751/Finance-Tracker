@@ -19,6 +19,8 @@ import 'package:finance_tracker_server/src/http/pipeline.dart';
 import 'package:finance_tracker_server/src/http/problem.dart';
 import 'package:finance_tracker_server/src/http/rate_limiter.dart';
 import 'package:finance_tracker_server/src/http/wire.dart';
+import 'package:finance_tracker_server/src/sync/change_log_relay.dart';
+import 'package:finance_tracker_server/src/sync/sync_routes.dart';
 import 'package:finance_tracker_server/src/users/user_routes.dart';
 import 'package:logging/logging.dart';
 import 'package:shelf/shelf.dart';
@@ -49,6 +51,7 @@ final class ServerApp {
     routes = [
       ...authRoutes(auth),
       ...userRoutes(db: db, auth: auth),
+      ...syncRoutes(ChangeLogRelay(db: db, now: this.now)),
       ApiRoute(
         'getHealth',
         'get',

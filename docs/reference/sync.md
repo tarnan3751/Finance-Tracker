@@ -12,8 +12,9 @@ server-authoritative, and the app pulls it by the server's version number. The e
 never reads `source` and has no way of telling a Plaid row from a manual one. Keeping
 Plaid-sourced rows out of the change log is the host's filter, by `source`, in the app's
 repositories: before calling `LocalEditor.recordChange`, a repository checks that the
-change is to user-authored data. Whether the dev server's relay also refuses such
-entries, as a defence in depth, is lane 2d's decision.
+change is to user-authored data. As a defence in depth the dev server's relay also
+refuses, as `invalid`, any pushed entry whose payload says `source: plaid`
+(`docs/reference/server.md`, **The sync relay**).
 
 ## Pieces
 

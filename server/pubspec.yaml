@@ -21,4 +21,5 @@ dev_dependencies:
   contract_test: any
   lints: ^6.1.0
   path: ^1.9.1
+  sync_engine: any
   test: ^1.31.1
