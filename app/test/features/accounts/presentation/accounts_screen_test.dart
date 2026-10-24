@@ -1,7 +1,6 @@
 // The account list: derived balances labelled as such, per-currency totals only when the
 // accounts hold more than one currency, the hidden accounts in a collapsed section,
 // reordering written as display order, and the empty state's action.
-import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,6 +8,7 @@ import 'package:shared_models/shared_models.dart';
 
 import '../../../helpers/pump_app.dart';
 import '../../../helpers/seed.dart';
+import '../../../helpers/test_seed.dart';
 
 Account _account(
   String id,

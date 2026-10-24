@@ -1,5 +1,6 @@
-// The demo seed: deterministic for a day, all `demo` provenance, inside the 60 days before
-// today, every category it names seeded, and what the demo flavor's providers serve.
+// The demo flavor's data from the persona engine: the persona chosen at start, what the
+// demo repositories serve (the household's accounts and transactions, all `demo`, with
+// opening balances so derived balances match the reported ones), and a persona switch.
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:finance_tracker/core/di/providers.dart';
@@ -8,6 +9,7 @@ import 'package:finance_tracker/features/categories/data/category_defaults.dart'
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:persona_engine/persona_engine.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
@@ -15,88 +17,120 @@ import 'package:timezone/timezone.dart' as tz;
 void main() {
   setUpAll(tzdata.initializeTimeZones);
 
-  final LocalDate today = LocalDate(2026, 10, 24);
-
-  test('the same day gives the same seed', () {
-    final DemoSeed a = buildDemoSeed(today);
-    final DemoSeed b = buildDemoSeed(today);
-    expect(a.accounts, equals(b.accounts));
-    expect(a.transactions, equals(b.transactions));
-    expect(
-      buildDemoSeed(today.addDays(1)).transactions.first.date,
-      a.transactions.first.date.addDays(1),
-    );
+  test('the starting persona is the dart-define slug, else the renter', () {
+    expect(initialDemoPersona('family'), PersonaId.family);
+    expect(initialDemoPersona('small_business'), PersonaId.smallBusiness);
+    expect(initialDemoPersona(''), PersonaId.renter);
+    expect(initialDemoPersona('landlord'), PersonaId.renter);
+    expect(initialDemoPersona(), PersonaId.renter);
   });
 
-  test(
-    'two manual accounts and a dozen demo transactions in the last 60 days',
-    () {
-      final DemoSeed seed = buildDemoSeed(today);
-      expect(seed.accounts, hasLength(2));
-      expect(seed.accounts.every((a) => a.itemId == null), isTrue);
-      expect(seed.transactions, hasLength(12));
-      expect(seed.transactions.map((t) => t.id).toSet(), hasLength(12));
-      for (final Transaction t in seed.transactions) {
-        expect(t.source, DataSource.demo);
-        expect(t.date.isBefore(today), isTrue);
-        expect(t.date.daysUntil(today), lessThanOrEqualTo(60));
-      }
-    },
+  ProviderContainer demo() => ProviderContainer.test(
+    overrides: [
+      ...overridesFor(AppConfig.demo()),
+      // 03:00 UTC on 25 October is still 24 October in New York.
+      clockProvider.overrideWithValue(
+        FixedClock(
+          DateTime.utc(2026, 10, 25, 3),
+          tz.getLocation('America/New_York'),
+        ),
+      ),
+    ],
   );
 
-  test('every category the seed names is a system category', () {
-    final Set<String> system = {for (final c in systemCategories) c.id};
-    for (final Transaction t in buildDemoSeed(today).transactions) {
-      if (t.userCategoryId != null) expect(system, contains(t.userCategoryId));
-      for (final TransactionSplit s in t.splits) {
-        expect(system, contains(s.categoryId));
-      }
-    }
-  });
-
   test(
-    "the demo flavor's repositories serve the seed for the clock's today",
+    "the demo flavor serves the renter's household as of the clock's today",
     () async {
-      // 03:00 UTC on 25 October is still 24 October in New York.
-      final ProviderContainer container = ProviderContainer.test(
-        overrides: [
-          ...overridesFor(AppConfig.demo()),
-          clockProvider.overrideWithValue(
-            FixedClock(
-              DateTime.utc(2026, 10, 25, 3),
-              tz.getLocation('America/New_York'),
-            ),
-          ),
-        ],
+      final ProviderContainer container = demo();
+      final DemoSeed seed = generateDemoSeed(
+        PersonaId.renter,
+        1,
+        LocalDate(2026, 10, 24),
       );
-
+      final List<Account> accounts = await container
+          .read(accountRepositoryProvider)
+          .watchAll()
+          .first;
+      expect(
+        accounts.map((a) => a.id).toSet(),
+        seed.household.accounts.map((a) => a.id).toSet(),
+      );
       final List<Transaction> transactions = await container
           .read(transactionRepositoryProvider)
           .watch(TransactionQuery.all)
           .first;
+      final int openings = seed.household.openingBalances
+          .where((o) => !o.amount.isZero)
+          .length;
       expect(
         transactions,
-        equals(
-          buildDemoSeed(today).transactions.reversed.toList()..sort((a, b) {
-            final int byDate = b.date.compareTo(a.date);
-            return byDate != 0 ? byDate : b.id.compareTo(a.id);
-          }),
-        ),
+        hasLength(seed.household.transactions.length + openings),
       );
-      expect(
-        await container
-            .read(accountRepositoryProvider)
-            .watchDerivedBalances()
-            .first,
-        {
-          'demo-checking': Money(492591, 'USD'),
-          'demo-card': Money(-575, 'USD'),
-        },
+      expect(transactions.every((t) => t.source == DataSource.demo), isTrue);
+      expect(transactions.first.date, LocalDate(2026, 10, 24));
+      final Iterable<Transaction> opening = transactions.where(
+        (t) => t.name == 'Opening balance',
       );
+      expect(opening, hasLength(openings));
+      expect(opening.map((t) => t.date).toSet(), {
+        seed.household.window.start.addDays(-1),
+      });
+
+      // Derived from the history, each balance is what the account reports.
+      final Map<String, Money?> derived = await container
+          .read(accountRepositoryProvider)
+          .watchDerivedBalances()
+          .first;
+      for (final Account account in seed.household.accounts) {
+        if (account.type == AccountType.investment) continue;
+        expect(derived[account.id], account.currentBalance, reason: account.id);
+      }
       expect(
         await container.read(categoryRepositoryProvider).watchAll().first,
         hasLength(systemCategories.length),
       );
     },
   );
+
+  test(
+    "choosing another persona reloads the demo's data from its seed",
+    () async {
+      final ProviderContainer container = demo();
+      await container
+          .read(accountRepositoryProvider)
+          .delete('demo-renter-checking');
+      container.read(demoPersonaProvider.notifier).select(PersonaId.family);
+      final List<Account> accounts = await container
+          .read(accountRepositoryProvider)
+          .watchAll()
+          .first;
+      expect(accounts.every((a) => a.id.startsWith('demo-family-')), isTrue);
+      expect(
+        accounts,
+        hasLength(
+          generateDemoSeed(
+            PersonaId.family,
+            1,
+            LocalDate(2026, 10, 24),
+          ).household.accounts.length,
+        ),
+      );
+      container.read(demoPersonaProvider.notifier).select(PersonaId.renter);
+      expect(
+        (await container.read(accountRepositoryProvider).watchAll().first).map(
+          (a) => a.id,
+        ),
+        contains('demo-renter-checking'),
+        reason: "the demo's edits are not kept",
+      );
+    },
+  );
+
+  test('every persona loads through the store rules', () {
+    for (final PersonaId persona in PersonaId.values) {
+      final ProviderContainer container = demo();
+      container.read(demoPersonaProvider.notifier).select(persona);
+      expect(() => container.read(inMemoryStoreProvider), returnsNormally);
+    }
+  });
 }

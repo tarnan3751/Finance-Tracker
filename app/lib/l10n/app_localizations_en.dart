@@ -923,4 +923,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncNow => 'Sync now';
+
+  @override
+  String get settingsDemoData => 'Demo data';
+
+  @override
+  String get demoDataNote =>
+      'Choosing another household starts the demo over; changes made in the demo are not kept.';
+
+  @override
+  String get demoPersonaRenter => 'Renter';
+
+  @override
+  String get demoPersonaRenterDetail =>
+      'Gig income, subscriptions and a credit card';
+
+  @override
+  String get demoPersonaFamily => 'Family';
+
+  @override
+  String get demoPersonaFamilyDetail =>
+      'Two salaries, a mortgage, car loans and a 401(k)';
+
+  @override
+  String get demoPersonaStudent => 'Student';
+
+  @override
+  String get demoPersonaStudentDetail =>
+      'Student loans, a campus job and help from a parent';
+
+  @override
+  String get demoPersonaSmallBusiness => 'Small business owner';
+
+  @override
+  String get demoPersonaSmallBusinessDetail =>
+      'Business and personal accounts, and quarterly taxes';
 }

@@ -2,7 +2,6 @@
 // full date before), rows with account, category and a pending label, search, each
 // filter dimension with its removable chip, the empty states, and paging: with 2,000
 // transactions only the rows on screen are built, and scrolling loads the next fifty.
-import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/features/categories/data/category_defaults.dart';
 import 'package:finance_tracker/features/transactions/application/transaction_filters.dart';
@@ -16,6 +15,7 @@ import 'package:shared_models/shared_models.dart';
 
 import '../../../helpers/pump_app.dart';
 import '../../../helpers/seed.dart';
+import '../../../helpers/test_seed.dart';
 
 Future<void> _openFilters(WidgetTester tester) async {
   await tester.tap(find.byTooltip('Filters'));

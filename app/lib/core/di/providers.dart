@@ -40,6 +40,7 @@ import 'package:finance_tracker/features/transactions/data/demo_transaction_repo
 import 'package:finance_tracker/features/transactions/data/drift_transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/data/in_memory_transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
+import 'package:persona_engine/persona_engine.dart' show DemoSeed, PersonaId;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sync_engine/sync_engine.dart';
 
@@ -80,7 +81,7 @@ AppDatabase database(Ref ref) {
 }
 
 /// The state behind the in-memory and demo repositories: empty by default; the demo
-/// flavor's holds the system categories and the demo seed.
+/// flavor's holds the system categories and the selected persona's demo seed.
 @Riverpod(keepAlive: true)
 InMemoryStore inMemoryStore(Ref ref) {
   final InMemoryStore store = InMemoryStore(ref.watch(clockProvider));
@@ -130,6 +131,25 @@ SyncRelay? syncRelay(Ref ref) => null;
 /// How long after the last local change a sync session starts.
 @Riverpod(keepAlive: true)
 Duration syncDebounce(Ref ref) => const Duration(seconds: 3);
+
+/// The persona the demo flavor shows: [initialDemoPersona] at start, then what Settings →
+/// Demo data selects.
+@Riverpod(keepAlive: true)
+class DemoPersona extends _$DemoPersona {
+  @override
+  PersonaId build() => initialDemoPersona();
+
+  /// Shows [persona] instead.
+  void select(PersonaId persona) => state = persona;
+}
+
+/// The demo seed of the selected persona as of the clock's today: what the demo flavor's
+/// store is loaded from (and the in-app fake server's dataset).
+@Riverpod(keepAlive: true)
+DemoSeed demoSeed(Ref ref) => demoSeedFor(
+  ref.watch(demoPersonaProvider),
+  ref.watch(clockProvider).today(),
+);
 
 /// The accounts.
 @Riverpod(keepAlive: true)
@@ -224,16 +244,17 @@ final List<Override> _driftOverrides = [
   ),
 ];
 
-/// The demo flavor: everything in memory, from the demo seed dated to the clock's today.
+/// The demo flavor: everything in memory, from the selected persona's demo seed dated to
+/// the clock's today; choosing another persona rebuilds the store (the demo's edits go).
 final List<Override> _demoOverrides = [
   databaseProvider.overrideWith(
     (ref) => throw StateError('The demo flavor has no database'),
   ),
   changeRecorderProvider.overrideWithValue(const NoChangeRecorder()),
   inMemoryStoreProvider.overrideWith((ref) {
-    final Clock clock = ref.watch(clockProvider);
-    final InMemoryStore store = InMemoryStore(clock)..seedSystemCategories();
-    loadDemoSeed(store, buildDemoSeed(clock.today()));
+    final InMemoryStore store = InMemoryStore(ref.watch(clockProvider))
+      ..seedSystemCategories();
+    loadDemoSeed(store, ref.watch(demoSeedProvider));
     ref.onDispose(store.close);
     return store;
   }),

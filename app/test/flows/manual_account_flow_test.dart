@@ -1,12 +1,12 @@
 // The manual-account flow end to end on the in-memory repositories: create an account
 // with an opening balance, add an expense from its detail, watch the derived balance and
 // the running balance move, delete the expense and undo the delete.
-import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/pump_app.dart';
 import '../helpers/seed.dart';
+import '../helpers/test_seed.dart';
 
 Finder _field(String label) => find.widgetWithText(TextFormField, label);
 

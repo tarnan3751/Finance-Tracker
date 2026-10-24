@@ -2,7 +2,6 @@
 // account (else the only one, else the last used), dated today; amounts parse in the
 // account's currency and are never rounded; tags and categories; an edit keeps the
 // source and what the editor does not show; delete offers an undo for five seconds.
-import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/features/categories/data/category_defaults.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
@@ -12,6 +11,7 @@ import 'package:shared_models/shared_models.dart';
 
 import '../../../helpers/pump_app.dart';
 import '../../../helpers/seed.dart';
+import '../../../helpers/test_seed.dart';
 
 Finder _field(String label) => find.widgetWithText(TextFormField, label);
 

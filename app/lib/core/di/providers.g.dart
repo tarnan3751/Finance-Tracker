@@ -206,19 +206,19 @@ final class DatabaseProvider
 String _$databaseHash() => r'56a4e6e4b2bac9c19896f3c9420d5aec318ac5bf';
 
 /// The state behind the in-memory and demo repositories: empty by default; the demo
-/// flavor's holds the system categories and the demo seed.
+/// flavor's holds the system categories and the selected persona's demo seed.
 
 @ProviderFor(inMemoryStore)
 final inMemoryStoreProvider = InMemoryStoreProvider._();
 
 /// The state behind the in-memory and demo repositories: empty by default; the demo
-/// flavor's holds the system categories and the demo seed.
+/// flavor's holds the system categories and the selected persona's demo seed.
 
 final class InMemoryStoreProvider
     extends $FunctionalProvider<InMemoryStore, InMemoryStore, InMemoryStore>
     with $Provider<InMemoryStore> {
   /// The state behind the in-memory and demo repositories: empty by default; the demo
-  /// flavor's holds the system categories and the demo seed.
+  /// flavor's holds the system categories and the selected persona's demo seed.
   InMemoryStoreProvider._()
     : super(
         from: null,
@@ -596,6 +596,117 @@ final class SyncDebounceProvider
 }
 
 String _$syncDebounceHash() => r'c2ba3054ead3d6775d154f2cb91eea025f9e1bc4';
+
+/// The persona the demo flavor shows: [initialDemoPersona] at start, then what Settings →
+/// Demo data selects.
+
+@ProviderFor(DemoPersona)
+final demoPersonaProvider = DemoPersonaProvider._();
+
+/// The persona the demo flavor shows: [initialDemoPersona] at start, then what Settings →
+/// Demo data selects.
+final class DemoPersonaProvider
+    extends $NotifierProvider<DemoPersona, PersonaId> {
+  /// The persona the demo flavor shows: [initialDemoPersona] at start, then what Settings →
+  /// Demo data selects.
+  DemoPersonaProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'demoPersonaProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$demoPersonaHash();
+
+  @$internal
+  @override
+  DemoPersona create() => DemoPersona();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PersonaId value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PersonaId>(value),
+    );
+  }
+}
+
+String _$demoPersonaHash() => r'6646595be34595249fceb3ae52383d10e5f57c03';
+
+/// The persona the demo flavor shows: [initialDemoPersona] at start, then what Settings →
+/// Demo data selects.
+
+abstract class _$DemoPersona extends $Notifier<PersonaId> {
+  PersonaId build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<PersonaId, PersonaId>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<PersonaId, PersonaId>,
+              PersonaId,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// The demo seed of the selected persona as of the clock's today: what the demo flavor's
+/// store is loaded from (and the in-app fake server's dataset).
+
+@ProviderFor(demoSeed)
+final demoSeedProvider = DemoSeedProvider._();
+
+/// The demo seed of the selected persona as of the clock's today: what the demo flavor's
+/// store is loaded from (and the in-app fake server's dataset).
+
+final class DemoSeedProvider
+    extends $FunctionalProvider<DemoSeed, DemoSeed, DemoSeed>
+    with $Provider<DemoSeed> {
+  /// The demo seed of the selected persona as of the clock's today: what the demo flavor's
+  /// store is loaded from (and the in-app fake server's dataset).
+  DemoSeedProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'demoSeedProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$demoSeedHash();
+
+  @$internal
+  @override
+  $ProviderElement<DemoSeed> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  DemoSeed create(Ref ref) {
+    return demoSeed(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DemoSeed value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DemoSeed>(value),
+    );
+  }
+}
+
+String _$demoSeedHash() => r'3295e6dab3813bf96facbd7d3fc31f45741d0279';
 
 /// The accounts.
 

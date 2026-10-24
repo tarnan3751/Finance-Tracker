@@ -1,12 +1,11 @@
 // Test data for screen tests: the in-memory store with the system categories and the
-// demo seed dated to testClock's today (two USD accounts, twelve transactions), or with
+// test seed (test_seed.dart) dated to testClock's today (two USD accounts, twelve transactions), or with
 // whatever seed a test builds.
 //
 //   final InMemoryStore store = seededStore();
 //   await pumpApp(tester, overrides: [storeOverride(store)]);
 //
 // The test keeps the store, so it can read back what the screen wrote.
-import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/clock.dart';
@@ -14,9 +13,10 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:shared_models/shared_models.dart';
 
 import 'pump_app.dart';
+import 'test_seed.dart';
 
 /// A store on [clock] ([testClock] by default) holding the system categories and [seed]
-/// (the demo seed dated to the clock's today by default).
+/// (the test seed dated to the clock's today by default).
 InMemoryStore seededStore({
   DemoSeed? seed,
   bool categories = true,
@@ -33,10 +33,10 @@ InMemoryStore seededStore({
 Override storeOverride(InMemoryStore store) =>
     inMemoryStoreProvider.overrideWithValue(store);
 
-/// The demo seed's checking account, `demo-checking`.
+/// The test seed's checking account, `demo-checking`.
 const String checkingId = 'demo-checking';
 
-/// The demo seed's credit card, `demo-card`.
+/// The test seed's credit card, `demo-card`.
 const String cardId = 'demo-card';
 
 /// A manual transaction on [accountId] of [cents] minor units in [currency], dated

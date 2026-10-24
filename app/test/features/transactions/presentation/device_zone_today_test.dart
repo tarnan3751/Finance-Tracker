@@ -1,7 +1,6 @@
 // "Today" is the device zone's, not UTC's: at 04:30 UTC on 8 March 2026 it is still
 // 7 March in New York, so the list's "Today" is the 7th, "Yesterday" the 6th, and a new
 // transaction is dated the 7th.
-import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
@@ -13,6 +12,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../../../helpers/pump_app.dart';
 import '../../../helpers/seed.dart';
+import '../../../helpers/test_seed.dart';
 
 void main() {
   setUpAll(tzdata.initializeTimeZones);

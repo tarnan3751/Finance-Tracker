@@ -1231,5 +1231,45 @@
   "syncNow": "Sync now",
   "@syncNow": {
     "description": "Button that starts a sync at once."
+  },
+  "settingsDemoData": "Demo data",
+  "@settingsDemoData": {
+    "description": "Heading of the settings section, in the demo build only, that chooses which made-up household the demo shows."
+  },
+  "demoDataNote": "Choosing another household starts the demo over; changes made in the demo are not kept.",
+  "@demoDataNote": {
+    "description": "Explanation above the list of demo households."
+  },
+  "demoPersonaRenter": "Renter",
+  "@demoPersonaRenter": {
+    "description": "Name of the demo household of a renter."
+  },
+  "demoPersonaRenterDetail": "Gig income, subscriptions and a credit card",
+  "@demoPersonaRenterDetail": {
+    "description": "What the renter demo household has."
+  },
+  "demoPersonaFamily": "Family",
+  "@demoPersonaFamily": {
+    "description": "Name of the demo household of a family."
+  },
+  "demoPersonaFamilyDetail": "Two salaries, a mortgage, car loans and a 401(k)",
+  "@demoPersonaFamilyDetail": {
+    "description": "What the family demo household has."
+  },
+  "demoPersonaStudent": "Student",
+  "@demoPersonaStudent": {
+    "description": "Name of the demo household of a student."
+  },
+  "demoPersonaStudentDetail": "Student loans, a campus job and help from a parent",
+  "@demoPersonaStudentDetail": {
+    "description": "What the student demo household has."
+  },
+  "demoPersonaSmallBusiness": "Small business owner",
+  "@demoPersonaSmallBusiness": {
+    "description": "Name of the demo household of a small business owner."
+  },
+  "demoPersonaSmallBusinessDetail": "Business and personal accounts, and quarterly taxes",
+  "@demoPersonaSmallBusinessDetail": {
+    "description": "What the small business owner demo household has."
   }
 }

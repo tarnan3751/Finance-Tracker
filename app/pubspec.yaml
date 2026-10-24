@@ -35,6 +35,9 @@ dependencies:
   package_info_plus: ^10.2.2
   path: ^1.9.0
   path_provider: ^2.1.6
+  # The demo flavor's data: the persona engine's demo seed, generated at startup.
+  persona_engine:
+    path: ../tools/persona_engine
   riverpod_annotation: 4.0.7
   shared_models:
     path: ../packages/shared_models

@@ -5,12 +5,12 @@
 // `golden`; see test/flutter_test_config.dart for where the files go and how to update
 // them.
 import 'package:alchemist/alchemist.dart';
-import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/pump_app.dart';
 import '../helpers/seed.dart';
+import '../helpers/test_seed.dart';
 
 Widget _app(String location, Brightness brightness, {DemoSeed? seed}) =>
     SizedBox.fromSize(

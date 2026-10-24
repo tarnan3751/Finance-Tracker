@@ -2,7 +2,6 @@
 // currency and an optional opening balance that becomes a manual transaction dated today
 // (or the picked date); input with too many decimals is an error, never rounded; the
 // currency is fixed once the account has transactions; edits are saved.
-import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
@@ -14,6 +13,7 @@ import 'package:shared_models/shared_models.dart';
 
 import '../../../helpers/pump_app.dart';
 import '../../../helpers/seed.dart';
+import '../../../helpers/test_seed.dart';
 
 Finder _field(String label) => find.widgetWithText(TextFormField, label);
 

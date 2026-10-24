@@ -1,193 +1,60 @@
-/// The demo flavor's data: a small, hand-written household that runs with no server and no
-/// database (`PLAN.md` §7.1: synthesized data lives in the demo flavor, labelled `demo`).
+/// The demo flavor's data: a household from the persona engine, generated at startup with
+/// no server and no database (`PLAN.md` §7.1: synthesized data lives in the demo flavor,
+/// labelled `demo`; `docs/reference/persona.md`).
 ///
-/// Two manual accounts and a dozen transactions over the 60 days before "today", every one
-/// with `source: DataSource.demo`, categorized with the seeded system categories. The seed
-/// is deterministic for a given day: the same date gives the same records, ids and audit
-/// instants. Phase 2's persona engine replaces the content; [DemoSeed] is the shape it
-/// produces.
+/// The persona engine's accounts belong to demo Items and report the balance their
+/// history gives; the app's accounts screens show balances derived from transactions, so
+/// each non-zero opening balance (the balance the day before the window, which the
+/// engine keeps apart from the transactions) is loaded as an "Opening balance"
+/// transaction, `source: demo`, dated that day, as a manual account's opening balance is.
+/// Investment accounts have no transaction history in the engine, so they derive to their
+/// uninvested cash only (holdings arrive with Phase 6). The engine's Items, institutions,
+/// liabilities, holdings, recurring expectations and anomalies are not loaded: the app has
+/// no repositories for them before Phase 3.
 library;
 
 import 'package:finance_tracker/core/db/in_memory_store.dart';
-import 'package:finance_tracker/features/categories/data/category_defaults.dart';
+import 'package:persona_engine/persona_engine.dart';
 import 'package:shared_models/shared_models.dart';
 
-/// The records the demo flavor starts with.
-final class DemoSeed {
-  /// A seed of [accounts] and [transactions].
-  const DemoSeed({required this.accounts, required this.transactions});
-
-  /// A seed with nothing in it.
-  const DemoSeed.empty() : accounts = const [], transactions = const [];
-
-  final List<Account> accounts;
-  final List<Transaction> transactions;
+/// The persona the demo flavor starts with: the `FT_DEMO_PERSONA` dart-define's slug
+/// ([PersonaId.slug]), or the renter when it is unset or names no persona.
+PersonaId initialDemoPersona([
+  String slug = const String.fromEnvironment('FT_DEMO_PERSONA'),
+]) {
+  for (final PersonaId persona in PersonaId.values) {
+    if (persona.slug == slug) return persona;
+  }
+  return PersonaId.renter;
 }
 
-/// Loads [seed] into [store], through the store's rules. The demo flavor's store also
-/// holds the system categories, which `CategoryRepository.ensureSeeded` adds.
+/// The demo seed of [persona] as of [today]: seed 1, the engine's full window.
+DemoSeed demoSeedFor(PersonaId persona, LocalDate today) =>
+    generateDemoSeed(persona, 1, today);
+
+/// Loads [seed] into [store], through the store's rules: the accounts, an opening balance
+/// transaction for each non-zero opening balance, then the transactions.
 void loadDemoSeed(InMemoryStore store, DemoSeed seed) {
-  seed.accounts.forEach(store.upsertAccount);
-  seed.transactions.forEach(store.upsertTransaction);
-}
-
-const String _checking = 'demo-checking';
-const String _card = 'demo-card';
-const String _usd = 'USD';
-
-/// The demo seed with its transactions dated relative to [today].
-DemoSeed buildDemoSeed(LocalDate today) {
-  int number = 0;
-  Transaction entry(
-    String account,
-    int daysAgo,
-    int cents,
-    String name, {
-    String? merchant,
-    String? category,
-    bool pending = false,
-    List<String> tags = const [],
-    List<TransactionSplit> splits = const [],
-  }) {
-    number++;
-    final LocalDate date = today.addDays(-daysAgo);
-    final DateTime at = DateTime.utc(date.year, date.month, date.day, 12);
-    return Transaction(
-      id: 'demo-txn-${number.toString().padLeft(2, '0')}',
-      accountId: account,
-      amount: Money(cents, _usd),
-      date: date,
-      pending: pending,
-      name: name,
-      merchantName: merchant,
-      userCategoryId: category == null ? null : systemCategoryId(category),
-      tags: tags,
-      splits: splits,
-      source: DataSource.demo,
-      createdAt: at,
-      updatedAt: at,
-      syncVersion: 0,
+  final GeneratedHousehold household = seed.household;
+  household.accounts.forEach(store.upsertAccount);
+  for (final OpeningBalance opening in household.openingBalances) {
+    if (opening.amount.isZero) continue;
+    final LocalDate date = opening.date;
+    final DateTime at = DateTime.utc(date.year, date.month, date.day);
+    store.upsertTransaction(
+      Transaction(
+        id: '${opening.accountId}-opening',
+        accountId: opening.accountId,
+        amount: opening.amount,
+        date: date,
+        pending: false,
+        name: 'Opening balance',
+        source: DataSource.demo,
+        createdAt: at,
+        updatedAt: at,
+        syncVersion: 0,
+      ),
     );
   }
-
-  return DemoSeed(
-    accounts: const [
-      Account(
-        id: _checking,
-        type: AccountType.depository,
-        subtype: 'checking',
-        name: 'Everyday Checking',
-        currencyCode: _usd,
-        isHidden: false,
-        displayOrder: 0,
-      ),
-      Account(
-        id: _card,
-        type: AccountType.credit,
-        subtype: 'credit card',
-        name: 'Rewards Card',
-        currencyCode: _usd,
-        isHidden: false,
-        displayOrder: 1,
-      ),
-    ],
-    transactions: [
-      entry(_checking, 58, 320000, 'Opening balance'),
-      entry(
-        _checking,
-        45,
-        245000,
-        'ACME CORP PAYROLL',
-        category: 'INCOME_SALARY',
-      ),
-      entry(
-        _checking,
-        44,
-        -145000,
-        'Rent',
-        category: 'RENT_AND_UTILITIES_RENT',
-      ),
-      entry(
-        _card,
-        40,
-        -12418,
-        'WHOLEFDS MKT 10234',
-        merchant: 'Whole Foods Market',
-        category: 'FOOD_AND_DRINK_GROCERIES',
-        tags: const ['household'],
-        splits: [
-          TransactionSplit(
-            categoryId: systemCategoryId('FOOD_AND_DRINK_GROCERIES'),
-            amount: Money(-10000, _usd),
-          ),
-          TransactionSplit(
-            categoryId: systemCategoryId('GENERAL_MERCHANDISE_SUPERSTORES'),
-            amount: Money(-2418, _usd),
-            note: 'Household supplies',
-          ),
-        ],
-      ),
-      entry(
-        _checking,
-        30,
-        -8640,
-        'CITY POWER & LIGHT',
-        category: 'RENT_AND_UTILITIES_GAS_AND_ELECTRICITY',
-      ),
-      entry(
-        _card,
-        26,
-        -1549,
-        'NETFLIX.COM',
-        merchant: 'Netflix',
-        category: 'ENTERTAINMENT_TV_AND_MOVIES',
-        tags: const ['subscription'],
-      ),
-      entry(
-        _card,
-        20,
-        -4802,
-        'SHELL OIL 57442',
-        merchant: 'Shell',
-        category: 'TRANSPORTATION_GAS',
-      ),
-      entry(
-        _checking,
-        15,
-        245000,
-        'ACME CORP PAYROLL',
-        category: 'INCOME_SALARY',
-      ),
-      entry(
-        _checking,
-        14,
-        -145000,
-        'Rent',
-        category: 'RENT_AND_UTILITIES_RENT',
-      ),
-      entry(
-        _checking,
-        12,
-        -18769,
-        'Card payment',
-        category: 'LOAN_PAYMENTS_CREDIT_CARD_PAYMENT',
-      ),
-      entry(
-        _card,
-        12,
-        18769,
-        'Payment received',
-        category: 'LOAN_PAYMENTS_CREDIT_CARD_PAYMENT',
-      ),
-      entry(
-        _card,
-        1,
-        -575,
-        'BLUE BOTTLE COFFEE',
-        merchant: 'Blue Bottle Coffee',
-        category: 'FOOD_AND_DRINK_COFFEE',
-        pending: true,
-      ),
-    ],
-  );
+  household.transactions.forEach(store.upsertTransaction);
 }

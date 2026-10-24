@@ -1,7 +1,7 @@
 /// The Settings tab: Account (`features/auth/presentation/account_section.dart`), Sync
 /// (dev and prod, `sync_section.dart`), Appearance (theme mode, dynamic color), Data
 /// (category management) and About (app name, version and build, flavor, the time zone
-/// dates are computed in).
+/// dates are computed in), then Demo data (demo only, `demo_data_section.dart`).
 library;
 
 import 'package:finance_tracker/core/config/app_config.dart';
@@ -11,6 +11,7 @@ import 'package:finance_tracker/features/auth/presentation/account_section.dart'
 import 'package:finance_tracker/features/settings/application/package_info.dart';
 import 'package:finance_tracker/features/settings/application/settings_controller.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
+import 'package:finance_tracker/features/settings/presentation/demo_data_section.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/features/settings/presentation/sync_section.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -100,6 +101,8 @@ class SettingsScreen extends ConsumerWidget {
           ),
           ListTile(title: Text(l10n.aboutFlavor), subtitle: Text(flavor)),
           ListTile(title: Text(l10n.aboutTimeZone), subtitle: Text(timeZone)),
+          if (ref.watch(appConfigProvider).flavor == Flavor.demo)
+            const DemoDataSection(),
         ],
       ),
     );

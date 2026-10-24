@@ -1599,6 +1599,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sync now'**
   String get syncNow;
+
+  /// Heading of the settings section, in the demo build only, that chooses which made-up household the demo shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo data'**
+  String get settingsDemoData;
+
+  /// Explanation above the list of demo households.
+  ///
+  /// In en, this message translates to:
+  /// **'Choosing another household starts the demo over; changes made in the demo are not kept.'**
+  String get demoDataNote;
+
+  /// Name of the demo household of a renter.
+  ///
+  /// In en, this message translates to:
+  /// **'Renter'**
+  String get demoPersonaRenter;
+
+  /// What the renter demo household has.
+  ///
+  /// In en, this message translates to:
+  /// **'Gig income, subscriptions and a credit card'**
+  String get demoPersonaRenterDetail;
+
+  /// Name of the demo household of a family.
+  ///
+  /// In en, this message translates to:
+  /// **'Family'**
+  String get demoPersonaFamily;
+
+  /// What the family demo household has.
+  ///
+  /// In en, this message translates to:
+  /// **'Two salaries, a mortgage, car loans and a 401(k)'**
+  String get demoPersonaFamilyDetail;
+
+  /// Name of the demo household of a student.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get demoPersonaStudent;
+
+  /// What the student demo household has.
+  ///
+  /// In en, this message translates to:
+  /// **'Student loans, a campus job and help from a parent'**
+  String get demoPersonaStudentDetail;
+
+  /// Name of the demo household of a small business owner.
+  ///
+  /// In en, this message translates to:
+  /// **'Small business owner'**
+  String get demoPersonaSmallBusiness;
+
+  /// What the small business owner demo household has.
+  ///
+  /// In en, this message translates to:
+  /// **'Business and personal accounts, and quarterly taxes'**
+  String get demoPersonaSmallBusinessDetail;
 }
 
 class _AppLocalizationsDelegate

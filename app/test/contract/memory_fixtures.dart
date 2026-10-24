@@ -1,7 +1,6 @@
 // Fixtures of the in-memory and demo implementations for the contract suites: the three
 // repositories over one fresh InMemoryStore (the demo one loaded with an empty seed, so the
 // suites' "fresh repository" cases hold; the real seed has its own test).
-import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/accounts/data/demo_account_repository.dart';
@@ -14,6 +13,7 @@ import 'package:finance_tracker/features/transactions/data/demo_transaction_repo
 import 'package:finance_tracker/features/transactions/data/in_memory_transaction_repository.dart';
 import 'package:sync_engine/sync_engine.dart';
 
+import '../helpers/test_seed.dart';
 import 'repository_fixture.dart';
 
 /// A fixture factory and its dispose, for one implementation.
