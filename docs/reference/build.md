@@ -42,8 +42,10 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   when `prod` is given a URL whose scheme is not `https`.
 - dev and prod share the id registered with Plaid; demo never touches Plaid and installs
   beside either.
-- The banner is Flutter's `Banner` in the top-end corner. When it is shown the debug banner
-  is turned off, since it sits in the same corner and would hide it.
+- The banner is Flutter's `Banner` in the top-end corner, drawn over the whole app by
+  `FlavorBanner` (`app/lib/core/widgets/flavor_banner.dart`) from `MaterialApp.router`'s
+  `builder`, and laid out below the status bar so its text is never hidden. When it is
+  shown the debug banner is turned off, since it sits in the same corner and would hide it.
 - The Android flavor and the `-t` entry point must agree; a mismatch runs the wrong
   configuration under the wrong id. No flavor is named `release`, `debug` or `profile`:
   AGP refuses a flavor named like a build type.
