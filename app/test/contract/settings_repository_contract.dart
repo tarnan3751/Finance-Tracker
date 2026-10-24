@@ -1,19 +1,20 @@
-// The contract every SettingsRepository implementation passes: the in-memory one now
-// (in_memory_settings_repository_test.dart), the Drift one from Phase 1c. Call
-// settingsRepositoryContract from a test file with a factory for a fresh, empty
-// repository; the factory registers its own teardown with addTearDown.
-import 'dart:async';
-
-import 'package:finance_tracker/features/settings/data/settings_repository.dart';
+// The contract every SettingsRepository implementation passes: the in-memory and demo ones
+// and the Drift one, each from its own test file under test/features/settings/. Call
+// runSettingsRepositoryContract with a factory for a fresh, empty repository and, when the
+// repository holds resources, a dispose that releases the one the factory made last.
 import 'package:finance_tracker/features/settings/domain/settings.dart';
+import 'package:finance_tracker/features/settings/domain/settings_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Registers the contract tests for the implementation [create] builds.
-void settingsRepositoryContract(
-  String implementation,
-  FutureOr<SettingsRepository> Function() create,
-) {
-  group('$implementation satisfies the SettingsRepository contract', () {
+/// Registers the contract tests for the implementation [create] builds; [dispose] runs
+/// after each test.
+void runSettingsRepositoryContract(
+  Future<SettingsRepository> Function() create, {
+  Future<void> Function()? dispose,
+}) {
+  group('SettingsRepository contract', () {
+    if (dispose != null) tearDown(dispose);
+
     const Settings changed = Settings(
       themeMode: AppThemeMode.dark,
       useDynamicColor: false,

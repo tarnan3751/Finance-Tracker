@@ -1,6 +1,5 @@
-/// Where the app preferences are kept. The in-memory implementation is the default in
-/// every flavor until Phase 1c adds the Drift one for dev and prod; both pass
-/// `test/features/settings/settings_repository_contract.dart`.
+/// Where the app preferences are kept. Every implementation passes
+/// `test/contract/settings_repository_contract.dart`.
 library;
 
 import 'package:finance_tracker/features/settings/domain/settings.dart';

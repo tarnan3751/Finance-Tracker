@@ -4,8 +4,8 @@ library;
 
 import 'dart:async';
 
-import 'package:finance_tracker/features/settings/data/settings_repository.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
+import 'package:finance_tracker/features/settings/domain/settings_repository.dart';
 
 /// Settings kept in memory for the life of the object.
 final class InMemorySettingsRepository implements SettingsRepository {

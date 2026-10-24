@@ -8,7 +8,7 @@ library;
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/settings/data/in_memory_settings_repository.dart';
-import 'package:finance_tracker/features/settings/data/settings_repository.dart';
+import 'package:finance_tracker/features/settings/domain/settings_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'providers.g.dart';
