@@ -1,0 +1,21 @@
+name: persona_engine
+description: >-
+  Deterministic synthetic households for the Finance Tracker: the demo seed, Plaid Sandbox
+  custom users and Sandbox injection batches, all from one persona and one seed.
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+resolution: workspace
+
+dependencies:
+  args: ^2.7.0
+  collection: ^1.19.1
+  meta: ^1.16.0
+  shared_models:
+    path: ../../packages/shared_models
+
+dev_dependencies:
+  lints: ^6.1.0
+  test: ^1.31.1
