@@ -2,17 +2,22 @@
 // FinanceTrackerApp (router, themes, localizations, flavor banner), with the dependencies
 // a test must pin overridden: the flavor, the clock, the package info and the settings.
 // The flavor's own wiring (overridesFor: the Drift or demo repositories) is not applied,
-// so every test runs on the in-memory repositories whatever its flavor.
+// so every test runs on the in-memory repositories whatever its flavor. The API is the
+// real client on the in-app fake server (fakeServerProvider), and the app starts signed
+// in as the demo user unless `signedIn: false`; the router is the flavor's, so dev and
+// prod tests go through the session gate.
 //
 //   await pumpApp(tester, initialLocation: '/settings', brightness: Brightness.dark);
 //
 // A test's own `overrides` come after the defaults, so they win. Riverpod's automatic
 // retry is off, so a failing provider fails the test at once.
 import 'package:finance_tracker/app.dart';
+import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/app_router.dart';
 import 'package:finance_tracker/core/time/clock.dart';
+import 'package:finance_tracker/features/auth/application/device_name.dart';
 import 'package:finance_tracker/features/settings/application/package_info.dart';
 import 'package:finance_tracker/features/settings/data/in_memory_settings_repository.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
@@ -48,6 +53,7 @@ Widget buildTestApp({
   String initialLocation = '/accounts',
   Brightness brightness = Brightness.light,
   Clock? clock,
+  bool signedIn = true,
 }) {
   return ProviderScope(
     retry: (_, _) => null,
@@ -57,6 +63,7 @@ Widget buildTestApp({
       initialLocation: initialLocation,
       brightness: brightness,
       clock: clock,
+      signedIn: signedIn,
     ),
     child: const FinanceTrackerApp(),
   );
@@ -65,7 +72,9 @@ Widget buildTestApp({
 /// The overrides of a test app: [config] (prod, which draws no flavor banner, by
 /// default) as `appConfigProvider` only, [clock] ([testClock] by default),
 /// [testPackageInfo], settings whose theme mode gives
-/// [brightness], and a router opening at [initialLocation]; then [overrides], which win.
+/// [brightness], the fake server with the demo user signed in when [signedIn] (the
+/// device named "Pixel 6"), and the flavor's router opening at [initialLocation]; then
+/// [overrides], which win.
 /// A test that overrides `settingsRepositoryProvider` itself sets the theme mode there.
 List<Override> testOverrides({
   List<Override> overrides = const [],
@@ -73,6 +82,7 @@ List<Override> testOverrides({
   String initialLocation = '/accounts',
   Brightness brightness = Brightness.light,
   Clock? clock,
+  bool signedIn = true,
 }) => [
   appConfigProvider.overrideWithValue(config ?? AppConfig.prod()),
   clockProvider.overrideWithValue(clock ?? testClock),
@@ -88,11 +98,12 @@ List<Override> testOverrides({
     ref.onDispose(repository.close);
     return repository;
   }),
-  goRouterProvider.overrideWith((ref) {
-    final router = createRouter(initialLocation: initialLocation);
-    ref.onDispose(router.dispose);
-    return router;
-  }),
+  ...fakeApiOverrides(signedIn: signedIn),
+  deviceNameProvider.overrideWith((ref) async => 'Pixel 6'),
+  appVersionProvider.overrideWith((ref) async => testPackageInfo.version),
+  goRouterProvider.overrideWith(
+    (ref) => routerFor(ref, initialLocation: initialLocation),
+  ),
   ...overrides,
 ];
 
@@ -106,6 +117,7 @@ Future<void> pumpApp(
   double textScale = 1.0,
   Size size = phoneSize,
   Clock? clock,
+  bool signedIn = true,
 }) async {
   tester.view.physicalSize = size * tester.view.devicePixelRatio;
   addTearDown(tester.view.resetPhysicalSize);
@@ -119,6 +131,7 @@ Future<void> pumpApp(
       initialLocation: initialLocation,
       brightness: brightness,
       clock: clock,
+      signedIn: signedIn,
     ),
   );
   await tester.pumpAndSettle();

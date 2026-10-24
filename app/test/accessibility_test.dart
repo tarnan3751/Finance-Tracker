@@ -2,7 +2,9 @@
 // enough and labelled, text has enough contrast, and nothing overflows at twice the text
 // size. The shell's tabs are checked empty; every screen is also checked on the demo seed
 // (two accounts, twelve transactions, the system categories), and the filter sheet and the
-// category picker open over their screens.
+// category picker open over their screens. The sign-in and registration screens are
+// checked signed out; their text scale is checked with their errors showing, in
+// test/features/auth/auth_screens_test.dart.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -76,7 +78,36 @@ final Map<String, _Screen> _screens = {
 List<Override> _overrides(_Screen screen) =>
     screen.seeded ? [storeOverride(seededStore())] : const [];
 
+/// The auth screens, which only a signed-out user sees.
+const Map<String, String> _authScreens = {
+  'Sign in': '/sign-in',
+  'Register': '/register',
+};
+
 void main() {
+  for (final MapEntry(key: String name, value: String location)
+      in _authScreens.entries) {
+    for (final Brightness brightness in Brightness.values) {
+      testWidgets('$name (${brightness.name}) meets the Android and contrast '
+          'guidelines', (tester) async {
+        final SemanticsHandle semantics = tester.ensureSemantics();
+        try {
+          await pumpApp(
+            tester,
+            initialLocation: location,
+            brightness: brightness,
+            signedIn: false,
+          );
+          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+          await expectLater(tester, meetsGuideline(textContrastGuideline));
+        } finally {
+          semantics.dispose();
+        }
+      });
+    }
+  }
+
   for (final MapEntry(key: String name, value: _Screen screen)
       in _screens.entries) {
     for (final Brightness brightness in Brightness.values) {

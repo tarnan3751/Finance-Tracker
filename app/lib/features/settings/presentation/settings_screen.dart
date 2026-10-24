@@ -1,12 +1,15 @@
-/// The Settings tab: Appearance (theme mode, dynamic color), Data (category management)
-/// and About (app name, version and build, flavor, the time zone dates are computed in).
+/// The Settings tab: Account (`features/auth/presentation/account_section.dart`),
+/// Appearance (theme mode, dynamic color), Data (category management) and About (app
+/// name, version and build, flavor, the time zone dates are computed in).
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/features/auth/presentation/account_section.dart';
 import 'package:finance_tracker/features/settings/application/package_info.dart';
 import 'package:finance_tracker/features/settings/application/settings_controller.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
+import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,7 +36,8 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.navSettings)),
       body: ListView(
         children: [
-          _SectionHeader(l10n.settingsAppearance),
+          const AccountSection(),
+          SettingsSectionHeader(l10n.settingsAppearance),
           if (settings == null)
             const LinearProgressIndicator()
           else ...[
@@ -69,14 +73,14 @@ class SettingsScreen extends ConsumerWidget {
               onChanged: controller.setUseDynamicColor,
             ),
           ],
-          _SectionHeader(l10n.settingsData),
+          SettingsSectionHeader(l10n.settingsData),
           ListTile(
             leading: const Icon(Icons.category_outlined),
             title: Text(l10n.categoriesTitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => const CategoriesRoute().push<void>(context),
           ),
-          _SectionHeader(l10n.settingsAbout),
+          SettingsSectionHeader(l10n.settingsAbout),
           ListTile(title: Text(l10n.aboutAppName), subtitle: Text(appName)),
           ListTile(
             title: Text(l10n.aboutVersion),
@@ -92,29 +96,6 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(title: Text(l10n.aboutFlavor), subtitle: Text(flavor)),
           ListTile(title: Text(l10n.aboutTimeZone), subtitle: Text(timeZone)),
         ],
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader(this.title);
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return Semantics(
-      header: true,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-        child: Text(
-          title,
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: theme.colorScheme.primary,
-          ),
-        ),
       ),
     );
   }

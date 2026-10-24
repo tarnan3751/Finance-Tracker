@@ -7,7 +7,8 @@
 /// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/:id` |
 /// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id` |
 ///
-/// `/` redirects to `/accounts` (`app_router.dart`). Detail and editor routes are
+/// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
+/// user is sent in dev and prod. `/` redirects to `/accounts` (`app_router.dart`). Detail and editor routes are
 /// sub-routes of their branch, so each tab keeps its own stack; pushing a route of another
 /// branch (a transaction from an account's detail, category management from the category
 /// picker) opens it on top of the current tab's stack, and back returns there. Navigate
@@ -19,6 +20,8 @@ import 'package:finance_tracker/core/router/app_shell.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_detail_screen.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_editor_screen.dart';
 import 'package:finance_tracker/features/accounts/presentation/accounts_screen.dart';
+import 'package:finance_tracker/features/auth/presentation/register_screen.dart';
+import 'package:finance_tracker/features/auth/presentation/sign_in_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/categories_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/category_editor_screen.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
@@ -219,4 +222,24 @@ class EditCategoryRoute extends GoRouteData with $EditCategoryRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       CategoryEditorScreen(categoryId: id);
+}
+
+/// `/sign-in`: the sign-in screen, outside the shell.
+@TypedGoRoute<SignInRoute>(path: '/sign-in')
+class SignInRoute extends GoRouteData with $SignInRoute {
+  const SignInRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const SignInScreen();
+}
+
+/// `/register`: the registration screen, outside the shell.
+@TypedGoRoute<RegisterRoute>(path: '/register')
+class RegisterRoute extends GoRouteData with $RegisterRoute {
+  const RegisterRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const RegisterScreen();
 }

@@ -8,6 +8,44 @@ part of 'api_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// The installed version, for the `User-Agent`.
+
+@ProviderFor(appVersion)
+final appVersionProvider = AppVersionProvider._();
+
+/// The installed version, for the `User-Agent`.
+
+final class AppVersionProvider
+    extends $FunctionalProvider<AsyncValue<String>, String, FutureOr<String>>
+    with $FutureModifier<String>, $FutureProvider<String> {
+  /// The installed version, for the `User-Agent`.
+  AppVersionProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'appVersionProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$appVersionHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<String> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String> create(Ref ref) {
+    return appVersion(ref);
+  }
+}
+
+String _$appVersionHash() => r'59b58cc8214f60571dfe517b1f68cfc1aed29718';
+
 /// Where the session is kept: secure storage.
 
 @ProviderFor(tokenStore)
@@ -144,4 +182,4 @@ final class FinanceApiProvider
   }
 }
 
-String _$financeApiHash() => r'b906f4e9a51c1a9bfd648dcbeb6d88dee47db68d';
+String _$financeApiHash() => r'bb9a5746f3a7cc643c6b16b805fb73be52841221';

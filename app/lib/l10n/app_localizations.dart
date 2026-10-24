@@ -1323,6 +1323,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 entry could not be read and was left in place.} other{{count} entries could not be read and were left in place.}}'**
   String legacyImportSkipped(int count);
+
+  /// Title of the sign-in screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signInTitle;
+
+  /// Button that signs in with the email and password entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signInSubmit;
+
+  /// Accessibility label of the progress indicator while signing in.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing in'**
+  String get signInSubmitting;
+
+  /// Link from the sign-in screen to the registration screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account'**
+  String get signInCreateAccount;
+
+  /// Title of the registration screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account'**
+  String get registerTitle;
+
+  /// Button that creates the account with the details entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get registerSubmit;
+
+  /// Accessibility label of the progress indicator while the account is created.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating your account'**
+  String get registerSubmitting;
+
+  /// Link from the registration screen back to the sign-in screen.
+  ///
+  /// In en, this message translates to:
+  /// **'I already have an account'**
+  String get registerHaveAccount;
+
+  /// Shows the name this phone is registered under.
+  ///
+  /// In en, this message translates to:
+  /// **'This device: {name}'**
+  String registerDeviceName(String name);
+
+  /// Label of the email field on the sign-in and registration screens.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get authEmailLabel;
+
+  /// Label of the password field on the sign-in and registration screens.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPasswordLabel;
+
+  /// Helper text under the password field of the registration screen.
+  ///
+  /// In en, this message translates to:
+  /// **'8 to 128 characters'**
+  String get authPasswordHelper;
+
+  /// Label of the optional display name field on the registration screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (optional)'**
+  String get authDisplayNameLabel;
+
+  /// Tooltip and accessibility label of the button that shows the password.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get authShowPassword;
+
+  /// Tooltip and accessibility label of the button that hides the password.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get authHidePassword;
+
+  /// Error under the email field when it is not an email address.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address'**
+  String get authEmailInvalid;
+
+  /// Error under the password field when it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password'**
+  String get authPasswordRequired;
+
+  /// Error under the password field when it is too short or too long.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 8 to 128 characters'**
+  String get authPasswordLength;
+
+  /// Error under the display name field when it is too long.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at most 100 characters'**
+  String get authDisplayNameLength;
+
+  /// Shown when sign-in fails because the email or password is wrong.
+  ///
+  /// In en, this message translates to:
+  /// **'The email or password is incorrect.'**
+  String get authErrorInvalidCredentials;
+
+  /// Shown when the server refuses because of too many attempts, with the wait it asked for.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds, plural, =1{Too many attempts. Try again in 1 second.} other{Too many attempts. Try again in {seconds} seconds.}}'**
+  String authErrorRateLimited(int seconds);
+
+  /// Shown when the server refuses because of too many attempts and gives no wait.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Try again later.'**
+  String get authErrorRateLimitedLater;
+
+  /// Shown when registering with an email that already has an account.
+  ///
+  /// In en, this message translates to:
+  /// **'An account with this email already exists.'**
+  String get authErrorEmailTaken;
+
+  /// Shown when the server cannot be reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reach the server. Check your connection and try again.'**
+  String get authErrorNetwork;
+
+  /// Shown when the server refused the details entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the highlighted fields and try again.'**
+  String get authErrorValidation;
+
+  /// Shown when a sign-in or registration is refused because this install belongs to another account.
+  ///
+  /// In en, this message translates to:
+  /// **'This device already holds another account\'s data. Sign in with that account, or clear the app\'s storage in Android settings to start over.'**
+  String get authErrorOtherAccount;
+
+  /// Shown when sign-in or registration fails for another reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Try again.'**
+  String get authErrorGeneric;
+
+  /// Header of the account section of the Settings screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settingsAccount;
+
+  /// The account row of the Settings screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as {email}'**
+  String settingsSignedInAs(String email);
+
+  /// Settings row that signs this device out.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get settingsSignOut;
+
+  /// Settings row (dev builds only) showing the server the app talks to.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get settingsServer;
+
+  /// Value of the Server row when the dev build runs on the in-app fake server.
+  ///
+  /// In en, this message translates to:
+  /// **'In-app fake server'**
+  String get settingsServerFake;
 }
 
 class _AppLocalizationsDelegate

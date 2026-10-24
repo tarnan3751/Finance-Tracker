@@ -1001,5 +1001,151 @@
         "example": "2"
       }
     }
+  },
+  "signInTitle": "Sign in",
+  "@signInTitle": {
+    "description": "Title of the sign-in screen."
+  },
+  "signInSubmit": "Sign in",
+  "@signInSubmit": {
+    "description": "Button that signs in with the email and password entered."
+  },
+  "signInSubmitting": "Signing in",
+  "@signInSubmitting": {
+    "description": "Accessibility label of the progress indicator while signing in."
+  },
+  "signInCreateAccount": "Create an account",
+  "@signInCreateAccount": {
+    "description": "Link from the sign-in screen to the registration screen."
+  },
+  "registerTitle": "Create an account",
+  "@registerTitle": {
+    "description": "Title of the registration screen."
+  },
+  "registerSubmit": "Create account",
+  "@registerSubmit": {
+    "description": "Button that creates the account with the details entered."
+  },
+  "registerSubmitting": "Creating your account",
+  "@registerSubmitting": {
+    "description": "Accessibility label of the progress indicator while the account is created."
+  },
+  "registerHaveAccount": "I already have an account",
+  "@registerHaveAccount": {
+    "description": "Link from the registration screen back to the sign-in screen."
+  },
+  "registerDeviceName": "This device: {name}",
+  "@registerDeviceName": {
+    "description": "Shows the name this phone is registered under.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Pixel 6"
+      }
+    }
+  },
+  "authEmailLabel": "Email",
+  "@authEmailLabel": {
+    "description": "Label of the email field on the sign-in and registration screens."
+  },
+  "authPasswordLabel": "Password",
+  "@authPasswordLabel": {
+    "description": "Label of the password field on the sign-in and registration screens."
+  },
+  "authPasswordHelper": "8 to 128 characters",
+  "@authPasswordHelper": {
+    "description": "Helper text under the password field of the registration screen."
+  },
+  "authDisplayNameLabel": "Name (optional)",
+  "@authDisplayNameLabel": {
+    "description": "Label of the optional display name field on the registration screen."
+  },
+  "authShowPassword": "Show password",
+  "@authShowPassword": {
+    "description": "Tooltip and accessibility label of the button that shows the password."
+  },
+  "authHidePassword": "Hide password",
+  "@authHidePassword": {
+    "description": "Tooltip and accessibility label of the button that hides the password."
+  },
+  "authEmailInvalid": "Enter a valid email address",
+  "@authEmailInvalid": {
+    "description": "Error under the email field when it is not an email address."
+  },
+  "authPasswordRequired": "Enter your password",
+  "@authPasswordRequired": {
+    "description": "Error under the password field when it is empty."
+  },
+  "authPasswordLength": "Use 8 to 128 characters",
+  "@authPasswordLength": {
+    "description": "Error under the password field when it is too short or too long."
+  },
+  "authDisplayNameLength": "Use at most 100 characters",
+  "@authDisplayNameLength": {
+    "description": "Error under the display name field when it is too long."
+  },
+  "authErrorInvalidCredentials": "The email or password is incorrect.",
+  "@authErrorInvalidCredentials": {
+    "description": "Shown when sign-in fails because the email or password is wrong."
+  },
+  "authErrorRateLimited": "{seconds, plural, =1{Too many attempts. Try again in 1 second.} other{Too many attempts. Try again in {seconds} seconds.}}",
+  "@authErrorRateLimited": {
+    "description": "Shown when the server refuses because of too many attempts, with the wait it asked for.",
+    "placeholders": {
+      "seconds": {
+        "type": "int",
+        "example": "30"
+      }
+    }
+  },
+  "authErrorRateLimitedLater": "Too many attempts. Try again later.",
+  "@authErrorRateLimitedLater": {
+    "description": "Shown when the server refuses because of too many attempts and gives no wait."
+  },
+  "authErrorEmailTaken": "An account with this email already exists.",
+  "@authErrorEmailTaken": {
+    "description": "Shown when registering with an email that already has an account."
+  },
+  "authErrorNetwork": "Can't reach the server. Check your connection and try again.",
+  "@authErrorNetwork": {
+    "description": "Shown when the server cannot be reached."
+  },
+  "authErrorValidation": "Check the highlighted fields and try again.",
+  "@authErrorValidation": {
+    "description": "Shown when the server refused the details entered."
+  },
+  "authErrorOtherAccount": "This device already holds another account's data. Sign in with that account, or clear the app's storage in Android settings to start over.",
+  "@authErrorOtherAccount": {
+    "description": "Shown when a sign-in or registration is refused because this install belongs to another account."
+  },
+  "authErrorGeneric": "Something went wrong. Try again.",
+  "@authErrorGeneric": {
+    "description": "Shown when sign-in or registration fails for another reason."
+  },
+  "settingsAccount": "Account",
+  "@settingsAccount": {
+    "description": "Header of the account section of the Settings screen."
+  },
+  "settingsSignedInAs": "Signed in as {email}",
+  "@settingsSignedInAs": {
+    "description": "The account row of the Settings screen.",
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "ada@example.com"
+      }
+    }
+  },
+  "settingsSignOut": "Sign out",
+  "@settingsSignOut": {
+    "description": "Settings row that signs this device out."
+  },
+  "settingsServer": "Server",
+  "@settingsServer": {
+    "description": "Settings row (dev builds only) showing the server the app talks to."
+  },
+  "settingsServerFake": "In-app fake server",
+  "@settingsServerFake": {
+    "description": "Value of the Server row when the dev build runs on the in-app fake server."
   }
 }

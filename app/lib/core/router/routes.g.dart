@@ -6,7 +6,11 @@ part of 'routes.dart';
 // GoRouterGenerator
 // **************************************************************************
 
-List<RouteBase> get $appRoutes => [$appShellRoute];
+List<RouteBase> get $appRoutes => [
+  $appShellRoute,
+  $signInRoute,
+  $registerRoute,
+];
 
 RouteBase get $appShellRoute => StatefulShellRouteData.$route(
   navigatorContainerBuilder: AppShellRoute.$navigatorContainerBuilder,
@@ -328,6 +332,58 @@ mixin $EditCategoryRoute on GoRouteData {
   String get location => GoRouteData.$location(
     '/settings/categories/${Uri.encodeComponent(_self.id)}',
   );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $signInRoute => GoRouteData.$route(
+  path: '/sign-in',
+  hasOverriddenOnExit: false,
+  factory: $SignInRoute._fromState,
+);
+
+mixin $SignInRoute on GoRouteData {
+  static SignInRoute _fromState(GoRouterState state) => const SignInRoute();
+
+  @override
+  String get location => GoRouteData.$location('/sign-in');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $registerRoute => GoRouteData.$route(
+  path: '/register',
+  hasOverriddenOnExit: false,
+  factory: $RegisterRoute._fromState,
+);
+
+mixin $RegisterRoute on GoRouteData {
+  static RegisterRoute _fromState(GoRouterState state) => const RegisterRoute();
+
+  @override
+  String get location => GoRouteData.$location('/register');
 
   @override
   void go(BuildContext context) => context.go(location);

@@ -740,4 +740,117 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get signInTitle => 'Sign in';
+
+  @override
+  String get signInSubmit => 'Sign in';
+
+  @override
+  String get signInSubmitting => 'Signing in';
+
+  @override
+  String get signInCreateAccount => 'Create an account';
+
+  @override
+  String get registerTitle => 'Create an account';
+
+  @override
+  String get registerSubmit => 'Create account';
+
+  @override
+  String get registerSubmitting => 'Creating your account';
+
+  @override
+  String get registerHaveAccount => 'I already have an account';
+
+  @override
+  String registerDeviceName(String name) {
+    return 'This device: $name';
+  }
+
+  @override
+  String get authEmailLabel => 'Email';
+
+  @override
+  String get authPasswordLabel => 'Password';
+
+  @override
+  String get authPasswordHelper => '8 to 128 characters';
+
+  @override
+  String get authDisplayNameLabel => 'Name (optional)';
+
+  @override
+  String get authShowPassword => 'Show password';
+
+  @override
+  String get authHidePassword => 'Hide password';
+
+  @override
+  String get authEmailInvalid => 'Enter a valid email address';
+
+  @override
+  String get authPasswordRequired => 'Enter your password';
+
+  @override
+  String get authPasswordLength => 'Use 8 to 128 characters';
+
+  @override
+  String get authDisplayNameLength => 'Use at most 100 characters';
+
+  @override
+  String get authErrorInvalidCredentials =>
+      'The email or password is incorrect.';
+
+  @override
+  String authErrorRateLimited(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'Too many attempts. Try again in $seconds seconds.',
+      one: 'Too many attempts. Try again in 1 second.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get authErrorRateLimitedLater => 'Too many attempts. Try again later.';
+
+  @override
+  String get authErrorEmailTaken =>
+      'An account with this email already exists.';
+
+  @override
+  String get authErrorNetwork =>
+      'Can\'t reach the server. Check your connection and try again.';
+
+  @override
+  String get authErrorValidation =>
+      'Check the highlighted fields and try again.';
+
+  @override
+  String get authErrorOtherAccount =>
+      'This device already holds another account\'s data. Sign in with that account, or clear the app\'s storage in Android settings to start over.';
+
+  @override
+  String get authErrorGeneric => 'Something went wrong. Try again.';
+
+  @override
+  String get settingsAccount => 'Account';
+
+  @override
+  String settingsSignedInAs(String email) {
+    return 'Signed in as $email';
+  }
+
+  @override
+  String get settingsSignOut => 'Sign out';
+
+  @override
+  String get settingsServer => 'Server';
+
+  @override
+  String get settingsServerFake => 'In-app fake server';
 }

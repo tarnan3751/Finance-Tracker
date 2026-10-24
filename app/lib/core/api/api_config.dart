@@ -23,7 +23,6 @@ import 'package:dio/dio.dart';
 import 'package:finance_tracker/core/api/problems.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:logging/logging.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 /// The contract version this client is built against (`api/openapi.yaml` `info.version`;
 /// a test holds them equal). `GET /health` reports the server's.
@@ -37,16 +36,13 @@ const String _startedKey = 'ft.started';
 /// Where the version in the `User-Agent` comes from.
 typedef VersionReader = Future<String> Function();
 
-Future<String> _platformVersion() async =>
-    (await PackageInfo.fromPlatform()).version;
-
 /// The Dio for [config]: on [adapter] when given (the fake server), else Dio's default;
 /// at [baseUrl] when given, else the flavor's server URL. See the library comment.
 Dio buildDio(
   AppConfig config, {
   HttpClientAdapter? adapter,
   Uri? baseUrl,
-  VersionReader version = _platformVersion,
+  required VersionReader version,
 }) {
   final Uri? server = baseUrl ?? config.serverBaseUrl;
   if (server != null && config.flavor == Flavor.prod) {
@@ -56,7 +52,9 @@ Dio buildDio(
   }
   final Dio dio = Dio(
     BaseOptions(
-      baseUrl: server == null ? 'https://unconfigured.invalid/v1' : _v1(server),
+      baseUrl: server == null
+          ? 'https://unconfigured.invalid/v1'
+          : apiBaseUrl(server),
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 30),
     ),
@@ -68,7 +66,8 @@ Dio buildDio(
   return dio;
 }
 
-String _v1(Uri server) {
+/// The API base URL on [server]: its path with `/v1` appended.
+String apiBaseUrl(Uri server) {
   final String path = server.path.endsWith('/')
       ? server.path.substring(0, server.path.length - 1)
       : server.path;

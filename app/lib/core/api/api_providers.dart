@@ -19,6 +19,7 @@ import 'package:finance_tracker/core/api/token_store.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/clock.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'api_providers.g.dart';
@@ -30,6 +31,11 @@ const String demoPassword = 'demo-password';
 
 /// Whether the dev flavor runs on the fake server (`FT_FAKE_SERVER`).
 const bool fakeServerInDev = bool.fromEnvironment('FT_FAKE_SERVER');
+
+/// The installed version, for the `User-Agent`.
+@Riverpod(keepAlive: true)
+Future<String> appVersion(Ref ref) async =>
+    (await PackageInfo.fromPlatform()).version;
 
 /// Where the session is kept: secure storage.
 @Riverpod(keepAlive: true)
@@ -45,7 +51,10 @@ FakeServer fakeServer(Ref ref) => throw UnimplementedError(
 @Riverpod(keepAlive: true)
 FinanceApi financeApi(Ref ref) {
   final HttpFinanceApi api = HttpFinanceApi(
-    buildDio(ref.watch(appConfigProvider)),
+    buildDio(
+      ref.watch(appConfigProvider),
+      version: () => ref.read(appVersionProvider.future),
+    ),
     tokens: ref.watch(tokenStoreProvider),
     clock: ref.watch(clockProvider),
   );
@@ -103,6 +112,7 @@ final Override fakeFinanceApiOverride = financeApiProvider.overrideWith((ref) {
       ref.watch(appConfigProvider),
       adapter: ref.watch(fakeServerProvider).adapter,
       baseUrl: FakeServer.baseUrl,
+      version: () => ref.read(appVersionProvider.future),
     ),
     tokens: ref.watch(tokenStoreProvider),
     clock: ref.watch(clockProvider),
