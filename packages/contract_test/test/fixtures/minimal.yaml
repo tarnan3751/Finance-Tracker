@@ -1,0 +1,112 @@
+# The smallest document that passes check_openapi: one public and one bearer operation,
+# a closed request body, a Money property, Problem errors and a 204. Each case in
+# check_openapi_test.dart breaks one rule of a copy of it.
+openapi: 3.0.3
+info:
+  title: Minimal
+  version: 0.0.1
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Up
+      security: []
+      responses:
+        '200':
+          description: Up
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+        '500':
+          $ref: '#/components/responses/Internal'
+  /wallet:
+    post:
+      operationId: fillWallet
+      summary: Fills the wallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Fill'
+      responses:
+        '204':
+          description: Filled
+        '400':
+          description: Bad
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+  /webhooks/plaid:
+    post:
+      operationId: receivePlaidWebhook
+      summary: Receives a delivery
+      security: []
+      parameters:
+        - name: Plaid-Verification
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '204':
+          description: Accepted
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  responses:
+    Internal:
+      description: Internal
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    Money:
+      type: object
+      required: [minor_units, currency]
+      properties:
+        minor_units:
+          type: integer
+        currency:
+          type: string
+    Problem:
+      type: object
+      properties:
+        title:
+          type: string
+    ValidationProblem:
+      type: object
+      properties:
+        title:
+          type: string
+    Wallet:
+      type: object
+      required: [balance, limit]
+      properties:
+        balance:
+          $ref: '#/components/schemas/Money'
+        limit:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+    Fill:
+      type: object
+      additionalProperties: false
+      required: [amount]
+      properties:
+        amount:
+          $ref: '#/components/schemas/Money'

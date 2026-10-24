@@ -12,3 +12,4 @@ workspace:
   - server
   - packages/shared_models
   - packages/api_client
+  - packages/contract_test

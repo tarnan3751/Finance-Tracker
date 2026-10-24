@@ -7,11 +7,12 @@ obfuscation. Code: the root `pubspec.yaml`, `app/android/`, `app/lib/core/config
 ## The workspace
 
 The root `pubspec.yaml` is a pub workspace (`finance_tracker_workspace`) over `app`,
-`server`, `packages/shared_models` and `packages/api_client`. Each member declares
-`resolution: workspace`; there is one dependency resolution and one `pubspec.lock`, at the
-root, committed. `flutter pub get` or `dart pub get` in any member resolves the whole
-workspace. A dependency added to one member must be compatible with every other: the
-server's `test` is held to the version Flutter's pinned `flutter_test` allows.
+`server`, `packages/shared_models`, `packages/api_client` and `packages/contract_test`.
+Each member declares `resolution: workspace`; there is one dependency resolution and one
+`pubspec.lock`, at the root, committed. `flutter pub get` or `dart pub get` in any member
+resolves the whole workspace. A dependency added to one member must be compatible with
+every other: the server's `test` is held to the version Flutter's pinned `flutter_test`
+allows.
 
 | Member | Package | Kind |
 |---|---|---|
@@ -19,6 +20,7 @@ server's `test` is held to the version Flutter's pinned `flutter_test` allows.
 | `server/` | `finance_tracker_server` | pure Dart (shelf) |
 | `packages/shared_models/` | `shared_models` | pure Dart |
 | `packages/api_client/` | `api_client` | pure Dart, generated from `api/openapi.yaml` (Phase 2) |
+| `packages/contract_test/` | `contract_test` | pure Dart, validates bodies against `api/openapi.yaml` and checks its structure |
 
 Every member has its own `analysis_options.yaml`: `flutter_lints` for the app,
 `lints/recommended` for the others, then the same strict language block, the same
