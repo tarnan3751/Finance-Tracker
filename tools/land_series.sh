@@ -70,7 +70,9 @@ n=0
 for patch in "${patches[@]}"; do
   n=$((n + 1))
   message="$(sed -n '/^Subject:/,/^---$/p' "$patch")"
-  subject="$(grep -m1 '^Subject:' "$patch" | sed -E 's/^Subject: (\[PATCH[^]]*\] )?//')"
+  # git format-patch folds a long Subject: header onto continuation lines (RFC 2822), so the
+  # whole header is unfolded before the length check sees it.
+  subject="$(awk '/^Subject:/{s=$0; while ((getline line) > 0 && line ~ /^[ \t]/) { sub(/^[ \t]+/, " ", line); s = s line }; print s; exit }' "$patch" | sed -E 's/^Subject: (\[PATCH[^]]*\] )?//')"
   [ -n "$subject" ] || refuse "patch $n has no Subject line"
   if ! printf '%s' "$subject" | grep -qE "$conventional"; then
     refuse "patch $n's subject is not a Conventional Commit (type(scope): Summary, sentence case, no trailing period): $subject"
