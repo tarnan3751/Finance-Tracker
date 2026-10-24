@@ -87,7 +87,7 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | Features, one folder each with `presentation/ application/ domain/ data/` | `app/lib/features/<feature>/` | `docs/reference/<feature>.md` as each lands |
 | Local database: Drift schema, migrations, repositories in three implementations | `app/lib/features/*/data/`, `app/lib/core/db/` | `docs/reference/data.md` (Phase 1) |
 | Sync engine (pure Dart, no Flutter) | `packages/sync_engine/` (Phase 2) | `docs/reference/sync.md` |
-| Shared models and the generated API client | `packages/shared_models/`, `packages/api_client/` | `docs/reference/api.md` (Phase 2) |
+| The generated API client | `packages/api_client/` | `docs/reference/api.md` (Phase 2) |
 | The API contract | `api/openapi.yaml` | same |
 | Development server: auth, sync, Plaid proxy, webhook receiver | `server/` | `docs/reference/server.md` (Phase 2) |
 | Persona engine: demo seed, Sandbox custom users, injection batches | `tools/persona_engine/` (Phase 2) | `docs/reference/persona.md` |
