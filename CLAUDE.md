@@ -18,9 +18,12 @@ heading of this file or of a doc.
 
 ## Status
 
-**Phase 0 has landed; Phase 1 is in progress:** the app runs on its Riverpod and go_router
-core with the settings feature; `packages/shared_models` holds the domain model; the emulator
-harness exists; manual accounts and the encrypted database follow.
+**Phases 0, 1 and 2 have landed; Phase 3 (Plaid) is next:** the app runs on its Riverpod
+and go_router core with manual accounts, transactions and categories on the encrypted Drift
+database (schema v2 with the change log and field clocks); it signs in against the development
+server through the API client, syncs user data between devices through the sync engine, and
+runs the demo flavor on the persona engine's seed against an in-process fake server with no
+network.
 The repository is the pub workspace of **Folder layout**, Android only. The app runs in
 three flavors (`dev`, `demo`, `prod`) through `app/lib/bootstrap.dart`; `server/` is the
 development server implementing the contract with a fake Plaid client
@@ -92,6 +95,8 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | Features, one folder each with `presentation/ application/ domain/ data/` | `app/lib/features/<feature>/` | `docs/reference/<feature>.md` as each lands |
 | Local database: Drift schema, migrations, repositories in three implementations | `app/lib/features/*/data/`, `app/lib/core/db/` | `docs/reference/data.md` (Phase 1) |
 | Sync engine (pure Dart, no Flutter) | `packages/sync_engine/` (Phase 2) | `docs/reference/sync.md` |
+| Sync in the app: the Drift sync store, recording, the controller, the relay | `app/lib/core/sync/`, `app/lib/core/db/` | `docs/reference/sync-app.md` |
+| API client, in-app fake server, session and auth | `app/lib/core/api/`, `app/lib/features/auth/` | `docs/reference/app-core.md` (the API client), `docs/reference/auth.md` |
 | The generated API client | `packages/api_client/` | `docs/reference/api.md` (Phase 2) |
 | The API contract | `api/openapi.yaml` | same |
 | Development server: auth, sync, Plaid proxy, webhook receiver | `server/` | `docs/reference/server.md` (Phase 2) |
