@@ -1,11 +1,13 @@
 // The encrypted database on a device: the APK's SQLite library carries SQLite3 Multiple
 // Ciphers, the app's real open path (openAppDatabase) writes an encrypted file under the
 // application support directory, a different key cannot open it, and the Keystore-backed
-// key store round-trips a key. Runs in the demo build (tools/emulator_tests.sh
+// key store round-trips a key, and the prod startup shows its error screen, not a crash,
+// for a database whose key is gone. Runs in the demo build (tools/emulator_tests.sh
 // integration), which opens no database of its own; the test removes what it writes.
 import 'dart:io';
 
 import 'package:drift/drift.dart' show QueryRow;
+import 'package:finance_tracker/bootstrap.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
@@ -88,5 +90,30 @@ void main() {
     expect(await keys.read(), isNull);
     final String created = await keys.create();
     expect(await keys.read(), created);
+  });
+
+  testWidgets('a database whose key is gone shows the error screen', (
+    tester,
+  ) async {
+    const FlutterSecureStorage storage = FlutterSecureStorage(
+      aOptions: SecureDatabaseKeyStore.androidOptions,
+    );
+    await storage.delete(key: SecureDatabaseKeyStore.keyName);
+    final AppDatabase database = openAppDatabase(
+      AppConfig.prod(),
+      InMemoryDatabaseKeyStore(),
+    );
+    await database.verifyOpen();
+    await database.close();
+
+    await bootstrap(AppConfig.prod());
+    await tester.pumpAndSettle();
+
+    expect(find.byType(DatabaseErrorApp), findsOneWidget);
+    expect(
+      tester.widget<DatabaseErrorApp>(find.byType(DatabaseErrorApp)).failure,
+      DatabaseFailure.keyLost,
+    );
+    expect(await storage.read(key: SecureDatabaseKeyStore.keyName), isNull);
   });
 }

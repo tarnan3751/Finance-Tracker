@@ -89,5 +89,25 @@
   "aboutTimeZone": "Time zone",
   "@aboutTimeZone": {
     "description": "Label of the row showing the time zone the app computes dates in."
+  },
+  "databaseErrorTitle": "Your data can't be opened",
+  "@databaseErrorTitle": {
+    "description": "Headline of the screen shown instead of the app when the local database cannot be opened on this device."
+  },
+  "databaseErrorBody": "Finance Tracker could not open its data on this device. Nothing has been deleted. Close the app and open it again; if this keeps happening, your data cannot be read on this device.",
+  "@databaseErrorBody": {
+    "description": "Supporting text of the database error screen when the database failed to open for a reason other than its key or encryption (for example a damaged file)."
+  },
+  "databaseErrorKeyLost": "The key that unlocks your data on this device is missing or unreadable, so your data cannot be opened. Nothing has been deleted.",
+  "@databaseErrorKeyLost": {
+    "description": "Supporting text of the database error screen when the database's encryption key is missing from, or unreadable in, the device's secure storage."
+  },
+  "databaseErrorKeyMismatch": "Your data on this device does not open with its key. Nothing has been deleted.",
+  "@databaseErrorKeyMismatch": {
+    "description": "Supporting text of the database error screen when the stored encryption key does not open the database file."
+  },
+  "databaseErrorNoEncryption": "This version of Finance Tracker cannot encrypt data, so it will not open yours. Nothing has been deleted.",
+  "@databaseErrorNoEncryption": {
+    "description": "Supporting text of the database error screen when the app's database library has no encryption support."
   }
 }

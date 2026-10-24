@@ -3,24 +3,34 @@
 ///
 /// Feature providers live in their feature's `application/` folder; what is here is what
 /// every feature may depend on. With no override, the repositories are the in-memory ones
-/// over one shared [InMemoryStore] (what tests get); [overridesFor] gives the demo flavor
-/// the demo repositories.
+/// over one shared [InMemoryStore] (what tests get); [overridesFor] gives dev and prod the
+/// Drift repositories over the encrypted database, and the demo flavor the demo ones.
 library;
 
+import 'dart:async';
+
 import 'package:finance_tracker/core/config/app_config.dart';
+import 'package:finance_tracker/core/db/app_database.dart';
+import 'package:finance_tracker/core/db/database_exceptions.dart';
+import 'package:finance_tracker/core/db/database_key_store.dart';
 import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
+import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/data/demo_account_repository.dart';
+import 'package:finance_tracker/features/accounts/data/drift_account_repository.dart';
 import 'package:finance_tracker/features/accounts/data/in_memory_account_repository.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
 import 'package:finance_tracker/features/categories/data/demo_category_repository.dart';
+import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
 import 'package:finance_tracker/features/categories/data/in_memory_category_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
 import 'package:finance_tracker/features/settings/data/demo_settings_repository.dart';
+import 'package:finance_tracker/features/settings/data/drift_settings_repository.dart';
 import 'package:finance_tracker/features/settings/data/in_memory_settings_repository.dart';
 import 'package:finance_tracker/features/settings/domain/settings_repository.dart';
 import 'package:finance_tracker/features/transactions/data/demo_transaction_repository.dart';
+import 'package:finance_tracker/features/transactions/data/drift_transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/data/in_memory_transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -37,6 +47,29 @@ AppConfig appConfig(Ref ref) => throw UnimplementedError(
 /// The clock every "now" and "today" comes from.
 @Riverpod(keepAlive: true)
 Clock clock(Ref ref) => const SystemClock();
+
+/// Where the database key is kept: the Keystore-backed secure storage.
+@Riverpod(keepAlive: true)
+DatabaseKeyStore databaseKeyStore(Ref ref) => SecureDatabaseKeyStore();
+
+/// The local database of the dev and prod flavors, opened lazily on its first query
+/// (`bootstrap` opens it at startup) and closed with the container. The demo flavor has
+/// none, and reading it there is a [StateError].
+@Riverpod(keepAlive: true)
+AppDatabase database(Ref ref) {
+  final AppDatabase database = openAppDatabase(
+    ref.watch(appConfigProvider),
+    ref.watch(databaseKeyStoreProvider),
+  );
+  // Closing a database that failed to open rethrows the open failure, which bootstrap
+  // has already handled; any other close error still surfaces.
+  ref.onDispose(
+    () => unawaited(
+      database.close().catchError((Object _) {}, test: isDatabaseOpenFailure),
+    ),
+  );
+  return database;
+}
 
 /// The state behind the in-memory and demo repositories: empty by default; the demo
 /// flavor's holds the system categories and the demo seed.
@@ -73,11 +106,42 @@ SettingsRepository settingsRepository(Ref ref) {
 /// The provider overrides that make up the app for [config].
 List<Override> overridesFor(AppConfig config) => [
   appConfigProvider.overrideWithValue(config),
-  if (config.flavor == Flavor.demo) ..._demoOverrides,
+  ...switch (config.flavor) {
+    Flavor.dev || Flavor.prod => _driftOverrides,
+    Flavor.demo => _demoOverrides,
+  },
+];
+
+/// dev and prod: the Drift repositories over the encrypted database.
+final List<Override> _driftOverrides = [
+  accountRepositoryProvider.overrideWith(
+    (ref) => DriftAccountRepository(
+      ref.watch(databaseProvider),
+      ref.watch(clockProvider),
+    ),
+  ),
+  transactionRepositoryProvider.overrideWith(
+    (ref) => DriftTransactionRepository(
+      ref.watch(databaseProvider),
+      ref.watch(clockProvider),
+    ),
+  ),
+  categoryRepositoryProvider.overrideWith(
+    (ref) => DriftCategoryRepository(
+      ref.watch(databaseProvider),
+      ref.watch(clockProvider),
+    ),
+  ),
+  settingsRepositoryProvider.overrideWith(
+    (ref) => DriftSettingsRepository(ref.watch(databaseProvider)),
+  ),
 ];
 
 /// The demo flavor: everything in memory, from the demo seed dated to the clock's today.
 final List<Override> _demoOverrides = [
+  databaseProvider.overrideWith(
+    (ref) => throw StateError('The demo flavor has no database'),
+  ),
   inMemoryStoreProvider.overrideWith((ref) {
     final Clock clock = ref.watch(clockProvider);
     final InMemoryStore store = InMemoryStore(clock)..seedSystemCategories();

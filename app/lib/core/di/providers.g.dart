@@ -102,6 +102,109 @@ final class ClockProvider extends $FunctionalProvider<Clock, Clock, Clock>
 
 String _$clockHash() => r'55214d6539f7396a3ae1aa23b06eea79fdac0ebe';
 
+/// Where the database key is kept: the Keystore-backed secure storage.
+
+@ProviderFor(databaseKeyStore)
+final databaseKeyStoreProvider = DatabaseKeyStoreProvider._();
+
+/// Where the database key is kept: the Keystore-backed secure storage.
+
+final class DatabaseKeyStoreProvider
+    extends
+        $FunctionalProvider<
+          DatabaseKeyStore,
+          DatabaseKeyStore,
+          DatabaseKeyStore
+        >
+    with $Provider<DatabaseKeyStore> {
+  /// Where the database key is kept: the Keystore-backed secure storage.
+  DatabaseKeyStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'databaseKeyStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$databaseKeyStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<DatabaseKeyStore> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  DatabaseKeyStore create(Ref ref) {
+    return databaseKeyStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DatabaseKeyStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DatabaseKeyStore>(value),
+    );
+  }
+}
+
+String _$databaseKeyStoreHash() => r'6730b51f8d1f9e9580c0cb1074cf2a0271840203';
+
+/// The local database of the dev and prod flavors, opened lazily on its first query
+/// (`bootstrap` opens it at startup) and closed with the container. The demo flavor has
+/// none, and reading it there is a [StateError].
+
+@ProviderFor(database)
+final databaseProvider = DatabaseProvider._();
+
+/// The local database of the dev and prod flavors, opened lazily on its first query
+/// (`bootstrap` opens it at startup) and closed with the container. The demo flavor has
+/// none, and reading it there is a [StateError].
+
+final class DatabaseProvider
+    extends $FunctionalProvider<AppDatabase, AppDatabase, AppDatabase>
+    with $Provider<AppDatabase> {
+  /// The local database of the dev and prod flavors, opened lazily on its first query
+  /// (`bootstrap` opens it at startup) and closed with the container. The demo flavor has
+  /// none, and reading it there is a [StateError].
+  DatabaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'databaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$databaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<AppDatabase> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  AppDatabase create(Ref ref) {
+    return database(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AppDatabase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AppDatabase>(value),
+    );
+  }
+}
+
+String _$databaseHash() => r'56a4e6e4b2bac9c19896f3c9420d5aec318ac5bf';
+
 /// The state behind the in-memory and demo repositories: empty by default; the demo
 /// flavor's holds the system categories and the demo seed.
 

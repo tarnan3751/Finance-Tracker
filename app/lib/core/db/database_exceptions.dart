@@ -45,6 +45,12 @@ final class DatabaseKeyLostException implements Exception {
       '${cause == null ? '' : ' (${cause.runtimeType})'}';
 }
 
+/// Whether [error] is one of the three failures to open the database.
+bool isDatabaseOpenFailure(Object error) =>
+    error is EncryptionUnavailableException ||
+    error is DatabaseKeyMismatchException ||
+    error is DatabaseKeyLostException;
+
 /// A write named a record that has been deleted. A deleted record comes back only through
 /// its repository's `restore`; deletes win over edits, as they will in Phase 2's sync.
 final class EntityDeletedException implements Exception {

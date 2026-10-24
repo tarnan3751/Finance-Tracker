@@ -213,6 +213,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Time zone'**
   String get aboutTimeZone;
+
+  /// Headline of the screen shown instead of the app when the local database cannot be opened on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data can\'t be opened'**
+  String get databaseErrorTitle;
+
+  /// Supporting text of the database error screen when the database failed to open for a reason other than its key or encryption (for example a damaged file).
+  ///
+  /// In en, this message translates to:
+  /// **'Finance Tracker could not open its data on this device. Nothing has been deleted. Close the app and open it again; if this keeps happening, your data cannot be read on this device.'**
+  String get databaseErrorBody;
+
+  /// Supporting text of the database error screen when the database's encryption key is missing from, or unreadable in, the device's secure storage.
+  ///
+  /// In en, this message translates to:
+  /// **'The key that unlocks your data on this device is missing or unreadable, so your data cannot be opened. Nothing has been deleted.'**
+  String get databaseErrorKeyLost;
+
+  /// Supporting text of the database error screen when the stored encryption key does not open the database file.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data on this device does not open with its key. Nothing has been deleted.'**
+  String get databaseErrorKeyMismatch;
+
+  /// Supporting text of the database error screen when the app's database library has no encryption support.
+  ///
+  /// In en, this message translates to:
+  /// **'This version of Finance Tracker cannot encrypt data, so it will not open yours. Nothing has been deleted.'**
+  String get databaseErrorNoEncryption;
 }
 
 class _AppLocalizationsDelegate
