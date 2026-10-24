@@ -2,8 +2,9 @@
 
 The scripts under `tools/`, what each does, when it runs and what it writes. Every script
 uses `fvm flutter` and `fvm dart` when `.fvmrc` exists and FVM is installed, and the bare
-`flutter` and `dart` otherwise. None of them touches the dev server or Plaid Sandbox, and
-only `tools/emulator_tests.sh` touches a device: the harness's own emulator, never another.
+`flutter` and `dart` otherwise. None of them touches Plaid Sandbox, only
+`tools/run_server.sh` starts the dev server, and only `tools/emulator_tests.sh` touches a
+device: the harness's own emulator, never another.
 
 ## `tools/gates.sh`: the gate
 
@@ -78,6 +79,19 @@ is not a Conventional Commit of at most 72 characters, and any trailer; then app
 `NNNN-*.patch` files with `git am`, checks the final tree against the reported hash (rolling
 back to the base on a mismatch), and runs the gate, leaving the commits in place unpushed.
 `--dry-run` stops after the tree check and resets to the base.
+
+## `tools/run_server.sh`: the dev server
+
+`tools/run_server.sh` starts the development server with one command
+(`docs/reference/server.md`, **Running it**). On its first run it creates `server/.env`
+from `server/.env.example`, filling `JWT_SECRET`, `TOKEN_ENCRYPTION_KEY` and
+`SEED_USER_PASSWORD` with `openssl rand` values and setting the seed user
+`dev@financetracker.test`. It says it did so but prints no secret. Then it runs
+`dart run bin/server.dart` in `server/`, which migrates and seeds the database under
+`server/data/` and serves on `127.0.0.1:8080` until Ctrl-C. It writes `server/.env` and
+`server/data/`, both gitignored. In Phase 2 the server's Plaid client is the fake, so it
+calls no Plaid API. It reads `server/.env`, so it is the owner's command; a lane runs it
+only in its own clone, with no real keys (there are none in a clone).
 
 ## `tools/emulator_tests.sh`: the emulator harness
 
