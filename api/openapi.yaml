@@ -1,19 +1,626 @@
-# The API contract (CLAUDE.md, **One API contract**). Phase 0 placeholder: the health check
-# only, so the layout and the gate's contract hook have a target. Phase 2 writes the
-# contract, and the in-app fakes, the development server and the generated client
-# (packages/api_client) implement it.
+# The API contract (CLAUDE.md, **One API contract**; PLAN.md §6.5). The in-app fakes, the
+# development server and any future backend implement it; packages/api_client is generated
+# from it with tools/gen_api_client.sh; packages/contract_test validates bodies against it
+# and tools/check_contract.sh checks its structure in the gate. Conventions, the error model,
+# versioning and how to change it: docs/reference/api.md.
 openapi: 3.0.3
 info:
   title: Finance Tracker API
-  version: 0.1.0
+  version: 0.2.0
+  description: >-
+    The API between the Finance Tracker app and its server. All JSON, snake_case. Money is
+    integer minor units plus an ISO 4217 code (`Money`), never a floating-point number;
+    calendar dates are ISO dates (`format: date`); instants are UTC with millisecond
+    precision and a `Z` suffix. Errors are RFC 9457 problem details. Plaid-sourced data
+    (accounts, transactions, liabilities, investments, recurring streams) is
+    server-authoritative and pulled by version; user-authored data syncs through the change
+    log (`/sync/push`, `/sync/pull`). Clients ignore response properties they do not know;
+    request bodies are closed.
 servers:
   - url: http://10.0.2.2:8080/v1
     description: The development server, as reached from the Android emulator
+  - url: http://localhost:8080/v1
+    description: The development server, from the development machine
+security:
+  - bearerAuth: []
+tags:
+  - name: auth
+    description: Registration, login and token rotation
+  - name: me
+    description: The signed-in user and account deletion
+  - name: devices
+    description: The user's installations
+  - name: plaid
+    description: Plaid Link and Items, proxied by the server
+  - name: data
+    description: Plaid-sourced data, server-authoritative
+  - name: sync
+    description: The change log of user-authored data
+  - name: webhooks
+    description: Plaid webhook deliveries
+  - name: health
+    description: Liveness
+
 paths:
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Creates a user and signs this device in
+      description: >-
+        Creates the user, registers the calling installation as a device and returns its
+        first token pair. `display_name` defaults to the local part of the email.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: The user exists and this device is signed in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/Internal'
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Signs a device in
+      description: >-
+        Checks the credentials, registers the calling installation as a new device and
+        returns its token pair. Wrong credentials are `401` `invalid_credentials`.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: The device is signed in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/Internal'
+  /auth/refresh:
+    post:
+      operationId: refreshTokens
+      tags: [auth]
+      summary: Rotates a refresh token
+      description: >-
+        Exchanges a refresh token for a new pair. The presented refresh token is revoked; a
+        revoked or expired one is `401` (`token_revoked`, `token_expired`).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: A new token pair
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Internal'
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Signs the device out
+      description: Revokes the refresh token and the device's access tokens.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '204':
+          description: Signed out
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Internal'
+
+  /me:
+    get:
+      operationId: getMe
+      tags: [me]
+      summary: Returns the signed-in user
+      description: The user the bearer token belongs to.
+      responses:
+        '200':
+          description: The user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Internal'
+    delete:
+      operationId: deleteMe
+      tags: [me]
+      summary: Deletes the user and everything they own
+      description: >-
+        Removes every Plaid Item at Plaid, deletes every row the user owns and revokes every
+        session, and answers `204` only when all of that has succeeded. An Item whose removal
+        still fails after retries makes the answer `502` `plaid_error`, and nothing is
+        deleted (PLAN.md §6.5).
+      responses:
+        '204':
+          description: The user and all their data are gone
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Internal'
+        '502':
+          $ref: '#/components/responses/PlaidError'
+
+  /devices:
+    get:
+      operationId: listDevices
+      tags: [devices]
+      summary: Lists the user's devices
+      description: Every installation signed in to the user's account.
+      responses:
+        '200':
+          description: The devices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Device'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Internal'
+  /devices/{device_id}:
+    delete:
+      operationId: deleteDevice
+      tags: [devices]
+      summary: Removes a device
+      description: Removes the device and revokes its tokens; it may be the calling device.
+      parameters:
+        - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '204':
+          description: The device is removed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Internal'
+
+  /plaid/link-token:
+    post:
+      operationId: createLinkToken
+      tags: [plaid]
+      summary: Creates a Plaid Link token
+      description: >-
+        Asks Plaid for a Link token for this user. With `update_item_id`, the token opens
+        Link in update mode for that Item.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkTokenRequest'
+      responses:
+        '200':
+          description: The Link token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkToken'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/Internal'
+        '502':
+          $ref: '#/components/responses/PlaidError'
+  /plaid/exchange:
+    post:
+      operationId: exchangePublicToken
+      tags: [plaid]
+      summary: Exchanges a Link public token for an Item
+      description: >-
+        Exchanges the public token Plaid Link returned. The access token stays on the
+        server; the answer is the new Item with its institution.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExchangeRequest'
+      responses:
+        '201':
+          description: The Item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/Internal'
+        '502':
+          $ref: '#/components/responses/PlaidError'
+  /plaid/items:
+    get:
+      operationId: listItems
+      tags: [plaid]
+      summary: Lists the user's Items
+      description: Every Plaid Item the user has linked, each with its institution.
+      responses:
+        '200':
+          description: The Items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Internal'
+  /plaid/items/{item_id}:
+    delete:
+      operationId: deleteItem
+      tags: [plaid]
+      summary: Removes an Item
+      description: >-
+        Removes the Item at Plaid, then its accounts, transactions and other Plaid-sourced
+        rows; their removal reaches devices as tombstones through the data endpoints.
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      responses:
+        '204':
+          description: The Item is removed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Internal'
+        '502':
+          $ref: '#/components/responses/PlaidError'
+  /plaid/items/{item_id}/sync:
+    post:
+      operationId: syncItem
+      tags: [plaid]
+      summary: Syncs an Item with Plaid now
+      description: >-
+        Runs `/transactions/sync` for the Item. `not_ready` means Plaid has not finished the
+        Item's first extraction; retry shortly, it does not mean there are no transactions
+        (PLAN.md §4). An Item that needs re-authentication is `409` `item_login_required`.
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      responses:
+        '202':
+          description: The sync run
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncRun'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/Internal'
+        '502':
+          $ref: '#/components/responses/PlaidError'
+  /plaid/items/{item_id}/update-link-token:
+    post:
+      operationId: createUpdateLinkToken
+      tags: [plaid]
+      summary: Creates a Link token in update mode
+      description: A Link token that re-authenticates the Item (`login_required`).
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLinkTokenRequest'
+      responses:
+        '200':
+          description: The Link token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkToken'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/Internal'
+        '502':
+          $ref: '#/components/responses/PlaidError'
+
+  /accounts:
+    get:
+      operationId: listAccounts
+      tags: [data]
+      summary: Lists the accounts of the user's Items
+      description: >-
+        The Plaid-linked accounts with the balances the institution reported. Manual
+        accounts are user-authored and travel through the change log, not here.
+      responses:
+        '200':
+          description: The accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Internal'
+  /transactions:
+    get:
+      operationId: listTransactions
+      tags: [data]
+      summary: Pages the Plaid-sourced transactions changed since a version
+      description: >-
+        Transactions whose `sync_version` is greater than `since`, in ascending
+        `sync_version` order. `sync_version` is the server's per-user change counter; a
+        removed transaction comes back once more with `deleted_at` set. Store `next_since`
+        and call again while `has_more` is true.
+      parameters:
+        - $ref: '#/components/parameters/Since'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: One page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionPage'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Internal'
+  /liabilities:
+    get:
+      operationId: getLiabilities
+      tags: [data]
+      summary: Returns the liability details of the user's accounts
+      description: The credit, mortgage and student-loan details Plaid's `/liabilities/get` provides.
+      responses:
+        '200':
+          description: The liabilities
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Liabilities'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Internal'
+  /investments/holdings:
+    get:
+      operationId: listHoldings
+      tags: [data]
+      summary: Returns the current holdings and their securities
+      description: The holdings of every investment account, with the securities they reference.
+      responses:
+        '200':
+          description: The holdings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HoldingsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Internal'
+  /investments/transactions:
+    get:
+      operationId: listInvestmentTransactions
+      tags: [data]
+      summary: Pages the investment transactions changed since a version
+      description: Paged like `/transactions`, on the same per-user change counter.
+      parameters:
+        - $ref: '#/components/parameters/Since'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: One page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvestmentTransactionPage'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Internal'
+  /recurring:
+    get:
+      operationId: listRecurringStreams
+      tags: [data]
+      summary: Lists the recurring streams Plaid detected
+      description: Plaid's recurring inflow and outflow streams for the user's accounts.
+      responses:
+        '200':
+          description: The streams
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecurringStream'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Internal'
+
+  /sync/push:
+    post:
+      operationId: pushChanges
+      tags: [sync]
+      summary: Pushes change-log entries
+      description: >-
+        Stores the calling device's unsynced change-log entries. Idempotent on
+        `(device_id, hlc)`: an entry pushed again is accepted again and stored once. An
+        entry whose `device_id` is not the calling device's is rejected with a reason.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushRequest'
+      responses:
+        '200':
+          description: Which entries were accepted and which rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PushResult'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Internal'
+  /sync/pull:
+    get:
+      operationId: pullChanges
+      tags: [sync]
+      summary: Pages the change-log entries other devices pushed
+      description: >-
+        Entries whose `seq` is greater than `since`, in ascending `seq` order. Entries the
+        calling device pushed itself (the bearer token identifies the device) are left out,
+        and `next_since` still advances past them. Store `next_since` and call again while
+        `has_more` is true. A `since` beyond the server's last `seq` (its log was wiped or
+        reset) is `409` `sync_cursor_invalid`: reset the cursor to 0 and pull again; merging
+        entries already applied is idempotent.
+      parameters:
+        - $ref: '#/components/parameters/Since'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: One page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PullPage'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '409':
+          description: >-
+            `since` is beyond the server's last `seq` (`sync_cursor_invalid`); reset the
+            cursor to 0 and pull again
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Internal'
+
+  /webhooks/plaid:
+    post:
+      operationId: receivePlaidWebhook
+      tags: [webhooks]
+      summary: Receives a Plaid webhook delivery
+      description: >-
+        Verifies the `Plaid-Verification` JWT (key from `/webhook_verification_key/get`,
+        body hash, freshness) before processing. An unverified delivery is `401` and is
+        never processed (PLAN.md §6.5).
+      security: []
+      parameters:
+        - name: Plaid-Verification
+          in: header
+          required: true
+          description: The JWT Plaid signs each delivery with
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaidWebhook'
+      responses:
+        '204':
+          description: Verified and accepted
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Internal'
+
   /health:
     get:
       operationId: getHealth
+      tags: [health]
       summary: Reports that the server is up
+      description: Liveness, and the contract version the server implements.
+      security: []
       responses:
         '200':
           description: The server is up
@@ -21,14 +628,1447 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Health'
+        '500':
+          $ref: '#/components/responses/Internal'
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: The access token from `AuthTokens`, short-lived; rotate with `/auth/refresh`.
+
+  parameters:
+    DeviceId:
+      name: device_id
+      in: path
+      required: true
+      description: The device's id
+      schema:
+        type: string
+        minLength: 1
+    ItemId:
+      name: item_id
+      in: path
+      required: true
+      description: The Item's id
+      schema:
+        type: string
+        minLength: 1
+    Since:
+      name: since
+      in: query
+      required: false
+      description: The `next_since` of the previous page; 0 for the first
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+        default: 0
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: The page size
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 500
+        default: 500
+
+  responses:
+    ValidationFailed:
+      description: The request is malformed or does not match the contract (`validation_failed`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ValidationProblem'
+    Unauthorized:
+      description: >-
+        Missing or bad credentials (`invalid_credentials`, `token_expired`,
+        `token_revoked`), or an unverified webhook delivery
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotFound:
+      description: No such resource for this user (`not_found`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Conflict:
+      description: >-
+        The request conflicts with the resource's state (`email_taken`, `conflict`,
+        `item_login_required`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    RateLimited:
+      description: Too many requests, here or at Plaid (`rate_limited`)
+      headers:
+        Retry-After:
+          description: Seconds to wait before retrying
+          schema:
+            type: integer
+            minimum: 0
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Internal:
+      description: An unexpected server error (`internal`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    PlaidError:
+      description: Plaid failed or refused the call the server made (`plaid_error`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+
   schemas:
-    Health:
+    # Shared values ------------------------------------------------------------------------
+    Money:
+      type: object
+      description: >-
+        An amount: integer minor units of an ISO 4217 currency. -1234 USD is -12.34 dollars.
+        Negative is an outflow. -2^63 is excluded, so every amount has a negation.
+      required: [minor_units, currency]
+      properties:
+        minor_units:
+          type: integer
+          format: int64
+          minimum: -9223372036854775807
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+      example:
+        minor_units: -1234
+        currency: USD
+    Decimal:
+      type: string
+      description: >-
+        An exact decimal number as a string, for per-unit prices, share quantities and
+        rates, which need more precision than minor units. Never an amount of money: totals
+        are `Money`.
+      pattern: '^-?(0|[1-9][0-9]*)(\.[0-9]+)?$'
+      example: '10.4234'
+    Hlc:
+      type: string
+      description: >-
+        A hybrid logical clock timestamp in its packed form `<wall>-<counter>-<node>`: wall
+        milliseconds zero-padded to 15 digits, the counter to 5, then the node id. Packed
+        strings sort in logical order.
+      pattern: '^[0-9]{15}-[0-9]{5}-[A-Za-z0-9_.:-]+$'
+      example: '001761300000000-00000-device-1'
+
+    # Enums (snake_case names, as shared_models writes them) --------------------------------
+    AccountType:
+      type: string
+      enum: [depository, credit, loan, investment, other]
+    ItemStatus:
+      type: string
+      enum: [healthy, login_required, error, pending_expiration, unknown]
+    DataSource:
+      type: string
+      description: Provenance (PLAN.md §7.1); `derived` values are labelled in the UI.
+      enum: [plaid, manual, import, derived, demo]
+    RecurringCadence:
+      type: string
+      enum: [weekly, biweekly, semi_monthly, monthly, annually, unknown]
+    RecurringStatus:
+      type: string
+      enum: [active, ended]
+    RecurringSource:
+      type: string
+      enum: [plaid, detected, user]
+    EntityType:
+      type: string
+      enum:
+        - account
+        - transaction
+        - category
+        - rule
+        - budget
+        - recurring_stream
+        - bill_reminder
+        - goal
+        - settings
+    ChangeOperation:
+      type: string
+      enum: [create, update, delete]
+    SyncRunStatus:
+      type: string
+      enum: [started, not_ready, completed]
+    ProblemCode:
+      type: string
+      enum:
+        - validation_failed
+        - invalid_credentials
+        - email_taken
+        - token_expired
+        - token_revoked
+        - not_found
+        - conflict
+        - item_login_required
+        - plaid_error
+        - rate_limited
+        - internal
+        - sync_cursor_invalid
+
+    # Errors -------------------------------------------------------------------------------
+    Problem:
+      type: object
+      description: >-
+        RFC 9457 problem details. `type` is `urn:finance-tracker:problem:<code>`; `code` is
+        the machine-readable reason. `detail` and `instance` are optional and never null,
+        the one exception to every response property being required.
+      required: [type, title, status, code]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+        instance:
+          type: string
+        code:
+          $ref: '#/components/schemas/ProblemCode'
+      example:
+        type: urn:finance-tracker:problem:not_found
+        title: Not found
+        status: 404
+        detail: No Item with that id
+        instance: /v1/plaid/items/item-9
+        code: not_found
+    ValidationProblem:
+      type: object
+      description: A `Problem` with `status` 400, `code` `validation_failed` and the field errors.
+      required: [type, title, status, code, errors]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+          enum: [400]
+        detail:
+          type: string
+        instance:
+          type: string
+        code:
+          type: string
+          enum: [validation_failed]
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldError'
+      example:
+        type: urn:finance-tracker:problem:validation_failed
+        title: Validation failed
+        status: 400
+        code: validation_failed
+        errors:
+          - field: password
+            message: must be at least 8 characters
+    FieldError:
+      type: object
+      required: [field, message]
+      properties:
+        field:
+          type: string
+          description: The offending field, as a JSON path into the request
+        message:
+          type: string
+
+    # Auth ---------------------------------------------------------------------------------
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      required: [email, password, device_name]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+        device_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Defaults to the local part of the email
+      example:
+        email: ada@example.com
+        password: correct horse battery
+        device_name: Pixel 8
+        display_name: Ada
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [email, password, device_name]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+        device_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+      example:
+        email: ada@example.com
+        password: correct horse battery
+        device_name: Pixel 8
+    RefreshRequest:
+      type: object
+      additionalProperties: false
+      required: [refresh_token]
+      properties:
+        refresh_token:
+          type: string
+          minLength: 1
+    AuthTokens:
+      type: object
+      required: [access_token, refresh_token, access_expires_in, device]
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        access_expires_in:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Seconds until the access token expires
+        device:
+          $ref: '#/components/schemas/Device'
+      example:
+        access_token: eyJhbGciOiJIUzI1NiJ9.e30.access
+        refresh_token: r-4f1c2b
+        access_expires_in: 900
+        device:
+          id: device-1
+          user_id: user-1
+          name: Pixel 8
+          last_sync_at: null
+    User:
+      type: object
+      description: Mirrors `shared_models` `User`.
+      required: [id, email, display_name, created_at]
+      properties:
+        id:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'
+          readOnly: true
+      example:
+        id: user-1
+        email: ada@example.com
+        display_name: Ada
+        created_at: '2026-10-24T09:30:00.000Z'
+    Device:
+      type: object
+      description: Mirrors `shared_models` `Device`; one per installation.
+      required: [id, user_id, name, last_sync_at]
+      properties:
+        id:
+          type: string
+          readOnly: true
+        user_id:
+          type: string
+        name:
+          type: string
+        last_sync_at:
+          type: string
+          format: date-time
+          pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'
+          nullable: true
+      example:
+        id: device-1
+        user_id: user-1
+        name: Pixel 8
+        last_sync_at: '2026-10-24T09:45:12.250Z'
+
+    # Plaid --------------------------------------------------------------------------------
+    LinkTokenRequest:
+      type: object
+      additionalProperties: false
+      required: [android_package_name]
+      properties:
+        android_package_name:
+          type: string
+          pattern: '^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$'
+          description: The app's registered package name; Plaid derives the redirect from it
+        update_item_id:
+          type: string
+          minLength: 1
+          description: An Item to open Link in update mode for
+      example:
+        android_package_name: dev.tarnan.financetracker
+    UpdateLinkTokenRequest:
+      type: object
+      additionalProperties: false
+      required: [android_package_name]
+      properties:
+        android_package_name:
+          type: string
+          pattern: '^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$'
+    LinkToken:
+      type: object
+      required: [link_token, expiration]
+      properties:
+        link_token:
+          type: string
+        expiration:
+          type: string
+          format: date-time
+          pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'
+      example:
+        link_token: link-sandbox-0d4e
+        expiration: '2026-10-24T13:30:00.000Z'
+    ExchangeRequest:
+      type: object
+      additionalProperties: false
+      required: [public_token]
+      properties:
+        public_token:
+          type: string
+          minLength: 1
+    Institution:
+      type: object
+      description: Mirrors `shared_models` `Institution`; `primary_color` is ARGB.
+      required: [id, name, logo_url, primary_color]
+      properties:
+        id:
+          type: string
+          description: Plaid's institution id
+        name:
+          type: string
+        logo_url:
+          type: string
+          format: uri
+          nullable: true
+        primary_color:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
+          nullable: true
+      example:
+        id: ins_109508
+        name: First Platypus Bank
+        logo_url: null
+        primary_color: 4280391411
+    Item:
+      type: object
+      description: >-
+        Mirrors `shared_models` `Item`, with its institution embedded (`shared_models`
+        keeps the institution separately, by `institution_id`). The transactions cursor is
+        server-only state and is not here.
+      required: [id, institution_id, status, last_successful_sync_at, institution]
+      properties:
+        id:
+          type: string
+          readOnly: true
+        institution_id:
+          type: string
+        status:
+          $ref: '#/components/schemas/ItemStatus'
+        last_successful_sync_at:
+          type: string
+          format: date-time
+          pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'
+          nullable: true
+        institution:
+          $ref: '#/components/schemas/Institution'
+      example:
+        id: item-1
+        institution_id: ins_109508
+        status: healthy
+        last_successful_sync_at: '2026-10-24T09:00:00.000Z'
+        institution:
+          id: ins_109508
+          name: First Platypus Bank
+          logo_url: null
+          primary_color: null
+    SyncRun:
+      type: object
+      description: >-
+        The outcome of a sync request. `added`, `modified` and `removed` count the
+        transactions applied, 0 unless `completed`.
+      required: [status, added, modified, removed, next_cursor_saved]
+      properties:
+        status:
+          $ref: '#/components/schemas/SyncRunStatus'
+        added:
+          type: integer
+          format: int32
+          minimum: 0
+        modified:
+          type: integer
+          format: int32
+          minimum: 0
+        removed:
+          type: integer
+          format: int32
+          minimum: 0
+        next_cursor_saved:
+          type: boolean
+          description: Whether the run finished every page and stored the new cursor
+      example:
+        status: completed
+        added: 316
+        modified: 0
+        removed: 0
+        next_cursor_saved: true
+
+    # Data ---------------------------------------------------------------------------------
+    Account:
+      type: object
+      description: >-
+        Mirrors `shared_models` `Account`. The balances are the institution's reported
+        figures as of `balances_as_of`, null when not reported.
+      required:
+        - id
+        - item_id
+        - type
+        - subtype
+        - name
+        - official_name
+        - mask
+        - currency_code
+        - current_balance
+        - available_balance
+        - credit_limit
+        - balances_as_of
+        - is_hidden
+        - display_order
+      properties:
+        id:
+          type: string
+          readOnly: true
+        item_id:
+          type: string
+          nullable: true
+        type:
+          $ref: '#/components/schemas/AccountType'
+        subtype:
+          type: string
+          nullable: true
+          description: Plaid's subtype, kept open
+        name:
+          type: string
+        official_name:
+          type: string
+          nullable: true
+        mask:
+          type: string
+          nullable: true
+        currency_code:
+          type: string
+          pattern: '^[A-Z]{3}$'
+        current_balance:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        available_balance:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        credit_limit:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        balances_as_of:
+          type: string
+          format: date-time
+          pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'
+          nullable: true
+        is_hidden:
+          type: boolean
+        display_order:
+          type: integer
+          format: int32
+      example:
+        id: acc-1
+        item_id: item-1
+        type: depository
+        subtype: checking
+        name: Plaid Checking
+        official_name: Plaid Gold Standard 0% Interest Checking
+        mask: '0000'
+        currency_code: USD
+        current_balance:
+          minor_units: 11000
+          currency: USD
+        available_balance:
+          minor_units: 10000
+          currency: USD
+        credit_limit: null
+        balances_as_of: '2026-10-24T09:00:00.000Z'
+        is_hidden: false
+        display_order: 0
+    TransactionSplit:
+      type: object
+      description: Mirrors `shared_models` `TransactionSplit`.
+      required: [category_id, amount, note]
+      properties:
+        category_id:
+          type: string
+        amount:
+          $ref: '#/components/schemas/Money'
+        note:
+          type: string
+          nullable: true
+    Transaction:
+      type: object
+      description: >-
+        Mirrors `shared_models` `Transaction`. `amount` is negative for an outflow (Plaid's
+        sign flipped at the server). `name` is Plaid's raw name; `merchant_name` is Plaid's
+        cleaned merchant, null when Plaid has none. `deleted_at` is the tombstone.
+      required:
+        - id
+        - account_id
+        - amount
+        - date
+        - authorized_date
+        - pending
+        - pending_transaction_id
+        - name
+        - merchant_name
+        - merchant_logo_url
+        - plaid_primary_category
+        - plaid_detailed_category
+        - user_category_id
+        - notes
+        - tags
+        - splits
+        - receipt_path
+        - source
+        - created_at
+        - updated_at
+        - deleted_at
+        - sync_version
+      properties:
+        id:
+          type: string
+          readOnly: true
+        account_id:
+          type: string
+        amount:
+          $ref: '#/components/schemas/Money'
+        date:
+          type: string
+          format: date
+        authorized_date:
+          type: string
+          format: date
+          nullable: true
+        pending:
+          type: boolean
+        pending_transaction_id:
+          type: string
+          nullable: true
+        name:
+          type: string
+        merchant_name:
+          type: string
+          nullable: true
+        merchant_logo_url:
+          type: string
+          format: uri
+          nullable: true
+        plaid_primary_category:
+          type: string
+          nullable: true
+        plaid_detailed_category:
+          type: string
+          nullable: true
+        user_category_id:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+        splits:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionSplit'
+        receipt_path:
+          type: string
+          nullable: true
+        source:
+          $ref: '#/components/schemas/DataSource'
+        created_at:
+          type: string
+          format: date-time
+          pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'
+        deleted_at:
+          type: string
+          format: date-time
+          pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'
+          nullable: true
+        sync_version:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+      example:
+        id: txn-1
+        account_id: acc-1
+        amount:
+          minor_units: -1299
+          currency: USD
+        date: '2026-10-23'
+        authorized_date: '2026-10-22'
+        pending: false
+        pending_transaction_id: null
+        name: NETFLIX.COM
+        merchant_name: Netflix
+        merchant_logo_url: null
+        plaid_primary_category: ENTERTAINMENT
+        plaid_detailed_category: ENTERTAINMENT_TV_AND_MOVIES
+        user_category_id: null
+        notes: null
+        tags: []
+        splits: []
+        receipt_path: null
+        source: plaid
+        created_at: '2026-10-23T12:00:00.000Z'
+        updated_at: '2026-10-23T12:00:00.000Z'
+        deleted_at: null
+        sync_version: 42
+    TransactionPage:
+      type: object
+      required: [transactions, next_since, has_more]
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+        next_since:
+          type: integer
+          format: int64
+          minimum: 0
+          description: The largest `sync_version` in this page, or `since` when it is empty
+        has_more:
+          type: boolean
+    RecurringStream:
+      type: object
+      description: Mirrors `shared_models` `RecurringStream`.
+      required:
+        - id
+        - account_id
+        - merchant_name
+        - cadence
+        - average_amount
+        - last_expected
+        - next_expected
+        - status
+        - is_subscription
+        - source
+      properties:
+        id:
+          type: string
+          readOnly: true
+        account_id:
+          type: string
+        merchant_name:
+          type: string
+        cadence:
+          $ref: '#/components/schemas/RecurringCadence'
+        average_amount:
+          $ref: '#/components/schemas/Money'
+        last_expected:
+          type: string
+          format: date
+          nullable: true
+        next_expected:
+          type: string
+          format: date
+          nullable: true
+        status:
+          $ref: '#/components/schemas/RecurringStatus'
+        is_subscription:
+          type: boolean
+        source:
+          $ref: '#/components/schemas/RecurringSource'
+      example:
+        id: stream-1
+        account_id: acc-1
+        merchant_name: Netflix
+        cadence: monthly
+        average_amount:
+          minor_units: -1299
+          currency: USD
+        last_expected: '2026-10-23'
+        next_expected: '2026-11-23'
+        status: active
+        is_subscription: true
+        source: plaid
+
+    # Liabilities (Plaid /liabilities/get, in our naming, without account numbers or
+    # addresses) -----------------------------------------------------------------------------
+    Liabilities:
+      type: object
+      required: [credit, mortgage, student]
+      properties:
+        credit:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditLiability'
+        mortgage:
+          type: array
+          items:
+            $ref: '#/components/schemas/MortgageLiability'
+        student:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentLoanLiability'
+    Apr:
+      type: object
+      required: [apr_percentage, apr_type, balance_subject_to_apr, interest_charge_amount]
+      properties:
+        apr_percentage:
+          $ref: '#/components/schemas/Decimal'
+        apr_type:
+          type: string
+          description: Plaid's value, kept open (`balance_transfer_apr`, `cash_apr`, `purchase_apr`, `special`)
+        balance_subject_to_apr:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        interest_charge_amount:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+    CreditLiability:
       type: object
       required:
-        - status
+        - account_id
+        - aprs
+        - is_overdue
+        - last_payment_amount
+        - last_payment_date
+        - last_statement_issue_date
+        - last_statement_balance
+        - minimum_payment_amount
+        - next_payment_due_date
+      properties:
+        account_id:
+          type: string
+        aprs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Apr'
+        is_overdue:
+          type: boolean
+          nullable: true
+        last_payment_amount:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        last_payment_date:
+          type: string
+          format: date
+          nullable: true
+        last_statement_issue_date:
+          type: string
+          format: date
+          nullable: true
+        last_statement_balance:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        minimum_payment_amount:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        next_payment_due_date:
+          type: string
+          format: date
+          nullable: true
+      example:
+        account_id: acc-2
+        aprs:
+          - apr_percentage: '15.24'
+            apr_type: purchase_apr
+            balance_subject_to_apr:
+              minor_units: 141066
+              currency: USD
+            interest_charge_amount:
+              minor_units: 13008
+              currency: USD
+        is_overdue: false
+        last_payment_amount:
+          minor_units: 16820
+          currency: USD
+        last_payment_date: '2026-09-16'
+        last_statement_issue_date: '2026-09-28'
+        last_statement_balance:
+          minor_units: 170847
+          currency: USD
+        minimum_payment_amount:
+          minor_units: 2000
+          currency: USD
+        next_payment_due_date: '2026-10-28'
+    MortgageLiability:
+      type: object
+      required:
+        - account_id
+        - loan_type_description
+        - loan_term
+        - interest_rate_percentage
+        - interest_rate_type
+        - current_late_fee
+        - escrow_balance
+        - has_pmi
+        - has_prepayment_penalty
+        - last_payment_amount
+        - last_payment_date
+        - maturity_date
+        - next_monthly_payment
+        - next_payment_due_date
+        - origination_date
+        - origination_principal_amount
+        - past_due_amount
+        - ytd_interest_paid
+        - ytd_principal_paid
+      properties:
+        account_id:
+          type: string
+        loan_type_description:
+          type: string
+          nullable: true
+        loan_term:
+          type: string
+          nullable: true
+        interest_rate_percentage:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          nullable: true
+        interest_rate_type:
+          type: string
+          nullable: true
+          description: Plaid's value, kept open (`fixed`, `variable`)
+        current_late_fee:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        escrow_balance:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        has_pmi:
+          type: boolean
+          nullable: true
+        has_prepayment_penalty:
+          type: boolean
+          nullable: true
+        last_payment_amount:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        last_payment_date:
+          type: string
+          format: date
+          nullable: true
+        maturity_date:
+          type: string
+          format: date
+          nullable: true
+        next_monthly_payment:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        next_payment_due_date:
+          type: string
+          format: date
+          nullable: true
+        origination_date:
+          type: string
+          format: date
+          nullable: true
+        origination_principal_amount:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        past_due_amount:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        ytd_interest_paid:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        ytd_principal_paid:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+    StudentLoanLiability:
+      type: object
+      required:
+        - account_id
+        - loan_name
+        - guarantor
+        - interest_rate_percentage
+        - is_overdue
+        - expected_payoff_date
+        - last_payment_amount
+        - last_payment_date
+        - last_statement_balance
+        - last_statement_issue_date
+        - minimum_payment_amount
+        - next_payment_due_date
+        - origination_date
+        - origination_principal_amount
+        - outstanding_interest_amount
+        - loan_status_type
+        - repayment_plan_type
+        - ytd_interest_paid
+        - ytd_principal_paid
+      properties:
+        account_id:
+          type: string
+        loan_name:
+          type: string
+          nullable: true
+        guarantor:
+          type: string
+          nullable: true
+        interest_rate_percentage:
+          $ref: '#/components/schemas/Decimal'
+        is_overdue:
+          type: boolean
+          nullable: true
+        expected_payoff_date:
+          type: string
+          format: date
+          nullable: true
+        last_payment_amount:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        last_payment_date:
+          type: string
+          format: date
+          nullable: true
+        last_statement_balance:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        last_statement_issue_date:
+          type: string
+          format: date
+          nullable: true
+        minimum_payment_amount:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        next_payment_due_date:
+          type: string
+          format: date
+          nullable: true
+        origination_date:
+          type: string
+          format: date
+          nullable: true
+        origination_principal_amount:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        outstanding_interest_amount:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        loan_status_type:
+          type: string
+          nullable: true
+          description: Plaid's loan status type, kept open (`repayment`, `deferment`, ...)
+        repayment_plan_type:
+          type: string
+          nullable: true
+          description: Plaid's repayment plan type, kept open (`standard`, `income-based`, ...)
+        ytd_interest_paid:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        ytd_principal_paid:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+
+    # Investments ----------------------------------------------------------------------------
+    HoldingsResponse:
+      type: object
+      required: [holdings, securities]
+      properties:
+        holdings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Holding'
+        securities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Security'
+    Holding:
+      type: object
+      description: >-
+        A position in one security. `quantity` and `institution_price` are `Decimal`;
+        `institution_value` and `cost_basis` are totals in `currency_code`.
+      required:
+        - account_id
+        - security_id
+        - quantity
+        - institution_price
+        - institution_price_as_of
+        - institution_value
+        - cost_basis
+        - currency_code
+      properties:
+        account_id:
+          type: string
+        security_id:
+          type: string
+        quantity:
+          $ref: '#/components/schemas/Decimal'
+        institution_price:
+          $ref: '#/components/schemas/Decimal'
+        institution_price_as_of:
+          type: string
+          format: date
+          nullable: true
+        institution_value:
+          $ref: '#/components/schemas/Money'
+        cost_basis:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        currency_code:
+          type: string
+          pattern: '^[A-Z]{3}$'
+      example:
+        account_id: acc-5
+        security_id: sec-1
+        quantity: '10.5'
+        institution_price: '42.1234'
+        institution_price_as_of: '2026-10-23'
+        institution_value:
+          minor_units: 44230
+          currency: USD
+        cost_basis:
+          minor_units: 40000
+          currency: USD
+        currency_code: USD
+    Security:
+      type: object
+      required:
+        - id
+        - name
+        - ticker_symbol
+        - type
+        - is_cash_equivalent
+        - close_price
+        - close_price_as_of
+        - currency_code
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          nullable: true
+        ticker_symbol:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+          description: Plaid's security type, kept open (`equity`, `etf`, `mutual fund`, `cash`, ...)
+        is_cash_equivalent:
+          type: boolean
+          nullable: true
+        close_price:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          nullable: true
+        close_price_as_of:
+          type: string
+          format: date
+          nullable: true
+        currency_code:
+          type: string
+          pattern: '^[A-Z]{3}$'
+      example:
+        id: sec-1
+        name: Vanguard Total Stock Market ETF
+        ticker_symbol: VTI
+        type: etf
+        is_cash_equivalent: false
+        close_price: '42.1234'
+        close_price_as_of: '2026-10-23'
+        currency_code: USD
+    InvestmentTransaction:
+      type: object
+      description: >-
+        A buy, sell, dividend, fee or transfer in an investment account. `amount` follows
+        our sign (negative is an outflow from the account); `quantity` and `price` are
+        `Decimal`. `deleted_at` is the tombstone.
+      required:
+        - id
+        - account_id
+        - security_id
+        - date
+        - name
+        - type
+        - subtype
+        - quantity
+        - price
+        - amount
+        - fees
+        - deleted_at
+        - sync_version
+      properties:
+        id:
+          type: string
+          readOnly: true
+        account_id:
+          type: string
+        security_id:
+          type: string
+          nullable: true
+        date:
+          type: string
+          format: date
+        name:
+          type: string
+        type:
+          type: string
+          description: Plaid's type, kept open (`buy`, `sell`, `cancel`, `cash`, `fee`, `transfer`)
+        subtype:
+          type: string
+          nullable: true
+        quantity:
+          $ref: '#/components/schemas/Decimal'
+        price:
+          $ref: '#/components/schemas/Decimal'
+        amount:
+          $ref: '#/components/schemas/Money'
+        fees:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'
+          nullable: true
+        sync_version:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+      example:
+        id: inv-txn-1
+        account_id: acc-5
+        security_id: sec-1
+        date: '2026-10-20'
+        name: BUY Vanguard Total Stock Market ETF
+        type: buy
+        subtype: buy
+        quantity: '2'
+        price: '41.50'
+        amount:
+          minor_units: -8300
+          currency: USD
+        fees: null
+        deleted_at: null
+        sync_version: 43
+    InvestmentTransactionPage:
+      type: object
+      required: [investment_transactions, next_since, has_more]
+      properties:
+        investment_transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvestmentTransaction'
+        next_since:
+          type: integer
+          format: int64
+          minimum: 0
+          description: The largest `sync_version` in this page, or `since` when it is empty
+        has_more:
+          type: boolean
+
+    # Sync -----------------------------------------------------------------------------------
+    ChangeLogEntry:
+      type: object
+      description: >-
+        Mirrors `shared_models` `ChangeLogEntry` without `synced`, which is local state.
+        `payload` is the changed fields as JSON.
+      additionalProperties: false
+      required: [entity_type, entity_id, operation, payload, hlc, device_id]
+      properties:
+        entity_type:
+          $ref: '#/components/schemas/EntityType'
+        entity_id:
+          type: string
+        operation:
+          $ref: '#/components/schemas/ChangeOperation'
+        payload:
+          type: object
+          additionalProperties: true
+        hlc:
+          $ref: '#/components/schemas/Hlc'
+        device_id:
+          type: string
+      example:
+        entity_type: transaction
+        entity_id: txn-7
+        operation: update
+        payload:
+          notes: Dinner with Sam
+        hlc: '001761300000000-00000-device-1'
+        device_id: device-1
+    PulledChangeLogEntry:
+      type: object
+      description: A `ChangeLogEntry` as pulled, with the server's `seq`.
+      required: [entity_type, entity_id, operation, payload, hlc, device_id, seq]
+      properties:
+        entity_type:
+          $ref: '#/components/schemas/EntityType'
+        entity_id:
+          type: string
+        operation:
+          $ref: '#/components/schemas/ChangeOperation'
+        payload:
+          type: object
+          additionalProperties: true
+        hlc:
+          $ref: '#/components/schemas/Hlc'
+        device_id:
+          type: string
+        seq:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+          description: The server's per-user order of arrival
+      example:
+        entity_type: transaction
+        entity_id: txn-7
+        operation: update
+        payload:
+          notes: Dinner with Sam
+        hlc: '001761300000000-00000-device-2'
+        device_id: device-2
+        seq: 18
+    PushRequest:
+      type: object
+      additionalProperties: false
+      required: [entries]
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChangeLogEntry'
+    PushResult:
+      type: object
+      required: [accepted, rejected]
+      properties:
+        accepted:
+          type: array
+          items:
+            $ref: '#/components/schemas/Hlc'
+        rejected:
+          type: array
+          items:
+            $ref: '#/components/schemas/RejectedEntry'
+      example:
+        accepted:
+          - '001761300000000-00000-device-1'
+        rejected: []
+    RejectedEntry:
+      type: object
+      required: [hlc, reason]
+      properties:
+        hlc:
+          $ref: '#/components/schemas/Hlc'
+        reason:
+          type: string
+          description: Why the entry was not stored, for logs
+    PullPage:
+      type: object
+      required: [entries, next_since, has_more]
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/PulledChangeLogEntry'
+        next_since:
+          type: integer
+          format: int64
+          minimum: 0
+          description: >-
+            The largest `seq` this page covered, entries of the calling device included, or
+            `since` when nothing new
+        has_more:
+          type: boolean
+
+    # Webhooks and health --------------------------------------------------------------------
+    PlaidWebhook:
+      type: object
+      description: A Plaid webhook body, verified before it is read
+      additionalProperties: true
+    Health:
+      type: object
+      required: [status, version]
       properties:
         status:
           type: string
-          enum:
-            - ok
+          enum: [ok]
+        version:
+          type: string
+          description: The contract version (`info.version`) the server implements
+      example:
+        status: ok
+        version: 0.2.0
