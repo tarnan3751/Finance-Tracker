@@ -11,9 +11,12 @@
 #                 analyze does not report analyzer-plugin diagnostics such as riverpod_lint's),
 #                 or dart analyze --fatal-infos (pure Dart packages)
 #   5. codegen    generated files are current: flutter gen-l10n (Flutter packages with an
-#                 l10n.yaml) and build_runner build (packages with build_runner), then
-#                 git diff --exit-code on the package, and no untracked file in it
-#                 (git status --porcelain), so a newly generated file is caught too
+#                 l10n.yaml), build_runner build (packages with build_runner), and for a
+#                 package with drift_schemas/ the Drift schema dump of its one
+#                 @DriftDatabase file and the schema test helpers in test/drift/generated/
+#                 (drift_dev schema dump, schema generate); then git diff --exit-code on the
+#                 package, and no untracked file in it (git status --porcelain), so a newly
+#                 generated file is caught too
 #   6. tests      flutter test (Flutter packages) or dart test (pure Dart packages)
 #   7. contract   tools/check_contract.sh, once it exists (Phase 2): the OpenAPI document
 #                 passes the structural check and the generated client is current (the
@@ -79,6 +82,7 @@ fi
 is_flutter() { grep -qE '^\s+flutter:\s*$|sdk:\s*flutter' "$1/pubspec.yaml"; }
 has_build_runner() { grep -qE '^\s+build_runner:' "$1/pubspec.yaml"; }
 has_l10n() { [ -f "$1/l10n.yaml" ] && is_flutter "$1"; }
+has_drift_schemas() { [ -d "$1/drift_schemas" ]; }
 
 # 2. Resolve -------------------------------------------------------------------------
 if $DART pub get >"$scratch/resolve.txt" 2>&1; then
@@ -117,13 +121,22 @@ fi
 # 5. Generated code is current ----------------------------------------------------------
 : >"$scratch/codegen.txt"; gen=0; stale=0
 for p in "${packages[@]}"; do
-  has_build_runner "$p" || has_l10n "$p" || continue
+  has_build_runner "$p" || has_l10n "$p" || has_drift_schemas "$p" || continue
   gen=$((gen + 1))
   if has_l10n "$p"; then
     (cd "$p" && $FLUTTER gen-l10n) >"$scratch/codegen-one.txt" 2>&1 || { stale=$((stale + 1)); { echo "== $p (gen-l10n failed)"; cat "$scratch/codegen-one.txt"; } >>"$scratch/codegen.txt"; continue; }
   fi
   if has_build_runner "$p"; then
-    (cd "$p" && $DART run build_runner build --delete-conflicting-outputs) >"$scratch/codegen-one.txt" 2>&1 || { stale=$((stale + 1)); { echo "== $p (build_runner failed)"; cat "$scratch/codegen-one.txt"; } >>"$scratch/codegen.txt"; continue; }
+    (cd "$p" && $DART run build_runner build) >"$scratch/codegen-one.txt" 2>&1 || { stale=$((stale + 1)); { echo "== $p (build_runner failed)"; cat "$scratch/codegen-one.txt"; } >>"$scratch/codegen.txt"; continue; }
+  fi
+  if has_drift_schemas "$p"; then
+    # The schema of the current schemaVersion, dumped from the package's one @DriftDatabase
+    # file, and the migration test's helpers generated from every dump (data.md).
+    databases="$(cd "$p" && grep -rl --include='*.dart' '^@DriftDatabase' lib)"
+    if [ "$(printf '%s\n' "$databases" | grep -c .)" -ne 1 ]; then
+      stale=$((stale + 1)); echo "== $p: drift_schemas/ needs exactly one @DriftDatabase file under lib/, found: ${databases:-none}" >>"$scratch/codegen.txt"; continue
+    fi
+    (cd "$p" && $DART run drift_dev schema dump "$databases" drift_schemas/ && $DART run drift_dev schema generate drift_schemas/ test/drift/generated/) >"$scratch/codegen-one.txt" 2>&1 || { stale=$((stale + 1)); { echo "== $p (drift schema dump or generate failed)"; cat "$scratch/codegen-one.txt"; } >>"$scratch/codegen.txt"; continue; }
   fi
   untracked="$(git status --porcelain --untracked-files=all -- "$p" | grep '^??')"
   if ! git diff --exit-code --stat -- "$p" >>"$scratch/codegen.txt" 2>&1; then

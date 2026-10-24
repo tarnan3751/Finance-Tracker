@@ -60,7 +60,7 @@ scripts pick it the same way. Commands marked with a phase do not exist before i
 | Run all tests | `tools/run_tests.sh` |
 | Run one package's tests, optionally filtered | `tools/run_tests.sh app "Money"` |
 | Format | `dart format .` |
-| Regenerate code (Phase 1) | `cd app && dart run build_runner build --delete-conflicting-outputs` |
+| Regenerate code (Phase 1) | `cd app && dart run build_runner build` |
 | Regenerate the API client after a contract change (Phase 2) | `tools/gen_api_client.sh` |
 | Run the app, demo flavor (safe anywhere; no network) | `F run --flavor demo -t lib/main_demo.dart` |
 | Run the app, dev flavor (the owner only: the owner's emulator and the dev server) | `F run --flavor dev -t lib/main_dev.dart` |

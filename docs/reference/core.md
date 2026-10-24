@@ -165,9 +165,8 @@ the package. `test/taxonomy_test.dart` fails while the generated file and the CS
 ## Regenerating code
 
 The freezed and json_serializable outputs (`*.freezed.dart`, `*.g.dart`) are committed.
-After changing an entity, run `dart run build_runner build --delete-conflicting-outputs` in
-`packages/shared_models` (build_runner 2.16 warns that the flag is ignored; the gate passes
-it anyway) and commit the result; the gate fails on stale output. The generators are held
+After changing an entity, run `dart run build_runner build` in `packages/shared_models` and
+commit the result; the gate fails on stale output. The generators are held
 to the analyzer 13 band (freezed 4.0.1, build_runner 2.16.1, json_serializable 6.14.x,
 source_helper below 1.4) because Flutter's pinned `flutter_test` fixes `test_api` 0.7.12,
 which only `test` 1.31.1 accepts, and that `test` requires an analyzer below 14; a
@@ -179,5 +178,5 @@ generator release that needs analyzer 14 cannot resolve until the Flutter pin mo
 |---|---|
 | Run the package's tests | `tools/run_tests.sh packages/shared_models` |
 | Explore the property tests with another seed | `SHARED_MODELS_SEED=7 dart test test/money_property_test.dart` (in the package) |
-| Regenerate the entities' code | `dart run build_runner build --delete-conflicting-outputs` (in the package) |
+| Regenerate the entities' code | `dart run build_runner build` (in the package) |
 | Regenerate the taxonomy | `dart run tool/gen_taxonomy.dart` (in the package) |
