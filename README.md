@@ -9,13 +9,14 @@ Plaid directly.
 
 ## Status
 
-Phase 1 is done: the app is a manual-account finance tracker with an encrypted local
-database (accounts with derived balances, transactions with search and filters, categories
-seeded from Plaid's taxonomy, light and dark themes, a demo flavor with seeded data), and the
-original app's data is imported on first launch where the install shares its data
-directory. Phase 2's contract, generated client, sync engine, persona engine and development
-server have landed too; the app's sign-in, sync and persona demo data are next. Bank data
-through Plaid Sandbox follows in Phase 3.
+Phase 2 is done: the app signs in against the development server, syncs user data
+between devices (schema v2 with a change log and field clocks, a pure Dart sync engine with
+per-field last-writer-wins and tombstones), runs the demo flavor on the persona engine's seed
+against an in-process fake server with no network, and validates that fake and the server
+against the one OpenAPI contract. Phase 1's manual-account tracker (encrypted local
+database, accounts with derived balances, transactions with search and filters, categories
+seeded from Plaid's taxonomy) is underneath; a transaction without a category of your own
+shows the one its Plaid code maps to. Bank data through Plaid Sandbox follows in Phase 3.
 
 ## Architecture
 
@@ -45,7 +46,7 @@ The app has three flavors, each with its own entry point. Run them from `app/`:
 
 ```sh
 cd app
-# Demo: no server and no network (its seed data arrives in Phase 2).
+# Demo: no server and no network; the persona engine's seed, signed in against an in-process fake.
 flutter run --flavor demo -t lib/main_demo.dart
 # Dev: talks to the development server at http://10.0.2.2:8080 (the host, from the emulator).
 flutter run --flavor dev -t lib/main_dev.dart
@@ -56,11 +57,11 @@ flutter run --flavor dev -t lib/main_dev.dart --dart-define=FT_SERVER_URL=http:/
 On an emulator the host machine is `10.0.2.2`; `localhost` on the device is the device
 itself, and reaches the host only after `adb reverse tcp:8080 tcp:8080`.
 
-The development server, for the dev flavor (Phase 0 answers only `GET /v1/health`):
+The development server, for the dev flavor (auth, devices, sync, and a fake Plaid client
+until Phase 3). The first run writes `server/.env` with random secrets and a seed user:
 
 ```sh
-cd server
-dart run bin/server.dart          # listens on localhost:8080; PORT overrides the port
+tools/run_server.sh               # listens on 127.0.0.1:8080; PLAID_MODE=fake
 curl localhost:8080/v1/health     # {"status":"ok"}
 ```
 

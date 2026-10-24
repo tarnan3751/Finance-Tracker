@@ -3,6 +3,60 @@
 Each release section is generated from the Conventional Commit log since the previous tag
 (`PLAN.md` §10). Tags are `vX.Y.Z`; a phase ends with a `vX.Y.Z-phaseN` pre-release.
 
+## v0.3.0-phase2 — 2026-10-24
+
+Phase 2, API contract, development server, fakes and demo mode, completed in the app: the API
+client over the generated contract client (HTTPS rule, bearer and single-flight refresh,
+typed problems, tokens in secure storage, one user per install), sign-in and registration
+gating the shell in dev and prod, an in-process fake server implementing the whole contract
+behind Dio and validated against it; schema v2 with the change log, field clocks, sync
+metadata and held records, the Drift sync store, recording of user-authored changes with the
+synthesis-policy filter, the sync controller and its Settings section, the HTTP relay; the
+demo flavor on the persona engine's seed with opening-balance transactions, served by the
+same fake; the effective category resolved from a transaction's Plaid code; a two-device
+convergence suite and a two-instance integration test. Verified on two emulators against the
+development server: register, sign out, sign in, refresh after expiry; manual data syncing
+both ways with concurrent edits of different fields both kept, the later write winning a
+same-field conflict, and a delete beating a concurrent edit; the demo running with the
+network off.
+
+### Features
+
+- transactions: Resolve the category from the Plaid code (7fc36f6)
+- transactions: Filter by the effective category (1c5fb7a)
+- app: Add the API client, token store and problem mapping (60755a0)
+- app: Add the in-app fake server (3283bcc)
+- auth: Add the session controller and flavor wiring (a71703a)
+- auth: Add sign-in and registration (7ed8528)
+- app: Add schema v2 with the change log and field clocks (64da720)
+- app: Add the Drift sync store (6833b5d)
+- app: Record user-authored changes (5ee1e61)
+- app: Run sync sessions and show their status (d30a3fd)
+- app: Load the persona engine's demo seed (127d29f)
+- app: Add the HTTP sync relay (f22fe80)
+- app: Sync through the API while signed in (588de82)
+- app: Serve the persona's household from the demo fake server (d596a1d)
+
+### Fixes
+
+- transactions: Show a transaction whose account is gone (8a3676f)
+
+### Refactoring
+
+- app: Share the row mapping of the Drift repositories (c228d3d)
+
+### Tests
+
+- app: Validate the fake server against the contract (4c013e6)
+- app: Converge two devices through the relay (06cb238)
+- app: Sync two app instances through the fake server (c67b927)
+
+### Documentation
+
+- Add the auth reference file and the API section (8da5140)
+- Describe the app's sync wiring and schema 2 (d181445)
+- map: Record Phases 1 and 2 and the new reference files (ba12258)
+
 ## v0.2.0-phase1 — 2026-10-24
 
 Phase 1, domain and local data: `packages/shared_models` with `Money` (integer minor units,
