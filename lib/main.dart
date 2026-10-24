@@ -1,4 +1,5 @@
 import 'dart:convert'; // For JSON encoding/decoding
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,9 +27,11 @@ class FinanceTrackerApp extends StatelessWidget {
         ),
         textTheme: const TextTheme(
           bodyLarge: TextStyle(
-              color: Colors.black), // Updated for newer Flutter versions
+            color: Colors.black,
+          ), // Updated for newer Flutter versions
           bodyMedium: TextStyle(
-              color: Colors.black), // Updated for newer Flutter versions
+            color: Colors.black,
+          ), // Updated for newer Flutter versions
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
@@ -91,10 +94,12 @@ class FinanceHomePageState extends State<FinanceHomePage> {
       setState(() {
         _transactions.addAll(
           loadedTransactions
-              .map((item) => {
-                    'amount': item['amount'],
-                    'description': item['description'],
-                  })
+              .map(
+                (item) => {
+                  'amount': item['amount'],
+                  'description': item['description'],
+                },
+              )
               .toList(),
         );
       });
@@ -105,10 +110,12 @@ class FinanceHomePageState extends State<FinanceHomePage> {
       setState(() {
         _incomes.addAll(
           loadedIncomes
-              .map((item) => {
-                    'amount': item['amount'],
-                    'description': item['description'],
-                  })
+              .map(
+                (item) => {
+                  'amount': item['amount'],
+                  'description': item['description'],
+                },
+              )
               .toList(),
         );
       });
@@ -179,8 +186,9 @@ class FinanceHomePageState extends State<FinanceHomePage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Delete Transaction'),
-          content:
-              const Text('Are you sure you want to delete this transaction?'),
+          content: const Text(
+            'Are you sure you want to delete this transaction?',
+          ),
           actions: <Widget>[
             TextButton(
               child: const Text('No'),
@@ -233,9 +241,7 @@ class FinanceHomePageState extends State<FinanceHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Finance Tracker'),
-      ),
+      appBar: AppBar(title: const Text('Finance Tracker')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -243,9 +249,10 @@ class FinanceHomePageState extends State<FinanceHomePage> {
             Text(
               'Total Balance: \$${_totalBalance.toStringAsFixed(2)}',
               style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
             const SizedBox(height: 16),
             Form(
@@ -301,15 +308,18 @@ class FinanceHomePageState extends State<FinanceHomePage> {
                   const Text(
                     'Transactions:',
                     style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.purple),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.purple,
+                    ),
                   ),
                   ..._transactions.map((transaction) {
                     int index = _transactions.indexOf(transaction);
                     return ListTile(
-                      title: Text(transaction['description'],
-                          style: const TextStyle(color: Colors.black)),
+                      title: Text(
+                        transaction['description'],
+                        style: const TextStyle(color: Colors.black),
+                      ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -331,15 +341,18 @@ class FinanceHomePageState extends State<FinanceHomePage> {
                   const Text(
                     'Incomes:',
                     style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.purple),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.purple,
+                    ),
                   ),
                   ..._incomes.map((income) {
                     int index = _incomes.indexOf(income);
                     return ListTile(
-                      title: Text(income['description'],
-                          style: const TextStyle(color: Colors.black)),
+                      title: Text(
+                        income['description'],
+                        style: const TextStyle(color: Colors.black),
+                      ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
