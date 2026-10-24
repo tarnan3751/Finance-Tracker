@@ -6,6 +6,7 @@
 /// month boundaries are computed in [Clock.location]. Pure Dart, no Flutter import.
 library;
 
+import 'package:shared_models/shared_models.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 /// The source of the current instant and the zone local dates are computed in.
@@ -14,9 +15,9 @@ import 'package:timezone/timezone.dart' as tz;
 /// sync clock's wall time) are millisecond precision, and their JSON converter refuses a
 /// `DateTime` that carries microseconds.
 ///
-/// [todayLocalMidnight] returns a `DateTime` because the app does not depend on
-/// `shared_models`, where `LocalDate` lives, yet; Phase 1d adds `LocalDate today()` beside
-/// it and moves date callers onto that.
+/// [today] is the local date; [todayLocalMidnight] is the instant that date starts, for
+/// the few callers that need a `DateTime`. Phase 1d moves the UI's date callers onto
+/// [today].
 abstract interface class Clock {
   /// The current instant, in UTC, truncated to milliseconds.
   DateTime nowUtc();
@@ -24,6 +25,9 @@ abstract interface class Clock {
   /// The start of the current local day in [location], as a `tz.TZDateTime`. On a day
   /// whose midnight a DST change skips, this is the first instant of that day.
   DateTime todayLocalMidnight();
+
+  /// The current local date in [location].
+  LocalDate today();
 
   /// The zone "today" and local dates are computed in.
   tz.Location get location;
@@ -39,6 +43,9 @@ final class SystemClock implements Clock {
 
   @override
   DateTime todayLocalMidnight() => _midnight(tz.TZDateTime.now(location));
+
+  @override
+  LocalDate today() => LocalDate.fromDateTime(todayLocalMidnight());
 
   @override
   tz.Location get location => tz.local;
@@ -61,6 +68,9 @@ final class FixedClock implements Clock {
   @override
   DateTime todayLocalMidnight() =>
       _midnight(tz.TZDateTime.from(_utc, location));
+
+  @override
+  LocalDate today() => LocalDate.fromDateTime(todayLocalMidnight());
 }
 
 tz.TZDateTime _midnight(tz.TZDateTime local) =>
