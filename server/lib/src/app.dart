@@ -64,7 +64,7 @@ final class ServerApp {
     limiter = RateLimiter(now: this.now);
     routes = [
       ...authRoutes(auth),
-      ...userRoutes(db: db, auth: auth),
+      ...userRoutes(db: db, auth: auth, items: items),
       ...plaidRoutes(items),
       ...dataRoutes(db),
       ...syncRoutes(ChangeLogRelay(db: db, now: this.now)),

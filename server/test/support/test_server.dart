@@ -115,14 +115,15 @@ final class TestServer {
   static Future<TestServer> start({ServerConfig? config}) async {
     final clock = TestClock();
     final plaid = await FakePlaidClient.load(now: clock.call);
-    final server = TestServer._(
+    late final TestServer server;
+    server = TestServer._(
       ServerApp(
         config: config ?? testConfig,
         db: AppDatabase.inMemory(),
         plaid: plaid,
         now: clock.call,
         clientIp: (r) => r.headers['x-test-ip'] ?? '10.0.0.1',
-        delay: (_) async {},
+        delay: (wait) async => server.onDelay?.call(wait),
       ),
       plaid,
       clock,
@@ -139,6 +140,10 @@ final class TestServer {
 
   /// The clock.
   final TestClock clock;
+
+  /// Runs instead of each wait between Plaid retries (which are otherwise instant), so a
+  /// test can interleave requests with a retry in progress.
+  Future<void> Function(Duration wait)? onDelay;
 
   late final Handler _handler = app.handler;
 
