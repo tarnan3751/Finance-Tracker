@@ -1,15 +1,17 @@
 // The three-tab shell: where it opens, the root redirect, switching tabs, and the flavor
-// banner (shown in dev and demo below the status bar, absent in prod).
+// banner (in dev and demo a strip between the status bar and the app, absent in prod).
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/router/app_shell.dart';
+import 'package:finance_tracker/core/widgets/flavor_banner.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/pump_app.dart';
 
-Finder _bannerWithMessage(String message) => find.byWidgetPredicate(
-  (widget) => widget is Banner && widget.message == message,
+Finder _bannerWithMessage(String message) => find.descendant(
+  of: find.byType(FlavorBanner),
+  matching: find.text(message),
 );
 
 void main() {
@@ -68,7 +70,7 @@ void main() {
     );
   });
 
-  testWidgets('demo and dev draw their banner below the status bar', (
+  testWidgets('demo and dev draw a strip between the status bar and the app', (
     tester,
   ) async {
     const double statusBar = 24;
@@ -79,8 +81,28 @@ void main() {
 
     await pumpApp(tester, config: AppConfig.demo());
     expect(_bannerWithMessage('DEMO'), findsOneWidget);
-    expect(tester.getTopLeft(_bannerWithMessage('DEMO')).dy, statusBar);
-    expect(tester.getTopRight(_bannerWithMessage('DEMO')).dx, phoneSize.width);
+    // The label sits in the strip, below the status bar.
+    final Rect label = tester.getRect(_bannerWithMessage('DEMO'));
+    expect(label.top, greaterThanOrEqualTo(statusBar));
+    expect(label.bottom, lessThanOrEqualTo(statusBar + FlavorBanner.height));
+    expect(label.center.dx, phoneSize.width / 2);
+    // The app starts below the strip, so nothing of it is covered.
+    expect(
+      tester.getTopLeft(find.byType(AppBar)).dy,
+      statusBar + FlavorBanner.height,
+    );
+    final ColoredBox strip = tester.widget(
+      find
+          .descendant(
+            of: find.byType(FlavorBanner),
+            matching: find.byType(ColoredBox),
+          )
+          .first,
+    );
+    expect(
+      strip.color,
+      Theme.of(tester.element(find.byType(AppBar))).colorScheme.errorContainer,
+    );
     final MaterialApp app = tester.widget(find.byType(MaterialApp));
     expect(app.debugShowCheckedModeBanner, isFalse);
 
@@ -91,9 +113,8 @@ void main() {
   testWidgets('prod draws no flavor banner', (tester) async {
     await pumpApp(tester, config: AppConfig.prod());
 
-    expect(_bannerWithMessage('PROD'), findsNothing);
-    expect(_bannerWithMessage('DEMO'), findsNothing);
-    expect(_bannerWithMessage('DEV'), findsNothing);
+    expect(find.byType(FlavorBanner), findsNothing);
+    expect(tester.getTopLeft(find.byType(AppBar)).dy, 0);
     final MaterialApp app = tester.widget(find.byType(MaterialApp));
     expect(app.debugShowCheckedModeBanner, isTrue);
   });

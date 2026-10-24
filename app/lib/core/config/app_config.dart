@@ -44,6 +44,6 @@ final class AppConfig {
   /// The name shown as the app's title; the Android launcher label matches it.
   final String appName;
 
-  /// Whether the UI draws a corner banner naming the flavor (dev and demo).
+  /// Whether the UI draws a strip naming the flavor above the app (dev and demo).
   bool get showsFlavorBanner => flavor != Flavor.prod;
 }

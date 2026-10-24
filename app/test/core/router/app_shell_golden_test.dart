@@ -1,5 +1,5 @@
 // Goldens of the shell: each tab in light and dark at phone size, the demo shell with its
-// flavor banner below a status bar, and the settings screen at tablet size. Tagged
+// flavor strip below a status bar, and the settings screen at tablet size. Tagged
 // `golden`; see test/flutter_test_config.dart for where the files go and how to update
 // them.
 import 'package:alchemist/alchemist.dart';
@@ -51,7 +51,7 @@ void main() {
   }
 
   goldenTest(
-    'the demo shell draws its banner below the status bar',
+    'the demo shell draws its strip below the status bar',
     fileName: 'shell_demo_banner_phone',
     constraints: BoxConstraints.tight(phoneSize),
     builder: () => _device(

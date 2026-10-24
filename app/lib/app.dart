@@ -36,7 +36,8 @@ class FinanceTrackerApp extends ConsumerWidget {
             darkDynamic != null;
         return MaterialApp.router(
           title: config.appName,
-          // The debug banner sits in the same corner and would hide the flavor banner.
+          // In dev and demo the flavor strip marks the build; the debug banner would cover
+          // the top-end app bar action the strip keeps clear.
           debugShowCheckedModeBanner: !config.showsFlavorBanner,
           theme: AppTheme.light(useDynamic ? lightDynamic : null),
           darkTheme: AppTheme.dark(useDynamic ? darkDynamic : null),
