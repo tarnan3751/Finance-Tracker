@@ -5,11 +5,13 @@
 /// transaction and recurring stream must say `source: demo`; the constructor refuses any
 /// other. The fake keeps every id as given and assigns only `sync_version`, per user, when
 /// an Item's first completed sync applies it (`fake_server.dart`). [FakeDataset.sample] is
-/// a small hand-written dataset; the persona engine's demo seed is wired in by Phase 2's
-/// demo-seed lane.
+/// a small hand-written dataset (the tests and the dev flavor's fake);
+/// [FakeDataset.fromDemoSeed] is the persona engine's household the demo flavor shows.
 library;
 
 import 'package:finance_tracker/core/api/api_models.dart';
+import 'package:persona_engine/persona_engine.dart'
+    show DemoSeed, GeneratedHousehold;
 import 'package:shared_models/shared_models.dart';
 
 /// One Item's data.
@@ -85,6 +87,40 @@ final class FakeDataset {
     for (final FakeItemData item in items) {
       if (!ids.add(item.id)) throw ArgumentError('two Items are ${item.id}');
     }
+  }
+
+  /// No Items.
+  FakeDataset.empty() : items = const [];
+
+  /// The persona engine's household [seed]: one Item per demo Item, at its institution,
+  /// with its accounts and their transactions (all `demo`), ids as the engine gives them.
+  /// The engine's liabilities, holdings and investment transactions are its own types
+  /// and are not carried before Phase 3 and Phase 6 read them; it has no recurring
+  /// streams.
+  factory FakeDataset.fromDemoSeed(DemoSeed seed) {
+    final GeneratedHousehold household = seed.household;
+    return FakeDataset(
+      items: [
+        for (final Item item in household.items)
+          FakeItemData(
+            id: item.id,
+            institution: household.institutions.firstWhere(
+              (i) => i.id == item.institutionId,
+            ),
+            accounts: [
+              for (final Account a in household.accounts)
+                if (a.itemId == item.id) a,
+            ],
+            transactions: [
+              for (final Transaction t in household.transactions)
+                if (household.accounts.any(
+                  (a) => a.id == t.accountId && a.itemId == item.id,
+                ))
+                  t,
+            ],
+          ),
+      ],
+    );
   }
 
   /// One Item at First Platypus Bank, with a checking, a savings and a credit-card

@@ -11,11 +11,12 @@ import 'package:finance_tracker/features/auth/application/session_controller.dar
 import 'package:finance_tracker/features/auth/domain/session_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:persona_engine/persona_engine.dart' show DemoSeed;
 
 import 'support/fake_api.dart';
 
 void main() {
-  test('demo starts signed in on the fake, with the sample data', () async {
+  test("demo starts signed in on the fake, with the persona's data", () async {
     final ProviderContainer c = ProviderContainer.test(
       overrides: [
         ...overridesFor(AppConfig.demo()),
@@ -29,8 +30,15 @@ void main() {
     expect(c.read(fakeServerProvider).adapter, isA<FakeHttpAdapter>());
 
     final FinanceApi api = c.read(financeApiProvider);
-    expect(await api.listAccounts(), hasLength(3));
-    expect((await api.listTransactions()).items, hasLength(12));
+    final DemoSeed seed = c.read(demoSeedProvider);
+    expect(
+      (await api.listAccounts()).map((a) => a.id).toSet(),
+      seed.household.accounts.map((a) => a.id).toSet(),
+    );
+    expect(
+      (await api.listTransactions()).items.map((t) => t.id),
+      everyElement(startsWith('demo-${seed.household.persona.id.slug}-')),
+    );
   });
 
   test('dev and prod use the network and secure storage', () {

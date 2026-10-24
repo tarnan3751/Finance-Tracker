@@ -2,9 +2,10 @@
 /// overrides that put a flavor on the fake (`apiOverridesFor`).
 ///
 /// - dev and prod: `HttpFinanceApi` on the network, the session in secure storage.
-/// - demo: the in-app fake server behind the real client, seeded with the demo user
-///   (`demoEmail`), its Items linked and synced, and that user signed in, so the demo
-///   never shows sign-in and makes no network call.
+/// - demo: the in-app fake server behind the real client, over the persona engine's
+///   household the demo shows, seeded with the demo user (`demoEmail`), its Items linked
+///   and synced, and that user signed in, so the demo never shows sign-in and makes no
+///   network call.
 /// - dev with `--dart-define=FT_FAKE_SERVER=true`: the same fake, empty and signed out,
 ///   with the session in memory, for the auth flow on the emulator without a server. The
 ///   define is ignored in every other flavor.
@@ -65,19 +66,25 @@ FinanceApi financeApi(Ref ref) {
 /// The API's overrides for [config]: none for dev and prod on the network, the fake
 /// server for demo (signed in) and for dev under `FT_FAKE_SERVER` (signed out).
 List<Override> apiOverridesFor(AppConfig config) => switch (config.flavor) {
-  Flavor.demo => fakeApiOverrides(signedIn: true),
+  Flavor.demo => fakeApiOverrides(signedIn: true, personaSeed: true),
   Flavor.dev when fakeServerInDev => fakeApiOverrides(signedIn: false),
   Flavor.dev || Flavor.prod => const [],
 };
 
-/// The fake server over the sample dataset dated to the clock's today, a session in
-/// memory and the API on the fake. When [signedIn], the demo user exists, its Items are
-/// linked and synced, and its session is stored.
-List<Override> fakeApiOverrides({required bool signedIn}) => [
+/// The fake server over a dataset, a session in memory and the API on the fake: the
+/// dataset is the demo flavor's persona seed (`demoSeedProvider`) when [personaSeed],
+/// else the sample dated to the clock's today. When [signedIn], the demo user exists,
+/// its Items are linked and synced, and its session is stored.
+List<Override> fakeApiOverrides({
+  required bool signedIn,
+  bool personaSeed = false,
+}) => [
   fakeServerProvider.overrideWith((ref) {
     final Clock clock = ref.watch(clockProvider);
     final FakeServer server = FakeServer(
-      dataset: FakeDataset.sample(clock.today()),
+      dataset: personaSeed
+          ? FakeDataset.fromDemoSeed(ref.watch(demoSeedProvider))
+          : FakeDataset.sample(clock.today()),
       now: clock.nowUtc,
     );
     if (signedIn) {
