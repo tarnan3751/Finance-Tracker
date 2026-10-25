@@ -7,12 +7,14 @@
 ///
 /// It depends only on [PlaidClient] (the fake or the HTTP client), and stamps every stored
 /// row with the client's `provenance`. Access
-/// tokens are stored sealed by [TokenCipher]. No Plaid call is made while a database
-/// transaction is open: a sync run fetches every page and every product first, then
-/// applies all of it, both cursors included, in one transaction, so a failure part-way
-/// leaves the store as it was (`PLAN.md` §4: apply every page before persisting the
-/// cursor). Runs are serialized per Item. A secondary product that fails is skipped and
-/// logged; the transactions still apply. An Item whose removal at Plaid succeeded, or
+/// tokens are stored sealed by [TokenCipher]. A sync run lists the Item's accounts
+/// through `/accounts/get`, since a `/transactions/sync` page lists only those
+/// Transactions covers, and a page's later report of an account wins. No Plaid call is
+/// made while a database transaction is open: a sync run fetches the accounts, every
+/// page and every product first, then applies all of it, both cursors included, in one
+/// transaction, so a failure part-way leaves the store as it was (`PLAN.md` §4: apply
+/// every page before persisting the cursor). Runs are serialized per Item. A secondary
+/// product that fails is skipped and logged; the transactions still apply. An Item whose removal at Plaid succeeded, or
 /// that Plaid no longer knows (`ITEM_NOT_FOUND`), carries `plaid_removed_at`; it is
 /// hidden from every Item and data route, and a retried account deletion skips it, unless
 /// it was unlinked with its history kept: then its status is `removed`, it stays listed
@@ -558,10 +560,10 @@ final class ItemService {
     return [for (final r in rows) await _open(r)];
   }
 
-  /// Runs `/transactions/sync` for the Item, then the Item's other products, and applies
-  /// all of it in one transaction; the contract's `SyncRun`. A run a request asked for
-  /// answers `not_ready` at once; a background run ([retryNotReady]: the scheduler, a
-  /// webhook, a refresh) asks again every [syncNotReadyWait], up to
+  /// Runs `/accounts/get` and `/transactions/sync` for the Item, then the Item's other
+  /// products, and applies all of it in one transaction; the contract's `SyncRun`. A run
+  /// a request asked for answers `not_ready` at once; a background run ([retryNotReady]:
+  /// the scheduler, a webhook, a refresh) asks again every [syncNotReadyWait], up to
   /// [syncNotReadyRetries] times, before it does. Each attempt holds the Item's lock only
   /// for its own Plaid calls and apply; the wait between attempts holds nothing, so a
   /// request's run (the app polling `syncItem`, a balance refresh) takes its turn there.
@@ -768,8 +770,12 @@ final class ItemService {
   Future<Map<String, Object?>> _sync(String userId, String itemId) async {
     final item = await loadActive(userId, itemId);
     final startCursor = item.row['cursor'] as String? ?? '';
+    // `/accounts/get` lists every account of the Item; a page lists only those
+    // Transactions covers (none for an investment-only Item, `PLAN.md` §4).
+    final List<PlaidAccount> listed;
     final List<TransactionsSyncPage> pages;
     try {
+      listed = await plaid.accountsGet(item.accessToken);
       final fetched = await _fetchAllPages(item.accessToken, startCursor);
       if (fetched == null) {
         _log.info(LogEvent('item_sync_not_ready', {'item_id': itemId}));
@@ -813,6 +819,7 @@ final class ItemService {
 
     final currencies = {
       ...await _storedCurrencies(itemId),
+      for (final a in listed) a.accountId: a.currencyCode,
       for (final page in pages)
         for (final a in page.accounts) a.accountId: a.currencyCode,
     };
@@ -863,7 +870,9 @@ final class ItemService {
           null) {
         throw const ProblemException.notFound('The Item was removed');
       }
+      // A page's report comes later and wins on balances.
       final accounts = _upsertAccounts(tx, userId, itemId, [
+        ...listed,
         for (final page in pages) ...page.accounts,
       ]);
       final counts = _applyTransactions(tx, userId, itemId, accounts, pages);

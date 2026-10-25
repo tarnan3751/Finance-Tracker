@@ -1,7 +1,8 @@
 // The persona provisioning job against the fake client, on a clock the job's waits move:
-// the queued answer, the counters, the one date shift, the pacing and interleaving, the
-// NOT_READY and rate-limit retries, a recorded failure, the transactions skipped when a
-// long job crosses Plaid's midnight, one job per user, and the route rules.
+// the queued answer, the counters, the one date shift, an investment-only Item's account
+// mapped, the pacing and interleaving, the NOT_READY and rate-limit retries, a recorded
+// failure, the transactions skipped when a long job crosses Plaid's midnight, one job
+// per user, and the route rules.
 import 'dart:convert';
 
 import 'package:finance_tracker_server/server.dart';
@@ -169,6 +170,36 @@ void main() {
     // The first sync met NOT_READY once and waited.
     expect(waits.where((w) => w == const Duration(seconds: 5)), hasLength(1));
   });
+
+  test(
+    "an investment-only Item's account is mapped and the job completes",
+    () async {
+      // The family's 401(k) is the only account of its Tartan Bank Item, and no
+      // transactions page lists it (`PLAN.md` §4, 2026-10-25): the sync takes it from
+      // /accounts/get.
+      final job = await runJob({'persona': 'family', 'days': 30});
+      expect(job['status'], 'completed', reason: '$job');
+      expect((job['progress']! as Map)['items_linked'], 4);
+      final accounts = (await server.call(
+        'get',
+        '/accounts',
+        token: ada.access,
+      )).list.cast<Map<String, Object?>>();
+      expect(
+        {for (final a in accounts) '${a['name']} ${a['mask']}'},
+        {
+          for (final a in personaFor(PersonaId.family).accounts)
+            '${a.name} ${a.mask}',
+        },
+      );
+      final retirement = personaFor(PersonaId.family).accounts
+          .firstWhere((a) => a.type == AccountType.investment);
+      expect(
+        accounts.firstWhere((a) => a['mask'] == retirement.mask),
+        containsPair('type', 'investment'),
+      );
+    },
+  );
 
   test(
     'injection is paced at 35 s per Item and interleaves the Items',

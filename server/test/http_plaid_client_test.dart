@@ -280,6 +280,33 @@ void main() {
       );
     });
 
+    test('the accounts list, read as the balances are', () async {
+      transport.script('/accounts/get', [
+        'accounts_get',
+        plaidErrorAnswer(400, 'ITEM_ERROR', 'ITEM_LOGIN_REQUIRED'),
+      ]);
+      final accounts = await plaid.accountsGet('access-x');
+      expect(accounts, hasLength(7));
+      final checking = accounts.firstWhere((a) => a.subtype == 'checking');
+      expect(checking.name, 'Checking');
+      expect(checking.officialName, 'Plaid checking');
+      expect(checking.mask, '1000');
+      expect(checking.current, Money(50000, 'USD'));
+      // 342.099285 rounds half-even to 342.10.
+      expect(checking.available, Money(34210, 'USD'));
+      final card = accounts.firstWhere((a) => a.type == 'credit');
+      expect(card.limit, Money(480000, 'USD'));
+      expect(transport.bodies('/accounts/get').single, {
+        'client_id': testPlaidClientId,
+        'secret': testPlaidSecret,
+        'access_token': 'access-x',
+      });
+      await expectLater(
+        plaid.accountsGet('access-x'),
+        throwsA(plaidError('ITEM_ERROR', 'ITEM_LOGIN_REQUIRED')),
+      );
+    });
+
     test('balances, liabilities, recurring streams', () async {
       transport
         ..script('/accounts/balance/get', ['accounts_balance_get'])
@@ -693,6 +720,7 @@ void main() {
         ..byDefault('/item/public_token/exchange', 'item_public_token_exchange')
         ..byDefault('/item/get', 'item_get')
         ..byDefault('/institutions/get_by_id', 'institutions_get_by_id')
+        ..byDefault('/accounts/get', 'accounts_get')
         ..byDefault(
           '/transactions/recurring/get',
           'transactions_recurring_get',

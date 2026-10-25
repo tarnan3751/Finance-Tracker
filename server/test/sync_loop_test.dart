@@ -2,7 +2,8 @@
 // answers where Sandbox did not show a case: NOT_READY answered at once to a request and
 // retried by a background run, the restart after a mutation during pagination,
 // pending-to-posted, the repeated exchange of one Item (the caller's, then another
-// user's), and the investment-transactions window.
+// user's), the investment-transactions window, and the accounts /accounts/get lists
+// (an investment-only Item, a page's balance winning, a failed call).
 import 'dart:async';
 import 'dart:convert';
 
@@ -103,6 +104,7 @@ void main() {
       ..byDefault('/item/public_token/exchange', 'item_public_token_exchange')
       ..byDefault('/item/get', 'item_get')
       ..byDefault('/institutions/get_by_id', 'institutions_get_by_id')
+      ..byDefault('/accounts/get', 'accounts_get')
       ..byDefault('/transactions/recurring/get', 'transactions_recurring_get');
   });
 
@@ -206,6 +208,8 @@ void main() {
       );
       expect(run['status'], 'not_ready');
       expect(transport.bodies('/transactions/sync'), hasLength(13));
+      // One /accounts/get per attempt, NOT_READY included.
+      expect(transport.bodies('/accounts/get'), hasLength(13));
       expect(waits, List.filled(12, syncNotReadyWait));
       expect(await transactions(), isEmpty);
     });
@@ -444,6 +448,194 @@ void main() {
         ),
         LocalDate(2026, 9, 23),
       );
+    });
+  });
+
+  group('/accounts/get', () {
+    Future<List<Map<String, Object?>>> accounts() async =>
+        (await server.call('get', '/accounts', token: ada.access)).list.cast();
+
+    Future<Map<String, Object?>?> itemRow(String itemId) => server.app.db.read(
+      (tx) =>
+          tx.first('SELECT cursor, status FROM items WHERE id = ?', [itemId]),
+    );
+
+    test("an investment-only Item's account, holdings and investments are stored", () async {
+      // Synthesized after the Tartan Bank capture (`PLAN.md` §4, 2026-10-25): one
+      // 401(k) that /accounts/get lists and no transactions page does.
+      const retirement = 'tartan-401k-account';
+      transport
+        ..byDefault('/item/get', (Map<String, Object?> _) {
+          final body = jsonDecode(
+            fixtureAnswer('item_get').body,
+          ) as Map<String, Object?>;
+          (body['item']! as Map<String, Object?>)['products'] = [
+            'investments',
+            'transactions',
+          ];
+          return (status: 200, body: jsonEncode(body));
+        })
+        ..script('/accounts/get', [
+          (
+            status: 200,
+            body: jsonEncode({
+              'accounts': [
+                {
+                  'account_id': retirement,
+                  'name': '401(k)',
+                  'official_name': 'Tartan Bank Retirement Savings Plan',
+                  'mask': '0401',
+                  'type': 'investment',
+                  'subtype': '401k',
+                  'balances': {
+                    'current': 41250,
+                    'available': null,
+                    'limit': null,
+                    'iso_currency_code': 'USD',
+                  },
+                },
+              ],
+              'request_id': 'req-synthesized',
+            }),
+          ),
+        ])
+        ..script('/transactions/sync', [
+          (
+            status: 200,
+            body: jsonEncode({
+              'accounts': <Object?>[],
+              'added': <Object?>[],
+              'modified': <Object?>[],
+              'removed': <Object?>[],
+              'next_cursor': 'cursor-1',
+              'has_more': false,
+              'transactions_update_status': 'HISTORICAL_UPDATE_COMPLETE',
+              'request_id': 'req-synthesized',
+            }),
+          ),
+        ])
+        ..byDefault('/investments/holdings/get', (
+          status: 200,
+          body:
+              '{"holdings":[{"account_id":"$retirement","security_id":"sec-1",'
+              '"quantity":10,"institution_price":150.5,'
+              '"institution_price_as_of":"2026-10-23","institution_value":1505,'
+              '"cost_basis":1200,"iso_currency_code":"USD"}],'
+              '"securities":[{"security_id":"sec-1","name":"Target Date 2050",'
+              '"ticker_symbol":"TD50","type":"mutual fund",'
+              '"is_cash_equivalent":false,"close_price":150.5,'
+              '"close_price_as_of":"2026-10-23","iso_currency_code":"USD"}],'
+              '"request_id":"r"}',
+        ))
+        ..byDefault('/investments/transactions/get', (
+          status: 200,
+          body:
+              '{"investment_transactions":[{"investment_transaction_id":"it-1",'
+              '"account_id":"$retirement","security_id":"sec-1",'
+              '"date":"2026-10-01","name":"CONTRIBUTION TD50","type":"buy",'
+              '"subtype":"contribution","quantity":1,"price":150.5,'
+              '"amount":150.5,"fees":0,"iso_currency_code":"USD"}],'
+              '"securities":[],"total_investment_transactions":1,'
+              '"request_id":"r"}',
+        ));
+      final itemId = await link();
+      final run = await sync(itemId);
+      expect(run.json['status'], 'completed', reason: '$run');
+
+      final account = (await accounts()).single;
+      expect(account['name'], '401(k)');
+      expect(account['official_name'], 'Tartan Bank Retirement Savings Plan');
+      expect(account['mask'], '0401');
+      expect(account['type'], 'investment');
+      expect(account['current_balance'], Money(4125000, 'USD').toJson());
+
+      final holdings = await server.call(
+        'get',
+        '/investments/holdings',
+        token: ada.access,
+      );
+      final holding = (holdings.json['holdings']! as List<Object?>).single;
+      expect(holding, containsPair('account_id', account['id']));
+      expect(holding, containsPair('quantity', '10'));
+      final investments = await server.call(
+        'get',
+        '/investments/transactions?since=0',
+        token: ada.access,
+      );
+      final investment =
+          (investments.json['investment_transactions']! as List<Object?>)
+              .single;
+      expect(investment, containsPair('account_id', account['id']));
+      final stored = await server.app.db.read(
+        (tx) => tx.select(
+          'SELECT source FROM accounts UNION SELECT source FROM holdings '
+          'UNION SELECT source FROM investment_transactions',
+        ),
+      );
+      expect(stored.map((r) => r['source']).toSet(), {'plaid'});
+    });
+
+    test("every listed account is stored, a page's balance winning", () async {
+      // /accounts/get reports the checking account at 500.00; the page, which Plaid
+      // answers later, at 612.00.
+      transport.script('/transactions/sync', [
+        (
+          status: 200,
+          body: _page().body.replaceFirst('"current":500', '"current":612'),
+        ),
+      ]);
+      final itemId = await link();
+      expect((await sync(itemId)).json['status'], 'completed');
+      final rows = await accounts();
+      // The page names one account; /accounts/get all seven, in its order, the
+      // checking account's fields (its mask included) the page's.
+      expect(
+        [for (final a in rows) a['mask']],
+        ['0000', '2000', '3000', '4000', '5000', '6000', '7000'],
+      );
+      final checking = rows.firstWhere((a) => a['subtype'] == 'checking');
+      expect(checking['current_balance'], Money(61200, 'USD').toJson());
+      final card = rows.firstWhere((a) => a['type'] == 'credit');
+      expect(card['credit_limit'], Money(480000, 'USD').toJson());
+      expect(
+        transport.bodies('/accounts/get').single.keys,
+        unorderedEquals(['client_id', 'secret', 'access_token']),
+      );
+    });
+
+    test('a failed call fails the run and stores nothing', () async {
+      transport
+        ..script('/accounts/get', [
+          plaidErrorAnswer(500, 'API_ERROR', 'INTERNAL_SERVER_ERROR'),
+        ])
+        ..script('/transactions/sync', ['transactions_sync_page1']);
+      final itemId = await link();
+      final r = await sync(itemId);
+      expect(r.status, 502);
+      expect(r.code, 'plaid_error');
+      expect(transport.bodies('/transactions/sync'), isEmpty);
+      expect(await accounts(), isEmpty);
+      expect(await transactions(), isEmpty);
+      expect((await itemRow(itemId))!['cursor'], isNull);
+      // The next run lists the accounts and applies the page.
+      final again = await sync(itemId);
+      expect(again.json['status'], 'completed');
+      expect(await accounts(), hasLength(7));
+    });
+
+    test('login required is 409 and marks the Item', () async {
+      transport.script('/accounts/get', [
+        'transactions_sync_item_login_required',
+      ]);
+      final itemId = await link();
+      final r = await sync(itemId);
+      expect(r.status, 409);
+      expect(r.code, 'item_login_required');
+      expect(transport.bodies('/transactions/sync'), isEmpty);
+      final row = (await itemRow(itemId))!;
+      expect(row['status'], 'login_required');
+      expect(row['cursor'], isNull);
+      expect(await accounts(), isEmpty);
     });
   });
 }

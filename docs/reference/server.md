@@ -291,7 +291,7 @@ with identical session reports.
 `lib/src/plaid/plaid_client.dart` is the interface. It covers the Item calls
 (`createLinkToken`, `createUpdateLinkToken`, `exchangePublicToken`, `getItem`,
 `removeItem`), the data calls (`transactionsSync(accessToken, cursor, count:)`,
-`accountsBalanceGet`, `liabilitiesGet`, `investmentsHoldingsGet`,
+`accountsGet`, `accountsBalanceGet`, `liabilitiesGet`, `investmentsHoldingsGet`,
 `investmentsTransactionsGet`, `transactionsRecurringGet(accessToken, currencyOf:)`,
 `transactionsRefresh`), `webhookVerificationKeyGet`, `institutionsGetById` (a
 `PlaidInstitution`: the name, the logo's PNG bytes and the colour as ARGB, a logo that is
@@ -308,8 +308,8 @@ Plaid's `account_id` per transaction, and `sandboxItemFireWebhook`).
   an empty recurring `merchant_name` counts as none (the description is used).
 - **Recurring currencies.** Sandbox's `average_amount` carries no currency code, so
   `transactionsRecurringGet` takes `currencyOf`, the currency of each of the Item's
-  accounts (stored, or reported by the run's pages); a stream of an account it does not
-  know is left out.
+  accounts (stored, or reported by the run's `/accounts/get` and pages); a stream of an
+  account it does not know is left out.
 - **`provenance`** is the `source` every stored row gets: `demo` for the fake, `plaid` for
   the real client.
 - **`NOT_READY`.** `TransactionsSyncPage.notReady` is Plaid's `NOT_READY`: retry shortly;
@@ -371,6 +371,7 @@ limits, liability amounts and holding values are stored as the institution repor
 | `getItem` | `/item/get` | `access_token`; reads `item.institution_name`, `products`, `error.error_code` |
 | `removeItem` | `/item/remove` | `access_token` |
 | `transactionsSync` | `/transactions/sync` | `access_token`, `cursor` (left out when empty), `count`, `options.personal_finance_category_version: v2`; `transactions_update_status: NOT_READY` is `notReady` |
+| `accountsGet` | `/accounts/get` | `access_token`; read as `accountsBalanceGet` reads its answer |
 | `accountsBalanceGet` | `/accounts/balance/get` | `access_token` (no `min_last_updated_datetime`) |
 | `liabilitiesGet` | `/liabilities/get` | `access_token`; currencies from its `accounts`, a null `mortgage` tolerated |
 | `investmentsHoldingsGet` | `/investments/holdings/get` | `access_token` |
@@ -402,8 +403,10 @@ pending), one monthly outflow stream and one credit liability.
     transaction id.
 - **`transactionsSync`** answers `NOT_READY` on the first call with an empty cursor for an
   Item it has just seen, then pages the fixture's transactions by `count`, then answers
-  empty pages. `sandboxTransactionsCreate` appends transactions; they live only as long as
-  the process.
+  empty pages. Each page lists the Item's accounts other than `investment` ones, as
+  Sandbox lists only the accounts Transactions covers (`PLAN.md` §4, 2026-10-25);
+  `accountsGet` lists every account. `sandboxTransactionsCreate` appends transactions;
+  they live only as long as the process.
 - **Products.** `liabilitiesGet` and `transactionsRecurringGet` serve the fixture;
   investments are empty.
 - **Custom users.** `sandboxPublicTokenCreate` with `overrideUsername: user_custom`
@@ -498,7 +501,12 @@ HTTP client run the same code.
 in-process lock: a second run waits for the first and starts from the cursor it stored,
 so no page is applied twice.
 
-1. Fetch every `/transactions/sync` page from the stored cursor, 500 per call.
+1. List the Item's accounts with `/accounts/get`, the canonical list: a
+   `/transactions/sync` page lists only the accounts Transactions covers, none for an
+   investment-only Item such as a 401(k) or a brokerage (`PLAN.md` §4). It is called once
+   per attempt, a `NOT_READY` one included, and its failure is a failed page's (below).
+   It is not the live balance call; `/accounts/balance/get` is, for the balance refresh.
+2. Fetch every `/transactions/sync` page from the stored cursor, 500 per call.
    - `NOT_READY` changes nothing. A run a request asked for answers 202 `not_ready` at
      once (the app polls `syncItem` itself, with a 30 s receive timeout). A background
      run (the poll, a webhook, a refresh) asks again every 5 s (`syncNotReadyWait`), up
@@ -507,28 +515,32 @@ so no page is applied twice.
      nothing, so a request's run or a balance refresh gets its turn between attempts.
    - `TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION` restarts from the cursor the run
      began with, at most three times.
-2. Fetch recurring streams (for `transactions`), liabilities (for `liabilities`), and
+3. Fetch recurring streams (for `transactions`), liabilities (for `liabilities`), and
    holdings and investment transactions (for `investments`): 730 days the first time,
    afterwards from 30 days before the previous successful fetch
    (`investmentsWindowStart`, never further back than 730 days). A secondary
    product that fails (`PRODUCT_NOT_READY` or any other Plaid error) is skipped: it is
    logged by name (`item_sync_product_skipped`), its stored rows are left as they were,
    and the run goes on.
-3. Apply all of it in **one** transaction. If the Item or its user has gone meanwhile (a
+4. Apply all of it in **one** transaction. If the Item or its user has gone meanwhile (a
    concurrent `DELETE /plaid/items/{id}` or `DELETE /me`), nothing is applied and the
-   answer is 404 `not_found`. Otherwise: upsert accounts; insert, update or tombstone
-   transactions, each under a new version, with Plaid's `pending_transaction_id` mapped to
-   ours; upsert recurring streams by Plaid's id (ids stay stable); replace liabilities,
+   answer is 404 `not_found`. Otherwise: upsert accounts, those `/accounts/get` listed
+   first and then each page's, the last report of an account winning (so a page's
+   balance wins, and a new account takes its display order from `/accounts/get`);
+   insert, update or tombstone transactions, each under a new version, with Plaid's
+   `pending_transaction_id` mapped to ours; upsert recurring streams by Plaid's id (ids
+   stay stable); replace liabilities,
    holdings and securities; upsert investment transactions (a new version only when one
    changed; rows outside the date window are left alone); store `cursor` and
    `run_start_cursor`; set the Item healthy (a `pending_expiration` stays) and
    `last_successful_sync_at`, and `investments_synced_at` when the investments fetch
    succeeded.
-4. Answer 202 `completed` with the counts.
+5. Answer 202 `completed` with the counts.
 
-Nothing is persisted before every page and every product has been fetched. A failure of
-`/transactions/sync` leaves the store and the cursor as they were (`PLAN.md` §4).
-`ITEM_LOGIN_REQUIRED` marks the Item `login_required` and answers 409.
+Nothing is persisted before the accounts, every page and every product have been
+fetched. A failure of `/accounts/get` or `/transactions/sync` leaves the store and the
+cursor as they were (`PLAN.md` §4): `ITEM_LOGIN_REQUIRED` marks the Item
+`login_required` and answers 409, any other Plaid failure answers 502 `plaid_error`.
 
 **Recurring alone** (`refreshRecurring`, for the webhook). Behind the Item's lock:
 `/transactions/recurring/get` with the stored accounts' currencies, then the streams
@@ -769,14 +781,14 @@ router's 404.
 | `plaid_flow_test.dart` | link token, exchange, `NOT_READY`, a completed sync, then the data with `source: demo` and rising versions; created, modified and removed transactions; paging; all-or-nothing runs and the mutation restart; a skipped secondary product; two concurrent runs applying once; the Item or user removed during a run (404); login required and update mode; other users' Items; Plaid errors; a failed `/item/get` removing the new Item; an exchange whose device is removed meanwhile (401, no Item left); `ITEM_NOT_FOUND` counting as removed; Item deletion; removed Items hidden from every data endpoint; a null optional field; tokens encrypted at rest; the webhook 401 |
 | `item_operations_test.dart` | refresh (Plaid called, `started`, the background run applied), login required on refresh and balances (409, `error_code`, cleared by a sync), balances stored and answered, unlinking with history kept (data visible, `removed`, 409s, no further Plaid call) and deleted, a login-required answer to a sync in flight not undoing a kept unlink, a bad `history`, account deletion after a kept unlink, the logo route and `logo_url`, other users' Items |
 | `sandbox_test.dart` | reset-login then login required on sync, every webhook code and the refused ones, created transactions arriving `demo` in our sign on the named account, every refused body, date and currency (the window's edge included), a login-required Item, other users' Items 404, a removed Item 409, a server that cannot drive Sandbox 409 |
-| `provisioning_test.dart` | on a clock the job's waits move: the queued answer, the counters, every engine transaction arriving once with the one shift, the accounts by name and mask, the `NOT_READY` wait; pacing at 35 s per Item and interleaving; rate-limit retries and their limit; Plaid 5xx retries 15 s apart and their limit on every step (exchange, `/item/get`, first and final sync), a 4xx on the exchange failing at once, and which failures count as one; a rate-limited `/item/get` retried with a fresh custom user, one Item kept; two accounts sharing a name and mask failing the job; a failure recorded with no token logged; days skipped by a job that outlasts its day; one job per user (finished and failed ones do not block); foreign and unknown jobs 404; bodies outside the contract 400; a server that cannot drive Sandbox 409; the fake refusing a custom user it cannot read |
+| `provisioning_test.dart` | on a clock the job's waits move: the queued answer, the counters, every engine transaction arriving once with the one shift, the accounts by name and mask, the `NOT_READY` wait; pacing at 35 s per Item and interleaving; rate-limit retries and their limit; Plaid 5xx retries 15 s apart and their limit on every step (exchange, `/item/get`, first and final sync), a 4xx on the exchange failing at once, and which failures count as one; a rate-limited `/item/get` retried with a fresh custom user, one Item kept; two accounts sharing a name and mask failing the job; the family persona's investment-only Tartan Bank Item mapped and the job completed; a failure recorded with no token logged; days skipped by a job that outlasts its day; one job per user (finished and failed ones do not block); foreign and unknown jobs 404; bodies outside the contract 400; a server that cannot drive Sandbox 409; the fake refusing a custom user it cannot read |
 | `account_deletion_test.dart` | every row gone and nobody else's touched, retries, a permanent failure deleting nothing, then a retry finishing; an Item linked during the retries removed too; Items that keep appearing giving 502; `ITEM_NOT_FOUND` not blocking; a sync whose user is deleted while Plaid is called (404); an exchange still at Plaid when the user is deleted (401, no Item left) |
 | `contract_routes_test.dart` | one route per operation and none outside the contract, mounted with its security; the problem and rejection codes equal the contract's enums and the engine's reasons; every body the contract rejects is a 400; the contract's examples are accepted |
 | `logging_test.dart` | request lines and no secrets; a 500 with the request id, and on a forced SQLite failure a log line with the error's type and codes but no SQL, parameters or operation; the text format |
-| `http_plaid_client_test.dart` | over the recorded fixtures: every call's request (path, version header, keys, options) and mapping, the errors (Plaid's, a non-JSON 500, a bare 429, unreadable answers, a timeout, a network failure), the 316-row page with no double (281 amounts round-tripping to Plaid's text, 35 sub-cent ones half-even), balances, liabilities, recurring currencies, investments paging, institutions, the Sandbox controls; through the server, every row of the seven Plaid tables `source: plaid` and a full flow (link token, exchange, update-mode token, sync) logging no key, secret or token |
+| `http_plaid_client_test.dart` | over the recorded fixtures: every call's request (path, version header, keys, options) and mapping, the errors (Plaid's, a non-JSON 500, a bare 429, unreadable answers, a timeout, a network failure), the 316-row page with no double (281 amounts round-tripping to Plaid's text, 35 sub-cent ones half-even), the accounts list, balances, liabilities, recurring currencies, investments paging, institutions, the Sandbox controls; through the server, every row of the seven Plaid tables `source: plaid` and a full flow (link token, exchange, update-mode token, sync) logging no key, secret or token |
 | `plaid_fixtures_scan_test.dart` | every committed fixture free of live token prefixes, unredacted `client_id`, `secret` or token values, and hex runs of 24 or more |
 | `institution_metadata_test.dart` | the logo and colour stored at exchange and served, one fetch a day with every Item at the institution updated, a failed fetch not failing the exchange |
-| `sync_loop_test.dart` | `NOT_READY` answered at once to a request and retried 12 times by a background run, a request's sync and a balance refresh answered while a background run waits, the mutation restart and its limit, pending-to-posted, the same Item exchanged again (resealed with products and name refreshed; two overlapping exchanges making one row; a failed `/item/get` removing nothing; another user's 400), the investment-transactions window |
+| `sync_loop_test.dart` | `NOT_READY` answered at once to a request and retried 12 times by a background run, a request's sync and a balance refresh answered while a background run waits, the mutation restart and its limit, pending-to-posted, the same Item exchanged again (resealed with products and name refreshed; two overlapping exchanges making one row; a failed `/item/get` removing nothing; another user's 400), the investment-transactions window, `/accounts/get` (an investment-only Item's account, holdings and investment transactions stored; every listed account stored in its order with a page's balance winning; a failure 502 or 409 storing nothing and calling no page; one call per `NOT_READY` attempt) |
 | `poll_scheduler_test.dart` | the Items a tick syncs, one at a time and staggered, as background runs; an Item in flight skipped; an Item's failure counted; a database failure logged with the loop alive; `stop` ending the wait |
 | `webhook_test.dart` | with keys from fixed test scalars: each dispatch and status, a pending expiration kept by a sync, unknown and removed Items 204, a non-object body 400, the key cache and its hour; 401 for no header, a malformed token, a forged or short signature, a stale or future `iat`, a tampered body, an unknown `kid` fetched once in flight, HS256 and `none` before any fetch, a key with any `expired_at`, an unavailable key; no token in a log line |
 | `live/sandbox_live_test.dart` | skipped unless `PLAID_LIVE_TESTS=1` and the keys are set (`testing-tools.md`, **The live Sandbox suite**): one real Item linked, synced, checked and removed |

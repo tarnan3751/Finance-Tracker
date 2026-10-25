@@ -319,6 +319,10 @@ final class HttpPlaidClient implements PlaidClient {
   );
 
   @override
+  Future<List<PlaidAccount>> accountsGet(String accessToken) =>
+      _read('/accounts/get', {'access_token': accessToken}, _accounts);
+
+  @override
   Future<List<PlaidAccount>> accountsBalanceGet(String accessToken) =>
       _read('/accounts/balance/get', {'access_token': accessToken}, _accounts);
 

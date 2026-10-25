@@ -847,6 +847,11 @@ abstract interface class PlaidClient {
     int count = 500,
   });
 
+  /// `/accounts/get`: every account of the Item, the canonical list (a
+  /// `/transactions/sync` page lists only the accounts Transactions covers). Not the
+  /// live balance call.
+  Future<List<PlaidAccount>> accountsGet(String accessToken);
+
   /// `/accounts/balance/get`.
   Future<List<PlaidAccount>> accountsBalanceGet(String accessToken);
 

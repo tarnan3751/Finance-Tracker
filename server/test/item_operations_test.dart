@@ -100,7 +100,11 @@ void main() {
         'next_cursor_saved': false,
       });
       await pumpEventQueue();
-      expect(calls.take(2), ['transactionsRefresh', 'transactionsSync']);
+      expect(calls.take(3), [
+        'transactionsRefresh',
+        'accountsGet',
+        'transactionsSync',
+      ]);
       final changed = await get('/transactions?since=${first['sync_version']}');
       expect(changed.map((t) => t['name']), contains('REFRESHED'));
     },

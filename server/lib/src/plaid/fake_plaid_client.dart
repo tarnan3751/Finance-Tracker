@@ -12,7 +12,9 @@
 /// A public token the fake did not mint maps to the default institution (First Platypus
 /// Bank). `/transactions/sync` answers `NOT_READY` on the first call with an empty cursor
 /// for an Item it has just seen, then pages the fixture's transactions by `count`, then
-/// empty pages; `sandboxTransactionsCreate` appends. A custom user
+/// empty pages, each listing the Item's accounts other than `investment` ones, as
+/// Sandbox lists only the accounts Transactions covers; `accountsGet` lists them all.
+/// `sandboxTransactionsCreate` appends. A custom user
 /// (`override_username: user_custom`) is built from its configuration instead of a
 /// fixture: its accounts (`starting_balance` as the current balance) and transactions,
 /// at any of the persona engine's institutions, with no liabilities, recurring streams or
@@ -293,10 +295,20 @@ final class FakePlaidClient implements PlaidClient {
         for (final e in events)
           if (e.kind == _Kind.removed) e.id,
       ],
-      accounts: item.accounts,
+      // As Sandbox does, a page lists only the accounts Transactions covers.
+      accounts: [
+        for (final a in item.accounts)
+          if (a.type != 'investment') a,
+      ],
       nextCursor: 'fake-cursor-$end',
       hasMore: end < item.events.length,
     );
+  }
+
+  @override
+  Future<List<PlaidAccount>> accountsGet(String accessToken) async {
+    await _maybeFail('accountsGet');
+    return _healthyItem(accessToken).accounts;
   }
 
   @override
