@@ -1135,4 +1135,23 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get itemsFailedServer =>
       'The server could not complete the request. Try again later.';
+
+  @override
+  String get transactionMoreOptions => 'More options';
+
+  @override
+  String get transactionRunRules => 'Run rules on this transaction';
+
+  @override
+  String transactionRulesApplied(String name) {
+    return 'Applied the rule “$name”. Save to keep it.';
+  }
+
+  @override
+  String transactionRulesUnchanged(String name) {
+    return 'The rule “$name” matches, but has nothing to change.';
+  }
+
+  @override
+  String get transactionRulesNoMatch => 'No rule matches this transaction.';
 }

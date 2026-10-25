@@ -4,10 +4,13 @@
 /// category, notes and tags. A new transaction is `manual`; an edited one keeps its
 /// source. With no category of the user's own, the category row shows the one its Plaid
 /// code resolves to, captioned as the bank's. Deleting from here offers an undo for five
-/// seconds; a Plaid transaction has no Delete, since only the bank removes one.
+/// seconds; a Plaid transaction has no Delete, since only the bank removes one. "Run
+/// rules on this transaction" (the overflow menu) applies the user's rules to the values
+/// in the form, which Save then keeps like any edit.
 library;
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
+import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
@@ -16,6 +19,8 @@ import 'package:finance_tracker/features/accounts/domain/account_not_found_excep
 import 'package:finance_tracker/features/accounts/presentation/currency_picker.dart';
 import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
 import 'package:finance_tracker/features/categories/presentation/category_picker.dart';
+import 'package:finance_tracker/features/rules/application/rules_providers.dart';
+import 'package:finance_tracker/features/rules/domain/rules_engine.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
@@ -208,14 +213,11 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     setState(() => _tags = [..._tags, tag]);
   }
 
-  Future<void> _save() async {
-    if (!_form.currentState!.validate()) return;
-    final AppLocalizations l10n = AppLocalizations.of(context);
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
-    final TransactionActions actions = ref.read(transactionActionsProvider);
+  // What the form holds; call it once the form validates.
+  TransactionDraft _draft() {
     final Money magnitude = parseAmountInput(_amount.text, _currency)!;
     final String notes = _notes.text.trim();
-    final TransactionDraft draft = (
+    return (
       accountId: _accountId,
       amount: _income ? magnitude : -magnitude,
       date: _date,
@@ -224,6 +226,74 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
       notes: notes.isEmpty ? null : notes,
       tags: _tags,
     );
+  }
+
+  // Applies the rules to the values in the form; Save keeps what they change.
+  Future<void> _runRules() async {
+    if (!_form.currentState!.validate()) return;
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    // Watched in build, so loaded unless the editor has only just opened.
+    final List<Rule> rules = await ref.read(rulesProvider.future);
+    if (!mounted) return;
+    final TransactionDraft draft = _draft();
+    final DateTime now = ref.read(clockProvider).nowUtc();
+    final Transaction form =
+        (widget.initial ??
+                Transaction(
+                  id: '',
+                  accountId: draft.accountId,
+                  amount: draft.amount,
+                  date: draft.date,
+                  pending: false,
+                  name: draft.name,
+                  source: DataSource.manual,
+                  createdAt: now,
+                  updatedAt: now,
+                  syncVersion: 0,
+                ))
+            .copyWith(
+              accountId: draft.accountId,
+              amount: draft.amount,
+              date: draft.date,
+              name: draft.name,
+              userCategoryId: draft.categoryId,
+              notes: draft.notes,
+              tags: draft.tags,
+            );
+    final RuleOutcome outcome = applyRules(
+      rules,
+      form,
+      lookup: ref.read(transactionCategoryLookupProvider),
+    );
+    final Transaction? changed = outcome.changed;
+    if (changed != null) {
+      setState(() {
+        _name.text = changed.name;
+        _categoryId = changed.userCategoryId;
+        _tags = changed.tags;
+      });
+    }
+    final String? name = outcome.rule?.name;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          name == null
+              ? l10n.transactionRulesNoMatch
+              : changed == null
+              ? l10n.transactionRulesUnchanged(name)
+              : l10n.transactionRulesApplied(name),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _save() async {
+    if (!_form.currentState!.validate()) return;
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final TransactionActions actions = ref.read(transactionActionsProvider);
+    final TransactionDraft draft = _draft();
     setState(() => _saving = true);
     try {
       final Transaction? initial = widget.initial;
@@ -282,6 +352,8 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     final CategoryLookup categories = ref.watch(
       transactionCategoryLookupProvider,
     );
+    // Kept loaded for "Run rules on this transaction".
+    ref.watch(rulesProvider);
     final Transaction? initial = widget.initial;
     // The user's choice, else what the bank's category resolves to (shown, not chosen).
     final Category? chosen = categories.byId[_categoryId];
@@ -308,6 +380,16 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
               onPressed: _saving ? null : _delete,
             ),
           TextButton(onPressed: _saving ? null : _save, child: Text(l10n.save)),
+          PopupMenuButton<void>(
+            tooltip: l10n.transactionMoreOptions,
+            enabled: !_saving,
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                onTap: _runRules,
+                child: Text(l10n.transactionRunRules),
+              ),
+            ],
+          ),
         ],
       ),
       body: Form(

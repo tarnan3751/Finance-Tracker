@@ -453,6 +453,59 @@ final class ChangeRecorderProvider
 
 String _$changeRecorderHash() => r'12d25ee7e97c97cffb45f8dff0debccf12ae5c12';
 
+/// The sync store [changeRecorder] records into, for what reads its records outside a
+/// write (the rules on arrival): [inMemorySyncStore] by default, the Drift store in dev and
+/// prod, none in the demo flavor, which never records.
+
+@ProviderFor(recordingSyncStore)
+final recordingSyncStoreProvider = RecordingSyncStoreProvider._();
+
+/// The sync store [changeRecorder] records into, for what reads its records outside a
+/// write (the rules on arrival): [inMemorySyncStore] by default, the Drift store in dev and
+/// prod, none in the demo flavor, which never records.
+
+final class RecordingSyncStoreProvider
+    extends $FunctionalProvider<SyncStore?, SyncStore?, SyncStore?>
+    with $Provider<SyncStore?> {
+  /// The sync store [changeRecorder] records into, for what reads its records outside a
+  /// write (the rules on arrival): [inMemorySyncStore] by default, the Drift store in dev and
+  /// prod, none in the demo flavor, which never records.
+  RecordingSyncStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'recordingSyncStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$recordingSyncStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<SyncStore?> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  SyncStore? create(Ref ref) {
+    return recordingSyncStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SyncStore? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SyncStore?>(value),
+    );
+  }
+}
+
+String _$recordingSyncStoreHash() =>
+    r'8804be0683e16b62a4d26c0d47919e6260092d7c';
+
 /// The server's id for this device while someone is signed in, else null: the node the
 /// device's sync clock adopts.
 
@@ -1108,14 +1161,14 @@ final class PlaidPullStoreProvider
 
 String _$plaidPullStoreHash() => r'd709e2b573f3075367004dffce0fe76d43590c0a';
 
-/// What the Plaid pull does with the transactions it inserts: nothing until the rules
-/// engine (Phase 3e).
+/// What the Plaid pull does with the transactions it inserts: the rules
+/// (`docs/reference/rules.md`, **On arrival**).
 
 @ProviderFor(arrivalProcessor)
 final arrivalProcessorProvider = ArrivalProcessorProvider._();
 
-/// What the Plaid pull does with the transactions it inserts: nothing until the rules
-/// engine (Phase 3e).
+/// What the Plaid pull does with the transactions it inserts: the rules
+/// (`docs/reference/rules.md`, **On arrival**).
 
 final class ArrivalProcessorProvider
     extends
@@ -1125,8 +1178,8 @@ final class ArrivalProcessorProvider
           ArrivalProcessor
         >
     with $Provider<ArrivalProcessor> {
-  /// What the Plaid pull does with the transactions it inserts: nothing until the rules
-  /// engine (Phase 3e).
+  /// What the Plaid pull does with the transactions it inserts: the rules
+  /// (`docs/reference/rules.md`, **On arrival**).
   ArrivalProcessorProvider._()
     : super(
         from: null,
@@ -1160,7 +1213,7 @@ final class ArrivalProcessorProvider
   }
 }
 
-String _$arrivalProcessorHash() => r'b34c437af51c702161d42af14549386283cbbe01';
+String _$arrivalProcessorHash() => r'a9a8e9407aed945fad87b12815679d217b41c150';
 
 /// The Plaid pull over the API into the repositories (`core/plaid/plaid_pull.dart`):
 /// run after each sync session and after each Item action.

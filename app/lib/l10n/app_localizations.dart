@@ -1953,6 +1953,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The server could not complete the request. Try again later.'**
   String get itemsFailedServer;
+
+  /// Tooltip of the transaction editor's overflow menu button.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get transactionMoreOptions;
+
+  /// Overflow menu item of the transaction editor that applies the user's rules to the values in the form.
+  ///
+  /// In en, this message translates to:
+  /// **'Run rules on this transaction'**
+  String get transactionRunRules;
+
+  /// Snack bar after running the rules changed the form: the rule that applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied the rule “{name}”. Save to keep it.'**
+  String transactionRulesApplied(String name);
+
+  /// Snack bar after running the rules: a rule matched but changed nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'The rule “{name}” matches, but has nothing to change.'**
+  String transactionRulesUnchanged(String name);
+
+  /// Snack bar after running the rules: no rule matched.
+  ///
+  /// In en, this message translates to:
+  /// **'No rule matches this transaction.'**
+  String get transactionRulesNoMatch;
 }
 
 class _AppLocalizationsDelegate

@@ -41,6 +41,7 @@ import 'package:finance_tracker/features/items/data/demo_item_repository.dart';
 import 'package:finance_tracker/features/items/data/drift_item_repository.dart';
 import 'package:finance_tracker/features/items/data/in_memory_item_repository.dart';
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
+import 'package:finance_tracker/features/rules/application/rule_runner.dart';
 import 'package:finance_tracker/features/rules/data/demo_rule_repository.dart';
 import 'package:finance_tracker/features/rules/data/demo_rules.dart';
 import 'package:finance_tracker/features/rules/data/drift_rule_repository.dart';
@@ -132,6 +133,12 @@ ChangeRecorder changeRecorder(Ref ref) {
     () => clock.nowUtc().millisecondsSinceEpoch,
   );
 }
+
+/// The sync store [changeRecorder] records into, for what reads its records outside a
+/// write (the rules on arrival): [inMemorySyncStore] by default, the Drift store in dev and
+/// prod, none in the demo flavor, which never records.
+@Riverpod(keepAlive: true)
+SyncStore? recordingSyncStore(Ref ref) => ref.watch(inMemorySyncStoreProvider);
 
 /// The server's id for this device while someone is signed in, else null: the node the
 /// device's sync clock adopts.
@@ -238,10 +245,15 @@ PlaidPullStore plaidPullStore(Ref ref) {
   return InMemoryPlaidPullStore();
 }
 
-/// What the Plaid pull does with the transactions it inserts: nothing until the rules
-/// engine (Phase 3e).
+/// What the Plaid pull does with the transactions it inserts: the rules
+/// (`docs/reference/rules.md`, **On arrival**).
 @Riverpod(keepAlive: true)
-ArrivalProcessor arrivalProcessor(Ref ref) => const NoArrivalProcessor();
+ArrivalProcessor arrivalProcessor(Ref ref) => RuleRunner(
+  rules: ref.watch(ruleRepositoryProvider),
+  categories: ref.watch(categoryRepositoryProvider),
+  transactions: ref.watch(transactionRepositoryProvider),
+  syncStore: ref.watch(recordingSyncStoreProvider),
+);
 
 /// The Plaid pull over the API into the repositories (`core/plaid/plaid_pull.dart`):
 /// run after each sync session and after each Item action.
@@ -326,6 +338,9 @@ final List<Override> _driftOverrides = [
       ref.watch(driftSyncStoreProvider),
     ),
   ),
+  recordingSyncStoreProvider.overrideWith(
+    (ref) => ref.watch(driftSyncStoreProvider),
+  ),
   ruleRepositoryProvider.overrideWith(
     (ref) => DriftRuleRepository(
       ref.watch(databaseProvider),
@@ -378,6 +393,7 @@ final List<Override> _demoOverrides = [
           .seededSyncVersionOf(demoEmail),
     );
   }),
+  recordingSyncStoreProvider.overrideWithValue(null),
   ruleRepositoryProvider.overrideWith((ref) {
     final DemoRuleRepository repository = DemoRuleRepository(
       ref.watch(clockProvider),

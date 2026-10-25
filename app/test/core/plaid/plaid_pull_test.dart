@@ -3,12 +3,14 @@
 // applied as the server sent them, paging by sync_version with the cursor saved per
 // page, a failed page leaving the cursor, a cursor past the server restarting from 0, an
 // unlinked Item's data going, an override pulled before its row landing on it, single
-// flight, the arrival seam, and nothing recorded.
+// flight, the arrival seam, nothing recorded, and the rules applied on arrival.
 import 'dart:typed_data';
 
 import 'package:drift/native.dart';
+import 'package:finance_tracker/core/api/api_models.dart';
 import 'package:finance_tracker/core/api/fake/fake_dataset.dart';
 import 'package:finance_tracker/core/api/fake/fake_server.dart';
+import 'package:finance_tracker/core/api/finance_api.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/drift_plaid_pull_store.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
@@ -17,9 +19,12 @@ import 'package:finance_tracker/core/plaid/plaid_pull.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/accounts/data/drift_account_repository.dart';
 import 'package:finance_tracker/features/accounts/data/in_memory_account_repository.dart';
+import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
 import 'package:finance_tracker/features/items/data/drift_item_repository.dart';
 import 'package:finance_tracker/features/items/data/in_memory_item_repository.dart';
 import 'package:finance_tracker/features/items/domain/linked_bank.dart';
+import 'package:finance_tracker/features/rules/application/rule_runner.dart';
+import 'package:finance_tracker/features/rules/data/drift_rule_repository.dart';
 import 'package:finance_tracker/features/transactions/data/drift_transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/data/in_memory_transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
@@ -312,4 +317,235 @@ void main() {
     expect(await memoryStore.transactionsSince(), 12);
     expect(await outbox.unsynced(), isEmpty);
   });
+
+  group('the rules on arrival', () {
+    // Every pulled transaction is in USD; this rule matches them all.
+    final Rule tagAll = Rule(
+      id: 'rule-all',
+      name: 'Everything',
+      position: 0,
+      conditions: [
+        RuleCondition(
+          kind: RuleConditionKind.amountBetween,
+          minAmount: Money(0, 'USD'),
+        ),
+      ],
+      actions: const [
+        RuleAction(
+          kind: RuleActionKind.setCategory,
+          value: 'plaid:FOOD_AND_DRINK_COFFEE',
+        ),
+        RuleAction(kind: RuleActionKind.addTag, value: 'pulled'),
+      ],
+    );
+
+    PlaidPull rulesPull() {
+      final DriftTransactionRepository transactions =
+          DriftTransactionRepository(database, clock, recorder: recorder());
+      final DriftCategoryRepository categories = DriftCategoryRepository(
+        database,
+        clock,
+        recorder: recorder(),
+      );
+      return PlaidPull(
+        api: client.api,
+        store: store,
+        items: DriftItemRepository(database),
+        accounts: DriftAccountRepository(database, clock, recorder: recorder()),
+        transactions: transactions,
+        clock: clock,
+        arrival: RuleRunner(
+          rules: DriftRuleRepository(database, clock, recorder: recorder()),
+          categories: categories,
+          transactions: transactions,
+          syncStore: syncStore,
+        ),
+      );
+    }
+
+    setUp(() async {
+      await DriftCategoryRepository(
+        database,
+        clock,
+        recorder: recorder(),
+      ).ensureSeeded();
+      await DriftRuleRepository(
+        database,
+        clock,
+        recorder: recorder(),
+      ).upsert(tagAll);
+    });
+
+    test('a row whose write fails partway rolls back alone, and the page '
+        'commits', () async {
+      await link();
+      // The server's rows as bank rows, kept to compare with what is stored.
+      final _PlaidSourced api = _PlaidSourced(client.api);
+      final List<Transaction> page = (await client.api.listTransactions(
+        limit: 3,
+      )).items;
+      final String failing = page[1].id;
+      final ChangeRecorder throwing = _ThrowingRecorder(recorder(), failing);
+      final DriftTransactionRepository transactions =
+          DriftTransactionRepository(database, clock, recorder: throwing);
+      await PlaidPull(
+        api: api,
+        store: store,
+        items: DriftItemRepository(database),
+        accounts: DriftAccountRepository(database, clock, recorder: recorder()),
+        transactions: transactions,
+        clock: clock,
+        arrival: RuleRunner(
+          rules: DriftRuleRepository(database, clock, recorder: recorder()),
+          categories: DriftCategoryRepository(
+            database,
+            clock,
+            recorder: recorder(),
+          ),
+          transactions: transactions,
+          syncStore: syncStore,
+        ),
+        pageSize: 3,
+      ).run();
+
+      expect(await store.transactionsSince(), 12, reason: 'every page saved');
+      final Map<String, Transaction> stored = {
+        for (final Transaction t in await live()) t.id: t,
+      };
+      final Map<String, List<ChangeLogEntry>> outbox = {};
+      for (final ChangeLogEntry e in await syncStore.unsynced(limit: 1000)) {
+        (outbox[e.entityId] ??= []).add(e);
+      }
+      for (final Transaction sent in page) {
+        final Transaction row = stored[sent.id]!;
+        expect(row.source, DataSource.plaid, reason: sent.id);
+        expect(row.updatedAt, sent.updatedAt, reason: sent.id);
+        if (sent.id == failing) {
+          expect(row.userCategoryId, isNull);
+          expect(row.tags, isEmpty);
+          expect(await syncStore.read(EntityType.transaction, failing), isNull);
+          expect(outbox[failing], isNull);
+          continue;
+        }
+        expect(row.tags, ['pulled'], reason: sent.id);
+        final Set<String> owned = {
+          'tags',
+          if (sent.splits.isEmpty) 'user_category_id',
+        };
+        if (sent.splits.isEmpty) {
+          expect(row.userCategoryId, 'plaid:FOOD_AND_DRINK_COFFEE');
+        }
+        expect(outbox[sent.id], hasLength(1), reason: sent.id);
+        expect(outbox[sent.id]!.single.payload.keys.toSet(), owned);
+      }
+    });
+
+    test(
+      'the arriving transactions come in filed and tagged by the rule',
+      () async {
+        await link();
+        await rulesPull().run();
+        final List<Transaction> rows = await live();
+        expect(rows, hasLength(12));
+        for (final Transaction t in rows) {
+          expect(t.tags, contains('pulled'), reason: t.id);
+          if (t.splits.isEmpty && t.userCategoryId == null) {
+            fail('${t.id} was not filed');
+          }
+        }
+      },
+    );
+
+    test('an override pulled earlier is respected: the rule writes over the '
+        'row as stored, not as the page first inserted it', () async {
+      final Hlc at = Hlc(clock.nowUtc().millisecondsSinceEpoch, 0, 'device-b');
+      await syncStore.write(
+        EntityRecord(
+          type: EntityType.transaction,
+          id: 'sample-txn-01',
+          fields: const {'notes': 'from my phone'},
+          fieldClocks: {'notes': at},
+        ),
+      );
+      await link();
+      await rulesPull().run();
+      final Transaction row = (await live()).firstWhere(
+        (t) => t.id == 'sample-txn-01',
+      );
+      expect(row.notes, 'from my phone');
+      expect(row.tags, contains('pulled'));
+    });
+
+    test(
+      'a page with nothing to change, and a second run, write nothing more',
+      () async {
+        await link();
+        await rulesPull().run();
+        final List<Transaction> once = await live();
+        await rulesPull().run();
+        expect(await live(), once);
+      },
+    );
+  });
+}
+
+/// The fake server's transactions as bank rows (`source: plaid`); the rest of the API as
+/// the fake serves it, for what the pull calls.
+final class _PlaidSourced implements FinanceApi {
+  _PlaidSourced(this._inner);
+
+  final FinanceApi _inner;
+
+  @override
+  Future<List<LinkedItem>> listItems() => _inner.listItems();
+
+  @override
+  Future<List<Account>> listAccounts() => _inner.listAccounts();
+
+  @override
+  Future<Uint8List> getInstitutionLogo(String institutionId) =>
+      _inner.getInstitutionLogo(institutionId);
+
+  @override
+  Future<VersionPage<Transaction>> listTransactions({
+    int since = 0,
+    int limit = 500,
+  }) async {
+    final VersionPage<Transaction> page = await _inner.listTransactions(
+      since: since,
+      limit: limit,
+    );
+    return (
+      items: [
+        for (final Transaction t in page.items)
+          t.copyWith(source: DataSource.plaid),
+      ],
+      nextSince: page.nextSince,
+      hasMore: page.hasMore,
+    );
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw UnimplementedError('not used by the pull');
+}
+
+/// Records through [_inner], then throws for transaction [_failOn]: a write that fails
+/// after its row and its entry are written.
+final class _ThrowingRecorder implements ChangeRecorder {
+  _ThrowingRecorder(this._inner, this._failOn);
+
+  final ChangeRecorder _inner;
+  final String _failOn;
+
+  @override
+  Future<void> record(
+    EntityType type,
+    String id,
+    Map<String, Object?>? before,
+    Map<String, Object?> after,
+  ) async {
+    await _inner.record(type, id, before, after);
+    if (id == _failOn) throw StateError('the write failed after the row');
+  }
 }
