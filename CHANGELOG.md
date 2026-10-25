@@ -3,6 +3,106 @@
 Each release section is generated from the Conventional Commit log since the previous tag
 (`PLAN.md` §10). Tags are `vX.Y.Z`; a phase ends with a `vX.Y.Z-phaseN` pre-release.
 
+## v0.4.0-phase3 — 2026-10-25
+
+Phase 3, Plaid Sandbox through the development server, completed: the contract at 0.3.0 with
+Item refresh, balance refresh, unlink with the history kept or deleted, institution logos, the
+Sandbox controls and a persona provisioning job; the server's real Plaid client (half-even
+rounding of Sandbox's sub-cent amounts, institution metadata, the transactions sync loop with
+`/accounts/get` so investment-only Items keep their accounts, balances stored in the app's
+sign, a poll on a schedule, verified webhooks, a local-only live suite); the app's linked banks
+(schema v3 with Items, Plaid Link through `plaid_flutter` behind a launcher boundary with a
+fake for the demo and the tests, repair through update mode, unlink with Delete history, the
+Plaid pull with its arrival seam, institution logos, a Room keep rule for the release build);
+rules (schema v4, a deterministic engine run on arrival inside the pull's page transaction and
+on demand from the editor, synced as user data, the rules screens, two demo rules per persona);
+reported balances with the institution header and running balances anchored to them, the
+merchant enrichment fallback with letter avatars; the developer menu for the dev flavor; the
+persona engine's Sandbox custom users fixed for what Sandbox grants each institution; the
+gate's failure report; and the CI goldens made font-independent. Accepted on the owner's
+Pixel 6 emulator against real Sandbox: real Link with `user_good`, reset-login and repair,
+rules on injected transactions, unlink both ways, and the obfuscated release build.
+
+Known limitation, found during the acceptance and recorded in `PLAN.md` §4: Plaid Sandbox serves
+transactions injected with `/sandbox/transactions/create` only when they are dated its current day, and
+a custom user's configuration is capped at 100,000 bytes per request, so the provisioning job's history
+phase delivers nothing beyond the custom user's own rows; the next change makes personas carry the
+history that fits and drops that phase.
+
+
+### Features
+
+- api: Add Item refresh, balance refresh, unlink history and logos (95ac909)
+- api: Add the Sandbox control operations (33203ed)
+- server: Add the persona provisioning job (e8574ab)
+- server: Round Plaid's sub-cent amounts at the boundary (92951b5)
+- server: Add the HTTP Plaid client over recorded fixtures (d086e53)
+- server: Select the Plaid mode from the configuration (9e3c491)
+- server: Fetch and serve institution metadata (cc7fae4)
+- server: Run the transactions sync loop against Plaid (5e7585b)
+- server: Poll every Item on a schedule (41a6ed7)
+- server: Verify and process Plaid webhooks (c8ece20)
+- api: State the sign of a balance and fix the exchange description (8e8cb43)
+- app: Add schema v3 with the items table (ac8e574)
+- app: Keep bank data from being deleted on the device (3687112)
+- app: Apply Plaid accounts and transactions without recording (ab1b28f)
+- app: Pull Items, accounts and transactions from the server (041338f)
+- app: Fetch the institution logos in the Plaid pull (e56011f)
+- items: Add the Link launcher boundary and the fake launcher (e09d5a0)
+- items: Add the linked banks screen with link, repair and unlink (91299c5)
+- app: Offer the demo a bank to link (9e04b50)
+- app: Add the rules table and the rule entity's sync codec (168c415)
+- rules: Add the repositories and the engine (ffb90e3)
+- rules: Apply rules on arrival and on demand (10b0844)
+- rules: Add the rules screens (cec58fe)
+- transactions: Add the merchant enrichment fallback and avatars (58f1b8c)
+- accounts: Show reported balances and the institution (13fe2e5)
+- items: Draw the linked banks' logos with the shared avatar (e19dbc0)
+- developer: Add the developer menu for the dev flavor (ebe56b0)
+
+### Fixes
+
+- persona: Emit liability blocks only for cards and student loans (2a92ca4)
+- persona: Move family 401(k) to Tartan, mortgage to Tattersall (d1f50d5)
+- server: Retry a Plaid 5xx in the provisioning job (927a22f)
+- server: List every account of an Item through /accounts/get (6baf9d7)
+- server: Store credit and loan balances in the app's sign (88345b5)
+- app: Defer the sync controller's device change off the build phase (a52afc4)
+- tools: Keep a failing package's tests in the gate's report (3bbc6b3)
+- tools: Keep the GitHub reporter's failures in the gate's report (7c6ddac)
+- app: Format times with a no-break space the test fonts carry (064b816)
+- server: Measure the injection window's past bound from the UTC date (6e7d6ab)
+- developer: Cap injected dates at 728 days back (c7829e7)
+
+### Build
+
+- tools: Add the persona provisioning script (a1f44f2)
+
+### CI
+
+- Upload golden failure images (27eaa7f)
+
+### Tests
+
+- server: Add the optional live Sandbox suite (f6896e3)
+- server: Add the live investment-only Item case (87d00ae)
+- app: Let the two-device test run under the fake-server define (8b1382d)
+- app: Link and unlink through the fake server on the emulator (aa32f05)
+- app: Converge rules across devices (a0da629)
+- app: Run rules through the screens on the emulator (7ab5a74)
+
+### Documentation
+
+- Describe contract 0.3.0, the Sandbox operations and provisioning (9b1a835)
+- Describe the real Plaid client, the poll and webhooks (cb3664f)
+- Note the live suite's investment-only Item case (3858310)
+- models: State the balance sign and the merchant name's source (ca3e5eb)
+- Describe the linked banks, the Plaid pull and schema 3 (7526612)
+- Add the rules reference file (3e51140)
+- Describe reported balances, merchants and the shared avatar (21b63e6)
+- Describe the developer menu (7b2768b)
+- Map the linked banks, rules and developer areas (72d4582)
+
 ## v0.3.0-phase2 — 2026-10-24
 
 Phase 2, API contract, development server, fakes and demo mode, completed in the app: the API

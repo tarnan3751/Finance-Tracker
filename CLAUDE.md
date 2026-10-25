@@ -18,8 +18,7 @@ heading of this file or of a doc.
 
 ## Status
 
-**Phases 0 to 3 have landed (Phase 3 awaiting its acceptance run); Phase 4 (budgets) is
-next:** the app runs on its Riverpod and go_router core with manual accounts, transactions
+**Phases 0 to 3 have landed and passed their gates; Phase 4 (budgets) is next:** the app runs on its Riverpod and go_router core with manual accounts, transactions
 and categories on the encrypted Drift database (schema v4 with the change log, field clocks,
 Items and rules); it signs in against the development server through the API client, syncs
 user data between devices through the sync engine, links banks through Plaid Link (real

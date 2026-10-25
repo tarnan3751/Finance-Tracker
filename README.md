@@ -9,14 +9,16 @@ Plaid directly.
 
 ## Status
 
-Phase 2 is done: the app signs in against the development server, syncs user data
-between devices (schema v2 with a change log and field clocks, a pure Dart sync engine with
-per-field last-writer-wins and tombstones), runs the demo flavor on the persona engine's seed
-against an in-process fake server with no network, and validates that fake and the server
-against the one OpenAPI contract. Phase 1's manual-account tracker (encrypted local
-database, accounts with derived balances, transactions with search and filters, categories
-seeded from Plaid's taxonomy) is underneath; a transaction without a category of your own
-shows the one its Plaid code maps to. Bank data through Plaid Sandbox follows in Phase 3.
+Phase 3 is done: the app links real banks through Plaid Link (Plaid Sandbox, reached only
+through the development server, which holds the keys, polls Plaid and verifies its webhooks),
+keeps each bank's Items with their health, repairs a login that expired, unlinks with the
+history kept or deleted, and pulls accounts and transactions into the encrypted database as
+bank data that is never edited into something else. Linked accounts show the balance the
+institution reported, in the app's sign, with the institution's name and logo, and their
+running balances are anchored to it. Rules file, tag or rename transactions as they arrive
+and on demand, and sync like any other user data. The dev flavor carries a developer menu for
+the Sandbox controls and persona provisioning. Phase 2's sign-in, sync and demo mode, and
+Phase 1's manual tracker, are underneath. Budgets follow in Phase 4.
 
 ## Architecture
 
@@ -57,11 +59,11 @@ flutter run --flavor dev -t lib/main_dev.dart --dart-define=FT_SERVER_URL=http:/
 On an emulator the host machine is `10.0.2.2`; `localhost` on the device is the device
 itself, and reaches the host only after `adb reverse tcp:8080 tcp:8080`.
 
-The development server, for the dev flavor (auth, devices, sync, and a fake Plaid client
-until Phase 3). The first run writes `server/.env` with random secrets and a seed user:
+The development server, for the dev flavor (auth, devices, sync, and the Plaid proxy: a fake
+Plaid client by default, Sandbox with `PLAID_MODE=sandbox` and the keys in `server/.env`). The first run writes `server/.env` with random secrets and a seed user:
 
 ```sh
-tools/run_server.sh               # listens on 127.0.0.1:8080; PLAID_MODE=fake
+tools/run_server.sh               # listens on 127.0.0.1:8080; PLAID_MODE=fake unless .env says sandbox
 curl localhost:8080/v1/health     # {"status":"ok"}
 ```
 
