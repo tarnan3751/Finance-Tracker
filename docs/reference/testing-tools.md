@@ -89,9 +89,45 @@ from `server/.env.example`, filling `JWT_SECRET`, `TOKEN_ENCRYPTION_KEY` and
 `dev@financetracker.test`. It says it did so but prints no secret. Then it runs
 `dart run bin/server.dart` in `server/`, which migrates and seeds the database under
 `server/data/` and serves on `127.0.0.1:8080` until Ctrl-C. It writes `server/.env` and
-`server/data/`, both gitignored. In Phase 2 the server's Plaid client is the fake, so it
-calls no Plaid API. It reads `server/.env`, so it is the owner's command; a lane runs it
-only in its own clone, with no real keys (there are none in a clone).
+`server/data/`, both gitignored. The Plaid mode is `PLAID_MODE` in `server/.env`:
+`fake` by default (no Plaid API is called); `sandbox` calls Plaid with the keys there,
+which only the owner sets. It reads `server/.env`, so it is the owner's command; a lane
+runs it only in its own clone, in fake mode, with no real keys (there are none in a
+clone).
+
+## The recorded Plaid fixtures
+
+`server/test/fixtures/plaid/*.json` are the coordinator's sanitized captures from live
+Sandbox (2026-10-24, `PLAN.md` §4), each `{status, body}` with every token replaced by
+`*-REDACTED` and no key. They are the shapes the HTTP Plaid client is tested against.
+`server/test/support/recorded_plaid_transport.dart` replays them as Plaid's HTTP answers
+by path. Each path answers from a queue of scripted answers (a fixture name, a
+synthesized body, or a function of the request), then from its default; a path with
+neither fails the test. Each request is recorded with its raw and decoded body and
+checked for `Plaid-Version` and the test keys (`test-client-id`, `test-plaid-secret`, not
+Plaid's). Cases Sandbox did not show (a mutation during pagination, pending-to-posted,
+investments paging, an unreadable answer) are synthesized in the tests, in Plaid's
+documented shapes. `server/test/plaid_fixtures_scan_test.dart` scans every fixture and
+fails on `access-sandbox-`, `public-sandbox-` or `link-sandbox-`, a `client_id`, `secret`
+or `*_token` value that is not redacted, or any run of 24 or more hex digits, so a
+capture added later is held to the same rule.
+
+## The live Sandbox suite
+
+`server/test/live/sandbox_live_test.dart` runs the server's real code against Plaid
+Sandbox: one Item for `user_transactions_dynamic` at First Platypus Bank, linked (with a
+repeated exchange), synced to completion, its data checked as `source: plaid`, balances
+refreshed, an unknown webhook key asked for, reset to login-required, and removed. A
+failed step still removes the Item. It is skipped unless `PLAID_LIVE_TESTS=1`,
+`PLAID_CLIENT_ID` and `PLAID_SECRET` are all in the environment, so the gate, CI and the
+lanes never run it (`PLAN.md` §13: local only). The owner runs it from `server/` with the
+keys exported:
+
+```
+PLAID_LIVE_TESTS=1 PLAID_CLIENT_ID=... PLAID_SECRET=... dart test test/live
+```
+
+It takes about a minute and makes about twenty Plaid calls.
 
 ## `tools/scripts/provision_persona.sh`: persona provisioning
 

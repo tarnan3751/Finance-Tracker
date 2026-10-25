@@ -6,8 +6,8 @@
 /// integer that fits, and otherwise as its decimal text exactly as written (`"12.50"`,
 /// `"1e3"`), which `plaidMoney` and `plaidDecimal` then check. Everything else decodes as
 /// `jsonDecode` would: `Map<String, Object?>`, `List<Object?>`, `String`, `bool`, `null`.
-/// The fake client reads the custom-user configurations through it; the real client
-/// (lane 3b) reads Plaid's responses through it.
+/// The fake client reads the custom-user configurations through it; `HttpPlaidClient`
+/// reads Plaid's responses through it.
 library;
 
 import 'dart:convert';

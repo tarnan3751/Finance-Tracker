@@ -76,8 +76,15 @@ outbox; `reason` is free text for logs. `/accounts`, `/transactions`, `/liabilit
 
 ## Items and the Sandbox controls
 
-- **`Item.error_code`** is Plaid's code while the Item is `login_required` or `error`, else
-  null.
+- **`Item.error_code`** is Plaid's code while the Item is `login_required` or `error`
+  (or the webhook code while it is `pending_expiration`), else null. `pending_expiration`
+  and `error` come from Plaid's webhooks; a completed sync clears `error` but keeps
+  `pending_expiration` until Plaid reports `LOGIN_REPAIRED` or the Item is exchanged again.
+- **Exchanging again.** An exchange whose public token Plaid answers with an Item the
+  caller already has answers that Item (`201`, refreshed status) rather than a new one;
+  another user's is `400` on `public_token`.
+- **`syncItem`** answers `not_ready` at once while Plaid prepares a new Item; the server's
+  own background runs (the poll, webhooks, `refreshItem`) wait and ask again.
 - **Refreshes.** `refreshItem` calls Plaid's `/transactions/refresh` and starts a sync run
   in the background, answering `202` `started`; `refreshBalances` answers the Item's
   accounts with the balances Plaid just reported.
@@ -91,7 +98,12 @@ outbox; `reason` is free text for logs. `/accounts`, `/transactions`, `/liabilit
   /institutions/{institution_id}/logo` (built from the request's own scheme and host)
   when the server holds the institution's logo, else null; the route is bearer-secured
   and answers the PNG, or `404` when the caller has no Item there with a logo.
-  `primary_color` is ARGB, converted from Plaid's `#rrggbb`.
+  `primary_color` is ARGB, converted from Plaid's `#rrggbb`. The server fetches both from
+  Plaid when an Item is linked (in sandbox mode; the fake's First Platypus Bank has
+  neither) and refreshes them daily.
+- **Webhooks.** `receivePlaidWebhook` answers `204` to every verified delivery, an unknown
+  Item's included, `401` `webhook_unverified` to any other, and `400` to a verified body
+  that is not an object (`server.md`, **Webhooks**).
 - **Sandbox** (tag `sandbox`): `sandboxResetLogin`, `sandboxFireWebhook`,
   `sandboxCreateTransactions` (one to ten `SandboxTransaction`s, the amount in Plaid's
   sign, positive is money out; dates today or up to 730 days back), and the

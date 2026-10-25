@@ -3,10 +3,11 @@
 The development server (`PLAN.md` §6.5): authentication, devices, account deletion, the
 sync relay, the Plaid proxy and the Plaid-sourced data endpoints, behind the v1 contract
 in `api/openapi.yaml` (`docs/reference/api.md`). Code: `server/`. Dart with shelf and
-shelf_router, `sqlite3`, `cryptography` (Argon2id, AES-256-GCM), `dart_jsonwebtoken`,
-`logging` and `uuid` (`PLAN.md` §12). It is never deployed. In Phase 2 its Plaid client is
-a fake that serves canned data stamped `source: demo`; the real client arrives in Phase 3
-behind the same interface.
+shelf_router, `sqlite3`, `cryptography` (Argon2id, AES-256-GCM), `dart_jsonwebtoken`
+(access tokens, and ES256 for Plaid's webhooks), `http`, `logging` and `uuid` (`PLAN.md`
+§12). It is never deployed. Its Plaid client is the fake (`PLAID_MODE=fake`: canned data
+stamped `source: demo`, no keys) or the HTTP client against Plaid (`PLAID_MODE=sandbox`),
+behind one interface.
 
 ## Running it
 
@@ -22,11 +23,17 @@ it runs `dart run bin/server.dart` in `server/`, which:
    created with its directory) and applies the migrations;
 3. seeds the seed user if it does not exist (an existing user, password included, is left
    alone), printing a line that names neither the email nor the password;
-4. serves `/v1` on `HOST:PORT` and prints the base URL and the Plaid mode, plus, in fake
-   mode, a warning that Plaid data is synthetic and carries `source: demo`.
+4. builds the Plaid client of `PLAID_MODE` (the HTTP one against `PLAID_ENV`'s base URL,
+   with the keys, which are never printed);
+5. serves `/v1` on `HOST:PORT` and prints the base URL and the Plaid mode (with the
+   environment in sandbox mode), plus, in fake mode, a warning that Plaid data is
+   synthetic and carries `source: demo`;
+6. starts the poll (**The poll scheduler**) unless `PLAID_POLL_INTERVAL_SECONDS` is 0,
+   and says which.
 
 The emulator reaches the server at `http://10.0.2.2:8080/v1`. `HOST=0.0.0.0` is only for
-a physical device on the LAN. Ctrl-C stops it. Paths in `.env` are relative to
+a physical device on the LAN. Ctrl-C stops it: the poll first (the Item in flight gets up
+to ten seconds), then the server and the database. Paths in `.env` are relative to
 `server/`, which is why the server runs from there.
 
 ## Configuration
@@ -44,9 +51,11 @@ key by key. An empty value counts as unset.
 | `JWT_SECRET` | required | base64, at least 32 bytes |
 | `JWT_SECRET_PREVIOUS` | unset | base64, at least 32 bytes; still verifies during a rotation |
 | `TOKEN_ENCRYPTION_KEY` | required | base64, exactly 32 bytes |
-| `PLAID_MODE` | `fake` | `sandbox` is refused until Phase 3 |
-| `PLAID_CLIENT_ID`, `PLAID_SECRET` | unset | unused in fake mode |
-| `PLAID_ENV` | `sandbox` | the Sandbox controls and provisioning run only when it is `sandbox` (`canDriveSandbox`), else 409 `conflict` |
+| `PLAID_MODE` | `fake` | `fake` or `sandbox` (the HTTP client) |
+| `PLAID_CLIENT_ID`, `PLAID_SECRET` | unset | required in sandbox mode, unused in fake mode; never logged |
+| `PLAID_ENV` | `sandbox` | `sandbox`, `development` or `production`: the HTTP client's base URL (`https://<env>.plaid.com`); the Sandbox controls and provisioning run only when it is `sandbox` (`canDriveSandbox`), else 409 `conflict` |
+| `PLAID_WEBHOOK_URL` | unset | an absolute https URL (a tunnel to `/v1/webhooks/plaid`), named as `webhook` in the Link and Sandbox public tokens the HTTP client creates afterwards |
+| `PLAID_POLL_INTERVAL_SECONDS` | 180 | 0 (no polling) or 60 to 86400 |
 | `SEED_USER_EMAIL`, `SEED_USER_PASSWORD` | unset | both or neither; an email address; password at least 8 characters |
 | `ARGON2_MEMORY_KIB`, `ARGON2_ITERATIONS`, `ARGON2_PARALLELISM` | 19456, 2, 1 | the OWASP baseline; memory at least 8 × parallelism |
 | `LOG_FORMAT` | `json` | or `text` for a terminal |
@@ -66,7 +75,7 @@ carries its value. No secret has a default.
 | `lib/src/auth/` | Argon2id, access tokens, the auth flows and their routes |
 | `lib/src/users/` | `/me`, `/devices`, account deletion |
 | `lib/src/sync/` | the change-log relay and its routes |
-| `lib/src/plaid/` | `PlaidClient`, the fake and its fixtures, Plaid amounts as `Money` and colours as ARGB, the number-preserving JSON decoder, the token cipher, the Item service, the proxy routes and the webhook receiver, the Sandbox controls and the provisioning job |
+| `lib/src/plaid/` | `PlaidClient`, the fake and its fixtures, the HTTP client, Plaid amounts as `Money` and colours as ARGB, the number-preserving JSON decoder, the token cipher, the Item service, the proxy routes, the webhook verifier and receiver, the poll scheduler, the Sandbox controls and the provisioning job |
 | `lib/src/data/` | the per-user version counter and the data routes |
 | `lib/src/contract_version.dart` | the contract version `GET /health` reports |
 
@@ -130,7 +139,7 @@ the schema to version `i + 1`, applied in its own transaction and recorded in
 the server knows is refused at startup. Tests open in-memory databases through the same
 migrator.
 
-Schema v2 (v1 plus three `items` columns). Instants are INTEGER milliseconds UTC; dates are ISO TEXT; amounts are
+Schema v3 (v1, v2 adding three `items` columns, v3 adding `items.investments_synced_at`). Instants are INTEGER milliseconds UTC; dates are ISO TEXT; amounts are
 `*_minor` INTEGER beside a currency code; `Decimal` values are TEXT. Every row a user owns
 reaches `users` through `ON DELETE CASCADE`, which a test checks for every table.
 
@@ -139,7 +148,7 @@ reaches `users` through `ON DELETE CASCADE`, which a test checks for every table
 | `users` | id, email (lower-cased, unique), password_hash (PHC), display_name, created_at |
 | `devices` | one signed-in installation each: id, user_id, name, created_at, last_seen_at, last_sync_at |
 | `refresh_tokens` | id, device_id, token_hash (SHA-256, unique), family_id, created_at, expires_at, rotated_from, revoked_at |
-| `items` | the Plaid Item: plaid_item_id, the institution (and from v2 its cached `institution_logo` PNG and `institution_primary_color` ARGB, which lane 3b fills), products, the sealed access token and its nonce, status (`removed` for an Item unlinked with its history kept), `error_code` (v2), `cursor` and `run_start_cursor`, last_successful_sync_at, `plaid_removed_at` |
+| `items` | the Plaid Item: plaid_item_id, the institution (and from v2 its `institution_logo` PNG and `institution_primary_color` ARGB from `/institutions/get_by_id`), products, the sealed access token and its nonce, status (`removed` for an Item unlinked with its history kept), `error_code` (v2), `cursor` and `run_start_cursor`, last_successful_sync_at, `investments_synced_at` (v3: the last successful investment-transactions fetch), `plaid_removed_at` |
 | `accounts` | Plaid accounts, keyed by (item_id, plaid_account_id), with the reported balances and `source` |
 | `transactions` | Plaid transactions, keyed by (item_id, plaid_transaction_id), with `source`, `sync_version` and `deleted_at`; `item_id` has no foreign key, so tombstones outlive their Item |
 | `recurring_streams`, `liabilities` (the contract's JSON per account and kind), `securities`, `holdings`, `investment_transactions` | the other Plaid products, each with `source` |
@@ -283,35 +292,97 @@ with identical session reports.
 (`createLinkToken`, `createUpdateLinkToken`, `exchangePublicToken`, `getItem`,
 `removeItem`), the data calls (`transactionsSync(accessToken, cursor, count:)`,
 `accountsBalanceGet`, `liabilitiesGet`, `investmentsHoldingsGet`,
-`investmentsTransactionsGet`, `transactionsRecurringGet`, `transactionsRefresh`),
-`webhookVerificationKeyGet`, and the Sandbox controls (`sandboxPublicTokenCreate`, which
+`investmentsTransactionsGet`, `transactionsRecurringGet(accessToken, currencyOf:)`,
+`transactionsRefresh`), `webhookVerificationKeyGet`, `institutionsGetById` (a
+`PlaidInstitution`: the name, the logo's PNG bytes and the colour as ARGB, a logo that is
+not base64 of a PNG or a colour that is not `#rrggbb` counting as none), and the Sandbox
+controls (`sandboxPublicTokenCreate`, which
 takes `overrideUsername`, `overridePassword` and `daysRequested` for a custom user,
 `sandboxItemResetLogin`, `sandboxTransactionsCreate`, whose `SandboxTransaction` carries
 Plaid's `account_id` per transaction, and `sandboxItemFireWebhook`).
 
 - **Types.** Requests and responses are the server's own records. Their `fromPlaidJson`
-  factories read Plaid's JSON, so the fake's fixtures and the Phase 3 client share them.
+  factories read Plaid's JSON, so the fake's fixtures and the HTTP client share them; they
+  take a `rounding` (none for the fake, half-even for the HTTP client, **Money from
+  Plaid**). A transaction without a `logo_url` takes its first `merchant` counterparty's;
+  an empty recurring `merchant_name` counts as none (the description is used).
+- **Recurring currencies.** Sandbox's `average_amount` carries no currency code, so
+  `transactionsRecurringGet` takes `currencyOf`, the currency of each of the Item's
+  accounts (stored, or reported by the run's pages); a stream of an account it does not
+  know is left out.
 - **`provenance`** is the `source` every stored row gets: `demo` for the fake, `plaid` for
   the real client.
 - **`NOT_READY`.** `TransactionsSyncPage.notReady` is Plaid's `NOT_READY`: retry shortly;
   it never means "no transactions" (`PLAN.md` §4).
-- **Errors.** A failure is a `PlaidException(errorType, errorCode)`. `ITEM_LOGIN_REQUIRED`
+- **Errors.** A failure is a `PlaidException(errorType, errorCode, message, requestId)`;
+  the `plaid_error` log line carries the `request_id`. `ITEM_LOGIN_REQUIRED`
   becomes 409 `item_login_required` on a sync; Plaid's rate limit becomes 429; anything
   else becomes 502 `plaid_error`.
 
 **Money from Plaid** (`plaid_money.dart`). `plaidMoney` takes decimal text or an `int`,
-never a `double`. It scales the value to the currency's minor units, accepts extra
-fraction digits only when they are zeros, and never rounds. The fake's fixtures write
-amounts as strings. `decodePlaidJson` (`plaid_json.dart`) is the number-preserving pass:
-it decodes JSON with every number an `int` when it is an integer that fits, else its text
-exactly as written, so no `double` is ever built; the fake reads custom-user
-configurations through it and the real client (lane 3b) reads Plaid's responses through
-it. `plaidDecimal` checks the contract's `Decimal` strings (prices, quantities, rates).
+never a `double`, and scales the value to the currency's minor units. Without a
+`rounding` it is strict: extra fraction digits are accepted only when they are zeros,
+and exponent forms are refused; the fake and its fixtures read this way. Sandbox writes
+amounts finer than a cent (35 of `user_transactions_dynamic`'s 316 transactions, a
+balance of `342.099285`) and recurring averages with binary noise
+(`19.569999999999997`), so the HTTP client reads with `RoundingMode.halfEven` (`PLAN.md`
+§12): an exponent form (`1e-07`) is first expanded exactly (`expandPlaidExponent`), then
+the digits beyond the scale are rounded as text, never through a `double`. The rounding
+applies to every amount the HTTP client reads: transactions, balances, recurring
+averages, liabilities, holdings and investment transactions. `decodePlaidJson`
+(`plaid_json.dart`) is the number-preserving pass: it decodes JSON with every number an
+`int` when it is an integer that fits, else its text exactly as written, so no `double` is
+ever built; the fake reads custom-user configurations through it and the HTTP client
+reads Plaid's responses through it. `plaidDecimal` checks the contract's `Decimal`
+strings (prices, quantities, rates), expanding exponent forms for the HTTP client.
 `plaidColor` turns Plaid's `#rrggbb` into the contract's opaque ARGB integer.
 
 **Signs.** Records keep Plaid's sign. Ingestion flips transaction amounts, recurring
 averages and investment-transaction amounts into ours (negative is money out). Balances,
 limits, liability amounts and holding values are stored as the institution reported them.
+
+## The HTTP Plaid client
+
+`lib/src/plaid/http_plaid_client.dart`, `HttpPlaidClient` over `package:http`, built by
+`bin/server.dart` in sandbox mode. Plaid publishes no Dart server SDK (`PLAN.md` §12).
+
+- **Every call** is a `POST` to `<base>/<path>` with `Content-Type: application/json`,
+  `Plaid-Version: 2020-09-14`, `client_id` and `secret` in the body, and a 60 s timeout
+  (`/transactions/refresh` can take 30 s). Bodies are written by `persona_engine`'s
+  `writeJson`, amounts as `JsonDecimal` text (`Money.toDecimalString()`), so the wire
+  number is never a `double`; answers are read through `decodePlaidJson`.
+- **Logging.** One `plaid_call` line per call: the path, the status, the duration and
+  Plaid's `request_id`. Never a body, a token or a key.
+- **Errors.** A non-2xx answer with Plaid's error object is
+  `PlaidException(error_type, error_code, error_message, request_id)`. Without one it is
+  `API_ERROR`/`HTTP_<status>`, with a bare 429 counting as `RATE_LIMIT_EXCEEDED`. A
+  timeout is `API_ERROR`/`TIMEOUT`, a network failure `API_ERROR`/`NETWORK_ERROR`, and a
+  2xx answer that is not an object or that the records cannot read is
+  `API_ERROR`/`INVALID_RESPONSE` (logged `plaid_response_unreadable` with its type). So
+  every caller's existing path applies: 502, 409 login required, 429, a skipped
+  secondary product.
+- **`provenance`** is `plaid`. Every record comes from Plaid's answer alone.
+
+| Method | Path | Body beyond the keys |
+|---|---|---|
+| `createLinkToken` | `/link/token/create` | `client_name: Finance Tracker`, `language: en`, `country_codes: [US]`, `user.client_user_id`, `android_package_name`, `products`, `transactions.days_requested` (730), `webhook` when configured |
+| `createUpdateLinkToken` | `/link/token/create` | the same without `products` and `transactions`, plus `access_token` and `update.account_selection_enabled: false` |
+| `exchangePublicToken` | `/item/public_token/exchange` | `public_token` |
+| `getItem` | `/item/get` | `access_token`; reads `item.institution_name`, `products`, `error.error_code` |
+| `removeItem` | `/item/remove` | `access_token` |
+| `transactionsSync` | `/transactions/sync` | `access_token`, `cursor` (left out when empty), `count`, `options.personal_finance_category_version: v2`; `transactions_update_status: NOT_READY` is `notReady` |
+| `accountsBalanceGet` | `/accounts/balance/get` | `access_token` (no `min_last_updated_datetime`) |
+| `liabilitiesGet` | `/liabilities/get` | `access_token`; currencies from its `accounts`, a null `mortgage` tolerated |
+| `investmentsHoldingsGet` | `/investments/holdings/get` | `access_token` |
+| `investmentsTransactionsGet` | `/investments/transactions/get` | `access_token`, `start_date`, `end_date`, `options.count` 500 and `offset`, paged until `total_investment_transactions` |
+| `transactionsRecurringGet` | `/transactions/recurring/get` | `access_token` |
+| `webhookVerificationKeyGet` | `/webhook_verification_key/get` | `key_id`; answers `key` |
+| `institutionsGetById` | `/institutions/get_by_id` | `institution_id`, `country_codes: [US]`, `options.include_optional_metadata: true` |
+| `sandboxPublicTokenCreate` | `/sandbox/public_token/create` | `institution_id`, `initial_products`, `options` (`override_username`, `override_password`, `transactions.days_requested`, `webhook` when configured), left out when empty |
+| `sandboxItemResetLogin` | `/sandbox/item/reset_login` | `access_token` |
+| `sandboxTransactionsCreate` | `/sandbox/transactions/create` | `access_token`, `transactions[]` of `date_transacted`, `date_posted`, `amount`, `description`, `iso_currency_code`, `account_id` when named |
+| `sandboxItemFireWebhook` | `/sandbox/item/fire_webhook` | `access_token`, `webhook_code`, `webhook_type` (`TRANSACTIONS` for the three transactions codes, `ITEM` for the rest) |
+| `transactionsRefresh` | `/transactions/refresh` | `access_token` |
 
 ## The fake Plaid client
 
@@ -345,13 +416,17 @@ pending), one monthly outflow stream and one credit liability.
   carries `source: demo`.
 - **Created transactions** go to the named account (`INVALID_ACCOUNT_ID` for one the
   Item does not have), else its first account.
+- **Institutions.** `institutionsGetById` answers a fixture's institution (with a logo and
+  colour only when the fixture carries them; First Platypus Bank's carries neither) or a
+  custom-user institution by name.
 - **Test hooks** script what Sandbox would do: `failNext(method, error, times:)`,
-  `modifyTransaction`, `removeTransaction`, `sandboxItemResetLogin` and `repairLogin`.
+  `modifyTransaction`, `removeTransaction`, `sandboxItemResetLogin`, `repairLogin`, and
+  `addWebhookKey(jwk)`, which `webhookVerificationKeyGet` then serves under its `kid`.
 
 ## Items
 
-`lib/src/plaid/item_service.dart` is the code Phase 3 reuses unchanged with the real
-client.
+`lib/src/plaid/item_service.dart`. It depends only on `PlaidClient`, so the fake and the
+HTTP client run the same code.
 
 - **Link tokens.** A Link token requests 730 days and `transactions`. `update_item_id`, or
   the update-link-token route, gives an update-mode token for the user's Item (404
@@ -366,6 +441,25 @@ client.
   removal runs when the insert transaction finds the caller's user or device gone (a
   `DELETE /me` or a device removal while Plaid was called), and the answer is 401
   `token_revoked`.
+- **The same Item exchanged again.** Plaid can exchange a public token twice, answering
+  the same `item_id` (`PLAN.md` §4). When the caller already has that Item (not removed
+  at Plaid), the exchange reseals the access token Plaid just returned on that row,
+  refreshes its status (`healthy` with the code cleared, or `login_required`), products
+  and institution name from `/item/get`, logs `item_relinked`, and answers 201 with it:
+  never a duplicate row. The existence check and the insert or reseal are one write
+  transaction, so of two overlapping exchanges of one Item the second reseals the first's
+  row. Only a genuinely new Item is removed at Plaid when something fails; one the caller
+  already has never is. Another user's `item_id` (or one
+  removed at Plaid) is 400 `validation_failed` on `public_token` ("cannot be exchanged by
+  this user"), with nothing stored, nothing removed and `exchange_foreign_item` logged.
+- **Institution metadata.** After an exchange, `/institutions/get_by_id` with the
+  optional metadata. The logo (PNG bytes) and colour (ARGB) are written onto every
+  visible Item at that institution. Plaid allows ten of these calls a minute per client,
+  so the answer is kept in memory and fetched at most once a day per institution
+  (`institutionMetadataMaxAge`); `refreshStaleInstitutions`, run by the poll, refetches
+  what is older. A failed fetch is logged (`institution_metadata_skipped`) and never
+  fails the exchange; nothing is cached, so the next exchange tries again. A restart
+  forgets the cache.
 - **Deleting an Item** removes it at Plaid (with the same three attempts, `ITEM_NOT_FOUND`
   counting as removed), then tombstones its transactions and investment transactions
   under new versions and deletes its other rows.
@@ -382,12 +476,14 @@ client.
   `delete` drops the kept history. Another `history` is a 400.
 - **`error_code`.** `ITEM_LOGIN_REQUIRED` from Plaid, on a sync, a refresh, a balance
   refresh or a Sandbox call, sets status `login_required` and the code and answers 409
-  `item_login_required`; a completed sync clears both. The exchange stores `/item/get`'s.
+  `item_login_required`; a completed sync clears both, except a `pending_expiration`
+  (**Webhooks**), which only `LOGIN_REPAIRED`, an exchange or a login-required error
+  replaces. The exchange stores `/item/get`'s.
   Every status write after the exchange is guarded by `plaid_removed_at IS NULL`, so a
   Plaid call that was in flight when the Item was unlinked cannot overwrite `removed`
   (or hide a kept history).
-- **Refresh** (`POST /plaid/items/{id}/refresh`). `/transactions/refresh`, then a sync
-  run started in the background behind the Item's lock, answered at once `202 started`;
+- **Refresh** (`POST /plaid/items/{id}/refresh`). `/transactions/refresh`, then a
+  background sync run (it retries `NOT_READY`) behind the Item's lock, answered at once `202 started`;
   a failure of that run is logged (`item_refresh_sync_failed`), not answered.
 - **Balances** (`POST /plaid/items/{id}/balances`). Behind the Item's lock:
   `/accounts/balance/get`, the accounts upserted (new ones inserted) with
@@ -395,19 +491,26 @@ client.
 - **The logo** (`GET /institutions/{id}/logo`). The PNG stored on the caller's newest
   visible Item at that institution that has one, `image/png`; 404 otherwise. `itemJson`
   writes `logo_url` as that route's absolute URL under the request's own scheme and host
-  only when a logo is stored, and `primary_color` from its column. Lane 3b fetches and
-  stores both.
+  only when a logo is stored, and `primary_color` from its column, both filled from the
+  institution metadata.
 
 **The sync run** (`POST /plaid/items/{id}/sync`). Runs are serialized per Item by an
 in-process lock: a second run waits for the first and starts from the cursor it stored,
 so no page is applied twice.
 
 1. Fetch every `/transactions/sync` page from the stored cursor, 500 per call.
-   - `NOT_READY` answers 202 `not_ready` and changes nothing.
+   - `NOT_READY` changes nothing. A run a request asked for answers 202 `not_ready` at
+     once (the app polls `syncItem` itself, with a 30 s receive timeout). A background
+     run (the poll, a webhook, a refresh) asks again every 5 s (`syncNotReadyWait`), up
+     to 12 times (`syncNotReadyRetries`), before it reports `not_ready`. Each attempt
+     takes the Item's lock for its own calls and apply and releases it; the wait holds
+     nothing, so a request's run or a balance refresh gets its turn between attempts.
    - `TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION` restarts from the cursor the run
      began with, at most three times.
 2. Fetch recurring streams (for `transactions`), liabilities (for `liabilities`), and
-   holdings and 730 days of investment transactions (for `investments`). A secondary
+   holdings and investment transactions (for `investments`): 730 days the first time,
+   afterwards from 30 days before the previous successful fetch
+   (`investmentsWindowStart`, never further back than 730 days). A secondary
    product that fails (`PRODUCT_NOT_READY` or any other Plaid error) is skipped: it is
    logged by name (`item_sync_product_skipped`), its stored rows are left as they were,
    and the run goes on.
@@ -418,15 +521,84 @@ so no page is applied twice.
    ours; upsert recurring streams by Plaid's id (ids stay stable); replace liabilities,
    holdings and securities; upsert investment transactions (a new version only when one
    changed; rows outside the date window are left alone); store `cursor` and
-   `run_start_cursor`; set the Item healthy and `last_successful_sync_at`.
+   `run_start_cursor`; set the Item healthy (a `pending_expiration` stays) and
+   `last_successful_sync_at`, and `investments_synced_at` when the investments fetch
+   succeeded.
 4. Answer 202 `completed` with the counts.
 
 Nothing is persisted before every page and every product has been fetched. A failure of
 `/transactions/sync` leaves the store and the cursor as they were (`PLAN.md` §4).
 `ITEM_LOGIN_REQUIRED` marks the Item `login_required` and answers 409.
 
-**Webhooks.** `POST /webhooks/plaid` answers 401 `webhook_unverified` to every delivery
-until Phase 3 verifies them through `/webhook_verification_key/get`.
+**Recurring alone** (`refreshRecurring`, for the webhook). Behind the Item's lock:
+`/transactions/recurring/get` with the stored accounts' currencies, then the streams
+replaced as a run replaces them; `ITEM_LOGIN_REQUIRED` marks the Item as a sync does.
+
+## The poll scheduler
+
+`lib/src/plaid/poll_scheduler.dart`, `ServerApp.poller`, started by `bin/server.dart`
+unless `PLAID_POLL_INTERVAL_SECONDS` is 0 (`PLAN.md` §6.5).
+
+- **The loop.** A tick, then the interval, measured from the end of the tick, so ticks
+  never overlap.
+- **A tick** reads every Item not removed at Plaid, not `removed`, not `login_required`
+  and whose user exists, in link order. For each it runs a background sync
+  (`retryNotReady`), one Item at a time, two seconds apart, skipping an Item whose run (a
+  request's, a webhook's) is in flight (`ItemService.isSyncing`). Then
+  `refreshStaleInstitutions`.
+- **Failures.** An Item's failure is counted and logged (`poll_item_failed` with its
+  code) and the tick goes on. A failure outside an Item (the database) is logged
+  (`poll_failed`) and the loop lives on.
+- **Logging.** One `poll_completed` line per tick: items, completed, not ready, skipped,
+  failed, duration.
+- **Load.** One sync per Item every three minutes is far inside Plaid's 50 a minute per
+  Item.
+- **Stopping.** `stop()` ends the wait at once and lets the Item in flight finish, for up
+  to ten seconds.
+
+## Webhooks
+
+`POST /webhooks/plaid` (`plaid_routes.dart`, `webhook_service.dart`,
+`webhook_verifier.dart`). The handler reads the body's exact bytes (1 MiB at most) and
+verifies them before anything touches the database. Each check that fails rejects the
+delivery with a reason class:
+
+1. `Plaid-Verification` is present (`missing_header`) and is three base64url parts
+   (`malformed`).
+2. Its header says `alg: ES256` (`bad_alg`) and names a `kid` (`malformed`). This is
+   checked before any key is fetched, so HS256 and `none` tokens are refused outright.
+3. The key comes from a per-`kid` cache younger than an hour (`webhookKeyMaxAge`), else
+   from `/webhook_verification_key/get`, with one fetch per `kid` in flight however many
+   deliveries wait on it. Plaid's `INVALID_WEBHOOK_VERIFICATION_KEY_ID` is `unknown_kid`
+   and is not cached; any other failure is `key_unavailable`.
+4. The key must be EC P-256 (`bad_key`), and its `expired_at` must be null: Plaid sets
+   it only once a key has expired, so any value, past or future, is `key_expired` (as
+   Plaid's own sample verifier does).
+5. The signature is 64 bytes and verifies with `dart_jsonwebtoken` (`bad_signature`).
+6. `iat` is within five minutes of the server's clock, either way (`stale`).
+7. `request_body_sha256` equals the SHA-256 of the exact bytes received, compared in
+   constant time (`body_mismatch`).
+
+An unverified delivery is 401 `webhook_unverified`, logged `webhook_rejected` with the
+reason only (never the token or the body), and is never processed. A verified body that
+is not a JSON object is a 400. Otherwise it is dispatched by `webhook_type` and
+`webhook_code` on the Item with that `item_id`:
+
+| Delivery | Effect |
+|---|---|
+| `TRANSACTIONS` `SYNC_UPDATES_AVAILABLE`, `DEFAULT_UPDATE` | a background sync |
+| `TRANSACTIONS` `RECURRING_TRANSACTIONS_UPDATE` | `refreshRecurring` in the background |
+| `ITEM` `ERROR` | `login_required` for `ITEM_LOGIN_REQUIRED`, else `error`, with `error.error_code` stored (none without an `error` object) |
+| `ITEM` `LOGIN_REPAIRED` | `healthy`, the code cleared |
+| `ITEM` `PENDING_EXPIRATION`, `PENDING_DISCONNECT` | `pending_expiration` with the webhook code stored |
+| `ITEM` `USER_PERMISSION_REVOKED`, `USER_ACCOUNT_REVOKED` | `error` with the webhook code stored |
+| anything else | logged `webhook_ignored` |
+
+Every verified delivery is answered 204, including one for an unknown Item or an Item
+removed at Plaid, which is logged `webhook_unknown_item`, so a sender cannot probe which
+Item ids exist. Background work that fails is logged (`webhook_sync_failed`,
+`webhook_recurring_failed`). Deliveries reach the server only through a tunnel set as
+`PLAID_WEBHOOK_URL`; without one the poll does the work.
 
 ## Sandbox operations
 
@@ -535,7 +707,14 @@ which can carry SQL and its parameters: `errorFields` writes `error_type` and, f
   `item_sync_restart`, `item_sync_product_skipped`, `item_refresh_started`,
   `item_refresh_sync_failed`, `item_balances_refreshed`, `item_unlinked_kept`,
   `item_removed`, `item_remove_failed`, `item_already_removed`,
-  `orphan_item_remove_failed`, `plaid_error`;
+  `orphan_item_remove_failed`, `item_relinked`, `exchange_foreign_item`,
+  `institution_metadata_skipped`, `item_recurring_refreshed`, `plaid_error`;
+- the HTTP client's `plaid_call` (path, status or failure code, duration, `request_id`) and
+  `plaid_response_unreadable`;
+- the poll's `poll_completed`, `poll_item_failed` and `poll_failed`;
+- the webhook events: `webhook_rejected` (the reason), `webhook_received`,
+  `webhook_unknown_item`, `webhook_ignored`, `webhook_sync_failed`,
+  `webhook_recurring_failed`;
 - the Sandbox events: `sandbox_reset_login`, `sandbox_webhook_fired`,
   `sandbox_transactions_created` (a count), and the provisioning events
   `provision_started`, `provision_item_linked`, `provision_rate_limited`,
@@ -548,11 +727,13 @@ which can carry SQL and its parameters: `errorFields` writes `error_type` and, f
 `ServerApp` with:
 
 - an in-memory database;
-- the fake client;
+- the fake client, or another a test gives (the HTTP client over
+  `test/support/recorded_plaid_transport.dart`);
 - a controllable clock;
 - tiny Argon2 parameters;
 - a test-set client IP;
-- instant retry waits.
+- instant retry waits;
+- no polling (`pollInterval` zero; tests run ticks themselves).
 
 It calls the shelf handler with no socket. **Every call is checked against the
 contract**: the request body with `conformsToRequest` (unless the test sends an invalid one
@@ -562,13 +743,13 @@ router's 404.
 
 | Suite | What it proves |
 |---|---|
-| `unit/config_test.dart` | defaults, every key, missing and malformed keys named without their values, `sandbox` refused, the seed pair and the seed email's shape, the `.env` reader |
+| `unit/config_test.dart` | defaults, every key, missing and malformed keys named without their values, `sandbox` needing both keys, `PLAID_ENV`, `PLAID_WEBHOOK_URL` and the poll interval checked, the seed pair and the seed email's shape, the `.env` reader |
 | `unit/password_hasher_test.dart` | the RFC 9106 vector, the PHC round trip, wrong and tampered passwords, the parameters read from the hash |
 | `unit/access_tokens_test.dart` | claims and `kid`, expiry on the server clock, foreign and forged tokens, `HS512` and `none` refused, the `iat` and lifetime bounds, the previous key |
 | `unit/token_cipher_test.dart` | the round trip, fresh nonces, tampered ciphertext, tag or nonce, another Item, another key |
-| `unit/plaid_money_test.dart` | decimal text and ints to minor units, no double, no rounding, malformed text; `#rrggbb` to ARGB |
+| `unit/plaid_money_test.dart` | decimal text and ints to minor units, no double, no rounding when strict, malformed text; with a mode, sub-cent and float-noise text rounded (every mode, ties, the range edge) and exponent forms expanded; `#rrggbb` to ARGB |
 | `unit/plaid_json_test.dart` | numbers as ints or their text, never a double; everything else as `jsonDecode`; malformed text |
-| `unit/migrations_test.dart` | an empty database migrated, a v1 database with an Item migrated to v2, an idempotent rerun, a newer schema refused, a cascade on every table |
+| `unit/migrations_test.dart` | an empty database migrated, a v1 database with an Item migrated to v2, a v2 database with an Item migrated to v3, an idempotent rerun, a newer schema refused, a cascade on every table |
 | `auth_test.dart` | register and login, every documented error, the rehash on login, rotation, reuse detection, expiry of both tokens, logout, device removal, the rate limit |
 | `sync_relay_test.dart` | each rejection code, idempotent resends (`1` resent as `1.0` included), conflicting duplicates, own-entry filtering, paging, isolation between users, the 409, 400s |
 | `sync_convergence_test.dart` | two engine sessions through the server converge, identically to the reference relay |
@@ -579,6 +760,13 @@ router's 404.
 | `account_deletion_test.dart` | every row gone and nobody else's touched, retries, a permanent failure deleting nothing, then a retry finishing; an Item linked during the retries removed too; Items that keep appearing giving 502; `ITEM_NOT_FOUND` not blocking; a sync whose user is deleted while Plaid is called (404); an exchange still at Plaid when the user is deleted (401, no Item left) |
 | `contract_routes_test.dart` | one route per operation and none outside the contract, mounted with its security; the problem and rejection codes equal the contract's enums and the engine's reasons; every body the contract rejects is a 400; the contract's examples are accepted |
 | `logging_test.dart` | request lines and no secrets; a 500 with the request id, and on a forced SQLite failure a log line with the error's type and codes but no SQL, parameters or operation; the text format |
+| `http_plaid_client_test.dart` | over the recorded fixtures: every call's request (path, version header, keys, options) and mapping, the errors (Plaid's, a non-JSON 500, a bare 429, unreadable answers, a timeout, a network failure), the 316-row page with no double (281 amounts round-tripping to Plaid's text, 35 sub-cent ones half-even), balances, liabilities, recurring currencies, investments paging, institutions, the Sandbox controls; through the server, every row of the seven Plaid tables `source: plaid` and a full flow (link token, exchange, update-mode token, sync) logging no key, secret or token |
+| `plaid_fixtures_scan_test.dart` | every committed fixture free of live token prefixes, unredacted `client_id`, `secret` or token values, and hex runs of 24 or more |
+| `institution_metadata_test.dart` | the logo and colour stored at exchange and served, one fetch a day with every Item at the institution updated, a failed fetch not failing the exchange |
+| `sync_loop_test.dart` | `NOT_READY` answered at once to a request and retried 12 times by a background run, a request's sync and a balance refresh answered while a background run waits, the mutation restart and its limit, pending-to-posted, the same Item exchanged again (resealed with products and name refreshed; two overlapping exchanges making one row; a failed `/item/get` removing nothing; another user's 400), the investment-transactions window |
+| `poll_scheduler_test.dart` | the Items a tick syncs, one at a time and staggered, as background runs; an Item in flight skipped; an Item's failure counted; a database failure logged with the loop alive; `stop` ending the wait |
+| `webhook_test.dart` | with keys from fixed test scalars: each dispatch and status, a pending expiration kept by a sync, unknown and removed Items 204, a non-object body 400, the key cache and its hour; 401 for no header, a malformed token, a forged or short signature, a stale or future `iat`, a tampered body, an unknown `kid` fetched once in flight, HS256 and `none` before any fetch, a key with any `expired_at`, an unavailable key; no token in a log line |
+| `live/sandbox_live_test.dart` | skipped unless `PLAID_LIVE_TESTS=1` and the keys are set (`testing-tools.md`, **The live Sandbox suite**): one real Item linked, synced, checked and removed |
 | `health_test.dart` | `GET /health`, and `contractVersion` equal to `info.version` |
 
 ## Commands
