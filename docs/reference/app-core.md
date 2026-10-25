@@ -29,7 +29,8 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
    anything else;
 8. the stored session is read (`sessionControllerProvider`'s `restored()`, `auth.md`),
    so the first frame is already signed in or out; then the sync controller starts
-   (`sync-app.md`, **The controller**);
+   (`sync-app.md`, **The controller**) and, in every flavor, the budget alert watcher is
+   listened to (`budgets.md`, **Alerts**);
 9. `runApp(UncontrolledProviderScope(container: container, child: FinanceTrackerApp()))`.
 
 `FinanceTrackerApp` (`app.dart`) is a `ConsumerWidget` returning `MaterialApp.router` with
@@ -52,7 +53,9 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `databaseKeyStoreProvider` | `core/di/providers.dart` | `SecureDatabaseKeyStore` (`data.md`) |
 | `databaseProvider` | `core/di/providers.dart` | The encrypted `AppDatabase` of dev and prod, closed with the container; a `StateError` in demo |
 | `inMemoryStoreProvider` | `core/di/providers.dart` | The `InMemoryStore` behind the in-memory and demo repositories; the demo flavor's holds the system categories and the demo seed |
-| `accountRepositoryProvider`, `transactionRepositoryProvider`, `categoryRepositoryProvider`, `itemRepositoryProvider`, `ruleRepositoryProvider`, `settingsRepositoryProvider` | `core/di/providers.dart` | In memory by default; Drift in dev and prod and demo in demo, through `overridesFor` |
+| `accountRepositoryProvider`, `transactionRepositoryProvider`, `categoryRepositoryProvider`, `itemRepositoryProvider`, `ruleRepositoryProvider`, `budgetRepositoryProvider`, `settingsRepositoryProvider` | `core/di/providers.dart` | In memory by default; Drift in dev and prod and demo in demo, through `overridesFor` |
+| `budgetAlertStoreProvider` | `core/di/providers.dart` | Which budget alerts this device raised (`budgets.md`): in memory by default and in demo, `budget_alerts` in dev and prod |
+| `appNotifierProvider`, `inAppNotificationsProvider` | `core/platform/in_app_notifications.dart` | Where the app's notifications go (**Notifications**): the in-app list in every flavor |
 | `plaidPullStoreProvider`, `arrivalProcessorProvider`, `plaidPullProvider` | `core/di/providers.dart` | The Plaid pull (`sync-app.md`, **The Plaid pull**): its cursors in memory by default and in `sync_meta` in dev and prod, the rules run on what it inserts (`RuleRunner`, `rules.md`), and the pull over the API into the repositories |
 | `inMemorySyncStoreProvider`, `driftSyncStoreProvider`, `deviceClockProvider`, `changeRecorderProvider`, `recordingSyncStoreProvider` | `core/di/providers.dart` | The sync stores, the device clock, the recorder the repositories record through, and the store it records into (which the rules on arrival read): in memory by default, Drift in dev and prod, none in demo (`sync-app.md`) |
 | `syncDeviceIdProvider`, `syncRelayProvider`, `localDataSyncsProvider`, `syncDebounceProvider` | `core/di/providers.dart` | The session's device id and the API's relay as that device while signed in (null otherwise), whether the local data syncs (dev and prod), and the debounce after a local change |
@@ -69,7 +72,8 @@ the scope's `retry` says otherwise (the tests turn it off).
 
 Each feature's own providers (the screens' streams, derived values and writes) are in its
 `application/` folder and its reference file (`accounts.md`, `transactions.md`,
-`categories.md`, `developer.md`).
+`categories.md`, `developer.md`, `budgets.md`: the budget statuses and the alert watcher,
+which `bootstrap` listens to in every flavor).
 
 `overridesFor(AppConfig)` is the one place a flavor's wiring is decided (it is
 `localDataOverridesFor(config)`, the flavor and its local data, then `apiOverridesFor`;
@@ -297,6 +301,17 @@ database (not `latest_10y`, `PLAN.md` §12) and sets `tz.local` from
 `FlutterTimezone.getLocalTimezone()`'s identifier. A failing platform call, or an identifier
 the database does not know, logs a warning and leaves `tz.local` at UTC, so startup goes
 on; the settings About section shows the active zone, so the fallback is visible.
+
+## Notifications
+
+`core/platform/notifier.dart` is the boundary between what the app tells the user and how
+the platform shows it: `Notifier.notify(AppNotification)`, where an `AppNotification` is a
+sealed class of typed data, never text, so whoever shows it localizes it (one case so far,
+`BudgetThresholdNotification`, `budgets.md`). `appNotifierProvider` is `InAppNotifier`, which
+adds to `inAppNotificationsProvider`: newest first, one per key, at most 50, each with a read
+flag (`markRead(key)`, `markAllRead()`), in memory, so a restart empties it. Android's
+notification channels are Phase 8's implementation of the same interface. Platform code
+stays behind interfaces like this one (`CLAUDE.md`, **Security and platform**).
 
 ## Logging
 

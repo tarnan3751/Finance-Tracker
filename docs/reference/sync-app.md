@@ -15,7 +15,7 @@ schema 2 tables under `app/lib/core/db/tables/`, the repositories' writes
 `app/integration_test/sync_two_devices_test.dart`, `app/test/core/plaid/plaid_pull_test.dart`.
 
 Sync covers the user-authored data the app stores now: accounts, transactions,
-categories, rules and the settings. Other entity types arrive with their phases; a record of one
+categories, rules, budgets and the settings. Other entity types arrive with their phases; a record of one
 pulled before then is kept (**The store**, held records).
 
 ## Records
@@ -29,10 +29,11 @@ plus what the app keeps beside it:
 | `transaction` | `Transaction.toJson()` (its own `deleted_at`) and `deleted_with_account`, the account cascade's flag, synced so a restore on any device brings back the same rows |
 | `category` | `Category.toJson()` and `deleted_at` |
 | `rule` | `Rule.toJson()` and `deleted_at`; `conditions` and `actions` are whole field values, so concurrent edits of two conditions of one rule resolve last-writer-wins on the list |
+| `budget` | `Budget.toJson()` and `deleted_at`; the amount is one whole field value (`{minor_units, currency}`) and `start_date` an ISO date (`budgets.md`) |
 | `settings` | the one record `settings/local`: `theme_mode`, `use_dynamic_color` |
 
-Tags, splits and amounts are whole field values. The audit fields of accounts, categories
-and rules (`created_at`, `updated_at`) are not in their JSON, so each device stamps its
+Tags, splits and amounts are whole field values. The audit fields of accounts, categories,
+rules and budgets (`created_at`, `updated_at`) are not in their JSON, so each device stamps its
 own; a transaction's are in its record and sync.
 
 ## The store
@@ -56,8 +57,8 @@ keep.
 
 **Writing** a record saves its clocks and materializes it:
 
-- a **complete** record (its create merged) of an account, transaction, category or rule
-  replaces the row, tags and splits included, as the record says. The repositories' write
+- a **complete** record (its create merged) of an account, transaction, category, rule or
+  budget replaces the row, tags and splits included, as the record says. The repositories' write
   checks are not applied: they are preconditions of a local edit, and applying them to
   merged state would make the result depend on arrival order. A transaction keeps its own
   amount's currency even when its account's differs (derived balances leave such a row
@@ -108,7 +109,7 @@ The filter by `source` is `userAuthoredChange`, shared by every implementation:
 | a `plaid` transaction | only `user_category_id`, `notes`, `tags`, `splits`, `receipt_path`, as updates; nothing at creation |
 | a `derived` or `demo` transaction | nothing |
 | an account with an `item_id` | nothing, until Phase 3 rules on linked-account overrides |
-| categories, rules, settings | all of it; the seeding of the system categories is not recorded |
+| categories, rules, budgets, settings | all of it; the seeding of the system categories is not recorded |
 
 A rule's change to an arriving transaction (`rules.md`, **On arrival**) is an ordinary
 transaction write: on a `plaid` row an update of `user_category_id` or `tags`, so other

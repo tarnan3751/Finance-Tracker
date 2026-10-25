@@ -4,14 +4,14 @@ The app's encrypted local database, the repositories every screen reads from, th
 and the one-time import of the original app's data. Code: `app/lib/core/db/` (schema, open
 path, key store, in-memory store, demo seed, importer) and each feature's `domain/`
 (interfaces) and `data/` (implementations): `features/accounts/`, `features/transactions/`,
-`features/categories/`, `features/rules/`, `features/settings/`, `features/items/`. Tests: `app/test/contract/` (the contract
+`features/categories/`, `features/rules/`, `features/budgets/`, `features/settings/`, `features/items/`. Tests: `app/test/contract/` (the contract
 suites), `app/test/core/db/`, `app/test/drift/`, `app/integration_test/encrypted_database_test.dart`.
 The entities and `Money` are `shared_models` (`core.md`); the providers and startup are
 `app-core.md`.
 
 ## The database
 
-Drift on SQLite, at schema version 4 (`core/db/app_database.dart`; one file per table under
+Drift on SQLite, at schema version 5 (`core/db/app_database.dart`; one file per table under
 `core/db/tables/`). `app_database.dart` and the tables import no Flutter, so `drift_dev`
 can run them in the Dart VM to dump the schema.
 
@@ -30,6 +30,8 @@ can run them in the Dart VM to dump the schema.
 | `held_records` | Sync records the entity tables cannot hold exactly, whole, with why: `incomplete`, `unrepresentable`, `unknown_fields`, `unsupported_type` (schema 2, `sync-app.md`) |
 | `items` | The user's Plaid Items as the server last listed them: institution id, name, logo URL, logo bytes and color, `status` (the `ItemStatus` JSON name), Plaid's `error_code`, `last_successful_sync_at`, `pulled_at` (schema 3; `items.md`) |
 | `rules` | The user's rules (schema 4, `rules.md`): `name`, `position`, and the `conditions` and `actions` as JSON lists of the `shared_models` JSON (an amount bound is `Money`'s `{minor_units, currency}`) |
+| `budgets` | The user's budgets (schema 5, `budgets.md`): `category_id`, `period`, `period_start_day`, `amount_minor` in `currency`, `rollover`, `start_date` |
+| `budget_alerts` | The budget alerts this device has raised, never synced (schema 5, `budgets.md`): `(budget_id, period_start, threshold_bp)` primary key, `raised_at` |
 
 How values are stored (`core/db/converters.dart`):
 
@@ -53,8 +55,10 @@ How values are stored (`core/db/converters.dart`):
 
 Every entity table (`accounts`, `transactions`, `categories`) has `created_at`,
 `updated_at`, `deleted_at` (nullable: deletes are soft, so Phase 2's sync can carry
-tombstones) and `sync_version INTEGER NOT NULL DEFAULT 0`; `rules` has the three audit
-columns and no `sync_version`, which is the server's version of Plaid data. `transactions.source` has a CHECK
+tombstones) and `sync_version INTEGER NOT NULL DEFAULT 0`; `rules` and `budgets` have the
+three audit columns and no `sync_version`, which is the server's version of Plaid data;
+`budgets` has CHECKs holding `period` to the `BudgetPeriodKind` names and
+`period_start_day` to 1 to 28. `transactions.source` has a CHECK
 over the five provenance values and `accounts.type` one over the account types;
 `transactions.deleted_with_account` (a boolean, default false) marks the rows an
 account's delete removed. Tags and
@@ -63,7 +67,8 @@ splits reference their transaction with `ON DELETE CASCADE`; `beforeOpen` turns
 Phase 2's sync may apply a transaction before its account, so the repositories check that
 the account exists. Indexes: `transactions(account_id, date)`,
 `transactions(user_category_id)`, `transactions(pending_transaction_id)`,
-`transaction_tags(tag)`, `categories(parent_id)`, `rules(position)`. Full-text search arrives in Phase 4 as a
+`transaction_tags(tag)`, `categories(parent_id)`, `rules(position)`,
+`budgets(category_id)`. Full-text search arrives in Phase 4 as a
 migration.
 
 ## Encryption and the key
@@ -142,6 +147,7 @@ and exposes streams that start with the current value and emit again only when i
 | `CategoryRepository` | `watchAll()` (by name ignoring ASCII case, then id), `watchById`, `upsert`, `delete`, `ensureSeeded()` |
 | `ItemRepository` | `watchAll()` (by institution name ignoring ASCII case, then id), `watchById`, `applyPlaid(items, pulledAt:)`, `applyPlaidItem`, `saveLogo`, `markLoginRequired` |
 | `RuleRepository` | `watchAll()` (by `position`, then id), `upsert`, `delete`, `restore`, `reorder(ids)` (`rules.md`) |
+| `BudgetRepository` | `watchAll()` (by `categoryId`, then id), `watchById`, `upsert`, `delete`, `restore` (`budgets.md`) |
 | `SettingsRepository` | `watch()`, `read()`, `save()` |
 
 The rules every implementation keeps:
@@ -174,7 +180,7 @@ The rules every implementation keeps:
   clock); `createdAt` and `updatedAt` must be UTC with millisecond precision, else
   `ArgumentError` (`checkAuditInstants`); `deletedAt` in an upsert is ignored. Every delete
   and restore, the cascade included, stamps `updatedAt` with the clock, so Phase 2's sync
-  sees the change. `Account` and `Category` carry none: the repositories stamp
+  sees the change. `Account`, `Category` and `Budget` carry none: the repositories stamp
   `created_at` on insert and `updated_at` on every write, deletes and restores included.
 - **Recording.** Every user-authored write records one change-log entry per entity it
   changed, through the repository's `ChangeRecorder`, in the same database transaction
@@ -280,8 +286,8 @@ field; a missing or unreadable value reads as that field's default.
 | Demo | `data/demo_*_repository.dart`: the in-memory ones over the demo store | the demo flavor |
 
 The in-memory account, transaction, category and item repositories share one `InMemoryStore`,
-because balances, currency checks and the cascade cross repositories (the rule and
-settings ones keep their own state: nothing crosses into them); its operations are
+because balances, currency checks and the cascade cross repositories (the rule,
+budget and settings ones keep their own state: nothing crosses into them); its operations are
 synchronous so the demo seed loads in a provider. Rules both implementations need
 (the category edit rule, the audit-instant rule, the transaction order, SQLite's text
 comparisons, list and map equality) are in `core/db/repository_support.dart`; the `BINARY`
@@ -290,8 +296,8 @@ the rules engine orders rules the same way without importing the data layer.
 
 The contract suites are in `app/test/contract/`, one file per repository:
 `runAccountRepositoryContract`, `runTransactionRepositoryContract`,
-`runCategoryRepositoryContract`, `runItemRepositoryContract` and
-`runRuleRepositoryContract` take a factory of a
+`runCategoryRepositoryContract`, `runItemRepositoryContract`,
+`runRuleRepositoryContract` and `runBudgetRepositoryContract` take a factory of a
 `RepositoryFixture` (the repositories of one implementation over one store) and a dispose
 (the account and transaction suites' `applyPlaid` groups check the kept fields, the
 tombstones, the order of new accounts, the server's `source` and that nothing is
@@ -326,7 +332,7 @@ Phase 6 brings holdings. The engine's Items are loaded first, with their institu
 expectations and anomalies are not: the app has no repositories for them yet. Choosing another persona
 rebuilds the store and the repositories over it, so the demo's own edits are lost. The demo's
 rule repository holds two rules written for the persona it shows (`demo_rules.dart`,
-`rules.md`). The
+`rules.md`), and its budget repository two budgets (`demo_budgets.dart`, `budgets.md`). The
 demo flavor's in-app fake server serves the same seed (`FakeDataset.fromDemoSeed`,
 `app-core.md`).
 
@@ -371,7 +377,14 @@ app's data directory.
 
 ## Changing the schema
 
-**Schema 4** adds `rules`. Its step creates the table and, in the same transaction, writes
+**Schema 5** adds `budgets` and `budget_alerts`. Its step creates both tables and, in the
+same transaction, writes again every `budget` record held in `held_records`, as schema 4 did
+for rules: a complete record becomes a row, an updates-only one stays `incomplete`, one with
+unknown fields lands and stays held `unknown_fields`, and one that does not decode (a start
+day of 30, a period kind this version lacks) stays `unrepresentable`. `migration_test.dart`
+opens a schema 4 database with rows, a rule, sync state and each kind of held budget record.
+
+**Schema 4** added `rules`. Its step creates the table and, in the same transaction, writes
 again every `rule` record held in `held_records` (`releaseHeldRecords` over the sync
 store): rules another device recorded before this version could store them become rows,
 and a record still not representable stays held for the reason that applies now

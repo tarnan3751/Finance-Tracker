@@ -140,6 +140,8 @@ obvious from the field list:
   only, and the enrichment fallback is display-side, never written into it.
 - `Budget.periodStartDay` is 1 to 28; JSON outside that range is rejected in every
   build, not only by the debug-mode assertion.
+- `Budget.startDate` (`start_date`, required) is the first day of the budget's first
+  period, from which rollover accumulates (`budgets.md`).
 - `Item.errorCode` is Plaid's error code (`ITEM_LOGIN_REQUIRED`, ...) while the status is
   `loginRequired` or `error`, else null; `ItemStatus.removed` is an Item unlinked with its
   history kept, whose accounts and transactions stay.
