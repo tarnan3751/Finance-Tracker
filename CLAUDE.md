@@ -18,12 +18,15 @@ heading of this file or of a doc.
 
 ## Status
 
-**Phases 0, 1 and 2 have landed; Phase 3 (Plaid) is next:** the app runs on its Riverpod
-and go_router core with manual accounts, transactions and categories on the encrypted Drift
-database (schema v2 with the change log and field clocks); it signs in against the development
-server through the API client, syncs user data between devices through the sync engine, and
-runs the demo flavor on the persona engine's seed against an in-process fake server with no
-network.
+**Phases 0 to 3 have landed (Phase 3 awaiting its acceptance run); Phase 4 (budgets) is
+next:** the app runs on its Riverpod and go_router core with manual accounts, transactions
+and categories on the encrypted Drift database (schema v4 with the change log, field clocks,
+Items and rules); it signs in against the development server through the API client, syncs
+user data between devices through the sync engine, links banks through Plaid Link (real
+Sandbox Items through the server, which polls Plaid and verifies its webhooks), pulls their
+accounts and transactions with reported balances and institution logos, applies the user's
+rules on arrival, and runs the demo flavor on the persona engine's seed against an in-process
+fake server with no network; the dev flavor carries a developer menu for the Sandbox controls.
 The repository is the pub workspace of **Folder layout**, Android only. The app runs in
 three flavors (`dev`, `demo`, `prod`) through `app/lib/bootstrap.dart`; `server/` is the
 development server implementing the contract with a fake Plaid client
@@ -96,10 +99,13 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | Local database: Drift schema, migrations, repositories in three implementations | `app/lib/features/*/data/`, `app/lib/core/db/` | `docs/reference/data.md` (Phase 1) |
 | Sync engine (pure Dart, no Flutter) | `packages/sync_engine/` (Phase 2) | `docs/reference/sync.md` |
 | Sync in the app: the Drift sync store, recording, the controller, the relay | `app/lib/core/sync/`, `app/lib/core/db/` | `docs/reference/sync-app.md` |
+| Linked banks: Items, Plaid Link, repair, unlink, the Plaid pull and the arrival seam | `app/lib/features/items/`, `app/lib/core/plaid/` | `docs/reference/items.md` |
+| Rules: the engine, the runner on arrival and on demand, the rules screens | `app/lib/features/rules/` | `docs/reference/rules.md` |
+| Developer menu (dev flavor only): the Sandbox controls, provisioning, diagnostics | `app/lib/features/developer/` | `docs/reference/developer.md` |
 | API client, in-app fake server, session and auth | `app/lib/core/api/`, `app/lib/features/auth/` | `docs/reference/app-core.md` (the API client), `docs/reference/auth.md` |
 | The generated API client | `packages/api_client/` | `docs/reference/api.md` (Phase 2) |
 | The API contract | `api/openapi.yaml` | same |
-| Development server: auth, sync, Plaid proxy, webhook receiver | `server/` | `docs/reference/server.md` (Phase 2) |
+| Development server: auth, sync, the Plaid client (fake or Sandbox), the poll, webhooks, provisioning | `server/` | `docs/reference/server.md` |
 | Persona engine: demo seed, Sandbox custom users, injection batches | `tools/persona_engine/` (Phase 2) | `docs/reference/persona.md` |
 | Build: workspace, flavors, Android configuration, signing, R8 | `pubspec.yaml`, `app/android/`, `app/lib/core/config/` | `docs/reference/build.md` |
 | Testing and tools: gate, test runner, emulator harness, landing, scripts | `*/test/`, `app/integration_test/`, `tools/` | `docs/reference/testing-tools.md` (Phase 0) |
