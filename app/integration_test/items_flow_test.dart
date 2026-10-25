@@ -38,14 +38,20 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
+/// How long a wait for the app may last, in wall-clock time: on an emulator loaded by
+/// several lanes, the Link flow has taken longer than 30 s.
+const Duration _patience = Duration(seconds: 120);
+
 /// Pumps until [done]: the Link flow waits 5 s between sync requests, in real time on a
 /// device.
 Future<void> _pumpUntil(WidgetTester tester, bool Function() done) async {
-  for (int i = 0; i < 300; i++) {
+  final Stopwatch waited = Stopwatch()..start();
+  while (waited.elapsed < _patience) {
     if (done()) return;
     await tester.pump(const Duration(milliseconds: 100));
   }
-  fail('the app never got there');
+  if (done()) return;
+  fail('the app never got there in ${_patience.inSeconds} s');
 }
 
 /// Pumps until no Item action runs (one may have ended failed, which stays shown).

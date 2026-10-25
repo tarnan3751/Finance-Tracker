@@ -100,11 +100,12 @@ final class Instance {
   }
 }
 
-/// Pumps until [finder] shows, or fails after [timeout].
+/// Pumps until [finder] shows, or fails after [timeout] (120 s by default: on an emulator
+/// loaded by several lanes, a sync and its Plaid pull have taken longer than 30 s).
 Future<void> pumpUntil(
   WidgetTester tester,
   Finder finder, {
-  Duration timeout = const Duration(seconds: 20),
+  Duration timeout = const Duration(seconds: 120),
 }) async {
   final DateTime end = DateTime.now().add(timeout);
   while (DateTime.now().isBefore(end)) {

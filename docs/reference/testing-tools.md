@@ -259,4 +259,7 @@ and that the Accounts tab shows the demo seed's accounts with their derived bala
 given `--dart-define=FT_FAKE_SERVER=true` (`tools/emulator_tests.sh integration --
 --dart-define=FT_FAKE_SERVER=true`; skipped without it), starts the dev flavor on the
 in-app fake server and registers, signs out, signs in, makes a request after the access
-token expired and signs out (`auth.md`). CI does not run them yet.
+token expired and signs out (`auth.md`). CI does not run them yet. The flows that wait on the app in real time (the Link flow
+waits 5 s between sync requests) pump until a condition holds for up to 120 s of wall-clock
+time, never a fixed count of pumps, and settle a link by waiting until no Item action runs,
+since on an emulator loaded by several lanes a link has taken longer than 30 s.

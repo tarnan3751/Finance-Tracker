@@ -20,6 +20,8 @@ import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/app_router.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/features/items/application/link_controller.dart';
+import 'package:finance_tracker/features/items/domain/item_action.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,14 +44,29 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 ProviderContainer _container(WidgetTester tester) =>
     ProviderScope.containerOf(tester.element(find.byType(MaterialApp)));
 
+/// How long a wait for the app may last, in wall-clock time: on an emulator loaded by
+/// several lanes, the Link flow has taken longer than 30 s.
+const Duration _patience = Duration(seconds: 120);
+
 /// Pumps until [done]: the Link flow, its pull and the database run in real time.
 Future<void> _pumpUntil(WidgetTester tester, bool Function() done) async {
-  for (int i = 0; i < 300; i++) {
+  final Stopwatch waited = Stopwatch()..start();
+  while (waited.elapsed < _patience) {
     if (done()) return;
     await tester.pump(const Duration(milliseconds: 100));
   }
-  fail('the app never got there');
+  if (done()) return;
+  fail('the app never got there in ${_patience.inSeconds} s');
 }
+
+/// Pumps until no Item action runs: the link, its sync and its pull have finished, as the
+/// Linked banks flows settle.
+Future<void> _settleLink(WidgetTester tester, ProviderContainer container) =>
+    _pumpUntil(tester, () {
+      final LinkState state = container.read(linkControllerProvider);
+      return !(state.newLink?.isRunning ?? false) &&
+          !state.byItem.values.any((a) => a.isRunning);
+    });
 
 /// Scrolls the rule editor to its end, where the preview is (a list builds only what is
 /// on screen), and pumps until the preview reads [text].
@@ -92,6 +109,7 @@ void main() {
       final Finder link = find.widgetWithText(FilledButton, 'Link a bank');
       await _pumpUntil(tester, () => link.evaluate().isNotEmpty);
       await _tap(tester, link);
+      await _settleLink(tester, container);
       List<Transaction> pulled = const [];
       final StreamSubscription<List<Transaction>> stored = container
           .read(transactionRepositoryProvider)
