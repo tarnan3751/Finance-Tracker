@@ -21,6 +21,17 @@ LocalDateRange periodContaining(LocalDate day, int periodStartDay) {
   return LocalDateRange(start, start.addMonths(1));
 }
 
+/// The period [offset] periods after the one containing [day] (before it when [offset]
+/// is negative), for periods starting on day [periodStartDay] of the month. Throws
+/// [ArgumentError] unless [periodStartDay] is 1 to 28.
+LocalDateRange periodAt(LocalDate day, int periodStartDay, int offset) {
+  final LocalDate start = periodContaining(
+    day,
+    periodStartDay,
+  ).start.addMonths(offset);
+  return LocalDateRange(start, start.addMonths(1));
+}
+
 /// The periods from the one containing [startDate] through the one containing [through],
 /// in order; empty when [through] is before the first of them. Throws [ArgumentError]
 /// unless [periodStartDay] is 1 to 28.

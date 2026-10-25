@@ -73,6 +73,34 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
     StatefulShellBranchData.$branch(
       routes: [
         GoRouteData.$route(
+          path: '/budgets',
+          hasOverriddenOnExit: false,
+          factory: $BudgetsRoute._fromState,
+          routes: [
+            GoRouteData.$route(
+              path: 'new',
+              hasOverriddenOnExit: false,
+              factory: $NewBudgetRoute._fromState,
+            ),
+            GoRouteData.$route(
+              path: ':id',
+              hasOverriddenOnExit: false,
+              factory: $EditBudgetRoute._fromState,
+              routes: [
+                GoRouteData.$route(
+                  path: 'transactions',
+                  hasOverriddenOnExit: false,
+                  factory: $BudgetTransactionsRoute._fromState,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    ),
+    StatefulShellBranchData.$branch(
+      routes: [
+        GoRouteData.$route(
           path: '/settings',
           hasOverriddenOnExit: false,
           factory: $SettingsRoute._fromState,
@@ -287,6 +315,96 @@ mixin $TransactionRoute on GoRouteData {
   @override
   String get location =>
       GoRouteData.$location('/transactions/${Uri.encodeComponent(_self.id)}');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $BudgetsRoute on GoRouteData {
+  static BudgetsRoute _fromState(GoRouterState state) => const BudgetsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/budgets');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $NewBudgetRoute on GoRouteData {
+  static NewBudgetRoute _fromState(GoRouterState state) =>
+      const NewBudgetRoute();
+
+  @override
+  String get location => GoRouteData.$location('/budgets/new');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $EditBudgetRoute on GoRouteData {
+  static EditBudgetRoute _fromState(GoRouterState state) =>
+      EditBudgetRoute(state.pathParameters['id']!);
+
+  EditBudgetRoute get _self => this as EditBudgetRoute;
+
+  @override
+  String get location =>
+      GoRouteData.$location('/budgets/${Uri.encodeComponent(_self.id)}');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $BudgetTransactionsRoute on GoRouteData {
+  static BudgetTransactionsRoute _fromState(GoRouterState state) =>
+      BudgetTransactionsRoute(state.pathParameters['id']!);
+
+  BudgetTransactionsRoute get _self => this as BudgetTransactionsRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/budgets/${Uri.encodeComponent(_self.id)}/transactions',
+  );
 
   @override
   void go(BuildContext context) => context.go(location);

@@ -222,6 +222,26 @@ void main() {
       }
     });
 
+    test('periodAt steps whole periods from the one containing the date', () {
+      for (int seed = base; seed < base + casesPerProperty; seed++) {
+        final Random r = Random(seed);
+        final LocalDate day = randomDate(r);
+        final int s = 1 + r.nextInt(28);
+        final String reason = 'seed $seed, start day $s, date $day';
+        LocalDateRange p = periodContaining(day, s);
+        expect(periodAt(day, s, 0), p, reason: reason);
+        for (int k = 1; k <= 3; k++) {
+          p = periodContaining(p.end, s);
+          expect(periodAt(day, s, k), p, reason: '$reason, offset $k');
+        }
+        p = periodContaining(day, s);
+        for (int k = -1; k >= -3; k--) {
+          p = periodContaining(p.start.addDays(-1), s);
+          expect(periodAt(day, s, k), p, reason: '$reason, offset $k');
+        }
+      }
+    });
+
     test('periodsFrom starts with the start date\'s period and runs '
         'consecutively to the one containing the day', () {
       for (int seed = base; seed < base + casesPerProperty; seed++) {
@@ -385,6 +405,34 @@ void main() {
         expect(s.remaining, s.available - s.spent, reason: reason);
         expect(s.progress.numerator, s.spent.minorUnits, reason: reason);
         expect(s.progress.denominator, s.available.minorUnits, reason: reason);
+      }
+    });
+
+    test('the entries are what spending counts, row by row', () {
+      for (int seed = base; seed < base + casesPerProperty; seed++) {
+        final (:budget, :today, :transactions) = scenario(Random(seed));
+        final String reason = describe(seed, budget, today);
+        final LocalDateRange period = periodContaining(
+          today,
+          budget.periodStartDay,
+        );
+        final List<BudgetEntry> entries = entriesIn(
+          period,
+          budget,
+          transactions,
+          lookup,
+          excluded: excludedRow,
+        );
+        Money total = Money.zero(budget.amount.currencyCode);
+        for (final BudgetEntry e in entries) {
+          expect(period.contains(e.transaction.date), isTrue, reason: reason);
+          total -= e.split?.amount ?? e.transaction.amount;
+        }
+        expect(
+          total,
+          spentIn(period, budget, transactions, lookup, excluded: excludedRow),
+          reason: reason,
+        );
       }
     });
 

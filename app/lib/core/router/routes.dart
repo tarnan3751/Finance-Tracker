@@ -5,6 +5,7 @@
 /// |---|---|
 /// | Accounts | `/accounts`, `/accounts/new`, `/accounts/linked-banks`, `/accounts/:id`, `/accounts/:id/edit` |
 /// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/:id` |
+/// | Budgets | `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions` |
 /// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
@@ -22,6 +23,9 @@ import 'package:finance_tracker/features/accounts/presentation/account_editor_sc
 import 'package:finance_tracker/features/accounts/presentation/accounts_screen.dart';
 import 'package:finance_tracker/features/auth/presentation/register_screen.dart';
 import 'package:finance_tracker/features/auth/presentation/sign_in_screen.dart';
+import 'package:finance_tracker/features/budgets/presentation/budget_detail_screen.dart';
+import 'package:finance_tracker/features/budgets/presentation/budget_editor_screen.dart';
+import 'package:finance_tracker/features/budgets/presentation/budgets_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/categories_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/category_editor_screen.dart';
 import 'package:finance_tracker/features/items/presentation/items_screen.dart';
@@ -35,7 +39,7 @@ import 'package:go_router/go_router.dart';
 
 part 'routes.g.dart';
 
-/// The shell around the three tabs.
+/// The shell around the four tabs.
 @TypedStatefulShellRoute<AppShellRoute>(
   branches: <TypedStatefulShellBranch<StatefulShellBranchData>>[
     TypedStatefulShellBranch<AccountsBranch>(
@@ -63,6 +67,22 @@ part 'routes.g.dart';
           routes: <TypedRoute<RouteData>>[
             TypedGoRoute<NewTransactionRoute>(path: 'new'),
             TypedGoRoute<TransactionRoute>(path: ':id'),
+          ],
+        ),
+      ],
+    ),
+    TypedStatefulShellBranch<BudgetsBranch>(
+      routes: <TypedRoute<RouteData>>[
+        TypedGoRoute<BudgetsRoute>(
+          path: '/budgets',
+          routes: <TypedRoute<RouteData>>[
+            TypedGoRoute<NewBudgetRoute>(path: 'new'),
+            TypedGoRoute<EditBudgetRoute>(
+              path: ':id',
+              routes: <TypedRoute<RouteData>>[
+                TypedGoRoute<BudgetTransactionsRoute>(path: 'transactions'),
+              ],
+            ),
           ],
         ),
       ],
@@ -118,6 +138,11 @@ class AccountsBranch extends StatefulShellBranchData {
 /// The Transactions tab's branch.
 class TransactionsBranch extends StatefulShellBranchData {
   const TransactionsBranch();
+}
+
+/// The Budgets tab's branch.
+class BudgetsBranch extends StatefulShellBranchData {
+  const BudgetsBranch();
 }
 
 /// The Settings tab's branch.
@@ -205,6 +230,47 @@ class TransactionRoute extends GoRouteData with $TransactionRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       TransactionEditorScreen(transactionId: id);
+}
+
+/// `/budgets`: the budgets of the selected period.
+class BudgetsRoute extends GoRouteData with $BudgetsRoute {
+  const BudgetsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const BudgetsScreen();
+}
+
+/// `/budgets/new`: the editor of a new budget.
+class NewBudgetRoute extends GoRouteData with $NewBudgetRoute {
+  const NewBudgetRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const BudgetEditorScreen();
+}
+
+/// `/budgets/:id`: the editor of an existing budget.
+class EditBudgetRoute extends GoRouteData with $EditBudgetRoute {
+  const EditBudgetRoute(this.id);
+
+  final String id;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      BudgetEditorScreen(budgetId: id);
+}
+
+/// `/budgets/:id/transactions`: what a budget counts in the selected period.
+class BudgetTransactionsRoute extends GoRouteData
+    with $BudgetTransactionsRoute {
+  const BudgetTransactionsRoute(this.id);
+
+  final String id;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      BudgetDetailScreen(budgetId: id);
 }
 
 /// `/settings`: the settings screen.

@@ -16,6 +16,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navTransactions => 'Transactions';
 
   @override
+  String get navBudgets => 'Budgets';
+
+  @override
   String get navSettings => 'Settings';
 
   @override
@@ -1597,4 +1600,199 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoriesMoreOptions => 'More options';
+
+  @override
+  String get budgetsEmptyHeadline => 'No budgets yet';
+
+  @override
+  String get budgetsEmptyBody =>
+      'A budget sets how much to spend on a category each month and shows how far along you are.';
+
+  @override
+  String get budgetAdd => 'Add budget';
+
+  @override
+  String get budgetPeriodPrevious => 'Previous period';
+
+  @override
+  String get budgetPeriodNext => 'Next period';
+
+  @override
+  String get budgetPeriodCurrent => 'This period';
+
+  @override
+  String budgetPeriodsAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count periods ago',
+      one: 'Last period',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String budgetPeriodsAhead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'In $count periods',
+      one: 'Next period',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String budgetPeriodRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String budgetPeriodShown(String period) {
+    return 'Showing $period';
+  }
+
+  @override
+  String get budgetDeletedCategory => 'Deleted category';
+
+  @override
+  String budgetGroupIncludes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Includes $count categories',
+      one: 'Includes 1 category',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String budgetAmountCarried(String amount, String carry) {
+    return '$amount + $carry carried';
+  }
+
+  @override
+  String budgetAmountDeficit(String amount, String carry) {
+    return '$amount − $carry carried';
+  }
+
+  @override
+  String budgetPercent(int percent) {
+    return '$percent %';
+  }
+
+  @override
+  String get budgetNothingAvailable => 'Nothing available';
+
+  @override
+  String budgetSpent(String amount) {
+    return '$amount spent';
+  }
+
+  @override
+  String budgetLeft(String amount) {
+    return '$amount left';
+  }
+
+  @override
+  String budgetOver(String amount) {
+    return '$amount over';
+  }
+
+  @override
+  String budgetOnPace(String amount) {
+    return 'On pace: about $amount by the end';
+  }
+
+  @override
+  String budgetProjectedOver(String amount) {
+    return 'Projected over by $amount';
+  }
+
+  @override
+  String budgetAvailable(String amount) {
+    return '$amount available';
+  }
+
+  @override
+  String budgetThresholdReached(int percent) {
+    return '$percent % reached';
+  }
+
+  @override
+  String budgetProgressSemantics(
+    String name,
+    int percent,
+    String available,
+    String remaining,
+  ) {
+    return '$name: $percent percent of $available spent, $remaining left';
+  }
+
+  @override
+  String budgetProgressOverSemantics(
+    String name,
+    int percent,
+    String available,
+    String over,
+  ) {
+    return '$name: $percent percent of $available spent, $over over';
+  }
+
+  @override
+  String budgetProgressNothingSemantics(String name, String spent) {
+    return '$name: $spent spent, nothing available';
+  }
+
+  @override
+  String get budgetNewTitle => 'New budget';
+
+  @override
+  String get budgetEditTitle => 'Edit budget';
+
+  @override
+  String get budgetNotFound => 'This budget no longer exists.';
+
+  @override
+  String get budgetDeleted => 'Budget deleted';
+
+  @override
+  String get budgetCategory => 'Category';
+
+  @override
+  String get budgetChooseCategory => 'Choose a category';
+
+  @override
+  String get budgetCategoryCaption =>
+      'A category with categories under it budgets its whole group.';
+
+  @override
+  String get budgetAmount => 'Amount per period';
+
+  @override
+  String get budgetStartDay => 'Period starts on day';
+
+  @override
+  String get budgetStartDayHelper =>
+      '1 to 28: each period starts on this day of the month';
+
+  @override
+  String get budgetStartDayInvalid => 'Enter a day from 1 to 28';
+
+  @override
+  String get budgetRollover => 'Carry over';
+
+  @override
+  String get budgetRolloverCaption =>
+      'What is left at the end of a period, or overspent, carries into the next.';
+
+  @override
+  String get budgetStartDate => 'First period';
+
+  @override
+  String get budgetStartDateCaption =>
+      'Carry-over counts from this period. It can start earlier, but no later than the current period.';
+
+  @override
+  String get budgetTransactionsEmpty => 'Nothing counted in this period';
 }

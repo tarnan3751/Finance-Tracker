@@ -106,6 +106,12 @@ abstract class AppLocalizations {
   /// **'Transactions'**
   String get navTransactions;
 
+  /// Label of the Budgets tab in the bottom navigation bar, and the title of the Budgets screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets'**
+  String get navBudgets;
+
   /// Label of the Settings tab in the bottom navigation bar, and the title of the Settings screen.
   ///
   /// In en, this message translates to:
@@ -2690,6 +2696,268 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More options'**
   String get categoriesMoreOptions;
+
+  /// Headline of the Budgets screen when there is no budget.
+  ///
+  /// In en, this message translates to:
+  /// **'No budgets yet'**
+  String get budgetsEmptyHeadline;
+
+  /// Body of the Budgets screen when there is no budget.
+  ///
+  /// In en, this message translates to:
+  /// **'A budget sets how much to spend on a category each month and shows how far along you are.'**
+  String get budgetsEmptyBody;
+
+  /// Button that opens the editor of a new budget.
+  ///
+  /// In en, this message translates to:
+  /// **'Add budget'**
+  String get budgetAdd;
+
+  /// Tooltip of the period selector's button that shows the period before.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous period'**
+  String get budgetPeriodPrevious;
+
+  /// Tooltip of the period selector's button that shows the period after.
+  ///
+  /// In en, this message translates to:
+  /// **'Next period'**
+  String get budgetPeriodNext;
+
+  /// The period selector's label for the current period, and its button that returns to it.
+  ///
+  /// In en, this message translates to:
+  /// **'This period'**
+  String get budgetPeriodCurrent;
+
+  /// The period selector's label for a period before the current one.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Last period} other{{count} periods ago}}'**
+  String budgetPeriodsAgo(int count);
+
+  /// The period selector's label for a period after the current one.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Next period} other{In {count} periods}}'**
+  String budgetPeriodsAhead(int count);
+
+  /// A budget period's first and last days.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String budgetPeriodRange(String start, String end);
+
+  /// What a screen reader says for the period selector's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing {period}'**
+  String budgetPeriodShown(String period);
+
+  /// The name shown for a budget whose category has been deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted category'**
+  String get budgetDeletedCategory;
+
+  /// Under a budget on a parent category: how many categories its group includes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Includes 1 category} other{Includes {count} categories}}'**
+  String budgetGroupIncludes(int count);
+
+  /// A budget's amount and the surplus carried into the period.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} + {carry} carried'**
+  String budgetAmountCarried(String amount, String carry);
+
+  /// A budget's amount less the overspending carried into the period.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} − {carry} carried'**
+  String budgetAmountDeficit(String amount, String carry);
+
+  /// How much of what is available has been spent, in percent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} %'**
+  String budgetPercent(int percent);
+
+  /// Shown instead of a percent when a budget has nothing available in the period.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing available'**
+  String get budgetNothingAvailable;
+
+  /// What was spent against a budget in the period.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} spent'**
+  String budgetSpent(String amount);
+
+  /// What is left of a budget in the period.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} left'**
+  String budgetLeft(String amount);
+
+  /// How much spending is past what the budget had available.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} over'**
+  String budgetOver(String amount);
+
+  /// The projection of a budget's spending to the end of the period, when it stays within what is available.
+  ///
+  /// In en, this message translates to:
+  /// **'On pace: about {amount} by the end'**
+  String budgetOnPace(String amount);
+
+  /// The projection of a budget's spending, when it ends above what is available.
+  ///
+  /// In en, this message translates to:
+  /// **'Projected over by {amount}'**
+  String budgetProjectedOver(String amount);
+
+  /// What a future period of a budget will have available.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} available'**
+  String budgetAvailable(String amount);
+
+  /// Badge on a budget: the highest alert threshold its spending has reached in the period.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} % reached'**
+  String budgetThresholdReached(int percent);
+
+  /// What a screen reader says for a budget's progress bar.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {percent} percent of {available} spent, {remaining} left'**
+  String budgetProgressSemantics(
+    String name,
+    int percent,
+    String available,
+    String remaining,
+  );
+
+  /// What a screen reader says for the progress bar of a budget that is over.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {percent} percent of {available} spent, {over} over'**
+  String budgetProgressOverSemantics(
+    String name,
+    int percent,
+    String available,
+    String over,
+  );
+
+  /// What a screen reader says for the progress bar of a budget with nothing available.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {spent} spent, nothing available'**
+  String budgetProgressNothingSemantics(String name, String spent);
+
+  /// Title of the editor of a new budget.
+  ///
+  /// In en, this message translates to:
+  /// **'New budget'**
+  String get budgetNewTitle;
+
+  /// Title of the editor of an existing budget, and the tooltip of the button that opens it.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit budget'**
+  String get budgetEditTitle;
+
+  /// Shown when a budget being viewed or edited has been deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'This budget no longer exists.'**
+  String get budgetNotFound;
+
+  /// Snack bar after a budget is deleted, with an Undo action.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget deleted'**
+  String get budgetDeleted;
+
+  /// Label of the budget editor's category field.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get budgetCategory;
+
+  /// Placeholder of the budget editor's category field, and its error when none is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category'**
+  String get budgetChooseCategory;
+
+  /// Under the budget editor's category field.
+  ///
+  /// In en, this message translates to:
+  /// **'A category with categories under it budgets its whole group.'**
+  String get budgetCategoryCaption;
+
+  /// Label of the budget editor's amount field.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount per period'**
+  String get budgetAmount;
+
+  /// Label of the budget editor's period start day field.
+  ///
+  /// In en, this message translates to:
+  /// **'Period starts on day'**
+  String get budgetStartDay;
+
+  /// Helper text of the budget editor's period start day field.
+  ///
+  /// In en, this message translates to:
+  /// **'1 to 28: each period starts on this day of the month'**
+  String get budgetStartDayHelper;
+
+  /// Error of the budget editor's period start day field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a day from 1 to 28'**
+  String get budgetStartDayInvalid;
+
+  /// Label of the budget editor's rollover switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Carry over'**
+  String get budgetRollover;
+
+  /// Under the budget editor's rollover switch.
+  ///
+  /// In en, this message translates to:
+  /// **'What is left at the end of a period, or overspent, carries into the next.'**
+  String get budgetRolloverCaption;
+
+  /// Label of the budget editor's start date field.
+  ///
+  /// In en, this message translates to:
+  /// **'First period'**
+  String get budgetStartDate;
+
+  /// Under the budget editor's start date field.
+  ///
+  /// In en, this message translates to:
+  /// **'Carry-over counts from this period. It can start earlier, but no later than the current period.'**
+  String get budgetStartDateCaption;
+
+  /// The budget detail's list when no transaction counts in the period.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing counted in this period'**
+  String get budgetTransactionsEmpty;
 }
 
 class _AppLocalizationsDelegate

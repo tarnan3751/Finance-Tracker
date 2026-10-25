@@ -1,4 +1,4 @@
-// The three-tab shell: where it opens, the root redirect, switching tabs, and the flavor
+// The four-tab shell: where it opens, the root redirect, switching tabs, and the flavor
 // banner (in dev and demo a strip between the status bar and the app, absent in prod).
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/router/app_shell.dart';
@@ -30,7 +30,7 @@ void main() {
     expect(find.widgetWithText(AppBar, 'Accounts'), findsOneWidget);
   });
 
-  testWidgets('the navigation bar switches between the three tabs', (
+  testWidgets('the navigation bar switches between the four tabs', (
     tester,
   ) async {
     await pumpApp(tester);
@@ -46,13 +46,22 @@ void main() {
       1,
     );
 
+    await tester.tap(find.widgetWithText(NavigationDestination, 'Budgets'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'Budgets'), findsOneWidget);
+    expect(find.text('No budgets yet'), findsOneWidget);
+    expect(
+      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+      2,
+    );
+
     await tester.tap(find.widgetWithText(NavigationDestination, 'Settings'));
     await tester.pumpAndSettle();
     expect(find.widgetWithText(AppBar, 'Settings'), findsOneWidget);
     expect(find.text('Appearance'), findsOneWidget);
     expect(
       tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-      2,
+      3,
     );
 
     await tester.tap(find.widgetWithText(NavigationDestination, 'Accounts'));

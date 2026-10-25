@@ -27,6 +27,7 @@ Widget _device(
 const Map<String, String> _tabs = {
   'accounts': '/accounts',
   'transactions': '/transactions',
+  'budgets': '/budgets',
   'settings': '/settings',
 };
 

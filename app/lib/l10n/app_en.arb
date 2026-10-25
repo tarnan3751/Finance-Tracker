@@ -8,6 +8,10 @@
   "@navTransactions": {
     "description": "Label of the Transactions tab in the bottom navigation bar, and the title of the Transactions screen."
   },
+  "navBudgets": "Budgets",
+  "@navBudgets": {
+    "description": "Label of the Budgets tab in the bottom navigation bar, and the title of the Budgets screen."
+  },
   "navSettings": "Settings",
   "@navSettings": {
     "description": "Label of the Settings tab in the bottom navigation bar, and the title of the Settings screen."
@@ -2219,5 +2223,321 @@
   "categoriesMoreOptions": "More options",
   "@categoriesMoreOptions": {
     "description": "Tooltip of the categories screen's overflow menu button."
+  },
+  "budgetsEmptyHeadline": "No budgets yet",
+  "@budgetsEmptyHeadline": {
+    "description": "Headline of the Budgets screen when there is no budget."
+  },
+  "budgetsEmptyBody": "A budget sets how much to spend on a category each month and shows how far along you are.",
+  "@budgetsEmptyBody": {
+    "description": "Body of the Budgets screen when there is no budget."
+  },
+  "budgetAdd": "Add budget",
+  "@budgetAdd": {
+    "description": "Button that opens the editor of a new budget."
+  },
+  "budgetPeriodPrevious": "Previous period",
+  "@budgetPeriodPrevious": {
+    "description": "Tooltip of the period selector's button that shows the period before."
+  },
+  "budgetPeriodNext": "Next period",
+  "@budgetPeriodNext": {
+    "description": "Tooltip of the period selector's button that shows the period after."
+  },
+  "budgetPeriodCurrent": "This period",
+  "@budgetPeriodCurrent": {
+    "description": "The period selector's label for the current period, and its button that returns to it."
+  },
+  "budgetPeriodsAgo": "{count, plural, =1{Last period} other{{count} periods ago}}",
+  "@budgetPeriodsAgo": {
+    "description": "The period selector's label for a period before the current one.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "budgetPeriodsAhead": "{count, plural, =1{Next period} other{In {count} periods}}",
+  "@budgetPeriodsAhead": {
+    "description": "The period selector's label for a period after the current one.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "budgetPeriodRange": "{start} – {end}",
+  "@budgetPeriodRange": {
+    "description": "A budget period's first and last days.",
+    "placeholders": {
+      "start": {
+        "type": "String",
+        "example": "Oct 1"
+      },
+      "end": {
+        "type": "String",
+        "example": "Oct 31, 2026"
+      }
+    }
+  },
+  "budgetPeriodShown": "Showing {period}",
+  "@budgetPeriodShown": {
+    "description": "What a screen reader says for the period selector's label.",
+    "placeholders": {
+      "period": {
+        "type": "String",
+        "example": "Oct 1 – Oct 31, 2026"
+      }
+    }
+  },
+  "budgetDeletedCategory": "Deleted category",
+  "@budgetDeletedCategory": {
+    "description": "The name shown for a budget whose category has been deleted."
+  },
+  "budgetGroupIncludes": "{count, plural, =1{Includes 1 category} other{Includes {count} categories}}",
+  "@budgetGroupIncludes": {
+    "description": "Under a budget on a parent category: how many categories its group includes.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "budgetAmountCarried": "{amount} + {carry} carried",
+  "@budgetAmountCarried": {
+    "description": "A budget's amount and the surplus carried into the period.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$500.00"
+      },
+      "carry": {
+        "type": "String",
+        "example": "$42.00"
+      }
+    }
+  },
+  "budgetAmountDeficit": "{amount} − {carry} carried",
+  "@budgetAmountDeficit": {
+    "description": "A budget's amount less the overspending carried into the period.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$500.00"
+      },
+      "carry": {
+        "type": "String",
+        "example": "$42.00"
+      }
+    }
+  },
+  "budgetPercent": "{percent} %",
+  "@budgetPercent": {
+    "description": "How much of what is available has been spent, in percent.",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "82"
+      }
+    }
+  },
+  "budgetNothingAvailable": "Nothing available",
+  "@budgetNothingAvailable": {
+    "description": "Shown instead of a percent when a budget has nothing available in the period."
+  },
+  "budgetSpent": "{amount} spent",
+  "@budgetSpent": {
+    "description": "What was spent against a budget in the period.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$410.00"
+      }
+    }
+  },
+  "budgetLeft": "{amount} left",
+  "@budgetLeft": {
+    "description": "What is left of a budget in the period.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$90.00"
+      }
+    }
+  },
+  "budgetOver": "{amount} over",
+  "@budgetOver": {
+    "description": "How much spending is past what the budget had available.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$60.00"
+      }
+    }
+  },
+  "budgetOnPace": "On pace: about {amount} by the end",
+  "@budgetOnPace": {
+    "description": "The projection of a budget's spending to the end of the period, when it stays within what is available.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$410.00"
+      }
+    }
+  },
+  "budgetProjectedOver": "Projected over by {amount}",
+  "@budgetProjectedOver": {
+    "description": "The projection of a budget's spending, when it ends above what is available.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$60.00"
+      }
+    }
+  },
+  "budgetAvailable": "{amount} available",
+  "@budgetAvailable": {
+    "description": "What a future period of a budget will have available.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$542.00"
+      }
+    }
+  },
+  "budgetThresholdReached": "{percent} % reached",
+  "@budgetThresholdReached": {
+    "description": "Badge on a budget: the highest alert threshold its spending has reached in the period.",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "80"
+      }
+    }
+  },
+  "budgetProgressSemantics": "{name}: {percent} percent of {available} spent, {remaining} left",
+  "@budgetProgressSemantics": {
+    "description": "What a screen reader says for a budget's progress bar.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Groceries"
+      },
+      "percent": {
+        "type": "int",
+        "example": "82"
+      },
+      "available": {
+        "type": "String",
+        "example": "$500.00"
+      },
+      "remaining": {
+        "type": "String",
+        "example": "$90.00"
+      }
+    }
+  },
+  "budgetProgressOverSemantics": "{name}: {percent} percent of {available} spent, {over} over",
+  "@budgetProgressOverSemantics": {
+    "description": "What a screen reader says for the progress bar of a budget that is over.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Groceries"
+      },
+      "percent": {
+        "type": "int",
+        "example": "112"
+      },
+      "available": {
+        "type": "String",
+        "example": "$500.00"
+      },
+      "over": {
+        "type": "String",
+        "example": "$60.00"
+      }
+    }
+  },
+  "budgetProgressNothingSemantics": "{name}: {spent} spent, nothing available",
+  "@budgetProgressNothingSemantics": {
+    "description": "What a screen reader says for the progress bar of a budget with nothing available.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Groceries"
+      },
+      "spent": {
+        "type": "String",
+        "example": "$20.00"
+      }
+    }
+  },
+  "budgetNewTitle": "New budget",
+  "@budgetNewTitle": {
+    "description": "Title of the editor of a new budget."
+  },
+  "budgetEditTitle": "Edit budget",
+  "@budgetEditTitle": {
+    "description": "Title of the editor of an existing budget, and the tooltip of the button that opens it."
+  },
+  "budgetNotFound": "This budget no longer exists.",
+  "@budgetNotFound": {
+    "description": "Shown when a budget being viewed or edited has been deleted."
+  },
+  "budgetDeleted": "Budget deleted",
+  "@budgetDeleted": {
+    "description": "Snack bar after a budget is deleted, with an Undo action."
+  },
+  "budgetCategory": "Category",
+  "@budgetCategory": {
+    "description": "Label of the budget editor's category field."
+  },
+  "budgetChooseCategory": "Choose a category",
+  "@budgetChooseCategory": {
+    "description": "Placeholder of the budget editor's category field, and its error when none is chosen."
+  },
+  "budgetCategoryCaption": "A category with categories under it budgets its whole group.",
+  "@budgetCategoryCaption": {
+    "description": "Under the budget editor's category field."
+  },
+  "budgetAmount": "Amount per period",
+  "@budgetAmount": {
+    "description": "Label of the budget editor's amount field."
+  },
+  "budgetStartDay": "Period starts on day",
+  "@budgetStartDay": {
+    "description": "Label of the budget editor's period start day field."
+  },
+  "budgetStartDayHelper": "1 to 28: each period starts on this day of the month",
+  "@budgetStartDayHelper": {
+    "description": "Helper text of the budget editor's period start day field."
+  },
+  "budgetStartDayInvalid": "Enter a day from 1 to 28",
+  "@budgetStartDayInvalid": {
+    "description": "Error of the budget editor's period start day field."
+  },
+  "budgetRollover": "Carry over",
+  "@budgetRollover": {
+    "description": "Label of the budget editor's rollover switch."
+  },
+  "budgetRolloverCaption": "What is left at the end of a period, or overspent, carries into the next.",
+  "@budgetRolloverCaption": {
+    "description": "Under the budget editor's rollover switch."
+  },
+  "budgetStartDate": "First period",
+  "@budgetStartDate": {
+    "description": "Label of the budget editor's start date field."
+  },
+  "budgetStartDateCaption": "Carry-over counts from this period. It can start earlier, but no later than the current period.",
+  "@budgetStartDateCaption": {
+    "description": "Under the budget editor's start date field."
+  },
+  "budgetTransactionsEmpty": "Nothing counted in this period",
+  "@budgetTransactionsEmpty": {
+    "description": "The budget detail's list when no transaction counts in the period."
   }
 }

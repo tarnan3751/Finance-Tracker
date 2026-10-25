@@ -143,6 +143,27 @@ Money spentIn(
   return spent;
 }
 
+/// One row a budget counts: [transaction] whole when [split] is null, else that one
+/// split of it.
+typedef BudgetEntry = ({Transaction transaction, TransactionSplit? split});
+
+/// The rows [spentIn] counts against [budget] in [period], in [transactions]' order: a
+/// transaction whole, or each of its splits that qualifies.
+List<BudgetEntry> entriesIn(
+  LocalDateRange period,
+  Budget budget,
+  Iterable<Transaction> transactions,
+  CategoryLookup lookup, {
+  TransactionExclusion excluded = _excludeNone,
+}) {
+  final Set<String> ids = budgetCategoryIds(budget.categoryId, lookup);
+  return [
+    for (final Transaction t in transactions)
+      if (period.contains(t.date))
+        ..._entries(t, budget, ids, lookup, excluded),
+  ];
+}
+
 /// Where [budget] stands on [today] (the device zone's local date), from [transactions]
 /// looked up in [lookup] (the live categories); [excluded] rows are left out.
 /// [transactions] must hold every transaction dated from the first period's start through
@@ -222,8 +243,7 @@ Set<String> budgetCategoryIds(String categoryId, CategoryLookup lookup) {
   return ids;
 }
 
-// What [t] adds to [budget]'s spending: zero unless it is live, not excluded, in the
-// budget's currency and in one of [ids].
+// What [t] adds to [budget]'s spending: its entries' amounts, negated.
 Money _contribution(
   Transaction t,
   Budget budget,
@@ -231,20 +251,38 @@ Money _contribution(
   CategoryLookup lookup,
   TransactionExclusion excluded,
 ) {
+  Money spent = Money.zero(budget.amount.currencyCode);
+  for (final BudgetEntry e in _entries(t, budget, ids, lookup, excluded)) {
+    spent -= e.split?.amount ?? e.transaction.amount;
+  }
+  return spent;
+}
+
+// What of [t] counts against [budget]: nothing unless it is live, not excluded, in the
+// budget's currency and in one of [ids]; then each split in [ids] when it has splits,
+// else the whole transaction.
+Iterable<BudgetEntry> _entries(
+  Transaction t,
+  Budget budget,
+  Set<String> ids,
+  CategoryLookup lookup,
+  TransactionExclusion excluded,
+) sync* {
   final String currency = budget.amount.currencyCode;
-  Money spent = Money.zero(currency);
   if (t.deletedAt != null || t.amount.currencyCode != currency || excluded(t)) {
-    return spent;
+    return;
   }
   if (t.splits.isNotEmpty) {
     for (final TransactionSplit split in t.splits) {
       if (ids.contains(split.categoryId) &&
           split.amount.currencyCode == currency) {
-        spent -= split.amount;
+        yield (transaction: t, split: split);
       }
     }
-    return spent;
+    return;
   }
   final Category? category = effectiveCategory(t, lookup);
-  return category != null && ids.contains(category.id) ? -t.amount : spent;
+  if (category != null && ids.contains(category.id)) {
+    yield (transaction: t, split: null);
+  }
 }

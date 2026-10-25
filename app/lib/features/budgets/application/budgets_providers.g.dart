@@ -101,6 +101,263 @@ final class BudgetStatusesProvider
 
 String _$budgetStatusesHash() => r'ff86f06782a9e5ec99e3a2660496f60c4070cad2';
 
+/// Which period the budgets screens show: 0 for each budget's current period, -1 for the
+/// one before, 1 for the one after.
+
+@ProviderFor(BudgetPeriodOffset)
+final budgetPeriodOffsetProvider = BudgetPeriodOffsetProvider._();
+
+/// Which period the budgets screens show: 0 for each budget's current period, -1 for the
+/// one before, 1 for the one after.
+final class BudgetPeriodOffsetProvider
+    extends $NotifierProvider<BudgetPeriodOffset, int> {
+  /// Which period the budgets screens show: 0 for each budget's current period, -1 for the
+  /// one before, 1 for the one after.
+  BudgetPeriodOffsetProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'budgetPeriodOffsetProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$budgetPeriodOffsetHash();
+
+  @$internal
+  @override
+  BudgetPeriodOffset create() => BudgetPeriodOffset();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(int value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<int>(value),
+    );
+  }
+}
+
+String _$budgetPeriodOffsetHash() =>
+    r'75fc6fb8d42261a42f98534ad6eb96d74b375019';
+
+/// Which period the budgets screens show: 0 for each budget's current period, -1 for the
+/// one before, 1 for the one after.
+
+abstract class _$BudgetPeriodOffset extends $Notifier<int> {
+  int build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<int, int>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<int, int>,
+              int,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// Every live budget's status in the period [offset] periods after its current one, in
+/// [budgets]' order: today's status for 0, else the status on that period's last day.
+/// It reads one query, from the earliest period a status needs (the first period with
+/// rollover, else the shown one) to the latest shown period's end.
+
+@ProviderFor(budgetPeriodStatuses)
+final budgetPeriodStatusesProvider = BudgetPeriodStatusesFamily._();
+
+/// Every live budget's status in the period [offset] periods after its current one, in
+/// [budgets]' order: today's status for 0, else the status on that period's last day.
+/// It reads one query, from the earliest period a status needs (the first period with
+/// rollover, else the shown one) to the latest shown period's end.
+
+final class BudgetPeriodStatusesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<BudgetStatus>>,
+          List<BudgetStatus>,
+          Stream<List<BudgetStatus>>
+        >
+    with
+        $FutureModifier<List<BudgetStatus>>,
+        $StreamProvider<List<BudgetStatus>> {
+  /// Every live budget's status in the period [offset] periods after its current one, in
+  /// [budgets]' order: today's status for 0, else the status on that period's last day.
+  /// It reads one query, from the earliest period a status needs (the first period with
+  /// rollover, else the shown one) to the latest shown period's end.
+  BudgetPeriodStatusesProvider._({
+    required BudgetPeriodStatusesFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'budgetPeriodStatusesProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$budgetPeriodStatusesHash();
+
+  @override
+  String toString() {
+    return r'budgetPeriodStatusesProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<List<BudgetStatus>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<BudgetStatus>> create(Ref ref) {
+    final argument = this.argument as int;
+    return budgetPeriodStatuses(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is BudgetPeriodStatusesProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$budgetPeriodStatusesHash() =>
+    r'76b191e57368a5b460fe49ccf64d8856377618f3';
+
+/// Every live budget's status in the period [offset] periods after its current one, in
+/// [budgets]' order: today's status for 0, else the status on that period's last day.
+/// It reads one query, from the earliest period a status needs (the first period with
+/// rollover, else the shown one) to the latest shown period's end.
+
+final class BudgetPeriodStatusesFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<List<BudgetStatus>>, int> {
+  BudgetPeriodStatusesFamily._()
+    : super(
+        retry: null,
+        name: r'budgetPeriodStatusesProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Every live budget's status in the period [offset] periods after its current one, in
+  /// [budgets]' order: today's status for 0, else the status on that period's last day.
+  /// It reads one query, from the earliest period a status needs (the first period with
+  /// rollover, else the shown one) to the latest shown period's end.
+
+  BudgetPeriodStatusesProvider call(int offset) =>
+      BudgetPeriodStatusesProvider._(argument: offset, from: this);
+
+  @override
+  String toString() => r'budgetPeriodStatusesProvider';
+}
+
+/// What budget [budgetId] counts in the period [offset] periods after its current one,
+/// newest first; empty when there is no such live budget.
+
+@ProviderFor(budgetPeriodEntries)
+final budgetPeriodEntriesProvider = BudgetPeriodEntriesFamily._();
+
+/// What budget [budgetId] counts in the period [offset] periods after its current one,
+/// newest first; empty when there is no such live budget.
+
+final class BudgetPeriodEntriesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<BudgetEntry>>,
+          List<BudgetEntry>,
+          Stream<List<BudgetEntry>>
+        >
+    with
+        $FutureModifier<List<BudgetEntry>>,
+        $StreamProvider<List<BudgetEntry>> {
+  /// What budget [budgetId] counts in the period [offset] periods after its current one,
+  /// newest first; empty when there is no such live budget.
+  BudgetPeriodEntriesProvider._({
+    required BudgetPeriodEntriesFamily super.from,
+    required (String, int) super.argument,
+  }) : super(
+         retry: null,
+         name: r'budgetPeriodEntriesProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$budgetPeriodEntriesHash();
+
+  @override
+  String toString() {
+    return r'budgetPeriodEntriesProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<List<BudgetEntry>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<BudgetEntry>> create(Ref ref) {
+    final argument = this.argument as (String, int);
+    return budgetPeriodEntries(ref, argument.$1, argument.$2);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is BudgetPeriodEntriesProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$budgetPeriodEntriesHash() =>
+    r'31aca4d74fbd4cd2fd3eb681688b08d99ca80155';
+
+/// What budget [budgetId] counts in the period [offset] periods after its current one,
+/// newest first; empty when there is no such live budget.
+
+final class BudgetPeriodEntriesFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<List<BudgetEntry>>, (String, int)> {
+  BudgetPeriodEntriesFamily._()
+    : super(
+        retry: null,
+        name: r'budgetPeriodEntriesProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// What budget [budgetId] counts in the period [offset] periods after its current one,
+  /// newest first; empty when there is no such live budget.
+
+  BudgetPeriodEntriesProvider call(String budgetId, int offset) =>
+      BudgetPeriodEntriesProvider._(argument: (budgetId, offset), from: this);
+
+  @override
+  String toString() => r'budgetPeriodEntriesProvider';
+}
+
 /// How long after the last change to the statuses the alerts are evaluated.
 
 @ProviderFor(budgetAlertDebounce)

@@ -63,6 +63,86 @@ Stream<List<BudgetStatus>> budgetStatuses(Ref ref) async* {
       );
 }
 
+/// Which period the budgets screens show: 0 for each budget's current period, -1 for the
+/// one before, 1 for the one after.
+@riverpod
+class BudgetPeriodOffset extends _$BudgetPeriodOffset {
+  @override
+  int build() => 0;
+
+  /// Shows the period [offset] periods after the current one.
+  void select(int offset) => state = offset;
+}
+
+/// Every live budget's status in the period [offset] periods after its current one, in
+/// [budgets]' order: today's status for 0, else the status on that period's last day.
+/// It reads one query, from the earliest period a status needs (the first period with
+/// rollover, else the shown one) to the latest shown period's end.
+@riverpod
+Stream<List<BudgetStatus>> budgetPeriodStatuses(Ref ref, int offset) async* {
+  final LocalDate today = ref.watch(todayProvider);
+  LocalDate dayFor(Budget b) => offset == 0
+      ? today
+      : periodAt(today, b.periodStartDay, offset).end.addDays(-1);
+  final List<Budget> budgets = await ref.watch(budgetsProvider.future);
+  final List<Category> categories = await ref.watch(categoriesProvider.future);
+  if (budgets.isEmpty) {
+    yield const [];
+    return;
+  }
+  final CategoryLookup lookup = categoryLookup(categories);
+  LocalDate? from;
+  LocalDate? to;
+  for (final Budget b in budgets) {
+    final LocalDateRange current = periodContaining(
+      dayFor(b),
+      b.periodStartDay,
+    );
+    final LocalDate first = periodContaining(
+      b.startDate,
+      b.periodStartDay,
+    ).start;
+    final LocalDate start = b.rollover && first.isBefore(current.start)
+        ? first
+        : current.start;
+    if (from == null || start.isBefore(from)) from = start;
+    if (to == null || current.end.isAfter(to)) to = current.end;
+  }
+  yield* ref
+      .watch(transactionRepositoryProvider)
+      .watch(TransactionQuery(range: LocalDateRange(from!, to!)))
+      .map(
+        (transactions) => [
+          for (final Budget b in budgets)
+            budgetStatus(b, dayFor(b), transactions, lookup),
+        ],
+      );
+}
+
+/// What budget [budgetId] counts in the period [offset] periods after its current one,
+/// newest first; empty when there is no such live budget.
+@riverpod
+Stream<List<BudgetEntry>> budgetPeriodEntries(
+  Ref ref,
+  String budgetId,
+  int offset,
+) async* {
+  final LocalDate today = ref.watch(todayProvider);
+  final List<Budget> budgets = await ref.watch(budgetsProvider.future);
+  final List<Category> categories = await ref.watch(categoriesProvider.future);
+  final Budget? budget = budgets.where((b) => b.id == budgetId).firstOrNull;
+  if (budget == null) {
+    yield const [];
+    return;
+  }
+  final CategoryLookup lookup = categoryLookup(categories);
+  final LocalDateRange period = periodAt(today, budget.periodStartDay, offset);
+  yield* ref
+      .watch(transactionRepositoryProvider)
+      .watch(TransactionQuery(range: period))
+      .map((transactions) => entriesIn(period, budget, transactions, lookup));
+}
+
 /// How long after the last change to the statuses the alerts are evaluated.
 @Riverpod(keepAlive: true)
 Duration budgetAlertDebounce(Ref ref) => const Duration(seconds: 1);

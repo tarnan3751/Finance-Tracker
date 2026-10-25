@@ -1,4 +1,4 @@
-/// The scaffold around the three tabs: the current branch's navigator above a Material 3
+/// The scaffold around the four tabs: the current branch's navigator above a Material 3
 /// `NavigationBar`. Only the selected branch is shown; the others keep their state.
 ///
 /// Each branch has its own `ScaffoldMessenger`, so a snack bar shown from a tab (Undo
@@ -102,6 +102,11 @@ class _AppShellState extends ConsumerState<AppShell> {
             icon: const Icon(Icons.receipt_long_outlined),
             selectedIcon: const Icon(Icons.receipt_long),
             label: l10n.navTransactions,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.account_balance_wallet_outlined),
+            selectedIcon: const Icon(Icons.account_balance_wallet),
+            label: l10n.navBudgets,
           ),
           NavigationDestination(
             icon: const Icon(Icons.settings_outlined),
