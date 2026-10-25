@@ -105,7 +105,7 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | The generated API client | `packages/api_client/` | `docs/reference/api.md` (Phase 2) |
 | The API contract | `api/openapi.yaml` | same |
 | Development server: auth, sync, the Plaid client (fake or Sandbox), the poll, webhooks, provisioning | `server/` | `docs/reference/server.md` |
-| Persona engine: demo seed, Sandbox custom users, injection batches | `tools/persona_engine/` (Phase 2) | `docs/reference/persona.md` |
+| Persona engine: demo seed, Sandbox custom users and their manifest | `tools/persona_engine/` (Phase 2) | `docs/reference/persona.md` |
 | Build: workspace, flavors, Android configuration, signing, R8 | `pubspec.yaml`, `app/android/`, `app/lib/core/config/` | `docs/reference/build.md` |
 | Testing and tools: gate, test runner, emulator harness, landing, scripts | `*/test/`, `app/integration_test/`, `tools/` | `docs/reference/testing-tools.md` (Phase 0) |
 

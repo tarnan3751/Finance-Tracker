@@ -5,9 +5,12 @@ The single source of synthesized financial life (`PLAN.md` §7.1). Code:
 `shared_models`. One persona, one seed and one window give one household, written three
 ways:
 
-1. the **demo seed** the demo flavor loads, with `source: demo` on every record;
-2. **Plaid Sandbox custom users**, one per institution, for `/sandbox/public_token/create`;
-3. **injection batches** for `/sandbox/transactions/create`, with a manifest.
+1. the **demo seed** the demo flavor loads, with `source: demo` on every record, with the
+   whole window;
+2. **Plaid Sandbox custom users**, one per institution, for `/sandbox/public_token/create`,
+   each carrying the newest history that fits one request;
+3. the **Sandbox manifest**, which says per Item what the custom user carries and what it
+   leaves out.
 
 The engine never calls Plaid. The development server's provisioning job provisions a
 persona into Sandbox from these outputs through the engine's Dart API, driven by
@@ -25,14 +28,16 @@ seed.household.transactions; // List<Transaction>, every one source: demo
 
 ```
 dart run persona_engine --persona <renter|family|student|small_business> --seed <int>
-    --output <dir> [--format demo|sandbox-user|injection|all] [--days 730]
+    --output <dir> [--format demo|sandbox-user|all] [--days 730]
     [--as-of 2026-10-24] [--no-interest-legs]
 ```
 
-The CLI writes into `<dir>/<persona>/`: `demo_seed.json`,
-`sandbox_user_<institution>.json`, `injection_<institution>.json` and
-`injection_manifest.json`. The window is the `--days` (1 to 730) ending on `--as-of`. The
-as-of date defaults to the goldens' date, never today: the engine reads no clock.
+The CLI writes into `<dir>/<persona>/`: `demo_seed.json` (`--format demo`), and
+`sandbox_user_<institution>.json` with `sandbox_manifest.json` (`--format sandbox-user`).
+The window is the `--days` (1 to 730) ending on `--as-of`: the persona's history, which the
+demo seed carries whole and a Sandbox custom user only as far as it fits (**What Sandbox
+receives**). The as-of date defaults to the goldens' date, never today: the engine reads
+no clock.
 
 ## Determinism
 
@@ -219,16 +224,53 @@ per https://plaid.com/docs/api/sandbox/#sandboxpublic_tokencreate):
   and investment accounts, money owed (positive) for cards and loans.
 - **Numbers.** Every number is written by `writeJson` from a `JsonDecimal`, whose text
   comes from `Money.toDecimalString()` or an integer scale. A `double` is refused.
-- **Limits.** At most ten accounts. At most 240 transactions (`customUserTransactionBudget`,
-  ten below Plaid's "approximately 250"). The compact form stays at or below 50,000 bytes
-  (Plaid: "approximately 55kb"); the files are written indented for review, and the size is
-  measured compact because that is what the provisioning job stringifies.
+- **Limits.** At most ten accounts, and at most `sandboxConfigByteBudget` (90,000) bytes
+  in the request (**What Sandbox receives**). The files are written indented for review;
+  the size is measured on what the request carries.
 
-**Which transactions go where** (`splitForSandbox`): per institution, every transaction on
-an account that rejects injection goes in the custom user. Student loan accounts reject it
-(`INVALID_ACCOUNT_ID`, per the `/sandbox/transactions/create` reference). Whole days, newest
-first, fill the rest of the budget. Everything older is injected. The two halves partition
-the institution's transactions.
+## What Sandbox receives
+
+A Sandbox Item's history is its custom user's transactions and nothing more. Two facts,
+verified against Sandbox on 2026-10-25 (`PLAN.md` §4), make it so:
+
+- `/sandbox/transactions/create` accepts rows dated up to two years back, but
+  `/transactions/sync` serves an injected row only when it is dated Plaid's today. Older
+  injected rows answer 200 and never arrive, so the engine writes no injection batches and
+  the provisioning job injects nothing. The developer menu still injects "a transaction
+  arriving now".
+- `/sandbox/public_token/create` refuses a request over 100,000 bytes (`INVALID_BODY`
+  "maximum content length 100000 bytes"). A configuration's rows two years old do arrive,
+  but a persona's whole two years do not fit: the family's Platypus history is about
+  286 KB compact.
+
+So each custom user carries **the newest whole days that fit** (`splitForSandbox`, with
+`sandboxUsers` supplying the measure). Per institution the candidates are its accounts'
+transactions (less the interest legs under `--no-interest-legs`). The cut takes the most
+newest days whose configuration stays within `sandboxConfigByteBudget`, 90,000 bytes, by a
+binary search over day boundaries (a configuration grows with every row). A day is kept or
+left out whole, so no day is half-recorded. The size is `sandboxRequestBytes`: the UTF-8
+length of the compact configuration written as a JSON string, the form
+`override_password` takes in the request. Escaping adds about 14 % (each quote gains a
+backslash), and the 10,000 bytes left under Plaid's limit hold the request's other fields
+(keys, institution, products, options), which come to under 1 KB. Rows are not shortened:
+the JSON is already compact, and the descriptions and fields are what Plaid reads.
+
+The cut depends only on the persona, the seed, the as-of date, the window and the budget.
+The older rows are left out: not injected, only counted in the manifest. At seed 1 over
+730 days the large Items carry about 600 rows (renter Platypus from 2026-03-09, 230 days;
+family Platypus from 2026-04-05, 203 days); the small Items (the family's Gingham and
+Tattersall, the student's Gingham) carry their whole history. The demo seed always
+carries the whole window, so features that need two years of bank history are exercised in
+the demo flavor, and in dev on the days Sandbox holds (`PLAN.md` §7.1).
+
+**Each Item is cut on its own.** A transfer whose legs sit on two of the household's Items
+(a loan payment from checking at another bank) can therefore reach Sandbox with one leg
+only, for the days before the shorter Item's first carried day. In the family at seed 1,
+the auto-loan payments received at Gingham and the mortgage payments received at
+Tattersall before 2026-04-05 are in Sandbox, while their outflows from the Platypus
+checking account are not, since Platypus carries from that day. This is deliberate: the
+loan Items keep their whole two years rather than every Item being cut to the shortest
+span. The demo seed keeps every pair.
 
 **The interest switch.** `--no-interest-legs` (`includeInterestLegs: false`) leaves card
 and loan interest charges out of the Sandbox outputs; the demo seed always has them.
@@ -238,38 +280,33 @@ credit or paypal, and account type loan with subtype student or mortgage." The p
 cards are subtype `credit card` and their auto loans `auto`, so Phase 3 should expect
 accrual only on the student loans and the mortgage, and none on the cards.
 
-## Injection batches
+## The manifest
 
-`injection_<institution>.json` holds the injected transactions in batches of at most ten
-(`date_transacted`, `date_posted`, `amount`, `description`, `iso_currency_code`, and
-`account`, the generator's account key, which the provisioning job maps to the Item's
-Plaid `account_id`). The batches run **newest first**, so an interrupted run leaves a
-shorter history with no gap. The brief first said oldest first; the coordinator changed it
-at the plan review.
-
-`injection_manifest.json` records the persona's `as_of` date, the date-shift rule and
-the pacing, and per Item the two file names and the counts (custom-user transactions,
-injected transactions, batches, estimated duration). The pacing is 35 seconds per Item:
-Plaid's rate-limit table lists `/sandbox/transactions/create` at 2 per minute per Item and
-50 per minute per client (https://plaid.com/docs/errors/rate-limit-exceeded/), documented
-and to be confirmed against Sandbox in Phase 3.
+`sandbox_manifest.json` (`sandboxManifest`) records the persona, the seed, the `as_of`
+date, `include_interest_legs`, the date-shift rule and `request_byte_budget`, and per Item:
+its institution and Plaid institution id, its `sandbox_user_file`,
+`custom_user_transactions` (the rows carried), `first_day_carried` (null when it carries
+none), `days_carried` (calendar days from that day through `as_of`, inclusive: the span
+Sandbox holds complete) and `transactions_left_out`. A provisioned Item's synced rows can be
+checked against it.
 
 ## Dates in Sandbox
 
 Every file holds the generator's dates, ending on the as-of date. Before any call, the
 provisioning job shifts **every date of every Item of the persona by one amount**:
 the Item creation date minus `as_of`. That covers the custom users' transaction,
-investment, holding and liability dates and every injection batch. The as-of date then
+investment, holding and liability dates. The as-of date then
 lands on the creation day, and the legs of a transfer between two Items stay on one date.
-The window is at most 730 days and ends on the as-of date, so every shifted date is within
-Plaid's "present date or up to 730 days in the past".
+The window is at most 730 days and ends on the as-of date; a row whose shifted date still
+falls outside Plaid's window when its Item is linked (the oldest day of a 730-day persona
+before 12:00 UTC) is dropped by the job and counted in `skipped` (`server.md`,
+**Provisioning**).
 
 The job generates at the engine's default as-of date (the goldens' date, 2026-10-24), so a
 provisioned persona is the committed `days730` fixtures moved by the shift, and takes the
 creation day as Plaid's today reckoned at UTC−12, a date never ahead of Plaid's in any
 zone (`PLAN.md` §12). `shiftSandboxUserDates(config, days)` moves every date of a custom
-user (the keys in `sandboxUserDateKeys`) and nothing else; the job shifts the injected
-transactions' dates itself.
+user (the keys in `sandboxUserDateKeys`) and nothing else.
 
 `PLAN.md` §7.1 says the custom users have `roll_dates_forward` on. That was changed at
 implementation, and the decision is recorded in §12. With the flag on, Plaid shifts each
@@ -286,8 +323,8 @@ persona keeps the Items aligned.
 - `days120/`: every output over 120 days, compared byte for byte;
 - `days730/`: the custom users and the manifest over the full window, compared byte for
   byte. These are the fixtures Phase 3 provisions;
-- `digests.json`: the FNV-1a 64 of every full-window output, so the large demo seed and
-  injection files are covered without being committed.
+- `digests.json`: the FNV-1a 64 of every full-window output, so the large demo seed is
+  covered without being committed.
 
 `tool/golden_set.dart` defines them, `test/determinism_test.dart` compares them, and
 `dart run tool/update_goldens.dart` (in the package) rewrites them. A golden changes only
@@ -305,10 +342,10 @@ under a tier A brief that says so (`CLAUDE.md`, **Tiers**).
 | `balance_test.dart` | Closure; transfer pairing; loans replayed month by month from their opening; positions are their opening plus their buys; depository accounts never end a day below zero |
 | `recurrence_test.dart` | Every expectation occurs once per scheduled date within tolerance, in range, with no extras; monthly subscriptions once a month |
 | `coverage_test.dart` | All 18 primary categories used; every code is Plaid v2; anomalies two or three a year, both kinds, each new merchant exactly once; weekly and seasonal shapes visible |
-| `sandbox_limits_test.dart`, `sandbox_output_test.dart` | The limits, the partition, no student-loan injection, signs, starting balances, the liability blocks (none on a mortgage or an auto loan, while the demo seed keeps both), newest-first batches, the interest switch, the date shift moving every date and nothing else |
+| `sandbox_limits_test.dart`, `sandbox_output_test.dart` | The limits, the partition, signs, starting balances, the liability blocks (none on a mortgage or an auto loan, while the demo seed keeps both), the cut (the newest whole days that fit, and one more day over the budget), the request-bytes measure, the manifest, the interest switch, the date shift moving every date and nothing else |
 | `provenance_test.dart` | Every record is `demo`, in the model and the JSON; no clock, `dart:math` or `double` in `lib/` |
 | `determinism_test.dart` | Same seed, same bytes; another seed differs; the goldens match |
-| `property_test.dart` | Every invariant (closure, pairing, dates, the depository floor, provenance, loans, positions, anomalies, the Sandbox limits) over 100 seeds per persona; and over 15 as-of dates from 2024 to 2030 (month ends, leap days, year ends, around a semester's disbursement) times windows of 1, 2, 7, 31, 120, 365 and 730 days, which also checks that the as-of state does not depend on the window |
+| `property_test.dart` | Every invariant (closure, pairing, dates, the depository floor, provenance, loans, positions, anomalies, the Sandbox limits) over 100 seeds per persona; and over 15 as-of dates from 2024 to 2030 (month ends, leap days, year ends, around a semester's disbursement) times windows of 1, 2, 7, 31, 120, 365 and 730 days, which also checks that the as-of state does not depend on the window; and the Sandbox outputs over 730 and 120 days, rendered twice byte-identically and within the request budget |
 | `cli_test.dart` | The command line's files and errors |
 
 ## Commands

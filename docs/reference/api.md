@@ -112,9 +112,11 @@ outbox; `reason` is free text for logs. `/accounts`, `/transactions`, `/liabilit
   that is not an object (`server.md`, **Webhooks**).
 - **Sandbox** (tag `sandbox`): `sandboxResetLogin`, `sandboxFireWebhook`,
   `sandboxCreateTransactions` (one to ten `SandboxTransaction`s, the amount in Plaid's
-  sign, positive is money out; dates today or up to 730 days back), and the
-  provisioning job `provisionPersona` and `getProvisionJob` (`ProvisionJob`, its
-  `progress` counters and `error`). Each is `409` `conflict` on a server that cannot drive
+  sign, positive is money out; dates from the UTC date minus 729 to Plaid's today at
+  UTC−12, of which Plaid serves only the rows dated its today), and the provisioning job
+  `provisionPersona` and `getProvisionJob` (`ProvisionJob`, its `progress` counters, of
+  which `batches_total` and `batches_sent` are always 0 since the job injects nothing,
+  and `error`). Each is `409` `conflict` on a server that cannot drive
   Sandbox, `404` for another user's Item or job.
 
 ## Errors

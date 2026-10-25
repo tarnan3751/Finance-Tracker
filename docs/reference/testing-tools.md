@@ -136,7 +136,7 @@ It takes about a minute and makes about twenty Plaid calls.
 (`docs/reference/server.md`, **Provisioning**). It signs in as the seed user
 (`SEED_USER_EMAIL` and `SEED_USER_PASSWORD` from the environment, else from
 `server/.env`), POSTs `/sandbox/provision`, and polls the job every 5 s, printing one
-progress line (`running  items 1/1  batches 3/8  skipped 0`), refreshing the access token
+progress line (`running  items 1/4  batches 0/0  skipped 0`; the job injects nothing, so the batches stay 0), refreshing the access token
 when it expires. It exits 0 when the job completes, 1 when it fails (with the job's
 error) or a request fails or gets no answer (with a `provision_persona:` message), 2 on
 a usage error. The server defaults to `http://localhost:8080/v1`.
