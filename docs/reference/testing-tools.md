@@ -32,7 +32,11 @@ The definition of green. Run after every change, at every commit of a series, by
    (`git status --porcelain`), so stale or newly generated localizations, `*.g.dart` or
    `*.freezed.dart` files, schema dumps or helpers that are not committed fail the gate.
 6. **tests**: `flutter test` or `dart test` in every package with a `test/` directory; a
-   package without one is skipped, and the gate fails if no package has tests.
+   package without one is skipped, and the gate fails if no package has tests. The
+   summary line gives each package's duration in seconds (`gate tests ok (<n> package(s):
+   app <s>s, server <s>s, ...)`), so a timeout under load can be put down to the package
+   that ran long (the convergence random run and the exhaustive tokenizer test are the
+   slow ones).
 7. **contract**: `tools/check_contract.sh` (below): the contract's structural check and
    the generated client's source hash.
 

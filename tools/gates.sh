@@ -17,7 +17,8 @@
 #                 (drift_dev schema dump, schema generate); then git diff --exit-code on the
 #                 package, and no untracked file in it (git status --porcelain), so a newly
 #                 generated file is caught too
-#   6. tests      flutter test (Flutter packages) or dart test (pure Dart packages)
+#   6. tests      flutter test (Flutter packages) or dart test (pure Dart packages); the
+#                 summary line gives each package's duration
 #   7. contract   tools/check_contract.sh, once it exists (Phase 2): the OpenAPI document
 #                 passes the structural check and the generated client is current (the
 #                 fakes and the server are checked against it by their own tests)
@@ -157,15 +158,17 @@ fi
 # The report keeps the last 200 lines, so the packages that passed come first and the
 # ones that failed last, each failed one led by its failing tests ("[E]" lines and the
 # "Failing tests:" block), so a failure is never cut off by a later package's output.
-: >"$scratch/tests-ok.txt"; : >"$scratch/tests-bad.txt"; bad=0; ran=0
+# The summary line gives each package's duration, so a timeout under load is attributable.
+: >"$scratch/tests-ok.txt"; : >"$scratch/tests-bad.txt"; bad=0; ran=0; durations=""
 for p in "${packages[@]}"; do
   [ -d "$p/test" ] || continue
-  ran=$((ran + 1)); one_ok=1
+  ran=$((ran + 1)); one_ok=1; one_started=$SECONDS
   if is_flutter "$p"; then
     (cd "$p" && $FLUTTER test --no-pub) >"$scratch/tests-one.txt" 2>&1 || one_ok=0
   else
     (cd "$p" && $DART test) >"$scratch/tests-one.txt" 2>&1 || one_ok=0
   fi
+  durations="${durations:+$durations, }$p $((SECONDS - one_started))s"
   if [ $one_ok -eq 1 ]; then
     { echo "== $p"; tail -40 "$scratch/tests-one.txt"; } >>"$scratch/tests-ok.txt"
   else
@@ -185,9 +188,9 @@ cat "$scratch/tests-ok.txt" "$scratch/tests-bad.txt" >"$scratch/tests.txt"
 if [ $ran -eq 0 ]; then
   report tests FAILED "no package has a test/ directory" "$scratch/tests.txt"
 elif [ $bad -eq 0 ]; then
-  report tests ok "$ran package(s)"
+  report tests ok "$ran package(s): $durations"
 else
-  report tests FAILED "$bad of $ran packages" "$scratch/tests.txt"
+  report tests FAILED "$bad of $ran packages; $durations" "$scratch/tests.txt"
 fi
 
 # 7. Contract (Phase 2) -----------------------------------------------------------------
