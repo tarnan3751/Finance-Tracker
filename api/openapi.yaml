@@ -839,9 +839,11 @@ paths:
       tags: [sandbox]
       summary: Injects transactions into an Item
       description: >-
-        Calls Plaid's `/sandbox/transactions/create` with one to ten transactions; the
-        Item's next sync delivers them. Dates must be today or up to 730 days in the
-        past; anything else is `400`. Plaid categorizes injected transactions with `LOW`
+        Calls Plaid's `/sandbox/transactions/create` with one to ten transactions. Dates
+        must lie in Plaid's window, from the UTC date minus 729 days to Plaid's today
+        (the calendar date at UTC−12); anything else is `400`. Plaid serves only the rows
+        dated its today: the Item's next sync delivers those, and an older row is
+        accepted and never served (PLAN.md §4). Plaid categorizes injected transactions with `LOW`
         confidence and attaches no merchant or logo (PLAN.md §4). Available when the server's Plaid mode
         can drive Sandbox (fake or sandbox); never on a production server, where it is
         `409` `conflict`. Another
@@ -878,11 +880,12 @@ paths:
       tags: [sandbox]
       summary: Starts provisioning a persona into Sandbox
       description: >-
-        Starts a job that links one Item per institution of the persona for the caller.
-        Each Item is a Sandbox custom user with the persona's newest transactions; the
-        job then injects the older history, newest first, paced inside Plaid's rate
-        limits (docs/reference/server.md, **Provisioning**). Every date is shifted by one
-        amount, so the persona's as-of date lands on today. The job runs in the server's
+        Starts a job that links one Item per institution of the persona for the caller
+        and syncs it. Each Item is a Sandbox custom user carrying the persona's
+        newest whole days of transactions that fit Plaid's request limit; the job injects
+        nothing, so the older history never reaches Sandbox and a job takes minutes
+        (docs/reference/server.md, **Provisioning**; docs/reference/persona.md). Every
+        date is shifted by one amount, so the persona's as-of date lands on today. The job runs in the server's
         memory: a restart forgets it, and the Items it linked stay. One job per user at a
         time: another while one is `queued` or `running` is `409` `conflict`; a finished
         one does not block. Available when the server's Plaid mode
@@ -2522,6 +2525,9 @@ components:
           minimum: 30
           maximum: 730
           default: 730
+          description: >-
+            The persona's history in days, ending on its as-of date; each Item carries
+            the newest days of it that fit
       example:
         persona: family
         seed: 1
@@ -2542,19 +2548,21 @@ components:
           type: integer
           format: int32
           minimum: 0
+          description: Always 0; the job injects no batches
         batches_sent:
           type: integer
           format: int32
           minimum: 0
-          description: Batches handled, sent or wholly skipped
+          description: Always 0; the job injects no batches
         skipped:
           type: integer
           format: int32
           minimum: 0
           description: >-
-            Transactions left out because their shifted date fell outside Plaid's window
-            (today or up to 730 days back) when they were sent, as when a job outlasts
-            the day after it started
+            Transactions left out of a custom user because their shifted date fell
+            outside Plaid's window (from the UTC date minus 729 days to Plaid's today at
+            UTC−12) when its Item was linked, as when a job links a 730-day persona's
+            oldest day before 12:00 UTC
     ProvisionJob:
       type: object
       description: >-
@@ -2606,8 +2614,8 @@ components:
         progress:
           items_total: 4
           items_linked: 4
-          batches_total: 412
-          batches_sent: 37
+          batches_total: 0
+          batches_sent: 0
           skipped: 0
         error: null
         item_ids: [item-1, item-2, item-3, item-4]

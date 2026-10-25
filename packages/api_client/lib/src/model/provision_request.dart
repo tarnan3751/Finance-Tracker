@@ -14,7 +14,7 @@ part 'provision_request.g.dart';
 /// Properties:
 /// * [persona]
 /// * [seed]
-/// * [days]
+/// * [days] - The persona's history in days, ending on its as-of date; each Item carries the newest days of it that fit
 @BuiltValue()
 abstract class ProvisionRequest
     implements Built<ProvisionRequest, ProvisionRequestBuilder> {
@@ -25,6 +25,7 @@ abstract class ProvisionRequest
   @BuiltValueField(wireName: r'seed')
   int? get seed;
 
+  /// The persona's history in days, ending on its as-of date; each Item carries the newest days of it that fit
   @BuiltValueField(wireName: r'days')
   int? get days;
 

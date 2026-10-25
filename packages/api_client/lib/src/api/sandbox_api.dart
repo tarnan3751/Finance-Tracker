@@ -109,7 +109,7 @@ class SandboxApi {
   }
 
   /// Starts provisioning a persona into Sandbox
-  /// Starts a job that links one Item per institution of the persona for the caller. Each Item is a Sandbox custom user with the persona&#39;s newest transactions; the job then injects the older history, newest first, paced inside Plaid&#39;s rate limits (docs/reference/server.md, **Provisioning**). Every date is shifted by one amount, so the persona&#39;s as-of date lands on today. The job runs in the server&#39;s memory: a restart forgets it, and the Items it linked stay. One job per user at a time: another while one is &#x60;queued&#x60; or &#x60;running&#x60; is &#x60;409&#x60; &#x60;conflict&#x60;; a finished one does not block. Available when the server&#39;s Plaid mode can drive Sandbox (fake or sandbox); never on a production server, where it is &#x60;409&#x60; &#x60;conflict&#x60;.
+  /// Starts a job that links one Item per institution of the persona for the caller and syncs it. Each Item is a Sandbox custom user carrying the persona&#39;s newest whole days of transactions that fit Plaid&#39;s request limit; the job injects nothing, so the older history never reaches Sandbox and a job takes minutes (docs/reference/server.md, **Provisioning**; docs/reference/persona.md). Every date is shifted by one amount, so the persona&#39;s as-of date lands on today. The job runs in the server&#39;s memory: a restart forgets it, and the Items it linked stay. One job per user at a time: another while one is &#x60;queued&#x60; or &#x60;running&#x60; is &#x60;409&#x60; &#x60;conflict&#x60;; a finished one does not block. Available when the server&#39;s Plaid mode can drive Sandbox (fake or sandbox); never on a production server, where it is &#x60;409&#x60; &#x60;conflict&#x60;.
   ///
   /// Parameters:
   /// * [provisionRequest]
@@ -204,7 +204,7 @@ class SandboxApi {
   }
 
   /// Injects transactions into an Item
-  /// Calls Plaid&#39;s &#x60;/sandbox/transactions/create&#x60; with one to ten transactions; the Item&#39;s next sync delivers them. Dates must be today or up to 730 days in the past; anything else is &#x60;400&#x60;. Plaid categorizes injected transactions with &#x60;LOW&#x60; confidence and attaches no merchant or logo (PLAN.md §4). Available when the server&#39;s Plaid mode can drive Sandbox (fake or sandbox); never on a production server, where it is &#x60;409&#x60; &#x60;conflict&#x60;. Another user&#39;s Item is &#x60;404&#x60;; a &#x60;removed&#x60; Item is &#x60;409&#x60; &#x60;conflict&#x60;.
+  /// Calls Plaid&#39;s &#x60;/sandbox/transactions/create&#x60; with one to ten transactions. Dates must lie in Plaid&#39;s window, from the UTC date minus 729 days to Plaid&#39;s today (the calendar date at UTC−12); anything else is &#x60;400&#x60;. Plaid serves only the rows dated its today: the Item&#39;s next sync delivers those, and an older row is accepted and never served (PLAN.md §4). Plaid categorizes injected transactions with &#x60;LOW&#x60; confidence and attaches no merchant or logo (PLAN.md §4). Available when the server&#39;s Plaid mode can drive Sandbox (fake or sandbox); never on a production server, where it is &#x60;409&#x60; &#x60;conflict&#x60;. Another user&#39;s Item is &#x60;404&#x60;; a &#x60;removed&#x60; Item is &#x60;409&#x60; &#x60;conflict&#x60;.
   ///
   /// Parameters:
   /// * [itemId] - The Item's id

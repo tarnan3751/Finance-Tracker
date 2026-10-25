@@ -13,9 +13,9 @@ part 'provision_progress.g.dart';
 /// Properties:
 /// * [itemsTotal]
 /// * [itemsLinked]
-/// * [batchesTotal]
-/// * [batchesSent] - Batches handled, sent or wholly skipped
-/// * [skipped] - Transactions left out because their shifted date fell outside Plaid's window (today or up to 730 days back) when they were sent, as when a job outlasts the day after it started
+/// * [batchesTotal] - Always 0; the job injects no batches
+/// * [batchesSent] - Always 0; the job injects no batches
+/// * [skipped] - Transactions left out of a custom user because their shifted date fell outside Plaid's window (from the UTC date minus 729 days to Plaid's today at UTC−12) when its Item was linked, as when a job links a 730-day persona's oldest day before 12:00 UTC
 @BuiltValue()
 abstract class ProvisionProgress
     implements Built<ProvisionProgress, ProvisionProgressBuilder> {
@@ -25,14 +25,15 @@ abstract class ProvisionProgress
   @BuiltValueField(wireName: r'items_linked')
   int get itemsLinked;
 
+  /// Always 0; the job injects no batches
   @BuiltValueField(wireName: r'batches_total')
   int get batchesTotal;
 
-  /// Batches handled, sent or wholly skipped
+  /// Always 0; the job injects no batches
   @BuiltValueField(wireName: r'batches_sent')
   int get batchesSent;
 
-  /// Transactions left out because their shifted date fell outside Plaid's window (today or up to 730 days back) when they were sent, as when a job outlasts the day after it started
+  /// Transactions left out of a custom user because their shifted date fell outside Plaid's window (from the UTC date minus 729 days to Plaid's today at UTC−12) when its Item was linked, as when a job links a 730-day persona's oldest day before 12:00 UTC
   @BuiltValueField(wireName: r'skipped')
   int get skipped;
 
