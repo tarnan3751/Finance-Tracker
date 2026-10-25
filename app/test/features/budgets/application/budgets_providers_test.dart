@@ -1,6 +1,6 @@
 // The budgets providers over the in-memory repositories: the statuses follow the
 // budgets, the categories, the transactions and today, reading only the periods they
-// need; the alert watcher evaluates once
+// need and leaving hidden transactions out; the alert watcher evaluates once
 // the statuses settle, outside any build, and tells each new alert once.
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/in_app_notifications.dart';
@@ -158,6 +158,95 @@ void main() {
       s = (await statuses()).single;
       expect(s.period.start, LocalDate(2026, 11, 1));
       expect(s.spent, Money(0, 'USD'));
+    },
+  );
+
+  test('a hidden transaction leaves the spending and the carry', () async {
+    final ProviderSubscription<AsyncValue<List<BudgetStatus>>> sub = container
+        .listen(budgetStatusesProvider, (_, _) {});
+    addTearDown(sub.close);
+    await container.read(budgetRepositoryProvider).upsert(budget);
+    await spend('t-sep', 4000, LocalDate(2026, 9, 10));
+    await spend('t-oct', 3000, LocalDate(2026, 10, 5));
+    await spend('t-oct2', 1000, LocalDate(2026, 10, 6));
+    BudgetStatus s = (await statuses()).single;
+    expect(s.spent, Money(4000, 'USD'));
+    expect(s.carried, Money(6000, 'USD'));
+
+    final Map<String, Transaction> rows = {
+      for (final Transaction t
+          in await container
+              .read(transactionRepositoryProvider)
+              .watch(TransactionQuery.all)
+              .first)
+        t.id: t,
+    };
+    await container.read(transactionRepositoryProvider).upsertAll([
+      rows['t-sep']!.copyWith(hidden: true),
+      rows['t-oct']!.copyWith(hidden: true),
+    ]);
+    s = (await statuses()).single;
+    expect(s.spent, Money(1000, 'USD'));
+    expect(s.carried, Money(10000, 'USD'));
+
+    await container
+        .read(transactionRepositoryProvider)
+        .upsert(rows['t-oct']!.copyWith(hidden: false));
+    expect((await statuses()).single.spent, Money(4000, 'USD'));
+  });
+
+  test(
+    'a hidden transaction leaves a period\'s status and its entries',
+    () async {
+      final ProviderSubscription<AsyncValue<List<BudgetStatus>>> current =
+          container.listen(budgetPeriodStatusesProvider(0), (_, _) {});
+      addTearDown(current.close);
+      final ProviderSubscription<AsyncValue<List<BudgetStatus>>> previous =
+          container.listen(budgetPeriodStatusesProvider(-1), (_, _) {});
+      addTearDown(previous.close);
+      final ProviderSubscription<AsyncValue<List<BudgetEntry>>> entries =
+          container.listen(budgetPeriodEntriesProvider('b1', -1), (_, _) {});
+      addTearDown(entries.close);
+      await container.read(budgetRepositoryProvider).upsert(budget);
+      await spend('t-sep', 4000, LocalDate(2026, 9, 10));
+      await spend('t-sep2', 500, LocalDate(2026, 9, 12));
+      await spend('t-oct', 3000, LocalDate(2026, 10, 5));
+      await pumpEventQueue();
+      Future<List<String>> entryIds() async => [
+        for (final BudgetEntry e in await container.read(
+          budgetPeriodEntriesProvider('b1', -1).future,
+        ))
+          e.transaction.id,
+      ];
+      expect(
+        (await container.read(budgetPeriodStatusesProvider(-1).future))
+            .single
+            .spent,
+        Money(4500, 'USD'),
+      );
+      expect(await entryIds(), unorderedEquals(['t-sep', 't-sep2']));
+
+      final Transaction sep = (await container
+          .read(transactionRepositoryProvider)
+          .watchById('t-sep')
+          .first)!;
+      await container
+          .read(transactionRepositoryProvider)
+          .upsert(sep.copyWith(hidden: true));
+      await pumpEventQueue();
+      expect(
+        (await container.read(budgetPeriodStatusesProvider(-1).future))
+            .single
+            .spent,
+        Money(500, 'USD'),
+      );
+      expect(await entryIds(), ['t-sep2']);
+      // The current period's carry no longer counts it either.
+      final BudgetStatus now = (await container.read(
+        budgetPeriodStatusesProvider(0).future,
+      )).single;
+      expect(now.spent, Money(3000, 'USD'));
+      expect(now.carried, Money(10000 - 500, 'USD'));
     },
   );
 

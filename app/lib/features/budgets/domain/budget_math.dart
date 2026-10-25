@@ -28,7 +28,7 @@ import 'package:shared_models/shared_models.dart';
 const List<int> budgetAlertThresholds = [8000, 10000];
 
 /// Which transactions a budget leaves out besides deleted ones and other currencies (the
-/// hidden ones, once transactions can be hidden).
+/// app passes the hidden ones).
 typedef TransactionExclusion = bool Function(Transaction transaction);
 
 bool _excludeNone(Transaction _) => false;

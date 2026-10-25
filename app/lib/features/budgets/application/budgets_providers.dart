@@ -26,6 +26,7 @@ Stream<List<Budget>> budgets(Ref ref) =>
 
 /// Every live budget's status for today, in [budgets]' order: recomputed when the
 /// budgets, the categories, the transactions in the budgets' periods or today change.
+/// Hidden transactions are left out of the spending (`PLAN.md` §12).
 @riverpod
 Stream<List<BudgetStatus>> budgetStatuses(Ref ref) async* {
   final LocalDate today = ref.watch(todayProvider);
@@ -58,7 +59,13 @@ Stream<List<BudgetStatus>> budgetStatuses(Ref ref) async* {
       .map(
         (transactions) => [
           for (final Budget b in budgets)
-            budgetStatus(b, today, transactions, lookup),
+            budgetStatus(
+              b,
+              today,
+              transactions,
+              lookup,
+              excluded: (t) => t.hidden,
+            ),
         ],
       );
 }
@@ -77,7 +84,8 @@ class BudgetPeriodOffset extends _$BudgetPeriodOffset {
 /// Every live budget's status in the period [offset] periods after its current one, in
 /// [budgets]' order: today's status for 0, else the status on that period's last day.
 /// It reads one query, from the earliest period a status needs (the first period with
-/// rollover, else the shown one) to the latest shown period's end.
+/// rollover, else the shown one) to the latest shown period's end. Hidden transactions
+/// are left out.
 @riverpod
 Stream<List<BudgetStatus>> budgetPeriodStatuses(Ref ref, int offset) async* {
   final LocalDate today = ref.watch(todayProvider);
@@ -114,13 +122,19 @@ Stream<List<BudgetStatus>> budgetPeriodStatuses(Ref ref, int offset) async* {
       .map(
         (transactions) => [
           for (final Budget b in budgets)
-            budgetStatus(b, dayFor(b), transactions, lookup),
+            budgetStatus(
+              b,
+              dayFor(b),
+              transactions,
+              lookup,
+              excluded: (t) => t.hidden,
+            ),
         ],
       );
 }
 
 /// What budget [budgetId] counts in the period [offset] periods after its current one,
-/// newest first; empty when there is no such live budget.
+/// newest first, hidden transactions left out; empty when there is no such live budget.
 @riverpod
 Stream<List<BudgetEntry>> budgetPeriodEntries(
   Ref ref,
@@ -140,7 +154,15 @@ Stream<List<BudgetEntry>> budgetPeriodEntries(
   yield* ref
       .watch(transactionRepositoryProvider)
       .watch(TransactionQuery(range: period))
-      .map((transactions) => entriesIn(period, budget, transactions, lookup));
+      .map(
+        (transactions) => entriesIn(
+          period,
+          budget,
+          transactions,
+          lookup,
+          excluded: (t) => t.hidden,
+        ),
+      );
 }
 
 /// How long after the last change to the statuses the alerts are evaluated.

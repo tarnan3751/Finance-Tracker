@@ -54,12 +54,14 @@ String _$budgetsHash() => r'44b1ebd84442bc78b77ce67bb2e75db8f5878294';
 
 /// Every live budget's status for today, in [budgets]' order: recomputed when the
 /// budgets, the categories, the transactions in the budgets' periods or today change.
+/// Hidden transactions are left out of the spending (`PLAN.md` §12).
 
 @ProviderFor(budgetStatuses)
 final budgetStatusesProvider = BudgetStatusesProvider._();
 
 /// Every live budget's status for today, in [budgets]' order: recomputed when the
 /// budgets, the categories, the transactions in the budgets' periods or today change.
+/// Hidden transactions are left out of the spending (`PLAN.md` §12).
 
 final class BudgetStatusesProvider
     extends
@@ -73,6 +75,7 @@ final class BudgetStatusesProvider
         $StreamProvider<List<BudgetStatus>> {
   /// Every live budget's status for today, in [budgets]' order: recomputed when the
   /// budgets, the categories, the transactions in the budgets' periods or today change.
+  /// Hidden transactions are left out of the spending (`PLAN.md` §12).
   BudgetStatusesProvider._()
     : super(
         from: null,
@@ -99,7 +102,7 @@ final class BudgetStatusesProvider
   }
 }
 
-String _$budgetStatusesHash() => r'ff86f06782a9e5ec99e3a2660496f60c4070cad2';
+String _$budgetStatusesHash() => r'fbfad712231fd816cbd007cdcb2acb0d220b58fb';
 
 /// Which period the budgets screens show: 0 for each budget's current period, -1 for the
 /// one before, 1 for the one after.
@@ -167,7 +170,8 @@ abstract class _$BudgetPeriodOffset extends $Notifier<int> {
 /// Every live budget's status in the period [offset] periods after its current one, in
 /// [budgets]' order: today's status for 0, else the status on that period's last day.
 /// It reads one query, from the earliest period a status needs (the first period with
-/// rollover, else the shown one) to the latest shown period's end.
+/// rollover, else the shown one) to the latest shown period's end. Hidden transactions
+/// are left out.
 
 @ProviderFor(budgetPeriodStatuses)
 final budgetPeriodStatusesProvider = BudgetPeriodStatusesFamily._();
@@ -175,7 +179,8 @@ final budgetPeriodStatusesProvider = BudgetPeriodStatusesFamily._();
 /// Every live budget's status in the period [offset] periods after its current one, in
 /// [budgets]' order: today's status for 0, else the status on that period's last day.
 /// It reads one query, from the earliest period a status needs (the first period with
-/// rollover, else the shown one) to the latest shown period's end.
+/// rollover, else the shown one) to the latest shown period's end. Hidden transactions
+/// are left out.
 
 final class BudgetPeriodStatusesProvider
     extends
@@ -190,7 +195,8 @@ final class BudgetPeriodStatusesProvider
   /// Every live budget's status in the period [offset] periods after its current one, in
   /// [budgets]' order: today's status for 0, else the status on that period's last day.
   /// It reads one query, from the earliest period a status needs (the first period with
-  /// rollover, else the shown one) to the latest shown period's end.
+  /// rollover, else the shown one) to the latest shown period's end. Hidden transactions
+  /// are left out.
   BudgetPeriodStatusesProvider._({
     required BudgetPeriodStatusesFamily super.from,
     required int super.argument,
@@ -236,12 +242,13 @@ final class BudgetPeriodStatusesProvider
 }
 
 String _$budgetPeriodStatusesHash() =>
-    r'76b191e57368a5b460fe49ccf64d8856377618f3';
+    r'926f5b70c15eb591103c57f410b599ed4fc9609d';
 
 /// Every live budget's status in the period [offset] periods after its current one, in
 /// [budgets]' order: today's status for 0, else the status on that period's last day.
 /// It reads one query, from the earliest period a status needs (the first period with
-/// rollover, else the shown one) to the latest shown period's end.
+/// rollover, else the shown one) to the latest shown period's end. Hidden transactions
+/// are left out.
 
 final class BudgetPeriodStatusesFamily extends $Family
     with $FunctionalFamilyOverride<Stream<List<BudgetStatus>>, int> {
@@ -257,7 +264,8 @@ final class BudgetPeriodStatusesFamily extends $Family
   /// Every live budget's status in the period [offset] periods after its current one, in
   /// [budgets]' order: today's status for 0, else the status on that period's last day.
   /// It reads one query, from the earliest period a status needs (the first period with
-  /// rollover, else the shown one) to the latest shown period's end.
+  /// rollover, else the shown one) to the latest shown period's end. Hidden transactions
+  /// are left out.
 
   BudgetPeriodStatusesProvider call(int offset) =>
       BudgetPeriodStatusesProvider._(argument: offset, from: this);
@@ -267,13 +275,13 @@ final class BudgetPeriodStatusesFamily extends $Family
 }
 
 /// What budget [budgetId] counts in the period [offset] periods after its current one,
-/// newest first; empty when there is no such live budget.
+/// newest first, hidden transactions left out; empty when there is no such live budget.
 
 @ProviderFor(budgetPeriodEntries)
 final budgetPeriodEntriesProvider = BudgetPeriodEntriesFamily._();
 
 /// What budget [budgetId] counts in the period [offset] periods after its current one,
-/// newest first; empty when there is no such live budget.
+/// newest first, hidden transactions left out; empty when there is no such live budget.
 
 final class BudgetPeriodEntriesProvider
     extends
@@ -286,7 +294,7 @@ final class BudgetPeriodEntriesProvider
         $FutureModifier<List<BudgetEntry>>,
         $StreamProvider<List<BudgetEntry>> {
   /// What budget [budgetId] counts in the period [offset] periods after its current one,
-  /// newest first; empty when there is no such live budget.
+  /// newest first, hidden transactions left out; empty when there is no such live budget.
   BudgetPeriodEntriesProvider._({
     required BudgetPeriodEntriesFamily super.from,
     required (String, int) super.argument,
@@ -332,10 +340,10 @@ final class BudgetPeriodEntriesProvider
 }
 
 String _$budgetPeriodEntriesHash() =>
-    r'31aca4d74fbd4cd2fd3eb681688b08d99ca80155';
+    r'11853f56193812fa9a8413bf1dc9d6c400894402';
 
 /// What budget [budgetId] counts in the period [offset] periods after its current one,
-/// newest first; empty when there is no such live budget.
+/// newest first, hidden transactions left out; empty when there is no such live budget.
 
 final class BudgetPeriodEntriesFamily extends $Family
     with $FunctionalFamilyOverride<Stream<List<BudgetEntry>>, (String, int)> {
@@ -349,7 +357,7 @@ final class BudgetPeriodEntriesFamily extends $Family
       );
 
   /// What budget [budgetId] counts in the period [offset] periods after its current one,
-  /// newest first; empty when there is no such live budget.
+  /// newest first, hidden transactions left out; empty when there is no such live budget.
 
   BudgetPeriodEntriesProvider call(String budgetId, int offset) =>
       BudgetPeriodEntriesProvider._(argument: (budgetId, offset), from: this);

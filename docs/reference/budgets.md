@@ -61,8 +61,10 @@ exactly at local midnight of its start day, whatever the zone or DST.
 Spending is the net of the transactions dated in the period that pass every test below:
 
 - **Live:** `deletedAt` is null.
-- **Not excluded:** the `excluded` predicate leaves out the hidden rows. It is wired to
-  `hidden` once transactions have it (4c); until then it excludes nothing.
+- **Not excluded:** the `excluded` predicate leaves out the hidden rows:
+  `budgetStatusesProvider`, `budgetPeriodStatusesProvider` and
+  `budgetPeriodEntriesProvider` pass `(t) => t.hidden`, so a transaction the user hid
+  (`transactions.md`, **Hiding**) leaves the spending, the carry and a period's entries.
 - **In the budget's currency.** Other currencies are ignored, never converted.
 - **In the budget's category or a descendant of it.** Descendants are found through the parent
   chain of the live categories (`Category.parentId`).
