@@ -287,6 +287,11 @@ resumes, so a screen left open over midnight moves on. A new transaction's defau
 the date headers, the date filter presets and the "today" the date pickers mark come from
 it.
 
+An instant shown as a date and a time goes through `formatDateTime(instant, location)`
+(`core/time/date_time_format.dart`): intl's `yMMMd().add_jm()` in the clock's zone, with the
+narrow no-break space intl puts before AM and PM (U+202F) replaced by a no-break space
+(U+00A0), which the test fonts carry (**Tests**, goldens).
+
 `setUpTimeZones()` (`core/time/time_zone_setup.dart`) loads the full `latest` time zone
 database (not `latest_10y`, `PLAN.md` §12) and sets `tz.local` from
 `FlutterTimezone.getLocalTimezone()`'s identifier. A failing platform call, or an identifier
@@ -345,7 +350,10 @@ The repository contract is `test/contract/settings_repository_contract.dart`,
   `pumpAndSettle`.
 - **Goldens** use `alchemist`. `test/flutter_test_config.dart` runs every test with CI
   goldens on (Ahem, text drawn as blocks, identical on every OS; written to `goldens/ci/`
-  next to the test, committed, compared by the gate and CI). Platform goldens (real fonts,
+  next to the test, committed, compared by the gate and CI). A character neither Ahem nor
+  FlutterTest carries is borrowed from the host's fonts, so its width differs between macOS
+  and Linux: intl's U+202F before AM and PM did this, which is why times go through
+  `formatDateTime` (**Time**); text in a CI golden must avoid such characters. Platform goldens (real fonts,
   `goldens/<os>/`, gitignored) are a local aid: written only by `--update-goldens` when the
   `CI` environment variable is unset, and never compared, since a fresh clone has none.
   Golden tests are tagged `golden` (`app/dart_test.yaml`). Update them with

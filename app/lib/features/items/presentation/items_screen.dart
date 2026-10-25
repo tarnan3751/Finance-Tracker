@@ -11,6 +11,7 @@ library;
 
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/clock.dart';
+import 'package:finance_tracker/core/time/date_time_format.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/core/widgets/merchant_avatar.dart';
 import 'package:finance_tracker/features/items/application/items_providers.dart';
@@ -21,9 +22,7 @@ import 'package:finance_tracker/features/transactions/domain/enrichment.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_models/shared_models.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 /// The linked banks screen.
 class ItemsScreen extends ConsumerWidget {
@@ -127,9 +126,7 @@ class _BankCard extends ConsumerWidget {
                         lastSync == null
                             ? l10n.itemsNeverSynced
                             : l10n.itemsLastSynced(
-                                DateFormat.yMMMd().add_jm().format(
-                                  tz.TZDateTime.from(lastSync, clock.location),
-                                ),
+                                formatDateTime(lastSync, clock.location),
                               ),
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,

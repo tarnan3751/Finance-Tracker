@@ -17,6 +17,7 @@ import 'dart:async';
 
 import 'package:finance_tracker/core/api/api_models.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/time/date_time_format.dart';
 import 'package:finance_tracker/features/developer/application/developer_controller.dart';
 import 'package:finance_tracker/features/developer/application/developer_providers.dart';
 import 'package:finance_tracker/features/developer/presentation/developer_section.dart';
@@ -28,7 +29,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_models/shared_models.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 /// The Sandbox controls screen.
 class DeveloperScreen extends ConsumerStatefulWidget {
@@ -513,9 +513,7 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
 
   String _local(DateTime? utc) {
     if (utc == null) return AppLocalizations.of(context).developerNever;
-    return DateFormat.yMMMd().add_jm().format(
-      tz.TZDateTime.from(utc, ref.read(clockProvider).location),
-    );
+    return formatDateTime(utc, ref.read(clockProvider).location);
   }
 }
 

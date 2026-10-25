@@ -146,9 +146,9 @@ void main() {
       );
       expect(find.text(r'$1,100.00'), findsOneWidget);
       expect(find.text('reported by First Platypus Bank'), findsOneWidget);
-      // intl puts a narrow no-break space before the period.
+      // A no-break space before the period (formatDateTime).
       expect(
-        find.textContaining(RegExp(r'^as of Oct 24, 2026 2:00\sPM$')),
+        find.textContaining(RegExp('^as of Oct 24, 2026 2:00\u00a0PM\$')),
         findsOneWidget,
       );
       expect(find.text(r'Available $1,000.00'), findsOneWidget);
@@ -199,7 +199,7 @@ void main() {
       );
 
       expect(
-        find.textContaining(RegExp(r'^as of Oct 24, 2026 10:00\sAM$')),
+        find.textContaining(RegExp('^as of Oct 24, 2026 10:00\u00a0AM\$')),
         findsOneWidget,
       );
     });

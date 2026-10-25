@@ -9,13 +9,12 @@ import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/time/clock.dart';
+import 'package:finance_tracker/core/time/date_time_format.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_models/shared_models.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 /// The Sync section.
 class SyncSection extends ConsumerWidget {
@@ -26,9 +25,7 @@ class SyncSection extends ConsumerWidget {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final SyncStatus status = ref.watch(syncControllerProvider);
     final Clock clock = ref.watch(clockProvider);
-    String local(DateTime utc) => DateFormat.yMMMd().add_jm().format(
-      tz.TZDateTime.from(utc, clock.location),
-    );
+    String local(DateTime utc) => formatDateTime(utc, clock.location);
 
     final bool signedIn =
         status.phase == SyncPhase.idle || status.phase == SyncPhase.running;

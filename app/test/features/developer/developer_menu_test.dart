@@ -123,7 +123,7 @@ void main() {
       await _tap(tester, find.text('Pull now'));
       expect(c.read(fakeServerProvider).calls, contains('listItems'));
       expect(
-        find.text('Pulled; bank data updated Oct 24, 2026 3:00 PM'),
+        find.text('Pulled; bank data updated Oct 24, 2026 3:00\u00a0PM'),
         findsOneWidget,
       );
       expect(store.accounts().where((a) => a.itemId == _item), isNotEmpty);
@@ -135,7 +135,7 @@ void main() {
         'Server: http://10.0.2.2:8080/v1\n'
         'Device: $deviceId\n'
         'Last sync: Never\n'
-        'Bank data pulled: Oct 24, 2026 3:00 PM\n'
+        'Bank data pulled: Oct 24, 2026 3:00\u00a0PM\n'
         'Outbox: Not read yet',
       );
     },

@@ -54,7 +54,7 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(find.text('Last synced Oct 24, 2026 10:00 AM'), findsOneWidget);
+    expect(find.text('Last synced Oct 24, 2026 10:00\u00a0AM'), findsOneWidget);
     expect(
       find.descendant(
         of: _card('Tartan Bank'),

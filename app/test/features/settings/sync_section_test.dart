@@ -83,7 +83,7 @@ void main() {
       );
       // intl puts a narrow no-break space before the day period.
       expect(
-        find.text('Last synced Oct 24, 2026 3:00\u202fPM'),
+        find.text('Last synced Oct 24, 2026 3:00\u00a0PM'),
         findsOneWidget,
       );
       expect(find.text('3 changes waiting to sync'), findsOneWidget);
@@ -95,7 +95,7 @@ void main() {
       );
       expect(
         find.text(
-          '2 changes were refused by the server, the latest made Oct 23, 2026 9:00\u202fAM',
+          '2 changes were refused by the server, the latest made Oct 23, 2026 9:00\u00a0AM',
         ),
         findsOneWidget,
       );
@@ -158,7 +158,7 @@ void main() {
     (const SyncStatus(phase: SyncPhase.idle), 'Not updated yet'),
     (
       SyncStatus(phase: SyncPhase.idle, plaidPulledAt: pulled),
-      'Updated Oct 24, 2026 3:05\u202fPM',
+      'Updated Oct 24, 2026 3:05\u00a0PM',
     ),
     (
       SyncStatus(

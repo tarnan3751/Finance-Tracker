@@ -10,6 +10,7 @@ import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/time/clock.dart';
+import 'package:finance_tracker/core/time/date_time_format.dart';
 import 'package:finance_tracker/features/developer/application/developer_controller.dart';
 import 'package:finance_tracker/features/developer/presentation/developer_screen.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
@@ -17,8 +18,6 @@ import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 /// The Developer section.
 class DeveloperSection extends ConsumerWidget {
@@ -30,11 +29,8 @@ class DeveloperSection extends ConsumerWidget {
     final DeveloperState developer = ref.watch(developerControllerProvider);
     final SyncStatus status = ref.watch(syncControllerProvider);
     final Clock clock = ref.watch(clockProvider);
-    String local(DateTime? utc) => utc == null
-        ? l10n.developerNever
-        : DateFormat.yMMMd().add_jm().format(
-            tz.TZDateTime.from(utc, clock.location),
-          );
+    String local(DateTime? utc) =>
+        utc == null ? l10n.developerNever : formatDateTime(utc, clock.location);
 
     final Uri? server = ref.watch(appConfigProvider).serverBaseUrl;
     final String? deviceId = ref.watch(syncDeviceIdProvider);
