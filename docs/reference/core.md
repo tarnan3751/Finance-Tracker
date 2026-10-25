@@ -132,10 +132,12 @@ snake_case JSON (`Account`, `Transaction`, `Category` and the rest, exported fro
 obvious from the field list:
 
 - `Account` balances are the institution's reported figures and are null for a manual
-  account, whose balance is always derived from its transactions.
+  account, whose balance is always derived from its transactions. `currentBalance` is in
+  the app's sign (positive held, negative owed, so a card's or loan's debt is negative);
+  `availableBalance` and `creditLimit` are as reported, never negated.
 - `Transaction.amount` is negative for an outflow. `name` is Plaid's raw name or the user's
-  description and is always present; `merchantName` is Plaid's cleaned merchant or the
-  enrichment fallback's normalized name, and the fallback only fills a null one.
+  description and is always present; `merchantName` is Plaid's cleaned merchant name
+  only, and the enrichment fallback is display-side, never written into it.
 - `Budget.periodStartDay` is 1 to 28; JSON outside that range is rejected in every
   build, not only by the debug-mode assertion.
 - `Item.errorCode` is Plaid's error code (`ITEM_LOGIN_REQUIRED`, ...) while the status is

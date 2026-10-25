@@ -15,6 +15,11 @@ part 'account.g.dart';
 /// [availableBalance] and [creditLimit] are the institution's reported figures as of
 /// [balancesAsOf], and are null for a manual account, whose balance is always derived from
 /// its transactions (an opening balance is itself a `manual` transaction).
+///
+/// [currentBalance] is in the app's sign: positive for money the user holds, negative for
+/// money owed, so a card's or loan's outstanding amount is negative (the server negates
+/// Plaid's report). [availableBalance] (funds available, or a card's remaining credit)
+/// and [creditLimit] are as the institution reports them, never negated.
 @freezed
 abstract class Account with _$Account {
   /// An account. [itemId] is null for a manual account; [subtype] is Plaid's subtype

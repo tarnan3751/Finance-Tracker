@@ -16,9 +16,9 @@ part 'transaction.g.dart';
 /// opposite and is flipped at the server boundary.
 ///
 /// [name] is always present: Plaid's raw `name`, or the user's description for a manual
-/// entry. [merchantName] is Plaid's cleaned merchant name, or the enrichment fallback's
-/// normalized name when Plaid has none, and null when neither exists. The fallback reads
-/// [name] and only ever fills a null [merchantName]; it never overwrites Plaid's.
+/// entry. [merchantName] is Plaid's cleaned merchant name only, null when Plaid has none.
+/// The enrichment fallback is display-side: it reads [name] when [merchantName] is null
+/// and never writes [merchantName] or any other Plaid field.
 ///
 /// [source] is the record's provenance (`PLAN.md` §7.1). [deletedAt] is the tombstone.
 @freezed
