@@ -2,11 +2,16 @@
 /// apart: the category edit rule, the audit-instant rule, the transaction order, SQLite's
 /// text comparisons (ASCII case folding as `LIKE` and `NOCASE` do, UTF-8 byte order as
 /// `BINARY` does, re-exported from `core/util/binary_compare.dart`), the equality the
-/// repositories' `distinct` streams use, and what a Plaid transaction keeps from the
-/// stored row when the server's arrives.
+/// repositories' `distinct` streams use, what a Plaid transaction keeps from the stored
+/// row when the server's arrives, and what a batch write may change on one.
 library;
 
+import 'dart:convert';
+
+import 'package:finance_tracker/core/db/database_exceptions.dart';
+import 'package:finance_tracker/core/sync/entity_codec.dart';
 import 'package:finance_tracker/core/util/binary_compare.dart';
+import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart';
@@ -29,7 +34,8 @@ void checkCategoryEdit(Category? existing, Category next) {
   if (!allowed) throw CategoryNotEditableException(next.id);
 }
 
-/// Throws [ArgumentError] unless [transaction]'s `createdAt` and `updatedAt` are UTC
+/// Throws [AuditInstantError] (an [ArgumentError]) unless [transaction]'s `createdAt` and
+/// `updatedAt` are UTC
 /// instants with millisecond precision, the only audit instants stored (`PLAN.md` §12).
 /// Its `deletedAt` is not stored from an upsert, so it is not checked.
 void checkAuditInstants(Transaction transaction) {
@@ -38,10 +44,10 @@ void checkAuditInstants(Transaction transaction) {
     ('updatedAt', transaction.updatedAt),
   ]) {
     if (!instant.isUtc) {
-      throw ArgumentError.value(instant, name, 'audit instants must be UTC');
+      throw AuditInstantError(instant, name, 'audit instants must be UTC');
     }
     if (instant.microsecond != 0) {
-      throw ArgumentError.value(
+      throw AuditInstantError(
         instant,
         name,
         'audit instants have millisecond precision',
@@ -118,3 +124,56 @@ Transaction withPlaidOverrides(Transaction server, Transaction stored) {
     hidden: stored.hidden,
   );
 }
+
+// The record fields a batch write may change on a `plaid` row besides the overrides: its
+// audit stamp, and what only delete and restore set (deletedAt is ignored on write).
+const Set<String> _batchWritable = {
+  'updated_at',
+  deletedAtField,
+  deletedWithAccountField,
+};
+
+/// `TransactionRepository.upsertAll`'s rule for Plaid rows: when [next] or [stored] (the
+/// row on the device, null when there is none) is `plaid`, [next] may differ from
+/// [stored] only in the fields the user owns ([plaidOverrideFields]) and `updatedAt`.
+/// Throws [PlaidOverridesOnlyError] naming the first other field that differs, or when
+/// there is no stored row: only the Plaid pull creates a `plaid` transaction.
+void checkPlaidOverridesOnly(Transaction next, Transaction? stored) {
+  if (next.source != DataSource.plaid && stored?.source != DataSource.plaid) {
+    return;
+  }
+  if (stored == null) {
+    throw PlaidOverridesOnlyError(next.id);
+  }
+  final Map<String, Object?> before = transactionRecordJson(stored);
+  final Map<String, Object?> after = transactionRecordJson(next);
+  for (final String field in after.keys) {
+    if (plaidOverrideFields.contains(field) || _batchWritable.contains(field)) {
+      continue;
+    }
+    if (jsonEncode(before[field]) != jsonEncode(after[field])) {
+      throw PlaidOverridesOnlyError(next.id, field: field);
+    }
+  }
+}
+
+/// Throws [ArgumentError] naming the first id [ids] repeats: a batch writes each
+/// transaction once.
+void checkDistinctIds(Iterable<String> ids) {
+  final Set<String> seen = {};
+  for (final String id in ids) {
+    if (!seen.add(id)) {
+      throw ArgumentError.value(id, 'ids', 'is repeated in the batch');
+    }
+  }
+}
+
+/// Whether [error] is a refusal of one transaction, which a batch reports as a
+/// [TransactionBatchException], rather than a failure of the database itself.
+bool isBatchRefusal(Object error) =>
+    error is AccountNotFoundException ||
+    error is CurrencyMismatchException ||
+    error is EntityDeletedException ||
+    error is BankDataNotDeletableException ||
+    error is AuditInstantError ||
+    error is PlaidOverridesOnlyError;

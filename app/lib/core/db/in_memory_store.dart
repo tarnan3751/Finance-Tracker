@@ -253,6 +253,54 @@ final class InMemoryStore {
     _changed();
   }
 
+  /// `TransactionRepository.upsertAll`: every transaction is checked before any is
+  /// written, so a refusal leaves the store as it was.
+  void upsertTransactions(List<Transaction> batch) {
+    checkDistinctIds([for (final Transaction t in batch) t.id]);
+    for (final Transaction t in batch) {
+      _refusedAs(t.id, () {
+        _checkTransaction(t, account(t.accountId));
+        checkPlaidOverridesOnly(t, _transactions[t.id]);
+      });
+    }
+    if (batch.isEmpty) return;
+    for (final Transaction t in batch) {
+      _transactions[t.id] = t.copyWith(deletedAt: null);
+    }
+    _changed();
+  }
+
+  /// `TransactionRepository.deleteAll`: no transaction is deleted when one is `plaid`.
+  void deleteTransactions(List<String> ids) {
+    for (final String id in ids) {
+      if (transaction(id)?.source == DataSource.plaid) {
+        throw TransactionBatchException(
+          id,
+          BankDataNotDeletableException('transaction', id),
+        );
+      }
+    }
+    final DateTime now = _clock.nowUtc();
+    bool changed = false;
+    for (final String id in ids) {
+      final Transaction? t = transaction(id);
+      if (t == null) continue;
+      _transactions[id] = t.copyWith(deletedAt: now, updatedAt: now);
+      changed = true;
+    }
+    if (changed) _changed();
+  }
+
+  // Runs [check] for transaction [id] of a batch, reporting a refusal as the batch's.
+  void _refusedAs(String id, void Function() check) {
+    try {
+      check();
+    } on Object catch (e) {
+      if (!isBatchRefusal(e)) rethrow;
+      throw TransactionBatchException(id, e);
+    }
+  }
+
   // The checks of an upsert of [transaction] on its live account [owner] (null when
   // there is none).
   void _checkTransaction(Transaction transaction, Account? owner) {

@@ -184,6 +184,54 @@ void runRecordingContract(
       expect(await recorded(), isEmpty);
     });
 
+    test('a batch records one entry per transaction it changes', () async {
+      await f.accounts.upsert(testAccount('a1'));
+      await f.transactions.upsert(testTransaction('t1', 'a1', -100));
+      await f.transactions.upsert(testTransaction('t2', 'a1', -200));
+      final Transaction plaid = testTransaction(
+        'p1',
+        'a1',
+        -300,
+      ).copyWith(source: DataSource.plaid);
+      await f.transactions.applyPlaid([plaid]);
+      await recorded();
+
+      await f.transactions.upsertAll([
+        testTransaction('t1', 'a1', -100, hidden: true),
+        testTransaction('t2', 'a1', -200),
+        plaid.copyWith(hidden: true, tags: ['tv']),
+        testTransaction('t3', 'a1', -400),
+      ]);
+      expect(await recorded(), [
+        'transaction/t1 update hidden',
+        'transaction/p1 update hidden,tags',
+        'transaction/t3 create $transactionFields',
+      ]);
+
+      await expectLater(
+        f.transactions.upsertAll([
+          testTransaction('t2', 'a1', -200, notes: 'kept?'),
+          plaid.copyWith(name: 'Renamed'),
+        ]),
+        throwsA(isA<TransactionBatchException>()),
+      );
+      await expectLater(
+        f.transactions.deleteAll(['t2', 'p1']),
+        throwsA(isA<TransactionBatchException>()),
+      );
+      expect(
+        await recorded(),
+        isEmpty,
+        reason: 'a refused batch records nothing',
+      );
+
+      await f.transactions.deleteAll(['t1', 't2']);
+      expect(await recorded(), [
+        'transaction/t1 delete deleted_at,updated_at',
+        'transaction/t2 delete deleted_at,updated_at',
+      ]);
+    });
+
     test(
       'derived and demo transactions and linked accounts are not recorded',
       () async {

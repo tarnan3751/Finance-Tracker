@@ -143,7 +143,7 @@ and exposes streams that start with the current value and emit again only when i
 | Interface | Methods |
 |---|---|
 | `AccountRepository` | `watchAll()` (visible first, then hidden; by `displayOrder`, then id), `watchById`, `upsert`, `create(account, {openingBalance})`, `delete`, `restore`, `applyPlaid(accounts)`, `watchDerivedBalance(id)`, `watchDerivedBalances()` |
-| `TransactionRepository` | `watch(TransactionQuery)`, `watchById`, `upsert`, `delete`, `restore`, `applyPlaid(page)`, `count(TransactionQuery)`, `watchUsage({recentLimit})` |
+| `TransactionRepository` | `watch(TransactionQuery)`, `watchById`, `upsert`, `upsertAll(batch)`, `delete`, `deleteAll(ids)`, `restore`, `applyPlaid(page)`, `count(TransactionQuery)`, `watchUsage({recentLimit})` |
 | `CategoryRepository` | `watchAll()` (by name ignoring ASCII case, then id), `watchById`, `upsert`, `delete`, `ensureSeeded()` |
 | `ItemRepository` | `watchAll()` (by institution name ignoring ASCII case, then id), `watchById`, `applyPlaid(items, pulledAt:)`, `applyPlaidItem`, `saveLogo`, `markLoginRequired` |
 | `RuleRepository` | `watchAll()` (by `position`, then id), `upsert`, `delete`, `restore`, `reorder(ids)` (`rules.md`) |
@@ -187,6 +187,21 @@ The rules every implementation keeps:
   (`sync-app.md`, **Recording**); the seeding of the system categories and the reads
   record nothing. The Drift repositories record into the Drift sync store, the in-memory
   ones into an `InMemorySyncStore`, the demo ones nothing.
+- **Batches.** `upsertAll(batch)` writes several transactions in one database transaction
+  (the in-memory store checks every one before writing any), each through `upsert`'s
+  checks and recorded as `upsert` records it: one entry per transaction that changes, none
+  for one written unchanged. A `plaid` transaction in a batch must already be stored and
+  may change only the six fields the user owns and `updatedAt`
+  (`checkPlaidOverridesOnly` in `repository_support.dart`). `deleteAll(ids)` deletes as
+  `delete` does, in one write. A repeated id in `upsertAll` is an `ArgumentError` before
+  anything is read; any transaction a batch refuses makes it write and record nothing and
+  throw `TransactionBatchException` with that transaction's id and, as the cause, the
+  failure it alone would have raised (`AccountNotFoundException`,
+  `CurrencyMismatchException`, `EntityDeletedException`, `BankDataNotDeletableException`,
+  `AuditInstantError`, or `PlaidOverridesOnlyError` naming the Plaid field, the last two
+  `ArgumentError`s of their own types in `database_exceptions.dart`); any other error,
+  an unrelated `ArgumentError` included, propagates as itself. Bulk edit
+  (`transactions.md`) writes through them, and so will applying a rule to history.
 - **Tags and splits** are replaced as a whole by `upsert`, in the same database
   transaction, and keep their order (duplicates included). Split sums are not checked
   against the amount here.

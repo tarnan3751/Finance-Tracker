@@ -4,7 +4,9 @@
 /// [DatabaseKeyLostException]) stop startup: `bootstrap` logs the type and shows a plain
 /// error screen; Phase 7's restore flow handles a lost key. [EntityDeletedException] is a
 /// write to a record that was deleted; [BankDataNotDeletableException] a delete of a
-/// linked account or a Plaid transaction. Pure Dart: these are thrown in the database's
+/// linked account or a Plaid transaction; [TransactionBatchException] a batch write that
+/// one of its transactions refused. Two argument errors are typed so a batch can tell
+/// them from any other: [AuditInstantError] and [PlaidOverridesOnlyError]. Pure Dart: these are thrown in the database's
 /// background isolate and sent back to the caller.
 library;
 
@@ -84,4 +86,59 @@ final class BankDataNotDeletableException implements Exception {
   @override
   String toString() =>
       'BankDataNotDeletableException: $entity $id comes from the bank';
+}
+
+/// A transaction's `createdAt` or `updatedAt` ([name]) is not a UTC instant with
+/// millisecond precision, the only audit instants stored (`PLAN.md` §12).
+final class AuditInstantError extends ArgumentError {
+  /// The error for audit instant [value], named [name], and why.
+  AuditInstantError(
+    DateTime super.value,
+    String super.name,
+    String super.message,
+  ) : super.value();
+}
+
+/// A batch write changed something on `plaid` transaction [transactionId] besides the
+/// fields the user owns: Plaid's [field], or, when [field] is null, the transaction is
+/// not stored (only the Plaid pull creates one).
+final class PlaidOverridesOnlyError extends ArgumentError {
+  /// The error for [transactionId], naming the Plaid [field] it changed, if any.
+  PlaidOverridesOnlyError(this.transactionId, {this.field})
+    : super.value(
+        field ?? transactionId,
+        field == null ? 'transaction' : 'field',
+        field == null
+            ? 'a plaid transaction is created only by the Plaid pull'
+            : "is Plaid's on plaid transaction $transactionId",
+      );
+
+  /// The `plaid` transaction.
+  final String transactionId;
+
+  /// The record field of Plaid's it changed, or null when it is not stored.
+  final String? field;
+}
+
+/// A batch write of transactions (`TransactionRepository.upsertAll` or `deleteAll`)
+/// refused transaction [transactionId], so nothing in the batch was written. [cause] is
+/// the failure that transaction alone would have raised: `AccountNotFoundException`,
+/// `CurrencyMismatchException`, [EntityDeletedException],
+/// [BankDataNotDeletableException], [AuditInstantError], or [PlaidOverridesOnlyError]
+/// (a changed Plaid field on a `plaid` row, which it names). Any other error propagates
+/// as itself.
+final class TransactionBatchException implements Exception {
+  /// The exception for transaction [transactionId], refused for [cause].
+  const TransactionBatchException(this.transactionId, this.cause);
+
+  /// The id of the transaction that was refused.
+  final String transactionId;
+
+  /// Why it was refused.
+  final Object cause;
+
+  @override
+  String toString() =>
+      'TransactionBatchException: transaction $transactionId refused '
+      '(${cause.runtimeType})';
 }

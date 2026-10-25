@@ -25,12 +25,26 @@ abstract interface class TransactionRepository {
   /// Inserts or replaces [transaction] with its tags and splits, in one write. Its audit
   /// fields are stored as given, except `deletedAt`, which only [delete] sets.
   ///
-  /// Throws [ArgumentError] when `createdAt` or `updatedAt` is not a UTC instant with
-  /// millisecond precision; `AccountNotFoundException` when its account does not exist or
-  /// is deleted;
-  /// `CurrencyMismatchException` when its amount or a split is in another currency than
-  /// the account's; `EntityDeletedException` when the transaction is deleted.
+  /// Throws `AuditInstantError` (an [ArgumentError]) when `createdAt` or `updatedAt` is
+  /// not a UTC instant with millisecond precision; `AccountNotFoundException` when its
+  /// account does not exist or is deleted; `CurrencyMismatchException` when its amount or
+  /// a split is in another currency than the account's; `EntityDeletedException` when
+  /// the transaction is deleted.
   Future<void> upsert(Transaction transaction);
+
+  /// Upserts every transaction of [batch] in one write, all or nothing: each goes through
+  /// [upsert]'s checks and is recorded as [upsert] records it (one change-log entry per
+  /// transaction that changes, none for one written unchanged), in list order. A `plaid`
+  /// transaction may change only the fields the user owns (`userCategoryId`, `notes`,
+  /// `tags`, `splits`, `receiptPath`, `hidden`) and `updatedAt`, and must already be
+  /// stored. An empty batch does nothing.
+  ///
+  /// Throws [ArgumentError] when an id is repeated, before anything is read; and
+  /// `TransactionBatchException` naming the first transaction refused, with the failure
+  /// [upsert] would have raised for it as the cause (or a `PlaidOverridesOnlyError`
+  /// naming the Plaid field a `plaid` transaction changes); then nothing is written or
+  /// recorded. Any other error propagates as itself.
+  Future<void> upsertAll(List<Transaction> batch);
 
   /// Applies [page], a page of the server's Plaid-sourced transactions (`GET
   /// /transactions`), in one write that records nothing and skips the checks of a local
@@ -46,6 +60,11 @@ abstract interface class TransactionRepository {
   /// when there is no such live transaction. Throws `BankDataNotDeletableException` for
   /// a `plaid` transaction: only the bank removes one.
   Future<void> delete(String id);
+
+  /// Deletes every transaction of [ids] as [delete] does, in one write, all or nothing.
+  /// Throws `TransactionBatchException` naming the first `plaid` transaction, with its
+  /// `BankDataNotDeletableException` as the cause, and then deletes nothing.
+  Future<void> deleteAll(List<String> ids);
 
   /// Restores deleted transaction [id], stamping its `updatedAt` from the clock. Throws
   /// `AccountNotFoundException` when its account is deleted (restore the account instead).

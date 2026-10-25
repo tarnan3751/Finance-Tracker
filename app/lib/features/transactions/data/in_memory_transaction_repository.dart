@@ -34,6 +34,15 @@ base class InMemoryTransactionRepository implements TransactionRepository {
       _recorded(transaction.id, () => store.upsertTransaction(transaction));
 
   @override
+  Future<void> upsertAll(List<Transaction> batch) => _recordedAll([
+    for (final Transaction t in batch) t.id,
+  ], () => store.upsertTransactions(batch));
+
+  @override
+  Future<void> deleteAll(List<String> ids) =>
+      _recordedAll(ids, () => store.deleteTransactions(ids));
+
+  @override
   Future<List<Transaction>> applyPlaid(List<Transaction> page) async =>
       store.applyPlaidTransactions(page);
 
@@ -55,6 +64,17 @@ base class InMemoryTransactionRepository implements TransactionRepository {
       {id: ?before},
       {id: ?store.transactionRecord(id)},
     );
+  }
+
+  // Runs [write] on transactions [ids] and records the change it made to each, in order.
+  Future<void> _recordedAll(List<String> ids, void Function() write) async {
+    final Map<String, Map<String, Object?>> before = {
+      for (final String id in ids) id: ?store.transactionRecord(id),
+    };
+    write();
+    await recordEach(recorder, EntityType.transaction, before, {
+      for (final String id in ids) id: ?store.transactionRecord(id),
+    });
   }
 
   @override

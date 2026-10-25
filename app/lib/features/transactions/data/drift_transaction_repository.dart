@@ -75,39 +75,83 @@ final class DriftTransactionRepository implements TransactionRepository {
 
   @override
   Future<void> upsert(Transaction transaction) =>
-      _database.transaction(() async {
-        checkAuditInstants(transaction);
-        final String id = transaction.id;
-        final TransactionRow? existing = await (_database.select(
-          _transactions,
-        )..where((t) => t.id.equals(id))).getSingleOrNull();
-        if (existing != null && existing.deletedAt != null) {
-          throw EntityDeletedException('transaction', id);
-        }
-        final AccountRow? account =
-            await (_database.select(_database.accounts)..where(
-                  (a) =>
-                      a.id.equals(transaction.accountId) & a.deletedAt.isNull(),
-                ))
-                .getSingleOrNull();
-        if (account == null) {
-          throw AccountNotFoundException(transaction.accountId);
-        }
-        final Map<String, Object?>? before = existing == null
-            ? null
-            : await _recordJson(existing);
-        await writeTransactionRow(
-          _database,
-          transaction,
-          currency: account.currency,
-        );
-        await _recorder.record(
-          EntityType.transaction,
-          id,
-          before,
-          transactionRecordJson(transaction.copyWith(deletedAt: null)),
-        );
-      });
+      _database.transaction(() => _upsert(transaction));
+
+  @override
+  Future<void> upsertAll(List<Transaction> batch) async {
+    checkDistinctIds([for (final Transaction t in batch) t.id]);
+    if (batch.isEmpty) return;
+    await _database.transaction(() async {
+      for (final Transaction t in batch) {
+        await _refusedAs(t.id, () => _upsert(t, overridesOnly: true));
+      }
+    });
+  }
+
+  @override
+  Future<void> deleteAll(List<String> ids) async {
+    if (ids.isEmpty) return;
+    await _database.transaction(() async {
+      for (final String id in ids) {
+        await _refusedAs(id, () => delete(id));
+      }
+    });
+  }
+
+  // Runs [write] for transaction [id] of a batch, reporting a refusal as the batch's.
+  Future<void> _refusedAs(String id, Future<void> Function() write) async {
+    try {
+      await write();
+    } on Object catch (e) {
+      if (!isBatchRefusal(e)) rethrow;
+      throw TransactionBatchException(id, e);
+    }
+  }
+
+  // upsert's write, inside the caller's database transaction; with [overridesOnly], a
+  // `plaid` row may change only the fields the user owns (upsertAll).
+  Future<void> _upsert(
+    Transaction transaction, {
+    bool overridesOnly = false,
+  }) async {
+    checkAuditInstants(transaction);
+    final String id = transaction.id;
+    final TransactionRow? existing = await (_database.select(
+      _transactions,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
+    if (existing != null && existing.deletedAt != null) {
+      throw EntityDeletedException('transaction', id);
+    }
+    final AccountRow? account =
+        await (_database.select(_database.accounts)..where(
+              (a) => a.id.equals(transaction.accountId) & a.deletedAt.isNull(),
+            ))
+            .getSingleOrNull();
+    if (account == null) {
+      throw AccountNotFoundException(transaction.accountId);
+    }
+    final Transaction? stored = existing == null
+        ? null
+        : (await transactionsWithChildren(_database, [existing])).single;
+    if (overridesOnly) checkPlaidOverridesOnly(transaction, stored);
+    final Map<String, Object?>? before = stored == null
+        ? null
+        : transactionRecordJson(
+            stored,
+            deletedWithAccount: existing!.deletedWithAccount,
+          );
+    await writeTransactionRow(
+      _database,
+      transaction,
+      currency: account.currency,
+    );
+    await _recorder.record(
+      EntityType.transaction,
+      id,
+      before,
+      transactionRecordJson(transaction.copyWith(deletedAt: null)),
+    );
+  }
 
   @override
   Future<List<Transaction>> applyPlaid(List<Transaction> page) =>

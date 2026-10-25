@@ -757,6 +757,183 @@ void runTransactionRepositoryContract(
       });
     });
 
+    group('batches', () {
+      final DateTime later = DateTime.utc(2026, 10, 24, 12);
+      // A Plaid row on a1 as the pull stores it.
+      final Transaction bank = Transaction(
+        id: 'p1',
+        accountId: 'a1',
+        amount: Money(-1599, 'USD'),
+        date: LocalDate(2026, 10, 20),
+        pending: false,
+        name: 'NETFLIX.COM',
+        merchantName: 'Netflix',
+        plaidPrimaryCategory: 'ENTERTAINMENT',
+        source: DataSource.plaid,
+        createdAt: testInstant,
+        updatedAt: testInstant,
+        syncVersion: 3,
+      );
+
+      setUp(() async {
+        await transactions.upsert(testTransaction('t1', 'a1', -100));
+        await transactions.upsert(testTransaction('t2', 'a2', -200));
+        await transactions.applyPlaid([bank]);
+      });
+
+      Future<Map<String, Transaction>> all() async => {
+        for (final Transaction t
+            in await transactions.watch(TransactionQuery.all).first)
+          t.id: t,
+      };
+
+      // Expects [write] to throw a TransactionBatchException naming [id] with a
+      // [Cause] cause, and to leave every transaction as it was.
+      Future<void> refused<Cause>(
+        Future<void> Function() write,
+        String id,
+      ) async {
+        final Map<String, Transaction> before = await all();
+        await expectLater(
+          write(),
+          throwsA(
+            isA<TransactionBatchException>()
+                .having((e) => e.transactionId, 'transactionId', id)
+                .having((e) => e.cause, 'cause', isA<Cause>()),
+          ),
+        );
+        expect(await all(), before);
+      }
+
+      test(
+        'upsertAll writes every transaction, Plaid overrides included',
+        () async {
+          final Map<String, Transaction> before = await all();
+          final List<Transaction> batch = [
+            before['t1']!.copyWith(hidden: true, updatedAt: later),
+            before['p1']!.copyWith(
+              hidden: true,
+              userCategoryId: 'c1',
+              notes: 'mine',
+              tags: const ['tv'],
+              updatedAt: later,
+            ),
+            testTransaction('t3', 'a2', -300, tags: const ['new']),
+          ];
+          await transactions.upsertAll(batch);
+          expect(await all(), {
+            't2': before['t2'],
+            for (final Transaction t in batch) t.id: t,
+          });
+          await transactions.upsertAll(const []);
+          expect(await transactions.count(TransactionQuery.all), 4);
+        },
+      );
+
+      test(
+        'upsertAll writes nothing when one transaction is deleted',
+        () async {
+          await transactions.delete('t2');
+          final Map<String, Transaction> live = await all();
+          await refused<EntityDeletedException>(
+            () => transactions.upsertAll([
+              live['t1']!.copyWith(hidden: true),
+              testTransaction('t2', 'a2', -200, hidden: true),
+            ]),
+            't2',
+          );
+        },
+      );
+
+      test(
+        'upsertAll writes nothing on a currency mismatch or a missing account',
+        () async {
+          await refused<CurrencyMismatchException>(
+            () => transactions.upsertAll([
+              testTransaction('t1', 'a1', -100, hidden: true),
+              testTransaction('t2', 'a2', -200, currency: 'EUR'),
+            ]),
+            't2',
+          );
+          await refused<AccountNotFoundException>(
+            () => transactions.upsertAll([
+              testTransaction('t1', 'a1', -100, hidden: true),
+              testTransaction('t4', 'nowhere', -1),
+            ]),
+            't4',
+          );
+        },
+      );
+
+      test(
+        'upsertAll refuses a changed Plaid field on a plaid row, naming it',
+        () async {
+          final Map<String, Transaction> before = await all();
+          await refused<PlaidOverridesOnlyError>(
+            () => transactions.upsertAll([
+              before['t1']!.copyWith(hidden: true),
+              before['p1']!.copyWith(hidden: true, name: 'Renamed'),
+            ]),
+            'p1',
+          );
+          await expectLater(
+            transactions.upsertAll([
+              before['p1']!.copyWith(amount: Money(-1, 'USD')),
+            ]),
+            throwsA(
+              isA<TransactionBatchException>().having(
+                (e) => e.cause,
+                'cause',
+                isA<PlaidOverridesOnlyError>().having(
+                  (e) => e.field,
+                  'field',
+                  'amount',
+                ),
+              ),
+            ),
+          );
+          await refused<PlaidOverridesOnlyError>(
+            () => transactions.upsertAll([
+              before['t1']!.copyWith(source: DataSource.plaid),
+            ]),
+            't1',
+          );
+          await refused<PlaidOverridesOnlyError>(
+            () => transactions.upsertAll([
+              bank.copyWith(id: 'p-new', hidden: true),
+            ]),
+            'p-new',
+          );
+        },
+      );
+
+      test('upsertAll refuses a repeated id before writing anything', () async {
+        final Map<String, Transaction> before = await all();
+        await expectLater(
+          transactions.upsertAll([
+            before['t1']!.copyWith(hidden: true),
+            before['t1']!.copyWith(notes: 'twice'),
+          ]),
+          throwsArgumentError,
+        );
+        expect(await all(), before);
+      });
+
+      test(
+        'deleteAll deletes every transaction, or none when one is plaid',
+        () async {
+          await refused<BankDataNotDeletableException>(
+            () => transactions.deleteAll(['t1', 'p1', 't2']),
+            'p1',
+          );
+          await transactions.deleteAll(['t1', 't2', 'missing']);
+          expect((await all()).keys, ['p1']);
+          await transactions.restore('t1');
+          expect(await transactions.watchById('t1').first, isNotNull);
+        },
+      );
+    });
+
     group('applyPlaid', () {
       final DateTime at = DateTime.utc(2026, 10, 20, 8);
       Transaction bank(
