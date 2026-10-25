@@ -82,6 +82,38 @@ void main() {
     );
   });
 
+  test('a v2 database with an Item migrates to v3 and keeps it', () {
+    final db = sqlite3.openInMemory();
+    addTearDown(db.close);
+    db.execute(
+      'CREATE TABLE schema_migrations ('
+      'version INTEGER PRIMARY KEY, applied_at INTEGER NOT NULL)',
+    );
+    db.execute(migrations[0]);
+    db.execute(migrations[1]);
+    db.execute('INSERT INTO schema_migrations VALUES (1, 0), (2, 0)');
+    db.execute("INSERT INTO users VALUES ('u', 'a@b.test', 'h', 'a', 0)");
+    db.execute(
+      'INSERT INTO items (id, user_id, plaid_item_id, institution_id, '
+      'institution_name, products, access_token_ciphertext, access_token_nonce, '
+      'status, error_code, institution_primary_color, cursor, created_at) '
+      "VALUES ('i', 'u', 'p', 'ins_1', 'Bank', '[\"investments\"]', x'00', "
+      "x'00', 'login_required', 'ITEM_LOGIN_REQUIRED', 4278220195, 'c1', 0)",
+    );
+    migrate(db);
+    final item = db.select('SELECT * FROM items').single;
+    expect(item['id'], 'i');
+    expect(item['status'], 'login_required');
+    expect(item['error_code'], 'ITEM_LOGIN_REQUIRED');
+    expect(item['institution_primary_color'], 0xFF0075A3);
+    expect(item['cursor'], 'c1');
+    expect(item['investments_synced_at'], isNull);
+    expect(
+      db.select('SELECT MAX(version) AS v FROM schema_migrations').first['v'],
+      3,
+    );
+  });
+
   test('a database newer than the server is refused', () {
     final db = sqlite3.openInMemory();
     addTearDown(db.close);

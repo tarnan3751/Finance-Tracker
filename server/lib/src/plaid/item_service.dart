@@ -5,8 +5,8 @@
 /// institution, kept in memory, and written onto every visible Item at that institution;
 /// a failure to fetch it is logged and never fails the exchange.
 ///
-/// This is the code Phase 3 reuses unchanged with the real client: it depends only on
-/// [PlaidClient], and stamps every stored row with the client's `provenance`. Access
+/// It depends only on [PlaidClient] (the fake or the HTTP client), and stamps every stored
+/// row with the client's `provenance`. Access
 /// tokens are stored sealed by [TokenCipher]. No Plaid call is made while a database
 /// transaction is open: a sync run fetches every page and every product first, then
 /// applies all of it, both cursors included, in one transaction, so a failure part-way
@@ -19,7 +19,13 @@
 /// with its data, and every call that would reach Plaid for it is 409 `conflict`. An
 /// exchange whose `/item/get` fails removes the new Item at Plaid before answering, so
 /// none is orphaned there; so does an exchange whose user or device went away while Plaid
-/// was called, which answers 401 `token_revoked`.
+/// was called, which answers 401 `token_revoked`. Plaid may exchange a public token twice
+/// for the same Item: an Item the caller already has is resealed with the new token and
+/// answered again, never duplicated or removed; another user's is a 400 on
+/// `public_token`. A sync run a request asked for answers `not_ready` at once; background
+/// runs (the scheduler, webhooks, refreshes) ask again every 5 s, up to 12 times.
+/// Investment transactions are fetched for 730 days the first time, then from 30 days
+/// before the previous fetch.
 library;
 
 import 'dart:async';
@@ -44,6 +50,20 @@ const plaidSyncPageSize = 500;
 /// How often a sync run restarts after `TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION`
 /// before it gives up.
 const maxPaginationRestarts = 3;
+
+/// How long a background sync run waits after `NOT_READY` before it asks again.
+const syncNotReadyWait = Duration(seconds: 5);
+
+/// How often a background sync run asks again after `NOT_READY` before it reports
+/// `not_ready`.
+const syncNotReadyRetries = 12;
+
+/// The investment-transactions window of an Item's first fetch (Plaid's maximum).
+const investmentsWindowDays = 730;
+
+/// How far before the previous fetch a later investment-transactions window starts, for
+/// rows Plaid posts late; the upsert makes the overlap harmless.
+const investmentsOverlapDays = 30;
 
 /// How long fetched institution metadata is used before it is fetched again.
 const institutionMetadataMaxAge = Duration(days: 1);
@@ -186,11 +206,37 @@ final class ItemService {
     final exchanged = await _plaid(
       () => plaid.exchangePublicToken(publicToken),
     );
+    // Plaid may exchange a public token twice, answering the same Item (PLAN.md §4): an
+    // Item the caller already has is updated, never duplicated, and never removed at
+    // Plaid here; another user's is refused.
+    final existing = await db.read(
+      (tx) => tx.first('SELECT * FROM items WHERE plaid_item_id = ?', [
+        exchanged.itemId,
+      ]),
+    );
+    if (existing != null &&
+        (existing['user_id'] != userId ||
+            existing['plaid_removed_at'] != null)) {
+      _log.warning(
+        LogEvent('exchange_foreign_item', {
+          'user_id': userId,
+          'item_id': existing['id'],
+        }),
+      );
+      throw ValidationException.single(
+        'public_token',
+        'cannot be exchanged by this user',
+      );
+    }
     final PlaidItem item;
     try {
       item = await plaid.getItem(exchanged.accessToken);
     } on PlaidException catch (e) {
-      await _removeOrphan(exchanged.accessToken);
+      // Only a genuinely new Item is removed: one the caller already has (or that an
+      // overlapping exchange stored meanwhile) stays.
+      if (!await _stored(exchanged.itemId)) {
+        await _removeOrphan(exchanged.accessToken);
+      }
       _log.warning(
         LogEvent('plaid_error', {
           'type': e.errorType,
@@ -200,9 +246,19 @@ final class ItemService {
       );
       throw plaidProblem(e);
     }
-    final id = newId();
-    final sealed = await cipher.seal(exchanged.accessToken, itemId: id);
-    final row = await db.transaction((tx) async {
+    final newItemId = newId();
+    final sealedFor = existing?['id'] as String? ?? newItemId;
+    final sealed = await cipher.seal(exchanged.accessToken, itemId: sealedFor);
+    final loginRequired = item.errorCode == 'ITEM_LOGIN_REQUIRED';
+    final status = loginRequired ? 'login_required' : 'healthy';
+    final errorCode = loginRequired ? item.errorCode : null;
+    // The existence check and the insert or reseal are one write transaction, which
+    // SQLite serializes: of two overlapping exchanges of one Item, the second finds the
+    // first's row and reseals it instead of breaking UNIQUE (plaid_item_id).
+    final outcome = await db.transaction((tx) async {
+      final current = tx.first('SELECT * FROM items WHERE plaid_item_id = ?', [
+        exchanged.itemId,
+      ]);
       // The user or the device may have gone while Plaid was called (a concurrent
       // DELETE /me or device removal): store nothing.
       if (tx.first('SELECT 1 FROM devices WHERE id = ? AND user_id = ?', [
@@ -210,38 +266,91 @@ final class ItemService {
             userId,
           ]) ==
           null) {
-        return null;
+        return (row: null, relinked: current != null, foreign: false);
       }
+      if (current != null) {
+        if (current['user_id'] != userId ||
+            current['plaid_removed_at'] != null) {
+          return (row: current, relinked: false, foreign: true);
+        }
+        final id = current['id']! as String;
+        final resealed = id == sealedFor
+            ? sealed
+            : await cipher.seal(exchanged.accessToken, itemId: id);
+        tx.execute(
+          'UPDATE items SET access_token_ciphertext = ?, access_token_nonce = ?, '
+          'status = ?, error_code = ?, institution_name = ?, products = ? '
+          'WHERE id = ?',
+          [
+            resealed.ciphertext,
+            resealed.nonce,
+            status,
+            errorCode,
+            item.institutionName,
+            jsonEncode(item.products),
+            id,
+          ],
+        );
+        return (
+          row: tx.first('SELECT * FROM items WHERE id = ?', [id]),
+          relinked: true,
+          foreign: false,
+        );
+      }
+      final fresh = newItemId == sealedFor
+          ? sealed
+          : await cipher.seal(exchanged.accessToken, itemId: newItemId);
       tx.execute(
         'INSERT INTO items (id, user_id, plaid_item_id, institution_id, '
         'institution_name, products, access_token_ciphertext, access_token_nonce, '
         'status, error_code, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
-          id,
+          newItemId,
           userId,
           exchanged.itemId,
           item.institutionId,
           item.institutionName,
           jsonEncode(item.products),
-          sealed.ciphertext,
-          sealed.nonce,
-          item.errorCode == 'ITEM_LOGIN_REQUIRED'
-              ? 'login_required'
-              : 'healthy',
-          item.errorCode == 'ITEM_LOGIN_REQUIRED' ? item.errorCode : null,
+          fresh.ciphertext,
+          fresh.nonce,
+          status,
+          errorCode,
           _nowMillis,
         ],
       );
-      return tx.first('SELECT * FROM items WHERE id = ?', [id])!;
+      return (
+        row: tx.first('SELECT * FROM items WHERE id = ?', [newItemId]),
+        relinked: false,
+        foreign: false,
+      );
     });
+    final row = outcome.row;
+    if (outcome.foreign) {
+      _log.warning(
+        LogEvent('exchange_foreign_item', {
+          'user_id': userId,
+          'item_id': row!['id'],
+        }),
+      );
+      throw ValidationException.single(
+        'public_token',
+        'cannot be exchanged by this user',
+      );
+    }
     if (row == null) {
-      await _removeOrphan(exchanged.accessToken);
+      if (!outcome.relinked) await _removeOrphan(exchanged.accessToken);
       throw const ProblemException.unauthorized(
         ProblemCode.tokenRevoked,
         detail: 'This device was signed out while the Item was being linked',
       );
     }
-    _log.info(LogEvent('item_linked', {'user_id': userId, 'item_id': id}));
+    final id = row['id']! as String;
+    _log.info(
+      LogEvent(outcome.relinked ? 'item_relinked' : 'item_linked', {
+        'user_id': userId,
+        'item_id': id,
+      }),
+    );
     await _institutionMetadata(item.institutionId);
     final stored = await db.read(
       (tx) => tx.first('SELECT * FROM items WHERE id = ?', [id]),
@@ -303,6 +412,15 @@ final class ItemService {
       await _institutionMetadata(id);
     }
   }
+
+  /// Whether a row holds Plaid's Item [plaidItemId].
+  Future<bool> _stored(String plaidItemId) async =>
+      await db.read(
+        (tx) => tx.first('SELECT 1 FROM items WHERE plaid_item_id = ?', [
+          plaidItemId,
+        ]),
+      ) !=
+      null;
 
   /// Removes, best effort, an Item exchanged at Plaid that the server will not store, so
   /// none is left there that the server does not know about.
@@ -440,9 +558,33 @@ final class ItemService {
   }
 
   /// Runs `/transactions/sync` for the Item, then the Item's other products, and applies
-  /// all of it in one transaction; the contract's `SyncRun`.
-  Future<Map<String, Object?>> sync(String userId, String itemId) =>
-      _serialized(itemId, () => _sync(userId, itemId));
+  /// all of it in one transaction; the contract's `SyncRun`. A run a request asked for
+  /// answers `not_ready` at once; a background run ([retryNotReady]: the scheduler, a
+  /// webhook, a refresh) asks again every [syncNotReadyWait], up to
+  /// [syncNotReadyRetries] times, before it does. Each attempt holds the Item's lock only
+  /// for its own Plaid calls and apply; the wait between attempts holds nothing, so a
+  /// request's run (the app polling `syncItem`, a balance refresh) takes its turn there.
+  Future<Map<String, Object?>> sync(
+    String userId,
+    String itemId, {
+    bool retryNotReady = false,
+  }) async {
+    var run = await _serialized(itemId, () => _sync(userId, itemId));
+    for (
+      var retry = 0;
+      retryNotReady &&
+          run['status'] == 'not_ready' &&
+          retry < syncNotReadyRetries;
+      retry++
+    ) {
+      await delay(syncNotReadyWait);
+      run = await _serialized(itemId, () => _sync(userId, itemId));
+    }
+    return run;
+  }
+
+  /// Whether a sync run (or a balance refresh) of [itemId] is running or waiting.
+  bool isSyncing(String itemId) => _running.containsKey(itemId);
 
   /// Runs [body] after every earlier run for [itemId]: one run per Item at a time, so a
   /// second sync starts from the cursor the first stored and no page is applied twice.
@@ -470,7 +612,7 @@ final class ItemService {
     final item = await loadActive(userId, itemId);
     await itemCall(itemId, () => plaid.transactionsRefresh(item.accessToken));
     unawaited(
-      sync(userId, itemId).then<void>(
+      sync(userId, itemId, retryNotReady: true).then<void>(
         (_) {},
         onError: (Object e) => _log.warning(
           LogEvent('item_refresh_sync_failed', {
@@ -656,7 +798,10 @@ final class ItemService {
             'investments_transactions',
             () => plaid.investmentsTransactionsGet(
               item.accessToken,
-              start: today.addDays(-730),
+              start: investmentsWindowStart(
+                today,
+                item.row['investments_synced_at'] as int?,
+              ),
               end: today,
             ),
           )
@@ -697,9 +842,16 @@ final class ItemService {
       }
       tx.execute(
         "UPDATE items SET cursor = ?, run_start_cursor = ?, status = 'healthy', "
-        'error_code = NULL, last_successful_sync_at = ? '
+        'error_code = NULL, last_successful_sync_at = ?, '
+        'investments_synced_at = COALESCE(?, investments_synced_at) '
         'WHERE id = ? AND plaid_removed_at IS NULL',
-        [pages.last.nextCursor, startCursor, _nowMillis, itemId],
+        [
+          pages.last.nextCursor,
+          startCursor,
+          _nowMillis,
+          investments == null ? null : _nowMillis,
+          itemId,
+        ],
       );
       return counts;
     });
@@ -1191,6 +1343,18 @@ final class ItemService {
     'ANNUALLY' => 'annually',
     _ => 'unknown',
   };
+}
+
+/// The first day of an investment-transactions fetch on [today]: [investmentsWindowDays]
+/// back when the Item's were never fetched, else [investmentsOverlapDays] before the UTC
+/// date of the previous fetch at [lastFetchMillis], never further back than the first.
+LocalDate investmentsWindowStart(LocalDate today, int? lastFetchMillis) {
+  final earliest = today.addDays(-investmentsWindowDays);
+  if (lastFetchMillis == null) return earliest;
+  final since = LocalDate.fromDateTime(
+    DateTime.fromMillisecondsSinceEpoch(lastFetchMillis, isUtc: true),
+  ).addDays(-investmentsOverlapDays);
+  return since.isBefore(earliest) ? earliest : since;
 }
 
 /// The contract's `Item` from an `items` row, its institution embedded. `logo_url` is

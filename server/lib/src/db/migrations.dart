@@ -27,7 +27,7 @@ final class SchemaTooNewException implements Exception {
 }
 
 /// The migrations, oldest first.
-const List<String> migrations = [_v1, _v2];
+const List<String> migrations = [_v1, _v2, _v3];
 
 /// Applies every migration [db] has not yet applied, each in its own transaction. A rerun
 /// applies nothing.
@@ -270,4 +270,10 @@ const _v2 = '''
 ALTER TABLE items ADD COLUMN error_code TEXT;
 ALTER TABLE items ADD COLUMN institution_logo BLOB;
 ALTER TABLE items ADD COLUMN institution_primary_color INTEGER;
+''';
+
+/// v3: when an Item's investment transactions were last fetched, so the next fetch asks
+/// only for the days since (with an overlap) instead of 730 days every run.
+const _v3 = '''
+ALTER TABLE items ADD COLUMN investments_synced_at INTEGER;
 ''';
