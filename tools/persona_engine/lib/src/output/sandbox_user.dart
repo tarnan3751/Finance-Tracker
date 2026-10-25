@@ -5,9 +5,12 @@
 /// (https://plaid.com/docs/sandbox/user-custom/). The rules the engine applies:
 /// - `roll_dates_forward: false`: Plaid would shift each Item by its own newest activity
 ///   date, which pulls the legs of a transfer between two Items apart. The provisioning
-///   script instead shifts every date of every Item of a persona by one amount, the
-///   creation date minus the as-of date (see `injection.dart`). No `inflow_model`, which
-///   would add transactions of Plaid's own.
+///   job instead shifts every date of every Item of a persona by one amount, the
+///   creation date minus the as-of date ([shiftSandboxUserDates]). No `inflow_model`,
+///   which would add transactions of Plaid's own.
+/// - The transactions are the newest whole days that keep the configuration, as the
+///   request carries it ([sandboxRequestBytes]), within `sandboxConfigByteBudget`
+///   (`sandbox_split.dart`).
 /// - Amounts in Plaid's sign: positive is money out of the account. `starting_balance` is
 ///   the balance on the as-of date, positive for money held in a depository or investment
 ///   account and for money owed on a card or loan.
@@ -23,6 +26,8 @@
 /// [shiftSandboxUserDates] applies the provisioning job's one date shift to a
 /// configuration.
 library;
+
+import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:persona_engine/src/model/household.dart';
@@ -54,25 +59,39 @@ final class SandboxUser {
 List<SandboxUser> sandboxUsers(
   GeneratedHousehold household, {
   bool includeInterestLegs = true,
-}) {
-  final persona = household.persona;
-  return [
-    for (final split in splitForSandbox(
-      household,
-      includeInterestLegs: includeInterestLegs,
-    ))
-      _user(household, persona, split),
-  ];
-}
+}) => [
+  for (final split in splitForSandbox(
+    household,
+    includeInterestLegs: includeInterestLegs,
+    fits: (institution, carried) =>
+        sandboxRequestBytes(
+          sandboxUserConfig(household, institution, carried),
+        ) <=
+        sandboxConfigByteBudget,
+  ))
+    SandboxUser._(
+      split,
+      sandboxUserConfig(household, split.institution, split.customUser),
+    ),
+];
 
-SandboxUser _user(
+/// The bytes [config] takes in a `/sandbox/public_token/create` request: the UTF-8
+/// length of its compact JSON, written as the JSON string `override_password` is, quotes
+/// and escapes included.
+int sandboxRequestBytes(Map<String, Object?> config) =>
+    utf8.encode(jsonEncode(writeJson(config, pretty: false))).length;
+
+/// The configuration of [institution]'s custom user carrying [carried] (in id order),
+/// with every account, holding, liability and identity of the institution.
+Map<String, Object?> sandboxUserConfig(
   GeneratedHousehold household,
-  Persona persona,
-  InstitutionSplit split,
+  InstitutionSpec institution,
+  List<Transaction> carried,
 ) {
+  final persona = household.persona;
   final accounts = <Map<String, Object?>>[];
   for (final spec in persona.accounts) {
-    if (spec.institution != split.institution.key) continue;
+    if (spec.institution != institution.key) continue;
     final accountId = accountIdFor(persona.id, spec.key);
     final account = household.accounts.firstWhere((a) => a.id == accountId);
     final balance = account.currentBalance!;
@@ -81,7 +100,7 @@ SandboxUser _user(
     final limit = spec.creditLimit;
     final apy = spec.apyBasisPoints;
     final transactions = [
-      for (final t in split.customUser)
+      for (final t in carried)
         if (t.accountId == accountId) t,
     ];
     final json = <String, Object?>{
@@ -136,13 +155,17 @@ SandboxUser _user(
     if (liabilityJson != null) json['liability'] = liabilityJson;
     accounts.add(json);
   }
-  return SandboxUser._(split, {
+  return {
     'version': 2,
-    'seed': '${persona.id.slug}-${household.seed}-${split.institution.key}',
+    'seed': '${persona.id.slug}-${household.seed}-${institution.key}',
     'roll_dates_forward': false,
     'override_accounts': accounts,
-  });
+  };
 }
+
+/// The custom user's file name.
+String sandboxUserFileName(SandboxUser user) =>
+    'sandbox_user_${user.split.institution.key}.json';
 
 /// Every key whose value is a calendar date in a custom-user configuration.
 const sandboxUserDateKeys = {

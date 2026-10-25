@@ -1,7 +1,7 @@
 /// The persona engine's command line.
 ///
 ///     dart run persona_engine --persona <name> --seed <int> --output <dir>
-///         [--format demo|sandbox-user|injection|all] [--days 730]
+///         [--format demo|sandbox-user|all] [--days 730]
 ///         [--as-of 2026-10-24] [--no-interest-legs]
 ///
 /// Writes the chosen outputs into `<dir>/<persona>/`. The as-of date defaults to the day

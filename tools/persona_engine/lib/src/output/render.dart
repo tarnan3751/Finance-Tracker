@@ -7,8 +7,8 @@ import 'dart:collection';
 import 'package:persona_engine/src/generate/generator.dart';
 import 'package:persona_engine/src/model/persona.dart';
 import 'package:persona_engine/src/output/demo_seed.dart';
-import 'package:persona_engine/src/output/injection.dart';
 import 'package:persona_engine/src/output/json_writer.dart';
+import 'package:persona_engine/src/output/sandbox_manifest.dart';
 import 'package:persona_engine/src/output/sandbox_user.dart';
 import 'package:persona_engine/src/personas/personas.dart';
 import 'package:shared_models/shared_models.dart';
@@ -18,11 +18,9 @@ enum OutputFormat {
   /// `demo_seed.json`.
   demo('demo'),
 
-  /// `sandbox_user_<institution>.json`, one per institution.
-  sandboxUser('sandbox-user'),
-
-  /// `injection_<institution>.json` and `injection_manifest.json`.
-  injection('injection');
+  /// `sandbox_user_<institution>.json`, one per institution, and
+  /// `sandbox_manifest.json`.
+  sandboxUser('sandbox-user');
 
   const OutputFormat(this.flag);
 
@@ -51,29 +49,21 @@ SplayTreeMap<String, String> renderOutputs(
   if (formats.contains(OutputFormat.demo)) {
     files['demo_seed.json'] = writeJson(DemoSeed(household).toJson());
   }
-  if (formats.contains(OutputFormat.sandboxUser) ||
-      formats.contains(OutputFormat.injection)) {
+  if (formats.contains(OutputFormat.sandboxUser)) {
     final users = sandboxUsers(
       household,
       includeInterestLegs: includeInterestLegs,
     );
     for (final u in users) {
-      if (formats.contains(OutputFormat.sandboxUser)) {
-        files[sandboxUserFileName(u)] = writeJson(u.config);
-      }
-      if (formats.contains(OutputFormat.injection)) {
-        files[injectionFileName(u)] = writeJson(injectionFile(household, u));
-      }
+      files[sandboxUserFileName(u)] = writeJson(u.config);
     }
-    if (formats.contains(OutputFormat.injection)) {
-      files['injection_manifest.json'] = writeJson(
-        injectionManifest(
-          household,
-          users,
-          includeInterestLegs: includeInterestLegs,
-        ),
-      );
-    }
+    files[sandboxManifestFileName] = writeJson(
+      sandboxManifest(
+        household,
+        users,
+        includeInterestLegs: includeInterestLegs,
+      ),
+    );
   }
   return files;
 }

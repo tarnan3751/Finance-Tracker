@@ -1,7 +1,5 @@
 // Invariants every household must hold, shared by the per-persona tests and the property
 // tests over many seeds. Each returns a list of violations, empty when the household holds.
-import 'dart:convert';
-
 import 'package:persona_engine/persona_engine.dart';
 import 'package:shared_models/shared_models.dart';
 
@@ -89,7 +87,9 @@ List<String> depositoryFloorViolations(GeneratedHousehold h) {
   return problems;
 }
 
-/// Plaid's custom-user and injection limits hold, and the split is a partition.
+/// Plaid's custom-user limits hold: ten accounts and the request budget; each custom
+/// user carries its institution's newest whole days, and the carried and left-out rows
+/// partition the household's transactions.
 List<String> sandboxViolations(GeneratedHousehold h) {
   final problems = <String>[];
   final users = sandboxUsers(h);
@@ -98,23 +98,19 @@ List<String> sandboxViolations(GeneratedHousehold h) {
     final key = u.split.institution.key;
     final accounts = u.config['override_accounts']! as List<Object?>;
     if (accounts.length > 10) problems.add('$key: ${accounts.length} accounts');
-    if (u.split.customUser.length > customUserTransactionBudget) {
-      problems.add('$key: ${u.split.customUser.length} transactions');
-    }
-    final size = utf8.encode(writeJson(u.config, pretty: false)).length;
-    if (size > 50000) problems.add('$key: $size bytes');
-    for (final t in [...u.split.customUser, ...u.split.injected]) {
+    final size = sandboxRequestBytes(u.config);
+    if (size > sandboxConfigByteBudget) problems.add('$key: $size bytes');
+    for (final t in [...u.split.customUser, ...u.split.leftOut]) {
       if (!carried.add(t.id)) problems.add('$key: ${t.id} twice');
     }
-    for (final t in u.split.injected) {
-      if (!h.accountSpec(t.accountId).acceptsInjection) {
-        problems.add('$key: ${t.id} injected into a student loan');
-      }
-    }
-    final batches = (injectionFile(h, u)['batches']! as List<Object?>)
-        .cast<List<Object?>>();
-    if (batches.any((b) => b.isEmpty || b.length > 10)) {
-      problems.add('$key: a batch outside 1 to 10');
+    final kept = u.split.customUser;
+    final left = u.split.leftOut;
+    if (kept.isNotEmpty &&
+        left.isNotEmpty &&
+        !left.first.date.isBefore(kept.first.date)) {
+      problems.add(
+        '$key: ${left.first.date} left out, ${kept.first.date} kept',
+      );
     }
   }
   if (h.window.start.daysUntil(h.asOf) > 729) problems.add('window too long');

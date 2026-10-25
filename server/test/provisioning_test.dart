@@ -117,7 +117,7 @@ void main() {
     );
     expect(items.single['status'], 'healthy');
 
-    // Every transaction of the custom user arrived once, as the
+    // Every transaction of the custom user (here the whole 120 days) arrived once, as the
     // fake's demo data, every date moved by the one shift: Plaid's today (UTC−12, so
     // 2026-10-23) minus the engine's as-of date (2026-10-24). Nothing was injected.
     final household = generateHousehold(
@@ -127,6 +127,7 @@ void main() {
       days: 120,
     );
     final user = sandboxUsers(household).single;
+    expect(user.split.leftOut, isEmpty);
     String key(LocalDate date, Money amount, String name) =>
         '${date.toIso()} ${amount.minorUnits} $name';
     final expected = [
@@ -231,7 +232,7 @@ void main() {
       final platypus = users.firstWhere(
         (u) => u.split.institution.key == 'platypus',
       );
-      expect(platypus.split.injected, isNotEmpty);
+      expect(platypus.split.leftOut, isNotEmpty);
       String key(LocalDate date, Money amount, String name) =>
           '${date.toIso()} ${amount.minorUnits} $name';
       final stored = await allTransactions();

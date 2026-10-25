@@ -1,6 +1,6 @@
 /// The committed goldens, as a function: for each persona at seed 1 and as of 2026-10-24,
 /// - `days120/`: every output over 120 days, byte for byte (small enough to diff);
-/// - `days730/`: the custom users and the manifest over the full window, byte for byte
+/// - `days730/`: the custom users and their manifest over the full window, byte for byte
 ///   (the Sandbox fixtures Phase 3 provisions);
 /// - `digests.json`: the FNV-1a 64 of every output over the full window.
 /// `tool/update_goldens.dart` writes these files; `test/determinism_test.dart` compares.
@@ -34,8 +34,7 @@ SplayTreeMap<String, String> goldenSet(PersonaId persona) {
   }
   final full = renderOutputs(persona, seed: goldenSeed, asOf: goldenAsOf);
   for (final e in full.entries) {
-    if (e.key.startsWith('sandbox_user_') ||
-        e.key == 'injection_manifest.json') {
+    if (e.key.startsWith('sandbox_user_') || e.key == sandboxManifestFileName) {
       files['days$maxWindowDays/${e.key}'] = e.value;
     }
   }

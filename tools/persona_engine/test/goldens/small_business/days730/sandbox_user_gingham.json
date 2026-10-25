@@ -46,6 +46,860 @@
       },
       "transactions": [
         {
+          "date_transacted": "2025-03-03",
+          "date_posted": "2025-03-03",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-03",
+          "date_posted": "2025-03-03",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-04",
+          "date_posted": "2025-03-04",
+          "amount": -2057.22,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-05",
+          "date_posted": "2025-03-05",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-11",
+          "date_posted": "2025-03-11",
+          "amount": -1663.20,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-15",
+          "date_posted": "2025-03-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-18",
+          "date_posted": "2025-03-18",
+          "amount": -2943.82,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-24",
+          "date_posted": "2025-03-24",
+          "amount": 1578.22,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-25",
+          "date_posted": "2025-03-25",
+          "amount": -2418.68,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-01",
+          "date_posted": "2025-04-01",
+          "amount": -1602.26,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-01",
+          "date_posted": "2025-04-01",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-01",
+          "date_posted": "2025-04-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-03",
+          "date_posted": "2025-04-03",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-07",
+          "date_posted": "2025-04-07",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-08",
+          "date_posted": "2025-04-08",
+          "amount": -2602.38,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-15",
+          "date_posted": "2025-04-15",
+          "amount": -2771.56,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-15",
+          "date_posted": "2025-04-15",
+          "amount": 9000.00,
+          "description": "IRS USATAXPYMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-15",
+          "date_posted": "2025-04-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-21",
+          "date_posted": "2025-04-21",
+          "amount": 1130.60,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-22",
+          "date_posted": "2025-04-22",
+          "amount": -2849.88,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-29",
+          "date_posted": "2025-04-29",
+          "amount": -2075.04,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-01",
+          "date_posted": "2025-05-01",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-01",
+          "date_posted": "2025-05-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-05",
+          "date_posted": "2025-05-05",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-05",
+          "date_posted": "2025-05-05",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-06",
+          "date_posted": "2025-05-06",
+          "amount": -2491.50,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-13",
+          "date_posted": "2025-05-13",
+          "amount": -1494.02,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-15",
+          "date_posted": "2025-05-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-20",
+          "date_posted": "2025-05-20",
+          "amount": -2744.94,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-22",
+          "date_posted": "2025-05-22",
+          "amount": 1418.58,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-27",
+          "date_posted": "2025-05-27",
+          "amount": -1576.08,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-01",
+          "date_posted": "2025-06-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-02",
+          "date_posted": "2025-06-02",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-03",
+          "date_posted": "2025-06-03",
+          "amount": -2956.58,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-03",
+          "date_posted": "2025-06-03",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-05",
+          "date_posted": "2025-06-05",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-10",
+          "date_posted": "2025-06-10",
+          "amount": -1522.62,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-15",
+          "date_posted": "2025-06-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-16",
+          "date_posted": "2025-06-16",
+          "amount": 9000.00,
+          "description": "IRS USATAXPYMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-17",
+          "date_posted": "2025-06-17",
+          "amount": -1988.36,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-21",
+          "date_posted": "2025-06-21",
+          "amount": 1302.55,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-24",
+          "date_posted": "2025-06-24",
+          "amount": -2115.30,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-01",
+          "date_posted": "2025-07-01",
+          "amount": -2418.02,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-01",
+          "date_posted": "2025-07-01",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-01",
+          "date_posted": "2025-07-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-03",
+          "date_posted": "2025-07-03",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-07",
+          "date_posted": "2025-07-07",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-08",
+          "date_posted": "2025-07-08",
+          "amount": -1878.80,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-15",
+          "date_posted": "2025-07-15",
+          "amount": -2064.48,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-15",
+          "date_posted": "2025-07-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-22",
+          "date_posted": "2025-07-22",
+          "amount": -2479.18,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-22",
+          "date_posted": "2025-07-22",
+          "amount": 1724.54,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-29",
+          "date_posted": "2025-07-29",
+          "amount": -1917.30,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-01",
+          "date_posted": "2025-08-01",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-01",
+          "date_posted": "2025-08-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-04",
+          "date_posted": "2025-08-04",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-05",
+          "date_posted": "2025-08-05",
+          "amount": -1439.68,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-05",
+          "date_posted": "2025-08-05",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-12",
+          "date_posted": "2025-08-12",
+          "amount": -2344.54,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-15",
+          "date_posted": "2025-08-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-19",
+          "date_posted": "2025-08-19",
+          "amount": -2275.24,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-21",
+          "date_posted": "2025-08-21",
+          "amount": 1135.69,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-26",
+          "date_posted": "2025-08-26",
+          "amount": -1734.26,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-01",
+          "date_posted": "2025-09-01",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-01",
+          "date_posted": "2025-09-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-02",
+          "date_posted": "2025-09-02",
+          "amount": -2838.88,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-03",
+          "date_posted": "2025-09-03",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-05",
+          "date_posted": "2025-09-05",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-09",
+          "date_posted": "2025-09-09",
+          "amount": -2506.46,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-15",
+          "date_posted": "2025-09-15",
+          "amount": 9000.00,
+          "description": "IRS USATAXPYMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-15",
+          "date_posted": "2025-09-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-16",
+          "date_posted": "2025-09-16",
+          "amount": -2118.16,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-21",
+          "date_posted": "2025-09-21",
+          "amount": 2106.00,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-23",
+          "date_posted": "2025-09-23",
+          "amount": -2917.20,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-30",
+          "date_posted": "2025-09-30",
+          "amount": -2341.90,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-01",
+          "date_posted": "2025-10-01",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-01",
+          "date_posted": "2025-10-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-03",
+          "date_posted": "2025-10-03",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-06",
+          "date_posted": "2025-10-06",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-07",
+          "date_posted": "2025-10-07",
+          "amount": -1437.26,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-14",
+          "date_posted": "2025-10-14",
+          "amount": -2162.60,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-15",
+          "date_posted": "2025-10-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-21",
+          "date_posted": "2025-10-21",
+          "amount": -1651.98,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-22",
+          "date_posted": "2025-10-22",
+          "amount": 3633.17,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-28",
+          "date_posted": "2025-10-28",
+          "amount": -1494.46,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-01",
+          "date_posted": "2025-11-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-03",
+          "date_posted": "2025-11-03",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-03",
+          "date_posted": "2025-11-03",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-04",
+          "date_posted": "2025-11-04",
+          "amount": -1710.50,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-05",
+          "date_posted": "2025-11-05",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-11",
+          "date_posted": "2025-11-11",
+          "amount": -2203.74,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-15",
+          "date_posted": "2025-11-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-18",
+          "date_posted": "2025-11-18",
+          "amount": -1690.04,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-21",
+          "date_posted": "2025-11-21",
+          "amount": 730.88,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-25",
+          "date_posted": "2025-11-25",
+          "amount": -2477.20,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-01",
+          "date_posted": "2025-12-01",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-01",
+          "date_posted": "2025-12-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-02",
+          "date_posted": "2025-12-02",
+          "amount": -1621.18,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-03",
+          "date_posted": "2025-12-03",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-05",
+          "date_posted": "2025-12-05",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-09",
+          "date_posted": "2025-12-09",
+          "amount": -2546.72,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-15",
+          "date_posted": "2025-12-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-16",
+          "date_posted": "2025-12-16",
+          "amount": -2404.82,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-22",
+          "date_posted": "2025-12-22",
+          "amount": 1336.47,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-23",
+          "date_posted": "2025-12-23",
+          "amount": -1669.58,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-30",
+          "date_posted": "2025-12-30",
+          "amount": -1980.66,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-01",
+          "date_posted": "2026-01-01",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-01",
+          "date_posted": "2026-01-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-05",
+          "date_posted": "2026-01-05",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-05",
+          "date_posted": "2026-01-05",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-06",
+          "date_posted": "2026-01-06",
+          "amount": -1961.74,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-13",
+          "date_posted": "2026-01-13",
+          "amount": -2635.38,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-15",
+          "date_posted": "2026-01-15",
+          "amount": 9000.00,
+          "description": "IRS USATAXPYMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-15",
+          "date_posted": "2026-01-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-20",
+          "date_posted": "2026-01-20",
+          "amount": -2194.72,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-21",
+          "date_posted": "2026-01-21",
+          "amount": 2085.65,
+          "description": "GINGHAM BUSINESS CARD PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-27",
+          "date_posted": "2026-01-27",
+          "amount": -2007.50,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-01",
+          "date_posted": "2026-02-01",
+          "amount": 4000.00,
+          "description": "ONLINE TRANSFER TO PERSONAL CHK",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-02",
+          "date_posted": "2026-02-02",
+          "amount": 650.00,
+          "description": "WEWORK MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-03",
+          "date_posted": "2026-02-03",
+          "amount": -1826.00,
+          "description": "STRIPE TRANSFER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-03",
+          "date_posted": "2026-02-03",
+          "amount": 249.00,
+          "description": "BENCH ACCOUNTING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-05",
+          "date_posted": "2026-02-05",
+          "amount": -3500.00,
+          "description": "HARBORVIEW HOLDINGS ACH PMT",
+          "currency": "USD"
+        },
+        {
           "date_transacted": "2026-02-10",
           "date_posted": "2026-02-10",
           "amount": -2120.58,
@@ -720,6 +1574,1693 @@
         ]
       },
       "transactions": [
+        {
+          "date_transacted": "2025-03-04",
+          "date_posted": "2025-03-04",
+          "amount": 22.89,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-06",
+          "date_posted": "2025-03-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-06",
+          "date_posted": "2025-03-08",
+          "amount": 167.16,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-10",
+          "date_posted": "2025-03-10",
+          "amount": 17.30,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-11",
+          "date_posted": "2025-03-11",
+          "amount": 169.66,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-13",
+          "date_posted": "2025-03-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-14",
+          "date_posted": "2025-03-15",
+          "amount": 18.94,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-15",
+          "date_posted": "2025-03-15",
+          "amount": 23.09,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-18",
+          "date_posted": "2025-03-19",
+          "amount": 15.16,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-19",
+          "date_posted": "2025-03-20",
+          "amount": 32.90,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-19",
+          "date_posted": "2025-03-21",
+          "amount": 79.31,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-24",
+          "date_posted": "2025-03-24",
+          "amount": -1578.22,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-25",
+          "date_posted": "2025-03-26",
+          "amount": 20.52,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-26",
+          "date_posted": "2025-03-26",
+          "amount": 14.42,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-27",
+          "date_posted": "2025-03-27",
+          "amount": 18.57,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-29",
+          "date_posted": "2025-03-29",
+          "amount": 34.98,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-30",
+          "date_posted": "2025-03-30",
+          "amount": 179.46,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-03-29",
+          "date_posted": "2025-03-31",
+          "amount": 99.56,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-01",
+          "date_posted": "2025-04-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-01",
+          "date_posted": "2025-04-01",
+          "amount": 28.79,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-02",
+          "date_posted": "2025-04-02",
+          "amount": 302.19,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-02",
+          "date_posted": "2025-04-03",
+          "amount": 11.84,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-04",
+          "date_posted": "2025-04-04",
+          "amount": 144.85,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-04",
+          "date_posted": "2025-04-05",
+          "amount": 20.69,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-05",
+          "date_posted": "2025-04-06",
+          "amount": 137.90,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-06",
+          "date_posted": "2025-04-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-08",
+          "date_posted": "2025-04-09",
+          "amount": 31.71,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-10",
+          "date_posted": "2025-04-11",
+          "amount": 15.96,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-13",
+          "date_posted": "2025-04-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-12",
+          "date_posted": "2025-04-14",
+          "amount": 16.47,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-14",
+          "date_posted": "2025-04-15",
+          "amount": 17.87,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-17",
+          "date_posted": "2025-04-18",
+          "amount": 25.54,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-17",
+          "date_posted": "2025-04-18",
+          "amount": 20.64,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-21",
+          "date_posted": "2025-04-21",
+          "amount": -1130.60,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-23",
+          "date_posted": "2025-04-25",
+          "amount": 151.00,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-26",
+          "date_posted": "2025-04-26",
+          "amount": 25.78,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-26",
+          "date_posted": "2025-04-27",
+          "amount": 12.54,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-04-28",
+          "date_posted": "2025-04-28",
+          "amount": 26.16,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-01",
+          "date_posted": "2025-05-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-01",
+          "date_posted": "2025-05-01",
+          "amount": 22.25,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-02",
+          "date_posted": "2025-05-02",
+          "amount": 327.98,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-02",
+          "date_posted": "2025-05-02",
+          "amount": 30.82,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-06",
+          "date_posted": "2025-05-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-05",
+          "date_posted": "2025-05-07",
+          "amount": 108.82,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-08",
+          "date_posted": "2025-05-08",
+          "amount": 21.25,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-11",
+          "date_posted": "2025-05-11",
+          "amount": 17.34,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-13",
+          "date_posted": "2025-05-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-15",
+          "date_posted": "2025-05-15",
+          "amount": 19.76,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-16",
+          "date_posted": "2025-05-16",
+          "amount": 25.21,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-16",
+          "date_posted": "2025-05-16",
+          "amount": 17.80,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-18",
+          "date_posted": "2025-05-20",
+          "amount": 107.00,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-20",
+          "date_posted": "2025-05-20",
+          "amount": 49.37,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-21",
+          "date_posted": "2025-05-21",
+          "amount": 86.56,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-22",
+          "date_posted": "2025-05-22",
+          "amount": -1418.58,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-23",
+          "date_posted": "2025-05-23",
+          "amount": 118.43,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-26",
+          "date_posted": "2025-05-26",
+          "amount": 84.71,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-26",
+          "date_posted": "2025-05-28",
+          "amount": 116.85,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-27",
+          "date_posted": "2025-05-28",
+          "amount": 25.45,
+          "description": "LYFT *RIDE SUN 2PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-29",
+          "date_posted": "2025-05-29",
+          "amount": 52.75,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-05-30",
+          "date_posted": "2025-05-30",
+          "amount": 13.78,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-01",
+          "date_posted": "2025-06-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-02",
+          "date_posted": "2025-06-02",
+          "amount": 311.49,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-03",
+          "date_posted": "2025-06-04",
+          "amount": 16.86,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-04",
+          "date_posted": "2025-06-04",
+          "amount": 89.48,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-06",
+          "date_posted": "2025-06-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-08",
+          "date_posted": "2025-06-08",
+          "amount": 130.24,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-10",
+          "date_posted": "2025-06-10",
+          "amount": 18.55,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-10",
+          "date_posted": "2025-06-11",
+          "amount": 218.06,
+          "description": "MARRIOTT SAN DIEGO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-13",
+          "date_posted": "2025-06-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-13",
+          "date_posted": "2025-06-13",
+          "amount": 16.74,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-13",
+          "date_posted": "2025-06-15",
+          "amount": 45.35,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-15",
+          "date_posted": "2025-06-17",
+          "amount": 86.20,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-17",
+          "date_posted": "2025-06-19",
+          "amount": 144.80,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-20",
+          "date_posted": "2025-06-21",
+          "amount": 22.88,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-21",
+          "date_posted": "2025-06-21",
+          "amount": -1302.55,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-21",
+          "date_posted": "2025-06-23",
+          "amount": 154.31,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-25",
+          "date_posted": "2025-06-25",
+          "amount": 16.72,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-26",
+          "date_posted": "2025-06-26",
+          "amount": 123.41,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-25",
+          "date_posted": "2025-06-27",
+          "amount": 115.23,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-27",
+          "date_posted": "2025-06-27",
+          "amount": 130.25,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-27",
+          "date_posted": "2025-06-28",
+          "amount": 32.92,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-28",
+          "date_posted": "2025-06-29",
+          "amount": 18.73,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-30",
+          "date_posted": "2025-06-30",
+          "amount": 77.13,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-06-30",
+          "date_posted": "2025-07-01",
+          "amount": 10.72,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-01",
+          "date_posted": "2025-07-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-02",
+          "date_posted": "2025-07-02",
+          "amount": 249.89,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-02",
+          "date_posted": "2025-07-02",
+          "amount": 88.19,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-03",
+          "date_posted": "2025-07-03",
+          "amount": 32.08,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-04",
+          "date_posted": "2025-07-05",
+          "amount": 9.76,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-06",
+          "date_posted": "2025-07-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-08",
+          "date_posted": "2025-07-09",
+          "amount": 28.17,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-09",
+          "date_posted": "2025-07-09",
+          "amount": 13.22,
+          "description": "LYFT *RIDE SUN 2PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-13",
+          "date_posted": "2025-07-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-14",
+          "date_posted": "2025-07-15",
+          "amount": 10.91,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-17",
+          "date_posted": "2025-07-19",
+          "amount": 169.69,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-19",
+          "date_posted": "2025-07-19",
+          "amount": 26.98,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-22",
+          "date_posted": "2025-07-22",
+          "amount": -1724.54,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-22",
+          "date_posted": "2025-07-22",
+          "amount": 15.87,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-22",
+          "date_posted": "2025-07-22",
+          "amount": 27.09,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-23",
+          "date_posted": "2025-07-24",
+          "amount": 20.62,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-25",
+          "date_posted": "2025-07-27",
+          "amount": 51.23,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-31",
+          "date_posted": "2025-07-31",
+          "amount": 663.46,
+          "description": "UNITED 0167",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-01",
+          "date_posted": "2025-08-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-01",
+          "date_posted": "2025-08-01",
+          "amount": 8.08,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-07-31",
+          "date_posted": "2025-08-02",
+          "amount": 15.72,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-01",
+          "date_posted": "2025-08-02",
+          "amount": 126.26,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-02",
+          "date_posted": "2025-08-02",
+          "amount": 331.86,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-03",
+          "date_posted": "2025-08-03",
+          "amount": 28.02,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-04",
+          "date_posted": "2025-08-04",
+          "amount": 14.76,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-05",
+          "date_posted": "2025-08-05",
+          "amount": 32.59,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-04",
+          "date_posted": "2025-08-06",
+          "amount": 22.18,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-06",
+          "date_posted": "2025-08-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-06",
+          "date_posted": "2025-08-07",
+          "amount": 11.32,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-06",
+          "date_posted": "2025-08-08",
+          "amount": 14.31,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-07",
+          "date_posted": "2025-08-08",
+          "amount": 24.77,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-07",
+          "date_posted": "2025-08-09",
+          "amount": 37.29,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-12",
+          "date_posted": "2025-08-12",
+          "amount": 78.75,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-13",
+          "date_posted": "2025-08-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-13",
+          "date_posted": "2025-08-14",
+          "amount": 167.07,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-14",
+          "date_posted": "2025-08-15",
+          "amount": 379.20,
+          "description": "MARRIOTT SAN DIEGO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-21",
+          "date_posted": "2025-08-21",
+          "amount": -1135.69,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-21",
+          "date_posted": "2025-08-22",
+          "amount": 22.09,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-23",
+          "date_posted": "2025-08-24",
+          "amount": 6.03,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-27",
+          "date_posted": "2025-08-27",
+          "amount": 29.40,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-27",
+          "date_posted": "2025-08-28",
+          "amount": 24.56,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-27",
+          "date_posted": "2025-08-29",
+          "amount": 122.30,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-29",
+          "date_posted": "2025-08-29",
+          "amount": 14.43,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-28",
+          "date_posted": "2025-08-30",
+          "amount": 19.72,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-08-29",
+          "date_posted": "2025-08-30",
+          "amount": 79.23,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-01",
+          "date_posted": "2025-09-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-02",
+          "date_posted": "2025-09-02",
+          "amount": 330.15,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-02",
+          "date_posted": "2025-09-02",
+          "amount": 1448.47,
+          "description": "GUITAR CENTER #217",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-02",
+          "date_posted": "2025-09-03",
+          "amount": 34.34,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-02",
+          "date_posted": "2025-09-03",
+          "amount": 31.52,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-04",
+          "date_posted": "2025-09-05",
+          "amount": 169.36,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-06",
+          "date_posted": "2025-09-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-06",
+          "date_posted": "2025-09-07",
+          "amount": 62.88,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-08",
+          "date_posted": "2025-09-08",
+          "amount": 34.59,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-08",
+          "date_posted": "2025-09-09",
+          "amount": 16.56,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-09",
+          "date_posted": "2025-09-09",
+          "amount": 18.88,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-08",
+          "date_posted": "2025-09-10",
+          "amount": 105.55,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-13",
+          "date_posted": "2025-09-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-16",
+          "date_posted": "2025-09-16",
+          "amount": 10.55,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-15",
+          "date_posted": "2025-09-17",
+          "amount": 285.19,
+          "description": "MARRIOTT SAN DIEGO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-17",
+          "date_posted": "2025-09-18",
+          "amount": 22.79,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-18",
+          "date_posted": "2025-09-18",
+          "amount": 86.36,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-21",
+          "date_posted": "2025-09-21",
+          "amount": -2106.00,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-21",
+          "date_posted": "2025-09-21",
+          "amount": 15.40,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-23",
+          "date_posted": "2025-09-23",
+          "amount": 528.19,
+          "description": "UNITED 0167",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-09-24",
+          "date_posted": "2025-09-24",
+          "amount": 20.51,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-01",
+          "date_posted": "2025-10-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-02",
+          "date_posted": "2025-10-02",
+          "amount": 349.59,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-02",
+          "date_posted": "2025-10-03",
+          "amount": 30.33,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-06",
+          "date_posted": "2025-10-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-06",
+          "date_posted": "2025-10-08",
+          "amount": 14.96,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-10",
+          "date_posted": "2025-10-10",
+          "amount": 25.89,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-11",
+          "date_posted": "2025-10-12",
+          "amount": 14.69,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-12",
+          "date_posted": "2025-10-13",
+          "amount": 24.54,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-13",
+          "date_posted": "2025-10-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-15",
+          "date_posted": "2025-10-15",
+          "amount": 17.54,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-17",
+          "date_posted": "2025-10-19",
+          "amount": 21.17,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-19",
+          "date_posted": "2025-10-21",
+          "amount": 25.50,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-21",
+          "date_posted": "2025-10-22",
+          "amount": 15.30,
+          "description": "LYFT *RIDE FRI 11PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-22",
+          "date_posted": "2025-10-22",
+          "amount": -3633.17,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-22",
+          "date_posted": "2025-10-23",
+          "amount": 18.81,
+          "description": "LYFT *RIDE SUN 2PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-24",
+          "date_posted": "2025-10-25",
+          "amount": 35.42,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-26",
+          "date_posted": "2025-10-27",
+          "amount": 14.90,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-28",
+          "date_posted": "2025-10-28",
+          "amount": 23.09,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-30",
+          "date_posted": "2025-10-30",
+          "amount": 28.06,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-01",
+          "date_posted": "2025-11-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-02",
+          "date_posted": "2025-11-02",
+          "amount": 257.61,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-03",
+          "date_posted": "2025-11-03",
+          "amount": 76.41,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-06",
+          "date_posted": "2025-11-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-06",
+          "date_posted": "2025-11-07",
+          "amount": 62.87,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-06",
+          "date_posted": "2025-11-07",
+          "amount": 14.36,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-06",
+          "date_posted": "2025-11-08",
+          "amount": 143.13,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-09",
+          "date_posted": "2025-11-10",
+          "amount": 48.49,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-10",
+          "date_posted": "2025-11-10",
+          "amount": 11.26,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-11",
+          "date_posted": "2025-11-11",
+          "amount": 12.95,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-13",
+          "date_posted": "2025-11-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-13",
+          "date_posted": "2025-11-13",
+          "amount": 64.07,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-13",
+          "date_posted": "2025-11-14",
+          "amount": 45.76,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-14",
+          "date_posted": "2025-11-15",
+          "amount": 10.45,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-14",
+          "date_posted": "2025-11-15",
+          "amount": 26.73,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-18",
+          "date_posted": "2025-11-18",
+          "amount": 21.96,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-18",
+          "date_posted": "2025-11-18",
+          "amount": 14.78,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-20",
+          "date_posted": "2025-11-20",
+          "amount": 89.79,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-21",
+          "date_posted": "2025-11-21",
+          "amount": -730.88,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-21",
+          "date_posted": "2025-11-21",
+          "amount": 147.32,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-24",
+          "date_posted": "2025-11-25",
+          "amount": 84.30,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-26",
+          "date_posted": "2025-11-27",
+          "amount": 30.84,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-29",
+          "date_posted": "2025-11-29",
+          "amount": 88.29,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-01",
+          "date_posted": "2025-12-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-01",
+          "date_posted": "2025-12-02",
+          "amount": 13.68,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-02",
+          "date_posted": "2025-12-02",
+          "amount": 248.46,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-04",
+          "date_posted": "2025-12-04",
+          "amount": 43.88,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-03",
+          "date_posted": "2025-12-05",
+          "amount": 86.39,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-04",
+          "date_posted": "2025-12-05",
+          "amount": 28.57,
+          "description": "LYFT *RIDE SUN 2PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-06",
+          "date_posted": "2025-12-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-08",
+          "date_posted": "2025-12-08",
+          "amount": 38.39,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-08",
+          "date_posted": "2025-12-08",
+          "amount": 9.44,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-09",
+          "date_posted": "2025-12-09",
+          "amount": 30.05,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-08",
+          "date_posted": "2025-12-10",
+          "amount": 55.67,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-09",
+          "date_posted": "2025-12-10",
+          "amount": 11.49,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-10",
+          "date_posted": "2025-12-11",
+          "amount": 6.46,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-11",
+          "date_posted": "2025-12-11",
+          "amount": 68.24,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-10",
+          "date_posted": "2025-12-12",
+          "amount": 126.34,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-11",
+          "date_posted": "2025-12-12",
+          "amount": 37.07,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-13",
+          "date_posted": "2025-12-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-12",
+          "date_posted": "2025-12-14",
+          "amount": 168.84,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-16",
+          "date_posted": "2025-12-17",
+          "amount": 25.71,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-18",
+          "date_posted": "2025-12-18",
+          "amount": 125.61,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-18",
+          "date_posted": "2025-12-18",
+          "amount": 15.28,
+          "description": "SP+ PARKING 4412",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-18",
+          "date_posted": "2025-12-18",
+          "amount": 616.51,
+          "description": "LENSCRAFTERS #0688",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-22",
+          "date_posted": "2025-12-22",
+          "amount": -1336.47,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-24",
+          "date_posted": "2025-12-24",
+          "amount": 58.47,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-26",
+          "date_posted": "2025-12-27",
+          "amount": 60.57,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-29",
+          "date_posted": "2025-12-30",
+          "amount": 133.45,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-30",
+          "date_posted": "2025-12-31",
+          "amount": 22.41,
+          "description": "UBER *TRIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-01",
+          "date_posted": "2026-01-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-02",
+          "date_posted": "2026-01-02",
+          "amount": 347.98,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-05",
+          "date_posted": "2026-01-05",
+          "amount": 55.98,
+          "description": "FEDEX OFFIC10512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-06",
+          "date_posted": "2026-01-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-12",
+          "date_posted": "2026-01-13",
+          "amount": 24.29,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-13",
+          "date_posted": "2026-01-13",
+          "amount": 26.25,
+          "description": "SLACK T02B4K7",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-13",
+          "date_posted": "2026-01-13",
+          "amount": 28.40,
+          "description": "LYFT *RIDE SUN 2PM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-16",
+          "date_posted": "2026-01-16",
+          "amount": 22.70,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-17",
+          "date_posted": "2026-01-17",
+          "amount": 18.87,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-19",
+          "date_posted": "2026-01-19",
+          "amount": 39.82,
+          "description": "STAPLES 00114",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-20",
+          "date_posted": "2026-01-21",
+          "amount": 62.15,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-21",
+          "date_posted": "2026-01-21",
+          "amount": -2085.65,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-23",
+          "date_posted": "2026-01-25",
+          "amount": 15.19,
+          "description": "SWEETGREEN MISSION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-24",
+          "date_posted": "2026-01-25",
+          "amount": 34.26,
+          "description": "USPS PO 0571230145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-26",
+          "date_posted": "2026-01-26",
+          "amount": 30.36,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-26",
+          "date_posted": "2026-01-26",
+          "amount": 2880.87,
+          "description": "MARRIOTT SAN DIEGO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-26",
+          "date_posted": "2026-01-27",
+          "amount": 71.64,
+          "description": "FEDEX 78234512",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-01",
+          "date_posted": "2026-02-01",
+          "amount": 36.00,
+          "description": "GOOGLE *GSUITE_STUDIO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-02",
+          "date_posted": "2026-02-02",
+          "amount": 236.38,
+          "description": "AMAZON WEB SERVICES",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-03",
+          "date_posted": "2026-02-04",
+          "amount": 14.19,
+          "description": "UBER *TRIP HELP.UBER.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-06",
+          "date_posted": "2026-02-06",
+          "amount": 59.99,
+          "description": "ADOBE *CREATIVE CLD",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-06",
+          "date_posted": "2026-02-07",
+          "amount": 126.68,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
         {
           "date_transacted": "2026-02-07",
           "date_posted": "2026-02-08",

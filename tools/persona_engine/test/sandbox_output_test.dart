@@ -1,5 +1,6 @@
 // The Sandbox outputs for one persona: the documented custom-user shape, Plaid's sign
-// convention, the split between custom user and injection, and the interest switch.
+// convention, the cut of the newest whole days under the request budget, the manifest,
+// and the interest switch.
 import 'dart:convert';
 
 import 'package:persona_engine/persona_engine.dart';
@@ -107,21 +108,13 @@ void main() {
     }
   });
 
-  test(
-    'student loans: all in the custom user, none injected, liability student',
-    () {
-      final lender = sandboxUsers(student)
-          .firstWhere((u) => u.split.institution.key == 'gingham');
-      final loanTransactions = student.transactions.where(
-        (t) => t.accountId.contains('loan_'),
-      );
-      expect(lender.split.customUser, containsAll(loanTransactions));
-      expect(lender.split.injected, isEmpty);
-      final liability = _maps(lender.config['override_accounts'])
-          .first['liability'];
-      expect((liability! as Map<String, Object?>)['type'], 'student');
-    },
-  );
+  test("a student loan's custom user carries a student liability", () {
+    final lender = sandboxUsers(student)
+        .firstWhere((u) => u.split.institution.key == 'gingham');
+    final liability = _maps(lender.config['override_accounts'])
+        .first['liability'];
+    expect((liability! as Map<String, Object?>)['type'], 'student');
+  });
 
   test('neither a mortgage nor an auto loan carries a liability block; the demo seed '
       'keeps both liabilities', () {
@@ -157,73 +150,141 @@ void main() {
     expect(buys.map((b) => b['type']), everyElement('buy'));
   });
 
-  test("injection is newest first, ten a call, on the generator's dates", () {
-    final user = sandboxUsers(family)
-        .firstWhere((u) => u.split.institution.key == 'platypus');
-    final file = injectionFile(family, user);
-    final batches = (file['batches']! as List<Object?>).cast<List<Object?>>();
-    expect(batches, isNotEmpty);
-    expect(batches.map((b) => b.length), everyElement(lessThanOrEqualTo(10)));
-    final injected = user.split.injected;
-    for (var i = 1; i < injected.length; i++) {
-      expect(injected[i].date.isAfter(injected[i - 1].date), isFalse);
+  test('the cut keeps the newest whole days that fit, and no more', () {
+    const most = 100;
+    final splits = splitForSandbox(
+      family,
+      fits: (_, carried) => carried.length <= most,
+    );
+    final platypus = splits.firstWhere((s) => s.institution.key == 'platypus');
+    final kept = platypus.customUser;
+    final left = platypus.leftOut;
+    expect(kept.length, lessThanOrEqualTo(most));
+    expect(left, isNotEmpty);
+    // Whole days and the newest: the newest left-out day is older than every kept one.
+    expect(left.first.date.isBefore(kept.first.date), isTrue);
+    expect(kept.last.date, asOf);
+    // The next day would not fit.
+    final nextDay = left.takeWhile((t) => t.date == left.first.date).length;
+    expect(kept.length + nextDay, greaterThan(most));
+    // Oldest first in the custom user, newest first left out.
+    for (var i = 1; i < kept.length; i++) {
+      expect(kept[i].id.compareTo(kept[i - 1].id), greaterThan(0));
     }
-    final newestInjected = injected.first.date;
-    final oldestCustom = user.split.customUser.first.date;
-    expect(newestInjected.isBefore(oldestCustom), isTrue);
-    expect(file['as_of'], asOf.toIso());
-    expect(file.containsKey('anchor_date'), isFalse);
-    final first = batches.first.first! as Map<String, Object?>;
-    expect(first.keys, [
-      'date_transacted',
-      'date_posted',
-      'amount',
-      'description',
-      'iso_currency_code',
-      'account',
-    ]);
+    for (var i = 1; i < left.length; i++) {
+      expect(left[i].date.isAfter(left[i - 1].date), isFalse);
+    }
+    // An institution whose history fits keeps all of it.
+    final gingham = splits.firstWhere((s) => s.institution.key == 'gingham');
+    expect(gingham.leftOut, isEmpty);
+  });
+
+  test(
+    'a custom user is within the request budget, and one more day is over it',
+    () {
+      var cut = 0;
+      for (final household in [student, family]) {
+        for (final user in sandboxUsers(household)) {
+          expect(
+            sandboxRequestBytes(user.config),
+            lessThanOrEqualTo(sandboxConfigByteBudget),
+          );
+          final left = user.split.leftOut;
+          if (left.isEmpty) continue;
+          cut++;
+          final day = left.first.date;
+          final more = [
+            ...left.where((t) => t.date == day),
+            ...user.split.customUser,
+          ]..sort((a, b) => a.id.compareTo(b.id));
+          expect(
+            sandboxRequestBytes(
+              sandboxUserConfig(household, user.split.institution, more),
+            ),
+            greaterThan(sandboxConfigByteBudget),
+          );
+        }
+      }
+      expect(cut, greaterThan(0));
+    },
+  );
+
+  test('the request bytes are the configuration as a JSON string', () {
+    final user = sandboxUsers(student).first;
+    final compact = writeJson(user.config, pretty: false);
+    final bytes = sandboxRequestBytes(user.config);
+    // Each quote in the configuration gains a backslash; the string gains two quotes.
+    expect(bytes, compact.length + '"'.allMatches(compact).length + 2);
   });
 
   test('without interest legs the Sandbox outputs drop exactly the interest charges', () {
-    final withLegs = splitForSandbox(family);
-    final without = splitForSandbox(family, includeInterestLegs: false);
+    bool all(InstitutionSpec _, List<Transaction> _) => true;
+    final withLegs = splitForSandbox(family, fits: all);
+    final without = splitForSandbox(
+      family,
+      fits: all,
+      includeInterestLegs: false,
+    );
     int count(List<InstitutionSplit> s) =>
-        s.fold(0, (n, x) => n + x.customUser.length + x.injected.length);
+        s.fold(0, (n, x) => n + x.customUser.length + x.leftOut.length);
     expect(
       count(withLegs) - count(without),
       family.interestTransactionIds.length,
     );
     for (final s in without) {
-      for (final t in [...s.customUser, ...s.injected]) {
+      for (final t in [...s.customUser, ...s.leftOut]) {
         expect(family.interestTransactionIds, isNot(contains(t.id)));
       }
     }
   });
 
-  test('the manifest records order, one shift for every Item, and pacing', () {
-    final files = renderOutputs(
-      PersonaId.renter,
-      seed: 1,
-      asOf: asOf,
-      formats: {OutputFormat.injection},
-      includeInterestLegs: false,
-    );
-    final manifest = _decode(files['injection_manifest.json']!);
-    expect(manifest['order'], 'newest_first');
-    expect(manifest['include_interest_legs'], isFalse);
-    expect(
-      (manifest['pacing']!
-          as Map<String, Object?>)['interval_seconds_per_item'],
-      35,
-    );
-    expect(manifest['as_of'], asOf.toIso());
-    expect(manifest['date_shift'], contains('as_of'));
-    final item = _maps(manifest['items']).single;
-    expect(item.containsKey('anchor_date'), isFalse);
-    expect(
-      item['batch_count'],
-      ((item['injected_transactions']! as int) + 9) ~/ 10,
-    );
-    expect(files.keys, ['injection_manifest.json', 'injection_platypus.json']);
-  });
+  test(
+    'the manifest records the shift, the budget and what each Item carries',
+    () {
+      final files = renderOutputs(
+        PersonaId.family,
+        seed: 1,
+        asOf: asOf,
+        formats: {OutputFormat.sandboxUser},
+        includeInterestLegs: false,
+      );
+      expect(files.keys, [
+        'sandbox_manifest.json',
+        'sandbox_user_gingham.json',
+        'sandbox_user_platypus.json',
+        'sandbox_user_tartan.json',
+        'sandbox_user_tattersall.json',
+      ]);
+      final manifest = _decode(files['sandbox_manifest.json']!);
+      expect(manifest['include_interest_legs'], isFalse);
+      expect(manifest['as_of'], asOf.toIso());
+      expect(manifest['date_shift'], contains('as_of'));
+      expect(manifest['request_byte_budget'], sandboxConfigByteBudget);
+      expect(manifest.containsKey('pacing'), isFalse);
+      final users = sandboxUsers(family, includeInterestLegs: false);
+      final items = _maps(manifest['items']);
+      expect(items, hasLength(users.length));
+      for (final (i, item) in items.indexed) {
+        final split = users[i].split;
+        expect(item['institution'], split.institution.key);
+        expect(
+          item['sandbox_user_file'],
+          'sandbox_user_${split.institution.key}.json',
+        );
+        expect(item['custom_user_transactions'], split.customUser.length);
+        expect(item['transactions_left_out'], split.leftOut.length);
+        if (split.customUser.isEmpty) {
+          expect(item['first_day_carried'], isNull);
+          expect(item['days_carried'], 0);
+        } else {
+          final first = split.customUser.first.date;
+          expect(item['first_day_carried'], first.toIso());
+          expect(item['days_carried'], first.daysUntil(asOf) + 1);
+        }
+      }
+      final platypus = items.firstWhere((i) => i['institution'] == 'platypus');
+      expect(platypus['transactions_left_out'], greaterThan(0));
+      expect(platypus['days_carried'], lessThan(maxWindowDays));
+    },
+  );
 }

@@ -46,6 +46,1392 @@
       },
       "transactions": [
         {
+          "date_transacted": "2025-10-09",
+          "date_posted": "2025-10-09",
+          "amount": 50.78,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-09",
+          "date_posted": "2025-10-09",
+          "amount": 3.54,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-10",
+          "date_posted": "2025-10-10",
+          "amount": -91.49,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-14",
+          "date_posted": "2025-10-14",
+          "amount": 90.90,
+          "description": "7-ELEVEN 33912",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-15",
+          "date_posted": "2025-10-15",
+          "amount": 50.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-15",
+          "date_posted": "2025-10-15",
+          "amount": 200.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-17",
+          "date_posted": "2025-10-17",
+          "amount": -673.79,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-17",
+          "date_posted": "2025-10-17",
+          "amount": -116.40,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-17",
+          "date_posted": "2025-10-17",
+          "amount": 13.45,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-17",
+          "date_posted": "2025-10-17",
+          "amount": 5.39,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-18",
+          "date_posted": "2025-10-18",
+          "amount": 43.00,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-20",
+          "date_posted": "2025-10-20",
+          "amount": 5.04,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-20",
+          "date_posted": "2025-10-21",
+          "amount": 86.60,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-22",
+          "date_posted": "2025-10-22",
+          "amount": 5.98,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-24",
+          "date_posted": "2025-10-24",
+          "amount": -127.60,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-24",
+          "date_posted": "2025-10-24",
+          "amount": 286.24,
+          "description": "PLATYPUS CARD PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-27",
+          "date_posted": "2025-10-28",
+          "amount": 93.99,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-28",
+          "date_posted": "2025-10-28",
+          "amount": 293.47,
+          "description": "GINGHAM STUDENT LN PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-31",
+          "date_posted": "2025-10-31",
+          "amount": -696.32,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-31",
+          "date_posted": "2025-10-31",
+          "amount": -110.81,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-31",
+          "date_posted": "2025-11-01",
+          "amount": 44.88,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-01",
+          "date_posted": "2025-11-01",
+          "amount": -400.00,
+          "description": "VENMO CASHOUT FROM M RIVERA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-01",
+          "date_posted": "2025-11-01",
+          "amount": 17.00,
+          "description": "7-ELEVEN 33912",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-02",
+          "date_posted": "2025-11-03",
+          "amount": 29.78,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-03",
+          "date_posted": "2025-11-03",
+          "amount": 725.00,
+          "description": "COLLEGEVIEW APTS RENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-07",
+          "date_posted": "2025-11-07",
+          "amount": -94.44,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-09",
+          "date_posted": "2025-11-09",
+          "amount": 84.82,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-11",
+          "date_posted": "2025-11-11",
+          "amount": 3.02,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-13",
+          "date_posted": "2025-11-13",
+          "amount": 3.50,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-14",
+          "date_posted": "2025-11-14",
+          "amount": -679.74,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-15",
+          "date_posted": "2025-11-15",
+          "amount": 50.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-15",
+          "date_posted": "2025-11-15",
+          "amount": 1100.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-19",
+          "date_posted": "2025-11-19",
+          "amount": 3.76,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-20",
+          "date_posted": "2025-11-20",
+          "amount": 78.83,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-21",
+          "date_posted": "2025-11-21",
+          "amount": -87.32,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-21",
+          "date_posted": "2025-11-21",
+          "amount": 2.94,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-24",
+          "date_posted": "2025-11-24",
+          "amount": 250.81,
+          "description": "PLATYPUS CARD PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-24",
+          "date_posted": "2025-11-24",
+          "amount": 4.43,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-26",
+          "date_posted": "2025-11-26",
+          "amount": 31.52,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-28",
+          "date_posted": "2025-11-28",
+          "amount": -663.74,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-28",
+          "date_posted": "2025-11-28",
+          "amount": -65.39,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-28",
+          "date_posted": "2025-11-28",
+          "amount": 293.47,
+          "description": "GINGHAM STUDENT LN PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-01",
+          "date_posted": "2025-12-01",
+          "amount": -400.00,
+          "description": "VENMO CASHOUT FROM M RIVERA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-01",
+          "date_posted": "2025-12-01",
+          "amount": 725.00,
+          "description": "COLLEGEVIEW APTS RENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-01",
+          "date_posted": "2025-12-01",
+          "amount": 5.39,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-07",
+          "date_posted": "2025-12-07",
+          "amount": 5.47,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-07",
+          "date_posted": "2025-12-08",
+          "amount": 40.81,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-08",
+          "date_posted": "2025-12-09",
+          "amount": 61.11,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-10",
+          "date_posted": "2025-12-10",
+          "amount": 2.85,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-11",
+          "date_posted": "2025-12-11",
+          "amount": 4.04,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-12",
+          "date_posted": "2025-12-12",
+          "amount": -727.17,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-12",
+          "date_posted": "2025-12-12",
+          "amount": -62.84,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-13",
+          "date_posted": "2025-12-13",
+          "amount": 7.28,
+          "description": "7-ELEVEN 33912",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-15",
+          "date_posted": "2025-12-15",
+          "amount": 50.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-15",
+          "date_posted": "2025-12-15",
+          "amount": 400.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-18",
+          "date_posted": "2025-12-18",
+          "amount": 45.06,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-19",
+          "date_posted": "2025-12-19",
+          "amount": 5.76,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-20",
+          "date_posted": "2025-12-20",
+          "amount": 15.63,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-24",
+          "date_posted": "2025-12-24",
+          "amount": 276.28,
+          "description": "PLATYPUS CARD PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-25",
+          "date_posted": "2025-12-25",
+          "amount": 17.89,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-26",
+          "date_posted": "2025-12-26",
+          "amount": -644.03,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-26",
+          "date_posted": "2025-12-26",
+          "amount": -134.83,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-28",
+          "date_posted": "2025-12-28",
+          "amount": 293.47,
+          "description": "GINGHAM STUDENT LN PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-28",
+          "date_posted": "2025-12-28",
+          "amount": 4.87,
+          "description": "7-ELEVEN 33912",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-28",
+          "date_posted": "2025-12-29",
+          "amount": 23.29,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-30",
+          "date_posted": "2025-12-30",
+          "amount": 47.42,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-31",
+          "date_posted": "2026-01-01",
+          "amount": 16.00,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-01",
+          "date_posted": "2026-01-01",
+          "amount": -400.00,
+          "description": "VENMO CASHOUT FROM M RIVERA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-01",
+          "date_posted": "2026-01-01",
+          "amount": 725.00,
+          "description": "COLLEGEVIEW APTS RENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-01",
+          "date_posted": "2026-01-01",
+          "amount": 94.44,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-01",
+          "date_posted": "2026-01-01",
+          "amount": 3.76,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-03",
+          "date_posted": "2026-01-04",
+          "amount": 11.07,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-04",
+          "date_posted": "2026-01-05",
+          "amount": 75.62,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-06",
+          "date_posted": "2026-01-06",
+          "amount": 63.48,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-09",
+          "date_posted": "2026-01-09",
+          "amount": -577.02,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-10",
+          "date_posted": "2026-01-10",
+          "amount": 50.22,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-12",
+          "date_posted": "2026-01-12",
+          "amount": -6500.00,
+          "description": "GINGHAM STUDENT LN DISBURSEMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-12",
+          "date_posted": "2026-01-12",
+          "amount": 5400.00,
+          "description": "STATE UNIV BURSAR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-13",
+          "date_posted": "2026-01-14",
+          "amount": 14.82,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-15",
+          "date_posted": "2026-01-15",
+          "amount": 50.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-15",
+          "date_posted": "2026-01-15",
+          "amount": 1000.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-19",
+          "date_posted": "2026-01-19",
+          "amount": 8.50,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-20",
+          "date_posted": "2026-01-20",
+          "amount": 49.18,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-22",
+          "date_posted": "2026-01-23",
+          "amount": 27.79,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-23",
+          "date_posted": "2026-01-23",
+          "amount": -630.27,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-24",
+          "date_posted": "2026-01-24",
+          "amount": 166.28,
+          "description": "PLATYPUS CARD PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-24",
+          "date_posted": "2026-01-24",
+          "amount": 6.23,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-28",
+          "date_posted": "2026-01-28",
+          "amount": 293.47,
+          "description": "GINGHAM STUDENT LN PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-28",
+          "date_posted": "2026-01-28",
+          "amount": 5.35,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-28",
+          "date_posted": "2026-01-29",
+          "amount": 25.10,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-31",
+          "date_posted": "2026-01-31",
+          "amount": 19.72,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-01",
+          "date_posted": "2026-02-01",
+          "amount": -400.00,
+          "description": "VENMO CASHOUT FROM M RIVERA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-02",
+          "date_posted": "2026-02-02",
+          "amount": 725.00,
+          "description": "COLLEGEVIEW APTS RENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-04",
+          "date_posted": "2026-02-04",
+          "amount": 28.28,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-04",
+          "date_posted": "2026-02-04",
+          "amount": 2.99,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-05",
+          "date_posted": "2026-02-05",
+          "amount": 37.09,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-05",
+          "date_posted": "2026-02-05",
+          "amount": 6.85,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-06",
+          "date_posted": "2026-02-06",
+          "amount": -649.73,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-06",
+          "date_posted": "2026-02-06",
+          "amount": -125.50,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-06",
+          "date_posted": "2026-02-06",
+          "amount": 4.10,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-06",
+          "date_posted": "2026-02-06",
+          "amount": 14.11,
+          "description": "7-ELEVEN 33912",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-06",
+          "date_posted": "2026-02-07",
+          "amount": 47.91,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-08",
+          "date_posted": "2026-02-08",
+          "amount": 58.63,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-08",
+          "date_posted": "2026-02-08",
+          "amount": 4.68,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-08",
+          "date_posted": "2026-02-08",
+          "amount": 55.95,
+          "description": "BEVMO #0144",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-09",
+          "date_posted": "2026-02-09",
+          "amount": 5.16,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-11",
+          "date_posted": "2026-02-11",
+          "amount": 32.48,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-13",
+          "date_posted": "2026-02-13",
+          "amount": -134.37,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-13",
+          "date_posted": "2026-02-13",
+          "amount": 54.22,
+          "description": "BEVMO #0144",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-15",
+          "date_posted": "2026-02-15",
+          "amount": 50.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-15",
+          "date_posted": "2026-02-15",
+          "amount": 200.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-17",
+          "date_posted": "2026-02-18",
+          "amount": 74.98,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-18",
+          "date_posted": "2026-02-18",
+          "amount": 8.35,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-20",
+          "date_posted": "2026-02-20",
+          "amount": -663.42,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-20",
+          "date_posted": "2026-02-20",
+          "amount": 6.86,
+          "description": "7-ELEVEN 33912",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-20",
+          "date_posted": "2026-02-21",
+          "amount": 31.15,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-21",
+          "date_posted": "2026-02-21",
+          "amount": 39.76,
+          "description": "BEVMO #0144",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-24",
+          "date_posted": "2026-02-24",
+          "amount": 814.05,
+          "description": "PLATYPUS CARD PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-24",
+          "date_posted": "2026-02-24",
+          "amount": 17.04,
+          "description": "7-ELEVEN 33912",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-27",
+          "date_posted": "2026-02-27",
+          "amount": -110.58,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-27",
+          "date_posted": "2026-02-27",
+          "amount": 17.69,
+          "description": "7-ELEVEN 33912",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-28",
+          "date_posted": "2026-02-28",
+          "amount": 293.47,
+          "description": "GINGHAM STUDENT LN PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-28",
+          "date_posted": "2026-02-28",
+          "amount": 2.90,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-28",
+          "date_posted": "2026-02-28",
+          "amount": 12.97,
+          "description": "7-ELEVEN 33912",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-01",
+          "date_posted": "2026-03-01",
+          "amount": -400.00,
+          "description": "VENMO CASHOUT FROM M RIVERA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-01",
+          "date_posted": "2026-03-01",
+          "amount": 3.21,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-02",
+          "date_posted": "2026-03-02",
+          "amount": 725.00,
+          "description": "COLLEGEVIEW APTS RENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-06",
+          "date_posted": "2026-03-06",
+          "amount": -703.74,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-06",
+          "date_posted": "2026-03-06",
+          "amount": -83.47,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-06",
+          "date_posted": "2026-03-07",
+          "amount": 78.81,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-08",
+          "date_posted": "2026-03-08",
+          "amount": 6.33,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-09",
+          "date_posted": "2026-03-09",
+          "amount": 20.74,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-14",
+          "date_posted": "2026-03-14",
+          "amount": 56.62,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-14",
+          "date_posted": "2026-03-14",
+          "amount": 2.89,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-15",
+          "date_posted": "2026-03-15",
+          "amount": 50.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-16",
+          "date_posted": "2026-03-17",
+          "amount": 30.79,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-18",
+          "date_posted": "2026-03-18",
+          "amount": 6.61,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-19",
+          "date_posted": "2026-03-19",
+          "amount": 51.77,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-20",
+          "date_posted": "2026-03-20",
+          "amount": -726.27,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-21",
+          "date_posted": "2026-03-22",
+          "amount": 41.14,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-22",
+          "date_posted": "2026-03-22",
+          "amount": 16.18,
+          "description": "7-ELEVEN 33912",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-24",
+          "date_posted": "2026-03-24",
+          "amount": 157.10,
+          "description": "PLATYPUS CARD PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-24",
+          "date_posted": "2026-03-24",
+          "amount": 5.65,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-25",
+          "date_posted": "2026-03-26",
+          "amount": 67.71,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-26",
+          "date_posted": "2026-03-26",
+          "amount": 40.66,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-26",
+          "date_posted": "2026-03-26",
+          "amount": 5.57,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-27",
+          "date_posted": "2026-03-27",
+          "amount": -84.59,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-28",
+          "date_posted": "2026-03-28",
+          "amount": 293.47,
+          "description": "GINGHAM STUDENT LN PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-28",
+          "date_posted": "2026-03-28",
+          "amount": 14.90,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-01",
+          "date_posted": "2026-04-01",
+          "amount": -400.00,
+          "description": "VENMO CASHOUT FROM M RIVERA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-01",
+          "date_posted": "2026-04-01",
+          "amount": 725.00,
+          "description": "COLLEGEVIEW APTS RENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-01",
+          "date_posted": "2026-04-01",
+          "amount": 3.38,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-02",
+          "date_posted": "2026-04-02",
+          "amount": 35.52,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-02",
+          "date_posted": "2026-04-02",
+          "amount": 4.47,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-03",
+          "date_posted": "2026-04-03",
+          "amount": -639.23,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-03",
+          "date_posted": "2026-04-03",
+          "amount": 54.25,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-05",
+          "date_posted": "2026-04-06",
+          "amount": 14.69,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-06",
+          "date_posted": "2026-04-06",
+          "amount": 4.20,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-07",
+          "date_posted": "2026-04-07",
+          "amount": 3.12,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-08",
+          "date_posted": "2026-04-08",
+          "amount": 68.65,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-09",
+          "date_posted": "2026-04-10",
+          "amount": 38.41,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-10",
+          "date_posted": "2026-04-10",
+          "amount": -55.83,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-10",
+          "date_posted": "2026-04-10",
+          "amount": 5.56,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-15",
+          "date_posted": "2026-04-15",
+          "amount": 50.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-16",
+          "date_posted": "2026-04-16",
+          "amount": 3.01,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-16",
+          "date_posted": "2026-04-17",
+          "amount": 17.98,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-17",
+          "date_posted": "2026-04-17",
+          "amount": -608.96,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-17",
+          "date_posted": "2026-04-18",
+          "amount": 30.90,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-21",
+          "date_posted": "2026-04-22",
+          "amount": 19.65,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-22",
+          "date_posted": "2026-04-22",
+          "amount": 19.80,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-23",
+          "date_posted": "2026-04-24",
+          "amount": 32.17,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-24",
+          "date_posted": "2026-04-24",
+          "amount": -74.41,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-24",
+          "date_posted": "2026-04-24",
+          "amount": 244.69,
+          "description": "PLATYPUS CARD PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-24",
+          "date_posted": "2026-04-25",
+          "amount": 48.10,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-25",
+          "date_posted": "2026-04-25",
+          "amount": 9.01,
+          "description": "7-ELEVEN 33912",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-27",
+          "date_posted": "2026-04-27",
+          "amount": 17.84,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-27",
+          "date_posted": "2026-04-27",
+          "amount": 6.68,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-28",
+          "date_posted": "2026-04-28",
+          "amount": 293.47,
+          "description": "GINGHAM STUDENT LN PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-28",
+          "date_posted": "2026-04-28",
+          "amount": 39.79,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-29",
+          "date_posted": "2026-04-29",
+          "amount": 39.56,
+          "description": "ALDI 72031",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-30",
+          "date_posted": "2026-04-30",
+          "amount": 6.67,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-01",
+          "date_posted": "2026-05-01",
+          "amount": -589.82,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-01",
+          "date_posted": "2026-05-01",
+          "amount": -78.41,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-01",
+          "date_posted": "2026-05-01",
+          "amount": -400.00,
+          "description": "VENMO CASHOUT FROM M RIVERA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-01",
+          "date_posted": "2026-05-01",
+          "amount": 725.00,
+          "description": "COLLEGEVIEW APTS RENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-01",
+          "date_posted": "2026-05-01",
+          "amount": 4.50,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-02",
+          "date_posted": "2026-05-02",
+          "amount": 43.01,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-02",
+          "date_posted": "2026-05-02",
+          "amount": 23.09,
+          "description": "BEVMO #0144",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-04",
+          "date_posted": "2026-05-04",
+          "amount": 6.83,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-06",
+          "date_posted": "2026-05-06",
+          "amount": 6.28,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-07",
+          "date_posted": "2026-05-07",
+          "amount": 6.97,
+          "description": "CLIPPER TRANSIT FARE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-08",
+          "date_posted": "2026-05-08",
+          "amount": -80.93,
+          "description": "WYZANT TUTOR PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-08",
+          "date_posted": "2026-05-08",
+          "amount": 33.11,
+          "description": "BEVMO #0144",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-10",
+          "date_posted": "2026-05-10",
+          "amount": 19.24,
+          "description": "BEVMO #0144",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-12",
+          "date_posted": "2026-05-12",
+          "amount": 46.74,
+          "description": "BEVMO #0144",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-15",
+          "date_posted": "2026-05-15",
+          "amount": -623.36,
+          "description": "STATE UNIV PAYROLL DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-15",
+          "date_posted": "2026-05-15",
+          "amount": 50.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-15",
+          "date_posted": "2026-05-15",
+          "amount": 600.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
           "date_transacted": "2026-05-17",
           "date_posted": "2026-05-17",
           "amount": 7.45,
@@ -1064,6 +2450,153 @@
       },
       "transactions": [
         {
+          "date_transacted": "2025-10-15",
+          "date_posted": "2025-10-15",
+          "amount": -50.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-15",
+          "date_posted": "2025-10-15",
+          "amount": -200.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-31",
+          "date_posted": "2025-10-31",
+          "amount": -9.19,
+          "description": "INTEREST PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-15",
+          "date_posted": "2025-11-15",
+          "amount": -50.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-15",
+          "date_posted": "2025-11-15",
+          "amount": -1100.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-30",
+          "date_posted": "2025-11-30",
+          "amount": -13.05,
+          "description": "INTEREST PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-15",
+          "date_posted": "2025-12-15",
+          "amount": -50.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-15",
+          "date_posted": "2025-12-15",
+          "amount": -400.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-31",
+          "date_posted": "2025-12-31",
+          "amount": -14.59,
+          "description": "INTEREST PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-15",
+          "date_posted": "2026-01-15",
+          "amount": -50.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-15",
+          "date_posted": "2026-01-15",
+          "amount": -1000.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-31",
+          "date_posted": "2026-01-31",
+          "amount": -18.14,
+          "description": "INTEREST PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-15",
+          "date_posted": "2026-02-15",
+          "amount": -50.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-15",
+          "date_posted": "2026-02-15",
+          "amount": -200.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-28",
+          "date_posted": "2026-02-28",
+          "amount": -19.04,
+          "description": "INTEREST PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-15",
+          "date_posted": "2026-03-15",
+          "amount": -50.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-31",
+          "date_posted": "2026-03-31",
+          "amount": -19.27,
+          "description": "INTEREST PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-15",
+          "date_posted": "2026-04-15",
+          "amount": -50.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-30",
+          "date_posted": "2026-04-30",
+          "amount": -19.50,
+          "description": "INTEREST PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-15",
+          "date_posted": "2026-05-15",
+          "amount": -50.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-15",
+          "date_posted": "2026-05-15",
+          "amount": -600.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
           "date_transacted": "2026-05-31",
           "date_posted": "2026-05-31",
           "amount": -21.73,
@@ -1206,6 +2739,1007 @@
         ]
       },
       "transactions": [
+        {
+          "date_transacted": "2025-10-09",
+          "date_posted": "2025-10-09",
+          "amount": 30.00,
+          "description": "MINT MOBILE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-09",
+          "date_posted": "2025-10-09",
+          "amount": 13.55,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-10",
+          "date_posted": "2025-10-10",
+          "amount": 4.52,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-11",
+          "date_posted": "2025-10-12",
+          "amount": 5.39,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-12",
+          "date_posted": "2025-10-13",
+          "amount": 6.35,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-14",
+          "date_posted": "2025-10-14",
+          "amount": 8.89,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-16",
+          "date_posted": "2025-10-16",
+          "amount": 8.21,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-20",
+          "date_posted": "2025-10-20",
+          "amount": 8.41,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-20",
+          "date_posted": "2025-10-21",
+          "amount": 10.61,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-21",
+          "date_posted": "2025-10-21",
+          "amount": 5.99,
+          "description": "Spotify USA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-23",
+          "date_posted": "2025-10-23",
+          "amount": 13.61,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-24",
+          "date_posted": "2025-10-24",
+          "amount": -286.24,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-24",
+          "date_posted": "2025-10-25",
+          "amount": 5.72,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-25",
+          "date_posted": "2025-10-25",
+          "amount": 5.00,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-29",
+          "date_posted": "2025-10-30",
+          "amount": 5.80,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-30",
+          "date_posted": "2025-10-30",
+          "amount": 4.15,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-10-31",
+          "date_posted": "2025-11-01",
+          "amount": 4.64,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-01",
+          "date_posted": "2025-11-01",
+          "amount": 17.70,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-02",
+          "date_posted": "2025-11-03",
+          "amount": 4.97,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-03",
+          "date_posted": "2025-11-04",
+          "amount": 19.73,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-05",
+          "date_posted": "2025-11-05",
+          "amount": 7.15,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-05",
+          "date_posted": "2025-11-05",
+          "amount": 15.68,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-09",
+          "date_posted": "2025-11-09",
+          "amount": 30.00,
+          "description": "MINT MOBILE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-09",
+          "date_posted": "2025-11-10",
+          "amount": 10.76,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-10",
+          "date_posted": "2025-11-10",
+          "amount": 4.54,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-11",
+          "date_posted": "2025-11-11",
+          "amount": 7.12,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-15",
+          "date_posted": "2025-11-15",
+          "amount": 5.45,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-16",
+          "date_posted": "2025-11-16",
+          "amount": 21.64,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-17",
+          "date_posted": "2025-11-18",
+          "amount": 19.17,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-18",
+          "date_posted": "2025-11-18",
+          "amount": 22.36,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-19",
+          "date_posted": "2025-11-19",
+          "amount": 4.56,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-20",
+          "date_posted": "2025-11-20",
+          "amount": 20.23,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-21",
+          "date_posted": "2025-11-21",
+          "amount": 5.99,
+          "description": "Spotify USA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-23",
+          "date_posted": "2025-11-24",
+          "amount": 17.79,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-24",
+          "date_posted": "2025-11-24",
+          "amount": -250.81,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-25",
+          "date_posted": "2025-11-25",
+          "amount": 4.16,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-27",
+          "date_posted": "2025-11-28",
+          "amount": 12.62,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-28",
+          "date_posted": "2025-11-28",
+          "amount": 18.29,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-28",
+          "date_posted": "2025-11-29",
+          "amount": 5.63,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-11-29",
+          "date_posted": "2025-11-29",
+          "amount": 18.48,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-01",
+          "date_posted": "2025-12-01",
+          "amount": 4.93,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-03",
+          "date_posted": "2025-12-03",
+          "amount": 8.36,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-05",
+          "date_posted": "2025-12-05",
+          "amount": 11.18,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-06",
+          "date_posted": "2025-12-06",
+          "amount": 17.62,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-09",
+          "date_posted": "2025-12-09",
+          "amount": 30.00,
+          "description": "MINT MOBILE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-11",
+          "date_posted": "2025-12-12",
+          "amount": 7.08,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-17",
+          "date_posted": "2025-12-18",
+          "amount": 5.98,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-17",
+          "date_posted": "2025-12-18",
+          "amount": 24.81,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-18",
+          "date_posted": "2025-12-18",
+          "amount": 5.31,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-21",
+          "date_posted": "2025-12-21",
+          "amount": 5.99,
+          "description": "Spotify USA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-24",
+          "date_posted": "2025-12-24",
+          "amount": -276.28,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-24",
+          "date_posted": "2025-12-24",
+          "amount": 6.90,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-25",
+          "date_posted": "2025-12-26",
+          "amount": 4.30,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-26",
+          "date_posted": "2025-12-27",
+          "amount": 15.45,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2025-12-29",
+          "date_posted": "2025-12-30",
+          "amount": 23.30,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-03",
+          "date_posted": "2026-01-04",
+          "amount": 11.03,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-07",
+          "date_posted": "2026-01-07",
+          "amount": 4.05,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-07",
+          "date_posted": "2026-01-08",
+          "amount": 12.04,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-08",
+          "date_posted": "2026-01-08",
+          "amount": 4.08,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-08",
+          "date_posted": "2026-01-08",
+          "amount": 20.07,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-09",
+          "date_posted": "2026-01-09",
+          "amount": 30.00,
+          "description": "MINT MOBILE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-09",
+          "date_posted": "2026-01-09",
+          "amount": 22.47,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-09",
+          "date_posted": "2026-01-10",
+          "amount": 7.13,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-15",
+          "date_posted": "2026-01-16",
+          "amount": 23.74,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-16",
+          "date_posted": "2026-01-16",
+          "amount": 9.08,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-19",
+          "date_posted": "2026-01-19",
+          "amount": 14.54,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-21",
+          "date_posted": "2026-01-21",
+          "amount": 5.99,
+          "description": "Spotify USA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-23",
+          "date_posted": "2026-01-23",
+          "amount": 5.14,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-24",
+          "date_posted": "2026-01-24",
+          "amount": -166.28,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-24",
+          "date_posted": "2026-01-25",
+          "amount": 4.01,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-24",
+          "date_posted": "2026-01-25",
+          "amount": 11.92,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-26",
+          "date_posted": "2026-01-26",
+          "amount": 5.07,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-28",
+          "date_posted": "2026-01-28",
+          "amount": 5.29,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-28",
+          "date_posted": "2026-01-28",
+          "amount": 10.82,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-01-31",
+          "date_posted": "2026-02-01",
+          "amount": 14.62,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-01",
+          "date_posted": "2026-02-01",
+          "amount": 560.55,
+          "description": "STATE UNIV BOOKSTORE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-02",
+          "date_posted": "2026-02-02",
+          "amount": 7.56,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-02",
+          "date_posted": "2026-02-02",
+          "amount": 24.85,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-09",
+          "date_posted": "2026-02-09",
+          "amount": 30.00,
+          "description": "MINT MOBILE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-10",
+          "date_posted": "2026-02-10",
+          "amount": 5.24,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-11",
+          "date_posted": "2026-02-11",
+          "amount": 4.51,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-12",
+          "date_posted": "2026-02-12",
+          "amount": 13.21,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-13",
+          "date_posted": "2026-02-14",
+          "amount": 7.78,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-16",
+          "date_posted": "2026-02-17",
+          "amount": 21.98,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-19",
+          "date_posted": "2026-02-20",
+          "amount": 4.59,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-21",
+          "date_posted": "2026-02-21",
+          "amount": 5.99,
+          "description": "Spotify USA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-22",
+          "date_posted": "2026-02-22",
+          "amount": 11.26,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-23",
+          "date_posted": "2026-02-23",
+          "amount": 14.04,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-24",
+          "date_posted": "2026-02-24",
+          "amount": -814.05,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-24",
+          "date_posted": "2026-02-24",
+          "amount": 8.34,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-24",
+          "date_posted": "2026-02-25",
+          "amount": 10.88,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-25",
+          "date_posted": "2026-02-26",
+          "amount": 6.50,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-02-26",
+          "date_posted": "2026-02-27",
+          "amount": 6.14,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-02",
+          "date_posted": "2026-03-02",
+          "amount": 6.64,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-03",
+          "date_posted": "2026-03-04",
+          "amount": 12.57,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-07",
+          "date_posted": "2026-03-08",
+          "amount": 16.67,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-09",
+          "date_posted": "2026-03-09",
+          "amount": 30.00,
+          "description": "MINT MOBILE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-09",
+          "date_posted": "2026-03-09",
+          "amount": 6.62,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-11",
+          "date_posted": "2026-03-11",
+          "amount": 7.33,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-11",
+          "date_posted": "2026-03-12",
+          "amount": 27.80,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-16",
+          "date_posted": "2026-03-16",
+          "amount": 6.29,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-16",
+          "date_posted": "2026-03-16",
+          "amount": 11.56,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-18",
+          "date_posted": "2026-03-19",
+          "amount": 23.96,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-20",
+          "date_posted": "2026-03-20",
+          "amount": 5.48,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-21",
+          "date_posted": "2026-03-21",
+          "amount": 5.99,
+          "description": "Spotify USA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-23",
+          "date_posted": "2026-03-23",
+          "amount": 13.75,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-24",
+          "date_posted": "2026-03-24",
+          "amount": -157.10,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-24",
+          "date_posted": "2026-03-24",
+          "amount": 7.38,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-27",
+          "date_posted": "2026-03-27",
+          "amount": 25.48,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-30",
+          "date_posted": "2026-03-31",
+          "amount": 22.84,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-03-31",
+          "date_posted": "2026-03-31",
+          "amount": 20.97,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-04",
+          "date_posted": "2026-04-04",
+          "amount": 7.64,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-05",
+          "date_posted": "2026-04-06",
+          "amount": 9.24,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-06",
+          "date_posted": "2026-04-07",
+          "amount": 7.93,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-07",
+          "date_posted": "2026-04-07",
+          "amount": 5.09,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-09",
+          "date_posted": "2026-04-09",
+          "amount": 30.00,
+          "description": "MINT MOBILE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-10",
+          "date_posted": "2026-04-10",
+          "amount": 19.11,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-10",
+          "date_posted": "2026-04-11",
+          "amount": 7.89,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-11",
+          "date_posted": "2026-04-11",
+          "amount": 4.04,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-12",
+          "date_posted": "2026-04-12",
+          "amount": 21.70,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-15",
+          "date_posted": "2026-04-15",
+          "amount": 7.46,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-17",
+          "date_posted": "2026-04-18",
+          "amount": 6.91,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-18",
+          "date_posted": "2026-04-19",
+          "amount": 14.43,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-21",
+          "date_posted": "2026-04-21",
+          "amount": 5.99,
+          "description": "Spotify USA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-21",
+          "date_posted": "2026-04-22",
+          "amount": 5.87,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-22",
+          "date_posted": "2026-04-22",
+          "amount": 7.93,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-24",
+          "date_posted": "2026-04-24",
+          "amount": -244.69,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-25",
+          "date_posted": "2026-04-26",
+          "amount": 5.45,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-25",
+          "date_posted": "2026-04-26",
+          "amount": 22.14,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-27",
+          "date_posted": "2026-04-28",
+          "amount": 6.15,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-28",
+          "date_posted": "2026-04-29",
+          "amount": 4.05,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-28",
+          "date_posted": "2026-04-29",
+          "amount": 21.97,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-29",
+          "date_posted": "2026-04-29",
+          "amount": 7.52,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-01",
+          "date_posted": "2026-05-02",
+          "amount": 7.34,
+          "description": "STARBUCKS STORE 08812",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-01",
+          "date_posted": "2026-05-02",
+          "amount": 12.04,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-02",
+          "date_posted": "2026-05-02",
+          "amount": 15.30,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-05",
+          "date_posted": "2026-05-06",
+          "amount": 8.11,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-07",
+          "date_posted": "2026-05-07",
+          "amount": 4.55,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-09",
+          "date_posted": "2026-05-09",
+          "amount": 30.00,
+          "description": "MINT MOBILE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-09",
+          "date_posted": "2026-05-09",
+          "amount": 14.31,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-11",
+          "date_posted": "2026-05-11",
+          "amount": 4.72,
+          "description": "STARBUCKS STORE 11240",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-13",
+          "date_posted": "2026-05-13",
+          "amount": 15.17,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-15",
+          "date_posted": "2026-05-15",
+          "amount": 19.94,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
         {
           "date_transacted": "2026-05-16",
           "date_posted": "2026-05-17",

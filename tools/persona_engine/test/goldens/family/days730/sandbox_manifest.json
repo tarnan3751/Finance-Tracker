@@ -1,0 +1,48 @@
+{
+  "generator": "persona_engine",
+  "format_version": 1,
+  "persona": "family",
+  "seed": 1,
+  "as_of": "2026-10-24",
+  "include_interest_legs": true,
+  "date_shift": "add (Item creation date - as_of) days to every date in every sandbox_user file of this persona, the same shift for every Item",
+  "request_byte_budget": 90000,
+  "items": [
+    {
+      "institution": "platypus",
+      "plaid_institution_id": "ins_109508",
+      "sandbox_user_file": "sandbox_user_platypus.json",
+      "custom_user_transactions": 604,
+      "first_day_carried": "2026-04-05",
+      "days_carried": 203,
+      "transactions_left_out": 1634
+    },
+    {
+      "institution": "tartan",
+      "plaid_institution_id": "ins_109511",
+      "sandbox_user_file": "sandbox_user_tartan.json",
+      "custom_user_transactions": 0,
+      "first_day_carried": null,
+      "days_carried": 0,
+      "transactions_left_out": 0
+    },
+    {
+      "institution": "gingham",
+      "plaid_institution_id": "ins_109509",
+      "sandbox_user_file": "sandbox_user_gingham.json",
+      "custom_user_transactions": 96,
+      "first_day_carried": "2024-11-15",
+      "days_carried": 709,
+      "transactions_left_out": 0
+    },
+    {
+      "institution": "tattersall",
+      "plaid_institution_id": "ins_109510",
+      "sandbox_user_file": "sandbox_user_tattersall.json",
+      "custom_user_transactions": 48,
+      "first_day_carried": "2024-11-01",
+      "days_carried": 723,
+      "transactions_left_out": 0
+    }
+  ]
+}

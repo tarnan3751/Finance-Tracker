@@ -47,6 +47,433 @@
       },
       "transactions": [
         {
+          "date_transacted": "2026-04-06",
+          "date_posted": "2026-04-06",
+          "amount": 240.00,
+          "description": "STATE FARM INSURANCE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-09",
+          "date_posted": "2026-04-09",
+          "amount": 5079.88,
+          "description": "PLATYPUS CARD AUTOPAY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-10",
+          "date_posted": "2026-04-10",
+          "amount": -3146.29,
+          "description": "LAKESHORE MEDICAL GRP PAYROLL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-10",
+          "date_posted": "2026-04-10",
+          "amount": 150.16,
+          "description": "PGANDE WEB ONLINE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-13",
+          "date_posted": "2026-04-13",
+          "amount": 73.51,
+          "description": "CITY OF OAKDALE WATER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-15",
+          "date_posted": "2026-04-15",
+          "amount": -2640.00,
+          "description": "BRIGHTPATH SCHOOLS DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-15",
+          "date_posted": "2026-04-15",
+          "amount": 489.35,
+          "description": "GINGHAM CU AUTO LOAN PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-22",
+          "date_posted": "2026-04-22",
+          "amount": 342.33,
+          "description": "GINGHAM CU AUTO LOAN 2215",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-24",
+          "date_posted": "2026-04-24",
+          "amount": -3142.48,
+          "description": "LAKESHORE MEDICAL GRP PAYROLL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-27",
+          "date_posted": "2026-04-27",
+          "amount": 45.00,
+          "description": "WASTE MANAGEMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-30",
+          "date_posted": "2026-04-30",
+          "amount": -2640.00,
+          "description": "BRIGHTPATH SCHOOLS DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-01",
+          "date_posted": "2026-05-01",
+          "amount": 2093.44,
+          "description": "TATTERSALL FCU MORTGAGE PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-01",
+          "date_posted": "2026-05-01",
+          "amount": 1400.00,
+          "description": "BRIGHT HORIZONS TUITION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-02",
+          "date_posted": "2026-05-02",
+          "amount": 500.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-02",
+          "date_posted": "2026-05-02",
+          "amount": 1100.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-06",
+          "date_posted": "2026-05-06",
+          "amount": 240.00,
+          "description": "STATE FARM INSURANCE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-08",
+          "date_posted": "2026-05-08",
+          "amount": -3135.48,
+          "description": "LAKESHORE MEDICAL GRP PAYROLL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-10",
+          "date_posted": "2026-05-10",
+          "amount": 5049.62,
+          "description": "PLATYPUS CARD AUTOPAY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-11",
+          "date_posted": "2026-05-11",
+          "amount": 130.00,
+          "description": "PGANDE WEB ONLINE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-12",
+          "date_posted": "2026-05-12",
+          "amount": 72.67,
+          "description": "CITY OF OAKDALE WATER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-15",
+          "date_posted": "2026-05-15",
+          "amount": -2640.00,
+          "description": "BRIGHTPATH SCHOOLS DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-15",
+          "date_posted": "2026-05-15",
+          "amount": 489.35,
+          "description": "GINGHAM CU AUTO LOAN PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-22",
+          "date_posted": "2026-05-22",
+          "amount": -3216.57,
+          "description": "LAKESHORE MEDICAL GRP PAYROLL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-22",
+          "date_posted": "2026-05-22",
+          "amount": 342.33,
+          "description": "GINGHAM CU AUTO LOAN 2215",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-25",
+          "date_posted": "2026-05-25",
+          "amount": 45.00,
+          "description": "WASTE MANAGEMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-29",
+          "date_posted": "2026-05-29",
+          "amount": -2640.00,
+          "description": "BRIGHTPATH SCHOOLS DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-01",
+          "date_posted": "2026-06-01",
+          "amount": 2093.44,
+          "description": "TATTERSALL FCU MORTGAGE PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-01",
+          "date_posted": "2026-06-01",
+          "amount": 1400.00,
+          "description": "BRIGHT HORIZONS TUITION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-02",
+          "date_posted": "2026-06-02",
+          "amount": 500.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-02",
+          "date_posted": "2026-06-02",
+          "amount": 1300.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-05",
+          "date_posted": "2026-06-05",
+          "amount": -3205.12,
+          "description": "LAKESHORE MEDICAL GRP PAYROLL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-08",
+          "date_posted": "2026-06-08",
+          "amount": 240.00,
+          "description": "STATE FARM INSURANCE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-09",
+          "date_posted": "2026-06-09",
+          "amount": 5084.71,
+          "description": "PLATYPUS CARD AUTOPAY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-10",
+          "date_posted": "2026-06-10",
+          "amount": 154.91,
+          "description": "PGANDE WEB ONLINE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-12",
+          "date_posted": "2026-06-12",
+          "amount": 60.12,
+          "description": "CITY OF OAKDALE WATER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-15",
+          "date_posted": "2026-06-15",
+          "amount": -2640.00,
+          "description": "BRIGHTPATH SCHOOLS DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-15",
+          "date_posted": "2026-06-15",
+          "amount": 489.35,
+          "description": "GINGHAM CU AUTO LOAN PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-19",
+          "date_posted": "2026-06-19",
+          "amount": -3227.70,
+          "description": "LAKESHORE MEDICAL GRP PAYROLL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-22",
+          "date_posted": "2026-06-22",
+          "amount": 342.33,
+          "description": "GINGHAM CU AUTO LOAN 2215",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-25",
+          "date_posted": "2026-06-25",
+          "amount": 45.00,
+          "description": "WASTE MANAGEMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-30",
+          "date_posted": "2026-06-30",
+          "amount": -2640.00,
+          "description": "BRIGHTPATH SCHOOLS DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-01",
+          "date_posted": "2026-07-01",
+          "amount": 2093.44,
+          "description": "TATTERSALL FCU MORTGAGE PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-01",
+          "date_posted": "2026-07-01",
+          "amount": 1400.00,
+          "description": "BRIGHT HORIZONS TUITION",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-02",
+          "date_posted": "2026-07-02",
+          "amount": 500.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-02",
+          "date_posted": "2026-07-02",
+          "amount": 1300.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-03",
+          "date_posted": "2026-07-03",
+          "amount": -3163.15,
+          "description": "LAKESHORE MEDICAL GRP PAYROLL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-06",
+          "date_posted": "2026-07-06",
+          "amount": 240.00,
+          "description": "STATE FARM INSURANCE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-10",
+          "date_posted": "2026-07-10",
+          "amount": 198.20,
+          "description": "PGANDE WEB ONLINE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-10",
+          "date_posted": "2026-07-10",
+          "amount": 4906.92,
+          "description": "PLATYPUS CARD AUTOPAY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-13",
+          "date_posted": "2026-07-13",
+          "amount": 71.83,
+          "description": "CITY OF OAKDALE WATER",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-15",
+          "date_posted": "2026-07-15",
+          "amount": -2640.00,
+          "description": "BRIGHTPATH SCHOOLS DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-15",
+          "date_posted": "2026-07-15",
+          "amount": 489.35,
+          "description": "GINGHAM CU AUTO LOAN PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-17",
+          "date_posted": "2026-07-17",
+          "amount": -3218.16,
+          "description": "LAKESHORE MEDICAL GRP PAYROLL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-22",
+          "date_posted": "2026-07-22",
+          "amount": 342.33,
+          "description": "GINGHAM CU AUTO LOAN 2215",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-27",
+          "date_posted": "2026-07-27",
+          "amount": 45.00,
+          "description": "WASTE MANAGEMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-31",
+          "date_posted": "2026-07-31",
+          "amount": -3203.53,
+          "description": "LAKESHORE MEDICAL GRP PAYROLL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-31",
+          "date_posted": "2026-07-31",
+          "amount": -2640.00,
+          "description": "BRIGHTPATH SCHOOLS DIR DEP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-02",
+          "date_posted": "2026-08-02",
+          "amount": 500.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-02",
+          "date_posted": "2026-08-02",
+          "amount": 8100.00,
+          "description": "ONLINE TRANSFER TO SAVINGS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-03",
+          "date_posted": "2026-08-03",
+          "amount": 2093.44,
+          "description": "TATTERSALL FCU MORTGAGE PMT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-03",
+          "date_posted": "2026-08-03",
+          "amount": 1400.00,
+          "description": "BRIGHT HORIZONS TUITION",
+          "currency": "USD"
+        },
+        {
           "date_transacted": "2026-08-06",
           "date_posted": "2026-08-06",
           "amount": 240.00,
@@ -352,6 +779,90 @@
       },
       "transactions": [
         {
+          "date_transacted": "2026-04-30",
+          "date_posted": "2026-04-30",
+          "amount": -194.17,
+          "description": "INTEREST PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-02",
+          "date_posted": "2026-05-02",
+          "amount": -500.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-02",
+          "date_posted": "2026-05-02",
+          "amount": -1100.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-31",
+          "date_posted": "2026-05-31",
+          "amount": -200.52,
+          "description": "INTEREST PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-02",
+          "date_posted": "2026-06-02",
+          "amount": -500.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-02",
+          "date_posted": "2026-06-02",
+          "amount": -1300.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-30",
+          "date_posted": "2026-06-30",
+          "amount": -207.61,
+          "description": "INTEREST PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-02",
+          "date_posted": "2026-07-02",
+          "amount": -500.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-02",
+          "date_posted": "2026-07-02",
+          "amount": -1300.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-31",
+          "date_posted": "2026-07-31",
+          "amount": -214.72,
+          "description": "INTEREST PAYMENT",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-02",
+          "date_posted": "2026-08-02",
+          "amount": -500.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-02",
+          "date_posted": "2026-08-02",
+          "amount": -8100.00,
+          "description": "ONLINE TRANSFER FROM CHECKING",
+          "currency": "USD"
+        },
+        {
           "date_transacted": "2026-08-31",
           "date_posted": "2026-08-31",
           "amount": -245.94,
@@ -425,6 +936,2050 @@
         ]
       },
       "transactions": [
+        {
+          "date_transacted": "2026-04-04",
+          "date_posted": "2026-04-05",
+          "amount": 82.48,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-04",
+          "date_posted": "2026-04-05",
+          "amount": 51.53,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-04",
+          "date_posted": "2026-04-06",
+          "amount": 65.82,
+          "description": "OLIVE GARDEN 0021",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-05",
+          "date_posted": "2026-04-06",
+          "amount": 86.87,
+          "description": "GAP KIDS #2231",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-05",
+          "date_posted": "2026-04-06",
+          "amount": 67.35,
+          "description": "AMAZON.COM*9H31P0",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-06",
+          "date_posted": "2026-04-08",
+          "amount": 80.97,
+          "description": "AMAZON.COM*2K4LM8",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-07",
+          "date_posted": "2026-04-08",
+          "amount": 59.27,
+          "description": "BRIGHT SMILES DENTAL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-08",
+          "date_posted": "2026-04-08",
+          "amount": 90.00,
+          "description": "COMCAST XFINITY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-09",
+          "date_posted": "2026-04-09",
+          "amount": -5079.88,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-09",
+          "date_posted": "2026-04-09",
+          "amount": 80.01,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-09",
+          "date_posted": "2026-04-10",
+          "amount": 9.99,
+          "description": "CVS/PHARMACY #04321",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-10",
+          "date_posted": "2026-04-10",
+          "amount": 120.97,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-09",
+          "date_posted": "2026-04-11",
+          "amount": 95.70,
+          "description": "AMZN Mktp US*7Y2QF1",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-10",
+          "date_posted": "2026-04-11",
+          "amount": 47.52,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-10",
+          "date_posted": "2026-04-11",
+          "amount": 101.81,
+          "description": "TARGET T-0871",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-11",
+          "date_posted": "2026-04-11",
+          "amount": 13.99,
+          "description": "DISNEY PLUS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-11",
+          "date_posted": "2026-04-12",
+          "amount": 48.52,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-12",
+          "date_posted": "2026-04-13",
+          "amount": 40.64,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-12",
+          "date_posted": "2026-04-13",
+          "amount": 15.77,
+          "description": "CVS/PHARMACY #04321",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-13",
+          "date_posted": "2026-04-13",
+          "amount": 43.75,
+          "description": "OLIVE GARDEN 0021",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-13",
+          "date_posted": "2026-04-13",
+          "amount": 19.40,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-13",
+          "date_posted": "2026-04-15",
+          "amount": 84.59,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-13",
+          "date_posted": "2026-04-15",
+          "amount": 75.46,
+          "description": "GAP KIDS #2231",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-15",
+          "date_posted": "2026-04-15",
+          "amount": 43.16,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-14",
+          "date_posted": "2026-04-16",
+          "amount": 82.94,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-15",
+          "date_posted": "2026-04-16",
+          "amount": 7.17,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-16",
+          "date_posted": "2026-04-16",
+          "amount": 19.99,
+          "description": "Spotify USA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-16",
+          "date_posted": "2026-04-17",
+          "amount": 70.21,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-17",
+          "date_posted": "2026-04-17",
+          "amount": 25.83,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-17",
+          "date_posted": "2026-04-17",
+          "amount": 29.33,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-17",
+          "date_posted": "2026-04-17",
+          "amount": 107.97,
+          "description": "AMZN Mktp US*7Y2QF1",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-17",
+          "date_posted": "2026-04-17",
+          "amount": 50.05,
+          "description": "PETCO 1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-17",
+          "date_posted": "2026-04-18",
+          "amount": 138.04,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-18",
+          "date_posted": "2026-04-18",
+          "amount": 78.21,
+          "description": "THE HOME DEPOT #0612",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-18",
+          "date_posted": "2026-04-19",
+          "amount": 24.75,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-19",
+          "date_posted": "2026-04-19",
+          "amount": 165.00,
+          "description": "VERIZON WIRELESS PAYMENTS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-19",
+          "date_posted": "2026-04-19",
+          "amount": 59.60,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-18",
+          "date_posted": "2026-04-20",
+          "amount": 35.65,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-18",
+          "date_posted": "2026-04-20",
+          "amount": 239.34,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-19",
+          "date_posted": "2026-04-20",
+          "amount": 12.43,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-20",
+          "date_posted": "2026-04-20",
+          "amount": 34.24,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-20",
+          "date_posted": "2026-04-20",
+          "amount": 72.35,
+          "description": "AMAZON.COM*9H31P0",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-20",
+          "date_posted": "2026-04-21",
+          "amount": 43.20,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-21",
+          "date_posted": "2026-04-23",
+          "amount": 90.48,
+          "description": "AMAZON.COM*9H31P0",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-22",
+          "date_posted": "2026-04-23",
+          "amount": 52.83,
+          "description": "AMAZON.COM*9H31P0",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-22",
+          "date_posted": "2026-04-24",
+          "amount": 134.87,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-22",
+          "date_posted": "2026-04-24",
+          "amount": 124.66,
+          "description": "THE HOME DEPOT #0612",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-23",
+          "date_posted": "2026-04-24",
+          "amount": 31.31,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-23",
+          "date_posted": "2026-04-24",
+          "amount": 93.37,
+          "description": "OLIVE GARDEN 0021",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-24",
+          "date_posted": "2026-04-24",
+          "amount": 95.84,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-24",
+          "date_posted": "2026-04-24",
+          "amount": 24.00,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-25",
+          "date_posted": "2026-04-25",
+          "amount": 19.66,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-26",
+          "date_posted": "2026-04-26",
+          "amount": 32.19,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-25",
+          "date_posted": "2026-04-27",
+          "amount": 74.84,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-25",
+          "date_posted": "2026-04-27",
+          "amount": 59.24,
+          "description": "THE HOME DEPOT #0612",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-26",
+          "date_posted": "2026-04-27",
+          "amount": 85.26,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-27",
+          "date_posted": "2026-04-27",
+          "amount": 44.00,
+          "description": "PELOTON* MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-27",
+          "date_posted": "2026-04-27",
+          "amount": 10.76,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-27",
+          "date_posted": "2026-04-27",
+          "amount": 37.35,
+          "description": "PETCO 1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-27",
+          "date_posted": "2026-04-29",
+          "amount": 47.09,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-28",
+          "date_posted": "2026-04-29",
+          "amount": 22.53,
+          "description": "PETCO 1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-29",
+          "date_posted": "2026-04-29",
+          "amount": 73.17,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-29",
+          "date_posted": "2026-04-29",
+          "amount": 117.10,
+          "description": "AMAZON.COM*9H31P0",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-28",
+          "date_posted": "2026-04-30",
+          "amount": 98.63,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-28",
+          "date_posted": "2026-04-30",
+          "amount": 51.84,
+          "description": "AMAZON.COM*9H31P0",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-04-30",
+          "date_posted": "2026-04-30",
+          "amount": 64.80,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-01",
+          "date_posted": "2026-05-01",
+          "amount": 166.94,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-01",
+          "date_posted": "2026-05-01",
+          "amount": 33.66,
+          "description": "PETCO 1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-02",
+          "date_posted": "2026-05-02",
+          "amount": 39.65,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-01",
+          "date_posted": "2026-05-03",
+          "amount": 108.20,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-02",
+          "date_posted": "2026-05-03",
+          "amount": 52.46,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-02",
+          "date_posted": "2026-05-03",
+          "amount": 71.27,
+          "description": "GAP KIDS #2231",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-03",
+          "date_posted": "2026-05-03",
+          "amount": 50.86,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-03",
+          "date_posted": "2026-05-03",
+          "amount": 112.77,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-03",
+          "date_posted": "2026-05-03",
+          "amount": 76.82,
+          "description": "GAP KIDS #2231",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-03",
+          "date_posted": "2026-05-04",
+          "amount": 100.49,
+          "description": "AMAZON.COM*2K4LM8",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-04",
+          "date_posted": "2026-05-04",
+          "amount": 22.99,
+          "description": "NETFLIX.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-04",
+          "date_posted": "2026-05-04",
+          "amount": 104.09,
+          "description": "LOWE'S #1843",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-04",
+          "date_posted": "2026-05-05",
+          "amount": 23.94,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-05",
+          "date_posted": "2026-05-05",
+          "amount": 19.36,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-05",
+          "date_posted": "2026-05-06",
+          "amount": 19.64,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-05",
+          "date_posted": "2026-05-06",
+          "amount": 181.36,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-05",
+          "date_posted": "2026-05-06",
+          "amount": 17.32,
+          "description": "AMAZON.COM*9H31P0",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-06",
+          "date_posted": "2026-05-07",
+          "amount": 64.47,
+          "description": "AMZN Mktp US*7Y2QF1",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-08",
+          "date_posted": "2026-05-08",
+          "amount": 90.00,
+          "description": "COMCAST XFINITY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-08",
+          "date_posted": "2026-05-08",
+          "amount": 89.59,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-08",
+          "date_posted": "2026-05-09",
+          "amount": 85.32,
+          "description": "AMAZON.COM*9H31P0",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-09",
+          "date_posted": "2026-05-09",
+          "amount": 48.50,
+          "description": "GAP KIDS #2231",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-09",
+          "date_posted": "2026-05-09",
+          "amount": 40.91,
+          "description": "CHUCK E. CHEESE 0388",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-09",
+          "date_posted": "2026-05-10",
+          "amount": 39.90,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-09",
+          "date_posted": "2026-05-10",
+          "amount": 18.82,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-09",
+          "date_posted": "2026-05-10",
+          "amount": 33.59,
+          "description": "PETCO 1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-10",
+          "date_posted": "2026-05-10",
+          "amount": -5049.62,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-10",
+          "date_posted": "2026-05-10",
+          "amount": 69.44,
+          "description": "OLIVE GARDEN 0021",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-10",
+          "date_posted": "2026-05-10",
+          "amount": 20.54,
+          "description": "GREAT CLIPS #4471",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-09",
+          "date_posted": "2026-05-11",
+          "amount": 37.77,
+          "description": "AMAZON.COM*2K4LM8",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-09",
+          "date_posted": "2026-05-11",
+          "amount": 163.81,
+          "description": "LOWE'S #1843",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-11",
+          "date_posted": "2026-05-11",
+          "amount": 13.99,
+          "description": "DISNEY PLUS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-11",
+          "date_posted": "2026-05-11",
+          "amount": 27.41,
+          "description": "CHICK-FIL-A #02145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-12",
+          "date_posted": "2026-05-12",
+          "amount": 76.03,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-12",
+          "date_posted": "2026-05-12",
+          "amount": 67.96,
+          "description": "TARGET T-1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-11",
+          "date_posted": "2026-05-13",
+          "amount": 28.67,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-12",
+          "date_posted": "2026-05-13",
+          "amount": 72.27,
+          "description": "OLIVE GARDEN 0021",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-12",
+          "date_posted": "2026-05-14",
+          "amount": 30.83,
+          "description": "AMAZON.COM*9H31P0",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-14",
+          "date_posted": "2026-05-15",
+          "amount": 19.12,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-14",
+          "date_posted": "2026-05-16",
+          "amount": 124.07,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-15",
+          "date_posted": "2026-05-16",
+          "amount": 35.61,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-16",
+          "date_posted": "2026-05-16",
+          "amount": 19.99,
+          "description": "Spotify USA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-16",
+          "date_posted": "2026-05-16",
+          "amount": 151.84,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-15",
+          "date_posted": "2026-05-17",
+          "amount": 133.36,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-16",
+          "date_posted": "2026-05-18",
+          "amount": 28.49,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-18",
+          "date_posted": "2026-05-18",
+          "amount": 29.99,
+          "description": "GAP KIDS #2231",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-18",
+          "date_posted": "2026-05-19",
+          "amount": 11.62,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-18",
+          "date_posted": "2026-05-19",
+          "amount": 55.78,
+          "description": "THE HOME DEPOT #0612",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-19",
+          "date_posted": "2026-05-19",
+          "amount": 165.00,
+          "description": "VERIZON WIRELESS PAYMENTS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-19",
+          "date_posted": "2026-05-20",
+          "amount": 40.50,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-20",
+          "date_posted": "2026-05-21",
+          "amount": 84.28,
+          "description": "AMAZON.COM*9H31P0",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-20",
+          "date_posted": "2026-05-22",
+          "amount": 94.24,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-21",
+          "date_posted": "2026-05-22",
+          "amount": 33.70,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-22",
+          "date_posted": "2026-05-23",
+          "amount": 68.69,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-23",
+          "date_posted": "2026-05-23",
+          "amount": 78.10,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-23",
+          "date_posted": "2026-05-23",
+          "amount": 94.60,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-23",
+          "date_posted": "2026-05-23",
+          "amount": 48.93,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-23",
+          "date_posted": "2026-05-24",
+          "amount": 21.81,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-24",
+          "date_posted": "2026-05-24",
+          "amount": 24.26,
+          "description": "CHICK-FIL-A #02145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-24",
+          "date_posted": "2026-05-24",
+          "amount": 106.18,
+          "description": "TARGET T-1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-23",
+          "date_posted": "2026-05-25",
+          "amount": 52.91,
+          "description": "TARGET T-1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-24",
+          "date_posted": "2026-05-25",
+          "amount": 199.71,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-25",
+          "date_posted": "2026-05-25",
+          "amount": 44.47,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-25",
+          "date_posted": "2026-05-26",
+          "amount": 164.65,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-27",
+          "date_posted": "2026-05-27",
+          "amount": 44.00,
+          "description": "PELOTON* MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-26",
+          "date_posted": "2026-05-28",
+          "amount": 66.56,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-30",
+          "date_posted": "2026-05-30",
+          "amount": 94.62,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-30",
+          "date_posted": "2026-05-31",
+          "amount": 70.04,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-30",
+          "date_posted": "2026-05-31",
+          "amount": 19.62,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-30",
+          "date_posted": "2026-05-31",
+          "amount": 88.55,
+          "description": "GAP KIDS #2231",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-31",
+          "date_posted": "2026-05-31",
+          "amount": 118.51,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-05-31",
+          "date_posted": "2026-05-31",
+          "amount": 61.35,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-01",
+          "date_posted": "2026-06-02",
+          "amount": 135.91,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-02",
+          "date_posted": "2026-06-02",
+          "amount": 121.47,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-02",
+          "date_posted": "2026-06-02",
+          "amount": 22.11,
+          "description": "CHICK-FIL-A #02145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-03",
+          "date_posted": "2026-06-03",
+          "amount": 123.68,
+          "description": "BRIGHT SMILES DENTAL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-04",
+          "date_posted": "2026-06-04",
+          "amount": 22.99,
+          "description": "NETFLIX.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-04",
+          "date_posted": "2026-06-06",
+          "amount": 21.32,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-05",
+          "date_posted": "2026-06-06",
+          "amount": 12.69,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-05",
+          "date_posted": "2026-06-06",
+          "amount": 29.97,
+          "description": "AMZN Mktp US*7Y2QF1",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-06",
+          "date_posted": "2026-06-06",
+          "amount": 73.60,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-06",
+          "date_posted": "2026-06-06",
+          "amount": 16.63,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-06",
+          "date_posted": "2026-06-07",
+          "amount": 98.52,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-06",
+          "date_posted": "2026-06-07",
+          "amount": 80.20,
+          "description": "OLIVE GARDEN 0021",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-06",
+          "date_posted": "2026-06-07",
+          "amount": 32.71,
+          "description": "OLD NAVY ON-LINE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-06",
+          "date_posted": "2026-06-07",
+          "amount": 34.71,
+          "description": "GREAT CLIPS #4471",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-07",
+          "date_posted": "2026-06-07",
+          "amount": 122.23,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-07",
+          "date_posted": "2026-06-07",
+          "amount": 140.08,
+          "description": "THE HOME DEPOT #0612",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-07",
+          "date_posted": "2026-06-08",
+          "amount": 245.74,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-07",
+          "date_posted": "2026-06-08",
+          "amount": 51.19,
+          "description": "GAP KIDS #2231",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-08",
+          "date_posted": "2026-06-08",
+          "amount": 90.00,
+          "description": "COMCAST XFINITY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-08",
+          "date_posted": "2026-06-08",
+          "amount": 71.70,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-08",
+          "date_posted": "2026-06-08",
+          "amount": 12.94,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-08",
+          "date_posted": "2026-06-08",
+          "amount": 22.24,
+          "description": "TARGET T-1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-09",
+          "date_posted": "2026-06-09",
+          "amount": -5084.71,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-09",
+          "date_posted": "2026-06-10",
+          "amount": 228.27,
+          "description": "THE HOME DEPOT #0612",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-09",
+          "date_posted": "2026-06-10",
+          "amount": 206.35,
+          "description": "BRIGHT SMILES DENTAL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-10",
+          "date_posted": "2026-06-10",
+          "amount": 34.49,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-10",
+          "date_posted": "2026-06-10",
+          "amount": 28.75,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-11",
+          "date_posted": "2026-06-11",
+          "amount": 13.99,
+          "description": "DISNEY PLUS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-11",
+          "date_posted": "2026-06-11",
+          "amount": 110.40,
+          "description": "THE HOME DEPOT #0612",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-11",
+          "date_posted": "2026-06-12",
+          "amount": 65.05,
+          "description": "AMAZON.COM*2K4LM8",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-12",
+          "date_posted": "2026-06-13",
+          "amount": 48.56,
+          "description": "TARGET T-0871",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-12",
+          "date_posted": "2026-06-14",
+          "amount": 77.55,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-13",
+          "date_posted": "2026-06-14",
+          "amount": 30.14,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-13",
+          "date_posted": "2026-06-14",
+          "amount": 33.55,
+          "description": "GREAT CLIPS #4471",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-14",
+          "date_posted": "2026-06-14",
+          "amount": 67.15,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-14",
+          "date_posted": "2026-06-15",
+          "amount": 43.47,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-14",
+          "date_posted": "2026-06-15",
+          "amount": 40.22,
+          "description": "OLIVE GARDEN 0021",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-14",
+          "date_posted": "2026-06-15",
+          "amount": 28.68,
+          "description": "GREAT CLIPS #4471",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-14",
+          "date_posted": "2026-06-16",
+          "amount": 170.73,
+          "description": "THE HOME DEPOT #0612",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-16",
+          "date_posted": "2026-06-16",
+          "amount": 19.99,
+          "description": "Spotify USA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-17",
+          "date_posted": "2026-06-17",
+          "amount": 77.94,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-17",
+          "date_posted": "2026-06-17",
+          "amount": 16.34,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-18",
+          "date_posted": "2026-06-18",
+          "amount": 33.52,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-18",
+          "date_posted": "2026-06-18",
+          "amount": 106.29,
+          "description": "AMAZON.COM*2K4LM8",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-18",
+          "date_posted": "2026-06-18",
+          "amount": 360.26,
+          "description": "KAISER PERMANENTE COPAY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-18",
+          "date_posted": "2026-06-19",
+          "amount": 112.83,
+          "description": "LOWE'S #1843",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-19",
+          "date_posted": "2026-06-19",
+          "amount": 165.00,
+          "description": "VERIZON WIRELESS PAYMENTS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-19",
+          "date_posted": "2026-06-20",
+          "amount": 14.37,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-19",
+          "date_posted": "2026-06-20",
+          "amount": 116.41,
+          "description": "TARGET T-1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-19",
+          "date_posted": "2026-06-20",
+          "amount": 366.13,
+          "description": "HERTZ RENT-A-CAR",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-20",
+          "date_posted": "2026-06-20",
+          "amount": 80.49,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-20",
+          "date_posted": "2026-06-21",
+          "amount": 29.17,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-21",
+          "date_posted": "2026-06-21",
+          "amount": 186.09,
+          "description": "MARRIOTT SAN DIEGO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-21",
+          "date_posted": "2026-06-22",
+          "amount": 38.63,
+          "description": "CVS/PHARMACY #04321",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-22",
+          "date_posted": "2026-06-24",
+          "amount": 109.33,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-22",
+          "date_posted": "2026-06-24",
+          "amount": 163.11,
+          "description": "MARRIOTT SAN DIEGO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-23",
+          "date_posted": "2026-06-24",
+          "amount": 98.34,
+          "description": "TARGET T-1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-24",
+          "date_posted": "2026-06-25",
+          "amount": 66.36,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-24",
+          "date_posted": "2026-06-25",
+          "amount": 93.24,
+          "description": "AMAZON.COM*2K4LM8",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-25",
+          "date_posted": "2026-06-26",
+          "amount": 37.62,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-27",
+          "date_posted": "2026-06-27",
+          "amount": 44.00,
+          "description": "PELOTON* MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-27",
+          "date_posted": "2026-06-27",
+          "amount": 108.11,
+          "description": "WHOLEFDS MKT #10571",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-27",
+          "date_posted": "2026-06-27",
+          "amount": 94.73,
+          "description": "OLIVE GARDEN 0021",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-26",
+          "date_posted": "2026-06-28",
+          "amount": 67.83,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-27",
+          "date_posted": "2026-06-28",
+          "amount": 88.72,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-27",
+          "date_posted": "2026-06-28",
+          "amount": 23.78,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-28",
+          "date_posted": "2026-06-29",
+          "amount": 46.09,
+          "description": "WHOLEFDS MKT #10571",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-29",
+          "date_posted": "2026-06-29",
+          "amount": 67.53,
+          "description": "OLD NAVY ON-LINE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-29",
+          "date_posted": "2026-06-29",
+          "amount": 36.14,
+          "description": "AMAZON.COM*2K4LM8",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-28",
+          "date_posted": "2026-06-30",
+          "amount": 18.33,
+          "description": "AMAZON.COM*2K4LM8",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-06-29",
+          "date_posted": "2026-06-30",
+          "amount": 56.22,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-01",
+          "date_posted": "2026-07-01",
+          "amount": 105.86,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-01",
+          "date_posted": "2026-07-02",
+          "amount": 46.78,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-02",
+          "date_posted": "2026-07-02",
+          "amount": 77.09,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-01",
+          "date_posted": "2026-07-03",
+          "amount": 110.14,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-03",
+          "date_posted": "2026-07-04",
+          "amount": 15.52,
+          "description": "PETCO 1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-04",
+          "date_posted": "2026-07-04",
+          "amount": 22.99,
+          "description": "NETFLIX.COM",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-03",
+          "date_posted": "2026-07-05",
+          "amount": 35.39,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-04",
+          "date_posted": "2026-07-05",
+          "amount": 15.05,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-04",
+          "date_posted": "2026-07-05",
+          "amount": 96.05,
+          "description": "AMAZON.COM*2K4LM8",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-06",
+          "date_posted": "2026-07-06",
+          "amount": 99.44,
+          "description": "WHOLEFDS MKT #10571",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-06",
+          "date_posted": "2026-07-06",
+          "amount": 7.48,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-05",
+          "date_posted": "2026-07-07",
+          "amount": 37.63,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-05",
+          "date_posted": "2026-07-07",
+          "amount": 96.77,
+          "description": "AMAZON.COM*2K4LM8",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-06",
+          "date_posted": "2026-07-07",
+          "amount": 199.07,
+          "description": "BRIGHT SMILES DENTAL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-07",
+          "date_posted": "2026-07-07",
+          "amount": 53.55,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-07",
+          "date_posted": "2026-07-07",
+          "amount": 48.67,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-08",
+          "date_posted": "2026-07-08",
+          "amount": 90.00,
+          "description": "COMCAST XFINITY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-07",
+          "date_posted": "2026-07-09",
+          "amount": 15.73,
+          "description": "AMAZON.COM*2K4LM8",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-08",
+          "date_posted": "2026-07-09",
+          "amount": 45.27,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-09",
+          "date_posted": "2026-07-09",
+          "amount": 88.81,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-10",
+          "date_posted": "2026-07-10",
+          "amount": -4906.92,
+          "description": "PAYMENT - THANK YOU",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-10",
+          "date_posted": "2026-07-10",
+          "amount": 167.87,
+          "description": "BRIGHT SMILES DENTAL",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-10",
+          "date_posted": "2026-07-11",
+          "amount": 32.47,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-11",
+          "date_posted": "2026-07-11",
+          "amount": 13.99,
+          "description": "DISNEY PLUS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-11",
+          "date_posted": "2026-07-11",
+          "amount": 70.83,
+          "description": "AMZN Mktp US*7Y2QF1",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-11",
+          "date_posted": "2026-07-12",
+          "amount": 61.57,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-11",
+          "date_posted": "2026-07-13",
+          "amount": 84.42,
+          "description": "OLIVE GARDEN 0021",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-12",
+          "date_posted": "2026-07-13",
+          "amount": 46.62,
+          "description": "OLIVE GARDEN 0021",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-12",
+          "date_posted": "2026-07-13",
+          "amount": 43.28,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-13",
+          "date_posted": "2026-07-13",
+          "amount": 104.98,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-13",
+          "date_posted": "2026-07-14",
+          "amount": 52.84,
+          "description": "CHEVRON 0091633",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-13",
+          "date_posted": "2026-07-14",
+          "amount": 37.21,
+          "description": "AMAZON.COM*2K4LM8",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-14",
+          "date_posted": "2026-07-14",
+          "amount": 62.01,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-14",
+          "date_posted": "2026-07-14",
+          "amount": 58.71,
+          "description": "AMAZON.COM*9H31P0",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-14",
+          "date_posted": "2026-07-15",
+          "amount": 17.12,
+          "description": "PETCO 1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-15",
+          "date_posted": "2026-07-15",
+          "amount": 17.39,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-15",
+          "date_posted": "2026-07-15",
+          "amount": 77.48,
+          "description": "AMAZON.COM*2K4LM8",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-15",
+          "date_posted": "2026-07-16",
+          "amount": 69.02,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-15",
+          "date_posted": "2026-07-16",
+          "amount": 58.29,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-16",
+          "date_posted": "2026-07-16",
+          "amount": 19.99,
+          "description": "Spotify USA",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-18",
+          "date_posted": "2026-07-18",
+          "amount": 54.30,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-18",
+          "date_posted": "2026-07-18",
+          "amount": 23.63,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-18",
+          "date_posted": "2026-07-19",
+          "amount": 168.57,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-19",
+          "date_posted": "2026-07-19",
+          "amount": 165.00,
+          "description": "VERIZON WIRELESS PAYMENTS",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-19",
+          "date_posted": "2026-07-19",
+          "amount": 193.99,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-19",
+          "date_posted": "2026-07-19",
+          "amount": 48.09,
+          "description": "AMZN Mktp US*7Y2QF1",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-18",
+          "date_posted": "2026-07-20",
+          "amount": 149.00,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-19",
+          "date_posted": "2026-07-20",
+          "amount": 58.73,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-19",
+          "date_posted": "2026-07-21",
+          "amount": 95.35,
+          "description": "OLIVE GARDEN 0021",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-19",
+          "date_posted": "2026-07-21",
+          "amount": 62.82,
+          "description": "GAP KIDS #2231",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-20",
+          "date_posted": "2026-07-21",
+          "amount": 9.38,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-21",
+          "date_posted": "2026-07-21",
+          "amount": 18.85,
+          "description": "WHOLEFDS MKT #10571",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-21",
+          "date_posted": "2026-07-21",
+          "amount": 9.53,
+          "description": "CHICK-FIL-A #02145",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-22",
+          "date_posted": "2026-07-23",
+          "amount": 132.69,
+          "description": "WHOLEFDS MKT #10571",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-22",
+          "date_posted": "2026-07-23",
+          "amount": 180.87,
+          "description": "MARRIOTT SAN DIEGO",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-23",
+          "date_posted": "2026-07-24",
+          "amount": 87.20,
+          "description": "GAP KIDS #2231",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-24",
+          "date_posted": "2026-07-24",
+          "amount": 18.31,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-25",
+          "date_posted": "2026-07-25",
+          "amount": 49.92,
+          "description": "WHOLEFDS MKT #10234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-25",
+          "date_posted": "2026-07-25",
+          "amount": 148.98,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-25",
+          "date_posted": "2026-07-25",
+          "amount": 20.87,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-25",
+          "date_posted": "2026-07-25",
+          "amount": 26.55,
+          "description": "CVS/PHARMACY #04321",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-24",
+          "date_posted": "2026-07-26",
+          "amount": 69.22,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-25",
+          "date_posted": "2026-07-27",
+          "amount": 117.51,
+          "description": "THE CHEESECAKE FACTORY",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-26",
+          "date_posted": "2026-07-27",
+          "amount": 63.09,
+          "description": "OLIVE GARDEN 0021",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-27",
+          "date_posted": "2026-07-27",
+          "amount": 44.00,
+          "description": "PELOTON* MEMBERSHIP",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-27",
+          "date_posted": "2026-07-28",
+          "amount": 31.19,
+          "description": "OLD NAVY ON-LINE",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-28",
+          "date_posted": "2026-07-29",
+          "amount": 23.92,
+          "description": "CHIPOTLE 1187",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-29",
+          "date_posted": "2026-07-29",
+          "amount": 61.04,
+          "description": "SHELL OIL 57444212",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-29",
+          "date_posted": "2026-07-30",
+          "amount": 68.60,
+          "description": "TARGET T-0871",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-29",
+          "date_posted": "2026-07-31",
+          "amount": 29.90,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-30",
+          "date_posted": "2026-07-31",
+          "amount": 69.54,
+          "description": "TRADER JOE'S #552",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-30",
+          "date_posted": "2026-07-31",
+          "amount": 17.33,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-30",
+          "date_posted": "2026-07-31",
+          "amount": 63.50,
+          "description": "AMAZON.COM*9H31P0",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-07-31",
+          "date_posted": "2026-08-01",
+          "amount": 87.69,
+          "description": "KROGER #0441",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-01",
+          "date_posted": "2026-08-01",
+          "amount": 128.25,
+          "description": "WHOLEFDS MKT #10571",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-01",
+          "date_posted": "2026-08-01",
+          "amount": 59.45,
+          "description": "PETCO 1234",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-01",
+          "date_posted": "2026-08-02",
+          "amount": 28.79,
+          "description": "SHELL OIL 57441108",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-02",
+          "date_posted": "2026-08-02",
+          "amount": 183.52,
+          "description": "COSTCO WHSE #0123",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-02",
+          "date_posted": "2026-08-02",
+          "amount": 24.54,
+          "description": "MCDONALD'S F3398",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-02",
+          "date_posted": "2026-08-03",
+          "amount": 19.34,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-02",
+          "date_posted": "2026-08-03",
+          "amount": 25.94,
+          "description": "GREAT CLIPS #4471",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-03",
+          "date_posted": "2026-08-04",
+          "amount": 36.37,
+          "description": "TRADER JOE'S #127",
+          "currency": "USD"
+        },
+        {
+          "date_transacted": "2026-08-04",
+          "date_posted": "2026-08-04",
+          "amount": 22.99,
+          "description": "NETFLIX.COM",
+          "currency": "USD"
+        },
         {
           "date_transacted": "2026-08-04",
           "date_posted": "2026-08-06",

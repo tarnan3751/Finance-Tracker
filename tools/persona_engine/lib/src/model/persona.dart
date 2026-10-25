@@ -105,11 +105,6 @@ final class AccountSpec {
 
   /// The account that tops this one up when a day would end below zero.
   final String? coverFrom;
-
-  /// Plaid rejects `/sandbox/transactions/create` on student loan accounts (`PLAN.md` §4),
-  /// so their transactions always go in the custom user.
-  bool get acceptsInjection =>
-      !(type == AccountType.loan && subtype == 'student');
 }
 
 /// The name a transaction carries: [raw] is the description as an institution writes it

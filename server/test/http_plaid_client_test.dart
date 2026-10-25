@@ -1,5 +1,6 @@
 // The real Plaid client over the recorded Sandbox fixtures: every call's request (path,
-// version header, keys, options) and its mapping from the fixture, the error mapping, the
+// version header, keys, options) and its mapping from the fixture, every persona's custom
+// user inside Plaid's 100,000-byte request limit, the error mapping, the
 // Money decoding of the 316-row page with no double anywhere, and end to end through the
 // server: a link and sync with every row of all seven Plaid tables carrying source plaid,
 // and a full flow whose log carries no key, secret or token.
@@ -12,6 +13,7 @@ import 'package:finance_tracker_server/src/plaid/plaid_money.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:logging/logging.dart';
+import 'package:persona_engine/persona_engine.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:test/test.dart';
 
@@ -122,6 +124,52 @@ void main() {
         {'webhook': 'https://tunnel.example/v1/webhooks/plaid'},
       );
     });
+
+    test(
+      "every persona's 730-day custom user fits Plaid's request limit",
+      () async {
+        // `/sandbox/public_token/create` refuses a body over 100,000 bytes (`PLAN.md` §4);
+        // the engine's budget is 90,000 for the escaped configuration. Measured on the body
+        // the client sends, as the job builds it, with a webhook URL, and a thousand bytes
+        // kept for real keys and a longer URL.
+        final hooked = transport.plaidClient(
+          webhookUrl: 'https://tunnel.example/v1/webhooks/plaid',
+        );
+        transport.byDefault(
+          '/sandbox/public_token/create',
+          'sandbox_public_token_create',
+        );
+        var sent = 0;
+        for (final persona in PersonaId.values) {
+          final household = generateHousehold(
+            personaFor(persona),
+            seed: 1,
+            asOf: LocalDate(2026, 10, 24),
+          );
+          for (final user in sandboxUsers(household)) {
+            await hooked.sandboxPublicTokenCreate(
+              institutionId: user.split.institution.plaidId,
+              products: const ['transactions', 'liabilities', 'investments'],
+              overrideUsername: 'user_custom',
+              overridePassword: writeJson(
+                shiftSandboxUserDates(user.config, -1),
+                pretty: false,
+              ),
+              daysRequested: 730,
+            );
+            sent++;
+          }
+        }
+        final bodies = [
+          for (final r in transport.requests)
+            if (r.path == '/sandbox/public_token/create') r.raw,
+        ];
+        expect(bodies, hasLength(sent));
+        for (final raw in bodies) {
+          expect(utf8.encode(raw).length, lessThan(99000));
+        }
+      },
+    );
 
     test('an update-mode token names the Item and no products', () async {
       transport.script('/link/token/create', ['link_token_create_update_mode']);

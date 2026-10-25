@@ -1,0 +1,30 @@
+{
+  "generator": "persona_engine",
+  "format_version": 1,
+  "persona": "student",
+  "seed": 1,
+  "as_of": "2026-10-24",
+  "include_interest_legs": true,
+  "date_shift": "add (Item creation date - as_of) days to every date in every sandbox_user file of this persona, the same shift for every Item",
+  "request_byte_budget": 90000,
+  "items": [
+    {
+      "institution": "platypus",
+      "plaid_institution_id": "ins_109508",
+      "sandbox_user_file": "sandbox_user_platypus.json",
+      "custom_user_transactions": 188,
+      "first_day_carried": "2026-06-27",
+      "days_carried": 120,
+      "transactions_left_out": 0
+    },
+    {
+      "institution": "gingham",
+      "plaid_institution_id": "ins_109509",
+      "sandbox_user_file": "sandbox_user_gingham.json",
+      "custom_user_transactions": 13,
+      "first_day_carried": "2026-06-28",
+      "days_carried": 119,
+      "transactions_left_out": 0
+    }
+  ]
+}

@@ -40,9 +40,7 @@ void main() {
     ).listSync().map((f) => f.uri.pathSegments.last).toList()..sort();
     expect(names, [
       'demo_seed.json',
-      'injection_gingham.json',
-      'injection_manifest.json',
-      'injection_platypus.json',
+      'sandbox_manifest.json',
       'sandbox_user_gingham.json',
       'sandbox_user_platypus.json',
     ]);
@@ -58,13 +56,17 @@ void main() {
       '--output',
       dir.path,
       '--format',
-      'injection',
+      'sandbox-user',
       '--as-of',
       '2026-01-31',
       '--no-interest-legs',
     ]);
     expect(code, 0);
-    final manifest = File('${dir.path}/renter/injection_manifest.json')
+    final names = Directory(
+      '${dir.path}/renter',
+    ).listSync().map((f) => f.uri.pathSegments.last).toList()..sort();
+    expect(names, ['sandbox_manifest.json', 'sandbox_user_platypus.json']);
+    final manifest = File('${dir.path}/renter/sandbox_manifest.json')
         .readAsStringSync();
     expect(manifest, contains('"as_of": "2026-01-31"'));
     expect(manifest, contains('"include_interest_legs": false'));

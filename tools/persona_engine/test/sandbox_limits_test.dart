@@ -1,6 +1,6 @@
-// Plaid's limits on every persona: ten accounts, about 250 transactions and 55 KB per
-// custom user, ten per injection call, no student-loan injection, a partition of the
-// history between the two, and dates Plaid accepts.
+// Plaid's limits on every persona: ten accounts and the request budget per custom user,
+// the newest whole days carried, a partition of the history between carried and left
+// out, and dates Plaid accepts.
 import 'package:persona_engine/persona_engine.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:test/test.dart';

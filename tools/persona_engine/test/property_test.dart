@@ -13,6 +13,7 @@ import 'support/invariants.dart';
 const int defaultSeed = 1000;
 const int seedsPerPersona = 100;
 const int seedsPerSweepPoint = 2;
+const int seedsPerSandboxRender = 5;
 
 final int base =
     int.tryParse(Platform.environment['PERSONA_ENGINE_SEED'] ?? '') ??
@@ -78,6 +79,34 @@ void main() {
       },
       timeout: const Timeout(Duration(minutes: 5)),
     );
+
+    test('${id.slug} renders its Sandbox outputs under the request budget and '
+        'byte-identically twice, over 730 and 120 days', () {
+      for (var seed = base; seed < base + seedsPerSandboxRender; seed++) {
+        for (final days in const [730, 120]) {
+          final where = '${id.slug} seed $seed, $days days';
+          List<SandboxUser> users() => sandboxUsers(
+            generateHousehold(persona, seed: seed, asOf: asOf, days: days),
+          );
+          final first = users();
+          final second = users();
+          expect(second, hasLength(first.length), reason: where);
+          for (final (i, u) in first.indexed) {
+            final bytes = writeJson(u.config, pretty: false);
+            expect(
+              writeJson(second[i].config, pretty: false),
+              bytes,
+              reason: where,
+            );
+            expect(
+              sandboxRequestBytes(u.config),
+              lessThanOrEqualTo(sandboxConfigByteBudget),
+              reason: '$where ${u.split.institution.key}',
+            );
+          }
+        }
+      }
+    }, timeout: const Timeout(Duration(minutes: 5)));
   }
 }
 
