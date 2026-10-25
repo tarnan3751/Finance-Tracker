@@ -1,18 +1,20 @@
 // Goldens of a transaction with splits and a receipt, light and dark: the editor (which
 // is the transaction's detail) of the seed's split transaction with a receipt photo, its
 // two splits and the thumbnail in view; and the photo full screen, opened from the
-// thumbnail. The photo is a PNG of the demo flavor's synthetic receipt
-// (test/fixtures/receipts/receipt.png): a lossless image decodes to the same pixels on
-// every platform, where JPEG decoders differ, so the goldens match on CI's Linux runner
-// too. Tagged `golden`; see test/flutter_test_config.dart for where the files go and how
-// to update them.
-import 'dart:io';
+// thumbnail. The photo is not decoded: image decoding and resizing are platform code
+// whose pixels differ between machines (CI's Linux runner against macOS), so
+// receiptImageProvider is overridden with a flat paper-coloured image the test draws
+// itself, and the goldens show the layout only. The decode path is covered by the
+// widget tests, which compare no pixels. Tagged `golden`; see
+// test/flutter_test_config.dart for where the files go and how to update them.
+import 'dart:ui' as ui;
 
 import 'package:alchemist/alchemist.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/features/transactions/presentation/receipt_view.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -33,7 +35,8 @@ Future<Widget> _app(Brightness brightness) async {
   await receipts.commit(
     await receipts.stage(
       'demo-txn-04',
-      File('test/fixtures/receipts/receipt.png').readAsBytesSync(),
+      // Never decoded: the image comes from [_DrawnImage].
+      Uint8List.fromList(const [1, 2, 3]),
     ),
   );
   return SizedBox.fromSize(
@@ -44,8 +47,36 @@ Future<Widget> _app(Brightness brightness) async {
       overrides: [
         storeOverride(store),
         receiptStoreProvider.overrideWithValue(receipts),
+        receiptImageProvider.overrideWithValue((_) => _DrawnImage(_paper())),
       ],
     ),
+  );
+}
+
+/// A receipt-sized image of one flat colour, drawn by the engine's own rasterizer: no
+/// codec reaches it, and resampling a flat colour gives that colour on every platform.
+ui.Image _paper() {
+  final ui.PictureRecorder recorder = ui.PictureRecorder();
+  Canvas(recorder).drawColor(const Color(0xFFF4EFE4), BlendMode.src);
+  return recorder.endRecording().toImageSync(600, 900);
+}
+
+/// [image] as an [ImageProvider], with no decoding.
+final class _DrawnImage extends ImageProvider<_DrawnImage> {
+  const _DrawnImage(this.image);
+
+  final ui.Image image;
+
+  @override
+  Future<_DrawnImage> obtainKey(ImageConfiguration configuration) =>
+      SynchronousFuture<_DrawnImage>(this);
+
+  @override
+  ImageStreamCompleter loadImage(
+    _DrawnImage key,
+    ImageDecoderCallback decode,
+  ) => OneFrameImageStreamCompleter(
+    SynchronousFuture<ImageInfo>(ImageInfo(image: image.clone())),
   );
 }
 
