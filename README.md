@@ -9,16 +9,21 @@ Plaid directly.
 
 ## Status
 
-Phase 3 is done: the app links real banks through Plaid Link (Plaid Sandbox, reached only
-through the development server, which holds the keys, polls Plaid and verifies its webhooks),
-keeps each bank's Items with their health, repairs a login that expired, unlinks with the
-history kept or deleted, and pulls accounts and transactions into the encrypted database as
-bank data that is never edited into something else. Linked accounts show the balance the
-institution reported, in the app's sign, with the institution's name and logo, and their
-running balances are anchored to it. Rules file, tag or rename transactions as they arrive
-and on demand, and sync like any other user data. The dev flavor carries a developer menu for
-the Sandbox controls and persona provisioning. Phase 2's sign-in, sync and demo mode, and
-Phase 1's manual tracker, are underneath. Budgets follow in Phase 4.
+Phase 4 is done: budgets per category (a parent budgets its group) with monthly periods from a
+chosen start day, rollover of the signed remainder, progress, a linear projection and 80 % and
+100 % alerts raised once per period into an in-app list behind a bell on the Budgets tab, the
+math integer money throughout and property-tested across month ends, leap days and time zones.
+Transactions can be hidden (kept in balances, left out of budgets, reports and the default
+list), selected and edited in bulk through recorded batch writes, searched by word prefixes
+across name, merchant, notes and tags through a full-text index, filtered by saved filters,
+split across categories in the editor, and given a receipt photo from the camera or the gallery,
+stored privately with its camera metadata stripped. A rule previews what it would change and
+applies to the existing transactions once, atomically; a duplicate review pairs likely
+duplicates by signed amount and date and lets the user hide one or dismiss the pair. The local
+schema moved from v4 to v8 and every migration step is re-runnable, so a kill mid-upgrade
+cannot leave a database that will not open. Phase 3's linked banks, Phase 2's sign-in, sync and
+demo mode, and Phase 1's manual tracker are underneath. Recurring transactions and bills follow
+in Phase 5.
 
 ## Architecture
 

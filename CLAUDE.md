@@ -18,14 +18,19 @@ heading of this file or of a doc.
 
 ## Status
 
-**Phases 0 to 3 have landed and passed their gates; Phase 4 (budgets) is next:** the app runs on its Riverpod and go_router core with manual accounts, transactions
-and categories on the encrypted Drift database (schema v4 with the change log, field clocks,
-Items and rules); it signs in against the development server through the API client, syncs
-user data between devices through the sync engine, links banks through Plaid Link (real
-Sandbox Items through the server, which polls Plaid and verifies its webhooks), pulls their
-accounts and transactions with reported balances and institution logos, applies the user's
-rules on arrival, and runs the demo flavor on the persona engine's seed against an in-process
-fake server with no network; the dev flavor carries a developer menu for the Sandbox controls.
+**Phases 0 to 4 have landed and passed their gates; Phase 5 (recurring and bills) is next:** the
+app runs on its Riverpod and go_router core with manual accounts, transactions and categories on
+the encrypted Drift database (schema v8 with the change log, field clocks, Items, rules, budgets
+and their alerts, dismissed duplicate pairs, saved filters and a full-text index); it signs in
+against the development server through the API client, syncs user data between devices through
+the sync engine, links banks through Plaid Link (real Sandbox Items through the server, which
+polls Plaid and verifies its webhooks), pulls their accounts and transactions with reported
+balances and institution logos, applies the user's rules on arrival and, on request, to the
+existing transactions; it budgets by category with periods, rollover, projection and in-app
+alerts, hides and bulk-edits transactions, reviews likely duplicates, searches by word prefixes,
+saves filters, splits transactions and attaches receipt photos; and it runs the demo flavor on
+the persona engine's seed against an in-process fake server with no network; the dev flavor
+carries a developer menu for the Sandbox controls.
 The repository is the pub workspace of **Folder layout**, Android only. The app runs in
 three flavors (`dev`, `demo`, `prod`) through `app/lib/bootstrap.dart`; `server/` is the
 development server implementing the contract with a fake Plaid client
@@ -76,6 +81,8 @@ scripts pick it the same way. Commands marked with a phase do not exist before i
 | Build a debug APK | `F build apk --debug --flavor dev -t lib/main_dev.dart` |
 | Build the release APK (R8, obfuscated) | `F build apk --release --flavor prod -t lib/main_prod.dart --obfuscate --split-debug-info=build/symbols` |
 | Land a delivered series | `tools/land_series.sh <patch-dir> <base-commit> <tree-hash>` |
+| Lint the commits since a base (the gate runs it on `origin/main..HEAD`) | `tools/check_commits.sh <base>` |
+| Stop the harness emulator, even past a live lock | `tools/emulator_tests.sh stop [--force]` |
 
 **Any Flutter run writes files**: `build/` and `.dart_tool/` in the tree it runs in, and a `run`
 or `install` writes the app and its data onto whatever emulator or device is attached. The dev
@@ -101,6 +108,9 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | Linked banks: Items, Plaid Link, repair, unlink, the Plaid pull and the arrival seam | `app/lib/features/items/`, `app/lib/core/plaid/` | `docs/reference/items.md` |
 | Rules: the engine, the runner on arrival and on demand, the rules screens | `app/lib/features/rules/` | `docs/reference/rules.md` |
 | Developer menu (dev flavor only): the Sandbox controls, provisioning, diagnostics | `app/lib/features/developer/` | `docs/reference/developer.md` |
+| Budgets: periods, spending, rollover, projection, alerts, the Budgets tab | `app/lib/features/budgets/`, `app/lib/core/platform/notifier.dart` | `docs/reference/budgets.md` |
+| Duplicates: the detector, dismissed pairs, the review | `app/lib/features/duplicates/` | `docs/reference/duplicates.md` |
+| Transactions: hidden, bulk edit, search and saved filters, splits, receipts | `app/lib/features/transactions/`, `app/lib/core/db/full_text_search.dart`, `app/lib/core/db/receipt_store.dart`, `app/lib/core/platform/image_source.dart` | `docs/reference/transactions.md`, `docs/reference/data.md` |
 | API client, in-app fake server, session and auth | `app/lib/core/api/`, `app/lib/features/auth/` | `docs/reference/app-core.md` (the API client), `docs/reference/auth.md` |
 | The generated API client | `packages/api_client/` | `docs/reference/api.md` (Phase 2) |
 | The API contract | `api/openapi.yaml` | same |
@@ -172,7 +182,7 @@ server/          the Dart development server: bin/, lib/, test/, .env.example (.
 packages/        shared_models, api_client (generated), contract_test, sync_engine
 api/             openapi.yaml, the contract
 tools/           gates.sh, run_tests.sh, land_series.sh, gen_api_client.sh,
-                 check_contract.sh; emulator_tests.sh, persona_engine/, scripts/ as they land
+                 check_contract.sh, check_commits.sh, emulator_tests.sh, persona_engine/, scripts/
 docs/            reference/ (one file per area, written as it lands)
 notes/           gitignored: plaid-sandbox.env and private notes
 .claude/agents/  scout, researcher, developer, reviewer
@@ -188,7 +198,14 @@ PLAN.md          the plan: gitignored, read from the main tree
 - Riverpod: providers are generated (`@riverpod`); a provider that holds a stream subscription
   disposes it; `ref.watch` in build, `ref.read` in callbacks, never the reverse.
 - Drift: a schema change bumps `schemaVersion` with a migration step and a test that opens the
-  previous version's database; generated files are regenerated and committed.
+  previous version's database; generated files are regenerated and committed. Drift runs
+  `onUpgrade` outside a transaction and writes `user_version` only after `beforeOpen`, so every
+  step must be re-runnable at the old version (`IF NOT EXISTS`, a column or index added only
+  when missing) and the "every step runs again at the old version" test group must cover it;
+  a step that cannot run twice bricks the database when the app is killed mid-upgrade.
+- The full-text objects are not in the Drift schema: `core/db/full_text_search.dart` creates
+  them at open (keyed by a `fts_definition` version in `app_meta`); a change to their SQL bumps
+  `ftsDefinitionVersion`, and a bumped SQLite reruns `app/tool/generate_unicode61_table.dart`.
 - freezed and json_serializable: the `part` directive must name the generated file exactly;
   forgetting `build_runner` is the most common reason a clone does not compile.
 - `intl` formats currency; never string-concatenate a currency symbol.
@@ -301,7 +318,8 @@ changes**) is kept or vetoed by the coordinator, not the reviewer.
 change per commit (refactors separate from features), each a **Conventional Commit**:
 `type(scope): Summary`, with `type` one of `feat`, `fix`, `refactor`, `perf`, `test`, `docs`,
 `build`, `ci`, `chore`, `style`, `revert`; `scope` one of `app`, `server`, `models`, `api`,
-`persona`, a feature folder name, `tools`, `docs`, `ci`, `build`; the summary an imperative
+`persona`, `sync`, `map`, a feature folder name, `tools`, `docs`, `ci`, `build`
+(`tools/check_commits.sh` enforces this at the gate and at landing); the summary an imperative
 sentence in sentence case, no trailing period, at most 72 characters; a body of plain paragraphs
 saying what and why; **no trailers**: no commit in this repository carries one, the
 coordinator's own included. The series comes with the write-tree hash it reproduces and the

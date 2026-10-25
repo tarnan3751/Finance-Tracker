@@ -3,6 +3,90 @@
 Each release section is generated from the Conventional Commit log since the previous tag
 (`PLAN.md` §10). Tags are `vX.Y.Z`; a phase ends with a `vX.Y.Z-phaseN` pre-release.
 
+## v0.5.0-phase4 — 2026-10-25
+
+Phase 4 lands budgets and rounds out working with transactions. Budgets have monthly periods
+starting on a chosen day, rollover of the signed remainder, progress and a linear projection,
+and 80 % and 100 % alerts raised once per period into an in-app list behind a bell on the new
+Budgets tab; the budget math is integer `Money` throughout and is property-tested across month
+ends, leap days and DST transitions in four zones. Transactions gain a `hidden` override that
+keeps them in balances but out of budgets, reports and the default list; a selection mode with
+bulk category, tag, hide and delete through recorded batch writes; a rule editor that previews
+what a rule would change and applies it to history once, atomically; a duplicate review that
+pairs likely duplicates by signed amount and date and lets the user hide one or dismiss the
+pair; full-text search over name, merchant, notes and tags through an FTS5 index with prefix
+matching and accent folding, plus saved filters; and splits edited in the editor with receipt
+photos captured through the camera or gallery, stored privately with their metadata stripped.
+The local schema moves from v4 to v8, every migration step is now re-runnable at the old
+version (a kill mid-upgrade can no longer brick a database), and the contract gains
+`Transaction.hidden` without a version change.
+
+### Features
+
+- server: Provision without injecting history (d56e57d)
+- persona: Fit a persona's Sandbox history under the request budget (2780bf1)
+- api: Describe provisioning and the injection window as they are (b1d4d37)
+- models: Give a budget its start date (a5e1df4)
+- app: Add schema v5 with budgets and their alerts (5531235)
+- budgets: Compute periods, spending, rollover and projection (fe33369)
+- budgets: Add the repositories and the sync record (d79fbb0)
+- budgets: Raise budget alerts once per period through a notifier (61ccbc4)
+- budgets: Add the budgets tab, editor and detail (3731704)
+- budgets: Show budget alerts in the app (0b34a58)
+- models: Add the hidden override to a transaction (4c824d9)
+- app: Add schema v6 with the hidden column (9c867a7)
+- transactions: Record batch writes through upsertAll (f29c8bc)
+- rules: Support the hide action (1b79e77)
+- transactions: Hide rows and edit them in bulk (3ec1c03)
+- budgets: Leave hidden transactions out of a budget's spending (db1cebc)
+- rules: Preview a rule's effect on existing transactions (bb8bcf8)
+- rules: Apply a rule to existing transactions once (a5574e8)
+- duplicates: Detect likely duplicate transactions (c5a6e68)
+- app: Add schema v7 with dismissed duplicate pairs (47ec579)
+- duplicates: Review duplicate candidates (78f0021)
+- app: Add schema v8 with full-text search (5047c41)
+- transactions: Search words and prefixes across four text fields (d15e58e)
+- transactions: Save and reapply filters (ca4697e)
+- transactions: Edit splits in the editor (9e8d9cb)
+- app: Capture and show receipts behind an image source boundary (48c34d8)
+
+### Fixes
+
+- transactions: Keep the receipt goldens platform-independent (45932f6)
+- transactions: Draw the receipt goldens' image without a codec (0e5052c)
+
+### Refactoring
+
+- app: Share the one-shot read of a repository stream (3d33c7a)
+- rules: Share the owned-field guard with the runner (77f485c)
+
+### Tests
+
+- app: Converge budgets across devices (9bb0815)
+- app: Converge hidden overrides and drive bulk edit on a device (1925de0)
+- app: Converge rules applied to history (4c87800)
+- app: Apply a rule to history on a device (6c673f4)
+- app: Split and attach a receipt on a device (227e4fb)
+- app: Wait up to 120 s of wall-clock time in the device flows (a6d5917)
+- transactions: Match the trigger's refusal in the rollback test (83d3a82)
+
+### Build and tooling
+
+- tools: Recycle a wedged or long-lived harness emulator (59c0c46)
+- tools: Uninstall the demo app before the harness's tests (db222ae)
+- tools: Give each package's test duration in the gate summary (b8c7746)
+- tools: Keep the landing gate's report and show its failure (ebc14a1)
+- tools: Lint commit messages at the gate and at landing (6ca8ece)
+
+### Documentation
+
+- Describe the Sandbox history budget (eed0d25)
+- Add the budgets reference file (f1c02c8)
+- Describe the budgets screens and the alerts entry (2bd7cb8)
+- Describe rules on history and the duplicate review (ab9835e)
+- Describe full-text search and saved filters (3984422)
+- Describe splits, receipts and the image source (eb146a6)
+
 ## v0.4.0-phase3 — 2026-10-25
 
 Phase 3, Plaid Sandbox through the development server, completed: the contract at 0.3.0 with
