@@ -1164,6 +1164,59 @@ final class BudgetAlertStoreProvider
 
 String _$budgetAlertStoreHash() => r'6750109fbb393e2b675f6fb7f1ca2aa3d7e92ff9';
 
+/// The transaction list's saved filters, on this device only.
+
+@ProviderFor(savedFilterRepository)
+final savedFilterRepositoryProvider = SavedFilterRepositoryProvider._();
+
+/// The transaction list's saved filters, on this device only.
+
+final class SavedFilterRepositoryProvider
+    extends
+        $FunctionalProvider<
+          SavedFilterRepository,
+          SavedFilterRepository,
+          SavedFilterRepository
+        >
+    with $Provider<SavedFilterRepository> {
+  /// The transaction list's saved filters, on this device only.
+  SavedFilterRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'savedFilterRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$savedFilterRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<SavedFilterRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  SavedFilterRepository create(Ref ref) {
+    return savedFilterRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SavedFilterRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SavedFilterRepository>(value),
+    );
+  }
+}
+
+String _$savedFilterRepositoryHash() =>
+    r'8f010995331cdbd6aef46af795105462c3649d1b';
+
 /// Where the app preferences are kept.
 
 @ProviderFor(settingsRepository)

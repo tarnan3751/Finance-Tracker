@@ -658,6 +658,60 @@ abstract class AppLocalizations {
   /// **'Clear'**
   String get filterClear;
 
+  /// Header of the filter sheet's section listing the saved filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get filterSaved;
+
+  /// Button of the filter sheet that saves the search and filters set in it under a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Save these filters'**
+  String get filterSaveThese;
+
+  /// Title of the dialog asking for a saved filter's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Save filters'**
+  String get savedFilterSaveTitle;
+
+  /// Label of the saved filter's name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get savedFilterNameLabel;
+
+  /// Title of the dialog renaming a saved filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename saved filter'**
+  String get savedFilterRenameTitle;
+
+  /// Menu item and button that rename a saved filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get savedFilterRename;
+
+  /// Tooltip of a saved filter's menu button; name is the saved filter's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Options for {name}'**
+  String savedFilterOptions(String name);
+
+  /// Title of the dialog confirming that a saved filter is deleted; name is its name.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{name}”?'**
+  String savedFilterDeleteTitle(String name);
+
+  /// Body of the dialog confirming that a saved filter is deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the saved filter goes; no transaction changes.'**
+  String get savedFilterDeleteBody;
+
   /// Button of the filter sheet that applies the chosen filters.
   ///
   /// In en, this message translates to:

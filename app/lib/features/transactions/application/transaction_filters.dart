@@ -3,14 +3,26 @@
 ///
 /// A date preset is kept as a preset, not as dates, so "This month" still means this
 /// month after midnight on the last day; it is resolved against "today" (the clock's, in
-/// the device zone) each time the query is built.
+/// the device zone) each time the query is built, and kept as a preset in the JSON a
+/// saved filter holds ([TransactionFilters.toJson]).
 library;
 
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:shared_models/shared_models.dart';
 
 /// The date range choices of the filter sheet.
-enum DatePreset { thisMonth, lastMonth, last90Days, thisYear, custom }
+enum DatePreset {
+  thisMonth('this_month'),
+  lastMonth('last_month'),
+  last90Days('last_90_days'),
+  thisYear('this_year'),
+  custom('custom');
+
+  const DatePreset(this.jsonName);
+
+  /// The name in a saved filter's JSON.
+  final String jsonName;
+}
 
 /// A date filter: a preset, or [DatePreset.custom] with its [customRange].
 final class DateFilter {
@@ -74,6 +86,77 @@ final class TransactionFilters {
   /// No search and no filter.
   static const TransactionFilters none = TransactionFilters();
 
+  /// The filters [json] holds ([toJson]'s form). Keys it does not know are ignored, so
+  /// a later version's additions do not stop an older one reading the rest; a known key
+  /// with a value of the wrong shape is a [FormatException].
+  factory TransactionFilters.fromJson(Map<String, Object?> json) {
+    T read<T>(String key, T fallback) {
+      final Object? value = json[key];
+      if (value == null) return fallback;
+      if (value is T) return value as T;
+      throw FormatException('saved filter: "$key" is not a $T', json);
+    }
+
+    Set<String> strings(String key) => {
+      for (final Object? v in read<List<Object?>>(key, const []))
+        if (v is String)
+          v
+        else
+          throw FormatException(
+            'saved filter: "$key" holds a non-string',
+            json,
+          ),
+    };
+
+    Money? money(String key) {
+      final Map<String, Object?>? value = read<Map<String, Object?>?>(
+        key,
+        null,
+      );
+      try {
+        return value == null ? null : Money.fromJson(value);
+      } on Object catch (e) {
+        throw FormatException('saved filter: "$key" is not money ($e)', json);
+      }
+    }
+
+    DateFilter? date() {
+      final Map<String, Object?>? value = read<Map<String, Object?>?>(
+        'date',
+        null,
+      );
+      if (value == null) return null;
+      final DatePreset? preset = DatePreset.values
+          .where((p) => p.jsonName == value['preset'])
+          .firstOrNull;
+      if (preset == null) {
+        throw FormatException('saved filter: unknown date preset', json);
+      }
+      if (preset != DatePreset.custom) return DateFilter(preset);
+      try {
+        return DateFilter.custom(
+          LocalDateRange(
+            LocalDate.parse(value['start']! as String),
+            LocalDate.parse(value['end']! as String),
+          ),
+        );
+      } on Object catch (e) {
+        throw FormatException('saved filter: a bad custom range ($e)', json);
+      }
+    }
+
+    return TransactionFilters(
+      text: read<String>('text', ''),
+      accountIds: strings('account_ids'),
+      categoryIds: strings('category_ids'),
+      date: date(),
+      minAmount: money('min_amount'),
+      maxAmount: money('max_amount'),
+      tags: strings('tags'),
+      showHidden: read<bool>('show_hidden', false),
+    );
+  }
+
   final String text;
   final Set<String> accountIds;
   final Set<String> categoryIds;
@@ -126,6 +209,27 @@ final class TransactionFilters {
       limit: limit,
     );
   }
+
+  /// These filters as JSON, for a saved filter: only what is set, ids and tags sorted,
+  /// a date preset by name (resolved only when a query is built), a custom range as its
+  /// ISO dates (end exclusive), amounts as `Money`'s JSON.
+  Map<String, Object?> toJson() => {
+    if (text.isNotEmpty) 'text': text,
+    if (accountIds.isNotEmpty) 'account_ids': accountIds.toList()..sort(),
+    if (categoryIds.isNotEmpty) 'category_ids': categoryIds.toList()..sort(),
+    if (date case final DateFilter date)
+      'date': {
+        'preset': date.preset.jsonName,
+        if (date.customRange case final LocalDateRange range) ...{
+          'start': range.start.toIso(),
+          'end': range.end.toIso(),
+        },
+      },
+    if (minAmount case final Money min) 'min_amount': min.toJson(),
+    if (maxAmount case final Money max) 'max_amount': max.toJson(),
+    if (tags.isNotEmpty) 'tags': tags.toList()..sort(),
+    if (showHidden) 'show_hidden': true,
+  };
 
   /// A copy with the search text [text].
   TransactionFilters withText(String text) => TransactionFilters(

@@ -1,11 +1,16 @@
 // Goldens of the Phase 1 screens, light and dark at phone size, on the demo seed (two USD
 // accounts, twelve transactions, the system categories) dated to the test clock: the
 // account list (with data and empty), an account's detail, the transaction list, the
-// transaction editor, the filter sheet, a search matching nothing, the category list and
+// transaction editor, the filter sheet (with the demo's saved filters), a search matching
+// nothing, the category list and
 // the category editor. Tagged
 // `golden`; see test/flutter_test_config.dart for where the files go and how to update
 // them.
 import 'package:alchemist/alchemist.dart';
+import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/features/transactions/data/demo_saved_filters.dart';
+import 'package:finance_tracker/features/transactions/data/in_memory_saved_filter_repository.dart';
+import 'package:finance_tracker/features/transactions/domain/saved_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -13,15 +18,24 @@ import '../helpers/pump_app.dart';
 import '../helpers/seed.dart';
 import '../helpers/test_seed.dart';
 
-Widget _app(String location, Brightness brightness, {DemoSeed? seed}) =>
-    SizedBox.fromSize(
-      size: phoneSize,
-      child: buildTestApp(
-        initialLocation: location,
-        brightness: brightness,
-        overrides: [storeOverride(seededStore(seed: seed))],
+Widget _app(
+  String location,
+  Brightness brightness, {
+  DemoSeed? seed,
+  List<SavedFilter> savedFilters = const [],
+}) => SizedBox.fromSize(
+  size: phoneSize,
+  child: buildTestApp(
+    initialLocation: location,
+    brightness: brightness,
+    overrides: [
+      storeOverride(seededStore(seed: seed)),
+      savedFilterRepositoryProvider.overrideWithValue(
+        InMemorySavedFilterRepository(initial: savedFilters),
       ),
-    );
+    ],
+  ),
+);
 
 const Map<String, String> _screens = {
   'accounts_list': '/accounts',
@@ -60,7 +74,8 @@ void main() {
       'the filter sheet, ${brightness.name}',
       fileName: 'filter_sheet_${brightness.name}',
       constraints: BoxConstraints.tight(phoneSize),
-      builder: () => _app('/transactions', brightness),
+      builder: () =>
+          _app('/transactions', brightness, savedFilters: demoSavedFilters),
       pumpBeforeTest: (tester) async {
         await tester.pumpAndSettle();
         await tester.tap(find.byTooltip('Filters'));

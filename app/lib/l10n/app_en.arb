@@ -501,6 +501,52 @@
   "@filterClear": {
     "description": "Button of the filter sheet that empties every filter."
   },
+  "filterSaved": "Saved",
+  "@filterSaved": {
+    "description": "Header of the filter sheet's section listing the saved filters."
+  },
+  "filterSaveThese": "Save these filters",
+  "@filterSaveThese": {
+    "description": "Button of the filter sheet that saves the search and filters set in it under a name."
+  },
+  "savedFilterSaveTitle": "Save filters",
+  "@savedFilterSaveTitle": {
+    "description": "Title of the dialog asking for a saved filter's name."
+  },
+  "savedFilterNameLabel": "Name",
+  "@savedFilterNameLabel": {
+    "description": "Label of the saved filter's name field."
+  },
+  "savedFilterRenameTitle": "Rename saved filter",
+  "@savedFilterRenameTitle": {
+    "description": "Title of the dialog renaming a saved filter."
+  },
+  "savedFilterRename": "Rename",
+  "@savedFilterRename": {
+    "description": "Menu item and button that rename a saved filter."
+  },
+  "savedFilterOptions": "Options for {name}",
+  "@savedFilterOptions": {
+    "description": "Tooltip of a saved filter's menu button; name is the saved filter's name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "savedFilterDeleteTitle": "Delete “{name}”?",
+  "@savedFilterDeleteTitle": {
+    "description": "Title of the dialog confirming that a saved filter is deleted; name is its name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "savedFilterDeleteBody": "Only the saved filter goes; no transaction changes.",
+  "@savedFilterDeleteBody": {
+    "description": "Body of the dialog confirming that a saved filter is deleted."
+  },
   "filterApply": "Apply",
   "@filterApply": {
     "description": "Button of the filter sheet that applies the chosen filters."

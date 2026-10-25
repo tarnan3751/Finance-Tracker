@@ -62,9 +62,13 @@ import 'package:finance_tracker/features/settings/data/demo_settings_repository.
 import 'package:finance_tracker/features/settings/data/drift_settings_repository.dart';
 import 'package:finance_tracker/features/settings/data/in_memory_settings_repository.dart';
 import 'package:finance_tracker/features/settings/domain/settings_repository.dart';
+import 'package:finance_tracker/features/transactions/data/demo_saved_filters.dart';
 import 'package:finance_tracker/features/transactions/data/demo_transaction_repository.dart';
+import 'package:finance_tracker/features/transactions/data/drift_saved_filter_repository.dart';
 import 'package:finance_tracker/features/transactions/data/drift_transaction_repository.dart';
+import 'package:finance_tracker/features/transactions/data/in_memory_saved_filter_repository.dart';
 import 'package:finance_tracker/features/transactions/data/in_memory_transaction_repository.dart';
+import 'package:finance_tracker/features/transactions/domain/saved_filter_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:persona_engine/persona_engine.dart' show DemoSeed, PersonaId;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -254,6 +258,15 @@ BudgetRepository budgetRepository(Ref ref) {
 @Riverpod(keepAlive: true)
 BudgetAlertStore budgetAlertStore(Ref ref) => InMemoryBudgetAlertStore();
 
+/// The transaction list's saved filters, on this device only.
+@Riverpod(keepAlive: true)
+SavedFilterRepository savedFilterRepository(Ref ref) {
+  final InMemorySavedFilterRepository repository =
+      InMemorySavedFilterRepository();
+  ref.onDispose(repository.close);
+  return repository;
+}
+
 /// Where the app preferences are kept.
 @Riverpod(keepAlive: true)
 SettingsRepository settingsRepository(Ref ref) {
@@ -396,6 +409,12 @@ final List<Override> _driftOverrides = [
   budgetAlertStoreProvider.overrideWith(
     (ref) => DriftBudgetAlertStore(ref.watch(databaseProvider)),
   ),
+  savedFilterRepositoryProvider.overrideWith(
+    (ref) => DriftSavedFilterRepository(
+      ref.watch(databaseProvider),
+      ref.watch(clockProvider),
+    ),
+  ),
   settingsRepositoryProvider.overrideWith(
     (ref) => DriftSettingsRepository(
       ref.watch(databaseProvider),
@@ -462,6 +481,12 @@ final List<Override> _demoOverrides = [
       clock,
       initial: demoBudgets(ref.watch(demoPersonaProvider), clock.today()),
     );
+    ref.onDispose(repository.close);
+    return repository;
+  }),
+  savedFilterRepositoryProvider.overrideWith((ref) {
+    final InMemorySavedFilterRepository repository =
+        InMemorySavedFilterRepository(initial: demoSavedFilters);
     ref.onDispose(repository.close);
     return repository;
   }),

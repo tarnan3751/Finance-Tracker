@@ -1,13 +1,20 @@
 // The transaction list's application layer: the date presets resolved against today, the
 // query the filters make (a category with the ones under it, and their Plaid codes),
-// grouping by date, and paging one page at a time.
+// grouping by date, paging one page at a time, the filters' JSON for a saved filter, and
+// the saved filter the list's filters are.
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/features/transactions/application/transaction_filters.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
+import 'package:finance_tracker/features/transactions/data/in_memory_saved_filter_repository.dart';
+import 'package:finance_tracker/features/transactions/domain/saved_filter.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart';
 
 import '../../../helpers/pump_app.dart';
@@ -204,5 +211,170 @@ void main() {
     expect(m1.hidden, isTrue);
     expect(m1.notes, 'from the other device');
     expect(await repository.watchById('m2').first, isNull);
+  });
+
+  group('saved filter JSON', () {
+    final TransactionFilters full = TransactionFilters(
+      text: 'coffee shop',
+      accountIds: const {'b', 'a'},
+      categoryIds: const {'plaid:FOOD_AND_DRINK'},
+      date: DateFilter.custom(
+        LocalDateRange(LocalDate(2026, 1, 1), LocalDate(2026, 2, 1)),
+      ),
+      minAmount: Money(500, 'EUR'),
+      maxAmount: Money(10000, 'EUR'),
+      tags: const {'work'},
+      showHidden: true,
+    );
+
+    test('round-trips every field, through encoded JSON too', () {
+      expect(TransactionFilters.fromJson(full.toJson()), full);
+      expect(
+        TransactionFilters.fromJson(
+          jsonDecode(jsonEncode(full.toJson())) as Map<String, Object?>,
+        ),
+        full,
+      );
+      expect(full.toJson()['account_ids'], ['a', 'b']);
+      expect(TransactionFilters.none.toJson(), isEmpty);
+      expect(TransactionFilters.fromJson(const {}), TransactionFilters.none);
+    });
+
+    test('keeps a date preset as a preset, never as dates', () {
+      const TransactionFilters thisMonth = TransactionFilters(
+        date: DateFilter(DatePreset.thisMonth),
+      );
+      expect(thisMonth.toJson(), {
+        'date': {'preset': 'this_month'},
+      });
+      for (final DatePreset preset in DatePreset.values) {
+        if (preset == DatePreset.custom) continue;
+        final TransactionFilters f = TransactionFilters(
+          date: DateFilter(preset),
+        );
+        expect(TransactionFilters.fromJson(f.toJson()), f);
+      }
+    });
+
+    test('ignores keys it does not know', () {
+      expect(
+        TransactionFilters.fromJson(const {
+          'tags': ['work'],
+          'pending': true,
+          'sort': {'by': 'amount'},
+        }),
+        const TransactionFilters(tags: {'work'}),
+      );
+    });
+
+    test('refuses a known key of the wrong shape', () {
+      for (final Map<String, Object?> bad in [
+        {'text': 3},
+        {'tags': 'work'},
+        {
+          'account_ids': [1],
+        },
+        {
+          'date': {'preset': 'next_week'},
+        },
+        {
+          'date': {'preset': 'custom', 'start': '2026-01-01'},
+        },
+        {
+          'min_amount': {'minor_units': 1.5, 'currency': 'USD'},
+        },
+        {'show_hidden': 'yes'},
+      ]) {
+        expect(
+          () => TransactionFilters.fromJson(bad),
+          throwsFormatException,
+          reason: '$bad',
+        );
+      }
+    });
+  });
+
+  group('the applied saved filter', () {
+    test('is the first saved filter equal to the list\'s filters', () async {
+      const TransactionFilters coffee = TransactionFilters(text: 'coffee');
+      final InMemorySavedFilterRepository saved = InMemorySavedFilterRepository(
+        initial: [
+          SavedFilter(
+            id: 's2',
+            name: 'Later',
+            position: 1,
+            filters: coffee.toJson(),
+          ),
+          SavedFilter(
+            id: 's1',
+            name: 'Coffee',
+            position: 0,
+            filters: coffee.toJson(),
+          ),
+        ],
+      );
+      final ProviderContainer container = ProviderContainer(
+        overrides: [savedFilterRepositoryProvider.overrideWithValue(saved)],
+      );
+      addTearDown(container.dispose);
+      container.listen(appliedSavedFilterProvider, (_, _) {});
+      container.listen(savedFiltersProvider, (_, _) {});
+      await pumpEventQueue();
+      expect(container.read(appliedSavedFilterProvider), isNull);
+
+      final TransactionListController controller = container.read(
+        transactionListControllerProvider.notifier,
+      );
+      controller.setFilters(coffee);
+      expect(container.read(appliedSavedFilterProvider)?.id, 's1');
+      controller.setText('coffee beans');
+      expect(container.read(appliedSavedFilterProvider), isNull);
+    });
+
+    test('a saved filter that does not decode is skipped and logged', () async {
+      const TransactionFilters coffee = TransactionFilters(text: 'coffee');
+      final InMemorySavedFilterRepository saved = InMemorySavedFilterRepository(
+        initial: [
+          SavedFilter(
+            id: 's0',
+            name: 'Broken',
+            position: 0,
+            filters: const {'tags': 'not a list'},
+          ),
+          SavedFilter(
+            id: 's1',
+            name: 'Coffee',
+            position: 1,
+            filters: coffee.toJson(),
+          ),
+        ],
+      );
+      final List<LogRecord> logs = [];
+      final StreamSubscription<LogRecord> sub = Logger('transactions').onRecord
+          .listen(logs.add);
+      addTearDown(sub.cancel);
+      final ProviderContainer container = ProviderContainer(
+        overrides: [savedFilterRepositoryProvider.overrideWithValue(saved)],
+      );
+      addTearDown(container.dispose);
+      container.listen(appliedSavedFilterProvider, (_, _) {});
+      container.listen(savedFiltersProvider, (_, _) {});
+      await pumpEventQueue();
+
+      expect(
+        [
+          for (final f in container.read(savedFiltersProvider).value!)
+            f.saved.id,
+        ],
+        ['s1'],
+      );
+      container
+          .read(transactionListControllerProvider.notifier)
+          .setFilters(coffee);
+      expect(container.read(appliedSavedFilterProvider)?.id, 's1');
+      expect(logs.map((r) => r.message), [
+        'a saved filter does not decode (FormatException); skipped',
+      ]);
+    });
   });
 }

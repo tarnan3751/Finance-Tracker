@@ -312,6 +312,161 @@ final class TransactionUsageProvider
 
 String _$transactionUsageHash() => r'a490a29d0c3b40d516d3f383a85ad49960422ec5';
 
+/// The saved filters, in their order, with their filters decoded. One whose JSON does not
+/// decode (`TransactionFilters.fromJson`) is left out and logged by type, so it can never
+/// take the list or the sheet down.
+
+@ProviderFor(savedFilters)
+final savedFiltersProvider = SavedFiltersProvider._();
+
+/// The saved filters, in their order, with their filters decoded. One whose JSON does not
+/// decode (`TransactionFilters.fromJson`) is left out and logged by type, so it can never
+/// take the list or the sheet down.
+
+final class SavedFiltersProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<DecodedSavedFilter>>,
+          List<DecodedSavedFilter>,
+          Stream<List<DecodedSavedFilter>>
+        >
+    with
+        $FutureModifier<List<DecodedSavedFilter>>,
+        $StreamProvider<List<DecodedSavedFilter>> {
+  /// The saved filters, in their order, with their filters decoded. One whose JSON does not
+  /// decode (`TransactionFilters.fromJson`) is left out and logged by type, so it can never
+  /// take the list or the sheet down.
+  SavedFiltersProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'savedFiltersProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$savedFiltersHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<DecodedSavedFilter>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<DecodedSavedFilter>> create(Ref ref) {
+    return savedFilters(ref);
+  }
+}
+
+String _$savedFiltersHash() => r'e3a93c395c9d2e1549788712b2bb36ec120354d3';
+
+/// The saved filter the list's filters are, or null: the first, in order, whose filters
+/// equal them. Derived, so renaming shows at once and any change of the filters drops it.
+
+@ProviderFor(appliedSavedFilter)
+final appliedSavedFilterProvider = AppliedSavedFilterProvider._();
+
+/// The saved filter the list's filters are, or null: the first, in order, whose filters
+/// equal them. Derived, so renaming shows at once and any change of the filters drops it.
+
+final class AppliedSavedFilterProvider
+    extends $FunctionalProvider<SavedFilter?, SavedFilter?, SavedFilter?>
+    with $Provider<SavedFilter?> {
+  /// The saved filter the list's filters are, or null: the first, in order, whose filters
+  /// equal them. Derived, so renaming shows at once and any change of the filters drops it.
+  AppliedSavedFilterProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'appliedSavedFilterProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$appliedSavedFilterHash();
+
+  @$internal
+  @override
+  $ProviderElement<SavedFilter?> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  SavedFilter? create(Ref ref) {
+    return appliedSavedFilter(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SavedFilter? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SavedFilter?>(value),
+    );
+  }
+}
+
+String _$appliedSavedFilterHash() =>
+    r'737bb10870e585bee4accf25ad2940a750259d59';
+
+/// The writes of the filter sheet's saved filters.
+
+@ProviderFor(savedFilterActions)
+final savedFilterActionsProvider = SavedFilterActionsProvider._();
+
+/// The writes of the filter sheet's saved filters.
+
+final class SavedFilterActionsProvider
+    extends
+        $FunctionalProvider<
+          SavedFilterActions,
+          SavedFilterActions,
+          SavedFilterActions
+        >
+    with $Provider<SavedFilterActions> {
+  /// The writes of the filter sheet's saved filters.
+  SavedFilterActionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'savedFilterActionsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$savedFilterActionsHash();
+
+  @$internal
+  @override
+  $ProviderElement<SavedFilterActions> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  SavedFilterActions create(Ref ref) {
+    return savedFilterActions(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SavedFilterActions value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SavedFilterActions>(value),
+    );
+  }
+}
+
+String _$savedFilterActionsHash() =>
+    r'ae328cf8b0cdea13efca125770905b02f4efbbd9';
+
 /// The writes of the transaction editor and of bulk edit.
 
 @ProviderFor(transactionActions)

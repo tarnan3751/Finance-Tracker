@@ -354,6 +354,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterClear => 'Clear';
 
   @override
+  String get filterSaved => 'Saved';
+
+  @override
+  String get filterSaveThese => 'Save these filters';
+
+  @override
+  String get savedFilterSaveTitle => 'Save filters';
+
+  @override
+  String get savedFilterNameLabel => 'Name';
+
+  @override
+  String get savedFilterRenameTitle => 'Rename saved filter';
+
+  @override
+  String get savedFilterRename => 'Rename';
+
+  @override
+  String savedFilterOptions(String name) {
+    return 'Options for $name';
+  }
+
+  @override
+  String savedFilterDeleteTitle(String name) {
+    return 'Delete “$name”?';
+  }
+
+  @override
+  String get savedFilterDeleteBody =>
+      'Only the saved filter goes; no transaction changes.';
+
+  @override
   String get filterApply => 'Apply';
 
   @override

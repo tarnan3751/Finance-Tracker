@@ -1,7 +1,9 @@
-/// The transaction list's filter sheet: whether hidden transactions are shown, first,
-/// then accounts, categories, a date range (this month, last month, the last 90 days,
-/// this year, or a custom range), an amount range in one currency, and tags. Nothing changes until
-/// "Apply"; "Clear" empties the sheet.
+/// The transaction list's filter sheet: the saved filters, first, then whether hidden
+/// transactions are shown, then accounts, categories, a date range (this month, last
+/// month, the last 90 days, this year, or a custom range), an amount range in one
+/// currency, and tags. Nothing changes until "Apply"; "Clear" empties the sheet. "Save these filters" saves what the sheet holds,
+/// with the list's search text, under a name; the "Saved" section lists the saved
+/// filters, each applied with a tap (closing the sheet), renamed or deleted from its menu.
 library;
 
 import 'package:finance_tracker/core/time/today_provider.dart';
@@ -11,6 +13,7 @@ import 'package:finance_tracker/features/categories/application/categories_provi
 import 'package:finance_tracker/features/categories/presentation/category_picker.dart';
 import 'package:finance_tracker/features/transactions/application/transaction_filters.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
+import 'package:finance_tracker/features/transactions/domain/saved_filter.dart';
 import 'package:finance_tracker/features/transactions/presentation/amount_input.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_dates.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -19,7 +22,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_models/shared_models.dart';
 
 /// Shows the sheet over [current]; completes with the filters to apply (the search text
-/// kept), or null when it is dismissed.
+/// kept, or a saved filter's own), or null when it is dismissed.
 Future<TransactionFilters?> showTransactionFilterSheet(
   BuildContext context,
   TransactionFilters current,
@@ -127,6 +130,58 @@ class _TransactionFilterSheetState
     );
   }
 
+  // Asks for a name, [initial] filled in, under [title]; null when cancelled.
+  Future<String?> _askName(
+    String title,
+    String action, {
+    String initial = '',
+  }) => showDialog<String>(
+    context: context,
+    builder: (context) =>
+        _NameDialog(title: title, action: action, initial: initial),
+  );
+
+  Future<void> _save(TransactionFilters filters) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final String? name = await _askName(l10n.savedFilterSaveTitle, l10n.save);
+    if (name == null || !mounted) return;
+    await ref.read(savedFilterActionsProvider).save(name, filters);
+  }
+
+  Future<void> _rename(SavedFilter saved) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final String? name = await _askName(
+      l10n.savedFilterRenameTitle,
+      l10n.savedFilterRename,
+      initial: saved.name,
+    );
+    if (name == null || !mounted) return;
+    await ref.read(savedFilterActionsProvider).rename(saved.id, name);
+  }
+
+  Future<void> _delete(SavedFilter saved) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.savedFilterDeleteTitle(saved.name)),
+        content: Text(l10n.savedFilterDeleteBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    await ref.read(savedFilterActionsProvider).delete(saved.id);
+  }
+
   Future<void> _addCategory() async {
     final CategoryChoice? choice = await showCategoryPicker(
       context,
@@ -169,6 +224,24 @@ class _TransactionFilterSheetState
             ? l10n.amountRangeInverted
             : null);
     final LocalDate today = ref.watch(todayProvider);
+    final List<DecodedSavedFilter> saved =
+        ref.watch(savedFiltersProvider).value ?? const [];
+    final bool valid = minError == null && maxError == null;
+    // What the sheet holds, with the list's search text: what Apply and Save take, read
+    // when pressed, so a selection made in the same frame is not lost.
+    TransactionFilters chosen() => TransactionFilters(
+      text: widget.initial.text,
+      accountIds: _accounts,
+      categoryIds: _categories,
+      date: _date,
+      minAmount: parseAmountInput(_min.text, currency),
+      maxAmount: parseAmountInput(_max.text, currency),
+      tags: _tags,
+      showHidden: _showHidden,
+    );
+    final TransactionFilters shown = chosen();
+    final bool canSave =
+        valid && (shown.hasFilters || shown.text.trim().isNotEmpty);
 
     Widget section(String title) => Padding(
       padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
@@ -203,7 +276,31 @@ class _TransactionFilterSheetState
               controller: scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                // First, so it is on screen whatever the sections below hold.
+                if (saved.isNotEmpty) ...[
+                  section(l10n.filterSaved),
+                  for (final (:saved, :filters) in saved)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.bookmark_outline),
+                      title: Text(saved.name),
+                      onTap: () => Navigator.of(context).pop(filters),
+                      trailing: PopupMenuButton<void>(
+                        tooltip: l10n.savedFilterOptions(saved.name),
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            onTap: () => _rename(saved),
+                            child: Text(l10n.savedFilterRename),
+                          ),
+                          PopupMenuItem(
+                            onTap: () => _delete(saved),
+                            child: Text(l10n.delete),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+                // Under the saved filters, so both are on screen whatever the sections
+                // below hold.
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(l10n.filterShowHidden),
@@ -378,30 +475,90 @@ class _TransactionFilterSheetState
             top: false,
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: minError != null || maxError != null
-                      ? null
-                      : () => Navigator.of(context).pop(
-                          TransactionFilters(
-                            text: widget.initial.text,
-                            accountIds: _accounts,
-                            categoryIds: _categories,
-                            date: _date,
-                            minAmount: min,
-                            maxAmount: max,
-                            tags: _tags,
-                            showHidden: _showHidden,
-                          ),
-                        ),
-                  child: Text(l10n.filterApply),
-                ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: canSave ? () => _save(chosen()) : null,
+                      child: Text(
+                        l10n.filterSaveThese,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: valid
+                          ? () => Navigator.of(context).pop(chosen())
+                          : null,
+                      child: Text(l10n.filterApply),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Asks for a saved filter's name; pops with it, trimmed, or null.
+class _NameDialog extends StatefulWidget {
+  const _NameDialog({
+    required this.title,
+    required this.action,
+    required this.initial,
+  });
+
+  final String title;
+  final String action;
+  final String initial;
+
+  @override
+  State<_NameDialog> createState() => _NameDialogState();
+}
+
+class _NameDialogState extends State<_NameDialog> {
+  late final TextEditingController _name = TextEditingController(
+    text: widget.initial,
+  );
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final String name = _name.text.trim();
+    if (name.isNotEmpty) Navigator.of(context).pop(name);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(widget.title),
+      content: TextField(
+        controller: _name,
+        autofocus: true,
+        decoration: InputDecoration(labelText: l10n.savedFilterNameLabel),
+        onChanged: (_) => setState(() {}),
+        onSubmitted: (_) => _submit(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.cancel),
+        ),
+        TextButton(
+          onPressed: _name.text.trim().isEmpty ? null : _submit,
+          child: Text(widget.action),
+        ),
+      ],
     );
   }
 }

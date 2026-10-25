@@ -3,7 +3,8 @@
 /// prefixes in the name, merchant, notes and tags, applied 250 ms after the last
 /// keystroke; "No matches" names the text); filter by account,
 /// category, date range, amount and tag, and show hidden transactions, in a bottom sheet,
-/// the active filters shown as removable chips; tap a row to open it; "Add transaction".
+/// the active filters shown as removable chips, led by the name of the saved filter they
+/// are, whose chip clears them all; tap a row to open it; "Add transaction".
 /// Long-press a row to select it: the app bar then counts the selection and edits it in
 /// bulk (set the category, add a tag, hide or unhide, delete when no row is the bank's),
 /// each action one recorded batch with a snack bar of the count. Outside selection, the
@@ -24,6 +25,7 @@ import 'package:finance_tracker/features/transactions/application/transaction_fi
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:finance_tracker/features/transactions/domain/enrichment.dart';
+import 'package:finance_tracker/features/transactions/domain/saved_filter.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_dates.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_filter_sheet.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_tile.dart';
@@ -83,7 +85,22 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
       context,
       current,
     );
-    if (chosen != null && mounted) _controller.setFilters(chosen);
+    if (chosen == null || !mounted) return;
+    if (chosen.text != current.text) {
+      // A saved filter brings its own search text: the field shows it.
+      _searchDebounce?.cancel();
+      _search.text = chosen.text;
+      setState(() => _searching = _searching || chosen.text.isNotEmpty);
+    }
+    _controller.setFilters(chosen);
+  }
+
+  // Clears the search and every filter (the saved filter's chip).
+  void _clearAll() {
+    _searchDebounce?.cancel();
+    _search.clear();
+    setState(() => _searching = false);
+    _controller.setFilters(TransactionFilters.none);
   }
 
   void _select(String id) => setState(() => _selection = {...?_selection, id});
@@ -260,6 +277,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
         .watch(transactionListControllerProvider)
         .filters;
     final AsyncValue<TransactionPage> page = ref.watch(transactionPageProvider);
+    final SavedFilter? saved = ref.watch(appliedSavedFilterProvider);
     final bool filtered = filters.hasFilters || filters.text.trim().isNotEmpty;
     final List<Transaction>? transactions = page.value?.transactions;
     final int duplicates =
@@ -344,7 +362,8 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
               ),
         body: Column(
           children: [
-            if (filters.hasFilters) _ActiveFilters(filters),
+            if (filters.hasFilters || saved != null)
+              _ActiveFilters(filters, saved: saved, onClearSaved: _clearAll),
             Expanded(
               child: switch (transactions) {
                 null when page.hasError => Center(child: Text(l10n.loadFailed)),
@@ -535,11 +554,18 @@ class _DateHeader extends StatelessWidget {
   }
 }
 
-/// The active filters as chips under the app bar, each removing its filter.
+/// The active filters as chips under the app bar, each removing its filter, led by the
+/// [saved] filter's name when they are one, whose chip clears everything.
 class _ActiveFilters extends ConsumerWidget {
-  const _ActiveFilters(this.filters);
+  const _ActiveFilters(
+    this.filters, {
+    required this.saved,
+    required this.onClearSaved,
+  });
 
   final TransactionFilters filters;
+  final SavedFilter? saved;
+  final VoidCallback onClearSaved;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -550,6 +576,13 @@ class _ActiveFilters extends ConsumerWidget {
       transactionListControllerProvider.notifier,
     );
     final List<Widget> chips = [
+      if (saved case final SavedFilter saved)
+        InputChip(
+          avatar: const Icon(Icons.bookmark),
+          label: Text(saved.name),
+          onDeleted: onClearSaved,
+          deleteButtonTooltipMessage: l10n.filterRemove(saved.name),
+        ),
       for (final String id in filters.accountIds)
         _chip(
           l10n,

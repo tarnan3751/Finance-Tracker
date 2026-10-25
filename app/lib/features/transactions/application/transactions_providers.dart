@@ -1,7 +1,8 @@
 /// What the transaction screens show and do: the list under its search and filters, paged
 /// fifty at a time and grouped by date; the lookup that gives each transaction its
 /// effective category; what the editor and the filter sheet suggest (tags, recently used
-/// categories and accounts); and the writes of the editor and of bulk edit.
+/// categories and accounts); the saved filters and the one the list's filters are; and
+/// the writes of the editor, of bulk edit and of the saved filters.
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
@@ -11,14 +12,19 @@ import 'package:finance_tracker/core/util/stream_current.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/transactions/application/transaction_filters.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
+import 'package:finance_tracker/features/transactions/domain/saved_filter.dart';
+import 'package:finance_tracker/features/transactions/domain/saved_filter_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
+import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 import 'package:uuid/uuid.dart';
 
 part 'transactions_providers.g.dart';
+
+final Logger _log = Logger('transactions');
 
 /// How many transactions the list loads at a time.
 const int transactionPageSize = 50;
@@ -139,6 +145,72 @@ Stream<Transaction?> transaction(Ref ref, String id) =>
 @riverpod
 Stream<TransactionUsage> transactionUsage(Ref ref) =>
     ref.watch(transactionRepositoryProvider).watchUsage();
+
+/// A saved filter with the filters it holds.
+typedef DecodedSavedFilter = ({SavedFilter saved, TransactionFilters filters});
+
+/// The saved filters, in their order, with their filters decoded. One whose JSON does not
+/// decode (`TransactionFilters.fromJson`) is left out and logged by type, so it can never
+/// take the list or the sheet down.
+@riverpod
+Stream<List<DecodedSavedFilter>> savedFilters(Ref ref) => ref
+    .watch(savedFilterRepositoryProvider)
+    .watchAll()
+    .map(
+      (all) => [
+        for (final SavedFilter saved in all)
+          if (_decoded(saved) case final TransactionFilters filters)
+            (saved: saved, filters: filters),
+      ],
+    );
+
+TransactionFilters? _decoded(SavedFilter saved) {
+  try {
+    return TransactionFilters.fromJson(saved.filters);
+  } on FormatException catch (e) {
+    _log.warning('a saved filter does not decode (${e.runtimeType}); skipped');
+    return null;
+  }
+}
+
+/// The saved filter the list's filters are, or null: the first, in order, whose filters
+/// equal them. Derived, so renaming shows at once and any change of the filters drops it.
+@riverpod
+SavedFilter? appliedSavedFilter(Ref ref) {
+  final TransactionFilters current = ref
+      .watch(transactionListControllerProvider)
+      .filters;
+  if (current == TransactionFilters.none) return null;
+  for (final DecodedSavedFilter f
+      in ref.watch(savedFiltersProvider).value ??
+          const <DecodedSavedFilter>[]) {
+    if (f.filters == current) return f.saved;
+  }
+  return null;
+}
+
+/// The writes of the filter sheet's saved filters.
+@riverpod
+SavedFilterActions savedFilterActions(Ref ref) =>
+    SavedFilterActions(ref.watch(savedFilterRepositoryProvider));
+
+/// Saves, renames and deletes saved filters; names are trimmed.
+final class SavedFilterActions {
+  SavedFilterActions(this._repository);
+
+  final SavedFilterRepository _repository;
+
+  /// Saves [filters] under [name].
+  Future<SavedFilter> save(String name, TransactionFilters filters) =>
+      _repository.save(name.trim(), filters.toJson());
+
+  /// Renames saved filter [id] to [name].
+  Future<void> rename(String id, String name) =>
+      _repository.rename(id, name.trim());
+
+  /// Deletes saved filter [id].
+  Future<void> delete(String id) => _repository.delete(id);
+}
 
 /// The writes of the transaction editor and of bulk edit.
 @riverpod
