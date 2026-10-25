@@ -76,7 +76,6 @@ final class ServerApp {
       now: this.now,
     );
     provisioning = ProvisioningService(
-      db: db,
       items: items,
       sandbox: sandbox,
       plaid: plaid,

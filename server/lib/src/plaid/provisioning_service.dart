@@ -1,24 +1,28 @@
 /// Persona provisioning into Plaid Sandbox as a job (`docs/reference/server.md`,
-/// **Provisioning**; `docs/reference/persona.md`, **Sandbox custom users**, **Injection
-/// batches**, **Dates in Sandbox**).
+/// **Provisioning**; `docs/reference/persona.md`, **Sandbox custom users**, **Dates in
+/// Sandbox**).
 ///
 /// A job generates the persona's Sandbox outputs with `persona_engine` at the engine's
 /// fixed as-of date (the committed goldens' date), so a provisioned persona equals the
 /// `days730` fixtures, and shifts every date of every Item by one amount computed once at
 /// the start: Plaid's today (UTC−12) minus that as-of date. For each institution it
 /// creates a custom user, exchanges it and stores the Item for the caller exactly as an
-/// exchange through Link does, runs the first sync (retrying `not_ready`) and maps the
-/// engine's accounts to the Item's by name and mask. It then injects the older history,
-/// ten per call, newest first, one round across the Items at a time, at least 35 s apart
-/// per Item, and syncs each Item once more. A Plaid rate limit is retried after its
-/// `Retry-After` (60 s by default) at most three times, and a Plaid 5xx 15 s apart at most
-/// three times; the first other failure, a 4xx included, ends the job `failed` with the
-/// step and Plaid's code, never a token. A transaction whose shifted date falls outside
-/// Plaid's window at the moment of its call (the UTC date minus 729 to Plaid's today,
-/// `inPlaidWindow`) is left out and counted in `skipped`: the window is checked at every
-/// call against the shift computed once. A 730-day persona's oldest day is therefore
-/// skipped by a job that runs before 12:00 UTC, when the UTC date is a day past Plaid's
-/// today, and by one that outlasts a UTC midnight; after 12:00 UTC every row fits.
+/// exchange through Link does, and runs the first sync (retrying `not_ready`) and, a few
+/// seconds after it completes, a second one: Sandbox reports a large custom user's
+/// historical update complete while the rest of its rows is still arriving, and delivers
+/// them on a later sync (`PLAN.md` §4), so the job's Item is whole when it reports it
+/// linked. The custom
+/// user is the Item's whole history: Plaid serves an injected row only when it is dated
+/// its today (`PLAN.md` §4), so the job injects nothing, and the history the engine left
+/// out of the configuration (the manifest's `transactions_left_out`) never reaches
+/// Sandbox. A Plaid rate limit is retried after its `Retry-After` (60 s by default) at
+/// most three times, and a Plaid 5xx 15 s apart at most three times; the first other
+/// failure, a 4xx included, ends the job `failed` with the step and Plaid's code, never a
+/// token. A transaction whose shifted date falls outside Plaid's window when its Item is
+/// linked (the UTC date minus 729 to Plaid's today, `inPlaidWindow`) is left out of the
+/// configuration and counted in `skipped`. A 730-day persona's oldest day is therefore
+/// skipped, when its Item carries it, by a job that links before 12:00 UTC, when the UTC
+/// date is a day past Plaid's today, or after a UTC midnight it outlasted.
 ///
 /// Jobs live in memory: a restart forgets them, and the Items they linked stay. One job
 /// per user runs at a time. Every record the job causes is stored from Plaid's own
@@ -27,7 +31,6 @@ library;
 
 import 'dart:async';
 
-import 'package:finance_tracker_server/src/db/database.dart';
 import 'package:finance_tracker_server/src/http/problem.dart';
 import 'package:finance_tracker_server/src/http/wire.dart';
 import 'package:finance_tracker_server/src/ids.dart';
@@ -43,15 +46,15 @@ import 'package:shared_models/shared_models.dart';
 /// committed goldens (`tools/persona_engine/bin/persona_engine.dart`, `defaultAsOf`).
 final LocalDate provisioningAsOf = LocalDate(2026, 10, 24);
 
-/// The least time between two `/sandbox/transactions/create` calls on one Item: Plaid
-/// documents 2 per minute per Item (`PLAN.md` §4).
-const injectionInterval = Duration(seconds: injectionIntervalSeconds);
-
 /// The wait between first-sync attempts while Plaid answers `NOT_READY`.
 const notReadyRetry = Duration(seconds: 5);
 
 /// How many times the first sync is tried before the job gives up.
 const notReadyAttempts = 24;
+
+/// The wait between the first completed sync and the second, which stores the history
+/// Sandbox delivers late.
+const lateHistoryWait = Duration(seconds: 5);
 
 /// The wait after a rate limit that names none.
 const rateLimitWait = Duration(seconds: 60);
@@ -100,8 +103,6 @@ final class _Job {
   String? error;
   int itemsTotal = 0;
   int itemsLinked = 0;
-  int batchesTotal = 0;
-  int batchesSent = 0;
   int skipped = 0;
   final List<String> itemIds = [];
   final Completer<void> finished = Completer();
@@ -121,8 +122,9 @@ final class _Job {
     'progress': {
       'items_total': itemsTotal,
       'items_linked': itemsLinked,
-      'batches_total': batchesTotal,
-      'batches_sent': batchesSent,
+      // The job injects no batches; the contract keeps the counters.
+      'batches_total': 0,
+      'batches_sent': 0,
       'skipped': skipped,
     },
     'error': error,
@@ -137,30 +139,16 @@ final class _JobFailure implements Exception {
   final String text;
 }
 
-/// One linked Item during a job: its injection batches and when it was last called.
-final class _Linked {
-  _Linked(this.itemId, this.accessToken, this.batches);
-
-  final String itemId;
-  final String accessToken;
-  final List<List<SandboxTransaction>> batches;
-  DateTime? lastCall;
-}
-
 /// The jobs.
 final class ProvisioningService {
   /// The service.
   ProvisioningService({
-    required this.db,
     required this.items,
     required this.sandbox,
     required this.plaid,
     required this.now,
     Future<void> Function(Duration)? delay,
   }) : delay = delay ?? Future<void>.delayed;
-
-  /// The database.
-  final AppDatabase db;
 
   /// The Item store: exchange and sync, exactly as the Plaid routes use them.
   final ItemService items;
@@ -174,7 +162,7 @@ final class ProvisioningService {
   /// The server's clock.
   final DateTime Function() now;
 
-  /// Waits: the pacing, the `NOT_READY` retries and the rate-limit backoff.
+  /// Waits: the `NOT_READY` retries and the retry backoffs.
   final Future<void> Function(Duration) delay;
 
   final Map<String, _Job> _jobs = {};
@@ -237,7 +225,6 @@ final class ProvisioningService {
         LogEvent('provision_completed', {
           'job_id': job.id,
           'items': job.itemsLinked,
-          'batches': job.batchesSent,
           'skipped': job.skipped,
         }),
       );
@@ -270,37 +257,15 @@ final class ProvisioningService {
     );
     final users = sandboxUsers(household);
     final shift = provisioningAsOf.daysUntil(plaidToday(now()));
-    job
-      ..itemsTotal = users.length
-      ..batchesTotal = users.fold(0, (n, u) => n + batchCount(u));
-
-    final linked = <_Linked>[];
+    job.itemsTotal = users.length;
     for (final user in users) {
-      linked.add(await _link(job, household, user, shift, deviceId, baseUrl));
-    }
-
-    final rounds = linked.fold(
-      0,
-      (n, l) => l.batches.length > n ? l.batches.length : n,
-    );
-    for (var round = 0; round < rounds; round++) {
-      for (final item in linked) {
-        if (round >= item.batches.length) continue;
-        await _inject(job, item, item.batches[round]);
-        job.batchesSent++;
-      }
-    }
-
-    for (final item in linked) {
-      await _step('final sync', () => items.sync(job.userId, item.itemId));
+      await _link(job, user, shift, deviceId, baseUrl);
     }
   }
 
-  /// Creates, exchanges and first-syncs one custom user; its batches mapped to the
-  /// Item's Plaid account ids.
-  Future<_Linked> _link(
+  /// Creates, exchanges and syncs one custom user.
+  Future<void> _link(
     _Job job,
-    GeneratedHousehold household,
     SandboxUser user,
     int shift,
     String deviceId,
@@ -352,74 +317,18 @@ final class ProvisioningService {
       }
       await delay(notReadyRetry);
     }
-
-    final rows = await db.read(
-      (tx) => tx.select(
-        'SELECT name, mask, plaid_account_id FROM accounts WHERE item_id = ?',
-        [itemId],
-      ),
+    await delay(lateHistoryWait);
+    await _step(
+      'second sync ${institution.key}',
+      () => items.sync(job.userId, itemId),
     );
-    // Accounts are matched by name and mask, so two that share both cannot be told
-    // apart, on the Item or in the persona.
-    final plaidIds = <String, String>{};
-    for (final r in rows) {
-      final key = '${r['name']}|${r['mask']}';
-      if (plaidIds.containsKey(key)) {
-        throw _JobFailure(
-          'map ${institution.key}: two accounts on the Item share the name '
-          '${r['name']} and mask ${r['mask']}',
-        );
-      }
-      plaidIds[key] = r['plaid_account_id']! as String;
-    }
-    final persona = household.persona;
-    final accountOf = <String, String>{};
-    final seen = <String, String>{};
-    for (final spec in persona.accounts) {
-      if (spec.institution != institution.key) continue;
-      final previous = seen['${spec.name}|${spec.mask}'];
-      if (previous != null) {
-        throw _JobFailure(
-          'map ${institution.key}: accounts $previous and ${spec.key} share '
-          'name and mask',
-        );
-      }
-      seen['${spec.name}|${spec.mask}'] = spec.key;
-      final plaidId = plaidIds['${spec.name}|${spec.mask}'];
-      if (plaidId == null) {
-        throw _JobFailure(
-          'map ${institution.key}: no account ${spec.key} on the Item',
-        );
-      }
-      accountOf[accountIdFor(persona.id, spec.key)] = plaidId;
-    }
-    final injected = user.split.injected;
-    final batches = <List<SandboxTransaction>>[
-      for (var i = 0; i < injected.length; i += injectionBatchSize)
-        [
-          for (final t in injected.skip(i).take(injectionBatchSize))
-            (
-              dateTransacted: t.authorizedDate!.addDays(shift),
-              datePosted: t.date.addDays(shift),
-              amount: -t.amount,
-              description: t.name,
-              accountId: accountOf[t.accountId],
-            ),
-        ],
-    ];
-    final opened = await items.loadActive(job.userId, itemId);
     job.itemsLinked++;
     _log.info(
-      LogEvent('provision_item_linked', {
-        'job_id': job.id,
-        'item_id': itemId,
-        'batches': batches.length,
-      }),
+      LogEvent('provision_item_linked', {'job_id': job.id, 'item_id': itemId}),
     );
-    return _Linked(itemId, opened.accessToken, batches);
   }
 
-  /// [config] without the transactions whose dates fall outside Plaid's window today,
+  /// [config] without the transactions whose dates fall outside Plaid's window now,
   /// each counted in [job]'s `skipped`.
   Map<String, Object?> _withinWindow(_Job job, Map<String, Object?> config) {
     final at = now();
@@ -442,33 +351,6 @@ final class ProvisioningService {
       accounts.add({...account, 'transactions': kept});
     }
     return {...config, 'override_accounts': accounts};
-  }
-
-  /// Sends one batch to [item], paced and with what is still inside Plaid's window.
-  Future<void> _inject(
-    _Job job,
-    _Linked item,
-    List<SandboxTransaction> batch,
-  ) async {
-    final last = item.lastCall;
-    if (last != null) {
-      final wait = last.add(injectionInterval).difference(now());
-      if (wait > Duration.zero) await delay(wait);
-    }
-    final at = now();
-    final inside = [
-      for (final t in batch)
-        if (inPlaidWindow(t.dateTransacted, at) &&
-            inPlaidWindow(t.datePosted, at))
-          t,
-    ];
-    job.skipped += batch.length - inside.length;
-    if (inside.isEmpty) return;
-    await _step(
-      'inject',
-      () => plaid.sandboxTransactionsCreate(item.accessToken, inside),
-    );
-    item.lastCall = now();
   }
 
   /// Runs [call], retrying a rate limit after its wait at most [rateLimitRetries] times

@@ -19,7 +19,7 @@
 /// fixture: its accounts (`starting_balance` as the current balance) and transactions,
 /// at any of the persona engine's institutions, with no liabilities, recurring streams or
 /// investments. Custom users and transactions created through Sandbox calls live only as
-/// long as the process. The test hooks ([failNext], [onCall],
+/// long as the process. The test hooks ([failNext], [onCall], [lateHistoryAfter],
 /// [modifyTransaction], [removeTransaction], [repairLogin], [addWebhookKey]) script what
 /// Sandbox would do. `institutionsGetById` answers a fixture's institution, with its logo
 /// and colour only when the fixture carries them.
@@ -102,6 +102,12 @@ final class FakePlaidClient implements PlaidClient {
   /// Runs before every call, with the interface method's name, so a test can interleave
   /// other requests with a Plaid call in flight.
   Future<void> Function(String method)? onCall;
+
+  /// When set, an Item that answers `NOT_READY` from now on serves only its first
+  /// [lateHistoryAfter] transactions until a sync has paged to them, and the rest on
+  /// the syncs after: Sandbox reports a custom user's historical update complete while
+  /// a large history is still arriving (verified 2026-10-25, `PLAN.md` §4).
+  int? lateHistoryAfter;
 
   /// How many Items the fake has seen that are not removed.
   int get liveItemCount => _items.values.where((i) => !i.removed).length;
@@ -271,16 +277,21 @@ final class FakePlaidClient implements PlaidClient {
     await _maybeFail('transactionsSync');
     final item = _healthyItem(accessToken);
     if (cursor.isEmpty && !item.notReadyServed) {
-      item.notReadyServed = true;
+      item
+        ..notReadyServed = true
+        ..visible = lateHistoryAfter;
       return const TransactionsSyncPage(notReady: true, nextCursor: '');
     }
     final position = cursor.isEmpty
         ? 0
         : int.tryParse(cursor.replaceFirst('fake-cursor-', '')) ?? -1;
+    final length = item.visible ?? item.events.length;
     if (position < 0 || position > item.events.length) {
       throw const PlaidException('INVALID_INPUT', 'INVALID_FIELD', 'cursor');
     }
-    final end = (position + count).clamp(0, item.events.length);
+    final end = (position + count).clamp(position, length);
+    // The late history arrives once a sync has paged to what came first.
+    if (end >= length) item.visible = null;
     final events = item.events.sublist(position, end);
     return TransactionsSyncPage(
       added: [
@@ -301,7 +312,7 @@ final class FakePlaidClient implements PlaidClient {
           if (a.type != 'investment') a,
       ],
       nextCursor: 'fake-cursor-$end',
-      hasMore: end < item.events.length,
+      hasMore: end < length,
     );
   }
 
@@ -588,6 +599,9 @@ final class _FakeItem {
   final Map<String, PlaidTransaction> current = {};
   final List<_Event> events = [];
   bool notReadyServed = false;
+
+  /// How many events the syncs serve for now; null for all of them.
+  int? visible;
   bool loginRequired = false;
   bool removed = false;
 

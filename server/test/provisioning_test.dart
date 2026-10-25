@@ -1,8 +1,8 @@
 // The persona provisioning job against the fake client, on a clock the job's waits move:
-// the queued answer, the counters, the one date shift, an investment-only Item's account
-// mapped, the pacing and interleaving, the NOT_READY and rate-limit retries, a recorded
-// failure, the transactions skipped when a long job crosses Plaid's midnight, one job
-// per user, and the route rules.
+// the queued answer, the counters, the one date shift, the custom users carrying the
+// history with nothing injected, a history Sandbox delivers late, an investment-only Item, the NOT_READY, rate-limit and
+// 5xx retries, a recorded failure, the transactions skipped when a job crosses Plaid's
+// window, one job per user, and the route rules.
 import 'dart:convert';
 
 import 'package:finance_tracker_server/server.dart';
@@ -77,7 +77,7 @@ void main() {
     }
   }
 
-  test('a job is queued, links the persona and injects its history', () async {
+  test('a job is queued, links the persona and completes', () async {
     final started = await provision({'persona': 'renter', 'days': 120});
     expect(started.status, 202);
     expect(started.json['status'], 'queued');
@@ -101,8 +101,8 @@ void main() {
     expect(job['progress'], {
       'items_total': 1,
       'items_linked': 1,
-      'batches_total': 8,
-      'batches_sent': 8,
+      'batches_total': 0,
+      'batches_sent': 0,
       'skipped': 0,
     });
     final items = (await server.call(
@@ -117,9 +117,9 @@ void main() {
     );
     expect(items.single['status'], 'healthy');
 
-    // Every transaction the engine wrote for the institution arrived once, as the fake's
-    // demo data, every date moved by the one shift: Plaid's today (UTC−12, so
-    // 2026-10-23) minus the engine's as-of date (2026-10-24).
+    // Every transaction of the custom user arrived once, as the
+    // fake's demo data, every date moved by the one shift: Plaid's today (UTC−12, so
+    // 2026-10-23) minus the engine's as-of date (2026-10-24). Nothing was injected.
     final household = generateHousehold(
       personaFor(PersonaId.renter),
       seed: 1,
@@ -130,7 +130,7 @@ void main() {
     String key(LocalDate date, Money amount, String name) =>
         '${date.toIso()} ${amount.minorUnits} $name';
     final expected = [
-      for (final t in [...user.split.customUser, ...user.split.injected])
+      for (final t in user.split.customUser)
         key(t.date.addDays(-1), t.amount, t.name),
     ]..sort();
     final stored = await allTransactions();
@@ -167,73 +167,108 @@ void main() {
       },
     );
 
-    // The first sync met NOT_READY once and waited.
-    expect(waits.where((w) => w == const Duration(seconds: 5)), hasLength(1));
+    // The first sync met NOT_READY once and waited, and the second sync came 5 s after
+    // it completed; those were the only waits.
+    expect(waits, [const Duration(seconds: 5), const Duration(seconds: 5)]);
+    expect(
+      calls.map((c) => c.$1),
+      isNot(contains('sandboxTransactionsCreate')),
+    );
+  });
+
+  test('an investment-only Item is linked and the job completes', () async {
+    // The family's 401(k) is the only account of its Tartan Bank Item, and no
+    // transactions page lists it (`PLAN.md` §4, 2026-10-25): the sync takes it from
+    // /accounts/get.
+    final job = await runJob({'persona': 'family', 'days': 30});
+    expect(job['status'], 'completed', reason: '$job');
+    expect((job['progress']! as Map)['items_linked'], 4);
+    final accounts = (await server.call(
+      'get',
+      '/accounts',
+      token: ada.access,
+    )).list.cast<Map<String, Object?>>();
+    expect(
+      {for (final a in accounts) '${a['name']} ${a['mask']}'},
+      {
+        for (final a in personaFor(PersonaId.family).accounts)
+          '${a.name} ${a.mask}',
+      },
+    );
+    final retirement = personaFor(PersonaId.family).accounts
+        .firstWhere((a) => a.type == AccountType.investment);
+    expect(
+      accounts.firstWhere((a) => a['mask'] == retirement.mask),
+      containsPair('type', 'investment'),
+    );
   });
 
   test(
-    "an investment-only Item's account is mapped and the job completes",
+    'a 730-day job carries the newest history that fits, and injects none',
     () async {
-      // The family's 401(k) is the only account of its Tartan Bank Item, and no
-      // transactions page lists it (`PLAN.md` §4, 2026-10-25): the sync takes it from
-      // /accounts/get.
-      final job = await runJob({'persona': 'family', 'days': 30});
+      // 09:30 UTC: Plaid's oldest date is 2024-10-25 (the UTC date minus 729), and no
+      // custom user of the family carries the persona's first day (2024-10-25, shifted to
+      // 2024-10-24), so nothing is skipped either.
+      final job = await runJob({'persona': 'family'});
       expect(job['status'], 'completed', reason: '$job');
-      expect((job['progress']! as Map)['items_linked'], 4);
-      final accounts = (await server.call(
-        'get',
-        '/accounts',
-        token: ada.access,
-      )).list.cast<Map<String, Object?>>();
+      expect(job['progress'], {
+        'items_total': 4,
+        'items_linked': 4,
+        'batches_total': 0,
+        'batches_sent': 0,
+        'skipped': 0,
+      });
       expect(
-        {for (final a in accounts) '${a['name']} ${a['mask']}'},
-        {
-          for (final a in personaFor(PersonaId.family).accounts)
-            '${a.name} ${a.mask}',
-        },
+        calls.map((c) => c.$1),
+        isNot(contains('sandboxTransactionsCreate')),
       );
-      final retirement = personaFor(PersonaId.family).accounts
-          .firstWhere((a) => a.type == AccountType.investment);
+      final household = generateHousehold(
+        personaFor(PersonaId.family),
+        seed: 1,
+        asOf: provisioningAsOf,
+      );
+      final users = sandboxUsers(household);
+      final platypus = users.firstWhere(
+        (u) => u.split.institution.key == 'platypus',
+      );
+      expect(platypus.split.injected, isNotEmpty);
+      String key(LocalDate date, Money amount, String name) =>
+          '${date.toIso()} ${amount.minorUnits} $name';
+      final stored = await allTransactions();
       expect(
-        accounts.firstWhere((a) => a['mask'] == retirement.mask),
-        containsPair('type', 'investment'),
+        [
+          for (final t in stored)
+            key(
+              LocalDate.parse(t['date']! as String),
+              Money.fromJson(t['amount']! as Map<String, dynamic>),
+              t['name']! as String,
+            ),
+        ]..sort(),
+        [
+          for (final u in users)
+            for (final t in u.split.customUser)
+              key(t.date.addDays(-1), t.amount, t.name),
+        ]..sort(),
       );
     },
   );
 
-  test(
-    'injection is paced at 35 s per Item and interleaves the Items',
-    () async {
-      final job = await runJob({'persona': 'small_business', 'days': 365});
-      expect(job['status'], 'completed', reason: '$job');
-      expect((job['progress']! as Map)['batches_total'], 51);
-      expect((job['progress']! as Map)['batches_sent'], 51);
-      final injections = [
-        for (final (method, at) in calls)
-          if (method == 'sandboxTransactionsCreate') at,
-      ];
-      expect(injections, hasLength(51));
-      // Rounds alternate the two Items while both have batches (36 and 15), so a call and
-      // the one two later are on the same Item; after that, consecutive calls are.
-      const interval = Duration(seconds: 35);
-      for (var i = 0; i + 2 < 30; i++) {
-        expect(
-          injections[i + 2].difference(injections[i]),
-          greaterThanOrEqualTo(interval),
-          reason: 'call $i',
-        );
-      }
-      for (var i = 30; i + 1 < injections.length; i++) {
-        expect(
-          injections[i + 1].difference(injections[i]),
-          greaterThanOrEqualTo(interval),
-          reason: 'call $i',
-        );
-      }
-      // Interleaving: the second Item's first batch went before the first Item's second.
-      expect(injections[1].difference(injections[0]), lessThan(interval));
-    },
-  );
+  test('the second sync stores the history Sandbox delivers late', () async {
+    // Sandbox answers a large custom user's first completed sync with part of its rows
+    // and delivers the rest on a later sync (`PLAN.md` §4).
+    server.plaid.lateHistoryAfter = 100;
+    final job = await runJob({'persona': 'renter', 'days': 120});
+    expect(job['status'], 'completed', reason: '$job');
+    final household = generateHousehold(
+      personaFor(PersonaId.renter),
+      seed: 1,
+      asOf: provisioningAsOf,
+      days: 120,
+    );
+    final carried = sandboxUsers(household).single.split.customUser;
+    expect(carried.length, greaterThan(100));
+    expect(await allTransactions(), hasLength(carried.length));
+  });
 
   test('a Plaid 5xx is retried 15 s apart, at most three times', () async {
     const error = PlaidException('API_ERROR', 'INTERNAL_SERVER_ERROR');
@@ -255,10 +290,11 @@ void main() {
     ('exchangePublicToken', 0),
     ('getItem', 0),
     ('transactionsSync', 0),
+    // The NOT_READY answer and the first completed sync, then the second sync.
     ('transactionsSync', 2),
   ]) {
     final where = method == 'transactionsSync'
-        ? (skip == 0 ? 'the first sync' : 'the final sync')
+        ? (skip == 0 ? 'the first sync' : 'the second sync')
         : method;
     test(
       'a Plaid 5xx on $where is retried once and the job completes',
@@ -275,6 +311,14 @@ void main() {
           waits.where((w) => w == const Duration(seconds: 15)),
           hasLength(1),
         );
+        if (skip == 2) {
+          // The retry came after the NOT_READY wait and the second sync's.
+          expect(waits, const [
+            Duration(seconds: 5),
+            Duration(seconds: 5),
+            Duration(seconds: 15),
+          ]);
+        }
         // A failed /item/get removed its Item at Plaid; one Item is left.
         expect(server.plaid.liveItemCount, 1);
         expect(
@@ -361,40 +405,9 @@ void main() {
     },
   );
 
-  test('two accounts sharing a name and mask fail the job', () async {
-    final checking = personaFor(PersonaId.renter).accounts
-        .firstWhere((a) => a.type == AccountType.depository);
-    var syncs = 0;
-    server.plaid.onCall = (method) async {
-      if (method != 'transactionsSync' || ++syncs != 2) return;
-      // Before the first completed sync applies, a second account with the same name
-      // and mask appears on the Item.
-      await server.app.db.read((tx) {
-        final itemId =
-            tx.first('SELECT id FROM items WHERE user_id = ?', [
-                  ada.userId,
-                ])!['id']!
-                as String;
-        tx.execute(
-          'INSERT INTO accounts (id, user_id, item_id, plaid_account_id, type, '
-          'name, mask, currency_code, display_order, source) '
-          "VALUES ('dup', ?, ?, 'dup', 'depository', ?, ?, 'USD', 99, 'demo')",
-          [ada.userId, itemId, checking.name, checking.mask],
-        );
-      });
-    };
-    final job = await runJob({'persona': 'renter', 'days': 30});
-    expect(job['status'], 'failed');
-    expect(
-      job['error'],
-      'map platypus: two accounts on the Item share the name ${checking.name} '
-      'and mask ${checking.mask}',
-    );
-  });
-
   test('a rate limit is retried after 60 s, at most three times', () async {
     server.plaid.failNext(
-      'sandboxTransactionsCreate',
+      'sandboxPublicTokenCreate',
       const PlaidException('RATE_LIMIT_EXCEEDED', 'RATE_LIMIT'),
       times: 3,
     );
@@ -403,13 +416,13 @@ void main() {
     expect(waits.where((w) => w == const Duration(seconds: 60)), hasLength(3));
 
     server.plaid.failNext(
-      'sandboxTransactionsCreate',
+      'sandboxPublicTokenCreate',
       const PlaidException('RATE_LIMIT_EXCEEDED', 'RATE_LIMIT'),
       times: 4,
     );
     final failed = await runJob({'persona': 'renter', 'days': 120, 'seed': 2});
     expect(failed['status'], 'failed');
-    expect(failed['error'], 'inject: RATE_LIMIT');
+    expect(failed['error'], 'link platypus: RATE_LIMIT');
   });
 
   test('the first other Plaid failure fails the job, with no token logged', () async {
@@ -441,95 +454,44 @@ void main() {
     }
   });
 
-  group("a 730-day persona against Plaid's past bound", () {
-    // Plaid's oldest accepted date is the UTC date minus 729 (`PLAN.md` §4, 2026-10-25);
-    // the shift is Plaid's today (UTC−12) minus the as-of date.
-    final household = generateHousehold(
-      personaFor(PersonaId.renter),
-      seed: 1,
-      asOf: provisioningAsOf,
-    );
-    final user = sandboxUsers(household).single;
-    final rows = [...user.split.customUser, ...user.split.injected];
-
-    Future<(Map<String, Object?>, List<Map<String, Object?>>)> run() async {
-      final job = await runJob({'persona': 'renter'});
-      expect(job['status'], 'completed', reason: '$job');
-      return (
-        job['progress']! as Map<String, Object?>,
-        await allTransactions(),
-      );
-    }
-
-    test('before 12:00 UTC the oldest day is skipped and counted', () async {
-      // 09:30 UTC on 2026-10-24: Plaid's today is 2026-10-23, a shift of −1, so the
-      // persona's oldest day lands on 2024-10-24, the UTC date minus 730.
-      final oldest = LocalDate(2026, 10, 24).addDays(-729);
-      final outside = [
-        for (final t in rows)
-          if (t.date.addDays(-1).isBefore(oldest) ||
-              t.authorizedDate!.addDays(-1).isBefore(oldest))
-            t,
-      ];
-      expect(outside, isNotEmpty);
-      final (progress, stored) = await run();
-      expect(progress['skipped'], outside.length);
-      expect(progress['batches_sent'], progress['batches_total']);
-      expect(stored.length, rows.length - outside.length);
-      // The job filters on both dates, so neither is older than the bound.
-      for (final t in stored) {
-        for (final key in const ['date', 'authorized_date']) {
-          expect(
-            LocalDate.parse(t[key]! as String).isBefore(oldest),
-            isFalse,
-            reason: '$key of $t',
-          );
-        }
-      }
-    });
-
-    test('after 12:00 UTC every row is injected', () async {
-      // 13:00 UTC: Plaid's today is the UTC date, a shift of 0.
-      server.clock.advance(const Duration(hours: 3, minutes: 30));
-      ada = await server.login();
-      final (progress, stored) = await run();
-      expect(progress['skipped'], 0);
-      expect(stored, hasLength(rows.length));
-    });
-  });
-
   test('what leaves the window while the job runs is skipped', () async {
-    // The window is checked at every call, against the shift computed once: a job that
-    // stalls for two days (here, from its first injection) finds its oldest days outside
-    // Plaid's 730, and leaves them out.
+    // The window is checked when each Item is linked, against the shift computed once: a
+    // job that stalls for 40 days in its first Item's sync finds the second Item's oldest
+    // rows (the student's loans, back to the persona's first month) outside Plaid's
+    // window, and leaves them out of that custom user.
     var stalled = false;
     server.plaid.onCall = (method) async {
-      if (method == 'sandboxTransactionsCreate' && !stalled) {
+      if (method == 'transactionsSync' && !stalled) {
         stalled = true;
-        server.clock.advance(const Duration(days: 2));
+        server.clock.advance(const Duration(days: 40));
       }
     };
-    final job = await runJob({'persona': 'renter'});
+    final job = await runJob({'persona': 'student'});
     expect(job['status'], 'completed', reason: '$job');
-    final progress = job['progress']! as Map<String, Object?>;
-    expect(progress['batches_sent'], progress['batches_total']);
-    final skipped = progress['skipped']! as int;
+    final skipped =
+        (job['progress']! as Map<String, Object?>)['skipped']! as int;
     expect(skipped, greaterThan(0));
     final stored = await allTransactions();
     final household = generateHousehold(
-      personaFor(PersonaId.renter),
+      personaFor(PersonaId.student),
       seed: 1,
       asOf: provisioningAsOf,
     );
-    final user = sandboxUsers(household).single;
     expect(
       stored.length + skipped,
-      user.split.customUser.length + user.split.injected.length,
+      sandboxUsers(household).fold(0, (n, u) => n + u.split.customUser.length),
     );
-    // The job ends on 2026-10-26 UTC; Plaid's oldest date then is that minus 729.
-    final oldest = LocalDate(2026, 10, 26).addDays(-729);
+    // The second Item was linked 40 days after 09:30 UTC on 2026-10-24; the first one's
+    // history starts well inside the window either way.
+    final oldest = LocalDate(2026, 12, 3).addDays(-729);
     for (final t in stored) {
-      expect(LocalDate.parse(t['date']! as String).isBefore(oldest), isFalse);
+      for (final key in const ['date', 'authorized_date']) {
+        expect(
+          LocalDate.parse(t[key]! as String).isBefore(oldest),
+          isFalse,
+          reason: '$key of $t',
+        );
+      }
     }
   });
 

@@ -10,8 +10,8 @@
 # 2 on a usage error. The server defaults to http://localhost:8080/v1. On the owner's
 # machine the server runs in sandbox mode and this creates real Sandbox Items (the
 # coordinator's seat only); in a lane, point it at a fake-mode server started with
-# tools/run_server.sh, whose .env is generated. A full persona takes up to about 100
-# minutes, paced by the server.
+# tools/run_server.sh, whose .env is generated. A full persona takes a few minutes: one
+# custom user and one sync per Item, nothing injected (batches stay 0/0).
 #
 # The script signs out only when the job has finished (completed or failed) or never
 # started. On Ctrl-C, and on any failure after the job started, the device stays signed
