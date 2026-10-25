@@ -3,17 +3,19 @@
 A budget limits spending on a category per monthly period, optionally carrying what is left
 (or overspent) into the next period, and raises an alert when spending reaches 80 % and 100 %
 of what is available. This file covers the model, the period and money semantics, the alerts,
-the repositories and the providers. The screens are Phase 4b's. The decisions are in
-`PLAN.md` §12, "Budget semantics (4a)".
+the repositories, the providers and the screens. The decisions are in `PLAN.md` §12,
+"Budget semantics (4a)".
 
 Code:
 - `app/lib/features/budgets/`: `domain/` (the repository and alert store interfaces, the
   period math, the status math), `data/` (Drift, in-memory and demo repositories, the alert
-  stores, the demo budgets) and `application/` (the providers, the alert evaluator);
+  stores, the demo budgets), `application/` (the providers, the alert evaluator) and
+  `presentation/` (the screens, the card, the period selector, the alerts);
 - `app/lib/core/platform/` (the `Notifier` boundary and the in-app notifications);
 - the `budgets` and `budget_alerts` tables (`data.md`).
 
-Tests: `app/test/features/budgets/`, `app/test/contract/budget_repository_contract.dart`,
+Tests: `app/test/features/budgets/` (the screens, their goldens and the alerts in
+`presentation/`, on `test/helpers/budget_seed.dart`), `app/test/contract/budget_repository_contract.dart`,
 `app/test/core/platform/`, the `budgets` group of `app/test/sync/two_device_convergence_test.dart`.
 
 ## The model
@@ -43,6 +45,9 @@ in the device zone (`PLAN.md` §6.8).
 is `s`, and ends one month later. Because `s` is at most 28, no month clamps it. Consecutive
 periods therefore tile the calendar with no gap or overlap, and each is 28 to 31 days long.
 
+`periodAt(day, s, offset)` is the period `offset` periods after the one containing `day`
+(before it when negative).
+
 `periodsFrom(startDate, s, through: day)` lists the periods from the one containing
 `startDate` through the one containing `day`. The list is empty when `day` comes before the
 first of them. A start day outside 1 to 28 is an `ArgumentError`.
@@ -69,10 +74,14 @@ Spending is the net of the transactions dated in the period that pass every test
 Each contribution is negated: outflows count positive and refunds negative. Pending
 transactions count.
 
-Caveat for 4b: the lookup holds only live categories. A budget whose own category has been
-deleted therefore counts only split rows that still name it. Transactions whose user category
-was that deleted category fall back to their Plaid category. The budgets screen should show
-such a budget as being on a deleted category.
+`entriesIn(period, budget, transactions, lookup, {excluded})` lists the rows counted, in the
+transactions' order: a transaction whole, or each of its splits that qualifies. Spending is
+summed from the same rows, so the two always agree.
+
+The lookup holds only live categories. A budget whose own category has been deleted
+therefore counts only split rows that still name it. Transactions whose user category was
+that deleted category fall back to their Plaid category. The screens name such a budget
+"Deleted category".
 
 ## Status, rollover and projection
 
@@ -177,9 +186,75 @@ The amounts are for renter, family, student and small business, in that order.
   It reads one `TransactionQuery` whose range runs from the earliest period a status needs
   to the latest current period's end: the first period for a budget with rollover, the
   current period for one without. With no budgets it runs no query.
+- `budgetPeriodOffsetProvider`: which period the screens show, as an offset from each
+  budget's current period (0 by default; `select(offset)`). The list and the detail share
+  it.
+- `budgetPeriodStatusesProvider(offset)`: every live budget's status in that period:
+  `budgetStatus` on today for 0, else on the period's last day. Its query starts at the
+  first period for a rollover budget, else at the shown period.
+- `budgetPeriodEntriesProvider(budgetId, offset)`: `entriesIn` that budget's period at that
+  offset, newest first; empty when the budget is gone.
 - `budgetAlertDebounceProvider`, `budgetAlertEvaluatorProvider` and
   `budgetAlertWatcherProvider`: see **Alerts**.
 
 `budgetRepositoryProvider` and `budgetAlertStoreProvider` are in `core/di/providers.dart`
 (`app-core.md`): in memory by default, Drift in dev and prod, demo in the demo flavor (the
 demo's alert store is in memory).
+
+## Screens
+
+`presentation/`. The Budgets tab is the third of four, between Transactions and Settings
+(`app-core.md`, **Routing and the shell**).
+
+**The list** (`/budgets`, `budgets_screen.dart`). At the top is the period selector
+(`budget_period_selector.dart`): previous and next, the period's name ("This period",
+"Last period", "3 periods ago", "Next period", "In 2 periods") and a "This period" button
+when another period is shown. When every budget starts its periods on the same day, the
+selector also shows the dates in the device zone ("Oct 1 – Oct 31, 2026"). Otherwise each
+card shows its own dates.
+
+Below it is one `BudgetCard` per budget (`budget_card.dart`), by category name. A card
+shows:
+- the category's icon and name ("Deleted category" when it is gone), and "Includes N
+  categories" when it budgets a group;
+- a badge for the highest threshold of `thresholdsCrossed` ("80 % reached");
+- the amount, with the carry when rollover moved it ("$500.00 + $42.00 carried", or
+  "− … carried" for a deficit);
+- in the current and past periods: a bar and the percent from `percentBasisPoints`, in the
+  error colour past 100 %, or "Nothing available" when `available ≤ 0`; then spent, and left
+  or over;
+- in the current period only: the projection, "On pace: about $410.00 by the end" or
+  "Projected over by $60.00" in the error colour with a warning icon (`projectedOverspend`);
+- in a future period: what will be available, with no spending and no badge.
+
+The bar and its percent are read as one sentence ("Groceries: 82 percent of $500.00 spent,
+$90.00 left"). An empty list offers "Add budget"; otherwise a floating button does. Tapping a
+card opens its detail.
+
+**The detail** (`/budgets/:id/transactions`, `budget_detail_screen.dart`). The same
+selector, showing the budget's own dates, then the budget's card for the period, then
+`budgetPeriodEntriesProvider`'s rows as transaction tiles, newest first. A split row shows
+the split's amount and category. Tapping a row opens the transaction. The app bar's pencil
+opens the editor.
+
+**The editor** (`/budgets/new`, `/budgets/:id`, `budget_editor_screen.dart`). Its fields:
+- the category, from the category picker (any category; a parent budgets its group);
+- the amount per period, read by `Money.parse` in the device locale. Its currency is chosen
+  among the accounts' currencies and the budget's own, or is the device's default when
+  there are none;
+- the period start day, 1 to 28;
+- carry-over;
+- the first period. It defaults to the current period and is stored as the start of the
+  period containing the date picked. The date picker ends at the current period's start,
+  so the first period can move earlier but never later.
+
+Save validates inline: a category, a positive amount, and a day from 1 to 28. A write to a
+deleted budget is refused with "This budget no longer exists." Delete returns to the list
+with an Undo that restores the budget.
+
+**Alerts** (`budget_alerts.dart`). The Budgets app bar has a bell, badged with the unread
+count of `inAppNotificationsProvider`. It opens a sheet over the whole app that lists the
+notifications newest first ("Groceries reached 80 % of $500.00 on Oct 20", the day in the
+device zone). Unread ones are bold, with a dot that reads "Unread". "Mark all read" clears
+them all. Tapping one marks it read, selects the period it was raised for, and opens the
+budget's detail.

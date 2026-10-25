@@ -205,7 +205,7 @@ relaunch under the define re-applies its rows over local edits of those `demo` r
 ## Routing and the shell
 
 Typed routes through `go_router_builder` (`core/router/routes.dart`, generated
-`routes.g.dart`): a `TypedStatefulShellRoute<AppShellRoute>` with three branches, each
+`routes.g.dart`): a `TypedStatefulShellRoute<AppShellRoute>` with four branches, each
 keeping its own navigation stack.
 
 | Tab | Route class | Path | Screen |
@@ -218,6 +218,10 @@ keeping its own navigation stack.
 | Transactions | `TransactionsRoute` | `/transactions` | `features/transactions/presentation/transactions_screen.dart` |
 | | `NewTransactionRoute` | `/transactions/new?account=<id>` | `transaction_editor_screen.dart` |
 | | `TransactionRoute` | `/transactions/:id` | `transaction_editor_screen.dart` |
+| Budgets | `BudgetsRoute` | `/budgets` | `features/budgets/presentation/budgets_screen.dart` (`budgets.md`) |
+| | `NewBudgetRoute` | `/budgets/new` | `budget_editor_screen.dart` |
+| | `EditBudgetRoute` | `/budgets/:id` | `budget_editor_screen.dart` |
+| | `BudgetTransactionsRoute` | `/budgets/:id/transactions` | `budget_detail_screen.dart` |
 | Settings | `SettingsRoute` | `/settings` | `features/settings/presentation/settings_screen.dart` |
 | | `CategoriesRoute` | `/settings/categories` | `features/categories/presentation/categories_screen.dart` |
 | | `NewCategoryRoute` | `/settings/categories/new` | `category_editor_screen.dart` |
@@ -238,8 +242,8 @@ keeping its own navigation stack.
   routes are sub-routes of their branch, so each tab keeps its own stack. `/accounts/new`
   and `/accounts/linked-banks` are declared before `/accounts/:id` so neither is read as
   an id.
-- Pushing a route of another branch (a transaction from an account's detail, category
-  management from the category picker) puts it on top of the current tab's stack: the
+- Pushing a route of another branch (a transaction from an account's detail or a
+  budget's, category management from the category picker) puts it on top of the current tab's stack: the
   selected tab does not change, and back returns where the user was.
 - `AppShell` (`core/router/app_shell.dart`) shows the selected branch above a Material 3
   `NavigationBar`; tapping the current tab again returns it to its first screen.
@@ -310,7 +314,8 @@ sealed class of typed data, never text, so whoever shows it localizes it (one ca
 `BudgetThresholdNotification`, `budgets.md`). `appNotifierProvider` is `InAppNotifier`, which
 adds to `inAppNotificationsProvider`: newest first, one per key, at most 50, each with a read
 flag (`markRead(key)`, `markAllRead()`), in memory, so a restart empties it. Android's
-notification channels are Phase 8's implementation of the same interface. Platform code
+notification channels are Phase 8's implementation of the same interface. The Budgets
+screen's bell shows the in-app list (`budgets.md`, **Screens**). Platform code
 stays behind interfaces like this one (`CLAUDE.md`, **Security and platform**).
 
 ## Logging
