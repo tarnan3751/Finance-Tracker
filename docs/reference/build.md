@@ -55,6 +55,9 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   AGP refuses a flavor named like a build type.
 - The launcher label is the `app_name` string each flavor sets with `resValue`; AGP 9
   disables `resValue` by default, so `buildFeatures.resValues` turns it on.
+- `assets/demo/receipt.jpg`, the demo's synthetic receipt photo (`app-core.md`, **The
+  image source**), is declared in `app/pubspec.yaml` with `flavors: [demo]`, so only the
+  demo APK carries it.
 
 ## Android
 
@@ -76,6 +79,17 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   `android:dataExtractionRules="@xml/data_extraction_rules"`, which excludes everything
   (`domain="root"`) from cloud backup and device transfer. A Keystore-bound database key
   cannot follow a system backup; the app's own encrypted backup (Phase 7) is the only path.
+- **Receipt photos.** `image_picker` (BSD-3, behind `core/platform/image_source.dart`)
+  needs nothing in the app's manifest: the plugin's own manifest, merged at build time,
+  declares its `FileProvider` (`io.flutter.plugins.imagepicker.ImagePickerFileProvider`,
+  authority `${applicationId}.flutter.image_provider`, over the cache directory) beside
+  the Plaid SDK's, and a disabled service that lets Play services install the backported
+  photo picker. The app declares no `CAMERA` permission, and the plugin asks for it only
+  when the manifest declares it, so the camera intent and the photo picker run with no
+  permission at all. The photos are kept in the app's private `files/` directory, which
+  the backup rules above exclude with everything else. `image_picker`'s transitive iOS
+  implementation and macOS file selector are held in `app/pubspec.yaml` to releases at
+  least two weeks old.
 - **Network security.** `src/main/res/xml/network_security_config.xml` refuses cleartext
   and trusts system certificates; it applies to demo and prod.
   `src/dev/res/xml/network_security_config.xml` overrides it for dev only, adding cleartext
@@ -113,7 +127,9 @@ smoke run working on any machine. Keystores are gitignored (`*.jks`, `*.keystore
   constructor of every Room database: the Plaid SDK brings WorkManager, which creates its
   Room database by reflection at startup, and without the rule the release app crashes on
   launch (`NoSuchMethodException: WorkDatabase_Impl.<init>`). The app's own classes are
-  not kept. The encrypted database needs none: SQLite3 Multiple Ciphers is a native library
+  not kept. `image_picker_android` needs no rule: its channel is Pigeon-generated code
+  with no reflection, the registrant names its plugin class, and AAPT keeps the provider
+  the manifest names. The encrypted database needs none: SQLite3 Multiple Ciphers is a native library
   reached over FFI, and R8 only touches Java and Kotlin code. R8 accepts rules for absent
   packages, so no `-dontwarn` is needed yet. R8's mapping lands in
   `app/build/app/outputs/mapping/<flavor>Release/mapping.txt`.

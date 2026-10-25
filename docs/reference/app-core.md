@@ -31,7 +31,10 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
    so the first frame is already signed in or out; then the sync controller starts
    (`sync-app.md`, **The controller**) and, in every flavor, the budget alert watcher is
    listened to (`budgets.md`, **Alerts**);
-9. `runApp(UncontrolledProviderScope(container: container, child: FinanceTrackerApp()))`.
+9. `runApp(UncontrolledProviderScope(container: container, child: FinanceTrackerApp()))`;
+10. in dev and prod, after the first frame, `sweepReceipts(container)`: the receipt files
+    no live transaction references are deleted (`data.md`, **Receipts**), a failure
+    logged by type only.
 
 `FinanceTrackerApp` (`app.dart`) is a `ConsumerWidget` returning `MaterialApp.router` with
 the router, both themes inside a `DynamicColorBuilder`, the theme mode from settings, the
@@ -67,6 +70,8 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `goRouterProvider` | `core/router/app_router.dart` | The app's `GoRouter` (`routerFor`), gated on the session in dev and prod, disposed with the container |
 | `tokenStoreProvider`, `fakeServerProvider`, `financeApiProvider`, `appVersionProvider` | `core/api/api_providers.dart` | The API (**The API client**) |
 | `sessionControllerProvider`, `deviceNameProvider` | `features/auth/application/` | The session and the device's name (`auth.md`) |
+| `receiptStoreProvider` | `core/di/providers.dart` | Where receipt photos are kept: in memory by default and in demo, files in the support directory in dev and prod (`data.md`, **Receipts**) |
+| `imageSourceProvider` | `core/platform/image_source_provider.dart` | The camera and gallery for receipt photos: `image_picker` by default, the fake in demo (**The image source**) |
 | `linkLauncherProvider`, `linkControllerProvider`, `linkPollIntervalProvider`, `linkedBanksProvider` | `features/items/application/` | Plaid Link (plaid_flutter by default, the fake launcher wherever the fake server runs), the Item actions and their state, and the stored Items (`items.md`) |
 | `settingsControllerProvider` | `features/settings/application/settings_controller.dart` | The settings as `AsyncValue<Settings>`, with `setThemeMode` and `setUseDynamicColor` |
 | `packageInfoProvider` | `features/settings/application/package_info.dart` | `PackageInfo.fromPlatform()` for About |
@@ -80,9 +85,44 @@ statuses and the alert watcher, which `bootstrap` listens to in every flavor).
 `localDataOverridesFor(config)`, the flavor and its local data, then `apiOverridesFor`;
 a test that brings its own API, such as the two-device integration test sharing one fake
 server, takes the first alone): the Drift repositories and the Plaid pull's `sync_meta`
-store for dev and prod, the demo ones for demo, and the API's (`apiOverridesFor`: the
-in-app fake server, with the fake Link launcher over it, for demo, and for dev under
-`FT_FAKE_SERVER`); later phases add theirs there.
+store for dev and prod with the receipt files, the demo ones for demo with the fake
+image source, and the API's (`apiOverridesFor`: the in-app fake server, with the fake
+Link launcher over it, for demo, and for dev under `FT_FAKE_SERVER`); later phases add
+theirs there.
+
+## The image source
+
+`core/platform/image_source.dart` is the platform boundary for receipt photos, pure
+Dart: an `ImageSource` has `pickFromCamera()` and `pickFromGallery()`, each completing
+with a `PickedImage` (its bytes) or null when the user took or chose nothing, or throwing
+`NoCameraException` (no camera app) or `ImagePickFailedException` (the picker failed,
+or the image is malformed or in a format whose metadata cannot be stripped), which the
+editor explains in a snack bar ("That image can't be used").
+
+- **`ImagePickerSource`** (`image_picker_source.dart`, dev and prod): `image_picker`'s
+  `pickImage` with `maxWidth: 1600` and `imageQuality: 85` (the plugin re-encodes as
+  JPEG, or PNG for an image with transparency, copying the original's EXIF into either;
+  an original it cannot decode it returns untouched). It reads the picked file from the
+  cache and deletes it, maps the plugin's `no_available_camera` code to
+  `NoCameraException` and any other to `ImagePickFailedException` (logging the code
+  alone), and strips the bytes' metadata: a JPEG's or a PNG's, as below. Anything else (a
+  WebP, a HEIC, a file that is neither) is refused with `ImagePickFailedException`.
+- **Metadata** (`jpeg_metadata.dart`, `stripJpegMetadata`): a walker over the JPEG
+  segments up to the start of scan drops every APP1 to APP15 segment (EXIF with its GPS
+  position, device and timestamps, XMP, ICC profiles) and writes the EXIF orientation
+  alone back, when it is not the default, as a minimal big-endian APP1 after the SOI and
+  any JFIF APP0, so a portrait still displays upright. The image data is copied
+  untouched; a JPEG cut short is a `FormatException`. `png_metadata.dart`
+  (`stripPngMetadata`) walks a PNG's chunks, checking each one's length and CRC, and
+  keeps the critical chunks and the display ones (gAMA, cHRM, sRGB, iCCP, pHYs, tRNS)
+  up to IEND, dropping every other ancillary chunk (eXIf, tEXt, iTXt, zTXt, tIME); a
+  PNG has no orientation to keep, the plugin having applied it when re-encoding. A
+  malformed PNG is a `FormatException`, and the source refuses the image.
+- **`FakeImageSource`** (`fake_image_source.dart`, the demo flavor and the tests): every
+  pick completes with what its `next` gives and is counted. The demo's,
+  `FakeImageSource.demo()`, gives `assets/demo/receipt.jpg`, a synthetic "DEMO RECEIPT"
+  photo declared as an asset of the demo flavor only (`build.md`). Tests give a fixture
+  from `test/fixtures/receipts/`.
 
 riverpod_lint runs as an analyzer plugin declared in the workspace root's
 `analysis_options.yaml` and enabled for the app by including that file from

@@ -1,8 +1,9 @@
 # Data: the local database and the repositories
 
-The app's encrypted local database, the repositories every screen reads from, the demo seed,
-and the one-time import of the original app's data. Code: `app/lib/core/db/` (schema, open
-path, key store, in-memory store, demo seed, importer) and each feature's `domain/`
+The app's encrypted local database, the repositories every screen reads from, the receipt
+photos, the demo seed, and the one-time import of the original app's data. Code:
+`app/lib/core/db/` (schema, open path, key store, in-memory store, receipt store, demo
+seed, importer) and each feature's `domain/`
 (interfaces) and `data/` (implementations): `features/accounts/`, `features/transactions/`,
 `features/categories/`, `features/rules/`, `features/budgets/`, `features/settings/`, `features/items/`. Tests: `app/test/contract/` (the contract
 suites), `app/test/core/db/`, `app/test/drift/`, `app/integration_test/encrypted_database_test.dart`,
@@ -276,7 +277,7 @@ The rules every implementation keeps:
   (`transactions.md`) writes through them, and so will applying a rule to history.
 - **Tags and splits** are replaced as a whole by `upsert`, in the same database
   transaction, and keep their order (duplicates included). Split sums are not checked
-  against the amount here.
+  against the amount here; the editor checks them (`transactions.md`, **Splits**).
 
 **The Plaid apply paths** write what the server's Plaid pull brings (`sync-app.md`, **The
 Plaid pull**), record nothing, and skip a local edit's checks (account existence,
@@ -406,6 +407,41 @@ Device-local stores that hold no user data to sync and no seed, such as the Plai
 cursors and the dismissed duplicate pairs (`DismissedPairStore`, `duplicates.md`), have a
 Drift and an in-memory implementation, the demo flavor using the in-memory one;
 `runDismissedPairStoreContract` (`dismissed_pair_store_contract.dart`) runs on both.
+
+## Receipts
+
+`core/db/receipt_store.dart`, no Flutter import. A transaction's receipt photo is a file,
+never a database row: `receiptPath` holds its relative name, `receipts/<transaction
+id>.jpg` (`receiptPathFor`), and the photo never syncs (`PLAN.md` §12), so on another
+device the path names nothing and the editor says the receipt is kept on another device.
+The repositories hold no files; `TransactionActions` (`transactions.md`) writes them.
+
+- **`FileReceiptStore`** (dev and prod, `receiptStoreProvider` through `overridesFor`)
+  keeps them under `getApplicationSupportDirectory()`, Android's private `files/`
+  directory, which no backup or device transfer carries (`build.md`, **Backup**).
+  **`MemoryReceiptStore`** is the default: the tests' and the demo flavor's.
+- **Writes.** `stage(id, bytes)` writes the photo under a temporary name
+  (`<id>.jpg.staged`); `commit` renames it over `<id>.jpg` in one step; `discard`
+  deletes it. A save stages, writes the transaction, and commits only once that write
+  succeeded, so a failed save leaves the old photo in place. An id that is not letters,
+  digits, `-` and `_` is an `ArgumentError`, so no path leaves the folder; `read` and
+  `delete` take only paths of the form `receipts/<id>.jpg`, `read` giving null for a
+  missing file and `delete` doing nothing.
+- **Deletes.** A transaction's delete is soft and can be undone, so the photo stays
+  with the row: a bulk delete (no undo) deletes its photos once the batch has
+  committed, and the editor's delete deletes the photo when its undo snack bar closes by
+  anything but Undo. Deleting an account leaves its transactions' photos to the sweep.
+- **The sweep.** `sweep(keep, olderThan:)` deletes every file in the folder, staged
+  ones included, whose path is not in `keep` and that was last written before
+  `olderThan`. Once per launch in dev and prod, after the first frame, `bootstrap`
+  runs `TransactionActions.sweepReceipts`, which reads the live transactions once and
+  keeps their receipt paths, so a delete that became final while the app was not
+  watching (killed during the undo, synced from another device, an account's delete, a
+  pending Plaid transaction replaced by its posted one) loses its photo, and a photo
+  saved while the sweep runs stays. A deleted transaction restored later by sync shows
+  its receipt as kept on another device. Phase 7's account deletion wipes the folder.
+
+No path is logged anywhere; a failure is logged by its type.
 
 ## The demo seed
 

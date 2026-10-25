@@ -1,14 +1,14 @@
 # Transactions
 
 The transaction list with its search and filters, the merchant each row shows, and the
-transaction editor, which is also a transaction's detail. Code:
-`app/lib/features/transactions/` (`application/`, `presentation/`, and
-`domain/effective_category.dart`, `enrichment.dart`, `merchant_dictionary.dart`; the
-repository and
-`TransactionQuery` are `data.md`'s). Tests:
+transaction editor, which is also a transaction's detail, with its splits and receipt.
+Code: `app/lib/features/transactions/` (`application/`, `presentation/`, and
+`domain/effective_category.dart`, `enrichment.dart`, `merchant_dictionary.dart`,
+`split_math.dart`; the repository, `TransactionQuery` and the receipt store are
+`data.md`'s, the image source `app-core.md`'s). Tests:
 `app/test/features/transactions/`, `app/test/flows/`, and on a device
-`app/integration_test/transactions_bulk_test.dart` and `transactions_search_test.dart` (the
-harness).
+`app/integration_test/transactions_bulk_test.dart`, `transactions_search_test.dart` and
+`splits_receipts_test.dart` (the harness).
 
 ## The list
 
@@ -18,10 +18,11 @@ re-read at midnight and on resume), the weekday for
 the rest of the last week, then the full date, through intl's `DateFormat` in the device
 locale (`transaction_dates.dart`). A row (`transaction_tile.dart`, built from plain values,
 no stream per row) shows the merchant's avatar and name (**Merchants**), the account and
-the effective category (**The effective category**; "Uncategorized" when there is none),
+the effective category (**The effective category**; "Uncategorized" when there is none,
+"Split" for a transaction with splits, `transactionCategoryLabel`),
 the amount colored by `FinanceColors`, a "Pending" label, and a "Hidden" label on a
 transaction the user hid (**Hiding**). The account detail's ledger rows are the same
-tile, with the effective category and the running balance; the ledger lists hidden rows,
+tile, with the same category label and the running balance; the ledger lists hidden rows,
 labelled, since they count toward the balance.
 
 - **Paging.** `TransactionListController` holds the filters and how many pages are loaded;
@@ -185,12 +186,14 @@ rows (logo, dictionary hit, cleaned name, pending).
   full-screen picker: search, "None", recently used, the hierarchy, and "Manage" to
   category management; the picker's selection is the user's own choice, and with none
   the row shows the category the Plaid code resolves to, captioned "From your bank's
-  category", so the user sees what a choice would override); notes; tags (typed, added on enter or a comma, with suggestions
-  from the tags in use).
+  category", so the user sees what a choice would override; with splits it reads "Split
+  across N categories" and is not tappable); the splits (**Splits**); notes; tags (typed,
+  added on enter or a comma, with suggestions from the tags in use); the receipt
+  (**Receipts**).
 - **Saving.** A new transaction is `source: manual`, `pending: false`, with `createdAt` and
   `updatedAt` from the clock. An edit changes only the fields above and `updatedAt`; the
-  source, the merchant name, the splits, the Plaid fields and `createdAt` stay as they
-  were, so an imported or demo transaction keeps its provenance. The repository's
+  source, the merchant name, the Plaid fields and `createdAt` stay as they were, so an
+  imported or demo transaction keeps its provenance. The repository's
   `AccountNotFoundException`, `CurrencyMismatchException` and `EntityDeletedException` are
   explained in a snack bar.
 - **Running the rules.** The app bar's menu has "Run rules on this transaction", for a new
@@ -206,10 +209,73 @@ rows (logo, dictionary hit, cleaned name, pending).
   seconds in the tab's own messenger, so it appears on the screen below, above the
   navigation bar, with that screen's floating button lifted over it (`undoDuration`; `persist: false`, since a snack bar with an action otherwise
   stays); Undo calls `TransactionRepository.restore`, and an account deleted in the
-  meantime is explained.
+  meantime is explained. The receipt photo stays through the undo and is deleted when
+  the snack bar closes by anything but Undo (`data.md`, **Receipts**).
+
+## Splits
+
+The editor's split section (`transaction_editor_screen.dart`) divides a transaction's
+amount across categories. It shows "Add split" alone while there are none, so a
+transaction without splits looks as before; else a "Splits" heading, one row per split
+(a category from the picker, "None" not offered, over an amount field, with "Remove
+split"), a running line, "Add split" and "Distribute evenly".
+
+- **Amounts.** A split amount is typed without a sign, parsed like the transaction's
+  (`Money.parse` in the account's currency, never rounded, zero refused), and saved with
+  the transaction's sign, so an expense's splits are negative. A split in the opposite
+  direction cannot be entered; a stored one is kept while its rows are untouched
+  (below).
+- **The sum rule.** The running line reads "Unallocated $12.34" while the splits fall
+  short of the amount's magnitude and "Over by $1.00" past it (`split_math.dart`,
+  `unallocated`). Save is refused while a split has no category ("Choose a category for
+  every split") or the splits do not add up ("Splits must add up to $130.00"); the error
+  follows the edits once shown. A single split of the whole amount is valid, and a
+  category may repeat.
+- **Stored splits kept as they are.** While no split row has been edited, added or
+  removed and the amount (its sign and currency included) is the stored one, Save
+  writes the stored splits back unchanged and skips the sum rule, and the running line
+  shows what they leave of the amount as signed. So splits of mixed signs synced or
+  imported from elsewhere (−$120.00 and +$20.00 on −$100.00), or a gap left when the
+  bank changed a split Plaid transaction's amount, never block an unrelated edit such
+  as the notes. Once a row is touched or the amount changes, the rows are read as
+  magnitudes and the sum rule applies.
+- **Distribute evenly** gives every row the amount's magnitude divided by
+  `Money.split(n)` and reversed (`distributeEvenly`), so the parts sum exactly, differ by
+  at most one minor unit, and the larger ones are the last rows: $10.00 in three is
+  3.33, 3.33, 3.34.
+- **The category.** A split transaction is categorized by its splits (`PLAN.md` §12):
+  Save writes no `userCategoryId` while there are splits, and the list names it "Split".
+  Removing every split brings back the category row with the choice the form had.
+  Rules running on the form see its splits, so `setCategory` leaves it alone (`rules.md`).
+- A split's note, which the editor does not show, is kept as it was.
+
+## Receipts
+
+A receipt photo is attached in the editor's last section (`receipt_view.dart`), saved
+with Save, and kept on the device only (`data.md`, **Receipts**).
+
+- **Adding.** "Take photo" and "Choose photo" ask the image source (`app-core.md`,
+  **The image source**): the camera or the gallery through `image_picker` in dev and
+  prod, the demo receipt in the demo flavor. A cancelled pick changes nothing; a device
+  with no camera app, or an image that cannot be used (malformed, or neither a JPEG nor
+  a PNG, so its metadata could not be stripped), is explained in a snack bar.
+- **Showing.** A thumbnail, read as "Receipt image" with "open the receipt full screen"
+  as its action, opens the photo full screen (`ReceiptViewScreen`, pushed without a
+  route of its own), zoomable. Photos are shown from their bytes, so a replaced one,
+  which keeps its path, never shows the old picture.
+- **Replace** (camera or gallery, from a sheet) and **Remove receipt** change the form;
+  Save writes them. A new photo is committed only once the transaction's write has
+  succeeded, so a failed save leaves the receipt as it was; a removed one's file goes
+  after the write.
+- **Another device's receipt.** A `receiptPath` whose photo this device does not have
+  (receipts never sync) shows "Receipt kept on another device", with Replace and Remove.
+- A Plaid transaction takes a receipt like its category: `receipt_path` is one of the
+  fields the user owns on it (`sync-app.md`).
 
 `transactionUsageProvider` (`TransactionRepository.watchUsage`, `data.md`: limited and
 distinct queries, never a scan of every transaction) gives the editor and the filter sheet
-the tags in use and the recently used categories and accounts;
+the tags in use and the recently used categories and accounts; `receiptProvider(path)`
+the bytes of a receipt photo, or null when this device has none;
 `transactionActionsProvider` makes the writes, the bulk ones included (`setCategory`,
-`addTag`, `setHidden`, `deleteAll`).
+`addTag`, `setHidden`, `deleteAll`, which also deletes the receipt photos), and the
+receipt sweep (`sweepReceipts`).
