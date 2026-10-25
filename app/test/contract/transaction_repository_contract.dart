@@ -2,8 +2,12 @@
 // each from its own test file under test/features/transactions/data/. Call
 // runTransactionRepositoryContract with a factory for a fresh, empty fixture and, when it
 // holds resources, a dispose that releases the one the factory made last.
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
+import 'package:finance_tracker/features/transactions/domain/search_text.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
@@ -373,27 +377,67 @@ void runTransactionRepositoryContract(
         expect(await ids(october), ['t3', 't2']);
       });
 
+      test('by text: word prefixes in the name, merchant or notes', () async {
+        expect(await ids(TransactionQuery(text: 'groc')), ['t1']);
+        expect(await ids(TransactionQuery(text: 'CORN')), ['t1']);
+        expect(await ids(TransactionQuery(text: 'salar')), ['t2']);
+        expect(await ids(TransactionQuery(text: 'rocer')), isEmpty);
+        expect(await ids(TransactionQuery(text: '')), hasLength(5));
+        expect(await ids(TransactionQuery(text: '   ')), hasLength(5));
+      });
+
+      test('by text: every term, each in any field', () async {
+        expect(await ids(TransactionQuery(text: 'corner grocer')), ['t1']);
+        expect(await ids(TransactionQuery(text: 'oct  sal')), ['t2']);
+        expect(await ids(TransactionQuery(text: 'grocer payroll')), isEmpty);
+        expect(await ids(TransactionQuery(text: 'food grocer')), ['t1']);
+      });
+
+      test('by text: accents and case fold', () async {
+        expect(await ids(TransactionQuery(text: 'cafe')), ['t3']);
+        expect(await ids(TransactionQuery(text: 'CAFÉ ÉTÉ')), ['t3']);
+        expect(await ids(TransactionQuery(text: 'ete')), ['t3']);
+      });
+
+      test('by text: tags', () async {
+        expect(await ids(TransactionQuery(text: 'treat')), ['t3']);
+        expect(await ids(TransactionQuery(text: 'COFF')), ['t3']);
+      });
+
       test(
-        'by text in the name, merchant or notes, ignoring ASCII case',
+        'by text: punctuation separates words and never reaches FTS5',
         () async {
-          expect(await ids(TransactionQuery(text: 'grocer')), ['t1']);
-          expect(await ids(TransactionQuery(text: 'CORNER')), ['t1']);
-          expect(await ids(TransactionQuery(text: 'salary')), ['t2']);
-          expect(await ids(TransactionQuery(text: 'café')), ['t3']);
+          expect(await ids(TransactionQuery(text: '50')), ['t5', 't4']);
+          expect(await ids(TransactionQuery(text: 'off_sale')), ['t4']);
+          expect(await ids(TransactionQuery(text: '"grocer')), ['t1']);
+          expect(await ids(TransactionQuery(text: 'gro*')), ['t1']);
+          expect(await ids(TransactionQuery(text: '(corner')), ['t1']);
+          expect(await ids(TransactionQuery(text: '-payroll')), ['t2']);
+          expect(await ids(TransactionQuery(text: '"corner grocer"')), ['t1']);
           expect(
-            await ids(TransactionQuery(text: 'CAFÉ')),
+            await ids(TransactionQuery(text: 'grocer")OR("payroll')),
             isEmpty,
-            reason: 'only ASCII letters fold, as in SQLite',
           );
-          expect(await ids(TransactionQuery(text: '')), hasLength(5));
+          expect(
+            await ids(TransactionQuery(text: 'corner NEAR grocer')),
+            isEmpty,
+          );
+          expect(
+            await ids(TransactionQuery(text: 'grocer OR payroll')),
+            isEmpty,
+          );
+          expect(await ids(TransactionQuery(text: 'NOT payroll')), isEmpty);
+          expect(await ids(TransactionQuery(text: 'name:grocer')), isEmpty);
+          expect(await ids(TransactionQuery(text: 'grocer\u0000')), ['t1']);
+          expect(await ids(TransactionQuery(text: 'corner\u0000groc')), ['t1']);
+          expect(await ids(TransactionQuery(text: 'gro\u0000cer')), isEmpty);
         },
       );
 
-      test('by text with LIKE metacharacters matched literally', () async {
-        expect(await ids(TransactionQuery(text: '50%')), ['t4']);
-        expect(await ids(TransactionQuery(text: 'off_sale')), ['t4']);
-        expect(await ids(TransactionQuery(text: r'\ deal')), ['t4']);
-        expect(await ids(TransactionQuery(text: '%')), ['t4']);
+      test('by text: a term with no letter or digit matches nothing', () async {
+        expect(await ids(TransactionQuery(text: '%')), isEmpty);
+        expect(await ids(TransactionQuery(text: 'grocer --')), isEmpty);
+        expect(await ids(TransactionQuery(text: '\u0000')), isEmpty);
       });
 
       test('by pending', () async {
@@ -499,6 +543,119 @@ void runTransactionRepositoryContract(
         await pumpEventQueue();
         await transactions.upsert(later);
         await seen;
+      });
+    });
+
+    group('search over a corpus', () {
+      // The 316 raw names Plaid Sandbox returned, with merchants, notes and tags in
+      // accented, cased and non-Latin text; the expected matches are the pure-Dart
+      // reference's (search_text.dart), which the Drift run checks FTS5 against.
+      const List<String> merchants = [
+        'Crème Brûlée Café',
+        'ÉCOLE Française',
+        "Zoë's Kitchen",
+        'İstanbul Grill',
+        'Ωmega Gym',
+        'Straße 12',
+        'Naïve Bakery',
+        '日本料理 Sushi',
+      ];
+      const List<String> notes = [
+        'Paid with Ångström card',
+        'split w/ Renée (50/50)',
+        'reimbursed: yes!',
+        'Ölmühle order #4421',
+      ];
+      const List<String> tags = ['work-trip', 'Café', 'TAXES_2026', 'façade'];
+      late List<Transaction> corpus;
+
+      setUp(() async {
+        final List<String> names = [
+          for (final Object? n in jsonDecode(
+            File('test/fixtures/plaid_transaction_names.json')
+                .readAsStringSync(),
+          ) as List<Object?>)
+            n! as String,
+        ];
+        corpus = [
+          for (final (int i, String name) in names.indexed)
+            testTransaction(
+              'c$i',
+              'a1',
+              -100 - i,
+              date: LocalDate(2026, 1, 1).addDays(i),
+              name: name,
+              merchantName: i % 4 == 0
+                  ? merchants[i ~/ 4 % merchants.length]
+                  : null,
+              notes: i % 5 == 0 ? notes[i ~/ 5 % notes.length] : null,
+              tags: i % 3 == 0 ? [tags[i ~/ 3 % tags.length], 'x$i'] : const [],
+            ),
+        ];
+        await transactions.upsertAll(corpus);
+      });
+
+      test('matches as the reference tokenizer does', () async {
+        final Set<String> queries = {
+          'creme',
+          'BRUL',
+          'cafe',
+          'ecole fran',
+          'zoe',
+          'zoes',
+          'istanbul',
+          'ωmeg',
+          'strasse',
+          'straße',
+          'naive',
+          '日本',
+          'angstrom',
+          'renee 50',
+          'olmuhle',
+          'work trip',
+          'work-trip',
+          'taxes_2026',
+          'facade',
+          'payroll',
+          'amazon len',
+          '#052',
+          "mcdonald's",
+          'mcdonald s',
+          'x1',
+          'x30',
+        };
+        for (final Transaction t in corpus.take(160)) {
+          final List<String> words = t.name.split(' ');
+          final String first = words.first;
+          for (int n = 1; n <= first.length && n <= 4; n++) {
+            queries.add(first.substring(0, n));
+          }
+          queries.add(first.toUpperCase());
+          if (words.length > 1 && words[1].isNotEmpty) {
+            queries.add('${first.toLowerCase()} ${words[1].substring(0, 1)}');
+          }
+        }
+        int nonEmpty = 0;
+        for (final String q in queries) {
+          final List<String> terms = searchTerms(q);
+          final Set<String> expected = {
+            for (final Transaction t in corpus)
+              if (matchesSearch(terms, [
+                t.name,
+                t.merchantName,
+                t.notes,
+                t.tags.join(' '),
+              ]))
+                t.id,
+          };
+          if (expected.isNotEmpty) nonEmpty++;
+          expect(
+            (await ids(TransactionQuery(text: q))).toSet(),
+            expected,
+            reason: q,
+          );
+        }
+        expect(nonEmpty, greaterThan(queries.length ~/ 2));
       });
     });
 

@@ -634,6 +634,12 @@ abstract class AppLocalizations {
   /// **'No matching transactions'**
   String get transactionsNoMatchHeadline;
 
+  /// Headline of the transaction list when the search text, with any filters, matches nothing; text is what the user typed.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches for “{text}”'**
+  String transactionsNoMatchText(String text);
+
   /// Supporting text of the transaction list when the search or filters match nothing.
   ///
   /// In en, this message translates to:

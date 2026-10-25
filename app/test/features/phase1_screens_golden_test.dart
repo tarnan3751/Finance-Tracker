@@ -1,7 +1,8 @@
 // Goldens of the Phase 1 screens, light and dark at phone size, on the demo seed (two USD
 // accounts, twelve transactions, the system categories) dated to the test clock: the
 // account list (with data and empty), an account's detail, the transaction list, the
-// transaction editor, the filter sheet, the category list and the category editor. Tagged
+// transaction editor, the filter sheet, a search matching nothing, the category list and
+// the category editor. Tagged
 // `golden`; see test/flutter_test_config.dart for where the files go and how to update
 // them.
 import 'package:alchemist/alchemist.dart';
@@ -63,6 +64,21 @@ void main() {
       pumpBeforeTest: (tester) async {
         await tester.pumpAndSettle();
         await tester.tap(find.byTooltip('Filters'));
+        await tester.pumpAndSettle();
+      },
+    );
+
+    goldenTest(
+      'a search matching nothing, ${brightness.name}',
+      fileName: 'transactions_no_match_${brightness.name}',
+      constraints: BoxConstraints.tight(phoneSize),
+      builder: () => _app('/transactions', brightness),
+      pumpBeforeTest: (tester) async {
+        await tester.pumpAndSettle();
+        await tester.tap(find.byTooltip('Search'));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField), 'zebra crossing');
+        await tester.pump(const Duration(milliseconds: 250));
         await tester.pumpAndSettle();
       },
     );

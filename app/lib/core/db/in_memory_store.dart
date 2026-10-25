@@ -6,8 +6,8 @@
 /// balance sums the store's transactions, a transaction's currency is checked against its
 /// account's, and an account's delete takes its transactions with it. The rules are the
 /// Drift repositories' rules, and both pass the same contract suites
-/// (`test/contract/`); in particular text matching ignores case for ASCII letters only, as
-/// SQLite's `LIKE` and `NOCASE` do. The operations are synchronous, so the demo seed can be
+/// (`test/contract/`); in particular the search text matches as the full-text index does
+/// (`search_text.dart`), and text order follows SQLite's `BINARY` and `NOCASE`. The operations are synchronous, so the demo seed can be
 /// loaded in a provider; the repositories wrap them in futures and streams.
 library;
 
@@ -24,6 +24,7 @@ import 'package:finance_tracker/features/categories/domain/category_repository.d
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
 import 'package:finance_tracker/features/items/domain/linked_bank.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
+import 'package:finance_tracker/features/transactions/domain/search_text.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
 import 'package:shared_models/shared_models.dart';
@@ -397,11 +398,7 @@ final class InMemoryStore {
   }
 
   List<Transaction> _matching(TransactionQuery q) {
-    final String? text = q.text == null || q.text!.isEmpty
-        ? null
-        : asciiLowerCase(q.text!);
-    bool contains(String? field) =>
-        field != null && asciiLowerCase(field).contains(text!);
+    final List<String> terms = searchTerms(q.text ?? '');
     bool withinBound(Transaction t, Money? bound, bool isMin) {
       if (bound == null) return true;
       if (t.amount.currencyCode != bound.currencyCode) return false;
@@ -434,10 +431,13 @@ final class InMemoryStore {
             ((q.categoryIds.isEmpty && q.categoryPlaidCodes.isEmpty) ||
                 inCategories(t)) &&
             (q.range == null || q.range!.contains(t.date)) &&
-            (text == null ||
-                contains(t.name) ||
-                contains(t.merchantName) ||
-                contains(t.notes)) &&
+            (terms.isEmpty ||
+                matchesSearch(terms, [
+                  t.name,
+                  t.merchantName,
+                  t.notes,
+                  t.tags.join(' '),
+                ])) &&
             (q.pending == null || t.pending == q.pending) &&
             (q.hidden == null || t.hidden == q.hidden) &&
             (q.tags.isEmpty || t.tags.any(q.tags.contains)) &&

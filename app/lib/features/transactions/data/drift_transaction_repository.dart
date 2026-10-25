@@ -6,18 +6,22 @@ import 'package:drift/drift.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/converters.dart';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
+import 'package:finance_tracker/core/db/full_text_search.dart';
 import 'package:finance_tracker/core/db/repository_support.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/core/sync/entity_codec.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
+import 'package:finance_tracker/features/transactions/domain/search_text.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
 import 'package:shared_models/shared_models.dart';
 
 /// Transactions in [AppDatabase]. A query is one SELECT over `transactions` with the
-/// filters as SQL (see [_filter]); the page's tags and splits are loaded after it. Every
+/// filters as SQL (see [_filter]); the page's tags and splits are loaded after it. The
+/// search text goes through the full-text index when the database has one
+/// ([AppDatabase.fullTextSearch]), else through the LIKE fallback. Every
 /// write to a transaction rewrites its row, so watching `transactions` sees tag and split
 /// changes too. Every local write records the transaction through [_recorder] in the
 /// same database transaction; [applyPlaid], the server's, records nothing.
@@ -37,10 +41,17 @@ final class DriftTransactionRepository implements TransactionRepository {
   $TransactionsTable get _transactions => _database.transactions;
 
   @override
-  Stream<List<Transaction>> watch(TransactionQuery query) {
+  Stream<List<Transaction>> watch(TransactionQuery query) =>
+      Stream.fromFuture(_database.fullTextSearch)
+          .asyncExpand((fts) => _watch(query, fts: fts));
+
+  Stream<List<Transaction>> _watch(
+    TransactionQuery query, {
+    required bool fts,
+  }) {
     final SimpleSelectStatement<$TransactionsTable, TransactionRow> select =
         _database.select(_transactions)
-          ..where((t) => _filter(t, query))
+          ..where((t) => _filter(t, query, fts: fts))
           ..orderBy([
             (t) => OrderingTerm.desc(t.date),
             (t) => OrderingTerm.desc(t.createdAt),
@@ -255,7 +266,13 @@ final class DriftTransactionRepository implements TransactionRepository {
     final TypedResult row =
         await (_database.selectOnly(_transactions)
               ..addColumns([count])
-              ..where(_filter(_transactions, query)))
+              ..where(
+                _filter(
+                  _transactions,
+                  query,
+                  fts: await _database.fullTextSearch,
+                ),
+              ))
             .getSingle();
     return row.read(count)!;
   }
@@ -301,8 +318,13 @@ final class DriftTransactionRepository implements TransactionRepository {
         .distinct();
   }
 
-  // The query's filters as one SQL condition (TransactionQuery documents each).
-  Expression<bool> _filter($TransactionsTable t, TransactionQuery q) {
+  // The query's filters as one SQL condition (TransactionQuery documents each); the
+  // text through the full-text index when [fts], else by LIKE.
+  Expression<bool> _filter(
+    $TransactionsTable t,
+    TransactionQuery q, {
+    required bool fts,
+  }) {
     final List<Expression<bool>> conditions = [t.deletedAt.isNull()];
     if (q.accountIds.isNotEmpty) conditions.add(t.accountId.isIn(q.accountIds));
     if (q.categoryIds.isNotEmpty || q.categoryPlaidCodes.isNotEmpty) {
@@ -331,7 +353,10 @@ final class DriftTransactionRepository implements TransactionRepository {
       );
     }
     final String? text = q.text;
-    if (text != null && text.isNotEmpty) {
+    final List<String> terms = searchTerms(text ?? '');
+    if (fts && terms.isNotEmpty) {
+      conditions.add(_FullTextMatch(t.id, terms));
+    } else if (!fts && text != null && text.isNotEmpty) {
       final String pattern = '%${_escapeLike(text)}%';
       conditions.add(
         t.name.like(pattern, escapeChar: r'\') |
@@ -541,6 +566,40 @@ Future<void> writeTransactionRow(
     ]);
   });
 }
+
+/// Whether the transaction [id] matches every one of [terms] in the full-text index:
+/// `id IN (SELECT transaction_id FROM transactions_fts WHERE transactions_fts MATCH ?)`
+/// with each term quoted as an FTS5 string ([_ftsString]), so none of the user's text
+/// reaches the query parser, and marked as a prefix. A term with no token characters
+/// matches nothing (`search_text.dart`), so the condition is then false.
+final class _FullTextMatch extends Expression<bool> {
+  _FullTextMatch(this.id, this.terms);
+
+  final Expression<String> id;
+  final List<String> terms;
+
+  @override
+  void writeInto(GenerationContext context) {
+    if (terms.any((term) => searchTokens(term).isEmpty)) {
+      context.buffer.write('0');
+      return;
+    }
+    id.writeInto(context);
+    context.buffer.write(
+      ' IN (SELECT transaction_id FROM $ftsTable WHERE $ftsTable MATCH ',
+    );
+    Variable<String>(
+      [for (final String term in terms) '"${_ftsString(term)}"*'].join(' '),
+    ).writeInto(context);
+    context.buffer.write(')');
+  }
+}
+
+/// [term] as the inside of an FTS5 string: `"` doubled, and U+0000, which would end the
+/// string early, as a space, which separates tokens as U+0000 does for the tokenizer
+/// (`search_text.dart`).
+String _ftsString(String term) =>
+    term.replaceAll('"', '""').replaceAll('\u0000', ' ');
 
 /// [text] with `\`, `%` and `_` escaped by a backslash, for `LIKE ... ESCAPE '\'`.
 String _escapeLike(String text) =>

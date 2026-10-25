@@ -474,6 +474,15 @@
   "@transactionsNoMatchHeadline": {
     "description": "Headline of the transaction list when the search or filters match nothing."
   },
+  "transactionsNoMatchText": "No matches for “{text}”",
+  "@transactionsNoMatchText": {
+    "description": "Headline of the transaction list when the search text, with any filters, matches nothing; text is what the user typed.",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
   "transactionsNoMatchBody": "Try other words or remove a filter.",
   "@transactionsNoMatchBody": {
     "description": "Supporting text of the transaction list when the search or filters match nothing."

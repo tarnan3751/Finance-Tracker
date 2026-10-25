@@ -17,12 +17,15 @@ import 'package:sync_engine/sync_engine.dart';
 import 'memory_fixtures.dart';
 import 'repository_fixture.dart';
 
-/// The Drift implementation.
-FixtureFactory driftFixtures() {
+/// The Drift implementation; [fullTextSearch] false opens it as a SQLite without FTS5.
+FixtureFactory driftFixtures({bool fullTextSearch = true}) {
   late AppDatabase database;
   return (
     create: () async {
-      database = AppDatabase(NativeDatabase.memory());
+      database = AppDatabase(
+        NativeDatabase.memory(),
+        allowFullTextSearch: fullTextSearch,
+      );
       final SteppingClock clock = SteppingClock();
       final DriftSyncStore syncStore = DriftSyncStore(database, clock);
       final HlcClock hlc = HlcClock('device-a');

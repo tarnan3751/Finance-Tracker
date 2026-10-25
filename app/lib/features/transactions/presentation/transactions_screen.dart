@@ -1,5 +1,7 @@
 /// The Transactions tab: every account's transactions, newest first, under date headers,
-/// loaded fifty at a time as the list scrolls. Search from the app bar; filter by account,
+/// loaded fifty at a time as the list scrolls. Search from the app bar (words and their
+/// prefixes in the name, merchant, notes and tags, applied 250 ms after the last
+/// keystroke; "No matches" names the text); filter by account,
 /// category, date range, amount and tag, and show hidden transactions, in a bottom sheet,
 /// the active filters shown as removable chips; tap a row to open it; "Add transaction".
 /// Long-press a row to select it: the app bar then counts the selection and edits it in
@@ -7,6 +9,8 @@
 /// each action one recorded batch with a snack bar of the count. Outside selection, the
 /// menu opens the duplicate review, its badge counting the likely duplicate pairs.
 library;
+
+import 'dart:async';
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/router/routes.dart';
@@ -30,6 +34,9 @@ import 'package:shared_models/shared_models.dart';
 
 /// The list of transactions.
 class TransactionsScreen extends ConsumerStatefulWidget {
+  /// How long the search waits after a keystroke before it queries.
+  static const Duration searchDebounce = Duration(milliseconds: 250);
+
   const TransactionsScreen({super.key});
 
   @override
@@ -40,11 +47,15 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   final TextEditingController _search = TextEditingController();
   bool _searching = false;
 
+  // The search text waiting for [TransactionsScreen.searchDebounce] to pass.
+  Timer? _searchDebounce;
+
   // The selected transactions' ids in selection mode; null outside it.
   Set<String>? _selection;
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _search.dispose();
     super.dispose();
   }
@@ -52,7 +63,16 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   TransactionListController get _controller =>
       ref.read(transactionListControllerProvider.notifier);
 
+  void _onSearchChanged(String text) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(
+      TransactionsScreen.searchDebounce,
+      () => _controller.setText(text),
+    );
+  }
+
   void _closeSearch() {
+    _searchDebounce?.cancel();
     _search.clear();
     _controller.setText('');
     setState(() => _searching = false);
@@ -270,7 +290,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                           hintText: l10n.transactionsSearchHint,
                           border: InputBorder.none,
                         ),
-                        onChanged: _controller.setText,
+                        onChanged: _onSearchChanged,
                       )
                     : Text(l10n.navTransactions),
                 actions: [
@@ -331,7 +351,9 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                 null => const Center(child: CircularProgressIndicator()),
                 [] when filtered => EmptyState(
                   icon: Icons.search_off,
-                  headline: l10n.transactionsNoMatchHeadline,
+                  headline: filters.text.trim().isEmpty
+                      ? l10n.transactionsNoMatchHeadline
+                      : l10n.transactionsNoMatchText(filters.text.trim()),
                   body: l10n.transactionsNoMatchBody,
                 ),
                 [] => EmptyState(

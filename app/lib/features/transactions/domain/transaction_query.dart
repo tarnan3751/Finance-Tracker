@@ -13,15 +13,19 @@ import 'package:shared_models/shared_models.dart';
 ///   `plaidCategory` is one of [categoryPlaidCodes]: its detailed code when a live
 ///   category has that code, else its primary code;
 /// - [range]: dated within the half-open range;
-/// - [text]: containing [text] in the name, the merchant name or the notes, ignoring
-///   case for ASCII letters only (SQLite's `LIKE`; `%`, `_` and `\` match themselves);
+/// - [text]: every whitespace-separated term of [text] found in the name, the merchant
+///   name, the notes or the tags, as words in a row with the last one a prefix, ignoring
+///   case and Latin diacritics (the full-text index, `search_text.dart`); a term with no
+///   letter or digit matches nothing. Only on a SQLite without FTS5, the Drift
+///   repository falls back to [text] as one substring of the name, merchant name or
+///   notes, ignoring case for ASCII letters only (`LIKE`);
 /// - [pending]: pending or posted;
 /// - [hidden]: hidden by the user or not (null: both; the list's default is false);
 /// - [tags]: carrying at least one of these tags;
 /// - [minAmount], [maxAmount]: whose absolute amount is at least or at most the bound,
 ///   among transactions in the bound's currency (the others do not match).
 ///
-/// An empty set, a null or an empty [text] means no filter. [limit] (all when null) and
+/// An empty set, a null, or a [text] with no term (empty or whitespace) means no filter. [limit] (all when null) and
 /// [offset] page the result.
 final class TransactionQuery {
   /// A query. A negative [limit] or [offset], or bounds in two currencies, is an

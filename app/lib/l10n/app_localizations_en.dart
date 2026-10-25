@@ -338,6 +338,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transactionsNoMatchHeadline => 'No matching transactions';
 
   @override
+  String transactionsNoMatchText(String text) {
+    return 'No matches for “$text”';
+  }
+
+  @override
   String get transactionsNoMatchBody => 'Try other words or remove a filter.';
 
   @override

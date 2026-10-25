@@ -143,7 +143,36 @@ void main() {
     expect(inflow.style!.color, const Color(0xFF1B6C2A));
   });
 
-  testWidgets('search matches the description, merchant and notes', (
+  testWidgets('search matches word prefixes, after the debounce', (
+    tester,
+  ) async {
+    await _pumpList(tester, seededStore());
+
+    await tester.tap(find.byTooltip('Search'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'acme pay');
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.text('Rent'), findsWidgets, reason: 'not yet: 250 ms');
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Acme Corp Payroll'), findsNWidgets(2));
+    expect(find.text('Rent'), findsNothing);
+  });
+
+  testWidgets('a search matching nothing names its text', (tester) async {
+    await _pumpList(tester, seededStore());
+
+    await tester.tap(find.byTooltip('Search'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'nothing like this');
+    await tester.pump(TransactionsScreen.searchDebounce);
+    await tester.pumpAndSettle();
+    expect(find.text('No matches for “nothing like this”'), findsOneWidget);
+    expect(find.text('Try other words or remove a filter.'), findsOneWidget);
+  });
+
+  testWidgets('Close clears the search at once, a pending one included', (
     tester,
   ) async {
     await _pumpList(tester, seededStore());
@@ -151,18 +180,18 @@ void main() {
     await tester.tap(find.byTooltip('Search'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'payroll');
+    await tester.pump(TransactionsScreen.searchDebounce);
     await tester.pumpAndSettle();
-
-    expect(find.text('Acme Corp Payroll'), findsNWidgets(2));
     expect(find.text('Rent'), findsNothing);
 
-    await tester.enterText(find.byType(TextField), 'nothing like this');
-    await tester.pumpAndSettle();
-    expect(find.text('No matching transactions'), findsOneWidget);
-
+    await tester.enterText(find.byType(TextField), 'rent');
     await tester.tap(find.byTooltip('Close search'));
     await tester.pumpAndSettle();
     expect(find.text('Rent'), findsWidgets);
+    expect(find.text('Acme Corp Payroll'), findsWidgets);
+    await tester.pump(TransactionsScreen.searchDebounce);
+    await tester.pumpAndSettle();
+    expect(find.text('Acme Corp Payroll'), findsWidgets, reason: 'cancelled');
   });
 
   testWidgets('the account filter, and its chip removes it', (tester) async {
