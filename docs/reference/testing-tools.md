@@ -167,7 +167,7 @@ loudly otherwise.
 
 | Command | What it does |
 |---|---|
-| `integration [-- <args>]` | The default. Boots `ft-lane`, then runs `flutter test integration_test --flavor demo -d <serial>` from `app/`, passing any extra arguments through; the tests run against the in-app fakes. |
+| `integration [-- <args>]` | The default. Boots `ft-lane`, uninstalls the demo app a previous run left (below), then runs `flutter test integration_test --flavor demo -d <serial>` from `app/`, passing any extra arguments through; the tests run against the in-app fakes. |
 | `demo [<screenshot>]` | Boots, builds the demo debug APK, installs it with `adb install -r`, launches the launcher activity of `dev.tarnan.financetracker.demo`, waits (up to 60 s) for it to take window focus plus a short settle for the first frame, and saves a screenshot, by default `app/build/emulator/demo.png`; prints the path. |
 | `run <command...>` | Boots, then runs the command with `FT_EMULATOR_SERIAL` set to the emulator's serial: anything else against the AVD goes through this. |
 | `stop [--force]` | Shuts down the `ft-lane` emulator and removes a stale lock. Refuses while a live run holds the lock, unless `--force`: then it prints the holder, kills the emulator and removes the lock whoever holds it. |
@@ -248,6 +248,12 @@ image under the SDK on first use, the lock directory (with its short-lived `.new
 `.stale.*` siblings), and `app/build/`: the APKs, the emulator, `sdkmanager` and
 `avdmanager` logs and the screenshot under `app/build/emulator/`. Installs go onto `ft-lane`
 only.
+
+**The uninstall before the tests.** `integration` removes `dev.tarnan.financetracker.demo`
+when it is installed, so Flutter's install starts clean. The emulator has answered `adb
+uninstall` with `DELETE_FAILED_INTERNAL_ERROR` before the tests; then the harness clears the
+app's data with `pm clear`, tries once more, and when that fails too says so and goes on,
+since Flutter installs with `adb install -r`, which replaces the package.
 
 **Integration tests** live in `app/integration_test/` and use
 `IntegrationTestWidgetsFlutterBinding`; the `--flavor demo` build supplies the demo

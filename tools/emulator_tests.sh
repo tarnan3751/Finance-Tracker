@@ -2,9 +2,10 @@
 # The emulator harness: runs the app on the harness's own headless Android Virtual Device,
 # `ft-lane`, under a machine-wide lock, so only one emulator run happens on the machine at a
 # time (CLAUDE.md, **Seeing the app**, **Lanes**). Commands:
-#   integration [-- <flutter test args>]   (the default) boot, then `flutter test
-#                         integration_test --flavor demo -d <serial>` from app/; the in-app
-#                         fakes only, never the dev server or Plaid Sandbox
+#   integration [-- <flutter test args>]   (the default) boot, uninstall the demo app a
+#                         previous run left, then `flutter test integration_test --flavor demo
+#                         -d <serial>` from app/; the in-app fakes only, never the dev server
+#                         or Plaid Sandbox
 #   demo [<screenshot>]   boot, build and install the demo flavor's debug APK, launch it, wait
 #                         for its activity to take focus, and save a screenshot (default
 #                         app/build/emulator/demo.png); prints the path
@@ -448,9 +449,27 @@ flutter_in_app() {
   cd app && $FLUTTER "$@"
 }
 
+# Removes the demo app a previous run left, so flutter's install starts clean. An emulator has
+# answered DELETE_FAILED_INTERNAL_ERROR before the tests; then the app's data is cleared and
+# the uninstall tried once more, and when that fails too the run goes on, since flutter's
+# `adb install -r` replaces the package.
+uninstall_demo() {
+  local result
+  "$ADB" -s "$SERIAL" shell pm list packages "$DEMO_PACKAGE" | tr -d '\r' | grep -qx "package:$DEMO_PACKAGE" || return 0
+  result="$("$ADB" -s "$SERIAL" uninstall "$DEMO_PACKAGE" 2>&1 | tr -d '\r')"
+  printf '%s\n' "$result" | grep -q '^Success' && return 0
+  say "uninstalling $DEMO_PACKAGE failed ($result); clearing its data and trying once more"
+  "$ADB" -s "$SERIAL" shell pm clear "$DEMO_PACKAGE" >/dev/null 2>&1
+  result="$("$ADB" -s "$SERIAL" uninstall "$DEMO_PACKAGE" 2>&1 | tr -d '\r')"
+  printf '%s\n' "$result" | grep -q '^Success' && return 0
+  say "uninstalling $DEMO_PACKAGE failed again ($result); going on: the install replaces the package"
+}
+
 cmd_integration() {
   [ "${1:-}" = "--" ] && shift
   boot
+  assert_ours "$SERIAL"
+  uninstall_demo
   say "running the integration tests on $SERIAL"
   run_child flutter_in_app test integration_test --flavor demo -d "$SERIAL" "$@"
   local status=$?
