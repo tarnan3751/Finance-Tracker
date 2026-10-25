@@ -1,8 +1,9 @@
-# CI: the gate on every push and pull request, then the demo debug APK as an artifact and
-# the prod release build as the R8 and obfuscation canary, and the contract job: the
-# OpenAPI document validated by openapi-generator itself and the committed client proved
-# current by regenerating it. The Flutter version comes from .fvmrc, so CI runs the same
-# SDK as every lane. The signed release-on-tag workflow is Phase 9.
+# CI: the gate on every push and pull request (a failing golden's images uploaded as an
+# artifact), then the demo debug APK as an artifact and the prod release build as the R8
+# and obfuscation canary, and the contract job: the OpenAPI document validated by
+# openapi-generator itself and the committed client proved current by regenerating it.
+# The Flutter version comes from .fvmrc, so CI runs the same SDK as every lane. The
+# signed release-on-tag workflow is Phase 9.
 name: CI
 
 on:
@@ -30,6 +31,15 @@ jobs:
           channel: stable
           cache: true
       - run: tools/gates.sh
+      # Alchemist writes the master, test and diff images of a failing golden under the
+      # test's failures/ folder: kept so a platform difference can be seen, not guessed.
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: golden-failures
+          path: app/test/**/failures/**
+          if-no-files-found: ignore
+          retention-days: 14
 
   apk:
     needs: gate
