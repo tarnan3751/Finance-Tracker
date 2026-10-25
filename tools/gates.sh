@@ -172,8 +172,10 @@ for p in "${packages[@]}"; do
     bad=$((bad + 1))
     {
       echo "== $p FAILED"
-      grep -E '\[E\]|^Failing tests:|^  /|Expected:|Actual:|TimeoutException' \
-        "$scratch/tests-one.txt" | tail -60
+      # The compact reporter marks a failure "[E]"; the GitHub reporter CI gets with
+      # GITHUB_ACTIONS set marks it with a cross and "::error" lines.
+      { grep -E '\[E\]|^Failing tests:|^  /|Expected:|Actual:|TimeoutException|❌|::error' \
+        "$scratch/tests-one.txt" || true; } | tail -60
       echo "-- last 40 lines"
       tail -40 "$scratch/tests-one.txt"
     } >>"$scratch/tests-bad.txt"
