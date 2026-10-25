@@ -7,7 +7,8 @@ transaction editor, which is also a transaction's detail. Code:
 repository and
 `TransactionQuery` are `data.md`'s). Tests:
 `app/test/features/transactions/`, `app/test/flows/`, and on a device
-`app/integration_test/transactions_bulk_test.dart` (the harness).
+`app/integration_test/transactions_bulk_test.dart` and `transactions_search_test.dart` (the
+harness).
 
 ## The list
 
@@ -30,7 +31,17 @@ labelled, since they count toward the balance.
   fill every page asked for, so the many scroll events before the next page arrives ask
   for one page. A change of filters goes back to the first page. A widget test
   checks that with 2,000 transactions only the rows on screen are built.
-- **Search.** The app bar's search field sets `TransactionFilters.text`.
+- **Search.** The app bar's search field sets `TransactionFilters.text` 250 ms after the
+  last keystroke (`TransactionsScreen.searchDebounce`); Close clears it at once, a
+  pending keystroke included, and closes the field. The text is split into terms on
+  whitespace, and each term must be found as words in a row, the last one a prefix, in
+  the name, the merchant name, the notes or the tags, ignoring case and Latin diacritics:
+  `cafe` finds "Café Crème", `acme pay` "Acme Corp Payroll", `o'bri` "O'Brien's", and
+  `uber work` an Uber ride tagged `work`. Punctuation separates words and is never an
+  operator (`NEAR`, `OR`, `-x` and `"` are plain text); a term with no letter or digit
+  matches nothing. The order stays the list's date order. How the index does it, and the
+  LIKE fallback on a SQLite without FTS5, are `data.md`'s **Full-text search**. A search
+  that finds nothing says "No matches for “text”".
 - **Filters** (`transaction_filter_sheet.dart`, a bottom sheet). Accounts, categories
   (through the category picker; a top-level category takes the categories under it along,
   the query's category set being expanded with their ids, and every category included
@@ -50,6 +61,31 @@ labelled, since they count toward the balance.
 `TransactionFilters` and `DateFilter` are in `application/transaction_filters.dart`;
 `toQuery(today, limit:)` makes the `TransactionQuery`, with `hidden: false` unless
 `showHidden`.
+
+## Saved filters
+
+The filter sheet's "Save these filters" (enabled when the sheet or the search holds
+something and nothing in it is invalid) asks for a name, trimmed and not empty (duplicates
+are allowed), and saves what the sheet holds with the list's search text, after the other
+saved filters; the sheet stays open. Its "Saved" section, first in the sheet, lists them:
+a tap applies one, its search text filling the search field, and closes the sheet; the
+menu ("Options for …") renames one or deletes it after a confirmation. The list leads its
+chips with the name of the saved filter its filters equal (`appliedSavedFilterProvider`:
+the first in order, derived, so a rename shows at once and any change of the filters
+drops it); that chip clears the search and every filter.
+
+A saved filter holds `TransactionFilters.toJson`: only what is set, ids and tags sorted, a
+date preset by name (`this_month`, `last_month`, `last_90_days`, `this_year`; resolved
+only when a query is built, so "This month" stays this month), a custom range as ISO
+`start` and exclusive `end`, amounts as `Money`'s JSON, `show_hidden`. `fromJson` ignores
+keys it does not know and refuses a known key of the wrong shape (`FormatException`);
+`savedFiltersProvider` decodes each once and leaves out, logging only the exception's
+type, one that does not decode, so it can never take the list or the sheet down.
+Saved filters are kept on the device only in Phase 4 (`PLAN.md` §12): the
+`SavedFilterRepository` (`domain/saved_filter_repository.dart`, `data.md`) holds the JSON
+opaquely in `saved_filters`; nothing is synced or recorded. The demo flavor starts with
+two (`data/demo_saved_filters.dart`): "Food and drink this month" and "Over $100, last 90
+days".
 
 ## Hiding
 

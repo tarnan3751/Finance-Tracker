@@ -5,13 +5,14 @@ and the one-time import of the original app's data. Code: `app/lib/core/db/` (sc
 path, key store, in-memory store, demo seed, importer) and each feature's `domain/`
 (interfaces) and `data/` (implementations): `features/accounts/`, `features/transactions/`,
 `features/categories/`, `features/rules/`, `features/budgets/`, `features/settings/`, `features/items/`. Tests: `app/test/contract/` (the contract
-suites), `app/test/core/db/`, `app/test/drift/`, `app/integration_test/encrypted_database_test.dart`.
+suites), `app/test/core/db/`, `app/test/drift/`, `app/integration_test/encrypted_database_test.dart`,
+`app/integration_test/transactions_search_test.dart`.
 The entities and `Money` are `shared_models` (`core.md`); the providers and startup are
 `app-core.md`.
 
 ## The database
 
-Drift on SQLite, at schema version 7 (`core/db/app_database.dart`; one file per table under
+Drift on SQLite, at schema version 8 (`core/db/app_database.dart`; one file per table under
 `core/db/tables/`). `app_database.dart` and the tables import no Flutter, so `drift_dev`
 can run them in the Dart VM to dump the schema.
 
@@ -23,7 +24,7 @@ can run them in the Dart VM to dump the schema.
 | `transaction_splits` | A transaction's splits, `(transaction_id, position)` primary key, in list order |
 | `categories` | The system categories and the user's |
 | `app_settings` | The app preferences: `key` is the field name, `value` its JSON |
-| `app_meta` | Facts about the install: `legacy_import_done`, `install_date` |
+| `app_meta` | Facts about the install: `legacy_import_done`, `install_date`, `fts_definition` (**Full-text search**) |
 | `change_log` | The sync outbox (schema 2): one row per local change-log entry (`sync-app.md`) |
 | `record_clocks` | The sync clock of each field of each synced entity, `_create` holding its create's (schema 2) |
 | `sync_meta` | The device's sync state: `pull_cursor`, `last_clock`, `device_id`, `last_sync_at`, `last_report` (schema 2); the Plaid pull's `plaid_transactions_since`, `plaid_accounts_pulled_at`, `plaid_items_pulled_at`, `plaid_pulled_at` (`sync-app.md`) |
@@ -33,6 +34,10 @@ can run them in the Dart VM to dump the schema.
 | `budgets` | The user's budgets (schema 5, `budgets.md`): `category_id`, `period`, `period_start_day`, `amount_minor` in `currency`, `rollover`, `start_date` |
 | `budget_alerts` | The budget alerts this device has raised, never synced (schema 5, `budgets.md`): `(budget_id, period_start, threshold_bp)` primary key, `raised_at` |
 | `dismissed_pairs` | The duplicate pairs the user marked as not duplicates (schema 7, `duplicates.md`): `id_a` and `id_b`, two transaction ids in `BINARY` order (a CHECK), the primary key, and `dismissed_at`; local to the device, never recorded or synced, no foreign key |
+| `saved_filters` | The transaction list's saved filters (schema 8, `transactions.md`): `name`, `query_json` (`TransactionFilters.toJson`), `position`, `created_at`, `updated_at`; on this device only, never synced or recorded |
+
+The full-text index (**Full-text search** below) adds a view, two tables and five triggers
+that are not part of the Drift schema.
 
 How values are stored (`core/db/converters.dart`):
 
@@ -69,8 +74,73 @@ Phase 2's sync may apply a transaction before its account, so the repositories c
 the account exists. Indexes: `transactions(account_id, date)`,
 `transactions(user_category_id)`, `transactions(pending_transaction_id)`,
 `transaction_tags(tag)`, `categories(parent_id)`, `rules(position)`,
-`budgets(category_id)`. Full-text search arrives in Phase 4 as a
-migration.
+`budgets(category_id)`, `saved_filters(position)`.
+
+## Full-text search
+
+`core/db/full_text_search.dart`. `TransactionQuery.text` is matched through an FTS5 index
+of each transaction's name, merchant name, notes and tags, when the bundled SQLite has
+FTS5, which the `sqlite3` package's SQLite3 Multiple Ciphers build has on the host and on
+Android (checked on the harness AVD by `transactions_search_test.dart`).
+
+- **The objects.** `transactions_fts_source`, a view of each transaction's `id`, `name`,
+  `merchant_name`, `notes` and its tags joined by spaces in list order
+  (`group_concat(tag, ' ' ORDER BY position)`); `transactions_fts_keys(fts_rowid INTEGER
+  PRIMARY KEY, transaction_id TEXT NOT NULL UNIQUE)`, each transaction's FTS rowid;
+  `transactions_fts`, a standalone FTS5 table (not external content) of the four text
+  columns and `transaction_id UNINDEXED`, tokenized `unicode61 remove_diacritics 2`, each
+  row at its key's rowid. The index is keyed by the transaction's id through an explicit
+  INTEGER PRIMARY KEY, never by the implicit rowid of `transactions`, so `VACUUM`, which
+  may renumber implicit rowids, leaves it intact. Soft-deleted rows stay indexed; the
+  query filters them as every query does.
+- **The triggers**, all AFTER and by id: on `transactions`, insert (adds the key with
+  `ON CONFLICT DO NOTHING`, then the row from the view), update of `name`,
+  `merchant_name` or `notes`, and delete (removes the FTS row, then the key); on
+  `transaction_tags`, insert and delete. Each but the insert deletes the transaction's FTS
+  row through its key and inserts it again from the view. A write that rewrites a row's
+  tags runs the tag triggers once per tag.
+- **At open.** `beforeOpen` checks `sqlite_compileoption_used('ENABLE_FTS5')` and records
+  the answer as `AppDatabase.fullTextSearch` (a future, completed at open; it opens the
+  database when asked first). With FTS5, `ensureFullTextSearch` creates whatever is
+  missing, after dropping the rest, and rebuilds the index (clears the key table and the
+  index, refills both from the view) in one transaction: a new database, one upgraded
+  from schema 7 with its rows, and one last opened without FTS5 all end up with a full
+  index. It does the same when `app_meta.fts_definition` is not `ftsDefinitionVersion`:
+  **to change the definition** (a column, a tokenizer option, a trigger), change the
+  statements and bump `ftsDefinitionVersion`, and every database built with the old one
+  is rebuilt with the new one at its next open. Without FTS5 it drops the triggers a build with FTS5 left, logs it once, and
+  leaves the table inert, since writes would otherwise fail with "no such module: fts5";
+  the Drift repository then falls back to the LIKE match (**`TransactionQuery`**).
+  `AppDatabase(allowFullTextSearch: false)` takes that path in tests.
+- **The query.** `transactions.id IN (SELECT transaction_id FROM transactions_fts WHERE
+  transactions_fts MATCH ?)`, the MATCH string bound: each whitespace-separated term
+  quoted as an FTS5 string (`"` doubled, U+0000, which would end the string, as a space,
+  a separator either way) and marked as a prefix (`"term"*`), the terms
+  ANDed. No user text reaches the FTS5 query parser, so `NEAR`, `OR`, `-`, `(`, `*` and
+  column filters are words or separators like any other. A term with no token character
+  makes the condition false. Order stays the list's (`date DESC, ...`); there is no
+  relevance ranking.
+- **Not in the Drift schema.** The objects are made with SQL because they are
+  conditional, so the schema dumps do not describe them. `migration_test.dart` pins them:
+  after a schema 7 upgrade and on a new database, `sqlite_master` holds exactly the
+  statements in `ftsCreateStatements`, and the index finds the upgraded rows.
+  `test/helpers/fts_oracle.dart` (`expectIndexMatchesView`) compares the view, the key
+  table and the index both ways, every column, plus FTS5's `integrity-check`;
+  `test/core/db/full_text_search_test.dart` runs it after every write path (edits, tags,
+  batches, deletes and restores, the account cascade, the Plaid apply path, a merged sync
+  record, a row removed outright, `VACUUM`) and prints which path the host took
+  (`full-text search: FTS5 (SQLite x.y.z)`), failing when it is not FTS5.
+
+**In memory** the same matching runs in Dart (`features/transactions/domain/search_text.dart`):
+a term is a phrase of its tokens, the last a prefix, within one field (the tags joined by
+spaces). The tokenizer's table, `unicode61_table.dart` (the separator ranges and the
+folds), is generated from the bundled SQLite's own tokenizer by
+`dart run tool/generate_unicode61_table.dart` (in `app/`), so case and diacritics fold
+exactly as FTS5 folds them (Latin diacritics only: Greek tonos, `ß` and ligatures stay).
+`search_text_test.dart` compares the two on every code point; when the sqlite3 package
+brings a SQLite whose tokenizer differs, that test fails, and rerunning the generator is
+the fix. The transaction contract suite checks the Drift implementation against the Dart
+reference over the Plaid Sandbox names with accented and non-Latin text.
 
 ## Encryption and the key
 
@@ -149,6 +219,7 @@ and exposes streams that start with the current value and emit again only when i
 | `ItemRepository` | `watchAll()` (by institution name ignoring ASCII case, then id), `watchById`, `applyPlaid(items, pulledAt:)`, `applyPlaidItem`, `saveLogo`, `markLoginRequired` |
 | `RuleRepository` | `watchAll()` (by `position`, then id), `upsert`, `delete`, `restore`, `reorder(ids)` (`rules.md`) |
 | `BudgetRepository` | `watchAll()` (by `categoryId`, then id), `watchById`, `upsert`, `delete`, `restore` (`budgets.md`) |
+| `SavedFilterRepository` | `watchAll()` (by `position`, then id), `save(name, filters)` (appended), `rename`, `delete` (final: the table is local, nothing is recorded); a blank name is an `ArgumentError` (`transactions.md`) |
 | `SettingsRepository` | `watch()`, `read()`, `save()` |
 
 The rules every implementation keeps:
@@ -261,15 +332,14 @@ an empty `text` means no filter:
 | `accountIds` | on one of the accounts | `account_id IN (...)` |
 | `categoryIds`, `categoryPlaidCodes` | the user category, or a split's category, is one of `categoryIds`; or, with no live user category, the Plaid code that resolves (the detailed code when a live category has it, else the primary) is one of `categoryPlaidCodes` (the effective category, `transactions.md`) | `user_category_id IN (...) OR EXISTS (split ...) OR (no live user category AND the resolving code IN (...))`, the live categories read by `EXISTS` over `categories` |
 | `range` | dated in the half-open range | `date >= start AND date < end` |
-| `text` | in `name`, `merchant_name` or `notes`, ASCII letters case-insensitive | `LIKE '%text%' ESCAPE '\'`, with `\`, `%`, `_` escaped |
+| `text` | every whitespace-separated term as words in a row, the last a prefix, in the name, merchant name, notes or tags, case and Latin diacritics folded (**Full-text search**); a term with no letter or digit matches nothing, and text with no term is no filter. Without FTS5 (Drift only): the whole text as a substring of the name, merchant name or notes, ASCII letters case-insensitive | `id IN (SELECT transaction_id FROM transactions_fts WHERE transactions_fts MATCH ?)`; the fallback `LIKE '%text%' ESCAPE '\'`, with `\`, `%`, `_` escaped |
 | `pending` | pending or posted | `pending = ?` |
 | `hidden` | hidden by the user or not; null (the default) matches both, and the list asks for `false` unless "Show hidden" is on | `hidden = ?` |
 | `tags` | carries any of the tags | `EXISTS (tag IN (...))` |
 | `minAmount`, `maxAmount` | absolute amount within the bound, among transactions in the bound's currency | `currency = ? AND abs(amount_minor) >= ?` |
 | `limit`, `offset` | paging; an offset alone is `LIMIT -1 OFFSET n` | |
 
-The order is `date DESC, created_at DESC, id DESC`. `count` ignores paging. Text matching
-folds only A to Z, as SQLite's `LIKE` and `NOCASE` do: `é` and `É` differ. Text order is
+The order is `date DESC, created_at DESC, id DESC`. `count` ignores paging. Text order is
 SQLite's: `BINARY` compares UTF-8 bytes and `NOCASE` folds A to Z first, which the
 in-memory implementation reproduces (`compareBinary`, `compareNoCase`); Dart's own
 `compareTo` compares UTF-16 code units and orders characters above U+FFFF differently. The page's tags
@@ -319,7 +389,9 @@ The contract suites are in `app/test/contract/`, one file per repository:
 (the account and transaction suites' `applyPlaid` groups check the kept fields, the
 tombstones, the order of new accounts, the server's `source` and that nothing is
 recorded);
-`runSettingsRepositoryContract` takes a factory of the repository. Fixtures:
+`runSettingsRepositoryContract` and `runSavedFilterRepositoryContract` take a factory of the
+repository (saved filters have two implementations, Drift and in memory, the demo flavor
+using the in-memory one with its two samples). Fixtures:
 `memory_fixtures.dart` (in memory, and demo with an empty seed) and `drift_fixtures.dart`
 (an in-memory `AppDatabase`), both with a `SteppingClock` that moves a millisecond per read
 so two deletes never share an instant. Each implementation has a test file under
@@ -398,6 +470,15 @@ package id changed (`PLAN.md` §12), it only serves an install that shares the o
 app's data directory.
 
 ## Changing the schema
+
+**Schema 8** adds `saved_filters`; its step creates the empty table and its index, the
+index only when `sqlite_master` lacks it: the version is written after `beforeOpen`,
+whose index rebuild a kill can interrupt, so the step must run again at version 7. The
+full-text index is not a step: `beforeOpen` builds it at every open where it is missing
+(**Full-text search**). `migration_test.dart` opens a schema 7 database with manual and
+Plaid rows and tags, and checks the empty table, the index over the old rows, the objects
+equal to a new database's, the fallback leaving them out, and the step running again
+over a run whose version was not written.
 
 **Schema 7** adds `dismissed_pairs`; its step creates the empty table (`IF NOT EXISTS`, so a
 run repeated at schema 6 keeps it and its rows), and `migration_test.dart` opens a schema 6
