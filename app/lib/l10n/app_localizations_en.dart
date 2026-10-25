@@ -131,6 +131,51 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String runningBalanceFromReported(String amount) {
+    return 'Running balance $amount, from the reported balance';
+  }
+
+  @override
+  String get balanceReported => 'reported';
+
+  @override
+  String balanceReportedBy(String institution) {
+    return 'reported by $institution';
+  }
+
+  @override
+  String get balanceReportedByBank => 'reported by your bank';
+
+  @override
+  String balanceAsOf(String time) {
+    return 'as of $time';
+  }
+
+  @override
+  String get balanceReportedAndFromTransactions =>
+      'reported and from transactions';
+
+  @override
+  String accountAvailableBalance(String amount) {
+    return 'Available $amount';
+  }
+
+  @override
+  String accountCreditLimit(String amount) {
+    return 'Credit limit $amount';
+  }
+
+  @override
+  String accountMask(String mask) {
+    return '•••• $mask';
+  }
+
+  @override
+  String accountMaskSemantics(String mask) {
+    return 'ending in $mask';
+  }
+
+  @override
   String get uncategorized => 'Uncategorized';
 
   @override

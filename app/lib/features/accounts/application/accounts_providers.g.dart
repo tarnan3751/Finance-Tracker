@@ -153,6 +153,55 @@ final class DerivedBalancesProvider
 
 String _$derivedBalancesHash() => r'4ceda084ddfeed5f6280ab5fe634fb364c56924e';
 
+/// The stored linked banks by Item id, unlinked ones included, for the accounts that
+/// name their institution.
+
+@ProviderFor(linkedBanksById)
+final linkedBanksByIdProvider = LinkedBanksByIdProvider._();
+
+/// The stored linked banks by Item id, unlinked ones included, for the accounts that
+/// name their institution.
+
+final class LinkedBanksByIdProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Map<String, LinkedBank>>,
+          Map<String, LinkedBank>,
+          Stream<Map<String, LinkedBank>>
+        >
+    with
+        $FutureModifier<Map<String, LinkedBank>>,
+        $StreamProvider<Map<String, LinkedBank>> {
+  /// The stored linked banks by Item id, unlinked ones included, for the accounts that
+  /// name their institution.
+  LinkedBanksByIdProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'linkedBanksByIdProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$linkedBanksByIdHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<Map<String, LinkedBank>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<Map<String, LinkedBank>> create(Ref ref) {
+    return linkedBanksById(ref);
+  }
+}
+
+String _$linkedBanksByIdHash() => r'aadd5f14b6c74c5fa30398e64c698b9f431bf001';
+
 /// The live account [id], or null when it does not exist or is deleted.
 
 @ProviderFor(account)
@@ -233,13 +282,15 @@ final class AccountFamily extends $Family
 }
 
 /// Account [accountId]'s live transactions, newest first, each with the running balance
-/// after it, derived from the transactions before it.
+/// after it: anchored to the account's [reportedBalance] when it has one, else derived
+/// from the transactions before it ([withRunningBalances]).
 
 @ProviderFor(accountLedger)
 final accountLedgerProvider = AccountLedgerFamily._();
 
 /// Account [accountId]'s live transactions, newest first, each with the running balance
-/// after it, derived from the transactions before it.
+/// after it: anchored to the account's [reportedBalance] when it has one, else derived
+/// from the transactions before it ([withRunningBalances]).
 
 final class AccountLedgerProvider
     extends
@@ -252,7 +303,8 @@ final class AccountLedgerProvider
         $FutureModifier<List<LedgerEntry>>,
         $StreamProvider<List<LedgerEntry>> {
   /// Account [accountId]'s live transactions, newest first, each with the running balance
-  /// after it, derived from the transactions before it.
+  /// after it: anchored to the account's [reportedBalance] when it has one, else derived
+  /// from the transactions before it ([withRunningBalances]).
   AccountLedgerProvider._({
     required AccountLedgerFamily super.from,
     required String super.argument,
@@ -297,10 +349,11 @@ final class AccountLedgerProvider
   }
 }
 
-String _$accountLedgerHash() => r'36515e9585d10b148b793c8a82dbe038409d0875';
+String _$accountLedgerHash() => r'957d87cfbaf56831e7967a55af5a66522484fd9c';
 
 /// Account [accountId]'s live transactions, newest first, each with the running balance
-/// after it, derived from the transactions before it.
+/// after it: anchored to the account's [reportedBalance] when it has one, else derived
+/// from the transactions before it ([withRunningBalances]).
 
 final class AccountLedgerFamily extends $Family
     with $FunctionalFamilyOverride<Stream<List<LedgerEntry>>, String> {
@@ -314,7 +367,8 @@ final class AccountLedgerFamily extends $Family
       );
 
   /// Account [accountId]'s live transactions, newest first, each with the running balance
-  /// after it, derived from the transactions before it.
+  /// after it: anchored to the account's [reportedBalance] when it has one, else derived
+  /// from the transactions before it ([withRunningBalances]).
 
   AccountLedgerProvider call(String accountId) =>
       AccountLedgerProvider._(argument: accountId, from: this);

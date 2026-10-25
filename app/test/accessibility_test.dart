@@ -1,11 +1,12 @@
 // The accessibility baseline for every screen, in light and dark: tap targets are large
 // enough and labelled, text has enough contrast, and nothing overflows at twice the text
 // size. The shell's tabs and the linked banks are checked empty; every screen is also
-// checked on the demo seed (two accounts, twelve transactions, the system categories, the
-// three test banks and two rules), and the filter sheet, the category picker and the
-// transaction editor's menu open over their screens. The sign-in and registration
-// screens are checked signed out; their text scale is checked with their errors showing,
-// in test/features/auth/auth_screens_test.dart.
+// checked on the demo seed (two accounts, twelve transactions, the system categories, and
+// two rules) with the linked test data (the three test banks, two linked accounts, Plaid
+// transactions), and the filter sheet, the category picker and the transaction editor's
+// menu open over their screens. The sign-in and registration screens are checked signed
+// out; their text scale is checked with their errors showing, in
+// test/features/auth/auth_screens_test.dart.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -56,6 +57,11 @@ final Map<String, _Screen> _screens = {
     seeded: true,
     open: null,
   ),
+  'Linked account detail': (
+    location: '/accounts/$linkedCheckingId',
+    seeded: true,
+    open: null,
+  ),
   'New account': (location: '/accounts/new', seeded: true, open: null),
   'Edit account': (
     location: '/accounts/$checkingId/edit',
@@ -102,12 +108,7 @@ final Map<String, _Screen> _screens = {
 };
 
 List<Override> _overrides(_Screen screen) => screen.seeded
-    ? [
-        storeOverride(
-          seededStore()..applyPlaidItems(testBanks, testClock.nowUtc()),
-        ),
-        rulesOverride(seededRules()),
-      ]
+    ? [storeOverride(linkedStore(manual: true)), rulesOverride(seededRules())]
     : const [];
 
 /// The auth screens, which only a signed-out user sees.

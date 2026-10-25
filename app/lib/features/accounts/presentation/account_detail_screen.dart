@@ -1,17 +1,24 @@
-/// One account: its name, type and balance derived from its transactions, then its
-/// transactions newest first, each with the running balance after it. Edit, hide or show,
-/// delete (with its transactions, after a confirmation that counts them; not offered for
-/// a linked account, which goes only when its bank is unlinked), and add a transaction on
-/// this account.
+/// One account: its name and type; for a linked account, its institution (avatar and
+/// name) and Plaid's official name and mask; its balance, as the institution reported it
+/// (captioned with the institution and the as-of time in the device's zone, with the
+/// available balance and the credit limit when reported) or derived from its transactions
+/// (a manual account, or a linked one never synced); then its transactions newest first,
+/// each with the running balance after it (worked back from the reported balance when
+/// there is one, else summed from the transactions). Edit, hide or show, delete (with its
+/// transactions, after a confirmation that counts them; not offered for a linked account,
+/// which goes only when its bank is unlinked), the linked banks (for a linked account, to
+/// sync its bank), and add a transaction on this account.
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/widgets/amount_text.dart';
+import 'package:finance_tracker/core/widgets/merchant_avatar.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_errors.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_type_style.dart';
+import 'package:finance_tracker/features/items/domain/linked_bank.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:finance_tracker/features/transactions/domain/enrichment.dart';
@@ -22,7 +29,9 @@ import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_models/shared_models.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 /// The detail of account [accountId].
 class AccountDetailScreen extends ConsumerWidget {
@@ -48,7 +57,7 @@ class AccountDetailScreen extends ConsumerWidget {
   }
 }
 
-enum _MenuAction { hide, show, delete }
+enum _MenuAction { hide, show, linkedBanks, delete }
 
 class _Detail extends ConsumerWidget {
   const _Detail({required this.account});
@@ -68,6 +77,8 @@ class _Detail extends ConsumerWidget {
           AppLocalizations.of(context),
           () => actions.setHidden(account, hidden: action == _MenuAction.hide),
         );
+      case _MenuAction.linkedBanks:
+        await const ItemsRoute().push<void>(context);
       case _MenuAction.delete:
         final int count = await ref
             .read(transactionRepositoryProvider)
@@ -108,9 +119,14 @@ class _Detail extends ConsumerWidget {
     final ThemeData theme = Theme.of(context);
     final List<LedgerEntry> ledger =
         ref.watch(accountLedgerProvider(account.id)).value ?? const [];
-    final Money balance =
-        ref.watch(derivedBalancesProvider).value?[account.id] ??
-        Money.zero(account.currencyCode);
+    final ShownBalance balance = shownBalance(
+      account,
+      ref.watch(derivedBalancesProvider).value ?? const {},
+    );
+    final LinkedBank? bank = ref
+        .watch(linkedBanksByIdProvider)
+        .value?[account.itemId];
+    final tz.Location location = ref.watch(clockProvider).location;
     final CategoryLookup categories = ref.watch(
       transactionCategoryLookupProvider,
     );
@@ -137,6 +153,12 @@ class _Detail extends ConsumerWidget {
                   value: _MenuAction.hide,
                   child: Text(l10n.accountHide),
                 ),
+              // Its bank's card: sync, repair, unlink.
+              if (account.itemId != null)
+                PopupMenuItem(
+                  value: _MenuAction.linkedBanks,
+                  child: Text(l10n.itemsTitle),
+                ),
               // A linked account goes only when its bank is unlinked.
               if (account.itemId == null)
                 PopupMenuItem(
@@ -158,7 +180,12 @@ class _Detail extends ConsumerWidget {
         itemCount: 1 + (ledger.isEmpty ? 1 : ledger.length),
         itemBuilder: (context, index) {
           if (index == 0) {
-            return _Header(account: account, balance: balance);
+            return _Header(
+              account: account,
+              balance: balance,
+              bank: bank,
+              location: location,
+            );
           }
           if (ledger.isEmpty) {
             return Padding(
@@ -182,6 +209,7 @@ class _Detail extends ConsumerWidget {
             amount: transaction.amount,
             pending: transaction.pending,
             runningBalance: entry.balance,
+            runningBalanceFromReported: balance.reported,
             onTap: () => TransactionRoute(transaction.id).push<void>(context),
           );
         },
@@ -191,10 +219,21 @@ class _Detail extends ConsumerWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.account, required this.balance});
+  const _Header({
+    required this.account,
+    required this.balance,
+    required this.bank,
+    required this.location,
+  });
 
   final Account account;
-  final Money balance;
+  final ShownBalance balance;
+
+  /// The account's linked bank; null for a manual account, or before its bank is stored.
+  final LinkedBank? bank;
+
+  /// The device's zone, for the time the balance was reported.
+  final tz.Location location;
 
   @override
   Widget build(BuildContext context) {
@@ -203,11 +242,60 @@ class _Header extends StatelessWidget {
     final TextStyle? caption = theme.textTheme.bodySmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
+    final Institution? institution = bank?.institution;
+    final String? official = account.officialName;
+    final String? mask = account.mask;
+    final DateTime? asOf = account.balancesAsOf;
+    final Money? available = account.availableBalance;
+    final Money? limit = account.creditLimit;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (account.itemId != null && institution != null) ...[
+            Row(
+              children: [
+                // Decorative: the institution's name is beside it.
+                MerchantAvatar(
+                  name: institution.name,
+                  color: institutionColor(institution),
+                  logoBytes: bank?.logo,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    institution.name,
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
+          if (account.itemId != null && (official != null || mask != null)) ...[
+            Text(
+              switch ((official, mask)) {
+                (final String o, final String m) => l10n.captionPair(
+                  o,
+                  l10n.accountMask(m),
+                ),
+                (final String o, null) => o,
+                (null, final String m) => l10n.accountMask(m),
+                (null, null) => '',
+              },
+              semanticsLabel: switch ((official, mask)) {
+                (final String o, final String m) => l10n.captionPair(
+                  o,
+                  l10n.accountMaskSemantics(m),
+                ),
+                (null, final String m) => l10n.accountMaskSemantics(m),
+                _ => null,
+              },
+              style: caption,
+            ),
+            const SizedBox(height: 8),
+          ],
           Row(
             children: [
               Icon(
@@ -229,11 +317,42 @@ class _Header extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          AmountText(balance, style: theme.textTheme.headlineMedium),
-          Text(l10n.balanceFromTransactions, style: caption),
+          AmountText(balance.amount, style: theme.textTheme.headlineMedium),
+          Text(switch ((balance.reported, institution)) {
+            (true, final Institution i) => l10n.balanceReportedBy(i.name),
+            (true, null) => l10n.balanceReportedByBank,
+            (false, _) => l10n.balanceFromTransactions,
+          }, style: caption),
+          if (balance.reported && asOf != null)
+            Text(
+              l10n.balanceAsOf(
+                DateFormat.yMMMd().add_jm().format(
+                  tz.TZDateTime.from(asOf, location),
+                ),
+              ),
+              style: caption,
+            ),
+          if (balance.reported && available != null)
+            Text(
+              l10n.accountAvailableBalance(available.format()),
+              semanticsLabel: l10n.accountAvailableBalance(
+                amountSemanticsLabel(l10n, available),
+              ),
+              style: theme.textTheme.bodyMedium,
+            ),
+          if (balance.reported && limit != null)
+            Text(
+              l10n.accountCreditLimit(limit.format()),
+              semanticsLabel: l10n.accountCreditLimit(
+                amountSemanticsLabel(l10n, limit),
+              ),
+              style: theme.textTheme.bodyMedium,
+            ),
           const SizedBox(height: 16),
+          // Its own node, so only it is read as a heading.
           Semantics(
             header: true,
+            container: true,
             child: Text(
               l10n.navTransactions,
               style: theme.textTheme.titleSmall?.copyWith(

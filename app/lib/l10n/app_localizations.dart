@@ -304,6 +304,66 @@ abstract class AppLocalizations {
   /// **'Running balance {amount}'**
   String runningBalance(String amount);
 
+  /// Caption on a transaction in a linked account's detail: the account's balance after this transaction, worked back from the balance the bank reported.
+  ///
+  /// In en, this message translates to:
+  /// **'Running balance {amount}, from the reported balance'**
+  String runningBalanceFromReported(String amount);
+
+  /// Caption under a balance the bank reported for a linked account (not computed from its transactions).
+  ///
+  /// In en, this message translates to:
+  /// **'reported'**
+  String get balanceReported;
+
+  /// Caption under a linked account's balance on its detail: the balance as the bank reported it.
+  ///
+  /// In en, this message translates to:
+  /// **'reported by {institution}'**
+  String balanceReportedBy(String institution);
+
+  /// Caption under a linked account's balance on its detail, when the bank's name is not known on the device yet.
+  ///
+  /// In en, this message translates to:
+  /// **'reported by your bank'**
+  String get balanceReportedByBank;
+
+  /// When the bank reported the balance above, in the device's time zone.
+  ///
+  /// In en, this message translates to:
+  /// **'as of {time}'**
+  String balanceAsOf(String time);
+
+  /// Caption under totals that add balances banks reported (linked accounts) and balances computed from transactions (manual accounts).
+  ///
+  /// In en, this message translates to:
+  /// **'reported and from transactions'**
+  String get balanceReportedAndFromTransactions;
+
+  /// On a linked account's detail: the available balance the bank reported.
+  ///
+  /// In en, this message translates to:
+  /// **'Available {amount}'**
+  String accountAvailableBalance(String amount);
+
+  /// On a linked account's detail: the credit limit the bank reported.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit limit {amount}'**
+  String accountCreditLimit(String amount);
+
+  /// The last digits of a linked account's number, after dots standing for the hidden digits.
+  ///
+  /// In en, this message translates to:
+  /// **'•••• {mask}'**
+  String accountMask(String mask);
+
+  /// What a screen reader says for the last digits of a linked account's number.
+  ///
+  /// In en, this message translates to:
+  /// **'ending in {mask}'**
+  String accountMaskSemantics(String mask);
+
   /// Shown in place of a category name for a transaction with no category, or whose category was deleted.
   ///
   /// In en, this message translates to:

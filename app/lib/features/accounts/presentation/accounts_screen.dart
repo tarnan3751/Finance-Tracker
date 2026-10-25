@@ -1,15 +1,21 @@
-/// The Accounts tab: one card per visible account with its balance derived from its
-/// transactions (labelled so), a total per currency when the accounts hold more than one
-/// (never converted, `PLAN.md` §3), the hidden accounts in a collapsed section, reordering
-/// by long-press, "Add account", and the linked banks from the app bar.
+/// The Accounts tab: one card per visible account with its balance, labelled "reported"
+/// when its institution reported it (a linked account, which shows the institution's
+/// avatar) or "from transactions" when derived (a manual account, or a linked one never
+/// synced, which show the type's icon or the institution's), a total per currency when the
+/// accounts hold more than one (never converted, `PLAN.md` §3), the hidden accounts in a
+/// collapsed section, reordering by long-press, "Add account", and the linked banks from
+/// the app bar.
 library;
 
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/widgets/amount_text.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
+import 'package:finance_tracker/core/widgets/merchant_avatar.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_errors.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_type_style.dart';
+import 'package:finance_tracker/features/items/domain/linked_bank.dart';
+import 'package:finance_tracker/features/transactions/domain/enrichment.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +31,8 @@ class AccountsScreen extends ConsumerWidget {
     final AsyncValue<List<Account>> accounts = ref.watch(accountsProvider);
     final Map<String, Money?> balances =
         ref.watch(derivedBalancesProvider).value ?? const {};
+    final Map<String, LinkedBank> banks =
+        ref.watch(linkedBanksByIdProvider).value ?? const {};
     final bool hasAccounts = accounts.value?.isNotEmpty ?? false;
     return Scaffold(
       appBar: AppBar(
@@ -59,6 +67,7 @@ class AccountsScreen extends ConsumerWidget {
         AsyncValue(value: final List<Account> list) => _AccountList(
           accounts: list,
           balances: balances,
+          banks: banks,
         ),
         AsyncError() => Center(child: Text(l10n.loadFailed)),
         _ => const Center(child: CircularProgressIndicator()),
@@ -68,10 +77,15 @@ class AccountsScreen extends ConsumerWidget {
 }
 
 class _AccountList extends ConsumerStatefulWidget {
-  const _AccountList({required this.accounts, required this.balances});
+  const _AccountList({
+    required this.accounts,
+    required this.balances,
+    required this.banks,
+  });
 
   final List<Account> accounts;
   final Map<String, Money?> balances;
+  final Map<String, LinkedBank> banks;
 
   @override
   ConsumerState<_AccountList> createState() => _AccountListState();
@@ -96,8 +110,15 @@ class _AccountListState extends ConsumerState<_AccountList> {
     }
   }
 
-  Money _balanceOf(Account account) =>
-      widget.balances[account.id] ?? Money.zero(account.currencyCode);
+  ShownBalance _balanceOf(Account account) =>
+      shownBalance(account, widget.balances);
+
+  Widget _card(Account account, {Key? key}) => _AccountCard(
+    key: key,
+    account: account,
+    balance: _balanceOf(account),
+    bank: widget.banks[account.itemId],
+  );
 
   Future<void> _onReorder(int oldIndex, int newIndex) async {
     final List<Account> order = [..._visible];
@@ -123,44 +144,44 @@ class _AccountListState extends ConsumerState<_AccountList> {
         if (a.isHidden) a,
     ];
     final Map<String, Money> totals = {};
+    final Set<bool> reported = {};
     for (final Account account in _visible) {
-      final Money balance = _balanceOf(account);
+      final ShownBalance balance = _balanceOf(account);
+      reported.add(balance.reported);
       totals[account.currencyCode] =
           (totals[account.currencyCode] ?? Money.zero(account.currencyCode)) +
-          balance;
+          balance.amount;
     }
     return ReorderableListView.builder(
       // Room under the last card for the floating button.
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 88),
-      header: totals.length > 1 ? _Totals(totals.values.toList()) : null,
+      header: totals.length > 1
+          ? _Totals(totals.values.toList(), reported: reported)
+          : null,
       footer: hidden.isEmpty
           ? null
           : ExpansionTile(
               title: Text(l10n.accountsHidden(hidden.length)),
-              children: [
-                for (final Account account in hidden)
-                  _AccountCard(account: account, balance: _balanceOf(account)),
-              ],
+              children: [for (final Account account in hidden) _card(account)],
             ),
       itemCount: _visible.length,
       onReorderItem: _onReorder,
       itemBuilder: (context, index) {
         final Account account = _visible[index];
-        return _AccountCard(
-          key: ValueKey(account.id),
-          account: account,
-          balance: _balanceOf(account),
-        );
+        return _card(account, key: ValueKey(account.id));
       },
     );
   }
 }
 
-/// One total per currency, each the sum of the visible accounts' derived balances.
+/// One total per currency, each the sum of the visible accounts' balances as shown;
+/// captioned by which kinds of balance it adds ([reported] holds true for reported ones
+/// and false for derived ones).
 class _Totals extends StatelessWidget {
-  const _Totals(this.totals);
+  const _Totals(this.totals, {required this.reported});
 
   final List<Money> totals;
+  final Set<bool> reported;
 
   @override
   Widget build(BuildContext context) {
@@ -187,7 +208,11 @@ class _Totals extends StatelessWidget {
             ],
           ),
           Text(
-            l10n.balanceFromTransactions,
+            switch ((reported.contains(true), reported.contains(false))) {
+              (true, true) => l10n.balanceReportedAndFromTransactions,
+              (true, false) => l10n.balanceReported,
+              _ => l10n.balanceFromTransactions,
+            },
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -199,10 +224,18 @@ class _Totals extends StatelessWidget {
 }
 
 class _AccountCard extends StatelessWidget {
-  const _AccountCard({super.key, required this.account, required this.balance});
+  const _AccountCard({
+    super.key,
+    required this.account,
+    required this.balance,
+    required this.bank,
+  });
 
   final Account account;
-  final Money balance;
+  final ShownBalance balance;
+
+  /// The account's linked bank; null for a manual account, or before its bank is stored.
+  final LinkedBank? bank;
 
   @override
   Widget build(BuildContext context) {
@@ -214,8 +247,13 @@ class _AccountCard extends StatelessWidget {
     final Widget balanceColumn = Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        AmountText(balance, style: theme.textTheme.titleMedium),
-        Text(l10n.balanceFromTransactions, style: caption),
+        AmountText(balance.amount, style: theme.textTheme.titleMedium),
+        Text(
+          balance.reported
+              ? l10n.balanceReported
+              : l10n.balanceFromTransactions,
+          style: caption,
+        ),
       ],
     );
     // With large text the balance goes under the name, where it has the full width.
@@ -229,10 +267,21 @@ class _AccountCard extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(
-                  accountTypeIcon(account.type),
-                  color: theme.colorScheme.primary,
-                ),
+                switch (bank) {
+                  // The institution's only cue on the card: labelled.
+                  LinkedBank(:final Institution institution, :final logo) =>
+                    MerchantAvatar(
+                      name: institution.name,
+                      color: institutionColor(institution),
+                      logoBytes: logo,
+                      radius: 12,
+                      semanticsLabel: institution.name,
+                    ),
+                  null => Icon(
+                    accountTypeIcon(account.type),
+                    color: theme.colorScheme.primary,
+                  ),
+                },
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(

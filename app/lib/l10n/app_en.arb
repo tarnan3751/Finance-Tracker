@@ -172,6 +172,88 @@
       }
     }
   },
+  "runningBalanceFromReported": "Running balance {amount}, from the reported balance",
+  "@runningBalanceFromReported": {
+    "description": "Caption on a transaction in a linked account's detail: the account's balance after this transaction, worked back from the balance the bank reported.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$1,234.56"
+      }
+    }
+  },
+  "balanceReported": "reported",
+  "@balanceReported": {
+    "description": "Caption under a balance the bank reported for a linked account (not computed from its transactions)."
+  },
+  "balanceReportedBy": "reported by {institution}",
+  "@balanceReportedBy": {
+    "description": "Caption under a linked account's balance on its detail: the balance as the bank reported it.",
+    "placeholders": {
+      "institution": {
+        "type": "String",
+        "example": "First Platypus Bank"
+      }
+    }
+  },
+  "balanceReportedByBank": "reported by your bank",
+  "@balanceReportedByBank": {
+    "description": "Caption under a linked account's balance on its detail, when the bank's name is not known on the device yet."
+  },
+  "balanceAsOf": "as of {time}",
+  "@balanceAsOf": {
+    "description": "When the bank reported the balance above, in the device's time zone.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "Oct 24, 2026 2:00 PM"
+      }
+    }
+  },
+  "balanceReportedAndFromTransactions": "reported and from transactions",
+  "@balanceReportedAndFromTransactions": {
+    "description": "Caption under totals that add balances banks reported (linked accounts) and balances computed from transactions (manual accounts)."
+  },
+  "accountAvailableBalance": "Available {amount}",
+  "@accountAvailableBalance": {
+    "description": "On a linked account's detail: the available balance the bank reported.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$1,000.00"
+      }
+    }
+  },
+  "accountCreditLimit": "Credit limit {amount}",
+  "@accountCreditLimit": {
+    "description": "On a linked account's detail: the credit limit the bank reported.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$5,000.00"
+      }
+    }
+  },
+  "accountMask": "•••• {mask}",
+  "@accountMask": {
+    "description": "The last digits of a linked account's number, after dots standing for the hidden digits.",
+    "placeholders": {
+      "mask": {
+        "type": "String",
+        "example": "0000"
+      }
+    }
+  },
+  "accountMaskSemantics": "ending in {mask}",
+  "@accountMaskSemantics": {
+    "description": "What a screen reader says for the last digits of a linked account's number.",
+    "placeholders": {
+      "mask": {
+        "type": "String",
+        "example": "0000"
+      }
+    }
+  },
   "uncategorized": "Uncategorized",
   "@uncategorized": {
     "description": "Shown in place of a category name for a transaction with no category, or whose category was deleted."

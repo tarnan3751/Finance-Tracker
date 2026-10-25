@@ -1,6 +1,6 @@
 // Launch smoke tests on a device: the demo flavor starts the way main_demo.dart starts it
-// and shows the app, then opens on the Accounts tab with the renter persona's accounts
-// and their derived balances. Run on the harness's emulator with
+// and shows the app, then opens on the Accounts tab with the renter persona's accounts,
+// linked at the demo's banks, and the balances those banks report. Run on the harness's emulator with
 // `tools/emulator_tests.sh integration`. The first test asserts only the MaterialApp and
 // its title, so it holds while the home screen changes.
 import 'package:finance_tracker/bootstrap.dart';
@@ -31,6 +31,7 @@ void main() {
     expect(find.text('Everyday Checking'), findsOneWidget);
     expect(find.text('Savings'), findsOneWidget);
     expect(find.text('Platypus Rewards Card'), findsOneWidget);
-    expect(find.text('from transactions'), findsNWidgets(3));
+    expect(find.text('reported'), findsNWidgets(3));
+    expect(find.text('from transactions'), findsNothing);
   });
 }

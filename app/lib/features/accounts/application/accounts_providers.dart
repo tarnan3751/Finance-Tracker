@@ -1,14 +1,16 @@
-/// What the account screens show and do: the accounts and their derived balances, one
-/// account's transactions with the running balance after each, and the writes the list,
-/// the detail and the editor make.
+/// What the account screens show and do: the accounts, their derived balances and the
+/// balance each is shown with, the linked banks they belong to, one account's
+/// transactions with the running balance after each, and the writes the list, the detail
+/// and the editor make.
 ///
-/// Every balance here is derived from transactions (`PLAN.md` §6: balances are derived,
-/// never stored); the screens label it so.
+/// A balance is either derived from transactions or reported by the institution
+/// (`PLAN.md` §6: balances are derived, never stored as truth); the screens label which.
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
+import 'package:finance_tracker/features/items/domain/linked_bank.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -35,33 +37,103 @@ Map<String, Account> accountsById(Ref ref) => {
 Stream<Map<String, Money?>> derivedBalances(Ref ref) =>
     ref.watch(accountRepositoryProvider).watchDerivedBalances();
 
+/// The balance an account is shown with, and whether the institution [reported] it.
+typedef ShownBalance = ({Money amount, bool reported});
+
+/// The balance [account] is shown with: for a linked account, the current balance its
+/// institution last reported; else, and for a linked account never synced, its balance
+/// derived from its transactions ([derived], `derivedBalancesProvider`'s), zero when it
+/// has none.
+ShownBalance shownBalance(Account account, Map<String, Money?> derived) =>
+    switch (reportedBalance(account)) {
+      final Money reported => (amount: reported, reported: true),
+      null => (
+        amount: derived[account.id] ?? Money.zero(account.currencyCode),
+        reported: false,
+      ),
+    };
+
+/// The current balance [account]'s institution last reported, when it is linked and has
+/// one; else null.
+Money? reportedBalance(Account account) =>
+    account.itemId == null ? null : account.currentBalance;
+
+/// The stored linked banks by Item id, unlinked ones included, for the accounts that
+/// name their institution.
+@riverpod
+Stream<Map<String, LinkedBank>> linkedBanksById(Ref ref) => ref
+    .watch(itemRepositoryProvider)
+    .watchAll()
+    .map((banks) => {for (final LinkedBank bank in banks) bank.id: bank});
+
 /// The live account [id], or null when it does not exist or is deleted.
 @riverpod
 Stream<Account?> account(Ref ref, String id) =>
     ref.watch(accountRepositoryProvider).watchById(id);
 
-/// One row of an account's ledger: a transaction and the account's balance after it.
-typedef LedgerEntry = ({Transaction transaction, Money balance});
+/// One row of an account's ledger: a transaction and the account's balance after it, null
+/// for a transaction in another currency than the account's, which has none.
+typedef LedgerEntry = ({Transaction transaction, Money? balance});
 
 /// Account [accountId]'s live transactions, newest first, each with the running balance
-/// after it, derived from the transactions before it.
+/// after it: anchored to the account's [reportedBalance] when it has one, else derived
+/// from the transactions before it ([withRunningBalances]).
 @riverpod
-Stream<List<LedgerEntry>> accountLedger(Ref ref, String accountId) => ref
-    .watch(transactionRepositoryProvider)
-    .watch(TransactionQuery(accountIds: {accountId}))
-    .map(withRunningBalances);
+Stream<List<LedgerEntry>> accountLedger(Ref ref, String accountId) async* {
+  final Account? account = await ref.watch(accountProvider(accountId).future);
+  if (account == null) return;
+  final Money? reported = reportedBalance(account);
+  yield* ref
+      .watch(transactionRepositoryProvider)
+      .watch(TransactionQuery(accountIds: {accountId}))
+      .map(
+        (t) => withRunningBalances(
+          t,
+          currencyCode: account.currencyCode,
+          reported: reported,
+        ),
+      );
+}
 
 /// [newestFirst] (one account's transactions in the repository's order) with the running
-/// balance after each: summed from the oldest to the newest, then returned newest first.
-List<LedgerEntry> withRunningBalances(List<Transaction> newestFirst) {
+/// balance after each, in [currencyCode] (the account's), returned newest first.
+///
+/// With [reported] (the institution's current balance), the newest row's balance is
+/// [reported] and each older row's is [reported] minus every newer transaction's amount,
+/// pending ones included, so a linked account with partial history still ends at what its
+/// bank reports. Without it, the balances are summed from the oldest transaction to the
+/// newest. A transaction in another currency (which the repositories refuse, but a synced
+/// record could carry) has no balance and is left out of the walk, so one stray row never
+/// puts the whole ledger in error.
+List<LedgerEntry> withRunningBalances(
+  List<Transaction> newestFirst, {
+  required String currencyCode,
+  Money? reported,
+}) {
+  bool counts(Transaction t) => t.amount.currencyCode == currencyCode;
+  if (reported != null) {
+    final List<LedgerEntry> entries = [];
+    Money balance = reported;
+    for (final Transaction transaction in newestFirst) {
+      if (!counts(transaction)) {
+        entries.add((transaction: transaction, balance: null));
+        continue;
+      }
+      entries.add((transaction: transaction, balance: balance));
+      // The balance before this transaction, which is the one after the next row.
+      balance = balance - transaction.amount;
+    }
+    return entries;
+  }
   final List<LedgerEntry> oldestFirst = [];
-  Money? running;
+  Money running = Money.zero(currencyCode);
   for (final Transaction transaction in newestFirst.reversed) {
-    final Money balance = running == null
-        ? transaction.amount
-        : running + transaction.amount;
-    running = balance;
-    oldestFirst.add((transaction: transaction, balance: balance));
+    if (!counts(transaction)) {
+      oldestFirst.add((transaction: transaction, balance: null));
+      continue;
+    }
+    running = running + transaction.amount;
+    oldestFirst.add((transaction: transaction, balance: running));
   }
   return oldestFirst.reversed.toList(growable: false);
 }

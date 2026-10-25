@@ -1,6 +1,8 @@
 // Goldens of bank data, light and dark at phone size, on the linked test store (two linked
-// accounts at the test banks, Plaid transactions with raw names): the transaction list's
-// merchant avatars and names. Tagged `golden`; see test/flutter_test_config.dart for
+// accounts at the test banks, Plaid transactions with raw names, and the test seed's manual
+// accounts): the account list's reported and derived balances with the institutions'
+// avatars, a linked account's detail header, and the transaction list's merchant avatars
+// and names. Tagged `golden`; see test/flutter_test_config.dart for
 // where the files go and how to update them.
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +20,11 @@ Widget _app(String location, Brightness brightness) => SizedBox.fromSize(
   ),
 );
 
-const Map<String, String> _screens = {'linked_transactions': '/transactions'};
+const Map<String, String> _screens = {
+  'linked_accounts': '/accounts',
+  'linked_account_detail': '/accounts/$linkedCheckingId',
+  'linked_transactions': '/transactions',
+};
 
 void main() {
   // Flutter's own DEBUG banner is not part of the app.

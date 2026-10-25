@@ -1,7 +1,8 @@
 /// One transaction as a list row: the merchant's avatar and name
 /// (`EnrichedMerchant.resolve`: Plaid's merchant and logo, else the enrichment fallback),
 /// a caption, the amount colored by direction, a "Pending" label while it is pending, and
-/// optionally the running balance after it (the account detail's ledger). Built from plain
+/// optionally the running balance after it (the account detail's ledger), captioned as
+/// worked back from the reported balance when it is. Built from plain
 /// values so a list of thousands builds only the rows on screen and subscribes to nothing.
 library;
 
@@ -21,6 +22,7 @@ class TransactionTile extends StatelessWidget {
     required this.amount,
     this.pending = false,
     this.runningBalance,
+    this.runningBalanceFromReported = false,
     this.onTap,
   });
 
@@ -37,6 +39,10 @@ class TransactionTile extends StatelessWidget {
   /// The account's balance after this transaction, derived from its transactions; shown
   /// labelled as a running balance when given.
   final Money? runningBalance;
+
+  /// Whether [runningBalance] is worked back from the balance the institution reported
+  /// rather than summed from the transactions; the caption says which.
+  final bool runningBalanceFromReported;
 
   final VoidCallback? onTap;
 
@@ -72,11 +78,17 @@ class TransactionTile extends StatelessWidget {
                     Text(caption, style: captionStyle),
                     if (balance != null)
                       Text(
-                        l10n.runningBalance(balance.format()),
+                        runningBalanceFromReported
+                            ? l10n.runningBalanceFromReported(balance.format())
+                            : l10n.runningBalance(balance.format()),
                         style: captionStyle,
-                        semanticsLabel: l10n.runningBalance(
-                          amountSemanticsLabel(l10n, balance),
-                        ),
+                        semanticsLabel: runningBalanceFromReported
+                            ? l10n.runningBalanceFromReported(
+                                amountSemanticsLabel(l10n, balance),
+                              )
+                            : l10n.runningBalance(
+                                amountSemanticsLabel(l10n, balance),
+                              ),
                       ),
                   ],
                 ),
