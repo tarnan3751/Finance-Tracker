@@ -7,8 +7,8 @@
 /// to the fields that have a clock, so a field the record never set (`deleted_at` before
 /// the first delete) is absent. Writing a record writes its clocks and then:
 ///
-/// - a complete record (its create merged) of an account, transaction, category or rule
-///   replaces the row, children included, as the record says, without the repositories' checks:
+/// - a complete record (its create merged) of an account, transaction, category, rule or
+///   budget replaces the row, children included, as the record says, without the repositories' checks:
 ///   those are preconditions of a local edit, and applying them to merged state would make
 ///   it depend on arrival order. A transaction's currency is its amount's, even when that
 ///   is no longer its account's; a transaction may be written before its account;
@@ -35,6 +35,7 @@ import 'package:finance_tracker/core/db/tables/sync_meta.dart';
 import 'package:finance_tracker/core/sync/entity_codec.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/data/drift_account_repository.dart';
+import 'package:finance_tracker/features/budgets/data/drift_budget_repository.dart';
 import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
 import 'package:finance_tracker/features/rules/data/drift_rule_repository.dart';
 import 'package:finance_tracker/features/settings/data/drift_settings_repository.dart';
@@ -48,8 +49,8 @@ enum HeldReason { incomplete, unrepresentable, unknownFields, unsupportedType }
 /// What the outbox and the held records hold, for the sync status.
 typedef SyncLedger = ({int pending, int rejected, Hlc? lastRejected, int held});
 
-/// The [SyncStore] of the dev and prod flavors, over [AppDatabase]. Accounts, categories
-/// and rules carry no audit fields in their records, so materializing one stamps its
+/// The [SyncStore] of the dev and prod flavors, over [AppDatabase]. Accounts, categories,
+/// rules and budgets carry no audit fields in their records, so materializing one stamps its
 /// `updated_at` (and `created_at` on insert) from [_clock].
 final class DriftSyncStore implements SyncStore {
   /// The store over [_database], stamping from [_clock].
@@ -223,8 +224,12 @@ final class DriftSyncStore implements SyncStore {
         return row == null
             ? null
             : ruleRecordJson(ruleFromRow(row), deletedAt: row.deletedAt);
-      case EntityType.budget ||
-          EntityType.recurringStream ||
+      case EntityType.budget:
+        final BudgetRow? row = await _budgetRow(id);
+        return row == null
+            ? null
+            : budgetRecordJson(budgetFromRow(row), deletedAt: row.deletedAt);
+      case EntityType.recurringStream ||
           EntityType.billReminder ||
           EntityType.goal:
         return null;
@@ -242,6 +247,10 @@ final class DriftSyncStore implements SyncStore {
   Future<RuleRow?> _ruleRow(String id) => (_database.select(
     _database.rules,
   )..where((r) => r.id.equals(id))).getSingleOrNull();
+
+  Future<BudgetRow?> _budgetRow(String id) => (_database.select(
+    _database.budgets,
+  )..where((b) => b.id.equals(id))).getSingleOrNull();
 
   // Writes [record] into its entity's table, or returns why it is held.
   Future<HeldReason?> _materialize(EntityRecord record) async {
@@ -268,7 +277,8 @@ final class DriftSyncStore implements SyncStore {
     if (type != EntityType.account &&
         type != EntityType.transaction &&
         type != EntityType.category &&
-        type != EntityType.rule) {
+        type != EntityType.rule &&
+        type != EntityType.budget) {
       return HeldReason.unsupportedType;
     }
     final Map<String, Object?> fields;
@@ -283,6 +293,7 @@ final class DriftSyncStore implements SyncStore {
       EntityType.account => (await _accountRow(record.id))?.createdAt,
       EntityType.category => (await _categoryRow(record.id))?.createdAt,
       EntityType.rule => (await _ruleRow(record.id))?.createdAt,
+      EntityType.budget => (await _budgetRow(record.id))?.createdAt,
       _ => null,
     };
     try {
@@ -386,6 +397,17 @@ final class DriftSyncStore implements SyncStore {
         );
         return () =>
             _database.into(_database.rules).insertOnConflictUpdate(row);
+      case EntityType.budget:
+        final Budget budget = Budget.fromJson(fields);
+        if (budget.id != id) throw FormatException('id mismatch', budget.id);
+        final BudgetsCompanion row = budgetCompanion(
+          budget,
+          createdAt: createdAt ?? now,
+          now: now,
+          deletedAt: Value(deletedAtOf(fields)),
+        );
+        return () =>
+            _database.into(_database.budgets).insertOnConflictUpdate(row);
       case _:
         throw ArgumentError.value(type, 'type', 'not materialized');
     }

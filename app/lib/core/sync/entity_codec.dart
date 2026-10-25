@@ -1,7 +1,7 @@
 /// How the app's entities appear as sync records (`docs/reference/sync-app.md`).
 ///
 /// A record's fields are the entity's `shared_models` JSON, plus what the app keeps beside
-/// it: `deleted_at` for accounts, categories and rules (whose entities carry no
+/// it: `deleted_at` for accounts, categories, rules and budgets (whose entities carry no
 /// tombstone), and `deleted_with_account` for transactions (the cascade flag, synced so a
 /// restore on any device brings back the same rows). Settings are the one record `settings/local`, with
 /// `theme_mode` and `use_dynamic_color`. Nested values (tags, splits, amounts) are whole
@@ -62,6 +62,13 @@ Map<String, Object?> ruleRecordJson(Rule rule, {DateTime? deletedAt}) => {
   deletedAtField: _instant(deletedAt),
 };
 
+/// The record fields of [budget], deleted at [deletedAt] (null while live). Its amount is
+/// one whole field value.
+Map<String, Object?> budgetRecordJson(Budget budget, {DateTime? deletedAt}) => {
+  ..._plain(budget.toJson()),
+  deletedAtField: _instant(deletedAt),
+};
+
 /// The record fields of [settings].
 Map<String, Object?> settingsRecordJson(Settings settings) => {
   'theme_mode': settings.themeMode.name,
@@ -88,6 +95,7 @@ Set<String> knownRecordFields(EntityType type) => switch (type) {
   EntityType.transaction => _transactionFields,
   EntityType.category => _categoryFields,
   EntityType.rule => _ruleFields,
+  EntityType.budget => _budgetFields,
   EntityType.settings => const {'theme_mode', 'use_dynamic_color'},
   _ => const {},
 };
@@ -124,6 +132,18 @@ final Set<String> _categoryFields = categoryRecordJson(
 
 final Set<String> _ruleFields = ruleRecordJson(
   const Rule(id: '', name: '', position: 0, conditions: [], actions: []),
+).keys.toSet();
+
+final Set<String> _budgetFields = budgetRecordJson(
+  Budget(
+    id: '',
+    categoryId: '',
+    period: BudgetPeriodKind.monthly,
+    periodStartDay: 1,
+    amount: Money(0, 'USD'),
+    rollover: false,
+    startDate: LocalDate(2026, 1, 1),
+  ),
 ).keys.toSet();
 
 /// The JSON name of [value]: its Dart name in snake case (`recurring_stream`,

@@ -55,6 +55,12 @@ void main() {
     await verifier.migrateAndValidate(database, 4);
   });
 
+  test('a new database matches the schema 5 dump', () async {
+    final AppDatabase database = AppDatabase(await verifier.startAt(5));
+    addTearDown(database.close);
+    await verifier.migrateAndValidate(database, 5);
+  });
+
   group('schema 1 to 2', () {
     // 2026-10-01 09:00 UTC, the v1 rows' audit instants; 2026-10-02, a v1 delete.
     const int created = 1759309200000;
@@ -514,5 +520,142 @@ void main() {
         );
       },
     );
+  });
+
+  group('schema 4 to 5', () {
+    const int created = 1759309200000; // 2026-10-01 09:00 UTC
+    const int migratedAt = 1761318000000; // 2026-10-24 15:00 UTC
+    const String clock = '001759309200000-00000-dev-b';
+
+    String budget(String id, {Map<String, Object?> extra = const {}}) =>
+        jsonEncode({
+          'id': id,
+          'category_id': 'plaid:FOOD_AND_DRINK',
+          'period': 'monthly',
+          'period_start_day': 15,
+          'amount': {'minor_units': 60000, 'currency': 'USD'},
+          'rollover': true,
+          'start_date': '2026-09-15',
+          'deleted_at': null,
+          ...extra,
+        }).replaceAll("'", "''");
+
+    String clocks(String id, List<String> fields) =>
+        [for (final String f in fields) "('budget', '$id', '$f', '$clock')"]
+            .join(', ');
+
+    test('keeps every row, adds the budget tables and materializes the held '
+        'budgets', () async {
+      const List<String> all = [
+        'id',
+        'category_id',
+        'period',
+        'period_start_day',
+        'amount',
+        'rollover',
+        'start_date',
+        'deleted_at',
+      ];
+      final schema = await verifier.schemaAt(4);
+      schema.rawDatabase.execute('''
+          INSERT INTO accounts (id, item_id, type, subtype, name, official_name, mask,
+            currency, current_balance_minor, available_balance_minor, credit_limit_minor,
+            balances_as_of, is_hidden, display_order, created_at, updated_at, deleted_at,
+            sync_version)
+          VALUES ('acc-manual', NULL, 'depository', NULL, 'Wallet', NULL, NULL, 'USD',
+            NULL, NULL, NULL, NULL, 0, 0, $created, $created, NULL, 0);
+          INSERT INTO transactions (id, account_id, amount_minor, currency, date,
+            authorized_date, pending, pending_transaction_id, name, merchant_name,
+            merchant_logo_url, plaid_primary_category, plaid_detailed_category,
+            user_category_id, notes, receipt_path, source, created_at, updated_at,
+            deleted_at, sync_version, deleted_with_account)
+          VALUES ('t-manual', 'acc-manual', -1250, 'USD', '2026-09-30', NULL, 0, NULL,
+            'Lunch', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'manual', $created,
+            $created, NULL, 0, 0);
+          INSERT INTO rules (id, name, position, conditions, actions, created_at,
+            updated_at, deleted_at)
+          VALUES ('r1', 'Coffee', 0, '[]', '[]', $created, $created, NULL);
+          INSERT INTO held_records (entity_type, entity_id, fields, reason)
+          VALUES
+            ('budget', 'b-complete', '${budget('b-complete')}', 'unsupported_type'),
+            ('budget', 'b-updates', '{"rollover":false}', 'unsupported_type'),
+            ('budget', 'b-newer', '${budget('b-newer', extra: {'alert_at': 9000})}',
+             'unsupported_type'),
+            ('budget', 'b-bad', '${budget('b-bad', extra: {'period_start_day': 30})}',
+             'unsupported_type'),
+            ('goal', 'g1', '{"name":"Holiday"}', 'unsupported_type');
+          INSERT INTO record_clocks (entity_type, entity_id, field, hlc)
+          VALUES ${clocks('b-complete', [...all, '_create'])},
+            ${clocks('b-updates', ['rollover'])},
+            ${clocks('b-newer', [...all, 'alert_at', '_create'])},
+            ${clocks('b-bad', [...all, '_create'])},
+            ('goal', 'g1', 'name', '$clock');
+          INSERT INTO sync_meta (key, value)
+          VALUES ('pull_cursor', '12'), ('device_id', 'dev-a');
+        ''');
+      final AppDatabase database = AppDatabase(
+        schema.newConnection(),
+        wallMillis: () => migratedAt,
+      );
+      addTearDown(database.close);
+      await verifier.migrateAndValidate(database, 5);
+
+      expect(await database.select(database.accounts).get(), hasLength(1));
+      expect(await database.select(database.transactions).get(), hasLength(1));
+      expect(await database.select(database.rules).get(), hasLength(1));
+      expect(await database.select(database.changeLog).get(), isEmpty);
+      expect(await database.select(database.budgetAlerts).get(), isEmpty);
+      final List<BudgetRow> budgets = await (database.select(
+        database.budgets,
+      )..orderBy([(b) => OrderingTerm.asc(b.id)])).get();
+      expect(budgets.map((b) => b.id), ['b-complete', 'b-newer']);
+      final BudgetRow complete = budgets.first;
+      expect(complete.categoryId, 'plaid:FOOD_AND_DRINK');
+      expect(complete.periodStartDay, 15);
+      expect(complete.amountMinor, 60000);
+      expect(complete.currency, 'USD');
+      expect(complete.rollover, isTrue);
+      expect(complete.startDate, LocalDate(2026, 9, 15));
+      expect(complete.createdAt.millisecondsSinceEpoch, migratedAt);
+      expect(complete.deletedAt, isNull);
+      expect(
+        {
+          for (final HeldRecordRow h
+              in await database.select(database.heldRecords).get())
+            '${h.entityType}/${h.entityId}': h.reason,
+        },
+        {
+          'budget/b-updates': 'incomplete',
+          'budget/b-newer': 'unknown_fields',
+          'budget/b-bad': 'unrepresentable',
+          'goal/g1': 'unsupported_type',
+        },
+      );
+      // The records read back as they were, the unknown field included.
+      final DriftSyncStore store = DriftSyncStore(database, testClock);
+      expect(
+        (await store.read(EntityType.budget, 'b-newer'))!.fields['alert_at'],
+        9000,
+      );
+      expect(
+        (await store.read(
+          EntityType.budget,
+          'b-bad',
+        ))!.fields['period_start_day'],
+        30,
+      );
+      expect(
+        (await store.read(EntityType.budget, 'b-complete'))!.fields['amount'],
+        {'minor_units': 60000, 'currency': 'USD'},
+      );
+      expect(
+        {
+          for (final SyncMetaRow m
+              in await database.select(database.syncMeta).get())
+            m.key: m.value,
+        },
+        {'pull_cursor': '12', 'device_id': 'dev-a'},
+      );
+    });
   });
 }

@@ -6652,6 +6652,1012 @@ class RulesCompanion extends UpdateCompanion<RuleRow> {
   }
 }
 
+class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, BudgetRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BudgetsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryIdMeta = const VerificationMeta(
+    'categoryId',
+  );
+  @override
+  late final GeneratedColumn<String> categoryId = GeneratedColumn<String>(
+    'category_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<BudgetPeriodKind, String> period =
+      GeneratedColumn<String>(
+        'period',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<BudgetPeriodKind>($BudgetsTable.$converterperiod);
+  static const VerificationMeta _periodStartDayMeta = const VerificationMeta(
+    'periodStartDay',
+  );
+  @override
+  late final GeneratedColumn<int> periodStartDay = GeneratedColumn<int>(
+    'period_start_day',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountMinorMeta = const VerificationMeta(
+    'amountMinor',
+  );
+  @override
+  late final GeneratedColumn<int> amountMinor = GeneratedColumn<int>(
+    'amount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _currencyMeta = const VerificationMeta(
+    'currency',
+  );
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _rolloverMeta = const VerificationMeta(
+    'rollover',
+  );
+  @override
+  late final GeneratedColumn<bool> rollover = GeneratedColumn<bool>(
+    'rollover',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("rollover" IN (0, 1))',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate, String> startDate =
+      GeneratedColumn<String>(
+        'start_date',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<LocalDate>($BudgetsTable.$converterstartDate);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> createdAt =
+      GeneratedColumn<int>(
+        'created_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($BudgetsTable.$convertercreatedAt);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> updatedAt =
+      GeneratedColumn<int>(
+        'updated_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($BudgetsTable.$converterupdatedAt);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime?, int> deletedAt =
+      GeneratedColumn<int>(
+        'deleted_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<DateTime?>($BudgetsTable.$converterdeletedAtn);
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    categoryId,
+    period,
+    periodStartDay,
+    amountMinor,
+    currency,
+    rollover,
+    startDate,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'budgets';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BudgetRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('category_id')) {
+      context.handle(
+        _categoryIdMeta,
+        categoryId.isAcceptableOrUnknown(data['category_id']!, _categoryIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryIdMeta);
+    }
+    if (data.containsKey('period_start_day')) {
+      context.handle(
+        _periodStartDayMeta,
+        periodStartDay.isAcceptableOrUnknown(
+          data['period_start_day']!,
+          _periodStartDayMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_periodStartDayMeta);
+    }
+    if (data.containsKey('amount_minor')) {
+      context.handle(
+        _amountMinorMeta,
+        amountMinor.isAcceptableOrUnknown(
+          data['amount_minor']!,
+          _amountMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMinorMeta);
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_currencyMeta);
+    }
+    if (data.containsKey('rollover')) {
+      context.handle(
+        _rolloverMeta,
+        rollover.isAcceptableOrUnknown(data['rollover']!, _rolloverMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_rolloverMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BudgetRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BudgetRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      categoryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category_id'],
+      )!,
+      period: $BudgetsTable.$converterperiod.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}period'],
+        )!,
+      ),
+      periodStartDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}period_start_day'],
+      )!,
+      amountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount_minor'],
+      )!,
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      )!,
+      rollover: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}rollover'],
+      )!,
+      startDate: $BudgetsTable.$converterstartDate.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}start_date'],
+        )!,
+      ),
+      createdAt: $BudgetsTable.$convertercreatedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}created_at'],
+        )!,
+      ),
+      updatedAt: $BudgetsTable.$converterupdatedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}updated_at'],
+        )!,
+      ),
+      deletedAt: $BudgetsTable.$converterdeletedAtn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}deleted_at'],
+        ),
+      ),
+    );
+  }
+
+  @override
+  $BudgetsTable createAlias(String alias) {
+    return $BudgetsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<BudgetPeriodKind, String, String> $converterperiod =
+      const EnumNameConverter<BudgetPeriodKind>(BudgetPeriodKind.values);
+  static TypeConverter<LocalDate, String> $converterstartDate =
+      const LocalDateColumnConverter();
+  static TypeConverter<DateTime, int> $convertercreatedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime, int> $converterupdatedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime, int> $converterdeletedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime?, int?> $converterdeletedAtn =
+      NullAwareTypeConverter.wrap($converterdeletedAt);
+}
+
+class BudgetRow extends DataClass implements Insertable<BudgetRow> {
+  final String id;
+  final String categoryId;
+  final BudgetPeriodKind period;
+  final int periodStartDay;
+  final int amountMinor;
+  final String currency;
+  final bool rollover;
+  final LocalDate startDate;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const BudgetRow({
+    required this.id,
+    required this.categoryId,
+    required this.period,
+    required this.periodStartDay,
+    required this.amountMinor,
+    required this.currency,
+    required this.rollover,
+    required this.startDate,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['category_id'] = Variable<String>(categoryId);
+    {
+      map['period'] = Variable<String>(
+        $BudgetsTable.$converterperiod.toSql(period),
+      );
+    }
+    map['period_start_day'] = Variable<int>(periodStartDay);
+    map['amount_minor'] = Variable<int>(amountMinor);
+    map['currency'] = Variable<String>(currency);
+    map['rollover'] = Variable<bool>(rollover);
+    {
+      map['start_date'] = Variable<String>(
+        $BudgetsTable.$converterstartDate.toSql(startDate),
+      );
+    }
+    {
+      map['created_at'] = Variable<int>(
+        $BudgetsTable.$convertercreatedAt.toSql(createdAt),
+      );
+    }
+    {
+      map['updated_at'] = Variable<int>(
+        $BudgetsTable.$converterupdatedAt.toSql(updatedAt),
+      );
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(
+        $BudgetsTable.$converterdeletedAtn.toSql(deletedAt),
+      );
+    }
+    return map;
+  }
+
+  BudgetsCompanion toCompanion(bool nullToAbsent) {
+    return BudgetsCompanion(
+      id: Value(id),
+      categoryId: Value(categoryId),
+      period: Value(period),
+      periodStartDay: Value(periodStartDay),
+      amountMinor: Value(amountMinor),
+      currency: Value(currency),
+      rollover: Value(rollover),
+      startDate: Value(startDate),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory BudgetRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BudgetRow(
+      id: serializer.fromJson<String>(json['id']),
+      categoryId: serializer.fromJson<String>(json['categoryId']),
+      period: $BudgetsTable.$converterperiod.fromJson(
+        serializer.fromJson<String>(json['period']),
+      ),
+      periodStartDay: serializer.fromJson<int>(json['periodStartDay']),
+      amountMinor: serializer.fromJson<int>(json['amountMinor']),
+      currency: serializer.fromJson<String>(json['currency']),
+      rollover: serializer.fromJson<bool>(json['rollover']),
+      startDate: serializer.fromJson<LocalDate>(json['startDate']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'categoryId': serializer.toJson<String>(categoryId),
+      'period': serializer.toJson<String>(
+        $BudgetsTable.$converterperiod.toJson(period),
+      ),
+      'periodStartDay': serializer.toJson<int>(periodStartDay),
+      'amountMinor': serializer.toJson<int>(amountMinor),
+      'currency': serializer.toJson<String>(currency),
+      'rollover': serializer.toJson<bool>(rollover),
+      'startDate': serializer.toJson<LocalDate>(startDate),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  BudgetRow copyWith({
+    String? id,
+    String? categoryId,
+    BudgetPeriodKind? period,
+    int? periodStartDay,
+    int? amountMinor,
+    String? currency,
+    bool? rollover,
+    LocalDate? startDate,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => BudgetRow(
+    id: id ?? this.id,
+    categoryId: categoryId ?? this.categoryId,
+    period: period ?? this.period,
+    periodStartDay: periodStartDay ?? this.periodStartDay,
+    amountMinor: amountMinor ?? this.amountMinor,
+    currency: currency ?? this.currency,
+    rollover: rollover ?? this.rollover,
+    startDate: startDate ?? this.startDate,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  BudgetRow copyWithCompanion(BudgetsCompanion data) {
+    return BudgetRow(
+      id: data.id.present ? data.id.value : this.id,
+      categoryId: data.categoryId.present
+          ? data.categoryId.value
+          : this.categoryId,
+      period: data.period.present ? data.period.value : this.period,
+      periodStartDay: data.periodStartDay.present
+          ? data.periodStartDay.value
+          : this.periodStartDay,
+      amountMinor: data.amountMinor.present
+          ? data.amountMinor.value
+          : this.amountMinor,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      rollover: data.rollover.present ? data.rollover.value : this.rollover,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BudgetRow(')
+          ..write('id: $id, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('period: $period, ')
+          ..write('periodStartDay: $periodStartDay, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('currency: $currency, ')
+          ..write('rollover: $rollover, ')
+          ..write('startDate: $startDate, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    categoryId,
+    period,
+    periodStartDay,
+    amountMinor,
+    currency,
+    rollover,
+    startDate,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BudgetRow &&
+          other.id == this.id &&
+          other.categoryId == this.categoryId &&
+          other.period == this.period &&
+          other.periodStartDay == this.periodStartDay &&
+          other.amountMinor == this.amountMinor &&
+          other.currency == this.currency &&
+          other.rollover == this.rollover &&
+          other.startDate == this.startDate &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class BudgetsCompanion extends UpdateCompanion<BudgetRow> {
+  final Value<String> id;
+  final Value<String> categoryId;
+  final Value<BudgetPeriodKind> period;
+  final Value<int> periodStartDay;
+  final Value<int> amountMinor;
+  final Value<String> currency;
+  final Value<bool> rollover;
+  final Value<LocalDate> startDate;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const BudgetsCompanion({
+    this.id = const Value.absent(),
+    this.categoryId = const Value.absent(),
+    this.period = const Value.absent(),
+    this.periodStartDay = const Value.absent(),
+    this.amountMinor = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.rollover = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BudgetsCompanion.insert({
+    required String id,
+    required String categoryId,
+    required BudgetPeriodKind period,
+    required int periodStartDay,
+    required int amountMinor,
+    required String currency,
+    required bool rollover,
+    required LocalDate startDate,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       categoryId = Value(categoryId),
+       period = Value(period),
+       periodStartDay = Value(periodStartDay),
+       amountMinor = Value(amountMinor),
+       currency = Value(currency),
+       rollover = Value(rollover),
+       startDate = Value(startDate),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<BudgetRow> custom({
+    Expression<String>? id,
+    Expression<String>? categoryId,
+    Expression<String>? period,
+    Expression<int>? periodStartDay,
+    Expression<int>? amountMinor,
+    Expression<String>? currency,
+    Expression<bool>? rollover,
+    Expression<String>? startDate,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (categoryId != null) 'category_id': categoryId,
+      if (period != null) 'period': period,
+      if (periodStartDay != null) 'period_start_day': periodStartDay,
+      if (amountMinor != null) 'amount_minor': amountMinor,
+      if (currency != null) 'currency': currency,
+      if (rollover != null) 'rollover': rollover,
+      if (startDate != null) 'start_date': startDate,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BudgetsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? categoryId,
+    Value<BudgetPeriodKind>? period,
+    Value<int>? periodStartDay,
+    Value<int>? amountMinor,
+    Value<String>? currency,
+    Value<bool>? rollover,
+    Value<LocalDate>? startDate,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return BudgetsCompanion(
+      id: id ?? this.id,
+      categoryId: categoryId ?? this.categoryId,
+      period: period ?? this.period,
+      periodStartDay: periodStartDay ?? this.periodStartDay,
+      amountMinor: amountMinor ?? this.amountMinor,
+      currency: currency ?? this.currency,
+      rollover: rollover ?? this.rollover,
+      startDate: startDate ?? this.startDate,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (categoryId.present) {
+      map['category_id'] = Variable<String>(categoryId.value);
+    }
+    if (period.present) {
+      map['period'] = Variable<String>(
+        $BudgetsTable.$converterperiod.toSql(period.value),
+      );
+    }
+    if (periodStartDay.present) {
+      map['period_start_day'] = Variable<int>(periodStartDay.value);
+    }
+    if (amountMinor.present) {
+      map['amount_minor'] = Variable<int>(amountMinor.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (rollover.present) {
+      map['rollover'] = Variable<bool>(rollover.value);
+    }
+    if (startDate.present) {
+      map['start_date'] = Variable<String>(
+        $BudgetsTable.$converterstartDate.toSql(startDate.value),
+      );
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(
+        $BudgetsTable.$convertercreatedAt.toSql(createdAt.value),
+      );
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(
+        $BudgetsTable.$converterupdatedAt.toSql(updatedAt.value),
+      );
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(
+        $BudgetsTable.$converterdeletedAtn.toSql(deletedAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BudgetsCompanion(')
+          ..write('id: $id, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('period: $period, ')
+          ..write('periodStartDay: $periodStartDay, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('currency: $currency, ')
+          ..write('rollover: $rollover, ')
+          ..write('startDate: $startDate, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BudgetAlertsTable extends BudgetAlerts
+    with TableInfo<$BudgetAlertsTable, BudgetAlertRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BudgetAlertsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _budgetIdMeta = const VerificationMeta(
+    'budgetId',
+  );
+  @override
+  late final GeneratedColumn<String> budgetId = GeneratedColumn<String>(
+    'budget_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate, String> periodStart =
+      GeneratedColumn<String>(
+        'period_start',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<LocalDate>($BudgetAlertsTable.$converterperiodStart);
+  static const VerificationMeta _thresholdBpMeta = const VerificationMeta(
+    'thresholdBp',
+  );
+  @override
+  late final GeneratedColumn<int> thresholdBp = GeneratedColumn<int>(
+    'threshold_bp',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> raisedAt =
+      GeneratedColumn<int>(
+        'raised_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($BudgetAlertsTable.$converterraisedAt);
+  @override
+  List<GeneratedColumn> get $columns => [
+    budgetId,
+    periodStart,
+    thresholdBp,
+    raisedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'budget_alerts';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BudgetAlertRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('budget_id')) {
+      context.handle(
+        _budgetIdMeta,
+        budgetId.isAcceptableOrUnknown(data['budget_id']!, _budgetIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_budgetIdMeta);
+    }
+    if (data.containsKey('threshold_bp')) {
+      context.handle(
+        _thresholdBpMeta,
+        thresholdBp.isAcceptableOrUnknown(
+          data['threshold_bp']!,
+          _thresholdBpMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_thresholdBpMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {budgetId, periodStart, thresholdBp};
+  @override
+  BudgetAlertRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BudgetAlertRow(
+      budgetId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}budget_id'],
+      )!,
+      periodStart: $BudgetAlertsTable.$converterperiodStart.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}period_start'],
+        )!,
+      ),
+      thresholdBp: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}threshold_bp'],
+      )!,
+      raisedAt: $BudgetAlertsTable.$converterraisedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}raised_at'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $BudgetAlertsTable createAlias(String alias) {
+    return $BudgetAlertsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<LocalDate, String> $converterperiodStart =
+      const LocalDateColumnConverter();
+  static TypeConverter<DateTime, int> $converterraisedAt =
+      const UtcMillisColumnConverter();
+}
+
+class BudgetAlertRow extends DataClass implements Insertable<BudgetAlertRow> {
+  final String budgetId;
+  final LocalDate periodStart;
+  final int thresholdBp;
+  final DateTime raisedAt;
+  const BudgetAlertRow({
+    required this.budgetId,
+    required this.periodStart,
+    required this.thresholdBp,
+    required this.raisedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['budget_id'] = Variable<String>(budgetId);
+    {
+      map['period_start'] = Variable<String>(
+        $BudgetAlertsTable.$converterperiodStart.toSql(periodStart),
+      );
+    }
+    map['threshold_bp'] = Variable<int>(thresholdBp);
+    {
+      map['raised_at'] = Variable<int>(
+        $BudgetAlertsTable.$converterraisedAt.toSql(raisedAt),
+      );
+    }
+    return map;
+  }
+
+  BudgetAlertsCompanion toCompanion(bool nullToAbsent) {
+    return BudgetAlertsCompanion(
+      budgetId: Value(budgetId),
+      periodStart: Value(periodStart),
+      thresholdBp: Value(thresholdBp),
+      raisedAt: Value(raisedAt),
+    );
+  }
+
+  factory BudgetAlertRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BudgetAlertRow(
+      budgetId: serializer.fromJson<String>(json['budgetId']),
+      periodStart: serializer.fromJson<LocalDate>(json['periodStart']),
+      thresholdBp: serializer.fromJson<int>(json['thresholdBp']),
+      raisedAt: serializer.fromJson<DateTime>(json['raisedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'budgetId': serializer.toJson<String>(budgetId),
+      'periodStart': serializer.toJson<LocalDate>(periodStart),
+      'thresholdBp': serializer.toJson<int>(thresholdBp),
+      'raisedAt': serializer.toJson<DateTime>(raisedAt),
+    };
+  }
+
+  BudgetAlertRow copyWith({
+    String? budgetId,
+    LocalDate? periodStart,
+    int? thresholdBp,
+    DateTime? raisedAt,
+  }) => BudgetAlertRow(
+    budgetId: budgetId ?? this.budgetId,
+    periodStart: periodStart ?? this.periodStart,
+    thresholdBp: thresholdBp ?? this.thresholdBp,
+    raisedAt: raisedAt ?? this.raisedAt,
+  );
+  BudgetAlertRow copyWithCompanion(BudgetAlertsCompanion data) {
+    return BudgetAlertRow(
+      budgetId: data.budgetId.present ? data.budgetId.value : this.budgetId,
+      periodStart: data.periodStart.present
+          ? data.periodStart.value
+          : this.periodStart,
+      thresholdBp: data.thresholdBp.present
+          ? data.thresholdBp.value
+          : this.thresholdBp,
+      raisedAt: data.raisedAt.present ? data.raisedAt.value : this.raisedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BudgetAlertRow(')
+          ..write('budgetId: $budgetId, ')
+          ..write('periodStart: $periodStart, ')
+          ..write('thresholdBp: $thresholdBp, ')
+          ..write('raisedAt: $raisedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(budgetId, periodStart, thresholdBp, raisedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BudgetAlertRow &&
+          other.budgetId == this.budgetId &&
+          other.periodStart == this.periodStart &&
+          other.thresholdBp == this.thresholdBp &&
+          other.raisedAt == this.raisedAt);
+}
+
+class BudgetAlertsCompanion extends UpdateCompanion<BudgetAlertRow> {
+  final Value<String> budgetId;
+  final Value<LocalDate> periodStart;
+  final Value<int> thresholdBp;
+  final Value<DateTime> raisedAt;
+  final Value<int> rowid;
+  const BudgetAlertsCompanion({
+    this.budgetId = const Value.absent(),
+    this.periodStart = const Value.absent(),
+    this.thresholdBp = const Value.absent(),
+    this.raisedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BudgetAlertsCompanion.insert({
+    required String budgetId,
+    required LocalDate periodStart,
+    required int thresholdBp,
+    required DateTime raisedAt,
+    this.rowid = const Value.absent(),
+  }) : budgetId = Value(budgetId),
+       periodStart = Value(periodStart),
+       thresholdBp = Value(thresholdBp),
+       raisedAt = Value(raisedAt);
+  static Insertable<BudgetAlertRow> custom({
+    Expression<String>? budgetId,
+    Expression<String>? periodStart,
+    Expression<int>? thresholdBp,
+    Expression<int>? raisedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (budgetId != null) 'budget_id': budgetId,
+      if (periodStart != null) 'period_start': periodStart,
+      if (thresholdBp != null) 'threshold_bp': thresholdBp,
+      if (raisedAt != null) 'raised_at': raisedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BudgetAlertsCompanion copyWith({
+    Value<String>? budgetId,
+    Value<LocalDate>? periodStart,
+    Value<int>? thresholdBp,
+    Value<DateTime>? raisedAt,
+    Value<int>? rowid,
+  }) {
+    return BudgetAlertsCompanion(
+      budgetId: budgetId ?? this.budgetId,
+      periodStart: periodStart ?? this.periodStart,
+      thresholdBp: thresholdBp ?? this.thresholdBp,
+      raisedAt: raisedAt ?? this.raisedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (budgetId.present) {
+      map['budget_id'] = Variable<String>(budgetId.value);
+    }
+    if (periodStart.present) {
+      map['period_start'] = Variable<String>(
+        $BudgetAlertsTable.$converterperiodStart.toSql(periodStart.value),
+      );
+    }
+    if (thresholdBp.present) {
+      map['threshold_bp'] = Variable<int>(thresholdBp.value);
+    }
+    if (raisedAt.present) {
+      map['raised_at'] = Variable<int>(
+        $BudgetAlertsTable.$converterraisedAt.toSql(raisedAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BudgetAlertsCompanion(')
+          ..write('budgetId: $budgetId, ')
+          ..write('periodStart: $periodStart, ')
+          ..write('thresholdBp: $thresholdBp, ')
+          ..write('raisedAt: $raisedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $AccountsTable accounts = $AccountsTable(this);
@@ -6670,6 +7676,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $HeldRecordsTable heldRecords = $HeldRecordsTable(this);
   late final $ItemsTable items = $ItemsTable(this);
   late final $RulesTable rules = $RulesTable(this);
+  late final $BudgetsTable budgets = $BudgetsTable(this);
+  late final $BudgetAlertsTable budgetAlerts = $BudgetAlertsTable(this);
   late final Index transactionsAccountDate = Index(
     'transactions_account_date',
     'CREATE INDEX transactions_account_date ON transactions (account_id, date)',
@@ -6702,6 +7710,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'rules_position',
     'CREATE INDEX rules_position ON rules (position)',
   );
+  late final Index budgetsCategory = Index(
+    'budgets_category',
+    'CREATE INDEX budgets_category ON budgets (category_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6720,6 +7732,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     heldRecords,
     items,
     rules,
+    budgets,
+    budgetAlerts,
     transactionsAccountDate,
     transactionsUserCategory,
     transactionsPendingTransaction,
@@ -6728,6 +7742,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     changeLogOutbox,
     recordClocksHlc,
     rulesPosition,
+    budgetsCategory,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

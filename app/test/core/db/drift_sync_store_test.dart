@@ -14,6 +14,7 @@ import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 
 import '../../contract/repository_fixture.dart';
+import '../../helpers/random_budgets.dart';
 import '../../helpers/random_rules.dart';
 
 EntityRecord goal(String id, String name) => EntityRecord(
@@ -410,6 +411,83 @@ void main() {
         (await database.select(database.rules).getSingle()).conditions,
         contains('account'),
       );
+    });
+
+    test('a budget, live and deleted, round-trips through its row', () async {
+      final Budget budget = Budget(
+        id: 'b1',
+        categoryId: 'plaid:FOOD_AND_DRINK',
+        period: BudgetPeriodKind.monthly,
+        periodStartDay: 25,
+        amount: Money(45000, 'EUR'),
+        rollover: true,
+        startDate: LocalDate(2024, 2, 25),
+      );
+      await roundTrips(
+        complete(EntityType.budget, 'b1', budgetRecordJson(budget), at),
+      );
+      final BudgetRow row = await database.select(database.budgets).getSingle();
+      expect(row.amountMinor, 45000);
+      expect(row.currency, 'EUR');
+      expect(row.startDate, LocalDate(2024, 2, 25));
+      expect(row.deletedAt, isNull);
+      await roundTrips(
+        complete(
+          EntityType.budget,
+          'b1',
+          budgetRecordJson(budget, deletedAt: DateTime.utc(2026, 10, 2)),
+          at,
+        ),
+      );
+      expect(
+        (await database.select(database.budgets).getSingle()).deletedAt,
+        DateTime.utc(2026, 10, 2),
+      );
+      expect(await database.select(database.heldRecords).get(), isEmpty);
+    });
+
+    test('randomized budgets round-trip', () async {
+      for (int seed = 0; seed < 50; seed++) {
+        final Random random = Random(seed);
+        final Budget budget = randomBudget(random, 'b$seed');
+        final Map<String, Object?> fields = budgetRecordJson(budget);
+        if (random.nextBool()) fields.remove(deletedAtField);
+        await roundTrips(complete(EntityType.budget, budget.id, fields, at));
+      }
+      expect(await database.select(database.heldRecords).get(), isEmpty);
+    });
+
+    test('a budget that does not decode is held and leaves the row', () async {
+      final Budget budget = Budget(
+        id: 'b1',
+        categoryId: 'c1',
+        period: BudgetPeriodKind.monthly,
+        periodStartDay: 1,
+        amount: Money(10000, 'USD'),
+        rollover: false,
+        startDate: LocalDate(2026, 10, 1),
+      );
+      await store.write(
+        complete(EntityType.budget, 'b1', budgetRecordJson(budget), at),
+      );
+      int wall = at.wallMillis;
+      for (final Map<String, Object?> newer in [
+        {...budgetRecordJson(budget), 'period': 'weekly'},
+        {...budgetRecordJson(budget), 'period_start_day': 29},
+      ]) {
+        await roundTrips(
+          complete(EntityType.budget, 'b1', newer, Hlc(++wall, 0, 'b')),
+        );
+        expect(
+          (await database.select(database.heldRecords).getSingle()).reason,
+          'unrepresentable',
+        );
+        final BudgetRow row = await database
+            .select(database.budgets)
+            .getSingle();
+        expect(row.period, BudgetPeriodKind.monthly);
+        expect(row.periodStartDay, 1);
+      }
     });
 
     test('an entity with no clocks has no record, even with a row', () async {

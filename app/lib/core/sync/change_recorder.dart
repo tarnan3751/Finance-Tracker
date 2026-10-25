@@ -104,7 +104,7 @@ Future<void> recordEach(
 ///   device; demo data never syncs);
 /// - an account linked through an Item (`item_id` set): nothing until Phase 3 rules on
 ///   linked-account overrides;
-/// - categories and settings: all of it.
+/// - categories, rules, budgets and settings: all of it.
 ({Map<String, Object?>? before, Map<String, Object?> after})?
 userAuthoredChange(
   EntityType type,

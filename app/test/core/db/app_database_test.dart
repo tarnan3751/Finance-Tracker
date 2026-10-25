@@ -1,5 +1,5 @@
-// The schema's constraints: provenance, account type and Item status CHECKs that match
-// the enums (an Item status stored under its JSON name), the cascade from transactions to their tags and splits, and foreign keys switched on.
+// The schema's constraints: provenance, account type, Item status and budget period CHECKs
+// that match the enums (an Item status stored under its JSON name), a budget's start day, the cascade from transactions to their tags and splits, and foreign keys switched on.
 import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
@@ -139,6 +139,55 @@ void main() {
       ),
       throwsA(isA<SqliteException>()),
     );
+  });
+
+  test('every BudgetPeriodKind value is stored under its JSON name, and a '
+      'start day outside 1 to 28 is refused', () async {
+    for (final BudgetPeriodKind period in BudgetPeriodKind.values) {
+      final Budget budget = Budget(
+        id: period.name,
+        categoryId: 'c1',
+        period: period,
+        periodStartDay: 28,
+        amount: Money(40000, 'USD'),
+        rollover: false,
+        startDate: LocalDate(2026, 10, 1),
+      );
+      await database
+          .into(database.budgets)
+          .insert(
+            BudgetsCompanion.insert(
+              id: budget.id,
+              categoryId: budget.categoryId,
+              period: period,
+              periodStartDay: budget.periodStartDay,
+              amountMinor: 40000,
+              currency: 'USD',
+              rollover: false,
+              startDate: budget.startDate,
+              createdAt: at,
+              updatedAt: at,
+            ),
+          );
+      final QueryRow stored = await database
+          .customSelect(
+            'SELECT period FROM budgets WHERE id = ?',
+            variables: [Variable.withString(period.name)],
+          )
+          .getSingle();
+      expect(stored.read<String>('period'), budget.toJson()['period']);
+    }
+    for (final String change in [
+      "period = 'weekly'",
+      'period_start_day = 29',
+      'period_start_day = 0',
+    ]) {
+      await expectLater(
+        database.customStatement('UPDATE budgets SET $change'),
+        throwsA(isA<SqliteException>()),
+        reason: change,
+      );
+    }
   });
 
   test(

@@ -9,7 +9,9 @@
 /// Schema 3 adds the user's Plaid Items (`items`), which the Plaid pull fills; its
 /// migration creates the empty table. Schema 4 adds the user's rules (`rules`); its
 /// migration also materializes the rule records sync held before this version could
-/// store them. Every schema change follows the procedure
+/// store them. Schema 5 adds the user's budgets (`budgets`) and the alerts this device
+/// raised for them (`budget_alerts`, local only); its migration materializes the budget
+/// records sync held. Every schema change follows the procedure
 /// in `data.md`: bump [AppDatabase.schemaVersion], write the step in `onUpgrade`, dump the
 /// schema, regenerate the test helpers, and add the migration test. How the file is found,
 /// keyed and opened is `open_database.dart`; this file stays free of Flutter so the schema
@@ -23,6 +25,8 @@ import 'package:finance_tracker/core/db/sync_backfill.dart';
 import 'package:finance_tracker/core/db/tables/accounts.dart';
 import 'package:finance_tracker/core/db/tables/app_meta.dart';
 import 'package:finance_tracker/core/db/tables/app_settings.dart';
+import 'package:finance_tracker/core/db/tables/budget_alerts.dart';
+import 'package:finance_tracker/core/db/tables/budgets.dart';
 import 'package:finance_tracker/core/db/tables/categories.dart';
 import 'package:finance_tracker/core/db/tables/change_log.dart';
 import 'package:finance_tracker/core/db/tables/held_records.dart';
@@ -62,6 +66,8 @@ final Logger _log = Logger('db');
     HeldRecords,
     Items,
     Rules,
+    Budgets,
+    BudgetAlerts,
   ],
 )
 final class AppDatabase extends _$AppDatabase {
@@ -83,7 +89,7 @@ final class AppDatabase extends _$AppDatabase {
   final String Function() newNodeId;
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -118,6 +124,17 @@ final class AppDatabase extends _$AppDatabase {
           await releaseHeldRecords(
             DriftSyncStore(this, _WallClock(wallMillis)),
             EntityType.rule,
+          );
+        });
+      }
+      if (from < 5) {
+        await transaction(() async {
+          await m.createTable(budgets);
+          await m.createIndex(budgetsCategory);
+          await m.createTable(budgetAlerts);
+          await releaseHeldRecords(
+            DriftSyncStore(this, _WallClock(wallMillis)),
+            EntityType.budget,
           );
         });
       }
