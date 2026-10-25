@@ -6,7 +6,8 @@ transaction editor, which is also a transaction's detail. Code:
 `domain/effective_category.dart`, `enrichment.dart`, `merchant_dictionary.dart`; the
 repository and
 `TransactionQuery` are `data.md`'s). Tests:
-`app/test/features/transactions/`, `app/test/flows/`.
+`app/test/features/transactions/`, `app/test/flows/`, and on a device
+`app/integration_test/transactions_bulk_test.dart` (the harness).
 
 ## The list
 

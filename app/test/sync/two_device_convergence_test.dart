@@ -33,6 +33,7 @@ import 'package:finance_tracker/features/categories/domain/category_repository.d
 import 'package:finance_tracker/features/rules/domain/rule_repository.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
 import 'package:finance_tracker/features/settings/domain/settings_repository.dart';
+import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -888,6 +889,110 @@ void main() {
     );
   });
 
+  group('hidden', () {
+    test('a hide on one device and a notes edit on the other both survive; '
+        'a batch hide syncs', () async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b');
+      await shared(a, [b]);
+
+      final Transaction t1 = (await a.transactions.watchById('t1').first)!;
+      await a.transactions.upsert(t1.copyWith(hidden: true));
+      final Transaction t1b = (await b.transactions.watchById('t1').first)!;
+      await b.transactions.upsert(t1b.copyWith(notes: 'from B'));
+      final Transaction t2 = (await b.transactions.watchById('t2').first)!;
+      final Transaction t3 = (await b.transactions.watchById('t3').first)!;
+      await b.transactions.upsertAll([
+        t2.copyWith(hidden: true),
+        t3.copyWith(hidden: true),
+      ]);
+      await expectConverged([a, b]);
+
+      for (final Device d in [a, b]) {
+        final Transaction merged = (await d.transactions
+            .watchById('t1')
+            .first)!;
+        expect(merged.hidden, isTrue, reason: d.name);
+        expect(merged.notes, 'from B', reason: d.name);
+        expect(
+          await d.transactions.count(TransactionQuery(hidden: false)),
+          1,
+          reason: '${d.name}: only the opening balance is shown',
+        );
+        // Hidden rows still count toward the balance.
+        expect(
+          await d.accounts.watchDerivedBalance('acc').first,
+          Money(100000 - 3000, 'USD'),
+        );
+      }
+    });
+
+    test('hide against unhide: the later clock wins', () async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b', skew: const Duration(seconds: 30));
+      await shared(a, [b]);
+
+      // Offline: B, whose clock is 30 s ahead, hides and unhides t1; A hides it a
+      // moment later in real time, at an earlier clock. B's unhide wins.
+      final Transaction onB = (await b.transactions.watchById('t1').first)!;
+      await b.transactions.upsert(onB.copyWith(hidden: true));
+      await b.transactions.upsert(onB.copyWith(hidden: false, notes: 'b'));
+      world.tick();
+      final Transaction onA = (await a.transactions.watchById('t1').first)!;
+      await a.transactions.upsert(onA.copyWith(hidden: true));
+      await expectConverged([a, b]);
+      for (final Device d in [a, b]) {
+        final Transaction row = (await d.transactions.watchById('t1').first)!;
+        expect(row.hidden, isFalse, reason: d.name);
+        expect(row.notes, 'b', reason: d.name);
+      }
+
+      // A hides it again after seeing B's clocks: its clock is past them, so it wins.
+      final Transaction again = (await a.transactions.watchById('t1').first)!;
+      await a.transactions.upsert(again.copyWith(hidden: true));
+      await expectConverged([a, b]);
+      expect((await b.transactions.watchById('t1').first)!.hidden, isTrue);
+    });
+
+    test('a hidden plaid row stays hidden when the bank updates it, and a hide '
+        'pulled before the row lands on it', () async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b');
+      await shared(a, [b]);
+      final Transaction bank = testTransaction(
+        'p1',
+        'acc',
+        -450,
+        name: 'NETFLIX.COM',
+      ).copyWith(source: DataSource.plaid, syncVersion: 1);
+      await a.pullPage([bank]);
+      final Transaction stored = (await a.transactions.watchById('p1').first)!;
+      await a.transactions.upsertAll([stored.copyWith(hidden: true)]);
+      await a.sync();
+      // B has not pulled the row: the hide waits, held, and lands with it.
+      await b.sync();
+      expect((await b.store.watchLedger().first).held, 1);
+      await b.pullPage([bank]);
+      await expectConverged([a, b]);
+
+      // The bank posts it later: Plaid's fields change, the override stays.
+      final Transaction posted = bank.copyWith(
+        amount: Money(-499, 'USD'),
+        syncVersion: 2,
+      );
+      for (final Device d in [a, b]) {
+        await d.pullPage([posted]);
+      }
+      await expectConverged([a, b]);
+      for (final Device d in [a, b]) {
+        final Transaction row = (await d.transactions.watchById('p1').first)!;
+        expect(row.hidden, isTrue, reason: d.name);
+        expect(row.amount, Money(-499, 'USD'), reason: d.name);
+        expect(row.source, DataSource.plaid);
+      }
+    });
+  });
+
   test('a seeded random run on three devices converges', () async {
     const int seeds = 25;
     for (int seed = 0; seed < seeds; seed++) {
@@ -929,6 +1034,7 @@ void main() {
                   t.copyWith(
                     notes: 'n$step',
                     tags: random.nextBool() ? ['x$step'] : t.tags,
+                    hidden: random.nextInt(3) == 0 ? !t.hidden : t.hidden,
                   ),
                 );
               }
