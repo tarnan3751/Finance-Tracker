@@ -22,6 +22,10 @@
 #   7. contract   tools/check_contract.sh, once it exists (Phase 2): the OpenAPI document
 #                 passes the structural check and the generated client is current (the
 #                 fakes and the server are checked against it by their own tests)
+#   8. commits    tools/check_commits.sh origin/main: the messages of the commits beyond
+#                 origin/main have the shape the map requires, as tools/land_series.sh
+#                 checks at landing; skipped on a detached HEAD (CI's pull request
+#                 checkout), with no origin/main, or outside a git checkout
 # Prints one line per gate, the failing gate's output in full, and exits non-zero when any
 # gate fails. Uses `fvm flutter`/`fvm dart` when .fvmrc exists and fvm is installed, else the
 # bare commands. Every Flutter or Dart run writes build/ and .dart_tool/ in the tree it runs
@@ -202,6 +206,17 @@ if [ -x tools/check_contract.sh ]; then
   fi
 else
   report contract ok "no contract checker yet"
+fi
+
+# 8. Commit messages ---------------------------------------------------------------------
+if ! git symbolic-ref -q HEAD >/dev/null 2>&1 || ! git rev-parse -q --verify origin/main >/dev/null; then
+  report commits ok "skipped: detached HEAD, no origin/main or no git checkout"
+elif [ "$(git rev-list --count origin/main..HEAD)" -eq 0 ]; then
+  report commits ok "no commits beyond origin/main"
+elif tools/check_commits.sh origin/main >"$scratch/commits.txt" 2>&1; then
+  report commits ok "$(tail -1 "$scratch/commits.txt")"
+else
+  report commits FAILED "tools/check_commits.sh origin/main" "$scratch/commits.txt"
 fi
 
 if [ $failed -eq 0 ]; then

@@ -8,10 +8,10 @@
 #   tools/land_series.sh <patch-dir> <base-commit> <tree-hash> [--dry-run]
 #
 # It refuses a working tree that is not clean, a HEAD that is not the base commit, a
-# branch other than main, a patch directory with no NNNN-*.patch files, a subject that is
-# not a Conventional Commit (`type(scope): Summary`, sentence case, no trailing period, at
-# most 72 characters), a message that carries a trailer, a patch that does not apply, and a
-# final tree that differs from the reported one. Each refusal after `git am` started resets
+# branch other than main, a patch directory with no NNNN-*.patch files, a patch that does
+# not apply, a commit message that tools/check_commits.sh refuses (the gate's own lint: a
+# Conventional Commit subject of at most 72 characters, no trailer), and a final tree that
+# differs from the reported one. Each refusal after `git am` started resets
 # the branch back to the base, so the tree is left as it was found. `--dry-run` applies and
 # checks the chain, then resets to the base without running the gate. The gate's report is
 # kept in app/build/landing/<tree>.log (gitignored); a gate failure leaves the commits in
@@ -66,29 +66,6 @@ while IFS= read -r file; do
 done < <(find "$patch_dir" -maxdepth 1 -name '[0-9][0-9][0-9][0-9]-*.patch' | sort)
 [ "${#patches[@]}" -gt 0 ] || refuse "no NNNN-*.patch files in $patch_dir"
 
-# Message checks before anything is applied: Conventional Commit subjects, no trailers.
-conventional='^(feat|fix|refactor|perf|test|docs|build|ci|chore|style|revert)(\([a-z0-9][a-z0-9/_-]*\))?!?: [A-Z0-9].*[^.[:space:]]$'
-n=0
-for patch in "${patches[@]}"; do
-  n=$((n + 1))
-  message="$(sed -n '/^Subject:/,/^---$/p' "$patch")"
-  # git format-patch folds a long Subject: header onto continuation lines (RFC 2822), so the
-  # whole header is unfolded before the length check sees it.
-  subject="$(awk '/^Subject:/{s=$0; while ((getline line) > 0 && line ~ /^[ \t]/) { sub(/^[ \t]+/, " ", line); s = s line }; print s; exit }' "$patch" | sed -E 's/^Subject: (\[PATCH[^]]*\] )?//')"
-  [ -n "$subject" ] || refuse "patch $n has no Subject line"
-  if ! printf '%s' "$subject" | grep -qE "$conventional"; then
-    refuse "patch $n's subject is not a Conventional Commit (type(scope): Summary, sentence case, no trailing period): $subject"
-  fi
-  if [ "${#subject}" -gt 72 ]; then
-    refuse "patch $n's subject is ${#subject} characters, over 72: $subject"
-  fi
-  if printf '%s\n' "$message" | grep -qiE '^(Co-Authored-By|Signed-off-by|Generated-with|Reviewed-by|Claude-Session|Change-Id):'; then
-    refuse "patch $n's message carries a trailer"
-  fi
-  wide="$(printf '%s\n' "$message" | awk 'length > 100' | wc -l | tr -d ' ')"
-  [ "$wide" -eq 0 ] || echo "note: patch $n has $wide message line(s) over 100 characters"
-done
-
 echo "repository $root, branch main at ${base:0:10}, ${#patches[@]} patch(es)"
 
 rollback() {
@@ -100,6 +77,12 @@ rollback() {
 if ! git am "${patches[@]}"; then
   rollback
   refuse "a patch does not apply (see above)"
+fi
+
+# The messages, checked by the same script as the gate's commits step.
+if ! "$tools_dir/check_commits.sh" "$base"; then
+  rollback
+  refuse "the series' commit messages do not pass tools/check_commits.sh (above)"
 fi
 
 tree="$(git rev-parse 'HEAD^{tree}')"

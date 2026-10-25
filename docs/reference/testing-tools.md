@@ -39,6 +39,11 @@ The definition of green. Run after every change, at every commit of a series, by
    slow ones).
 7. **contract**: `tools/check_contract.sh` (below): the contract's structural check and
    the generated client's source hash.
+8. **commits**: `tools/check_commits.sh origin/main` (below), the commit-message lint, on
+   the commits beyond `origin/main`, so a lane meets a bad message at its own gate. It is
+   skipped on a detached `HEAD` (CI's pull-request checkout), when there is no
+   `origin/main` (CI's branch checkout fetches only its own branch) or outside a git
+   checkout, and passes with nothing to check when `HEAD` is `origin/main`.
 
 It prints one line per gate, the failing gate's output in full, and exits non-zero when
 any gate fails. It writes `build/` and `.dart_tool/` in the tree it runs in, so an agent
@@ -75,13 +80,41 @@ stale: run tools/gen_api_client.sh". Each failure is printed and the script exit
 success its last line, which the gate shows, counts the operations and schemas. Bodies are
 validated against the contract by the server's and the fakes' tests, not here.
 
+## `tools/check_commits.sh`: the commit-message lint
+
+`tools/check_commits.sh <base> [<head>]` checks every commit in `<base>..<head>` (`HEAD` by
+default) for the shape **Delivery and landing** in the map requires. The gate runs it on
+the commits beyond `origin/main` and `tools/land_series.sh` on the series it lands, so the
+two agree. A subject is `type(scope): Summary` or `type: Summary`, a `!` before the colon
+allowed, where
+
+- the type is one of `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `build`, `ci`,
+  `chore`, `style`, `revert`;
+- the scope is one of `app`, `server`, `models`, `api`, `persona`, `tools`, `docs`, `ci`,
+  `build`, a feature folder under `app/lib/features/` in `<head>`'s tree, or `sync` or
+  `map`, which the history uses;
+- the summary starts with a capital letter or a digit, does not end in a period, and its
+  first word is not a past tense, an `-ing` form or a third person (`Added`, `Adding`,
+  `Adds`; verbs that only look like one are let through: `Embed`, `Shed`, `Shred`, `Wed`,
+  `Bring`, `Cling`, `Fling`, `Ping`, `Ring`, `Sing`, `Sling`, `Spring`, `Sting`, `String`,
+  `Swing`, `Wring`, `Alias`, `Bias`, `Canvas`; words ending in `-eed`, `-ss` or `-us`
+  pass the check anyway);
+- the whole subject is at most 72 characters.
+
+No message may carry a trailer: none that `git interpret-trailers --parse` finds, and no line
+starting `Co-Authored-By:`, `Signed-off-by:`, `Generated-with:`, `Reviewed-by:`,
+`Claude-Session:` or `Change-Id:`. A message line over 100 characters is noted, not refused.
+It prints one line per problem and exits 1, or a count on its last line and exits 0; 2 on
+a usage error. It only reads the repository.
+
 ## `tools/land_series.sh`: landing a series
 
 `tools/land_series.sh <patch-dir> <base-commit> <tree-hash> [--dry-run]`, the coordinator's
-landing step. It refuses a dirty tree, a HEAD other than the base on `main`, a subject that
-is not a Conventional Commit of at most 72 characters, and any trailer; then applies the
-`NNNN-*.patch` files with `git am`, checks the final tree against the reported hash (rolling
-back to the base on a mismatch), and runs the gate, leaving the commits in place unpushed.
+landing step. It refuses a dirty tree or a HEAD other than the base on `main`; then applies
+the `NNNN-*.patch` files with `git am`, runs `tools/check_commits.sh <base>` on the applied
+commits (the series' own copy of the script), checks the final tree against the reported
+hash, rolling back to the base when either fails, and runs the gate, leaving the commits in
+place unpushed.
 The gate's report is kept in `app/build/landing/<tree>.log` (gitignored), by the tree it
 checked. When the gate fails the commits stay in place too, and the script prints the tail
 of the failing step (each `gate <step> FAILED` line and the output under it, the last 60
