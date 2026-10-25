@@ -12,10 +12,12 @@ library;
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
+import 'package:finance_tracker/core/widgets/merchant_avatar.dart';
 import 'package:finance_tracker/features/items/application/items_providers.dart';
 import 'package:finance_tracker/features/items/application/link_controller.dart';
 import 'package:finance_tracker/features/items/domain/item_action.dart';
 import 'package:finance_tracker/features/items/domain/linked_bank.dart';
+import 'package:finance_tracker/features/transactions/domain/enrichment.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -241,28 +243,19 @@ class _BankCard extends ConsumerWidget {
   }
 }
 
-/// The institution's logo when the server gave one, else its initial.
+/// The institution's logo when the server gave one, else its initial on Plaid's primary
+/// color or a palette color; decorative, its name being beside it.
 class _Logo extends StatelessWidget {
   const _Logo({required this.bank});
 
   final LinkedBank bank;
 
   @override
-  Widget build(BuildContext context) {
-    final ColorScheme colors = Theme.of(context).colorScheme;
-    return ExcludeSemantics(
-      child: CircleAvatar(
-        radius: 20,
-        backgroundColor: colors.secondaryContainer,
-        foregroundColor: colors.onSecondaryContainer,
-        foregroundImage: switch (bank.logo) {
-          final logo? => MemoryImage(logo),
-          null => null,
-        },
-        child: Text(bank.institution.name.characters.first.toUpperCase()),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => MerchantAvatar(
+    name: bank.institution.name,
+    color: institutionColor(bank.institution),
+    logoBytes: bank.logo,
+  );
 }
 
 class _StatusChip extends StatelessWidget {
