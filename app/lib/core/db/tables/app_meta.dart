@@ -1,4 +1,5 @@
-/// The `app_meta` table: facts about this install (`legacy_import_done`, `install_date`).
+/// The `app_meta` table: facts about this install (`legacy_import_done`, `install_date`,
+/// `fts_definition`).
 library;
 
 import 'package:drift/drift.dart';

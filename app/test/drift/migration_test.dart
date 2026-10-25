@@ -9,6 +9,7 @@ import 'package:drift/native.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
+import 'package:finance_tracker/core/db/full_text_search.dart';
 import 'package:finance_tracker/core/db/tables/record_clocks.dart';
 import 'package:finance_tracker/core/db/tables/sync_meta.dart';
 import 'package:finance_tracker/core/sync/entity_codec.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 
+import '../helpers/fts_oracle.dart';
 import '../helpers/pump_app.dart' show testClock;
 import 'generated/schema.dart';
 
@@ -72,6 +74,12 @@ void main() {
     final AppDatabase database = AppDatabase(await verifier.startAt(7));
     addTearDown(database.close);
     await verifier.migrateAndValidate(database, 7);
+  });
+
+  test('a new database matches the schema 8 dump', () async {
+    final AppDatabase database = AppDatabase(await verifier.startAt(8));
+    addTearDown(database.close);
+    await verifier.migrateAndValidate(database, 8);
   });
 
   group('schema 1 to 2', () {
@@ -158,7 +166,17 @@ void main() {
       );
       expect(await database.select(database.categories).get(), hasLength(2));
       expect(await database.select(database.appSettings).get(), hasLength(2));
-      expect(await database.select(database.appMeta).get(), hasLength(1));
+      expect(
+        {
+          for (final AppMetaRow m
+              in await database.select(database.appMeta).get())
+            m.key: m.value,
+        },
+        {
+          'install_date': '2026-10-01',
+          ftsDefinitionKey: '$ftsDefinitionVersion',
+        },
+      );
     });
 
     test('records a create for every user-authored row and a delete for every '
@@ -961,5 +979,118 @@ void main() {
         expect(await again.select(again.changeLog).get(), entries);
       });
     }
+  });
+
+  group('schema 7 to 8', () {
+    const int created = 1759309200000; // 2026-10-01 09:00 UTC
+
+    // A schema 7 database with a manual and a Plaid row, tagged.
+    Future<InitializedSchema> seeded() async {
+      final schema = await verifier.schemaAt(7);
+      schema.rawDatabase.execute('''
+        INSERT INTO accounts (id, item_id, type, subtype, name, official_name, mask,
+          currency, current_balance_minor, available_balance_minor, credit_limit_minor,
+          balances_as_of, is_hidden, display_order, created_at, updated_at, deleted_at,
+          sync_version)
+        VALUES ('acc', NULL, 'depository', NULL, 'Wallet', NULL, NULL, 'USD',
+          NULL, NULL, NULL, NULL, 0, 0, $created, $created, NULL, 0);
+        INSERT INTO transactions (id, account_id, amount_minor, currency, date,
+          authorized_date, pending, pending_transaction_id, name, merchant_name,
+          merchant_logo_url, plaid_primary_category, plaid_detailed_category,
+          user_category_id, notes, receipt_path, hidden, source, created_at, updated_at,
+          deleted_at, sync_version, deleted_with_account)
+        VALUES
+          ('t-cafe', 'acc', -450, 'USD', '2026-09-30', NULL, 0, NULL, 'Café Crème',
+           'Blue Bottle', NULL, NULL, NULL, NULL, 'with Zoë', NULL, 0, 'manual',
+           $created, $created, NULL, 0, 0),
+          ('t-uber', 'acc', -1800, 'USD', '2026-09-29', NULL, 0, NULL, 'UBER TRIP',
+           NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'plaid', $created, $created,
+           NULL, 2, 0);
+        INSERT INTO transaction_tags (transaction_id, position, tag)
+        VALUES ('t-uber', 0, 'work'), ('t-uber', 1, 'airport-run');
+      ''');
+      return schema;
+    }
+
+    Future<AppDatabase> migrated({bool allowFullTextSearch = true}) async {
+      final AppDatabase database = AppDatabase(
+        (await seeded()).newConnection(),
+        allowFullTextSearch: allowFullTextSearch,
+      );
+      addTearDown(database.close);
+      await verifier.migrateAndValidate(database, 8);
+      return database;
+    }
+
+    Future<List<String>> matching(AppDatabase database, String match) async => [
+      for (final QueryRow row
+          in await database
+              .customSelect(
+                'SELECT transaction_id FROM $ftsTable WHERE $ftsTable MATCH ? '
+                'ORDER BY transaction_id',
+                variables: [Variable.withString(match)],
+              )
+              .get())
+        row.read<String>('transaction_id'),
+    ];
+
+    test('adds the empty saved filters table', () async {
+      final AppDatabase database = await migrated();
+      expect(await database.select(database.savedFilters).get(), isEmpty);
+    });
+
+    test('builds the full-text index from the existing rows', () async {
+      final AppDatabase database = await migrated();
+      expect(await database.fullTextSearch, isTrue);
+      await expectIndexMatchesView(database);
+      expect(await matching(database, '"cafe"* "creme"*'), ['t-cafe']);
+      expect(await matching(database, '"zoe"*'), ['t-cafe']);
+      expect(await matching(database, '"airport"* "run"*'), ['t-uber']);
+      expect(await matching(database, '"uber"* "work"*'), ['t-uber']);
+    });
+
+    test('creates the same full-text objects as a new database', () async {
+      final AppDatabase upgraded = await migrated();
+      final AppDatabase fresh = AppDatabase(NativeDatabase.memory());
+      addTearDown(fresh.close);
+      await fresh.verifyOpen();
+      final Map<String, String> objects = await fullTextObjects(upgraded);
+      expect(objects, await fullTextObjects(fresh));
+      expect(objects.keys.toSet(), {
+        ftsSourceView,
+        ftsKeysTable,
+        ftsTable,
+        ...ftsTriggers,
+      });
+      expect(objects.values.toSet(), {
+        for (final String statement in ftsCreateStatements) statement,
+      });
+    });
+
+    test('runs again after a run whose version was not written', () async {
+      // The first run created the v8 objects; a kill during beforeOpen's index rebuild
+      // leaves the version at 7, so the next open runs the step again.
+      final schema = await seeded();
+      final AppDatabase first = AppDatabase(schema.newConnection());
+      await verifier.migrateAndValidate(first, 8);
+      await first.close();
+      schema.rawDatabase.execute('PRAGMA user_version = 7');
+
+      final AppDatabase again = AppDatabase(schema.newConnection());
+      addTearDown(again.close);
+      await verifier.migrateAndValidate(again, 8);
+      expect(
+        (await again.select(again.transactions).get()).map((t) => t.id),
+        unorderedEquals(['t-cafe', 't-uber']),
+      );
+      expect(await again.select(again.savedFilters).get(), isEmpty);
+      await expectIndexMatchesView(again);
+    });
+
+    test('without FTS5, leaves the index out', () async {
+      final AppDatabase database = await migrated(allowFullTextSearch: false);
+      expect(await database.fullTextSearch, isFalse);
+      expect(await fullTextObjects(database), isEmpty);
+    });
   });
 }

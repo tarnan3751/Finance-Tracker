@@ -16,7 +16,11 @@
 /// read the transactions as this version declares them, and its migration materializes
 /// the transaction records sync held for a field this version now stores. Schema 7 adds
 /// the duplicate pairs the user dismissed (`dismissed_pairs`), local to the device; its
-/// migration creates the empty table. Every schema change follows the procedure
+/// migration creates the empty table. Schema 8 adds the transaction list's saved filters
+/// (`saved_filters`, local to the device). The full-text index (`full_text_search.dart`)
+/// is not part of a schema step: `beforeOpen` makes it match whether the bundled SQLite
+/// has FTS5, at every open, and records that in [AppDatabase.fullTextSearch]. Every
+/// schema change follows the procedure
 /// in `data.md`, every step idempotent: Drift runs `onUpgrade` outside a transaction and
 /// writes the new version only after it returns, so a step that fails or an app killed
 /// mid-upgrade runs every step again at the old version on the next open. Tables are
@@ -27,9 +31,12 @@
 /// dump can run it in the Dart VM.
 library;
 
+import 'dart:async';
+
 import 'package:drift/drift.dart';
 import 'package:finance_tracker/core/db/converters.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
+import 'package:finance_tracker/core/db/full_text_search.dart';
 import 'package:finance_tracker/core/db/sync_backfill.dart';
 import 'package:finance_tracker/core/db/tables/accounts.dart';
 import 'package:finance_tracker/core/db/tables/app_meta.dart';
@@ -43,6 +50,7 @@ import 'package:finance_tracker/core/db/tables/held_records.dart';
 import 'package:finance_tracker/core/db/tables/items.dart';
 import 'package:finance_tracker/core/db/tables/record_clocks.dart';
 import 'package:finance_tracker/core/db/tables/rules.dart';
+import 'package:finance_tracker/core/db/tables/saved_filters.dart';
 import 'package:finance_tracker/core/db/tables/sync_meta.dart';
 import 'package:finance_tracker/core/db/tables/transaction_splits.dart';
 import 'package:finance_tracker/core/db/tables/transaction_tags.dart';
@@ -60,7 +68,8 @@ final Logger _log = Logger('db');
 /// The app's database over [executor]. [logEncryption] (dev only) logs the cipher and the
 /// SQLite3 Multiple Ciphers version once the database is open. [wallMillis] and
 /// [newNodeId] are the wall clock and the provisional sync node of the schema 2 backfill
-/// (the system clock and `local-<uuid v4>` unless a test pins them).
+/// (the system clock and `local-<uuid v4>` unless a test pins them). [allowFullTextSearch]
+/// false opens as if SQLite had no FTS5, for the tests of that path only.
 @DriftDatabase(
   tables: [
     Accounts,
@@ -79,6 +88,7 @@ final Logger _log = Logger('db');
     Budgets,
     BudgetAlerts,
     DismissedPairs,
+    SavedFilters,
   ],
 )
 final class AppDatabase extends _$AppDatabase {
@@ -88,6 +98,7 @@ final class AppDatabase extends _$AppDatabase {
     this.logEncryption = false,
     this.wallMillis = _systemWallMillis,
     this.newNodeId = provisionalNodeId,
+    this.allowFullTextSearch = true,
   });
 
   /// Whether `beforeOpen` logs the cipher in use.
@@ -99,8 +110,21 @@ final class AppDatabase extends _$AppDatabase {
   /// The provisional sync node of a database migrated from schema 1.
   final String Function() newNodeId;
 
+  /// Whether the full-text index is used when SQLite has FTS5 (false in tests only).
+  final bool allowFullTextSearch;
+
+  final Completer<bool> _fullTextSearch = Completer<bool>();
+
+  /// Whether `TransactionQuery.text` is matched through the FTS5 index (true) or by the
+  /// LIKE fallback (false, when the bundled SQLite lacks FTS5), as checked at open; opens
+  /// the database when it is not open yet.
+  Future<bool> get fullTextSearch async {
+    if (!_fullTextSearch.isCompleted) await verifyOpen();
+    return _fullTextSearch.future;
+  }
+
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -168,9 +192,17 @@ final class AppDatabase extends _$AppDatabase {
       if (from < 7) {
         await m.createTable(dismissedPairs);
       }
+      if (from < 8) {
+        await m.createTable(savedFilters);
+        await _createIndex(m, savedFiltersPosition);
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
+      final bool fts =
+          allowFullTextSearch && await fullTextSearchCompiled(this);
+      await ensureFullTextSearch(this, available: fts);
+      if (!_fullTextSearch.isCompleted) _fullTextSearch.complete(fts);
       if (logEncryption) {
         // Two statements: sqlite3mc's PRAGMA cipher has no table-valued form.
         final QueryRow? cipher = await customSelect('PRAGMA cipher')
