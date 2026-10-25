@@ -4,11 +4,19 @@
 // at $150.00 with carry-over from September (on pace, $150.00 carried).
 //
 //   await pumpApp(tester, overrides: [storeOverride(seededStore()), budgetsOverride(seededBudgets())]);
+//
+// openTestAlerts raises the alerts of the two budgets past a threshold, one read, and
+// opens the alerts sheet from the Budgets screen.
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/platform/in_app_notifications.dart';
+import 'package:finance_tracker/core/platform/notifier.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/budgets/data/in_memory_budget_repository.dart';
+import 'package:finance_tracker/features/budgets/presentation/budgets_screen.dart';
 import 'package:finance_tracker/features/categories/data/category_defaults.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' hide Notifier;
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
 
 import 'pump_app.dart';
@@ -49,3 +57,48 @@ InMemoryBudgetRepository seededBudgets([List<Budget>? budgets]) =>
 /// The override that makes [budgets] the app's budget repository.
 Override budgetsOverride(InMemoryBudgetRepository budgets) =>
     budgetRepositoryProvider.overrideWithValue(budgets);
+
+/// Adds the alerts of the food budget (80 %, unread) and the rent budget (100 %, read)
+/// to the in-app list of the app on the Budgets screen, and opens the alerts sheet.
+Future<void> openTestAlerts(WidgetTester tester) async {
+  final InAppNotifications alerts = ProviderScope.containerOf(
+    tester.element(find.byType(BudgetsScreen)),
+  ).read(inAppNotificationsProvider.notifier);
+  BudgetThresholdNotification alert(
+    String budget,
+    String code,
+    int thresholdBp,
+    int availableCents,
+    DateTime raisedAt,
+  ) => BudgetThresholdNotification(
+    budgetId: budget,
+    categoryId: systemCategoryId(code),
+    periodStart: LocalDate(2026, 10, 1),
+    thresholdBp: thresholdBp,
+    spent: Money(availableCents, 'USD').percent(thresholdBp),
+    available: Money(availableCents, 'USD'),
+    raisedAt: raisedAt,
+  );
+  final BudgetThresholdNotification rent = alert(
+    'budget-rent',
+    'RENT_AND_UTILITIES',
+    10000,
+    120000,
+    DateTime.utc(2026, 10, 10, 18),
+  );
+  alerts
+    ..add(rent)
+    ..markRead(rent.key)
+    ..add(
+      alert(
+        'budget-food',
+        'FOOD_AND_DRINK',
+        8000,
+        700,
+        DateTime.utc(2026, 10, 23, 18),
+      ),
+    );
+  await tester.pumpAndSettle();
+  await tester.tap(find.byTooltip('Alerts, 1 unread'));
+  await tester.pumpAndSettle();
+}

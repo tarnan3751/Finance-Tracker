@@ -1795,4 +1795,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get budgetTransactionsEmpty => 'Nothing counted in this period';
+
+  @override
+  String alertsTooltip(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Alerts, $count unread',
+      one: 'Alerts, 1 unread',
+      zero: 'Alerts',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get alertsTitle => 'Alerts';
+
+  @override
+  String get alertsMarkAllRead => 'Mark all read';
+
+  @override
+  String get alertsEmpty =>
+      'No alerts yet. A budget alerts you when its spending reaches 80 % and 100 %.';
+
+  @override
+  String get alertUnread => 'Unread';
+
+  @override
+  String alertBudgetThreshold(
+    String category,
+    int percent,
+    String available,
+    String date,
+  ) {
+    return '$category reached $percent % of $available on $date';
+  }
 }

@@ -2539,5 +2539,53 @@
   "budgetTransactionsEmpty": "Nothing counted in this period",
   "@budgetTransactionsEmpty": {
     "description": "The budget detail's list when no transaction counts in the period."
+  },
+  "alertsTooltip": "{count, plural, =0{Alerts} =1{Alerts, 1 unread} other{Alerts, {count} unread}}",
+  "@alertsTooltip": {
+    "description": "Tooltip of the Budgets screen's bell, which opens the alerts, with how many are unread.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "alertsTitle": "Alerts",
+  "@alertsTitle": {
+    "description": "Title of the alerts sheet."
+  },
+  "alertsMarkAllRead": "Mark all read",
+  "@alertsMarkAllRead": {
+    "description": "Button of the alerts sheet that marks every alert read."
+  },
+  "alertsEmpty": "No alerts yet. A budget alerts you when its spending reaches 80 % and 100 %.",
+  "@alertsEmpty": {
+    "description": "The alerts sheet when there is no alert."
+  },
+  "alertUnread": "Unread",
+  "@alertUnread": {
+    "description": "What a screen reader says for the dot of an unread alert."
+  },
+  "alertBudgetThreshold": "{category} reached {percent} % of {available} on {date}",
+  "@alertBudgetThreshold": {
+    "description": "An alert: a budget's spending reached a threshold of what it had available, on a day.",
+    "placeholders": {
+      "category": {
+        "type": "String",
+        "example": "Groceries"
+      },
+      "percent": {
+        "type": "int",
+        "example": "80"
+      },
+      "available": {
+        "type": "String",
+        "example": "$500.00"
+      },
+      "date": {
+        "type": "String",
+        "example": "Oct 20"
+      }
+    }
   }
 }

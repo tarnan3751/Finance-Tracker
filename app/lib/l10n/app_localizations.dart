@@ -2958,6 +2958,47 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing counted in this period'**
   String get budgetTransactionsEmpty;
+
+  /// Tooltip of the Budgets screen's bell, which opens the alerts, with how many are unread.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Alerts} =1{Alerts, 1 unread} other{Alerts, {count} unread}}'**
+  String alertsTooltip(int count);
+
+  /// Title of the alerts sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get alertsTitle;
+
+  /// Button of the alerts sheet that marks every alert read.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all read'**
+  String get alertsMarkAllRead;
+
+  /// The alerts sheet when there is no alert.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts yet. A budget alerts you when its spending reaches 80 % and 100 %.'**
+  String get alertsEmpty;
+
+  /// What a screen reader says for the dot of an unread alert.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get alertUnread;
+
+  /// An alert: a budget's spending reached a threshold of what it had available, on a day.
+  ///
+  /// In en, this message translates to:
+  /// **'{category} reached {percent} % of {available} on {date}'**
+  String alertBudgetThreshold(
+    String category,
+    int percent,
+    String available,
+    String date,
+  );
 }
 
 class _AppLocalizationsDelegate

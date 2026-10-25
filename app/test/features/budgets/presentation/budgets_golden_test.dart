@@ -1,6 +1,7 @@
 // Goldens of the budgets screens, light and dark at phone size, on the test seed and its
 // three budgets (budget_seed.dart): the list (on pace with carry, projected over, over),
-// the editor of an existing budget and a budget's detail. Tagged `golden`; see
+// the editor of an existing budget, a budget's detail, and the alerts sheet over the list
+// (one unread alert, one read). Tagged `golden`; see
 // test/flutter_test_config.dart for where the files go and how to update them.
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter/material.dart';
@@ -40,5 +41,16 @@ void main() {
         builder: () => _app(location, brightness),
       );
     }
+
+    goldenTest(
+      'the alerts sheet, ${brightness.name}',
+      fileName: 'budget_alerts_${brightness.name}',
+      constraints: BoxConstraints.tight(phoneSize),
+      builder: () => _app('/budgets', brightness),
+      pumpBeforeTest: (tester) async {
+        await tester.pumpAndSettle();
+        await openTestAlerts(tester);
+      },
+    );
   }
 }
