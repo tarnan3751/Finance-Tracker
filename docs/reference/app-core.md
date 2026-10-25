@@ -69,7 +69,7 @@ the scope's `retry` says otherwise (the tests turn it off).
 
 Each feature's own providers (the screens' streams, derived values and writes) are in its
 `application/` folder and its reference file (`accounts.md`, `transactions.md`,
-`categories.md`).
+`categories.md`, `developer.md`).
 
 `overridesFor(AppConfig)` is the one place a flavor's wiring is decided (it is
 `localDataOverridesFor(config)`, the flavor and its local data, then `apiOverridesFor`;
@@ -320,7 +320,7 @@ the only locale.
 | data | `data/drift_settings_repository.dart` | The Drift implementation (dev and prod): one `app_settings` row per field |
 | data | `data/in_memory_settings_repository.dart`, `data/demo_settings_repository.dart` | The in-memory implementation (tests) and the demo one (the demo flavor) |
 | application | `application/settings_controller.dart` | `SettingsController`, following `watch()`; each change reads, changes and saves, and changes run one after another so two issued together both land |
-| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Data (Categories, opening category management, `categories.md`; Rules, `rules.md`), About (app name, version and build, flavor, time zone) and Demo data (demo only, `demo_data_section.dart`: the persona the demo shows); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
+| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Data (Categories, opening category management, `categories.md`; Rules, `rules.md`), About (app name, version and build, flavor, time zone), Demo data (demo only, `demo_data_section.dart`: the persona the demo shows) and Developer (dev only, `features/developer/presentation/developer_section.dart`: diagnostics, Pull now and the Sandbox controls, `developer.md`); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
 
 The repository contract is `test/contract/settings_repository_contract.dart`,
 `runSettingsRepositoryContract(create, {dispose})`; the three implementations each run it

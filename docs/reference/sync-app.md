@@ -219,9 +219,10 @@ and keep the `source` the server sent. One run:
 `run()` is single-flight: a call during a run gets one more run after it, shared by every
 caller during that run, so data a caller has just made the server hold (an Item sync that
 completed) is always pulled. A failure is thrown to the caller; only counts and exception
-types are logged. It runs after each successful sync session (`SyncController`) and after
-each Item action (`items.md`, **The Link controller**); the demo flavor, which has no
-sessions, pulls after its Item actions only.
+types are logged. It runs after each successful sync session (`SyncController`), after
+each Item action (`items.md`, **The Link controller**) and from the developer menu (dev
+only, `developer.md`); the demo flavor, which has no sessions, pulls after its Item
+actions only.
 
 `PlaidPullStore` keeps the cursors and runs a page's writes as one: `DriftPlaidPullStore`
 (dev and prod) in `sync_meta` and one database transaction; `InMemoryPlaidPullStore` (the
