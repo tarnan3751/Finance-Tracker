@@ -2890,5 +2890,94 @@
   "ruleApplying": "Applying the rule to your transactions",
   "@ruleApplying": {
     "description": "Accessibility label of the progress bar shown while a rule is applied to the existing transactions."
+  },
+  "duplicatesTitle": "Review duplicates",
+  "@duplicatesTitle": {
+    "description": "Title of the duplicate review screen."
+  },
+  "duplicatesMenuItem": "{count, plural, =0{Review duplicates} other{Review duplicates ({count})}}",
+  "@duplicatesMenuItem": {
+    "description": "Item of the transaction list's menu that opens the duplicate review, with how many likely duplicate pairs there are.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern",
+        "example": "3"
+      }
+    }
+  },
+  "transactionsMoreOptions": "{count, plural, =0{More options} =1{More options, 1 likely duplicate} other{More options, {count} likely duplicates}}",
+  "@transactionsMoreOptions": {
+    "description": "Tooltip of the transaction list's menu button, with how many likely duplicate pairs its badge counts.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern",
+        "example": "3"
+      }
+    }
+  },
+  "duplicatesBadge": "{count}",
+  "@duplicatesBadge": {
+    "description": "The badge on the transaction list's menu button: how many likely duplicate pairs there are.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern",
+        "example": "3"
+      }
+    }
+  },
+  "duplicatesEmptyHeadline": "No likely duplicates",
+  "@duplicatesEmptyHeadline": {
+    "description": "Headline of the duplicate review with nothing to review."
+  },
+  "duplicatesEmptyBody": "Two transactions with the same amount within three days, on different accounts or one from your bank and one you entered, show up here for you to check.",
+  "@duplicatesEmptyBody": {
+    "description": "Body of the duplicate review with nothing to review: what makes a likely duplicate."
+  },
+  "duplicatesIntro": "Each pair may be one transaction recorded twice. Nothing is merged or deleted: hide the extra one, or mark the pair as not duplicates.",
+  "@duplicatesIntro": {
+    "description": "Note above the pairs of the duplicate review."
+  },
+  "duplicatesDaysApart": "{days, plural, =0{Same amount, same day} =1{Same amount, 1 day apart} other{Same amount, {days} days apart}}",
+  "@duplicatesDaysApart": {
+    "description": "Heading of a likely duplicate pair: how many days apart its two transactions are.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "duplicateHide": "Hide this one",
+  "@duplicateHide": {
+    "description": "Button under a transaction of a likely duplicate pair that hides that transaction."
+  },
+  "duplicateHideNamed": "Hide this one: {name}",
+  "@duplicateHideNamed": {
+    "description": "Accessibility label of the button that hides one transaction of a likely duplicate pair.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Blue Bottle Coffee"
+      }
+    }
+  },
+  "duplicateNotDuplicates": "Not duplicates",
+  "@duplicateNotDuplicates": {
+    "description": "Button of a likely duplicate pair that marks the two transactions as different."
+  },
+  "duplicateDismissed": "Marked as not duplicates",
+  "@duplicateDismissed": {
+    "description": "Snack bar after marking a pair as not duplicates, with an undo action."
+  },
+  "duplicateHidden": "Transaction hidden",
+  "@duplicateHidden": {
+    "description": "Snack bar after hiding one transaction of a likely duplicate pair, with an undo action."
+  },
+  "duplicateHideFailed": "The transaction could not be hidden.",
+  "@duplicateHideFailed": {
+    "description": "Snack bar when hiding one transaction of a likely duplicate pair failed."
   }
 }

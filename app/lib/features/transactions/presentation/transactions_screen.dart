@@ -4,7 +4,8 @@
 /// the active filters shown as removable chips; tap a row to open it; "Add transaction".
 /// Long-press a row to select it: the app bar then counts the selection and edits it in
 /// bulk (set the category, add a tag, hide or unhide, delete when no row is the bank's),
-/// each action one recorded batch with a snack bar of the count.
+/// each action one recorded batch with a snack bar of the count. Outside selection, the
+/// menu opens the duplicate review, its badge counting the likely duplicate pairs.
 library;
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
@@ -14,6 +15,7 @@ import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/categories/presentation/category_picker.dart';
+import 'package:finance_tracker/features/duplicates/application/duplicates_providers.dart';
 import 'package:finance_tracker/features/transactions/application/transaction_filters.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
@@ -240,6 +242,8 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     final AsyncValue<TransactionPage> page = ref.watch(transactionPageProvider);
     final bool filtered = filters.hasFilters || filters.text.trim().isNotEmpty;
     final List<Transaction>? transactions = page.value?.transactions;
+    final int duplicates =
+        ref.watch(duplicateCandidatesProvider).value?.length ?? 0;
     // Rows that left the list (hidden, deleted, filtered out) leave the selection.
     final Set<String>? selection = _selection;
     final List<Transaction>? selected = selection == null
@@ -289,6 +293,21 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                       child: const Icon(Icons.filter_list),
                     ),
                     onPressed: () => _openFilters(filters),
+                  ),
+                  PopupMenuButton<void>(
+                    tooltip: l10n.transactionsMoreOptions(duplicates),
+                    icon: Badge(
+                      isLabelVisible: duplicates > 0,
+                      label: Text(l10n.duplicatesBadge(duplicates)),
+                      child: const Icon(Icons.more_vert),
+                    ),
+                    itemBuilder: (_) => [
+                      PopupMenuItem<void>(
+                        onTap: () =>
+                            const DuplicatesRoute().push<void>(context),
+                        child: Text(l10n.duplicatesMenuItem(duplicates)),
+                      ),
+                    ],
                   ),
                 ],
               ),

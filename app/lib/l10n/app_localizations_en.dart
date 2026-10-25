@@ -2095,4 +2095,90 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ruleApplying => 'Applying the rule to your transactions';
+
+  @override
+  String get duplicatesTitle => 'Review duplicates';
+
+  @override
+  String duplicatesMenuItem(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Review duplicates ($countString)',
+      zero: 'Review duplicates',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String transactionsMoreOptions(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'More options, $countString likely duplicates',
+      one: 'More options, 1 likely duplicate',
+      zero: 'More options',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String duplicatesBadge(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString';
+  }
+
+  @override
+  String get duplicatesEmptyHeadline => 'No likely duplicates';
+
+  @override
+  String get duplicatesEmptyBody =>
+      'Two transactions with the same amount within three days, on different accounts or one from your bank and one you entered, show up here for you to check.';
+
+  @override
+  String get duplicatesIntro =>
+      'Each pair may be one transaction recorded twice. Nothing is merged or deleted: hide the extra one, or mark the pair as not duplicates.';
+
+  @override
+  String duplicatesDaysApart(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Same amount, $days days apart',
+      one: 'Same amount, 1 day apart',
+      zero: 'Same amount, same day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get duplicateHide => 'Hide this one';
+
+  @override
+  String duplicateHideNamed(String name) {
+    return 'Hide this one: $name';
+  }
+
+  @override
+  String get duplicateNotDuplicates => 'Not duplicates';
+
+  @override
+  String get duplicateDismissed => 'Marked as not duplicates';
+
+  @override
+  String get duplicateHidden => 'Transaction hidden';
+
+  @override
+  String get duplicateHideFailed => 'The transaction could not be hidden.';
 }

@@ -4,7 +4,7 @@
 /// | Tab | Paths |
 /// |---|---|
 /// | Accounts | `/accounts`, `/accounts/new`, `/accounts/linked-banks`, `/accounts/:id`, `/accounts/:id/edit` |
-/// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/:id` |
+/// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/duplicates`, `/transactions/:id` |
 /// | Budgets | `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions` |
 /// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id` |
 ///
@@ -28,6 +28,7 @@ import 'package:finance_tracker/features/budgets/presentation/budget_editor_scre
 import 'package:finance_tracker/features/budgets/presentation/budgets_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/categories_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/category_editor_screen.dart';
+import 'package:finance_tracker/features/duplicates/presentation/duplicate_review_screen.dart';
 import 'package:finance_tracker/features/items/presentation/items_screen.dart';
 import 'package:finance_tracker/features/rules/presentation/rule_editor_screen.dart';
 import 'package:finance_tracker/features/rules/presentation/rules_screen.dart';
@@ -65,7 +66,9 @@ part 'routes.g.dart';
         TypedGoRoute<TransactionsRoute>(
           path: '/transactions',
           routes: <TypedRoute<RouteData>>[
+            // Before `:id`, so neither is read as a transaction id.
             TypedGoRoute<NewTransactionRoute>(path: 'new'),
+            TypedGoRoute<DuplicatesRoute>(path: 'duplicates'),
             TypedGoRoute<TransactionRoute>(path: ':id'),
           ],
         ),
@@ -219,6 +222,15 @@ class NewTransactionRoute extends GoRouteData with $NewTransactionRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       TransactionEditorScreen(initialAccountId: account);
+}
+
+/// `/transactions/duplicates`: the review of the likely duplicate transactions.
+class DuplicatesRoute extends GoRouteData with $DuplicatesRoute {
+  const DuplicatesRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const DuplicateReviewScreen();
 }
 
 /// `/transactions/:id`: an existing transaction, in the editor that is also its detail.

@@ -4,8 +4,9 @@
 // checked on the demo seed (two accounts, twelve transactions, the system categories, two
 // rules and the three test budgets) with the linked test data (the three test banks, two
 // linked accounts, Plaid transactions), and the filter sheet, the category picker, the
-// transaction editor's menu, the budget alerts sheet and the transaction list's
-// selection mode open over their screens. The sign-in and registration screens are
+// transaction list's menu and selection mode, the transaction editor's menu, the budget
+// alerts sheet, the rule editor's menu and the apply confirmation open over their
+// screens. The sign-in and registration screens are
 // checked signed out; their text scale is checked with their errors showing, in
 // test/features/auth/auth_screens_test.dart.
 import 'package:finance_tracker/features/transactions/presentation/transaction_tile.dart';
@@ -86,6 +87,16 @@ final Map<String, _Screen> _screens = {
     seeded: true,
     open: (tester) => _tapAndSettle(tester, find.byTooltip('Filters')),
   ),
+  'Transactions menu': (
+    location: '/transactions',
+    seeded: true,
+    open: (tester) => _tapAndSettle(tester, find.byType(PopupMenuButton<void>)),
+  ),
+  'Duplicates': (
+    location: '/transactions/duplicates',
+    seeded: true,
+    open: null,
+  ),
   'New transaction': (location: '/transactions/new', seeded: true, open: null),
   'Transaction': (
     location: '/transactions/demo-txn-04',
@@ -121,6 +132,22 @@ final Map<String, _Screen> _screens = {
   'Rules': (location: '/settings/rules', seeded: true, open: null),
   'New rule': (location: '/settings/rules/new', seeded: true, open: null),
   'Rule': (location: '/settings/rules/rule-every', seeded: true, open: null),
+  'Rule menu': (
+    location: '/settings/rules/rule-every',
+    seeded: true,
+    open: (tester) => _tapAndSettle(tester, find.byTooltip('More options')),
+  ),
+  'Rule apply dialog': (
+    location: '/settings/rules',
+    seeded: true,
+    open: (tester) async {
+      await _tapAndSettle(
+        tester,
+        find.byTooltip('More options for “Coffee on the card”'),
+      );
+      await _tapAndSettle(tester, find.text('Apply to existing transactions'));
+    },
+  ),
   'Transaction menu': (
     location: '/transactions/demo-txn-04',
     seeded: true,

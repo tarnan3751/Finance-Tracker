@@ -62,6 +62,11 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
               factory: $NewTransactionRoute._fromState,
             ),
             GoRouteData.$route(
+              path: 'duplicates',
+              hasOverriddenOnExit: false,
+              factory: $DuplicatesRoute._fromState,
+            ),
+            GoRouteData.$route(
               path: ':id',
               hasOverriddenOnExit: false,
               factory: $TransactionRoute._fromState,
@@ -291,6 +296,27 @@ mixin $NewTransactionRoute on GoRouteData {
     '/transactions/new',
     queryParams: {if (_self.account != null) 'account': _self.account},
   );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $DuplicatesRoute on GoRouteData {
+  static DuplicatesRoute _fromState(GoRouterState state) =>
+      const DuplicatesRoute();
+
+  @override
+  String get location => GoRouteData.$location('/transactions/duplicates');
 
   @override
   void go(BuildContext context) => context.go(location);

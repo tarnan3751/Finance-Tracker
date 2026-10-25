@@ -3275,6 +3275,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Applying the rule to your transactions'**
   String get ruleApplying;
+
+  /// Title of the duplicate review screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Review duplicates'**
+  String get duplicatesTitle;
+
+  /// Item of the transaction list's menu that opens the duplicate review, with how many likely duplicate pairs there are.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Review duplicates} other{Review duplicates ({count})}}'**
+  String duplicatesMenuItem(int count);
+
+  /// Tooltip of the transaction list's menu button, with how many likely duplicate pairs its badge counts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{More options} =1{More options, 1 likely duplicate} other{More options, {count} likely duplicates}}'**
+  String transactionsMoreOptions(int count);
+
+  /// The badge on the transaction list's menu button: how many likely duplicate pairs there are.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}'**
+  String duplicatesBadge(int count);
+
+  /// Headline of the duplicate review with nothing to review.
+  ///
+  /// In en, this message translates to:
+  /// **'No likely duplicates'**
+  String get duplicatesEmptyHeadline;
+
+  /// Body of the duplicate review with nothing to review: what makes a likely duplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Two transactions with the same amount within three days, on different accounts or one from your bank and one you entered, show up here for you to check.'**
+  String get duplicatesEmptyBody;
+
+  /// Note above the pairs of the duplicate review.
+  ///
+  /// In en, this message translates to:
+  /// **'Each pair may be one transaction recorded twice. Nothing is merged or deleted: hide the extra one, or mark the pair as not duplicates.'**
+  String get duplicatesIntro;
+
+  /// Heading of a likely duplicate pair: how many days apart its two transactions are.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{Same amount, same day} =1{Same amount, 1 day apart} other{Same amount, {days} days apart}}'**
+  String duplicatesDaysApart(int days);
+
+  /// Button under a transaction of a likely duplicate pair that hides that transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide this one'**
+  String get duplicateHide;
+
+  /// Accessibility label of the button that hides one transaction of a likely duplicate pair.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide this one: {name}'**
+  String duplicateHideNamed(String name);
+
+  /// Button of a likely duplicate pair that marks the two transactions as different.
+  ///
+  /// In en, this message translates to:
+  /// **'Not duplicates'**
+  String get duplicateNotDuplicates;
+
+  /// Snack bar after marking a pair as not duplicates, with an undo action.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as not duplicates'**
+  String get duplicateDismissed;
+
+  /// Snack bar after hiding one transaction of a likely duplicate pair, with an undo action.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction hidden'**
+  String get duplicateHidden;
+
+  /// Snack bar when hiding one transaction of a likely duplicate pair failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The transaction could not be hidden.'**
+  String get duplicateHideFailed;
 }
 
 class _AppLocalizationsDelegate
