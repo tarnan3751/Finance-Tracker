@@ -4,6 +4,7 @@
 import 'dart:async';
 
 import 'package:drift/native.dart';
+import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
@@ -291,6 +292,8 @@ void main() {
     expect(relay.pushing, 1);
 
     c.read(_device.notifier).set(null);
+    // The controller hears of it when next read, and applies it right after.
+    c.read(syncControllerProvider);
     await Future<void>.delayed(const Duration(milliseconds: 20));
     expect(c.read(syncControllerProvider).phase, SyncPhase.signedOut);
     c.read(_device.notifier).set('dev-b');
@@ -317,5 +320,51 @@ void main() {
     await c.read(syncControllerProvider.notifier).syncNow();
     expect(relay.inner.entries.last.deviceId, 'dev-b');
     expect(c.read(syncControllerProvider).failure, isNull);
+  });
+
+  testWidgets('a device change met while a widget builds is applied after the '
+      'build', (tester) async {
+    final ProviderContainer c = ProviderContainer(
+      overrides: [
+        ...overridesFor(AppConfig.dev()),
+        ...fakeApiOverrides(signedIn: true),
+        databaseProvider.overrideWithValue(database),
+        clockProvider.overrideWithValue(clock),
+        syncDeviceIdProvider.overrideWith((ref) => ref.watch(_device)),
+        syncRelayProvider.overrideWith(
+          (ref) => ref.watch(_device) == null ? null : relay,
+        ),
+      ],
+      retry: (_, _) => null,
+    );
+    addTearDown(c.dispose);
+    await tester.runAsync(() async {
+      c.read(syncControllerProvider);
+      await settled(c);
+    });
+    Widget app(Key key) => UncontrolledProviderScope(
+      container: c,
+      child: Consumer(
+        key: key,
+        builder: (context, ref, _) => Text(
+          ref.watch(syncControllerProvider).phase.name,
+          textDirection: TextDirection.ltr,
+        ),
+      ),
+    );
+    await tester.pumpWidget(app(const ValueKey(1)));
+
+    // Nothing watches the controller (Riverpod pauses it), the device signs out, then a
+    // screen watching it builds: the controller hears of the change during that build
+    // and must not change its state there.
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: c, child: const SizedBox()),
+    );
+    c.read(_device.notifier).set(null);
+    await tester.pumpWidget(app(const ValueKey(2)));
+    expect(tester.takeException(), isNull);
+    await tester.pump();
+    expect(c.read(syncControllerProvider).phase, SyncPhase.signedOut);
+    expect(find.text('signedOut'), findsOneWidget);
   });
 }

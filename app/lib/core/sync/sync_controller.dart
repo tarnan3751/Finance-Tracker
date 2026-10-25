@@ -52,9 +52,14 @@ class SyncController extends _$SyncController {
         !ref.watch(localDataSyncsProvider)) {
       return SyncStatus.unavailable;
     }
+    // The change can reach the controller while a widget builds (a screen watching a
+    // paused controller resumes it, which catches up on the device id), when setting the
+    // state is not allowed: it is applied right after, unless the controller is gone.
     ref.listen<String?>(
       syncDeviceIdProvider,
-      (_, next) => _deviceChanged(next),
+      (_, next) => scheduleMicrotask(() {
+        if (ref.mounted) _deviceChanged(next);
+      }),
     );
     ref.onDispose(() {
       _debounce?.cancel();

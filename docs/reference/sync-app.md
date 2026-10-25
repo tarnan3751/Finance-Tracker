@@ -155,7 +155,9 @@ status is `unavailable` and Settings has no Sync section) and someone is signed 
 - on Sync now.
 
 One session runs at a time; a trigger during one runs one more after it. The controller
-is built once and hears the device id through a listener, so a sign-out and a sign-in
+is built once and hears the device id through a listener, which applies a change in a
+microtask (Riverpod may resume the paused controller, and so deliver the change, while a
+widget builds, when its state cannot be set), so a sign-out and a sign-in
 during a session never start a second one: the session in flight finishes (the engine
 cannot cancel one), its report is discarded, and the next session adopts the new device
 id first. What the relay accepted during it stays synced under the old node; the rest of
