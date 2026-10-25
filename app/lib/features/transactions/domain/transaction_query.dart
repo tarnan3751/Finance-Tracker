@@ -16,6 +16,7 @@ import 'package:shared_models/shared_models.dart';
 /// - [text]: containing [text] in the name, the merchant name or the notes, ignoring
 ///   case for ASCII letters only (SQLite's `LIKE`; `%`, `_` and `\` match themselves);
 /// - [pending]: pending or posted;
+/// - [hidden]: hidden by the user or not (null: both; the list's default is false);
 /// - [tags]: carrying at least one of these tags;
 /// - [minAmount], [maxAmount]: whose absolute amount is at least or at most the bound,
 ///   among transactions in the bound's currency (the others do not match).
@@ -32,6 +33,7 @@ final class TransactionQuery {
     this.range,
     this.text,
     this.pending,
+    this.hidden,
     Set<String> tags = const {},
     this.minAmount,
     this.maxAmount,
@@ -63,6 +65,7 @@ final class TransactionQuery {
   final LocalDateRange? range;
   final String? text;
   final bool? pending;
+  final bool? hidden;
   final Set<String> tags;
   final Money? minAmount;
   final Money? maxAmount;
@@ -78,6 +81,7 @@ final class TransactionQuery {
       other.range == range &&
       other.text == text &&
       other.pending == pending &&
+      other.hidden == hidden &&
       _sameSet(other.tags, tags) &&
       other.minAmount == minAmount &&
       other.maxAmount == maxAmount &&
@@ -92,6 +96,7 @@ final class TransactionQuery {
     range,
     text,
     pending,
+    hidden,
     Object.hashAllUnordered(tags),
     minAmount,
     maxAmount,
@@ -102,7 +107,7 @@ final class TransactionQuery {
   @override
   String toString() =>
       'TransactionQuery(accounts: $accountIds, categories: $categoryIds, '
-      'codes: $categoryPlaidCodes, range: $range, text: ${text == null ? null : '…'}, pending: $pending, '
+      'codes: $categoryPlaidCodes, range: $range, text: ${text == null ? null : '…'}, pending: $pending, hidden: $hidden, '
       'tags: $tags, amount: $minAmount..$maxAmount, limit: $limit, offset: $offset)';
 }
 

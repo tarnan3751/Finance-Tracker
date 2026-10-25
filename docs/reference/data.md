@@ -11,14 +11,14 @@ The entities and `Money` are `shared_models` (`core.md`); the providers and star
 
 ## The database
 
-Drift on SQLite, at schema version 5 (`core/db/app_database.dart`; one file per table under
+Drift on SQLite, at schema version 6 (`core/db/app_database.dart`; one file per table under
 `core/db/tables/`). `app_database.dart` and the tables import no Flutter, so `drift_dev`
 can run them in the Dart VM to dump the schema.
 
 | Table | What |
 |---|---|
 | `accounts` | One row per account |
-| `transactions` | One row per transaction |
+| `transactions` | One row per transaction; `hidden` (schema 6, a boolean, default false) is the user's hidden override |
 | `transaction_tags` | A transaction's tags, `(transaction_id, position)` primary key, in list order |
 | `transaction_splits` | A transaction's splits, `(transaction_id, position)` primary key, in list order |
 | `categories` | The system categories and the user's |
@@ -207,9 +207,9 @@ authoritative.
   is written.
 - `TransactionRepository.applyPlaid(page)` takes one page of `GET /transactions`. Each
   transaction is stored as sent, `source`, `created_at`, `updated_at`, `deleted_at` and
-  `sync_version` included, its currency its amount's; one already stored keeps the five
+  `sync_version` included, its currency its amount's; one already stored keeps the six
   fields the user owns (`user_category_id`, `notes`, `tags`, `splits`, `receipt_path`,
-  `withPlaidOverrides` in `repository_support.dart`; splits in another currency than the
+  `hidden`, `withPlaidOverrides` in `repository_support.dart`; splits in another currency than the
   new amount are dropped, only their count logged) and its `deleted_with_account`. A
   tombstone for a transaction the device never had is skipped. It returns the live rows
   it inserted, for the arrival seam.
@@ -223,7 +223,7 @@ authoritative.
 
 **Derived balances** are one SQL sum per live account over its live transactions in its
 currency (`LEFT JOIN ... GROUP BY`, watched over `accounts` and `transactions`); pending
-transactions count; an account with none, or a missing or deleted one, is null.
+and hidden transactions count (a hidden one's money still moved); an account with none, or a missing or deleted one, is null.
 `watchDerivedBalances` has a key for every live account. An overflow is an error event.
 These are always derived; a balance the institution reports is the account's
 `currentBalance` (`PLAN.md` §6).
@@ -247,6 +247,7 @@ an empty `text` means no filter:
 | `range` | dated in the half-open range | `date >= start AND date < end` |
 | `text` | in `name`, `merchant_name` or `notes`, ASCII letters case-insensitive | `LIKE '%text%' ESCAPE '\'`, with `\`, `%`, `_` escaped |
 | `pending` | pending or posted | `pending = ?` |
+| `hidden` | hidden by the user or not; null (the default) matches both, and the list asks for `false` unless "Show hidden" is on | `hidden = ?` |
 | `tags` | carries any of the tags | `EXISTS (tag IN (...))` |
 | `minAmount`, `maxAmount` | absolute amount within the bound, among transactions in the bound's currency | `currency = ? AND abs(amount_minor) >= ?` |
 | `limit`, `offset` | paging; an offset alone is `LIMIT -1 OFFSET n` | |
@@ -377,7 +378,19 @@ app's data directory.
 
 ## Changing the schema
 
-**Schema 5** adds `budgets` and `budget_alerts`. Its step creates both tables and, in the
+**Schema 6** adds `transactions.hidden`. Its column is added first in `onUpgrade`, before
+every other step, and only when the table lacks it: the schema 2 backfill and the later
+steps read the transactions through this version's table, which would otherwise name a
+column an older file lacks. The step then writes again every held `transaction` record
+(`releaseHeldRecords`, in its own transaction), so a newer device's hidden override, held
+as `unknown_fields` on an older device, lands in its row; records still not representable
+stay held. `migration_test.dart` opens a schema 5 database with manual and Plaid rows,
+held transaction records and a budget with an alert. The older groups migrate to the
+current version and validate against its dump, as an upgrade does. The same series made
+the earlier steps idempotent (the procedure below): their indexes are created only when
+missing, and the schema 2 backfill only when `change_log` is missing.
+
+**Schema 5** added `budgets` and `budget_alerts`. Its step creates both tables and, in the
 same transaction, writes again every `budget` record held in `held_records`, as schema 4 did
 for rules: a complete record becomes a row, an updates-only one stays `incomplete`, one with
 unknown fields lands and stays held `unknown_fields`, and one that does not decode (a start
@@ -408,7 +421,16 @@ fold of the entries.
 Every schema change follows these steps, in one series:
 
 1. Change the tables and bump `schemaVersion` in `app_database.dart`.
-2. Write the step in `MigrationStrategy.onUpgrade` (`if (from < N) { ... }`).
+2. Write the step in `MigrationStrategy.onUpgrade` (`if (from < N) { ... }`), idempotent
+   (`PLAN.md` §12). Drift runs `onUpgrade` outside a transaction and writes the new
+   version only after it returns, so when a later step fails, or the app is killed
+   during the upgrade, the next open runs every step again at the old version, over
+   whatever the first run committed. Each step must find its own work done and carry
+   on: tables `IF NOT EXISTS` (Drift's `createTable`), an index only when
+   `sqlite_master` lacks it (`_createIndex`), a column only when `PRAGMA table_info`
+   lacks it (`_hasColumn`), a backfill only when its tables are missing, and releases
+   of held records that find nothing the second time. A step with side effects runs in
+   its own transaction, so it lands whole or not at all.
 3. Regenerate the code: `dart run build_runner build` (in `app/`).
 4. Dump the new version: `dart run drift_dev schema dump lib/core/db/app_database.dart
    drift_schemas/`, which writes `drift_schemas/drift_schema_vN.json`. Never edit an
@@ -417,7 +439,10 @@ Every schema change follows these steps, in one series:
    test/drift/generated/`.
 6. Add the migration test to `test/drift/migration_test.dart`: `verifier.schemaAt(N - 1)`,
    rows inserted through its raw database, `AppDatabase(schema.newConnection())`,
-   `verifier.migrateAndValidate(database, N)`, then reads that check the rows survived.
+   `verifier.migrateAndValidate(database, N)`, then reads that check the rows survived;
+   and extend **every step runs again at the old version**, which migrates a database,
+   sets its version back and migrates it again (and opens one that already holds a new
+   column at the old version), checking the rows and the schema each time.
 
 Commit the dump and the helpers with the change. The gate's codegen step repeats steps 3
 to 5 and fails on any difference (`testing-tools.md`), and `migration_test.dart` fails when

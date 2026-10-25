@@ -106,7 +106,7 @@ The filter by `source` is `userAuthoredChange`, shared by every implementation:
 | Change | Recorded |
 |---|---|
 | a `manual` or `import` transaction | all of it |
-| a `plaid` transaction | only `user_category_id`, `notes`, `tags`, `splits`, `receipt_path`, as updates; nothing at creation |
+| a `plaid` transaction | only `user_category_id`, `notes`, `tags`, `splits`, `receipt_path`, `hidden`, as updates; nothing at creation |
 | a `derived` or `demo` transaction | nothing |
 | an account with an `item_id` | nothing, until Phase 3 rules on linked-account overrides |
 | categories, rules, budgets, settings | all of it; the seeding of the system categories is not recorded |
@@ -245,7 +245,7 @@ never re-reads rows; `arrivalProcessorProvider` is the rules' `RuleRunner` (`rul
 
 | Suite | What it proves |
 |---|---|
-| `test/drift/migration_test.dart` | A schema 1 database with data migrates: rows kept, one create per user-authored row and a delete per deleted one, clocks increasing on one node, the stored records equal to the fold of the entries; a schema 3 database's held rule records become rows, or stay held for the reason that now applies |
+| `test/drift/migration_test.dart` | A schema 1 database with data migrates: rows kept, one create per user-authored row and a delete per deleted one, clocks increasing on one node, the stored records equal to the fold of the entries; a schema 3 database's held rule records become rows, or stay held for the reason that now applies; a schema 5 database's held transaction records carrying `hidden` land in their rows |
 | `test/core/db/drift_sync_store_test.dart` | The engine's store contract cases; records round-tripping through the tables (randomized transactions and rules included); the held reasons, the row each leaves and their release; unknown fields surviving a local edit; the node substitution; the ledger |
 | `test/contract/recording_contract.dart` | Exactly the entries each write records, in the Drift and in-memory implementations; a refused write records nothing; a Drift write and its entry roll back together |
 | `test/core/sync/sync_controller_test.dart` | The triggers, the debounce (none on top of the start), single flight with one coalesced rerun, a sign-out and sign-in during a held push (one push at a time, each entry once on the relay), the cursor reset, failures in the status, persistence, demo, in-memory data and signed-out, the Plaid pull after a session and its failure kept apart |

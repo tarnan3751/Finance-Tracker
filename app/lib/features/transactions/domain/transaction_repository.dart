@@ -35,8 +35,9 @@ abstract interface class TransactionRepository {
   /// Applies [page], a page of the server's Plaid-sourced transactions (`GET
   /// /transactions`), in one write that records nothing and skips the checks of a local
   /// edit: each transaction is stored as the server sent it, `source`, audit fields,
-  /// `deletedAt` and `syncVersion` included, keeping the five fields the user owns
-  /// (`userCategoryId`, `notes`, `tags`, `splits`, `receiptPath`) from a stored row. A
+  /// `deletedAt` and `syncVersion` included, keeping the six fields the user owns
+  /// (`userCategoryId`, `notes`, `tags`, `splits`, `receiptPath`, `hidden`) from a
+  /// stored row. A
   /// tombstone for a transaction the device never had is skipped. Returns the
   /// transactions it inserted, live ones only, as stored.
   Future<List<Transaction>> applyPlaid(List<Transaction> page);

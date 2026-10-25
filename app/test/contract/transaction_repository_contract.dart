@@ -64,6 +64,7 @@ void runTransactionRepositoryContract(
           ),
         ],
         receiptPath: 'receipts/t1.jpg',
+        hidden: true,
         source: DataSource.import,
         createdAt: DateTime.utc(2026, 10, 20, 9, 0, 0, 1),
         updatedAt: DateTime.utc(2026, 10, 21, 9, 0, 0, 999),
@@ -245,6 +246,22 @@ void runTransactionRepositoryContract(
       },
     );
 
+    test('a hidden transaction still counts toward its account\'s derived '
+        'balance', () async {
+      await transactions.upsert(testTransaction('t1', 'a1', -1500));
+      await transactions.upsert(
+        testTransaction('t2', 'a1', -2500, hidden: true),
+      );
+      expect(
+        await f.accounts.watchDerivedBalance('a1').first,
+        Money(-4000, 'USD'),
+      );
+      expect(
+        (await f.accounts.watchDerivedBalances().first)['a1'],
+        Money(-4000, 'USD'),
+      );
+    });
+
     test('the order is date, then createdAt, then id, newest first', () async {
       final LocalDate d1 = LocalDate(2026, 10, 1);
       final LocalDate d2 = LocalDate(2026, 10, 2);
@@ -387,6 +404,21 @@ void runTransactionRepositoryContract(
           't2',
           't1',
         ]);
+      });
+
+      test('by hidden; count follows', () async {
+        final Transaction t4 = (await transactions.watchById('t4').first)!;
+        await transactions.upsert(t4.copyWith(hidden: true));
+        expect(await ids(TransactionQuery(hidden: true)), ['t4']);
+        expect(await ids(TransactionQuery(hidden: false)), [
+          't5',
+          't3',
+          't2',
+          't1',
+        ]);
+        expect(await transactions.count(TransactionQuery(hidden: false)), 4);
+        expect(await transactions.count(TransactionQuery(hidden: true)), 1);
+        expect(await transactions.count(TransactionQuery.all), 5);
       });
 
       test('by any of the tags', () async {
@@ -763,7 +795,7 @@ void runTransactionRepositoryContract(
         expect(await transactions.watchById('d1').first, page[1]);
       });
 
-      test('an update keeps the five fields the user owns', () async {
+      test('an update keeps the six fields the user owns', () async {
         await transactions.applyPlaid([bank('p1')]);
         final Transaction mine = bank('p1').copyWith(
           userCategoryId: 'c1',
@@ -773,6 +805,7 @@ void runTransactionRepositoryContract(
             TransactionSplit(categoryId: 'c1', amount: Money(-1599, 'USD')),
           ],
           receiptPath: 'receipts/1.jpg',
+          hidden: true,
         );
         await transactions.upsert(mine);
         final Transaction posted = bank(
@@ -790,6 +823,7 @@ void runTransactionRepositoryContract(
             tags: const ['tv'],
             splits: mine.splits,
             receiptPath: 'receipts/1.jpg',
+            hidden: true,
           ),
         );
       });
@@ -869,6 +903,12 @@ void runTransactionRepositoryContract(
         TransactionQuery(categoryPlaidCodes: {'A'}),
         isNot(TransactionQuery(categoryPlaidCodes: {'B'})),
       );
+      expect(TransactionQuery(hidden: false), TransactionQuery(hidden: false));
+      expect(
+        TransactionQuery(hidden: false).hashCode,
+        TransactionQuery(hidden: false).hashCode,
+      );
+      expect(TransactionQuery(hidden: false), isNot(TransactionQuery()));
     });
   });
 }

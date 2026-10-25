@@ -11,8 +11,16 @@
 /// migration also materializes the rule records sync held before this version could
 /// store them. Schema 5 adds the user's budgets (`budgets`) and the alerts this device
 /// raised for them (`budget_alerts`, local only); its migration materializes the budget
-/// records sync held. Every schema change follows the procedure
-/// in `data.md`: bump [AppDatabase.schemaVersion], write the step in `onUpgrade`, dump the
+/// records sync held. Schema 6 adds `transactions.hidden`, the user's hidden override; its
+/// column is added before every other step, so the schema 2 backfill and the later steps
+/// read the transactions as this version declares them, and its migration materializes
+/// the transaction records sync held for a field this version now stores. Every schema
+/// change follows the procedure
+/// in `data.md`, every step idempotent: Drift runs `onUpgrade` outside a transaction and
+/// writes the new version only after it returns, so a step that fails or an app killed
+/// mid-upgrade runs every step again at the old version on the next open. Tables are
+/// created `IF NOT EXISTS`, indexes and columns only when missing, the backfill only
+/// when its tables are, and releases find nothing the second time: bump [AppDatabase.schemaVersion], write the step in `onUpgrade`, dump the
 /// schema, regenerate the test helpers, and add the migration test. How the file is found,
 /// keyed and opened is `open_database.dart`; this file stays free of Flutter so the schema
 /// dump can run it in the Dart VM.
@@ -89,7 +97,7 @@ final class AppDatabase extends _$AppDatabase {
   final String Function() newNodeId;
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -98,15 +106,22 @@ final class AppDatabase extends _$AppDatabase {
       if (from > to) {
         throw StateError('No migration from schema $from to $to');
       }
-      if (from < 2) {
+      if (from < 6 && !await _hasColumn('transactions', 'hidden')) {
+        // First: every later step (the schema 2 backfill included) reads transactions
+        // through this version's table, which has the column.
+        await m.addColumn(transactions, transactions.hidden);
+      }
+      // The change log's presence means this step committed: its tables and the
+      // backfill land in one transaction, and the backfill must not run twice.
+      if (from < 2 && !await _exists('table', 'change_log')) {
         // One transaction: the tables and the backfill land together or not at all.
         await transaction(() async {
           await m.createTable(changeLog);
           await m.createTable(recordClocks);
           await m.createTable(syncMeta);
           await m.createTable(heldRecords);
-          await m.createIndex(changeLogOutbox);
-          await m.createIndex(recordClocksHlc);
+          await _createIndex(m, changeLogOutbox);
+          await _createIndex(m, recordClocksHlc);
           await backfillChangeLog(
             this,
             nodeId: newNodeId(),
@@ -120,7 +135,7 @@ final class AppDatabase extends _$AppDatabase {
       if (from < 4) {
         await transaction(() async {
           await m.createTable(rules);
-          await m.createIndex(rulesPosition);
+          await _createIndex(m, rulesPosition);
           await releaseHeldRecords(
             DriftSyncStore(this, _WallClock(wallMillis)),
             EntityType.rule,
@@ -130,13 +145,22 @@ final class AppDatabase extends _$AppDatabase {
       if (from < 5) {
         await transaction(() async {
           await m.createTable(budgets);
-          await m.createIndex(budgetsCategory);
+          await _createIndex(m, budgetsCategory);
           await m.createTable(budgetAlerts);
           await releaseHeldRecords(
             DriftSyncStore(this, _WallClock(wallMillis)),
             EntityType.budget,
           );
         });
+      }
+      if (from < 6) {
+        // A newer device's hidden override was held as an unknown field; it now lands.
+        await transaction(
+          () => releaseHeldRecords(
+            DriftSyncStore(this, _WallClock(wallMillis)),
+            EntityType.transaction,
+          ),
+        );
       }
     },
     beforeOpen: (details) async {
@@ -155,6 +179,23 @@ final class AppDatabase extends _$AppDatabase {
       }
     },
   );
+
+  // Whether the schema has the [type] (`table`, `index`) named [name].
+  Future<bool> _exists(String type, String name) async => (await customSelect(
+    'SELECT 1 FROM sqlite_master WHERE type = ? AND name = ?',
+    variables: [Variable.withString(type), Variable.withString(name)],
+  ).get()).isNotEmpty;
+
+  // Whether [table] has [column].
+  Future<bool> _hasColumn(String table, String column) async =>
+      (await customSelect(
+        'PRAGMA table_info($table)',
+      ).get()).any((row) => row.read<String>('name') == column);
+
+  // Creates [index] unless a run of the migration that did not finish already did.
+  Future<void> _createIndex(Migrator m, Index index) async {
+    if (!await _exists('index', index.entityName)) await m.createIndex(index);
+  }
 
   /// Opens the database now (running the open sequence and any migration), so a failure
   /// to open surfaces here rather than in the first screen's query.

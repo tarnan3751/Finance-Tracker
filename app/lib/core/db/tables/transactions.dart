@@ -35,6 +35,10 @@ class Transactions extends Table {
   TextColumn get userCategoryId => text().nullable()();
   TextColumn get notes => text().nullable()();
   TextColumn get receiptPath => text().nullable()();
+
+  /// The user's hidden override (schema 5): the row still counts toward its account's
+  /// balance and leaves the default list, budgets and reports.
+  BoolColumn get hidden => boolean().withDefault(const Constant(false))();
   TextColumn get source => textEnum<DataSource>()();
   IntColumn get createdAt => integer().map(const UtcMillisColumnConverter())();
   IntColumn get updatedAt => integer().map(const UtcMillisColumnConverter())();

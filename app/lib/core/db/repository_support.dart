@@ -99,7 +99,7 @@ void checkRecentLimit(int recentLimit) {
 
 final Logger _log = Logger('db');
 
-/// [server], a transaction as the server sent it, carrying the five fields the user owns
+/// [server], a transaction as the server sent it, carrying the six fields the user owns
 /// from [stored], the row already on the device (`PLAN.md` §6.4: Plaid's fields are the
 /// server's, the overrides the user's). Kept splits in another currency than the
 /// server's amount cannot be stored and are dropped; only their count is logged.
@@ -115,5 +115,6 @@ Transaction withPlaidOverrides(Transaction server, Transaction stored) {
     tags: stored.tags,
     splits: splits,
     receiptPath: stored.receiptPath,
+    hidden: stored.hidden,
   );
 }

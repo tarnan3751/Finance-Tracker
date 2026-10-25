@@ -391,6 +391,7 @@ final class InMemoryStore {
                 contains(t.merchantName) ||
                 contains(t.notes)) &&
             (q.pending == null || t.pending == q.pending) &&
+            (q.hidden == null || t.hidden == q.hidden) &&
             (q.tags.isEmpty || t.tags.any(q.tags.contains)) &&
             withinBound(t, q.minAmount, true) &&
             withinBound(t, q.maxAmount, false))

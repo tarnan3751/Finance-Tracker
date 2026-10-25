@@ -297,6 +297,8 @@ final class DriftTransactionRepository implements TransactionRepository {
     }
     final bool? pending = q.pending;
     if (pending != null) conditions.add(t.pending.equals(pending));
+    final bool? hidden = q.hidden;
+    if (hidden != null) conditions.add(t.hidden.equals(hidden));
     if (q.tags.isNotEmpty) {
       final $TransactionTagsTable g = _database.transactionTags;
       conditions.add(
@@ -412,6 +414,7 @@ Future<List<Transaction>> transactionsWithChildren(
         tags: tags[row.id] ?? const [],
         splits: splits[row.id] ?? const [],
         receiptPath: row.receiptPath,
+        hidden: row.hidden,
         source: row.source,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
@@ -458,6 +461,7 @@ Future<void> writeTransactionRow(
           userCategoryId: Value(transaction.userCategoryId),
           notes: Value(transaction.notes),
           receiptPath: Value(transaction.receiptPath),
+          hidden: Value(transaction.hidden),
           source: Value(transaction.source),
           createdAt: Value(transaction.createdAt),
           updatedAt: Value(transaction.updatedAt),

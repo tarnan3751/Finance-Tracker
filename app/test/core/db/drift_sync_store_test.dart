@@ -725,6 +725,7 @@ void main() {
               ),
           ],
           userCategoryId: random.nextBool() ? null : 'c1',
+          hidden: random.nextBool(),
         );
         final Map<String, Object?> fields = transactionRecordJson(
           t,

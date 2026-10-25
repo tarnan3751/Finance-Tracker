@@ -108,6 +108,7 @@ Transaction testTransaction(
   String? notes,
   String? userCategoryId,
   bool pending = false,
+  bool hidden = false,
   List<String> tags = const [],
   List<TransactionSplit> splits = const [],
 }) => Transaction(
@@ -122,6 +123,7 @@ Transaction testTransaction(
   userCategoryId: userCategoryId,
   tags: tags,
   splits: splits,
+  hidden: hidden,
   source: DataSource.manual,
   createdAt: createdAt ?? testInstant,
   updatedAt: createdAt ?? testInstant,

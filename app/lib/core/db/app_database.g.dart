@@ -1222,6 +1222,19 @@ class $TransactionsTable extends Transactions
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _hiddenMeta = const VerificationMeta('hidden');
+  @override
+  late final GeneratedColumn<bool> hidden = GeneratedColumn<bool>(
+    'hidden',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("hidden" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   late final GeneratedColumnWithTypeConverter<DataSource, String> source =
       GeneratedColumn<String>(
@@ -1302,6 +1315,7 @@ class $TransactionsTable extends Transactions
     userCategoryId,
     notes,
     receiptPath,
+    hidden,
     source,
     createdAt,
     updatedAt,
@@ -1429,6 +1443,12 @@ class $TransactionsTable extends Transactions
         ),
       );
     }
+    if (data.containsKey('hidden')) {
+      context.handle(
+        _hiddenMeta,
+        hidden.isAcceptableOrUnknown(data['hidden']!, _hiddenMeta),
+      );
+    }
     if (data.containsKey('sync_version')) {
       context.handle(
         _syncVersionMeta,
@@ -1526,6 +1546,10 @@ class $TransactionsTable extends Transactions
         DriftSqlType.string,
         data['${effectivePrefix}receipt_path'],
       ),
+      hidden: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}hidden'],
+      )!,
       source: $TransactionsTable.$convertersource.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
@@ -1605,6 +1629,10 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
   final String? userCategoryId;
   final String? notes;
   final String? receiptPath;
+
+  /// The user's hidden override (schema 5): the row still counts toward its account's
+  /// balance and leaves the default list, budgets and reports.
+  final bool hidden;
   final DataSource source;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -1631,6 +1659,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
     this.userCategoryId,
     this.notes,
     this.receiptPath,
+    required this.hidden,
     required this.source,
     required this.createdAt,
     required this.updatedAt,
@@ -1683,6 +1712,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
     if (!nullToAbsent || receiptPath != null) {
       map['receipt_path'] = Variable<String>(receiptPath);
     }
+    map['hidden'] = Variable<bool>(hidden);
     {
       map['source'] = Variable<String>(
         $TransactionsTable.$convertersource.toSql(source),
@@ -1744,6 +1774,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
       receiptPath: receiptPath == null && nullToAbsent
           ? const Value.absent()
           : Value(receiptPath),
+      hidden: Value(hidden),
       source: Value(source),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -1783,6 +1814,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
       userCategoryId: serializer.fromJson<String?>(json['userCategoryId']),
       notes: serializer.fromJson<String?>(json['notes']),
       receiptPath: serializer.fromJson<String?>(json['receiptPath']),
+      hidden: serializer.fromJson<bool>(json['hidden']),
       source: $TransactionsTable.$convertersource.fromJson(
         serializer.fromJson<String>(json['source']),
       ),
@@ -1815,6 +1847,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
       'userCategoryId': serializer.toJson<String?>(userCategoryId),
       'notes': serializer.toJson<String?>(notes),
       'receiptPath': serializer.toJson<String?>(receiptPath),
+      'hidden': serializer.toJson<bool>(hidden),
       'source': serializer.toJson<String>(
         $TransactionsTable.$convertersource.toJson(source),
       ),
@@ -1843,6 +1876,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
     Value<String?> userCategoryId = const Value.absent(),
     Value<String?> notes = const Value.absent(),
     Value<String?> receiptPath = const Value.absent(),
+    bool? hidden,
     DataSource? source,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -1878,6 +1912,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
         : this.userCategoryId,
     notes: notes.present ? notes.value : this.notes,
     receiptPath: receiptPath.present ? receiptPath.value : this.receiptPath,
+    hidden: hidden ?? this.hidden,
     source: source ?? this.source,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
@@ -1921,6 +1956,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
       receiptPath: data.receiptPath.present
           ? data.receiptPath.value
           : this.receiptPath,
+      hidden: data.hidden.present ? data.hidden.value : this.hidden,
       source: data.source.present ? data.source.value : this.source,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -1953,6 +1989,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
           ..write('userCategoryId: $userCategoryId, ')
           ..write('notes: $notes, ')
           ..write('receiptPath: $receiptPath, ')
+          ..write('hidden: $hidden, ')
           ..write('source: $source, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -1981,6 +2018,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
     userCategoryId,
     notes,
     receiptPath,
+    hidden,
     source,
     createdAt,
     updatedAt,
@@ -2008,6 +2046,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
           other.userCategoryId == this.userCategoryId &&
           other.notes == this.notes &&
           other.receiptPath == this.receiptPath &&
+          other.hidden == this.hidden &&
           other.source == this.source &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
@@ -2033,6 +2072,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
   final Value<String?> userCategoryId;
   final Value<String?> notes;
   final Value<String?> receiptPath;
+  final Value<bool> hidden;
   final Value<DataSource> source;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -2057,6 +2097,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
     this.userCategoryId = const Value.absent(),
     this.notes = const Value.absent(),
     this.receiptPath = const Value.absent(),
+    this.hidden = const Value.absent(),
     this.source = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -2082,6 +2123,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
     this.userCategoryId = const Value.absent(),
     this.notes = const Value.absent(),
     this.receiptPath = const Value.absent(),
+    this.hidden = const Value.absent(),
     required DataSource source,
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -2116,6 +2158,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
     Expression<String>? userCategoryId,
     Expression<String>? notes,
     Expression<String>? receiptPath,
+    Expression<bool>? hidden,
     Expression<String>? source,
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
@@ -2144,6 +2187,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
       if (userCategoryId != null) 'user_category_id': userCategoryId,
       if (notes != null) 'notes': notes,
       if (receiptPath != null) 'receipt_path': receiptPath,
+      if (hidden != null) 'hidden': hidden,
       if (source != null) 'source': source,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -2172,6 +2216,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
     Value<String?>? userCategoryId,
     Value<String?>? notes,
     Value<String?>? receiptPath,
+    Value<bool>? hidden,
     Value<DataSource>? source,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
@@ -2198,6 +2243,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
       userCategoryId: userCategoryId ?? this.userCategoryId,
       notes: notes ?? this.notes,
       receiptPath: receiptPath ?? this.receiptPath,
+      hidden: hidden ?? this.hidden,
       source: source ?? this.source,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -2275,6 +2321,9 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
     if (receiptPath.present) {
       map['receipt_path'] = Variable<String>(receiptPath.value);
     }
+    if (hidden.present) {
+      map['hidden'] = Variable<bool>(hidden.value);
+    }
     if (source.present) {
       map['source'] = Variable<String>(
         $TransactionsTable.$convertersource.toSql(source.value),
@@ -2326,6 +2375,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
           ..write('userCategoryId: $userCategoryId, ')
           ..write('notes: $notes, ')
           ..write('receiptPath: $receiptPath, ')
+          ..write('hidden: $hidden, ')
           ..write('source: $source, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')

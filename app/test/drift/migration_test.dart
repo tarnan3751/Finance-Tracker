@@ -1,6 +1,7 @@
 // The schema's migrations against the dumped schemas in drift_schemas/ (data.md, "Changing
 // the schema"). Schema 1 is validated as created; from schema 2 on, each step opens the
-// previous version's database with data, migrates it, and checks the data and the schema.
+// previous version's database with data, migrates it to the current version (what an
+// upgrade runs: every later step too) and checks the data and the current schema.
 import 'dart:convert';
 
 import 'package:drift/drift.dart' hide isNotNull, isNull;
@@ -59,6 +60,12 @@ void main() {
     final AppDatabase database = AppDatabase(await verifier.startAt(5));
     addTearDown(database.close);
     await verifier.migrateAndValidate(database, 5);
+  });
+
+  test('a new database matches the schema 6 dump', () async {
+    final AppDatabase database = AppDatabase(await verifier.startAt(6));
+    addTearDown(database.close);
+    await verifier.migrateAndValidate(database, 6);
   });
 
   group('schema 1 to 2', () {
@@ -121,7 +128,7 @@ void main() {
         newNodeId: () => 'local-test',
       );
       addTearDown(database.close);
-      await verifier.migrateAndValidate(database, 2);
+      await verifier.migrateAndValidate(database, database.schemaVersion);
       return database;
     }
 
@@ -313,7 +320,7 @@ void main() {
           newNodeId: () => 'local-empty',
         );
         addTearDown(database.close);
-        await verifier.migrateAndValidate(database, 2);
+        await verifier.migrateAndValidate(database, database.schemaVersion);
         expect(await database.select(database.changeLog).get(), isEmpty);
         expect(await database.select(database.recordClocks).get(), isEmpty);
       },
@@ -358,7 +365,7 @@ void main() {
       ''');
       final AppDatabase database = AppDatabase(schema.newConnection());
       addTearDown(database.close);
-      await verifier.migrateAndValidate(database, 3);
+      await verifier.migrateAndValidate(database, database.schemaVersion);
 
       expect(
         (await database.select(database.accounts).get()).map((a) => a.id),
@@ -466,7 +473,7 @@ void main() {
           wallMillis: () => migratedAt,
         );
         addTearDown(database.close);
-        await verifier.migrateAndValidate(database, 4);
+        await verifier.migrateAndValidate(database, database.schemaVersion);
 
         expect(await database.select(database.accounts).get(), hasLength(1));
         expect(
@@ -598,7 +605,7 @@ void main() {
         wallMillis: () => migratedAt,
       );
       addTearDown(database.close);
-      await verifier.migrateAndValidate(database, 5);
+      await verifier.migrateAndValidate(database, database.schemaVersion);
 
       expect(await database.select(database.accounts).get(), hasLength(1));
       expect(await database.select(database.transactions).get(), hasLength(1));
@@ -657,5 +664,217 @@ void main() {
         {'pull_cursor': '12', 'device_id': 'dev-a'},
       );
     });
+  });
+
+  group('schema 5 to 6', () {
+    const int created = 1759309200000; // 2026-10-01 09:00 UTC
+    const String clock = '001759309200000-00000-dev-b';
+
+    // A manual transaction's whole record as a newer device holds it, hidden.
+    Map<String, Object?> manual(
+      String id, {
+      Map<String, Object?> extra = const {},
+    }) => {
+      ...transactionRecordJson(
+        Transaction(
+          id: id,
+          accountId: 'acc-manual',
+          amount: Money(-1250, 'USD'),
+          date: LocalDate(2026, 9, 30),
+          pending: false,
+          name: 'Lunch',
+          hidden: true,
+          source: DataSource.manual,
+          createdAt: DateTime.fromMillisecondsSinceEpoch(created, isUtc: true),
+          updatedAt: DateTime.fromMillisecondsSinceEpoch(created, isUtc: true),
+          syncVersion: 0,
+        ),
+      ),
+      ...extra,
+    };
+
+    String sql(Map<String, Object?> fields) =>
+        jsonEncode(fields).replaceAll("'", "''");
+
+    String clocks(String id, Iterable<String> fields) => [
+      for (final String f in fields) "('transaction', '$id', '$f', '$clock')",
+    ].join(', ');
+
+    String row(String id, String source, {String account = 'acc-manual'}) =>
+        "('$id', '$account', -1250, 'USD', '2026-09-30', NULL, 0, NULL, 'Lunch', "
+        "NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$source', $created, $created, "
+        'NULL, 0, 0)';
+
+    test(
+      'adds hidden as false to every row, lands the held hidden overrides and '
+      'keeps the budgets',
+      () async {
+        final Map<String, Object?> exact = manual('t-held');
+        final Map<String, Object?> newer = manual(
+          't-newer',
+          extra: {'mood': 'sunny'},
+        );
+        final schema = await verifier.schemaAt(5);
+        schema.rawDatabase.execute('''
+        INSERT INTO accounts (id, item_id, type, subtype, name, official_name, mask,
+          currency, current_balance_minor, available_balance_minor, credit_limit_minor,
+          balances_as_of, is_hidden, display_order, created_at, updated_at, deleted_at,
+          sync_version)
+        VALUES
+          ('acc-manual', NULL, 'depository', NULL, 'Wallet', NULL, NULL, 'USD',
+           NULL, NULL, NULL, NULL, 0, 0, $created, $created, NULL, 0),
+          ('acc-linked', 'item-1', 'credit', NULL, 'Card', NULL, NULL, 'USD',
+           NULL, NULL, NULL, NULL, 0, 1, $created, $created, NULL, 3);
+        INSERT INTO transactions (id, account_id, amount_minor, currency, date,
+          authorized_date, pending, pending_transaction_id, name, merchant_name,
+          merchant_logo_url, plaid_primary_category, plaid_detailed_category,
+          user_category_id, notes, receipt_path, source, created_at, updated_at,
+          deleted_at, sync_version, deleted_with_account)
+        VALUES ${row('t-plain', 'manual')}, ${row('t-held', 'manual')},
+          ${row('t-newer', 'manual')}, ${row('t-plaid', 'plaid', account: 'acc-linked')};
+        INSERT INTO held_records (entity_type, entity_id, fields, reason)
+        VALUES
+          ('transaction', 't-held', '${sql(exact)}', 'unknown_fields'),
+          ('transaction', 't-newer', '${sql(newer)}', 'unknown_fields'),
+          ('transaction', 't-plaid', '{"hidden":true}', 'unknown_fields'),
+          ('transaction', 't-absent', '{"hidden":true}', 'incomplete');
+        INSERT INTO record_clocks (entity_type, entity_id, field, hlc)
+        VALUES ${clocks('t-held', [...exact.keys, '_create'])},
+          ${clocks('t-newer', [...newer.keys, '_create'])},
+          ${clocks('t-plaid', ['hidden'])}, ${clocks('t-absent', ['hidden'])};
+        INSERT INTO budgets (id, category_id, period, period_start_day, amount_minor,
+          currency, rollover, start_date, created_at, updated_at, deleted_at)
+        VALUES ('b1', 'plaid:FOOD_AND_DRINK', 'monthly', 1, 60000, 'USD', 1,
+          '2026-09-01', $created, $created, NULL);
+        INSERT INTO budget_alerts (budget_id, period_start, threshold_bp, raised_at)
+        VALUES ('b1', '2026-10-01', 8000, $created);
+      ''');
+        final AppDatabase database = AppDatabase(schema.newConnection());
+        addTearDown(database.close);
+        await verifier.migrateAndValidate(database, 6);
+
+        expect(
+          {
+            for (final TransactionRow t
+                in await database.select(database.transactions).get())
+              t.id: t.hidden,
+          },
+          {'t-plain': false, 't-held': true, 't-newer': true, 't-plaid': true},
+        );
+        // Schema 5's budgets and their alerts are untouched.
+        expect(
+          (await database.select(database.budgets).getSingle()).amountMinor,
+          60000,
+        );
+        expect(
+          await database.select(database.budgetAlerts).get(),
+          hasLength(1),
+        );
+        expect(
+          {
+            for (final HeldRecordRow h
+                in await database.select(database.heldRecords).get())
+              '${h.entityType}/${h.entityId}': h.reason,
+          },
+          {
+            'transaction/t-newer': 'unknown_fields',
+            'transaction/t-absent': 'incomplete',
+          },
+        );
+        final DriftSyncStore store = DriftSyncStore(database, testClock);
+        expect(
+          (await store.read(EntityType.transaction, 't-newer'))!.fields['mood'],
+          'sunny',
+        );
+        expect((await store.read(EntityType.transaction, 't-plaid'))!.fields, {
+          'hidden': true,
+        });
+        expect(await database.select(database.changeLog).get(), isEmpty);
+      },
+    );
+  });
+
+  // Drift writes the new version only after onUpgrade returns, so an upgrade that fails
+  // part way, or an app killed during one, runs every step again at the old version on
+  // the next open: each step must find its own work done and carry on.
+  group('every step runs again at the old version', () {
+    const int created = 1759309200000; // 2026-10-01 09:00 UTC
+
+    // A manual account with a manual transaction, in every schema's columns.
+    void insertRows(InitializedSchema schema) => schema.rawDatabase.execute('''
+      INSERT INTO accounts (id, item_id, type, subtype, name, official_name, mask,
+        currency, current_balance_minor, available_balance_minor, credit_limit_minor,
+        balances_as_of, is_hidden, display_order, created_at, updated_at, deleted_at,
+        sync_version)
+      VALUES ('acc', NULL, 'depository', NULL, 'Wallet', NULL, NULL, 'USD',
+        NULL, NULL, NULL, NULL, 0, 0, $created, $created, NULL, 0);
+      INSERT INTO transactions (id, account_id, amount_minor, currency, date,
+        authorized_date, pending, pending_transaction_id, name, merchant_name,
+        merchant_logo_url, plaid_primary_category, plaid_detailed_category,
+        user_category_id, notes, receipt_path, source, created_at, updated_at,
+        deleted_at, sync_version, deleted_with_account)
+      VALUES ('t1', 'acc', -1250, 'USD', '2026-09-30', NULL, 0, NULL, 'Lunch', NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, 'manual', $created, $created, NULL, 0, 0);
+    ''');
+
+    Future<void> rowsIntact(AppDatabase database) async {
+      expect(
+        (await database.select(database.accounts).get()).map((a) => a.id),
+        ['acc'],
+      );
+      final TransactionRow t = await database
+          .select(database.transactions)
+          .getSingle();
+      expect(t.id, 't1');
+      expect(t.amountMinor, -1250);
+      expect(t.hidden, isFalse);
+    }
+
+    for (final int from in [1, 4, 5]) {
+      test('from schema $from with the hidden column already added', () async {
+        final schema = await verifier.schemaAt(from);
+        insertRows(schema);
+        // What the first run's ALTER TABLE left before a later step failed.
+        schema.rawDatabase.execute(
+          'ALTER TABLE transactions ADD COLUMN "hidden" INTEGER NOT NULL '
+          'DEFAULT 0 CHECK ("hidden" IN (0, 1))',
+        );
+        final AppDatabase database = AppDatabase(
+          schema.newConnection(),
+          newNodeId: () => 'local-test',
+        );
+        addTearDown(database.close);
+        await verifier.migrateAndValidate(database, database.schemaVersion);
+        await rowsIntact(database);
+      });
+    }
+
+    for (final int from in [1, 2, 3, 4, 5]) {
+      test('from schema $from, after a whole run whose version was not '
+          'written', () async {
+        final schema = await verifier.schemaAt(from);
+        insertRows(schema);
+        final AppDatabase first = AppDatabase(
+          schema.newConnection(),
+          newNodeId: () => 'local-first',
+        );
+        addTearDown(first.close);
+        await verifier.migrateAndValidate(first, first.schemaVersion);
+        final List<ChangeLogRow> entries = await first
+            .select(first.changeLog)
+            .get();
+        schema.rawDatabase.execute('PRAGMA user_version = $from');
+
+        final AppDatabase again = AppDatabase(
+          schema.newConnection(),
+          newNodeId: () => 'local-again',
+        );
+        addTearDown(again.close);
+        await verifier.migrateAndValidate(again, again.schemaVersion);
+        await rowsIntact(again);
+        // The backfill ran once: the second run found the change log.
+        expect(await again.select(again.changeLog).get(), entries);
+      });
+    }
   });
 }

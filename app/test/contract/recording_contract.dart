@@ -1,6 +1,6 @@
 // The recording contract: every user-authored write of the account, transaction,
 // category, rule, budget and settings repositories records exactly one change-log entry per entity it
-// changed, and nothing else is recorded (Plaid rows only through their five overrides;
+// changed, and nothing else is recorded (Plaid rows only through their six overrides;
 // derived and demo transactions, linked accounts and the seeding never). The Drift and
 // in-memory implementations run it from test/core/sync/; the demo one records nothing.
 import 'package:finance_tracker/core/db/database_exceptions.dart';
@@ -176,6 +176,10 @@ void runRecordingContract(
       expect(await recorded(), [
         'transaction/p1 update notes,tags,user_category_id',
       ]);
+      await f.transactions.upsert(
+        (await f.transactions.watchById('p1').first)!.copyWith(hidden: true),
+      );
+      expect(await recorded(), ['transaction/p1 update hidden']);
       await expectLater(f.transactions.delete('p1'), throwsException);
       expect(await recorded(), isEmpty);
     });

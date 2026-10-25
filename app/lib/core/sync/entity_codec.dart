@@ -32,6 +32,7 @@ const Set<String> plaidOverrideFields = {
   'tags',
   'splits',
   'receipt_path',
+  'hidden',
 };
 
 /// The record fields of [account], deleted at [deletedAt] (null while live).

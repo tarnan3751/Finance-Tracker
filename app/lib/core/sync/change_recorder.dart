@@ -98,7 +98,7 @@ Future<void> recordEach(
 /// §7.1):
 ///
 /// - a transaction with `source` `manual` or `import`: all of it;
-/// - a Plaid transaction: only the five fields the user owns ([plaidOverrideFields]), and
+/// - a Plaid transaction: only the six fields the user owns ([plaidOverrideFields]), and
 ///   nothing for a new one, which only Plaid's own pipeline creates;
 /// - a `derived` or `demo` transaction: nothing (derived values are recomputed on each
 ///   device; demo data never syncs);
