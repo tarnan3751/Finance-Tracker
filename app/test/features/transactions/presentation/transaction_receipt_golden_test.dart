@@ -1,8 +1,11 @@
 // Goldens of a transaction with splits and a receipt, light and dark: the editor (which
 // is the transaction's detail) of the seed's split transaction with a receipt photo, its
 // two splits and the thumbnail in view; and the photo full screen, opened from the
-// thumbnail. The photo is the demo flavor's synthetic receipt. Tagged `golden`; see
-// test/flutter_test_config.dart for where the files go and how to update them.
+// thumbnail. The photo is a PNG of the demo flavor's synthetic receipt
+// (test/fixtures/receipts/receipt.png): a lossless image decodes to the same pixels on
+// every platform, where JPEG decoders differ, so the goldens match on CI's Linux runner
+// too. Tagged `golden`; see test/flutter_test_config.dart for where the files go and how
+// to update them.
 import 'dart:io';
 
 import 'package:alchemist/alchemist.dart';
@@ -30,7 +33,7 @@ Future<Widget> _app(Brightness brightness) async {
   await receipts.commit(
     await receipts.stage(
       'demo-txn-04',
-      File('assets/demo/receipt.jpg').readAsBytesSync(),
+      File('test/fixtures/receipts/receipt.png').readAsBytesSync(),
     ),
   );
   return SizedBox.fromSize(
