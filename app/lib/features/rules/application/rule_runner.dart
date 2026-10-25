@@ -14,10 +14,9 @@
 /// a name or an amount.
 library;
 
-import 'dart:async';
-
 import 'package:finance_tracker/core/plaid/plaid_pull.dart'
     show ArrivalProcessor;
+import 'package:finance_tracker/core/util/stream_current.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
 import 'package:finance_tracker/features/rules/domain/rule_repository.dart';
 import 'package:finance_tracker/features/rules/domain/rules_engine.dart';
@@ -52,9 +51,9 @@ final class RuleRunner implements ArrivalProcessor {
     final List<Rule> live;
     final CategoryLookup lookup;
     try {
-      live = await _current(rules.watchAll());
+      live = await currentValue(rules.watchAll());
       if (live.isEmpty) return;
-      lookup = categoryLookup(await _current(categories.watchAll()));
+      lookup = categoryLookup(await currentValue(categories.watchAll()));
     } on Object catch (e) {
       _log.warning('rules not read: ${e.runtimeType}');
       return;
@@ -108,23 +107,4 @@ final class RuleRunner implements ArrivalProcessor {
         if (record.fieldClocks.containsKey(f)) f,
     };
   }
-}
-
-// The first value of [stream], the repositories' current one. Unlike `Stream.first` it
-// does not wait for the subscription's cancel, whose future a widget test's fake clock
-// never completes for the in-memory repositories' streams.
-Future<T> _current<T>(Stream<T> stream) {
-  final Completer<T> value = Completer<T>();
-  late final StreamSubscription<T> subscription;
-  subscription = stream.listen(
-    (v) {
-      if (value.isCompleted) return;
-      value.complete(v);
-      unawaited(subscription.cancel());
-    },
-    onError: (Object e, StackTrace s) {
-      if (!value.isCompleted) value.completeError(e, s);
-    },
-  );
-  return value.future;
 }

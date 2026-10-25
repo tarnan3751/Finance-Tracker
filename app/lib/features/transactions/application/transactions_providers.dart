@@ -4,11 +4,10 @@
 /// categories and accounts); and the writes of the editor and of bulk edit.
 library;
 
-import 'dart:async';
-
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
+import 'package:finance_tracker/core/util/stream_current.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/transactions/application/transaction_filters.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
@@ -262,7 +261,7 @@ final class TransactionActions {
   ) => _inTransaction(() async {
     final List<Transaction> changed = [];
     for (final Transaction t in selected) {
-      final Transaction? current = await _current(
+      final Transaction? current = await currentValue(
         _transactions.watchById(t.id),
       );
       if (current == null) continue;
@@ -275,23 +274,4 @@ final class TransactionActions {
     ]);
     return changed.length;
   });
-}
-
-// The first value of [stream], the repository's current one. Unlike `Stream.first` it
-// does not wait for the subscription's cancel, whose future a widget test's fake clock
-// never completes for the in-memory repositories' streams (as `RuleRunner` reads).
-Future<T> _current<T>(Stream<T> stream) {
-  final Completer<T> value = Completer<T>();
-  late final StreamSubscription<T> subscription;
-  subscription = stream.listen(
-    (v) {
-      if (value.isCompleted) return;
-      value.complete(v);
-      unawaited(subscription.cancel());
-    },
-    onError: (Object e, StackTrace s) {
-      if (!value.isCompleted) value.completeError(e, s);
-    },
-  );
-  return value.future;
 }
