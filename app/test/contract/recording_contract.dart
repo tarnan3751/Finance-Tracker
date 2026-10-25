@@ -1,8 +1,9 @@
 // The recording contract: every user-authored write of the account, transaction,
-// category and settings repositories records exactly one change-log entry per entity it
+// category, rule and settings repositories records exactly one change-log entry per entity it
 // changed, and nothing else is recorded (Plaid rows only through their five overrides;
 // derived and demo transactions, linked accounts and the seeding never). The Drift and
 // in-memory implementations run it from test/core/sync/; the demo one records nothing.
+import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/sync/entity_codec.dart';
 import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
@@ -11,6 +12,7 @@ import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 
 import 'repository_fixture.dart';
+import 'rule_repository_contract.dart' show testRule;
 
 /// Registers the recording tests for the fixtures [create] builds, each with a sync store.
 void runRecordingContract(
@@ -238,6 +240,35 @@ void runRecordingContract(
         );
       },
     );
+
+    test('rules: every write records what it changed', () async {
+      await f.rules.upsert(testRule('r1'));
+      await f.rules.upsert(testRule('r2', position: 1));
+      expect(await recorded(), [
+        'rule/r1 create actions,conditions,id,name,position',
+        'rule/r2 create actions,conditions,id,name,position',
+      ]);
+      await f.rules.upsert(testRule('r1', name: 'Coffee shops'));
+      await f.rules.upsert(testRule('r1', name: 'Coffee shops'));
+      expect(await recorded(), ['rule/r1 update name']);
+      await f.rules.reorder(['r2', 'r1']);
+      expect(await recorded(), [
+        'rule/r2 update position',
+        'rule/r1 update position',
+      ]);
+      await f.rules.reorder(['r2', 'r1']);
+      await f.rules.delete('r1');
+      expect(await recorded(), ['rule/r1 delete deleted_at']);
+      await expectLater(
+        f.rules.upsert(testRule('r1')),
+        throwsA(isA<EntityDeletedException>()),
+      );
+      await f.rules.restore('r1');
+      expect(await recorded(), ['rule/r1 update deleted_at']);
+      final EntityRecord record = (await sync.read(EntityType.rule, 'r1'))!;
+      expect(record.isComplete, isTrue);
+      expect(record.fields['position'], 1);
+    });
 
     test(
       'settings: each save an update of what changed, from the defaults',

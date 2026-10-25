@@ -1,6 +1,6 @@
-// Fixtures of the in-memory and demo implementations for the contract suites: the three
-// repositories over one fresh InMemoryStore (the demo one loaded with an empty seed, so the
-// suites' "fresh repository" cases hold; the real seed has its own test).
+// Fixtures of the in-memory and demo implementations for the contract suites: the
+// repositories over one fresh InMemoryStore (the demo one loaded with an empty seed and no
+// rules, so the suites' "fresh repository" cases hold; the real seed has its own test).
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/accounts/data/demo_account_repository.dart';
@@ -9,6 +9,8 @@ import 'package:finance_tracker/features/categories/data/demo_category_repositor
 import 'package:finance_tracker/features/categories/data/in_memory_category_repository.dart';
 import 'package:finance_tracker/features/items/data/demo_item_repository.dart';
 import 'package:finance_tracker/features/items/data/in_memory_item_repository.dart';
+import 'package:finance_tracker/features/rules/data/demo_rule_repository.dart';
+import 'package:finance_tracker/features/rules/data/in_memory_rule_repository.dart';
 import 'package:finance_tracker/features/settings/data/demo_settings_repository.dart';
 import 'package:finance_tracker/features/settings/data/in_memory_settings_repository.dart';
 import 'package:finance_tracker/features/transactions/data/demo_transaction_repository.dart';
@@ -46,6 +48,7 @@ FixtureFactory inMemoryFixtures() {
         categories: InMemoryCategoryRepository(store, recorder: recorder),
         settings: InMemorySettingsRepository(recorder: recorder),
         items: InMemoryItemRepository(store),
+        rules: InMemoryRuleRepository(clock, recorder: recorder),
       );
     },
     dispose: () => store.close(),
@@ -67,6 +70,7 @@ FixtureFactory demoFixtures() {
         categories: DemoCategoryRepository(store),
         settings: DemoSettingsRepository(),
         items: DemoItemRepository(store),
+        rules: DemoRuleRepository(clock),
       );
     },
     dispose: () => store.close(),

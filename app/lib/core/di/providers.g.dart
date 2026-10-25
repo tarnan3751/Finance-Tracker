@@ -960,6 +960,52 @@ final class ItemRepositoryProvider
 
 String _$itemRepositoryHash() => r'4e06709b476bab90530a481baf2c582826909613';
 
+/// The rules.
+
+@ProviderFor(ruleRepository)
+final ruleRepositoryProvider = RuleRepositoryProvider._();
+
+/// The rules.
+
+final class RuleRepositoryProvider
+    extends $FunctionalProvider<RuleRepository, RuleRepository, RuleRepository>
+    with $Provider<RuleRepository> {
+  /// The rules.
+  RuleRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ruleRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ruleRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<RuleRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  RuleRepository create(Ref ref) {
+    return ruleRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(RuleRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<RuleRepository>(value),
+    );
+  }
+}
+
+String _$ruleRepositoryHash() => r'e61eb88d426fccdfd23056fa18a0df7098bab5c9';
+
 /// Where the app preferences are kept.
 
 @ProviderFor(settingsRepository)

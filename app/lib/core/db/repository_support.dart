@@ -1,15 +1,18 @@
 /// Rules and helpers the Drift and in-memory repositories share, so the two cannot drift
 /// apart: the category edit rule, the audit-instant rule, the transaction order, SQLite's
 /// text comparisons (ASCII case folding as `LIKE` and `NOCASE` do, UTF-8 byte order as
-/// `BINARY` does), the equality the repositories' `distinct` streams use, and what a
-/// Plaid transaction keeps from the stored row when the server's arrives.
+/// `BINARY` does, re-exported from `core/util/binary_compare.dart`), the equality the
+/// repositories' `distinct` streams use, and what a Plaid transaction keeps from the
+/// stored row when the server's arrives.
 library;
 
-import 'dart:convert';
-
+import 'package:finance_tracker/core/util/binary_compare.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart';
+
+export 'package:finance_tracker/core/util/binary_compare.dart'
+    show compareBinary;
 
 /// Throws [CategoryNotEditableException] when writing [next] over [existing] (null for a
 /// new category) is not allowed: creating a system category, changing more than the icon
@@ -54,19 +57,6 @@ int compareTransactionsNewestFirst(Transaction a, Transaction b) {
   if (byDate != 0) return byDate;
   final int byCreated = b.createdAt.compareTo(a.createdAt);
   return byCreated != 0 ? byCreated : compareBinary(b.id, a.id);
-}
-
-/// [a] against [b] as SQLite's `BINARY` collation compares text: by the bytes of their
-/// UTF-8 encodings (Dart's `compareTo` compares UTF-16 code units, which orders characters
-/// above U+FFFF differently).
-int compareBinary(String a, String b) {
-  final List<int> x = utf8.encode(a);
-  final List<int> y = utf8.encode(b);
-  final int length = x.length < y.length ? x.length : y.length;
-  for (int i = 0; i < length; i++) {
-    if (x[i] != y[i]) return x[i] - y[i];
-  }
-  return x.length - y.length;
 }
 
 /// [a] against [b] as SQLite's `NOCASE` collation compares text: ASCII letters folded,

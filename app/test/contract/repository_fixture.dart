@@ -1,11 +1,12 @@
-// What the account, transaction, category and item contract suites run against: the
-// repositories of one implementation over one backing store (an in-memory store, or one
-// Drift database), and the clock their deletes are stamped with. Each implementation's
+// What the account, transaction, category, item and rule contract suites run against:
+// the repositories of one implementation over one backing store (an in-memory store, or
+// one Drift database), and the clock their deletes are stamped with. Each implementation's
 // test file builds a fixture per test; the suites never see which implementation it is.
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
+import 'package:finance_tracker/features/rules/domain/rule_repository.dart';
 import 'package:finance_tracker/features/settings/domain/settings_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:shared_models/shared_models.dart';
@@ -21,6 +22,7 @@ final class RepositoryFixture {
     required this.categories,
     required this.settings,
     required this.items,
+    required this.rules,
     required this.clock,
     this.syncStore,
   });
@@ -30,6 +32,7 @@ final class RepositoryFixture {
   final CategoryRepository categories;
   final SettingsRepository settings;
   final ItemRepository items;
+  final RuleRepository rules;
 
   /// Where the writes are recorded.
   final SyncStore? syncStore;

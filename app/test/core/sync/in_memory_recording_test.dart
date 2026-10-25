@@ -4,6 +4,7 @@ import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/accounts/data/demo_account_repository.dart';
 import 'package:finance_tracker/features/categories/data/demo_category_repository.dart';
+import 'package:finance_tracker/features/rules/data/demo_rule_repository.dart';
 import 'package:finance_tracker/features/settings/data/demo_settings_repository.dart';
 import 'package:finance_tracker/features/transactions/data/demo_transaction_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,5 +24,9 @@ void main() {
     expect(DemoTransactionRepository(store).recorder, isA<NoChangeRecorder>());
     expect(DemoCategoryRepository(store).recorder, isA<NoChangeRecorder>());
     expect(DemoSettingsRepository().recorder, isA<NoChangeRecorder>());
+    expect(
+      DemoRuleRepository(SteppingClock()).recorder,
+      isA<NoChangeRecorder>(),
+    );
   });
 }

@@ -41,6 +41,11 @@ import 'package:finance_tracker/features/items/data/demo_item_repository.dart';
 import 'package:finance_tracker/features/items/data/drift_item_repository.dart';
 import 'package:finance_tracker/features/items/data/in_memory_item_repository.dart';
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
+import 'package:finance_tracker/features/rules/data/demo_rule_repository.dart';
+import 'package:finance_tracker/features/rules/data/demo_rules.dart';
+import 'package:finance_tracker/features/rules/data/drift_rule_repository.dart';
+import 'package:finance_tracker/features/rules/data/in_memory_rule_repository.dart';
+import 'package:finance_tracker/features/rules/domain/rule_repository.dart';
 import 'package:finance_tracker/features/settings/data/demo_settings_repository.dart';
 import 'package:finance_tracker/features/settings/data/drift_settings_repository.dart';
 import 'package:finance_tracker/features/settings/data/in_memory_settings_repository.dart';
@@ -204,6 +209,17 @@ CategoryRepository categoryRepository(Ref ref) => InMemoryCategoryRepository(
 ItemRepository itemRepository(Ref ref) =>
     InMemoryItemRepository(ref.watch(inMemoryStoreProvider));
 
+/// The rules.
+@Riverpod(keepAlive: true)
+RuleRepository ruleRepository(Ref ref) {
+  final InMemoryRuleRepository repository = InMemoryRuleRepository(
+    ref.watch(clockProvider),
+    recorder: ref.watch(changeRecorderProvider),
+  );
+  ref.onDispose(repository.close);
+  return repository;
+}
+
 /// Where the app preferences are kept.
 @Riverpod(keepAlive: true)
 SettingsRepository settingsRepository(Ref ref) {
@@ -310,6 +326,13 @@ final List<Override> _driftOverrides = [
       ref.watch(driftSyncStoreProvider),
     ),
   ),
+  ruleRepositoryProvider.overrideWith(
+    (ref) => DriftRuleRepository(
+      ref.watch(databaseProvider),
+      ref.watch(clockProvider),
+      recorder: ref.watch(changeRecorderProvider),
+    ),
+  ),
   settingsRepositoryProvider.overrideWith(
     (ref) => DriftSettingsRepository(
       ref.watch(databaseProvider),
@@ -354,6 +377,14 @@ final List<Override> _demoOverrides = [
           .watch(fakeServerProvider)
           .seededSyncVersionOf(demoEmail),
     );
+  }),
+  ruleRepositoryProvider.overrideWith((ref) {
+    final DemoRuleRepository repository = DemoRuleRepository(
+      ref.watch(clockProvider),
+      initial: demoRules(ref.watch(demoPersonaProvider)),
+    );
+    ref.onDispose(repository.close);
+    return repository;
   }),
   settingsRepositoryProvider.overrideWith((ref) {
     final DemoSettingsRepository repository = DemoSettingsRepository();
