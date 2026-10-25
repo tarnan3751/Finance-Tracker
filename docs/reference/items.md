@@ -79,11 +79,12 @@ the next pull confirms it. One action per Item at a time, and one Link session a
 ## The screen
 
 `presentation/items_screen.dart`, `ItemsRoute` (`/accounts/linked-banks`), opened from the
-Accounts app bar ("Linked banks") and from Settings → Account → Linked banks. One card per
+Accounts app bar ("Linked banks"), from a linked account's detail menu, and from Settings →
+Account → Linked banks. One card per
 Item, as `ItemRepository.watchAll` orders them (`linkedBanksProvider`):
 
-- the institution's logo when the server gave one (`Image` from the stored bytes), else
-  its initial; its name; "Last synced <date time>" in the device's zone (the clock's
+- the institution's avatar (`MerchantAvatar`, `app-core.md`: the stored logo bytes, else
+  its initial on Plaid's primary color or a palette color); its name; "Last synced <date time>" in the device's zone (the clock's
   location), or "Not synced yet";
 - a status chip, drawn by hand so its label wraps at large text sizes, with its own
   semantics node ("Status: Connected"): healthy is Connected; login required and pending
@@ -118,6 +119,10 @@ the page's transaction. The processor gets the row as stored: an override anothe
 before the row arrived (a category, notes, tags, splits, a receipt) is already on it.
 
 ## Linked data elsewhere
+
+The account screens name each linked account's institution and show the balance it
+reported (`accounts.md`, **Balances**); a linked account's detail opens this screen from
+its menu ("Linked banks").
 
 A linked account cannot be deleted on the device, and neither can a Plaid transaction
 (`BankDataNotDeletableException`; the account detail and the transaction editor offer no

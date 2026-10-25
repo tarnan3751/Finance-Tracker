@@ -250,6 +250,13 @@ keeping its own navigation stack.
   be read), and the summary is cleared, so it is shown once.
 - `EmptyState` (`core/widgets/empty_state.dart`) is the body of an empty list: an icon, a
   headline, a line of text and an optional action button.
+- `MerchantAvatar` (`core/widgets/merchant_avatar.dart`) is the round avatar of a merchant
+  or an institution: a logo URL through `Image.network` or stored bytes through
+  `Image.memory`, shown on white once decoded, else (and while loading or when either
+  fails) the name's first letter or digit on the given ARGB color, in black or white,
+  whichever contrasts more (always above WCAG AA). Decorative unless given a
+  `semanticsLabel`. Its colors come from the enrichment fallback (`transactions.md`,
+  **Merchants**).
 
 ## Theme
 

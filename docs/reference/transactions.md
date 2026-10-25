@@ -1,8 +1,10 @@
 # Transactions
 
-The transaction list with its search and filters, and the transaction editor, which is
-also a transaction's detail. Code: `app/lib/features/transactions/` (`application/`,
-`presentation/`, and `domain/effective_category.dart`; the repository and
+The transaction list with its search and filters, the merchant each row shows, and the
+transaction editor, which is also a transaction's detail. Code:
+`app/lib/features/transactions/` (`application/`, `presentation/`, and
+`domain/effective_category.dart`, `enrichment.dart`, `merchant_dictionary.dart`; the
+repository and
 `TransactionQuery` are `data.md`'s). Tests:
 `app/test/features/transactions/`, `app/test/flows/`.
 
@@ -13,10 +15,10 @@ headers: "Today" and "Yesterday" from `todayProvider` (the clock's today in the 
 re-read at midnight and on resume), the weekday for
 the rest of the last week, then the full date, through intl's `DateFormat` in the device
 locale (`transaction_dates.dart`). A row (`transaction_tile.dart`, built from plain values,
-no stream per row) shows the category's icon, the merchant name or else the description,
-the account and the effective category (**The effective category**; "Uncategorized" when
-there is none), the amount colored by `FinanceColors`, and a "Pending" label. The account
-detail's ledger rows show the effective category too.
+no stream per row) shows the merchant's avatar and name (**Merchants**), the account and
+the effective category (**The effective category**; "Uncategorized" when there is none),
+the amount colored by `FinanceColors`, and a "Pending" label. The account detail's ledger
+rows are the same tile, with the effective category and the running balance.
 
 - **Paging.** `TransactionListController` holds the filters and how many pages are loaded;
   `transactionPageProvider` watches the repository with `limit` = pages × 50
@@ -61,6 +63,42 @@ resolves, the detailed one taking precedence over the primary (`data.md`). The c
 behind "N transactions will become uncategorized" pass ids only, so they count
 `userCategoryId` (and splits): deleting a user category never changes a Plaid-resolved
 category, and system categories cannot be deleted.
+
+## Merchants
+
+A row's name and avatar come from `EnrichedMerchant.resolve(transaction)`
+(`domain/enrichment.dart`, pure Dart), the enrichment fallback of `PLAN.md` §7.1 Tier B
+and §12:
+
+- **Name.** Plaid's `merchantName` when present, never replaced; else, for a `manual`
+  transaction, its description as typed; else the dictionary's name for the raw `name`;
+  else the raw name cleaned (`cleanMerchantName`: the leading noise skipped, then the words
+  up to the first carrying a digit or masked digits or following a `#`, a `*` or a spaced
+  dash, in title case when the raw name is all capitals, acronyms and company suffixes
+  such as ATM, LLC and IRS kept in capitals).
+- **Logo.** Plaid's `merchantLogoUrl`, untouched (a public CDN URL, loaded by
+  `MerchantAvatar` through `Image.network`); null when Plaid gave none. No logo is bundled.
+- **Color.** The dictionary's brand color for Plaid's merchant name or the raw name, else
+  `paletteColor(name)`: one of twelve Material 800 shades by a 32-bit FNV-1a hash of the
+  normalized name, the same on every device and run. `institutionColor` is Plaid's
+  `primary_color`, else the palette color of the institution's name.
+
+**The dictionary** (`domain/merchant_dictionary.dart`, `merchantDictionary`) holds about 150
+merchants, each a display name, the raw-name prefixes that mean it and an ARGB brand color
+where the brand has a well-known one. `lookupMerchant` normalizes the raw name
+(`normalizeMerchantText`: lower case, apostrophes dropped, other punctuation a space) and
+matches a key as the whole first words, longest first, trying again after each piece of
+leading noise is skipped: a processor's prefix before a `*` (`SQ *`, `TST*`, `PAYPAL *`,
+`DNH*`, ...), numbers, dates, masked digits (`XXXX`), and card words (`POS PURCHASE`,
+`PURCHASE AUTHORIZED ON`, `CHECKCARD`, `INTERAC PURCHASE`, ...). So `NETFLIX.COM` is
+Netflix, `INTERAC PURCHASE - 67200 TARGET #052` Target, and `APPLEBEES` never Apple.
+
+Nothing is written: like the effective category the fallback is display-side, so a
+fallback name never reaches the database, the change log, the server or a Plaid field.
+`test/features/transactions/domain/enrichment_test.dart` runs it over the 316 raw names
+Plaid Sandbox returned (`test/fixtures/plaid_transaction_names.json`, names only, from the
+server's `transactions_sync_page1.json` fixture); `transaction_tile_test.dart` checks the
+rows (logo, dictionary hit, cleaned name, pending).
 
 ## The editor
 
