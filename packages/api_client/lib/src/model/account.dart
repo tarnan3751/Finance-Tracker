@@ -10,7 +10,7 @@ import 'package:built_value/serializer.dart';
 
 part 'account.g.dart';
 
-/// Mirrors `shared_models` `Account`. The balances are the institution's reported figures as of `balances_as_of`, null when not reported.
+/// Mirrors `shared_models` `Account`. The balances are the institution's reported figures as of `balances_as_of`, null when not reported; `current_balance` is in the app's sign, the others as reported.
 ///
 /// Properties:
 /// * [id]
@@ -21,9 +21,9 @@ part 'account.g.dart';
 /// * [officialName]
 /// * [mask]
 /// * [currencyCode]
-/// * [currentBalance]
-/// * [availableBalance]
-/// * [creditLimit]
+/// * [currentBalance] - The institution's current balance in the app's sign: positive for money the user holds, negative for money owed, so a credit card's or loan's outstanding amount is negative.
+/// * [availableBalance] - The amount available as the institution reports it, never negated: funds available on a depository account, remaining credit on a card.
+/// * [creditLimit] - The limit as reported, positive.
 /// * [balancesAsOf]
 /// * [isHidden]
 /// * [displayOrder]
@@ -55,12 +55,15 @@ abstract class Account implements Built<Account, AccountBuilder> {
   @BuiltValueField(wireName: r'currency_code')
   String get currencyCode;
 
+  /// The institution's current balance in the app's sign: positive for money the user holds, negative for money owed, so a credit card's or loan's outstanding amount is negative.
   @BuiltValueField(wireName: r'current_balance')
   Money? get currentBalance;
 
+  /// The amount available as the institution reports it, never negated: funds available on a depository account, remaining credit on a card.
   @BuiltValueField(wireName: r'available_balance')
   Money? get availableBalance;
 
+  /// The limit as reported, positive.
   @BuiltValueField(wireName: r'credit_limit')
   Money? get creditLimit;
 

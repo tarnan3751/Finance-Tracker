@@ -297,7 +297,7 @@ class PlaidApi {
   }
 
   /// Exchanges a Link public token for an Item
-  /// Exchanges the public token Plaid Link returned. The access token stays on the server; the answer is the new Item with its institution.
+  /// Exchanges the public token Plaid Link returned. The access token stays on the server; the answer is the Item with its institution. A public token Plaid answers with an Item the caller already has answers that Item (201, its status refreshed) rather than a new one; another user&#39;s Item is a 400 on &#x60;public_token&#x60;.
   ///
   /// Parameters:
   /// * [exchangeRequest]

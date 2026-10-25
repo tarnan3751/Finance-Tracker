@@ -276,7 +276,9 @@ paths:
       summary: Exchanges a Link public token for an Item
       description: >-
         Exchanges the public token Plaid Link returned. The access token stays on the
-        server; the answer is the new Item with its institution.
+        server; the answer is the Item with its institution. A public token Plaid answers
+        with an Item the caller already has answers that Item (201, its status refreshed)
+        rather than a new one; another user's Item is a 400 on `public_token`.
       requestBody:
         required: true
         content:
@@ -1505,7 +1507,8 @@ components:
       type: object
       description: >-
         Mirrors `shared_models` `Account`. The balances are the institution's reported
-        figures as of `balances_as_of`, null when not reported.
+        figures as of `balances_as_of`, null when not reported; `current_balance` is in
+        the app's sign, the others as reported.
       required:
         - id
         - item_id
@@ -1546,14 +1549,22 @@ components:
           type: string
           pattern: '^[A-Z]{3}$'
         current_balance:
+          description: >-
+            The institution's current balance in the app's sign: positive for money the
+            user holds, negative for money owed, so a credit card's or loan's
+            outstanding amount is negative.
           allOf:
             - $ref: '#/components/schemas/Money'
           nullable: true
         available_balance:
+          description: >-
+            The amount available as the institution reports it, never negated: funds
+            available on a depository account, remaining credit on a card.
           allOf:
             - $ref: '#/components/schemas/Money'
           nullable: true
         credit_limit:
+          description: The limit as reported, positive.
           allOf:
             - $ref: '#/components/schemas/Money'
           nullable: true

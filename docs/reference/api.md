@@ -29,6 +29,12 @@ instead and answers `401` to a delivery it cannot verify.
   `-(2^63 - 1)`. Every amount, balance, limit and total is `Money`; no amount is ever a JSON
   number. A nullable amount is `allOf: [$ref Money]` with `nullable: true`, because OAS 3.0
   ignores the siblings of a `$ref`.
+- **Balance signs.** `Account.current_balance` is in the app's sign: positive for money
+  the user holds, negative for money owed, so a credit card's or loan's outstanding
+  amount is negative (the server negates what Plaid reports for `credit` and `loan`
+  accounts). `available_balance` (funds available, or a card's remaining credit) and
+  `credit_limit` are as the institution reports them, never negated. Liability and
+  holding amounts are as reported.
 - **`Decimal`** is an exact decimal string (`^-?(0|[1-9][0-9]*)(\.[0-9]+)?$`) for what needs
   more precision than minor units and is not a total: per-unit prices, share quantities,
   interest rates. Securities and holdings carry `currency_code` for their prices.
