@@ -1,9 +1,10 @@
 // Two (and three) devices, each the real app wiring over its own Drift database (the
 // Drift repositories, the recorder, the device clock, the sync controller), syncing
-// through one relay: scripted conflicts and a seeded random run, after which every
-// device's entity tables and sync records are the same (sync-app.md, **Testing**). The
-// Plaid pull after each session goes to an in-app fake server with no bank linked, so it
-// brings nothing and never touches the network.
+// through one relay: scripted conflicts, rules among them, and seeded random runs, after
+// which every device's entity tables and sync records are the same (sync-app.md,
+// **Testing**). The Plaid pull after each session goes to an in-app fake server with no
+// bank linked, so it brings nothing and never touches the network; a test that needs a
+// bank row applies it as the pull's page does.
 import 'dart:math';
 
 import 'package:drift/drift.dart' hide isNotNull, isNull;
@@ -15,8 +16,11 @@ import 'package:finance_tracker/core/api/token_store.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
+import 'package:finance_tracker/core/db/drift_plaid_pull_store.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/plaid/plaid_pull.dart'
+    show ArrivalProcessor;
 import 'package:finance_tracker/core/sync/entity_codec.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
@@ -24,6 +28,7 @@ import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
+import 'package:finance_tracker/features/rules/domain/rule_repository.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
 import 'package:finance_tracker/features/settings/domain/settings_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
@@ -136,6 +141,19 @@ final class Device {
   CategoryRepository get categories =>
       container.read(categoryRepositoryProvider);
   SettingsRepository get settings => container.read(settingsRepositoryProvider);
+  RuleRepository get rules => container.read(ruleRepositoryProvider);
+  ArrivalProcessor get arrival => container.read(arrivalProcessorProvider);
+
+  /// Applies [page] as a page of the Plaid pull does: the rows inserted, the overrides
+  /// held for them laid over them, the rules run on them as stored.
+  Future<void> pullPage(List<Transaction> page) => database.transaction(
+    () async => arrival.onArrived(
+      await DriftPlaidPullStore(
+        database,
+        store,
+      ).materializeHeld(await transactions.applyPlaid(page)),
+    ),
+  );
   DriftSyncStore get store => container.read(driftSyncStoreProvider);
 
   /// Runs a session to the end and returns the status after it.
@@ -158,7 +176,7 @@ final class Device {
   }
 
   /// The entity tables, without the audit columns each device stamps for itself on
-  /// accounts and categories (they are not in the synced records).
+  /// accounts, categories and rules (they are not in the synced records).
   Future<Map<String, List<Map<String, Object?>>>> dump() async {
     Future<List<Map<String, Object?>>> rows(String sql) async => [
       for (final QueryRow row in await database.customSelect(sql).get())
@@ -181,6 +199,10 @@ final class Device {
       'categories': await rows(
         'SELECT id, name, parent_id, is_system, icon, color, plaid_category, '
         'deleted_at, sync_version FROM categories ORDER BY id',
+      ),
+      'rules': await rows(
+        'SELECT id, name, position, conditions, actions, deleted_at '
+        'FROM rules ORDER BY id',
       ),
       'app_settings': await rows('SELECT * FROM app_settings ORDER BY key'),
       'held_records': await rows(
@@ -512,6 +534,218 @@ void main() {
       ))!;
       expect(record.fields['splits'], hasLength(2), reason: d.name);
     }
+  });
+
+  group('rules', () {
+    Rule rule(String id, {int position = 0, String name = 'Coffee'}) => Rule(
+      id: id,
+      name: name,
+      position: position,
+      conditions: const [
+        RuleCondition(kind: RuleConditionKind.merchantContains, text: 'Coffee'),
+      ],
+      actions: const [
+        RuleAction(
+          kind: RuleActionKind.setCategory,
+          value: 'plaid:FOOD_AND_DRINK_COFFEE',
+        ),
+      ],
+    );
+
+    Future<List<Rule>> live(Device d) => d.rules.watchAll().first;
+
+    Future<void> sharedRules(Device a, Device b) async {
+      await a.rules.upsert(rule('r1'));
+      await a.rules.upsert(rule('r2', position: 1, name: 'Groceries'));
+      await a.rules.upsert(rule('r3', position: 2, name: 'Rides'));
+      await expectConverged([a, b]);
+    }
+
+    test('concurrent edits of different rules, and of one rule\'s fields, '
+        'merge', () async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b');
+      await sharedRules(a, b);
+
+      await a.rules.upsert(rule('r1', name: 'Coffee shops'));
+      await b.rules.upsert(rule('r2', position: 1, name: 'Food shopping'));
+      await b.rules.upsert(
+        rule('r1').copyWith(
+          actions: const [RuleAction(kind: RuleActionKind.addTag, value: 'x')],
+        ),
+      );
+      await expectConverged([a, b]);
+
+      final List<Rule> merged = await live(b);
+      expect(merged[0].name, 'Coffee shops');
+      expect(merged[0].actions.single.kind, RuleActionKind.addTag);
+      expect(merged[1].name, 'Food shopping');
+    });
+
+    test('a reorder against an edit keeps both', () async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b');
+      await sharedRules(a, b);
+
+      await a.rules.reorder(['r3', 'r1', 'r2']);
+      await b.rules.upsert(rule('r2', position: 1, name: 'Food shopping'));
+      await expectConverged([a, b]);
+      expect(
+        [for (final Rule r in await live(b)) r.name],
+        ['Rides', 'Coffee', 'Food shopping'],
+      );
+    });
+
+    test('concurrent reorders converge on one order', () async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b');
+      await sharedRules(a, b);
+
+      await a.rules.reorder(['r3', 'r2', 'r1']);
+      await b.rules.reorder(['r2', 'r1', 'r3']);
+      await expectConverged([a, b]);
+      expect(
+        [for (final Rule r in await live(a)) r.id],
+        [for (final Rule r in await live(b)) r.id],
+      );
+    });
+
+    test(
+      'a delete wins over a concurrent edit; a restore shows the edit',
+      () async {
+        final Device a = device('dev-a');
+        final Device b = device('dev-b');
+        await sharedRules(a, b);
+
+        await a.rules.delete('r2');
+        await b.rules.upsert(rule('r2', position: 1, name: 'Edited'));
+        await expectConverged([a, b]);
+        expect([for (final Rule r in await live(b)) r.id], ['r1', 'r3']);
+
+        await b.rules.restore('r2');
+        await expectConverged([a, b]);
+        expect((await live(a))[1].name, 'Edited');
+      },
+    );
+
+    test('two devices ingesting one bank transaction under a synced rule '
+        'file it the same way', () async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b');
+      await shared(a, [b]);
+      await a.rules.upsert(
+        rule('r-coffee').copyWith(
+          actions: const [
+            RuleAction(
+              kind: RuleActionKind.setCategory,
+              value: 'plaid:FOOD_AND_DRINK_COFFEE',
+            ),
+            RuleAction(kind: RuleActionKind.addTag, value: 'coffee'),
+          ],
+        ),
+      );
+      await expectConverged([a, b]);
+
+      // A's Plaid pull brings the row in; the rule files and tags it, recorded as
+      // overrides.
+      // On the shared account: a linked one would be soft-deleted by each device's
+      // pull, since the fake server lists no bank.
+      final Transaction bank = testTransaction(
+        'p1',
+        'acc',
+        -450,
+        name: 'BLUE BOTTLE COFFEE',
+      ).copyWith(source: DataSource.plaid, syncVersion: 1);
+      await a.pullPage([bank]);
+      final Transaction filed = (await a.transactions.watchById('p1').first)!;
+      expect(filed.userCategoryId, 'plaid:FOOD_AND_DRINK_COFFEE');
+      expect(filed.tags, ['coffee']);
+
+      // The user clears the category on A. B syncs (the overrides wait, held, for the
+      // row) and then its own pull brings the row: the overrides land on it, the rule
+      // leaves the category the user cleared, and the tag is already there.
+      await a.transactions.upsert(filed.copyWith(userCategoryId: null));
+      await a.sync();
+      await b.sync();
+      expect((await b.store.watchLedger().first).held, 1);
+      await b.pullPage([bank]);
+      await expectConverged([a, b]);
+      for (final Device d in [a, b]) {
+        final Transaction row = (await d.transactions.watchById('p1').first)!;
+        expect(row.userCategoryId, isNull, reason: d.name);
+        expect(row.tags, ['coffee'], reason: d.name);
+        expect(row.source, DataSource.plaid);
+      }
+
+      // Both devices bringing in a new row each file it the same way.
+      final Transaction second = bank.copyWith(id: 'p2', syncVersion: 2);
+      await a.pullPage([second]);
+      await b.pullPage([second]);
+      await expectConverged([a, b]);
+      for (final Device d in [a, b]) {
+        expect(
+          (await d.transactions.watchById('p2').first)!.userCategoryId,
+          'plaid:FOOD_AND_DRINK_COFFEE',
+        );
+      }
+    });
+
+    test(
+      'a seeded random run of rule edits on three devices converges',
+      () async {
+        for (int seed = 0; seed < 15; seed++) {
+          setUpRandom(seed);
+          world = World();
+          relay = SwappableRelay(
+            InMemorySyncRelay(nowWallMillis: () => world.now),
+          );
+          final Random random = Random(seed);
+          final List<Device> run = [
+            for (final (int i, int skew) in [(0, 0), (1, 45), (2, -60)])
+              device('dev-$i', skew: Duration(seconds: skew)),
+          ];
+          final List<String> ids = [];
+          for (int step = 0; step < 80; step++) {
+            final Device d = run[random.nextInt(run.length)];
+            String pick() => ids[random.nextInt(ids.length)];
+            try {
+              switch (random.nextInt(8)) {
+                case 0 || 1:
+                  final String id = 'r${ids.length}';
+                  ids.add(id);
+                  await d.rules.upsert(
+                    rule(id, position: random.nextInt(5), name: 'n$step'),
+                  );
+                case 2 when ids.isNotEmpty:
+                  final String id = pick();
+                  final Rule? r = (await live(d))
+                      .where((r) => r.id == id)
+                      .firstOrNull;
+                  if (r != null) {
+                    await d.rules.upsert(r.copyWith(name: 'e$step'));
+                  }
+                case 3 when ids.isNotEmpty:
+                  await d.rules.delete(pick());
+                case 4 when ids.isNotEmpty:
+                  await d.rules.restore(pick());
+                case 5 when ids.isNotEmpty:
+                  await d.rules.reorder([...ids]..shuffle(random));
+                default:
+                  await d.sync();
+              }
+            } on EntityDeletedException {
+              // An edit of a rule this device already knows is deleted.
+            }
+          }
+          await expectConverged(run);
+          for (final Device d in run) {
+            await d.close();
+            devices.remove(d);
+          }
+        }
+      },
+      timeout: const Timeout.factor(3),
+    );
   });
 
   test('a seeded random run on three devices converges', () async {
