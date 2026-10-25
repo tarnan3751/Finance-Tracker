@@ -97,7 +97,7 @@ code is an error. Employers, landlords and servicers are fictional; the identiti
 | Persona | Institutions | Shape |
 |---|---|---|
 | `renter` | Platypus | Weekly gig payouts that sometimes skip, six subscriptions, a card paying 75 % of each statement and carrying the rest with interest, a small savings account |
-| `family` | Platypus, Tartan, Gingham, Tattersall | Two salaries (biweekly, semi-monthly), a mortgage, two auto loans, a 401(k) fed by payroll, childcare and kids' spending, a card paid in full |
+| `family` | Platypus, Tartan, Gingham, Tattersall | Two salaries (biweekly, semi-monthly), a mortgage (at Tattersall), two auto loans (at Gingham), a 401(k) fed by payroll (at Tartan), childcare and kids' spending, a card paid in full |
 | `student` | Platypus, Gingham | Undergraduate loan in repayment, graduate loan in deferment disbursed each semester with tuition paid the same day, a campus job, irregular tutoring, a monthly transfer from a parent, thin spending |
 | `small_business` | Platypus, Gingham | Stripe payouts and a retainer into business checking, a business card, quarterly estimated taxes, owner's draws into personal checking |
 
@@ -202,6 +202,12 @@ per https://plaid.com/docs/api/sandbox/#sandboxpublic_tokencreate):
     `currency`);
   - `holdings` and `investment_transactions` on investment accounts: the newest 60 buys,
     since the holdings carry the whole position;
+  - **Products by institution.** Each institution's accounts need only the products
+    Sandbox grants it (verified 2026-10-24, `PLAN.md` §4): First Platypus Bank, First
+    Gingham Credit Union and Tartan Bank support `transactions`, `liabilities` and
+    `investments`; Tattersall Federal Credit Union supports `transactions` only. So no
+    persona puts a card, a student loan or an investment account at Tattersall; the
+    family's mortgage is there, and its 401(k) at Tartan.
   - `liability`: `credit` for cards and `student` for student loans, and **no other
     loan kind carries one**. A mortgage has none ("Mortgages are not currently supported
     in the custom Sandbox"), and an auto loan has none because a block of `type: loan`

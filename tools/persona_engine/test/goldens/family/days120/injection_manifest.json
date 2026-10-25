@@ -27,7 +27,7 @@
       "plaid_institution_id": "ins_109511",
       "sandbox_user_file": "sandbox_user_tartan.json",
       "injection_file": "injection_tartan.json",
-      "custom_user_transactions": 8,
+      "custom_user_transactions": 0,
       "injected_transactions": 0,
       "batch_count": 0,
       "estimated_duration_seconds": 0
@@ -47,7 +47,7 @@
       "plaid_institution_id": "ins_109510",
       "sandbox_user_file": "sandbox_user_tattersall.json",
       "injection_file": "injection_tattersall.json",
-      "custom_user_transactions": 0,
+      "custom_user_transactions": 8,
       "injected_transactions": 0,
       "batch_count": 0,
       "estimated_duration_seconds": 0

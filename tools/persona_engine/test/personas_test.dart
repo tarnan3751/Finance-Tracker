@@ -15,6 +15,34 @@ void main() {
         expect(PersonaId.fromSlug(id.slug), id);
       });
 
+      test('asks each institution only for products Sandbox grants it', () {
+        // Verified 2026-10-24 (PLAN.md §4): Tattersall Federal Credit Union supports
+        // transactions only; the other three test banks support all three products.
+        const supported = {
+          'ins_109508': {'transactions', 'liabilities', 'investments'},
+          'ins_109509': {'transactions', 'liabilities', 'investments'},
+          'ins_109510': {'transactions'},
+          'ins_109511': {'transactions', 'liabilities', 'investments'},
+        };
+        final household = generateHousehold(persona, seed: 1, asOf: asOf);
+        for (final user in sandboxUsers(household)) {
+          final accounts = [
+            for (final a in user.config['override_accounts']! as List<Object?>)
+              a! as Map<String, Object?>,
+          ];
+          final needed = {
+            'transactions',
+            if (accounts.any((a) => a.containsKey('liability'))) 'liabilities',
+            if (accounts.any((a) => a['type'] == 'investment')) 'investments',
+          };
+          expect(
+            supported[user.split.institution.plaidId],
+            containsAll(needed),
+            reason: user.split.institution.key,
+          );
+        }
+      });
+
       test('names only its own institutions and accounts', () {
         final institutions = {for (final i in persona.institutions) i.key};
         final accounts = {for (final a in persona.accounts) a.key};

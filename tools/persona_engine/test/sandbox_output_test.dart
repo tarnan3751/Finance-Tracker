@@ -146,10 +146,8 @@ void main() {
 
   test('the brokerage carries holdings and recent buys', () {
     final users = sandboxUsers(family);
-    final tattersall = users.firstWhere(
-      (u) => u.split.institution.key == 'tattersall',
-    );
-    final account = _maps(tattersall.config['override_accounts']).single;
+    final tartan = users.firstWhere((u) => u.split.institution.key == 'tartan');
+    final account = _maps(tartan.config['override_accounts']).single;
     expect(_maps(account['holdings']), hasLength(3));
     final buys = _maps(account['investment_transactions']);
     expect(
