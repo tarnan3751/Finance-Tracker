@@ -82,7 +82,11 @@ landing step. It refuses a dirty tree, a HEAD other than the base on `main`, a s
 is not a Conventional Commit of at most 72 characters, and any trailer; then applies the
 `NNNN-*.patch` files with `git am`, checks the final tree against the reported hash (rolling
 back to the base on a mismatch), and runs the gate, leaving the commits in place unpushed.
-`--dry-run` stops after the tree check and resets to the base.
+The gate's report is kept in `app/build/landing/<tree>.log` (gitignored), by the tree it
+checked. When the gate fails the commits stay in place too, and the script prints the tail
+of the failing step (each `gate <step> FAILED` line and the output under it, the last 60
+lines), the report's path and the exact `git reset --hard <base>` that undoes the landing,
+then exits 1. `--dry-run` stops after the tree check and resets to the base.
 
 ## `tools/run_server.sh`: the dev server
 

@@ -13,8 +13,10 @@
 # most 72 characters), a message that carries a trailer, a patch that does not apply, and a
 # final tree that differs from the reported one. Each refusal after `git am` started resets
 # the branch back to the base, so the tree is left as it was found. `--dry-run` applies and
-# checks the chain, then resets to the base without running the gate. A gate failure leaves
-# the commits in place and says how to undo them.
+# checks the chain, then resets to the base without running the gate. The gate's report is
+# kept in app/build/landing/<tree>.log (gitignored); a gate failure leaves the commits in
+# place, prints the tail of the failing step and the `git reset --hard <base>` that undoes
+# the landing.
 set -uo pipefail
 
 usage() {
@@ -122,9 +124,20 @@ if [ "$dry_run" -eq 1 ]; then
   exit 0
 fi
 
-echo "running the gate"
-if ! "$tools_dir/gates.sh"; then
-  echo "land_series: the gate failed; the commits are in place. To undo: git reset --hard ${base:0:10}" >&2
+# The gate's report is kept under app/build/ (gitignored) by the tree it checked.
+report_dir="$root/app/build/landing"
+mkdir -p "$report_dir"
+report="$report_dir/$tree.log"
+echo "running the gate (report: ${report#"$root"/})"
+if ! "$tools_dir/gates.sh" 2>&1 | tee "$report"; then
+  {
+    echo
+    echo "land_series: the gate failed; the tail of its failing step(s):"
+    awk '/^gate [a-z]+ +FAILED/ { failing = 1; print; next } /^gates?[: ]/ { failing = 0 } failing' "$report" | tail -60
+    echo "land_series: the full report is $report"
+    echo "land_series: the commits are in place, unpushed. To undo the landing:"
+    echo "  git reset --hard $base"
+  } >&2
   exit 1
 fi
 new_head="$(git rev-parse HEAD)"
