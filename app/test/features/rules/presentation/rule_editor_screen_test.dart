@@ -1,7 +1,8 @@
 // The rule editor: a rule needs a name, a condition and an action, and each row its
 // value; every condition and action kind round-trips, hide included; an edited rule keeps
-// every action; the bank category picker offers only the built-in
-// categories; delete offers an undo.
+// every action; the bank category picker offers only the built-in categories; delete
+// offers an undo; the preview counts and lists what the rule as edited would change, once
+// every row has a value.
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/features/rules/data/in_memory_rule_repository.dart';
 import 'package:flutter/material.dart';
@@ -256,5 +257,51 @@ void main() {
   testWidgets('a rule that no longer exists says so', (tester) async {
     await _pump(tester, '/settings/rules/missing');
     expect(find.text('This rule no longer exists.'), findsOneWidget);
+  });
+
+  testWidgets('the preview counts and lists what the rule as edited would '
+      'change', (tester) async {
+    await _pump(tester, '/settings/rules/new');
+    await _add(tester, 'Add condition', 'Merchant or description contains');
+    await _add(tester, 'Add action', 'Add a tag');
+    expect(
+      find.text(
+        'Finish the conditions and actions to see what this rule would '
+        'change.',
+      ),
+      findsOneWidget,
+    );
+
+    await tester.enterText(_field('Text'), 'rent');
+    await tester.enterText(_field('Tag'), 'home');
+    await tester.pump(const Duration(milliseconds: 100));
+    // Not yet: the preview waits for the edits to stop.
+    expect(find.text('Would change 2 of 12 transactions'), findsNothing);
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
+    expect(find.text('Would change 2 of 12 transactions'), findsOneWidget);
+
+    await tester.tap(find.text('Preview'));
+    await tester.pumpAndSettle();
+    expect(find.text('What this rule would change'), findsOneWidget);
+    expect(find.textContaining('Tag added: home'), findsNWidgets(2));
+
+    // Nothing was written.
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    await tester.enterText(_field('Text'), 'nothing matches this');
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    expect(find.text('Would change 0 of 12 transactions'), findsOneWidget);
+    final TextButton preview = tester.widget(
+      find.widgetWithText(TextButton, 'Preview'),
+    );
+    expect(preview.onPressed, isNull);
+  });
+
+  testWidgets('a saved rule is previewed as it opens', (tester) async {
+    await _pump(tester, '/settings/rules/rule-groceries');
+    await tester.pumpAndSettle();
+    expect(find.text('Would change 0 of 12 transactions'), findsOneWidget);
   });
 }

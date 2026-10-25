@@ -1960,4 +1960,68 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bulkFailedDeleted =>
       'Nothing changed: one of the transactions was deleted meanwhile.';
+
+  @override
+  String rulePreviewCount(int changed, int total) {
+    final intl.NumberFormat changedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String changedString = changedNumberFormat.format(changed);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: 'Would change $changedString of $totalString transactions',
+      one: 'Would change $changedString of 1 transaction',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rulePreviewIncomplete =>
+      'Finish the conditions and actions to see what this rule would change.';
+
+  @override
+  String get rulePreviewChecking => 'Checking your transactions…';
+
+  @override
+  String get rulePreviewOpen => 'Preview';
+
+  @override
+  String get rulePreviewTitle => 'What this rule would change';
+
+  @override
+  String rulePreviewMore(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString more transactions not shown',
+      one: '1 more transaction not shown',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String rulePreviewCategory(String before, String after) {
+    return 'Category: $before → $after';
+  }
+
+  @override
+  String rulePreviewTag(String tag) {
+    return 'Tag added: $tag';
+  }
+
+  @override
+  String rulePreviewName(String before, String after) {
+    return 'Description: $before → $after';
+  }
+
+  @override
+  String get rulePreviewHidden => 'Hidden';
 }

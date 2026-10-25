@@ -1,10 +1,11 @@
 // Goldens of the rules screens, light and dark at phone size, on the test seed and the
 // two test rules (rule_seed.dart): the list, and the editor of the rule with a row of
-// every kind. Tagged `golden`; see test/flutter_test_config.dart for where the files go
-// and how to update them.
+// every kind; and the preview sheet of a rule that tags the rent. Tagged `golden`; see
+// test/flutter_test_config.dart for where the files go and how to update them.
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_models/shared_models.dart';
 
 import '../../../helpers/pump_app.dart';
 import '../../../helpers/rule_seed.dart';
@@ -14,6 +15,17 @@ const Map<String, String> _screens = {
   'rules_list': '/settings/rules',
   'rule_editor': '/settings/rules/rule-every',
 };
+
+/// A rule the preview sheet shows: it tags both rents in the seed.
+const Rule _rent = Rule(
+  id: 'rule-rent',
+  name: 'Rent',
+  position: 2,
+  conditions: [
+    RuleCondition(kind: RuleConditionKind.merchantContains, text: 'rent'),
+  ],
+  actions: [RuleAction(kind: RuleActionKind.addTag, value: 'home')],
+);
 
 void main() {
   // Flutter's own DEBUG banner is not part of the app.
@@ -40,5 +52,30 @@ void main() {
         ),
       );
     }
+    goldenTest(
+      'the rule preview sheet, ${brightness.name}',
+      fileName: 'rule_preview_sheet_${brightness.name}',
+      constraints: BoxConstraints.tight(phoneSize),
+      builder: () => SizedBox.fromSize(
+        size: phoneSize,
+        child: buildTestApp(
+          initialLocation: '/settings/rules/rule-rent',
+          brightness: brightness,
+          overrides: [
+            storeOverride(seededStore()),
+            rulesOverride(
+              seededRules(rules: [everyKindRule, groceriesRule, _rent]),
+            ),
+          ],
+        ),
+      ),
+      pumpBeforeTest: (tester) async {
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(find.text('Preview'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Preview'));
+        await tester.pumpAndSettle();
+      },
+    );
   }
 }

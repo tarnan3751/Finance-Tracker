@@ -3,13 +3,21 @@
 /// contains, an amount range in one currency, an account, a bank category) and the
 /// actions (set the category, add a tag, rename, hide). A rule needs a name, a condition and an action, and every
 /// row its value, before it saves. Deleting from here offers an undo.
+///
+/// Under the actions, the preview: how many of the existing transactions the rule as
+/// edited would change (`rulePreviewProvider`), recomputed 300 ms after the last edit of
+/// a condition or an action, once every row has a valid value; "Preview" lists them.
 library;
+
+import 'dart:async';
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/presentation/currency_picker.dart';
 import 'package:finance_tracker/features/categories/presentation/category_picker.dart';
+import 'package:finance_tracker/features/rules/application/rule_preview.dart';
 import 'package:finance_tracker/features/rules/application/rules_providers.dart';
+import 'package:finance_tracker/features/rules/presentation/rule_preview_sheet.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:finance_tracker/features/transactions/presentation/amount_input.dart';
@@ -94,6 +102,27 @@ final class _ConditionDraft {
     RuleConditionKind.plaidCategory => RuleCondition(kind: kind, text: choice),
   };
 
+  /// Whether the row has a valid value, as saving requires.
+  bool get isComplete => switch (kind) {
+    RuleConditionKind.merchantContains => text.text.trim().isNotEmpty,
+    RuleConditionKind.amountBetween => _boundsComplete,
+    RuleConditionKind.account ||
+    RuleConditionKind.plaidCategory => choice != null,
+  };
+
+  bool get _boundsComplete {
+    final String low = min.text.trim();
+    final String high = max.text.trim();
+    if (low.isEmpty && high.isEmpty) return false;
+    final Money? lower = low.isEmpty ? null : parseAmountInput(low, currency);
+    final Money? upper = high.isEmpty ? null : parseAmountInput(high, currency);
+    if (low.isNotEmpty && (lower == null || lower.isNegative)) return false;
+    if (high.isNotEmpty && (upper == null || upper.isNegative)) return false;
+    return lower == null ||
+        upper == null ||
+        lower.minorUnits <= upper.minorUnits;
+  }
+
   void dispose() {
     text.dispose();
     min.dispose();
@@ -120,6 +149,14 @@ final class _ActionDraft {
     RuleActionKind.addTag ||
     RuleActionKind.rename => RuleAction(kind: kind, value: value.text.trim()),
     RuleActionKind.hide => RuleAction(kind: kind),
+  };
+
+  /// Whether the row has a value, as saving requires.
+  bool get isComplete => switch (kind) {
+    RuleActionKind.setCategory => categoryId != null,
+    RuleActionKind.addTag ||
+    RuleActionKind.rename => value.text.trim().isNotEmpty,
+    RuleActionKind.hide => true,
   };
 
   void dispose() => value.dispose();
@@ -159,6 +196,12 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
   bool _submitted = false;
   bool _saving = false;
 
+  // The rule the preview shows, and the wait before the next one replaces it.
+  Rule? _previewed;
+  Timer? _previewDebounce;
+
+  static const Duration _previewDelay = Duration(milliseconds: 300);
+
   bool get _isNew => widget.initial == null;
 
   /// The accounts' currencies, the device's default when there is no account.
@@ -170,7 +213,48 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _previewed = _draft();
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    _draftChanged();
+  }
+
+  // The rule as the form holds it, for the preview: null while there is no condition or
+  // no action, or a row has no valid value. The name and the position do not change what
+  // the rule alone does to a transaction, so they are left out.
+  Rule? _draft() {
+    if (_conditions.isEmpty || _actions.isEmpty) return null;
+    if (!_conditions.every((c) => c.isComplete)) return null;
+    if (!_actions.every((a) => a.isComplete)) return null;
+    return Rule(
+      id: widget.initial?.id ?? '',
+      name: '',
+      position: 0,
+      conditions: [
+        for (final _ConditionDraft c in _conditions) c.toCondition(),
+      ],
+      actions: [for (final _ActionDraft a in _actions) a.toAction()],
+    );
+  }
+
+  // Schedules the preview of the form's rule when it differs from the one shown.
+  void _draftChanged() {
+    final Rule? draft = _draft();
+    _previewDebounce?.cancel();
+    if (draft == _previewed) return;
+    _previewDebounce = Timer(_previewDelay, () {
+      if (mounted) super.setState(() => _previewed = draft);
+    });
+  }
+
+  @override
   void dispose() {
+    _previewDebounce?.cancel();
     _name.dispose();
     for (final _ConditionDraft c in _conditions) {
       c.dispose();
@@ -552,6 +636,41 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
     );
   }
 
+  // What the rule as edited would change in the existing transactions.
+  Widget _preview(AppLocalizations l10n, ThemeData theme) {
+    final TextStyle? style = theme.textTheme.bodyMedium?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    final Rule? draft = _previewed;
+    if (draft == null) return Text(l10n.rulePreviewIncomplete, style: style);
+    final AsyncValue<RulePreview> preview = ref.watch(
+      rulePreviewProvider(draft),
+    );
+    final RulePreview? value = preview.value;
+    if (value == null) {
+      return Text(
+        preview.hasError ? l10n.loadFailed : l10n.rulePreviewChecking,
+        style: style,
+      );
+    }
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            l10n.rulePreviewCount(value.changes.length, value.total),
+            style: style,
+          ),
+        ),
+        TextButton(
+          onPressed: value.changes.isEmpty
+              ? null
+              : () => showRulePreviewSheet(context, value),
+          child: Text(l10n.rulePreviewOpen),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
@@ -587,6 +706,7 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
       ),
       body: Form(
         key: _form,
+        onChanged: _draftChanged,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
@@ -644,6 +764,8 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
                 child: _AddLabel(l10n.ruleAddAction),
               ),
             ),
+            const SizedBox(height: 16),
+            _preview(l10n, theme),
             const SizedBox(height: 32),
           ],
         ),

@@ -2722,5 +2722,90 @@
   "bulkFailedDeleted": "Nothing changed: one of the transactions was deleted meanwhile.",
   "@bulkFailedDeleted": {
     "description": "Snack bar when a bulk action is refused because a selected transaction was deleted (on another device, say)."
+  },
+  "rulePreviewCount": "{total, plural, =1{Would change {changed} of 1 transaction} other{Would change {changed} of {total} transactions}}",
+  "@rulePreviewCount": {
+    "description": "Under a rule's actions in the editor: how many existing transactions the rule as edited would change, of how many.",
+    "placeholders": {
+      "changed": {
+        "type": "int",
+        "format": "decimalPattern",
+        "example": "14"
+      },
+      "total": {
+        "type": "int",
+        "format": "decimalPattern",
+        "example": "1929"
+      }
+    }
+  },
+  "rulePreviewIncomplete": "Finish the conditions and actions to see what this rule would change.",
+  "@rulePreviewIncomplete": {
+    "description": "Under a rule's actions in the editor, while a condition or an action has no value yet."
+  },
+  "rulePreviewChecking": "Checking your transactions…",
+  "@rulePreviewChecking": {
+    "description": "Under a rule's actions in the editor, while the preview is computed."
+  },
+  "rulePreviewOpen": "Preview",
+  "@rulePreviewOpen": {
+    "description": "Button that opens the list of the existing transactions a rule would change."
+  },
+  "rulePreviewTitle": "What this rule would change",
+  "@rulePreviewTitle": {
+    "description": "Title of the sheet listing the existing transactions a rule would change."
+  },
+  "rulePreviewMore": "{count, plural, =1{1 more transaction not shown} other{{count} more transactions not shown}}",
+  "@rulePreviewMore": {
+    "description": "At the end of the preview sheet: how many changed transactions are not listed.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern",
+        "example": "12"
+      }
+    }
+  },
+  "rulePreviewCategory": "Category: {before} → {after}",
+  "@rulePreviewCategory": {
+    "description": "A line of the preview sheet: the category a rule gives a transaction.",
+    "placeholders": {
+      "before": {
+        "type": "String",
+        "example": "Uncategorized"
+      },
+      "after": {
+        "type": "String",
+        "example": "Coffee"
+      }
+    }
+  },
+  "rulePreviewTag": "Tag added: {tag}",
+  "@rulePreviewTag": {
+    "description": "A line of the preview sheet: the tag a rule adds to a transaction.",
+    "placeholders": {
+      "tag": {
+        "type": "String",
+        "example": "coffee"
+      }
+    }
+  },
+  "rulePreviewName": "Description: {before} → {after}",
+  "@rulePreviewName": {
+    "description": "A line of the preview sheet: the description a rule gives a transaction.",
+    "placeholders": {
+      "before": {
+        "type": "String",
+        "example": "CHECK 1043"
+      },
+      "after": {
+        "type": "String",
+        "example": "Rent"
+      }
+    }
+  },
+  "rulePreviewHidden": "Hidden",
+  "@rulePreviewHidden": {
+    "description": "A line of the preview sheet: the rule hides the transaction."
   }
 }

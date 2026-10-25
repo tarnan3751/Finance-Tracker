@@ -3149,6 +3149,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing changed: one of the transactions was deleted meanwhile.'**
   String get bulkFailedDeleted;
+
+  /// Under a rule's actions in the editor: how many existing transactions the rule as edited would change, of how many.
+  ///
+  /// In en, this message translates to:
+  /// **'{total, plural, =1{Would change {changed} of 1 transaction} other{Would change {changed} of {total} transactions}}'**
+  String rulePreviewCount(int changed, int total);
+
+  /// Under a rule's actions in the editor, while a condition or an action has no value yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish the conditions and actions to see what this rule would change.'**
+  String get rulePreviewIncomplete;
+
+  /// Under a rule's actions in the editor, while the preview is computed.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking your transactions…'**
+  String get rulePreviewChecking;
+
+  /// Button that opens the list of the existing transactions a rule would change.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get rulePreviewOpen;
+
+  /// Title of the sheet listing the existing transactions a rule would change.
+  ///
+  /// In en, this message translates to:
+  /// **'What this rule would change'**
+  String get rulePreviewTitle;
+
+  /// At the end of the preview sheet: how many changed transactions are not listed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more transaction not shown} other{{count} more transactions not shown}}'**
+  String rulePreviewMore(int count);
+
+  /// A line of the preview sheet: the category a rule gives a transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Category: {before} → {after}'**
+  String rulePreviewCategory(String before, String after);
+
+  /// A line of the preview sheet: the tag a rule adds to a transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag added: {tag}'**
+  String rulePreviewTag(String tag);
+
+  /// A line of the preview sheet: the description a rule gives a transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Description: {before} → {after}'**
+  String rulePreviewName(String before, String after);
+
+  /// A line of the preview sheet: the rule hides the transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get rulePreviewHidden;
 }
 
 class _AppLocalizationsDelegate

@@ -1,11 +1,19 @@
-/// What the rules screens show and do (`docs/reference/rules.md`); the runner the Plaid
-/// pull applies the rules with is `arrivalProcessorProvider` (`core/di/providers.dart`).
+/// What the rules screens show and do (`docs/reference/rules.md`): the rules, what a rule
+/// would change in the existing transactions, and the writes; the runner the Plaid pull
+/// applies the rules with is `arrivalProcessorProvider` (`core/di/providers.dart`).
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
+import 'package:finance_tracker/features/categories/application/categories_providers.dart';
+import 'package:finance_tracker/features/rules/application/rule_preview.dart';
+import 'package:finance_tracker/features/rules/application/rule_support.dart';
 import 'package:finance_tracker/features/rules/domain/rule_repository.dart';
+import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
+import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_models/shared_models.dart';
+import 'package:sync_engine/sync_engine.dart';
 import 'package:uuid/uuid.dart';
 
 part 'rules_providers.g.dart';
@@ -14,6 +22,32 @@ part 'rules_providers.g.dart';
 @riverpod
 Stream<List<Rule>> rules(Ref ref) =>
     ref.watch(ruleRepositoryProvider).watchAll();
+
+/// Every live transaction, newest first: what a rule is previewed on.
+@riverpod
+Stream<List<Transaction>> ruleHistory(Ref ref) =>
+    ref.watch(transactionRepositoryProvider).watch(TransactionQuery());
+
+/// What [rule], as the editor holds it, would change in the live transactions on live
+/// accounts (`evaluateRuleOnHistory`), recomputed when they, the accounts or the
+/// categories change.
+@riverpod
+Future<RulePreview> rulePreview(Ref ref, Rule rule) async {
+  final List<Transaction> transactions = onLiveAccounts(
+    await ref.watch(ruleHistoryProvider.future),
+    await ref.watch(accountsProvider.future),
+  );
+  final CategoryLookup lookup = categoryLookup(
+    await ref.watch(categoriesProvider.future),
+  );
+  final SyncStore? store = ref.watch(recordingSyncStoreProvider);
+  return evaluateRuleOnHistory(
+    rule,
+    transactions,
+    lookup: lookup,
+    ownedFields: (t) => ruleOwnedFields(store, t),
+  );
+}
 
 /// The writes of the rules screens.
 @riverpod
