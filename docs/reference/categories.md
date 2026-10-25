@@ -17,6 +17,7 @@ categories under it; a child whose parent is not live shows at the top level), a
 - **List** (`categories_screen.dart`). The top-level categories, each expandable to the
   categories under it; system categories carry a lock icon labelled "Built-in category".
   The search field lists matches at every level with their parent's name. "Add category".
+  The app bar's menu opens the rules (`rules.md`).
 - **Editor** (`category_editor_screen.dart`). Name, parent ("Nothing (top level)" or any
   top-level category; a category with children stays at the top level, so the hierarchy
   keeps two levels), an icon from `category_icons.dart` and a color from the twelve
@@ -25,7 +26,9 @@ categories under it; a child whose parent is not live shows at the top level), a
   if it is ever raised). Delete, for user categories only, confirms with the number of
   live transactions filed under the category or its children (directly or by a split),
   then deletes it and its children.
-- **Picker** (`category_picker.dart`). See `transactions.md`.
+- **Picker** (`category_picker.dart`). See `transactions.md`. The rule editor opens it
+  without "None", and with `systemOnly` for a bank category condition, which lists only
+  the categories with a Plaid code.
 
 ## Icons and colors
 

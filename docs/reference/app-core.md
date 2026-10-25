@@ -52,9 +52,9 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `databaseKeyStoreProvider` | `core/di/providers.dart` | `SecureDatabaseKeyStore` (`data.md`) |
 | `databaseProvider` | `core/di/providers.dart` | The encrypted `AppDatabase` of dev and prod, closed with the container; a `StateError` in demo |
 | `inMemoryStoreProvider` | `core/di/providers.dart` | The `InMemoryStore` behind the in-memory and demo repositories; the demo flavor's holds the system categories and the demo seed |
-| `accountRepositoryProvider`, `transactionRepositoryProvider`, `categoryRepositoryProvider`, `itemRepositoryProvider`, `settingsRepositoryProvider` | `core/di/providers.dart` | In memory by default; Drift in dev and prod and demo in demo, through `overridesFor` |
-| `plaidPullStoreProvider`, `arrivalProcessorProvider`, `plaidPullProvider` | `core/di/providers.dart` | The Plaid pull (`sync-app.md`, **The Plaid pull**): its cursors in memory by default and in `sync_meta` in dev and prod, the arrival seam (nothing yet), and the pull over the API into the repositories |
-| `inMemorySyncStoreProvider`, `driftSyncStoreProvider`, `deviceClockProvider`, `changeRecorderProvider` | `core/di/providers.dart` | The sync stores, the device clock and the recorder the repositories record through: in memory by default, Drift in dev and prod, none in demo (`sync-app.md`) |
+| `accountRepositoryProvider`, `transactionRepositoryProvider`, `categoryRepositoryProvider`, `itemRepositoryProvider`, `ruleRepositoryProvider`, `settingsRepositoryProvider` | `core/di/providers.dart` | In memory by default; Drift in dev and prod and demo in demo, through `overridesFor` |
+| `plaidPullStoreProvider`, `arrivalProcessorProvider`, `plaidPullProvider` | `core/di/providers.dart` | The Plaid pull (`sync-app.md`, **The Plaid pull**): its cursors in memory by default and in `sync_meta` in dev and prod, the rules run on what it inserts (`RuleRunner`, `rules.md`), and the pull over the API into the repositories |
+| `inMemorySyncStoreProvider`, `driftSyncStoreProvider`, `deviceClockProvider`, `changeRecorderProvider`, `recordingSyncStoreProvider` | `core/di/providers.dart` | The sync stores, the device clock, the recorder the repositories record through, and the store it records into (which the rules on arrival read): in memory by default, Drift in dev and prod, none in demo (`sync-app.md`) |
 | `syncDeviceIdProvider`, `syncRelayProvider`, `localDataSyncsProvider`, `syncDebounceProvider` | `core/di/providers.dart` | The session's device id and the API's relay as that device while signed in (null otherwise), whether the local data syncs (dev and prod), and the debounce after a local change |
 | `syncControllerProvider` | `core/sync/sync_controller.dart` | The sync status and Sync now (`sync-app.md`) |
 | `demoPersonaProvider`, `demoSeedProvider` | `core/di/providers.dart` | The persona the demo flavor shows and its demo seed (`data.md`, **The demo seed**) |
@@ -218,6 +218,9 @@ keeping its own navigation stack.
 | | `CategoriesRoute` | `/settings/categories` | `features/categories/presentation/categories_screen.dart` |
 | | `NewCategoryRoute` | `/settings/categories/new` | `category_editor_screen.dart` |
 | | `EditCategoryRoute` | `/settings/categories/:id` | `category_editor_screen.dart` |
+| | `RulesRoute` | `/settings/rules` | `features/rules/presentation/rules_screen.dart` |
+| | `NewRuleRoute` | `/settings/rules/new` | `rule_editor_screen.dart` |
+| | `EditRuleRoute` | `/settings/rules/:id` | `rule_editor_screen.dart` |
 
 - The router opens at `/accounts`, and `/` redirects there (`createRouter` in
   `app_router.dart`; `routerFor(ref, initialLocation:)` builds the flavor's router, which
@@ -310,7 +313,7 @@ the only locale.
 | data | `data/drift_settings_repository.dart` | The Drift implementation (dev and prod): one `app_settings` row per field |
 | data | `data/in_memory_settings_repository.dart`, `data/demo_settings_repository.dart` | The in-memory implementation (tests) and the demo one (the demo flavor) |
 | application | `application/settings_controller.dart` | `SettingsController`, following `watch()`; each change reads, changes and saves, and changes run one after another so two issued together both land |
-| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Data (Categories, opening category management, `categories.md`), About (app name, version and build, flavor, time zone) and Demo data (demo only, `demo_data_section.dart`: the persona the demo shows); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
+| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Data (Categories, opening category management, `categories.md`; Rules, `rules.md`), About (app name, version and build, flavor, time zone) and Demo data (demo only, `demo_data_section.dart`: the persona the demo shows); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
 
 The repository contract is `test/contract/settings_repository_contract.dart`,
 `runSettingsRepositoryContract(create, {dispose})`; the three implementations each run it

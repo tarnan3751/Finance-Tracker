@@ -113,8 +113,8 @@ the new link's progress and failure show above the list. Every string is in the 
 ## Arrival
 
 Each transaction a pull inserts goes once to the arrival processor (`ArrivalProcessor`,
-`sync-app.md`, **The Plaid pull**), the seam the rules engine fills, inside the page's
-transaction. The processor gets the row as stored: an override another device recorded
+`sync-app.md`, **The Plaid pull**), the user's rules (`rules.md`, **On arrival**), inside
+the page's transaction. The processor gets the row as stored: an override another device recorded
 before the row arrived (a category, notes, tags, splits, a receipt) is already on it.
 
 ## Linked data elsewhere

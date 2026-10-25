@@ -15,7 +15,7 @@ schema 2 tables under `app/lib/core/db/tables/`, the repositories' writes
 `app/integration_test/sync_two_devices_test.dart`, `app/test/core/plaid/plaid_pull_test.dart`.
 
 Sync covers the user-authored data the app stores now: accounts, transactions,
-categories and the settings. Other entity types arrive with their phases; a record of one
+categories, rules and the settings. Other entity types arrive with their phases; a record of one
 pulled before then is kept (**The store**, held records).
 
 ## Records
@@ -28,10 +28,11 @@ plus what the app keeps beside it:
 | `account` | `Account.toJson()` and `deleted_at` (the entity carries no tombstone) |
 | `transaction` | `Transaction.toJson()` (its own `deleted_at`) and `deleted_with_account`, the account cascade's flag, synced so a restore on any device brings back the same rows |
 | `category` | `Category.toJson()` and `deleted_at` |
+| `rule` | `Rule.toJson()` and `deleted_at`; `conditions` and `actions` are whole field values, so concurrent edits of two conditions of one rule resolve last-writer-wins on the list |
 | `settings` | the one record `settings/local`: `theme_mode`, `use_dynamic_color` |
 
-Tags, splits and amounts are whole field values. The audit fields of accounts and
-categories (`created_at`, `updated_at`) are not in their JSON, so each device stamps its
+Tags, splits and amounts are whole field values. The audit fields of accounts, categories
+and rules (`created_at`, `updated_at`) are not in their JSON, so each device stamps its
 own; a transaction's are in its record and sync.
 
 ## The store
@@ -55,7 +56,7 @@ keep.
 
 **Writing** a record saves its clocks and materializes it:
 
-- a **complete** record (its create merged) of an account, transaction or category
+- a **complete** record (its create merged) of an account, transaction, category or rule
   replaces the row, tags and splits included, as the record says. The repositories' write
   checks are not applied: they are preconditions of a local edit, and applying them to
   merged state would make the result depend on arrival order. A transaction keeps its own
@@ -107,7 +108,11 @@ The filter by `source` is `userAuthoredChange`, shared by every implementation:
 | a `plaid` transaction | only `user_category_id`, `notes`, `tags`, `splits`, `receipt_path`, as updates; nothing at creation |
 | a `derived` or `demo` transaction | nothing |
 | an account with an `item_id` | nothing, until Phase 3 rules on linked-account overrides |
-| categories, settings | all of it; the seeding of the system categories is not recorded |
+| categories, rules, settings | all of it; the seeding of the system categories is not recorded |
+
+A rule's change to an arriving transaction (`rules.md`, **On arrival**) is an ordinary
+transaction write: on a `plaid` row an update of `user_category_id` or `tags`, so other
+devices receive the result.
 
 An account delete or restore records the account and each transaction its cascade
 changed; a category delete, the category and its children; a create with an opening
@@ -231,15 +236,15 @@ seed again over the demo's own edits. **The arrival seam**: `ArrivalProcessor.on
 arrival and cursor commit together. It gets the rows as stored after the held records
 were materialized (`PlaidPullStore.materializeHeld` returns them read back), so an
 override another device recorded before the row arrived is already on it and a processor
-never re-reads rows; `arrivalProcessorProvider` is `NoArrivalProcessor`
-until the rules engine fills it, and a processor must not fail on a row it cannot handle.
+never re-reads rows; `arrivalProcessorProvider` is the rules' `RuleRunner` (`rules.md`,
+**On arrival**), and a processor must not fail on a row it cannot handle.
 
 ## Testing
 
 | Suite | What it proves |
 |---|---|
-| `test/drift/migration_test.dart` | A schema 1 database with data migrates: rows kept, one create per user-authored row and a delete per deleted one, clocks increasing on one node, the stored records equal to the fold of the entries |
-| `test/core/db/drift_sync_store_test.dart` | The engine's store contract cases; records round-tripping through the tables (randomized transactions included); the held reasons, the row each leaves and their release; unknown fields surviving a local edit; the node substitution; the ledger |
+| `test/drift/migration_test.dart` | A schema 1 database with data migrates: rows kept, one create per user-authored row and a delete per deleted one, clocks increasing on one node, the stored records equal to the fold of the entries; a schema 3 database's held rule records become rows, or stay held for the reason that now applies |
+| `test/core/db/drift_sync_store_test.dart` | The engine's store contract cases; records round-tripping through the tables (randomized transactions and rules included); the held reasons, the row each leaves and their release; unknown fields surviving a local edit; the node substitution; the ledger |
 | `test/contract/recording_contract.dart` | Exactly the entries each write records, in the Drift and in-memory implementations; a refused write records nothing; a Drift write and its entry roll back together |
 | `test/core/sync/sync_controller_test.dart` | The triggers, the debounce (none on top of the start), single flight with one coalesced rerun, a sign-out and sign-in during a held push (one push at a time, each entry once on the relay), the cursor reset, failures in the status, persistence, demo, in-memory data and signed-out, the Plaid pull after a session and its failure kept apart |
 | `test/core/plaid/plaid_pull_test.dart` | Over the fake server into the Drift repositories: everything applied as sent and nothing recorded, paging with the cursor per page, a failed page rolled back and its cursor kept, the cursor reset, an unlinked Item's data going, an override pulled before its row landing on it, single flight; and the in-memory repositories |
@@ -247,4 +252,4 @@ until the rules engine fills it, and a processor must not fail on a row it canno
 | `test/core/api/fake_dataset_test.dart` | Every persona's household served by the fake server as the engine gave it; the demo flavor's fake on the persona the demo shows |
 | `test/features/transactions/presentation/orphan_transaction_test.dart` | A live transaction on an account this device does not show: labelled by its category, and the editor says the account is gone |
 | `integration_test/sync_two_devices_test.dart` | On a device: two app instances, encrypted databases and the real client, sync through the fake server, one driven through its screens |
-| `test/sync/two_device_convergence_test.dart` | Devices, each the app's wiring over its own database, converge through one relay: offline edits, delete against edit and against restore, the cascade, settings, a system category, an amount moved to another currency against splits in the old one, clock skew, a wiped relay, changes before sign-in, and a seeded random run on three devices |
+| `test/sync/two_device_convergence_test.dart` | Devices, each the app's wiring over its own database, converge through one relay: offline edits, delete against edit and against restore, the cascade, settings, a system category, an amount moved to another currency against splits in the old one, clock skew, a wiped relay, changes before sign-in, a seeded random run on three devices; rules: concurrent edits, a reorder against an edit, concurrent reorders, delete against edit, two devices filing one bank transaction by a synced rule, and a seeded random run of rule edits |

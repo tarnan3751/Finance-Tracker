@@ -84,6 +84,12 @@ category, and system categories cannot be deleted.
   were, so an imported or demo transaction keeps its provenance. The repository's
   `AccountNotFoundException`, `CurrencyMismatchException` and `EntityDeletedException` are
   explained in a snack bar.
+- **Running the rules.** The app bar's menu has "Run rules on this transaction", for a new
+  transaction too: the rules (`rules.md`) apply to the values in the form, which it
+  validates first; the description, category and tags they change fill the form, a snack
+  bar names the rule (or says none matches, or that it had nothing to change), and only
+  Save writes the result, recorded like any edit. Nothing runs the rules on a manual
+  entry by itself.
 - **Deleting.** A Plaid transaction has no Delete: only the bank removes one (`data.md`).
   Delete soft-deletes and shows "Transaction deleted" with Undo for five
   seconds in the tab's own messenger, so it appears on the screen below, above the
