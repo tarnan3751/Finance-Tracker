@@ -1932,6 +1932,42 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get receiptTitle => 'Receipt';
+
+  @override
+  String get receiptTakePhoto => 'Take photo';
+
+  @override
+  String get receiptChoosePhoto => 'Choose photo';
+
+  @override
+  String get receiptReplace => 'Replace';
+
+  @override
+  String get receiptReplaceLabel => 'Replace receipt';
+
+  @override
+  String get receiptRemove => 'Remove receipt';
+
+  @override
+  String get receiptImage => 'Receipt image';
+
+  @override
+  String get receiptOpenHint => 'open the receipt full screen';
+
+  @override
+  String get receiptMissing => 'Receipt kept on another device';
+
+  @override
+  String get receiptNoCamera => 'No camera is available';
+
+  @override
+  String get receiptPickFailed => 'That image can\'t be used';
+
+  @override
+  String get receiptSaveFailed => 'The receipt could not be saved';
+
+  @override
   String get filterShowHidden => 'Show hidden';
 
   @override

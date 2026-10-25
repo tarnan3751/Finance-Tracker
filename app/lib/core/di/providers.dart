@@ -4,9 +4,10 @@
 /// Feature providers live in their feature's `application/` folder; what is here is what
 /// every feature may depend on. With no override, the repositories are the in-memory ones
 /// over one shared [InMemoryStore] (what tests get), recording into an in-memory sync
-/// store; [overridesFor] gives dev and prod the Drift repositories over the encrypted
-/// database, recording into the Drift sync store, and the demo flavor the demo ones,
-/// which record nothing.
+/// store, and the receipts are in memory; [overridesFor] gives dev and prod the Drift
+/// repositories over the encrypted database, recording into the Drift sync store, with
+/// the receipts as files in the app's support directory, and the demo flavor the demo
+/// ones, which record nothing, with the fake image source.
 library;
 
 import 'dart:async';
@@ -22,7 +23,10 @@ import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/db/legacy_import/import_summary.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
+import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/plaid/plaid_pull.dart';
+import 'package:finance_tracker/core/platform/fake_image_source.dart';
+import 'package:finance_tracker/core/platform/image_source_provider.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/core/sync/device_clock.dart';
 import 'package:finance_tracker/core/sync/http_sync_relay.dart';
@@ -70,6 +74,7 @@ import 'package:finance_tracker/features/transactions/data/in_memory_saved_filte
 import 'package:finance_tracker/features/transactions/data/in_memory_transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/saved_filter_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:persona_engine/persona_engine.dart' show DemoSeed, PersonaId;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_models/shared_models.dart';
@@ -277,6 +282,11 @@ SettingsRepository settingsRepository(Ref ref) {
   return repository;
 }
 
+/// Where the receipt photos are kept: in memory by default (the tests, the demo flavor),
+/// files in the app's support directory in dev and prod.
+@Riverpod(keepAlive: true)
+ReceiptStore receiptStore(Ref ref) => MemoryReceiptStore();
+
 /// Where the Plaid pull keeps its cursors: in memory by default (beside the in-memory
 /// store, so a new store starts it afresh), `sync_meta` in dev and prod.
 @Riverpod(keepAlive: true)
@@ -427,11 +437,17 @@ final List<Override> _driftOverrides = [
       ref.watch(clockProvider),
     ),
   ),
+  receiptStoreProvider.overrideWith(
+    (ref) => FileReceiptStore(getApplicationSupportDirectory),
+  ),
 ];
 
 /// The demo flavor: everything in memory, from the selected persona's demo seed dated to
 /// the clock's today; choosing another persona rebuilds the store (the demo's edits go).
+/// Receipt photos come from the fake image source (the bundled demo receipt) and stay in
+/// memory.
 final List<Override> _demoOverrides = [
+  imageSourceProvider.overrideWith((ref) => FakeImageSource.demo()),
   databaseProvider.overrideWith(
     (ref) => throw StateError('The demo flavor has no database'),
   ),

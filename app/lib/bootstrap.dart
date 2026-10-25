@@ -1,7 +1,11 @@
 /// Startup shared by the three entry points: checks the configuration, sets up logging,
 /// time zones and the locale, opens the local data (dev and prod), reads the stored
-/// session, starts sync and the budget alerts, then runs the app on its Riverpod container.
+/// session, starts sync and the budget alerts, then runs the app on its Riverpod
+/// container; after the first frame, dev and prod sweep the receipt files no
+/// transaction references.
 library;
+
+import 'dart:async';
 
 import 'package:finance_tracker/app.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
@@ -17,6 +21,7 @@ import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/time/time_zone_setup.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
+import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -78,6 +83,26 @@ Future<void> bootstrap(AppConfig config) async {
       child: const FinanceTrackerApp(),
     ),
   );
+  if (config.flavor != Flavor.demo) {
+    // Once per launch, off the first frame: a delete that became final while the app
+    // was not watching (`TransactionActions.sweepReceipts`) leaves its photo behind.
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => unawaited(sweepReceipts(container)),
+    );
+  }
+}
+
+/// Deletes the receipt files no live transaction in [container] references. A failure
+/// is logged by type only; the next launch sweeps again.
+Future<void> sweepReceipts(ProviderContainer container) async {
+  try {
+    final int deleted = await container
+        .read(transactionActionsProvider)
+        .sweepReceipts();
+    if (deleted > 0) _log.info('swept $deleted receipt files');
+  } on Object catch (e) {
+    _log.warning('the receipt sweep failed: ${e.runtimeType}');
+  }
 }
 
 /// The device's locale as an intl locale intl has data for (en_US when it has none).

@@ -6,6 +6,7 @@ import 'package:drift/native.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
+import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/accounts/data/drift_account_repository.dart';
 import 'package:finance_tracker/features/accounts/data/in_memory_account_repository.dart';
@@ -84,6 +85,7 @@ void main() {
       await transactions.upsert(testTransaction('m2', 'a1', -200));
       final TransactionActions actions = TransactionActions(
         transactions,
+        MemoryReceiptStore(),
         clock,
         syncStore: _LoggingStore(log),
       );
@@ -132,6 +134,7 @@ void main() {
     );
     final TransactionActions actions = TransactionActions(
       transactions,
+      MemoryReceiptStore(),
       clock,
       syncStore: syncStore,
     );

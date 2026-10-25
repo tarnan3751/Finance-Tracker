@@ -3156,6 +3156,78 @@ abstract class AppLocalizations {
   /// **'Splits must add up to {amount}'**
   String splitMustBalance(String amount);
 
+  /// Heading of the transaction editor's receipt section, and title of the full-screen receipt view.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get receiptTitle;
+
+  /// Button that takes a receipt photo with the camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get receiptTakePhoto;
+
+  /// Button that chooses a receipt photo from the gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose photo'**
+  String get receiptChoosePhoto;
+
+  /// Button that replaces the receipt photo with another (camera or gallery).
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get receiptReplace;
+
+  /// What screen readers announce for the Replace button of the receipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace receipt'**
+  String get receiptReplaceLabel;
+
+  /// Button that removes the receipt photo from the transaction (saved with Save).
+  ///
+  /// In en, this message translates to:
+  /// **'Remove receipt'**
+  String get receiptRemove;
+
+  /// What screen readers announce for the receipt photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt image'**
+  String get receiptImage;
+
+  /// What a tap on the receipt thumbnail does, announced by screen readers after 'Double tap to'.
+  ///
+  /// In en, this message translates to:
+  /// **'open the receipt full screen'**
+  String get receiptOpenHint;
+
+  /// Shown in place of the receipt photo when the transaction has a receipt whose photo is on another device (photos do not sync).
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt kept on another device'**
+  String get receiptMissing;
+
+  /// Snack bar when the device has no camera app to take a receipt photo.
+  ///
+  /// In en, this message translates to:
+  /// **'No camera is available'**
+  String get receiptNoCamera;
+
+  /// Snack bar when the picked receipt image could not be read, or is in a format whose metadata the app cannot remove (WebP, HEIC), so it is not attached.
+  ///
+  /// In en, this message translates to:
+  /// **'That image can\'t be used'**
+  String get receiptPickFailed;
+
+  /// Snack bar when writing the receipt photo to the device failed, so nothing was saved.
+  ///
+  /// In en, this message translates to:
+  /// **'The receipt could not be saved'**
+  String get receiptSaveFailed;
+
   /// Switch in the filter sheet that lists hidden transactions too.
   ///
   /// In en, this message translates to:

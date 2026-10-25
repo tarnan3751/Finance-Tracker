@@ -1270,6 +1270,55 @@ final class SettingsRepositoryProvider
 String _$settingsRepositoryHash() =>
     r'ae819a2df2ba8cfe68dd3f654206240eb52bf4f7';
 
+/// Where the receipt photos are kept: in memory by default (the tests, the demo flavor),
+/// files in the app's support directory in dev and prod.
+
+@ProviderFor(receiptStore)
+final receiptStoreProvider = ReceiptStoreProvider._();
+
+/// Where the receipt photos are kept: in memory by default (the tests, the demo flavor),
+/// files in the app's support directory in dev and prod.
+
+final class ReceiptStoreProvider
+    extends $FunctionalProvider<ReceiptStore, ReceiptStore, ReceiptStore>
+    with $Provider<ReceiptStore> {
+  /// Where the receipt photos are kept: in memory by default (the tests, the demo flavor),
+  /// files in the app's support directory in dev and prod.
+  ReceiptStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'receiptStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$receiptStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<ReceiptStore> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ReceiptStore create(Ref ref) {
+    return receiptStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ReceiptStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ReceiptStore>(value),
+    );
+  }
+}
+
+String _$receiptStoreHash() => r'7c0a4f57f4a5fd258e6ef9009f695f9622a3b0f2';
+
 /// Where the Plaid pull keeps its cursors: in memory by default (beside the in-memory
 /// store, so a new store starts it afresh), `sync_meta` in dev and prod.
 

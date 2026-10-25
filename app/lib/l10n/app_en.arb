@@ -2731,6 +2731,54 @@
       }
     }
   },
+  "receiptTitle": "Receipt",
+  "@receiptTitle": {
+    "description": "Heading of the transaction editor's receipt section, and title of the full-screen receipt view."
+  },
+  "receiptTakePhoto": "Take photo",
+  "@receiptTakePhoto": {
+    "description": "Button that takes a receipt photo with the camera."
+  },
+  "receiptChoosePhoto": "Choose photo",
+  "@receiptChoosePhoto": {
+    "description": "Button that chooses a receipt photo from the gallery."
+  },
+  "receiptReplace": "Replace",
+  "@receiptReplace": {
+    "description": "Button that replaces the receipt photo with another (camera or gallery)."
+  },
+  "receiptReplaceLabel": "Replace receipt",
+  "@receiptReplaceLabel": {
+    "description": "What screen readers announce for the Replace button of the receipt."
+  },
+  "receiptRemove": "Remove receipt",
+  "@receiptRemove": {
+    "description": "Button that removes the receipt photo from the transaction (saved with Save)."
+  },
+  "receiptImage": "Receipt image",
+  "@receiptImage": {
+    "description": "What screen readers announce for the receipt photo."
+  },
+  "receiptOpenHint": "open the receipt full screen",
+  "@receiptOpenHint": {
+    "description": "What a tap on the receipt thumbnail does, announced by screen readers after 'Double tap to'."
+  },
+  "receiptMissing": "Receipt kept on another device",
+  "@receiptMissing": {
+    "description": "Shown in place of the receipt photo when the transaction has a receipt whose photo is on another device (photos do not sync)."
+  },
+  "receiptNoCamera": "No camera is available",
+  "@receiptNoCamera": {
+    "description": "Snack bar when the device has no camera app to take a receipt photo."
+  },
+  "receiptPickFailed": "That image can't be used",
+  "@receiptPickFailed": {
+    "description": "Snack bar when the picked receipt image could not be read, or is in a format whose metadata the app cannot remove (WebP, HEIC), so it is not attached."
+  },
+  "receiptSaveFailed": "The receipt could not be saved",
+  "@receiptSaveFailed": {
+    "description": "Snack bar when writing the receipt photo to the device failed, so nothing was saved."
+  },
   "filterShowHidden": "Show hidden",
   "@filterShowHidden": {
     "description": "Switch in the filter sheet that lists hidden transactions too."

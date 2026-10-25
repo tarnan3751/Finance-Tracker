@@ -467,6 +467,94 @@ final class SavedFilterActionsProvider
 String _$savedFilterActionsHash() =>
     r'ae328cf8b0cdea13efca125770905b02f4efbbd9';
 
+/// The photo at receipt [path] (a transaction's `receiptPath`), or null when this device
+/// has none: the receipt was kept on another device.
+
+@ProviderFor(receipt)
+final receiptProvider = ReceiptFamily._();
+
+/// The photo at receipt [path] (a transaction's `receiptPath`), or null when this device
+/// has none: the receipt was kept on another device.
+
+final class ReceiptProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Uint8List?>,
+          Uint8List?,
+          FutureOr<Uint8List?>
+        >
+    with $FutureModifier<Uint8List?>, $FutureProvider<Uint8List?> {
+  /// The photo at receipt [path] (a transaction's `receiptPath`), or null when this device
+  /// has none: the receipt was kept on another device.
+  ReceiptProvider._({
+    required ReceiptFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'receiptProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$receiptHash();
+
+  @override
+  String toString() {
+    return r'receiptProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Uint8List?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Uint8List?> create(Ref ref) {
+    final argument = this.argument as String;
+    return receipt(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ReceiptProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$receiptHash() => r'60b77ad6036605d73366d1e1c91f0904e29464d3';
+
+/// The photo at receipt [path] (a transaction's `receiptPath`), or null when this device
+/// has none: the receipt was kept on another device.
+
+final class ReceiptFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<Uint8List?>, String> {
+  ReceiptFamily._()
+    : super(
+        retry: null,
+        name: r'receiptProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// The photo at receipt [path] (a transaction's `receiptPath`), or null when this device
+  /// has none: the receipt was kept on another device.
+
+  ReceiptProvider call(String path) =>
+      ReceiptProvider._(argument: path, from: this);
+
+  @override
+  String toString() => r'receiptProvider';
+}
+
 /// The writes of the transaction editor and of bulk edit.
 
 @ProviderFor(transactionActions)
@@ -518,4 +606,4 @@ final class TransactionActionsProvider
 }
 
 String _$transactionActionsHash() =>
-    r'ab07f2d4846b94293a7a2553d08adeb91c57bac7';
+    r'b327edebdb111888ad6d7202ccf257934b322c88';

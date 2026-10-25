@@ -30,6 +30,8 @@ dependencies:
   flutter_secure_storage: ^11.2.0
   flutter_timezone: ^5.1.1
   go_router: ^17.5.0
+  # Receipt photos (BSD-3), behind core/platform/image_source.dart, used by dev and prod.
+  image_picker: ^1.2.4
   intl: ^0.20.3
   logging: ^1.3.0
   package_info_plus: ^10.2.2
@@ -62,10 +64,17 @@ dev_dependencies:
   contract_test:
     path: ../packages/contract_test
   drift_dev: ">=2.35.1 <2.35.2"
+  # Only holds image_picker's transitive macOS file selector to a release older than two
+  # weeks (0.9.5+2 was published on 2026-10-19); lift it with the next band move.
+  file_selector_macos: ">=0.9.5 <0.9.5+2"
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
   go_router_builder: ^4.5.0
+  # Only holds image_picker's transitive iOS implementation to a release older than two
+  # weeks (0.8.13+12 and +13 were published on 2026-10-14 and 2026-10-22); lift it with
+  # the next band move.
+  image_picker_ios: ">=0.8.13 <0.8.13+11"
   integration_test:
     sdk: flutter
   mocktail: ^1.0.5
@@ -77,3 +86,8 @@ dev_dependencies:
 flutter:
   generate: true
   uses-material-design: true
+  assets:
+    # The demo flavor's receipt photo (a synthetic one), for its fake image source.
+    - path: assets/demo/receipt.jpg
+      flavors:
+        - demo

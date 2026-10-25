@@ -6,9 +6,16 @@
 // linked accounts, Plaid transactions), and the filter sheet, the category picker, the
 // transaction list's menu and selection mode, the transaction editor's menu, the budget
 // alerts sheet, the rule editor's menu and the apply confirmation open over their
-// screens. The sign-in and registration screens are
+// screens, and the editor's receipt (a photo from the fake image source) and its
+// full-screen view. The sign-in and registration screens are
 // checked signed out; their text scale is checked with their errors showing, in
 // test/features/auth/auth_screens_test.dart.
+import 'dart:io';
+
+import 'package:finance_tracker/core/platform/fake_image_source.dart';
+import 'package:finance_tracker/core/platform/image_source.dart';
+import 'package:finance_tracker/core/platform/image_source_provider.dart';
+import 'package:finance_tracker/features/transactions/presentation/receipt_view.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -30,6 +37,16 @@ typedef _Screen = ({
 Future<void> _tapAndSettle(WidgetTester tester, Finder finder) async {
   await tester.tap(finder);
   await tester.pumpAndSettle();
+}
+
+// Scrolls the transaction editor to its receipt section and attaches a photo.
+Future<void> _attachReceipt(WidgetTester tester) async {
+  await tester.scrollUntilVisible(
+    find.text('Take photo'),
+    300,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await _tapAndSettle(tester, find.text('Take photo'));
 }
 
 final Map<String, _Screen> _screens = {
@@ -127,6 +144,25 @@ final Map<String, _Screen> _screens = {
     seeded: true,
     open: null,
   ),
+  'Transaction receipt': (
+    location: '/transactions/demo-txn-04',
+    seeded: true,
+    open: _attachReceipt,
+  ),
+  'Receipt view': (
+    location: '/transactions/demo-txn-04',
+    seeded: true,
+    open: (tester) async {
+      await _attachReceipt(tester);
+      await _tapAndSettle(
+        tester,
+        find.descendant(
+          of: find.byType(ReceiptSection),
+          matching: find.byType(Image),
+        ),
+      );
+    },
+  ),
   'Categories': (location: '/settings/categories', seeded: true, open: null),
   'Rules (empty)': (location: '/settings/rules', seeded: false, open: null),
   'Rules': (location: '/settings/rules', seeded: true, open: null),
@@ -170,6 +206,13 @@ List<Override> _overrides(_Screen screen) => screen.seeded
         storeOverride(linkedStore(manual: true)),
         rulesOverride(seededRules()),
         budgetsOverride(seededBudgets()),
+        imageSourceProvider.overrideWithValue(
+          FakeImageSource(
+            () async => PickedImage(
+              File('test/fixtures/receipts/plain.jpg').readAsBytesSync(),
+            ),
+          ),
+        ),
       ]
     : const [];
 

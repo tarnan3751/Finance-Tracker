@@ -8,16 +8,26 @@
 /// takes them, unless no row was edited and the amount is as stored, when the stored
 /// splits are saved back as they are; "Distribute evenly" divides it with the larger
 /// parts last; with splits the category row reads "Split across N categories" and Save
-/// clears the single category, which removing every split brings back. Deleting from
-/// here offers an undo for five seconds; a Plaid transaction has no Delete, since only
-/// the bank removes one. "Run rules on this transaction" (the overflow menu) applies the
-/// user's rules to the values in the form, which Save then keeps like any edit.
-/// "Hidden" (the overflow menu, checked when on) hides the transaction from the list,
-/// budgets and reports, saved with Save.
+/// clears the single category, which removing every split brings back. A receipt photo
+/// is taken or chosen through the image source, shown as a thumbnail (a tap opens it
+/// full screen), replaced or removed, and saved with Save; one whose photo is on another
+/// device says so. Deleting from here offers an undo for five seconds, after which the
+/// receipt photo goes too; a Plaid transaction has no Delete, since only the bank
+/// removes one. "Run rules on this transaction" (the overflow menu) applies the user's
+/// rules to the values in the form, which Save then keeps like any edit. "Hidden" (the
+/// overflow menu, checked when on) hides the transaction from the list, budgets and
+/// reports, saved with Save.
 library;
 
+import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:finance_tracker/core/db/database_exceptions.dart';
+import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/platform/image_source.dart';
+import 'package:finance_tracker/core/platform/image_source_provider.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
@@ -33,6 +43,7 @@ import 'package:finance_tracker/features/transactions/domain/effective_category.
 import 'package:finance_tracker/features/transactions/domain/split_math.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
 import 'package:finance_tracker/features/transactions/presentation/amount_input.dart';
+import 'package:finance_tracker/features/transactions/presentation/receipt_view.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_dates.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -181,6 +192,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
   // Whether a split row was edited, added or removed.
   bool _splitsEdited = false;
   late bool _hidden = widget.initial?.hidden ?? false;
+  ReceiptChange _receipt = const KeepReceipt();
   final TextEditingController _tagInput = TextEditingController();
   bool _saving = false;
 
@@ -328,6 +340,25 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     return initial.amount.isNegative ? -gap : gap;
   }
 
+  // Takes or chooses a photo through the image source; it becomes the receipt on Save.
+  Future<void> _pickReceipt({required bool camera}) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final ImageSource source = ref.read(imageSourceProvider);
+    try {
+      final PickedImage? image = camera
+          ? await source.pickFromCamera()
+          : await source.pickFromGallery();
+      if (image != null && mounted) {
+        setState(() => _receipt = AttachReceipt(image.bytes));
+      }
+    } on NoCameraException {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.receiptNoCamera)));
+    } on ImagePickFailedException {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.receiptPickFailed)));
+    }
+  }
+
   void _addTag(String text) {
     final String tag = text.trim();
     _tagInput.clear();
@@ -364,6 +395,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
       tags: _tags,
       splits: splits,
       hidden: _hidden,
+      receipt: _receipt,
     );
   }
 
@@ -440,12 +472,22 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     setState(() => _saving = true);
     try {
       final Transaction? initial = widget.initial;
+      final String id;
       if (initial == null) {
-        await actions.create(draft);
+        id = await actions.create(draft);
       } else {
         await actions.update(initial, draft);
+        id = initial.id;
       }
-      if (mounted) context.pop();
+      if (mounted) {
+        // A replaced photo keeps its path: the next read must not be the old one.
+        if (draft.receipt is! KeepReceipt) {
+          ref.invalidate(receiptProvider(receiptPathFor(id)));
+        }
+        context.pop();
+      }
+    } on FileSystemException {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.receiptSaveFailed)));
     } on AccountNotFoundException {
       messenger.showSnackBar(SnackBar(content: Text(l10n.accountNotFound)));
     } on CurrencyMismatchException {
@@ -464,28 +506,40 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final TransactionActions actions = ref.read(transactionActionsProvider);
     final String id = widget.initial!.id;
+    final bool hasReceipt = widget.initial!.receiptPath != null;
     context.pop();
     await actions.delete(id);
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(l10n.transactionDeleted),
-        duration: undoDuration,
-        // A snack bar with an action stays until dismissed unless told otherwise.
-        persist: false,
-        action: SnackBarAction(
-          label: l10n.undo,
-          onPressed: () async {
-            try {
-              await actions.restore(id);
-            } on AccountNotFoundException {
-              messenger.showSnackBar(
-                SnackBar(content: Text(l10n.transactionRestoreNoAccount)),
-              );
-            }
-          },
-        ),
-      ),
-    );
+    final ScaffoldFeatureController<SnackBar, SnackBarClosedReason> undo =
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.transactionDeleted),
+            duration: undoDuration,
+            // A snack bar with an action stays until dismissed unless told otherwise.
+            persist: false,
+            action: SnackBarAction(
+              label: l10n.undo,
+              onPressed: () async {
+                try {
+                  await actions.restore(id);
+                } on AccountNotFoundException {
+                  messenger.showSnackBar(
+                    SnackBar(content: Text(l10n.transactionRestoreNoAccount)),
+                  );
+                }
+              },
+            ),
+          ),
+        );
+    // The photo goes once the delete is final: the undo closed by anything but Undo.
+    if (hasReceipt) {
+      unawaited(
+        undo.closed.then((reason) async {
+          if (reason != SnackBarClosedReason.action) {
+            await actions.discardReceiptOf(id);
+          }
+        }),
+      );
+    }
   }
 
   // The split section: "Add split" alone while there are none; else the rows, the
@@ -567,6 +621,35 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
       );
     },
   );
+
+  // The receipt section: the photo picked in this session, else the stored one (or that
+  // it is on another device), else the buttons to add one.
+  Widget _buildReceipt() {
+    final ReceiptChange change = _receipt;
+    final String? stored = widget.initial?.receiptPath;
+    final AsyncValue<Uint8List?>? read = change is KeepReceipt && stored != null
+        ? ref.watch(receiptProvider(stored))
+        : null;
+    return ReceiptSection(
+      bytes: switch (change) {
+        AttachReceipt(:final Uint8List bytes) => bytes,
+        KeepReceipt() => read?.value,
+        RemoveReceipt() => null,
+      },
+      // A photo that cannot be read is as good as not on this device.
+      missing:
+          read != null &&
+          (read.hasError || read.hasValue && read.value == null),
+      loading: read != null && !read.hasValue && !read.hasError,
+      onTakePhoto: () => _pickReceipt(camera: true),
+      onChoosePhoto: () => _pickReceipt(camera: false),
+      onRemove: () => setState(
+        () => _receipt = stored == null
+            ? const KeepReceipt()
+            : const RemoveReceipt(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -804,6 +887,8 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
                 ],
               ),
             ],
+            const SizedBox(height: 8),
+            _buildReceipt(),
           ],
         ),
       ),

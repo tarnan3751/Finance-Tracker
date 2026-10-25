@@ -1,10 +1,14 @@
 /// What the transaction screens show and do: the list under its search and filters, paged
 /// fifty at a time and grouped by date; the lookup that gives each transaction its
 /// effective category; what the editor and the filter sheet suggest (tags, recently used
-/// categories and accounts); the saved filters and the one the list's filters are; and
-/// the writes of the editor, of bulk edit and of the saved filters.
+/// categories and accounts); the saved filters and the one the list's filters are; a
+/// receipt's photo; and the writes of the editor, of bulk edit (receipts included) and of
+/// the saved filters.
 library;
 
+import 'dart:typed_data';
+
+import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
@@ -14,6 +18,7 @@ import 'package:finance_tracker/features/transactions/application/transaction_fi
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:finance_tracker/features/transactions/domain/saved_filter.dart';
 import 'package:finance_tracker/features/transactions/domain/saved_filter_repository.dart';
+import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
 import 'package:logging/logging.dart';
@@ -212,13 +217,42 @@ final class SavedFilterActions {
   Future<void> delete(String id) => _repository.delete(id);
 }
 
+/// The photo at receipt [path] (a transaction's `receiptPath`), or null when this device
+/// has none: the receipt was kept on another device.
+@riverpod
+Future<Uint8List?> receipt(Ref ref, String path) =>
+    ref.watch(receiptStoreProvider).read(path);
+
 /// The writes of the transaction editor and of bulk edit.
 @riverpod
 TransactionActions transactionActions(Ref ref) => TransactionActions(
   ref.watch(transactionRepositoryProvider),
+  ref.watch(receiptStoreProvider),
   ref.watch(clockProvider),
   syncStore: ref.watch(recordingSyncStoreProvider),
 );
+
+/// What the editor does to a transaction's receipt.
+sealed class ReceiptChange {
+  const ReceiptChange();
+}
+
+/// The receipt stays as it is (none, or the one it has).
+final class KeepReceipt extends ReceiptChange {
+  const KeepReceipt();
+}
+
+/// [bytes] become the receipt, a new one or in place of the one it has.
+final class AttachReceipt extends ReceiptChange {
+  const AttachReceipt(this.bytes);
+
+  final Uint8List bytes;
+}
+
+/// The receipt is removed.
+final class RemoveReceipt extends ReceiptChange {
+  const RemoveReceipt();
+}
 
 /// What the editor enters: everything a user sets on a transaction. [splits] are signed
 /// like [amount] and sum to it; with splits, [categoryId] is null, the splits being the
@@ -233,16 +267,31 @@ typedef TransactionDraft = ({
   List<String> tags,
   List<TransactionSplit> splits,
   bool hidden,
+  ReceiptChange receipt,
 });
 
-/// Creates, edits, deletes and restores transactions, one at a time or in bulk. The
-/// repository's typed exceptions (`AccountNotFoundException`, `CurrencyMismatchException`,
-/// `EntityDeletedException`, and for the bulk writes `TransactionBatchException`) reach
-/// the caller, which explains them.
+/// Creates, edits, deletes and restores transactions, one at a time or in bulk, with
+/// their receipt photos. The repository's typed exceptions (`AccountNotFoundException`,
+/// `CurrencyMismatchException`, `EntityDeletedException`, and for the bulk writes
+/// `TransactionBatchException`) reach the caller, which explains them, as does a
+/// `FileSystemException` from staging a photo.
+///
+/// A new photo is staged, the transaction written, and the photo committed over the old
+/// one only then; a failed write discards it, so the receipt stays as it was. A removed
+/// receipt's file goes after the write. The repositories hold no files: a deleted
+/// transaction's photo goes when its delete is final ([discardReceiptOf], after the
+/// undo is no longer offered; [deleteAll], which has no undo, at once), and
+/// [sweepReceipts] removes whatever else no live transaction references.
 final class TransactionActions {
-  TransactionActions(this._transactions, this._clock, {this._syncStore});
+  TransactionActions(
+    this._transactions,
+    this._receipts,
+    this._clock, {
+    this._syncStore,
+  });
 
   final TransactionRepository _transactions;
+  final ReceiptStore _receipts;
   final Clock _clock;
 
   // The store the writes are recorded into, whose transaction is the database's in dev
@@ -262,23 +311,30 @@ final class TransactionActions {
   Future<String> create(TransactionDraft draft) async {
     final DateTime now = _clock.nowUtc();
     final String id = _uuid.v4();
-    await _transactions.upsert(
-      Transaction(
-        id: id,
-        accountId: draft.accountId,
-        amount: draft.amount,
-        date: draft.date,
-        pending: false,
-        name: draft.name,
-        userCategoryId: draft.categoryId,
-        notes: draft.notes,
-        tags: draft.tags,
-        splits: draft.splits,
-        hidden: draft.hidden,
-        source: DataSource.manual,
-        createdAt: now,
-        updatedAt: now,
-        syncVersion: 0,
+    await _withReceipt(
+      id,
+      draft.receipt,
+      () => _transactions.upsert(
+        Transaction(
+          id: id,
+          accountId: draft.accountId,
+          amount: draft.amount,
+          date: draft.date,
+          pending: false,
+          name: draft.name,
+          userCategoryId: draft.categoryId,
+          notes: draft.notes,
+          tags: draft.tags,
+          splits: draft.splits,
+          receiptPath: draft.receipt is AttachReceipt
+              ? receiptPathFor(id)
+              : null,
+          hidden: draft.hidden,
+          source: DataSource.manual,
+          createdAt: now,
+          updatedAt: now,
+          syncVersion: 0,
+        ),
       ),
     );
     return id;
@@ -286,8 +342,12 @@ final class TransactionActions {
 
   /// Saves [draft] over [existing]. Everything the editor does not show (the source, the
   /// merchant name, the Plaid fields, `createdAt`) is kept as it was.
-  Future<void> update(Transaction existing, TransactionDraft draft) =>
-      _transactions.upsert(
+  Future<void> update(Transaction existing, TransactionDraft draft) async {
+    final ReceiptChange receipt = draft.receipt;
+    await _withReceipt(
+      existing.id,
+      receipt,
+      () => _transactions.upsert(
         existing.copyWith(
           accountId: draft.accountId,
           amount: draft.amount,
@@ -297,10 +357,65 @@ final class TransactionActions {
           notes: draft.notes,
           tags: draft.tags,
           splits: draft.splits,
+          receiptPath: switch (receipt) {
+            KeepReceipt() => existing.receiptPath,
+            AttachReceipt() => receiptPathFor(existing.id),
+            RemoveReceipt() => null,
+          },
           hidden: draft.hidden,
           updatedAt: _clock.nowUtc(),
         ),
-      );
+      ),
+    );
+    final String? removed = existing.receiptPath;
+    if (receipt is RemoveReceipt && removed != null) await _deleteFile(removed);
+  }
+
+  // Runs [write], the transaction [id]'s write, with [receipt]'s photo staged before it
+  // and committed only once it has succeeded.
+  Future<void> _withReceipt(
+    String id,
+    ReceiptChange receipt,
+    Future<void> Function() write,
+  ) async {
+    if (receipt is! AttachReceipt) return write();
+    final StagedReceipt staged = await _receipts.stage(id, receipt.bytes);
+    try {
+      await write();
+    } catch (_) {
+      await _receipts.discard(staged);
+      rethrow;
+    }
+    await _receipts.commit(staged);
+  }
+
+  /// Deletes the receipt photo of deleted transaction [id], once its delete is final.
+  Future<void> discardReceiptOf(String id) => _deleteFile(receiptPathFor(id));
+
+  /// Deletes the receipt files no live transaction references (a delete final while the
+  /// app was not watching: killed during an undo, synced from another device, an account's
+  /// delete, a pending transaction its posted one replaced). Files written since it began
+  /// stay. Returns how many it deleted.
+  Future<int> sweepReceipts() async {
+    final DateTime started = DateTime.now();
+    final List<Transaction> live = await currentValue(
+      _transactions.watch(TransactionQuery.all),
+    );
+    return _receipts.sweep({
+      for (final Transaction t in live)
+        if (t.receiptPath case final String path) path,
+    }, olderThan: started);
+  }
+
+  // Deletes the photo at [path]; a failure is logged by type only and left to the sweep,
+  // since the transaction's write has already happened.
+  Future<void> _deleteFile(String path) async {
+    try {
+      await _receipts.delete(path);
+    } on Exception catch (e) {
+      _log.warning('a receipt file was not deleted: ${e.runtimeType}');
+    }
+  }
 
   /// Deletes transaction [id]; [restore] brings it back.
   Future<void> delete(String id) => _transactions.delete(id);
@@ -323,9 +438,14 @@ final class TransactionActions {
   Future<int> setHidden(List<Transaction> selected, bool hidden) =>
       _bulk(selected, (t) => t.copyWith(hidden: hidden));
 
-  /// Deletes [ids] in one write, all or none (none of them may be `plaid`).
-  Future<void> deleteAll(List<String> ids) =>
-      _inTransaction(() => _transactions.deleteAll(ids));
+  /// Deletes [ids] in one write, all or none (none of them may be `plaid`), then their
+  /// receipt photos, since a bulk delete has no undo.
+  Future<void> deleteAll(List<String> ids) async {
+    await _inTransaction(() => _transactions.deleteAll(ids));
+    for (final String id in ids) {
+      await discardReceiptOf(id);
+    }
+  }
 
   // Applies [change] to each of [selected] as the repository holds it now (an edit
   // synced since the list last showed it is kept; a row deleted since is skipped) and
