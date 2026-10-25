@@ -3209,6 +3209,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hidden'**
   String get rulePreviewHidden;
+
+  /// Menu item of the rule editor and of a rule in the rules list: apply the rule to the transactions already recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to existing transactions'**
+  String get ruleApplyToHistory;
+
+  /// Under the disabled apply menu item of the rule editor while the rule has unsaved changes or is new.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the rule first'**
+  String get ruleApplySaveFirst;
+
+  /// Title of the confirmation before applying a rule to the transactions already recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply “{name}” to existing transactions?'**
+  String ruleApplyTitle(String name);
+
+  /// Body of the confirmation before applying a rule to the transactions already recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'The rule changes the transactions it matches now, as it would new ones. Categories and tags you have set stay as they are.'**
+  String get ruleApplyBody;
+
+  /// Button that confirms applying a rule to the transactions already recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get ruleApplyConfirm;
+
+  /// Snack bar after applying a rule to the existing transactions: how many changed, and how many of them were given a category, a tag or a new description, or hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 transaction changed: {filed} filed, {tagged} tagged, {renamed} renamed, {hidden} hidden} other{{count} transactions changed: {filed} filed, {tagged} tagged, {renamed} renamed, {hidden} hidden}}'**
+  String ruleApplied(int count, int filed, int tagged, int renamed, int hidden);
+
+  /// Snack bar after applying a rule to the existing transactions changed none.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions changed.'**
+  String get ruleAppliedNone;
+
+  /// Snack bar when applying a rule to the existing transactions failed and was rolled back.
+  ///
+  /// In en, this message translates to:
+  /// **'The rule could not be applied. Nothing changed.'**
+  String get ruleApplyFailed;
+
+  /// Tooltip of a rule's overflow menu button in the rules list.
+  ///
+  /// In en, this message translates to:
+  /// **'More options for “{name}”'**
+  String ruleMoreOptions(String name);
+
+  /// Tooltip of the rule editor's overflow menu button.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get ruleEditorMoreOptions;
+
+  /// Accessibility label of the progress bar shown while a rule is applied to the existing transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Applying the rule to your transactions'**
+  String get ruleApplying;
 }
 
 class _AppLocalizationsDelegate

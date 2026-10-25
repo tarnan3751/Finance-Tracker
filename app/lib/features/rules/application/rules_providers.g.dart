@@ -191,6 +191,67 @@ final class RulePreviewFamily extends $Family
   String toString() => r'rulePreviewProvider';
 }
 
+/// Whether a rule is being applied to the existing transactions: the rules screens show
+/// progress and offer no other application until it finishes.
+
+@ProviderFor(RuleApplying)
+final ruleApplyingProvider = RuleApplyingProvider._();
+
+/// Whether a rule is being applied to the existing transactions: the rules screens show
+/// progress and offer no other application until it finishes.
+final class RuleApplyingProvider extends $NotifierProvider<RuleApplying, bool> {
+  /// Whether a rule is being applied to the existing transactions: the rules screens show
+  /// progress and offer no other application until it finishes.
+  RuleApplyingProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ruleApplyingProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ruleApplyingHash();
+
+  @$internal
+  @override
+  RuleApplying create() => RuleApplying();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$ruleApplyingHash() => r'fd5073ee424d7517d0495b7d78e6cc87be66a2cd';
+
+/// Whether a rule is being applied to the existing transactions: the rules screens show
+/// progress and offer no other application until it finishes.
+
+abstract class _$RuleApplying extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 /// The writes of the rules screens.
 
 @ProviderFor(ruleActions)
@@ -235,4 +296,4 @@ final class RuleActionsProvider
   }
 }
 
-String _$ruleActionsHash() => r'09942f8213cd7f487fc022675edabef692893f67';
+String _$ruleActionsHash() => r'c71d7a8e2567c72bcb8c6e616916fd010d2f7dab';

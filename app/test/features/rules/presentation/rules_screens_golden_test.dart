@@ -5,7 +5,6 @@
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_models/shared_models.dart';
 
 import '../../../helpers/pump_app.dart';
 import '../../../helpers/rule_seed.dart';
@@ -15,17 +14,6 @@ const Map<String, String> _screens = {
   'rules_list': '/settings/rules',
   'rule_editor': '/settings/rules/rule-every',
 };
-
-/// A rule the preview sheet shows: it tags both rents in the seed.
-const Rule _rent = Rule(
-  id: 'rule-rent',
-  name: 'Rent',
-  position: 2,
-  conditions: [
-    RuleCondition(kind: RuleConditionKind.merchantContains, text: 'rent'),
-  ],
-  actions: [RuleAction(kind: RuleActionKind.addTag, value: 'home')],
-);
 
 void main() {
   // Flutter's own DEBUG banner is not part of the app.
@@ -64,7 +52,7 @@ void main() {
           overrides: [
             storeOverride(seededStore()),
             rulesOverride(
-              seededRules(rules: [everyKindRule, groceriesRule, _rent]),
+              seededRules(rules: [everyKindRule, groceriesRule, rentRule]),
             ),
           ],
         ),

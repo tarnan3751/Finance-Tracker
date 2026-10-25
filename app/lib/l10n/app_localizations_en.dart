@@ -2024,4 +2024,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rulePreviewHidden => 'Hidden';
+
+  @override
+  String get ruleApplyToHistory => 'Apply to existing transactions';
+
+  @override
+  String get ruleApplySaveFirst => 'Save the rule first';
+
+  @override
+  String ruleApplyTitle(String name) {
+    return 'Apply “$name” to existing transactions?';
+  }
+
+  @override
+  String get ruleApplyBody =>
+      'The rule changes the transactions it matches now, as it would new ones. Categories and tags you have set stay as they are.';
+
+  @override
+  String get ruleApplyConfirm => 'Apply';
+
+  @override
+  String ruleApplied(
+    int count,
+    int filed,
+    int tagged,
+    int renamed,
+    int hidden,
+  ) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+    final intl.NumberFormat filedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String filedString = filedNumberFormat.format(filed);
+    final intl.NumberFormat taggedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String taggedString = taggedNumberFormat.format(tagged);
+    final intl.NumberFormat renamedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String renamedString = renamedNumberFormat.format(renamed);
+    final intl.NumberFormat hiddenNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String hiddenString = hiddenNumberFormat.format(hidden);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$countString transactions changed: $filedString filed, $taggedString tagged, $renamedString renamed, $hiddenString hidden',
+      one:
+          '1 transaction changed: $filedString filed, $taggedString tagged, $renamedString renamed, $hiddenString hidden',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ruleAppliedNone => 'No transactions changed.';
+
+  @override
+  String get ruleApplyFailed =>
+      'The rule could not be applied. Nothing changed.';
+
+  @override
+  String ruleMoreOptions(String name) {
+    return 'More options for “$name”';
+  }
+
+  @override
+  String get ruleEditorMoreOptions => 'More options';
+
+  @override
+  String get ruleApplying => 'Applying the rule to your transactions';
 }

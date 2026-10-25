@@ -6,7 +6,8 @@
 ///
 /// Under the actions, the preview: how many of the existing transactions the rule as
 /// edited would change (`rulePreviewProvider`), recomputed 300 ms after the last edit of
-/// a condition or an action, once every row has a valid value; "Preview" lists them.
+/// a condition or an action, once every row has a valid value; "Preview" lists them. The
+/// menu applies a saved rule, unchanged since its save, to the existing transactions.
 library;
 
 import 'dart:async';
@@ -17,6 +18,7 @@ import 'package:finance_tracker/features/accounts/presentation/currency_picker.d
 import 'package:finance_tracker/features/categories/presentation/category_picker.dart';
 import 'package:finance_tracker/features/rules/application/rule_preview.dart';
 import 'package:finance_tracker/features/rules/application/rules_providers.dart';
+import 'package:finance_tracker/features/rules/presentation/apply_rule.dart';
 import 'package:finance_tracker/features/rules/presentation/rule_preview_sheet.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
@@ -240,6 +242,20 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
       ],
       actions: [for (final _ActionDraft a in _actions) a.toAction()],
     );
+  }
+
+  // Whether the form holds the saved rule as it was saved.
+  bool get _unchanged {
+    final Rule? initial = widget.initial;
+    final Rule? draft = _draft();
+    return initial != null &&
+        draft != null &&
+        initial.copyWith(
+              name: _name.text.trim(),
+              conditions: draft.conditions,
+              actions: draft.actions,
+            ) ==
+            initial;
   }
 
   // Schedules the preview of the form's rule when it differs from the one shown.
@@ -694,6 +710,7 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_isNew ? l10n.ruleNewTitle : l10n.ruleEditTitle),
+        bottom: ruleApplyProgress(l10n, ref.watch(ruleApplyingProvider)),
         actions: [
           if (!_isNew)
             IconButton(
@@ -702,6 +719,31 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
               onPressed: _saving ? null : _delete,
             ),
           TextButton(onPressed: _saving ? null : _save, child: Text(l10n.save)),
+          if (!_isNew)
+            PopupMenuButton<void>(
+              tooltip: l10n.ruleEditorMoreOptions,
+              // The menu's own context is gone once an item is tapped.
+              itemBuilder: (_) {
+                final bool unchanged = _unchanged;
+                final bool enabled =
+                    unchanged && !_saving && !ref.read(ruleApplyingProvider);
+                return [
+                  PopupMenuItem<void>(
+                    enabled: enabled,
+                    onTap: () =>
+                        confirmAndApplyRule(context, ref, widget.initial!),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      enabled: enabled,
+                      title: Text(l10n.ruleApplyToHistory),
+                      subtitle: unchanged
+                          ? null
+                          : Text(l10n.ruleApplySaveFirst),
+                    ),
+                  ),
+                ];
+              },
+            ),
         ],
       ),
       body: Form(

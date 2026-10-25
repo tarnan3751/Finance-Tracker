@@ -2807,5 +2807,88 @@
   "rulePreviewHidden": "Hidden",
   "@rulePreviewHidden": {
     "description": "A line of the preview sheet: the rule hides the transaction."
+  },
+  "ruleApplyToHistory": "Apply to existing transactions",
+  "@ruleApplyToHistory": {
+    "description": "Menu item of the rule editor and of a rule in the rules list: apply the rule to the transactions already recorded."
+  },
+  "ruleApplySaveFirst": "Save the rule first",
+  "@ruleApplySaveFirst": {
+    "description": "Under the disabled apply menu item of the rule editor while the rule has unsaved changes or is new."
+  },
+  "ruleApplyTitle": "Apply “{name}” to existing transactions?",
+  "@ruleApplyTitle": {
+    "description": "Title of the confirmation before applying a rule to the transactions already recorded.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Coffee runs"
+      }
+    }
+  },
+  "ruleApplyBody": "The rule changes the transactions it matches now, as it would new ones. Categories and tags you have set stay as they are.",
+  "@ruleApplyBody": {
+    "description": "Body of the confirmation before applying a rule to the transactions already recorded."
+  },
+  "ruleApplyConfirm": "Apply",
+  "@ruleApplyConfirm": {
+    "description": "Button that confirms applying a rule to the transactions already recorded."
+  },
+  "ruleApplied": "{count, plural, =1{1 transaction changed: {filed} filed, {tagged} tagged, {renamed} renamed, {hidden} hidden} other{{count} transactions changed: {filed} filed, {tagged} tagged, {renamed} renamed, {hidden} hidden}}",
+  "@ruleApplied": {
+    "description": "Snack bar after applying a rule to the existing transactions: how many changed, and how many of them were given a category, a tag or a new description, or hidden.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern",
+        "example": "14"
+      },
+      "filed": {
+        "type": "int",
+        "format": "decimalPattern",
+        "example": "10"
+      },
+      "tagged": {
+        "type": "int",
+        "format": "decimalPattern",
+        "example": "14"
+      },
+      "renamed": {
+        "type": "int",
+        "format": "decimalPattern",
+        "example": "0"
+      },
+      "hidden": {
+        "type": "int",
+        "format": "decimalPattern",
+        "example": "0"
+      }
+    }
+  },
+  "ruleAppliedNone": "No transactions changed.",
+  "@ruleAppliedNone": {
+    "description": "Snack bar after applying a rule to the existing transactions changed none."
+  },
+  "ruleApplyFailed": "The rule could not be applied. Nothing changed.",
+  "@ruleApplyFailed": {
+    "description": "Snack bar when applying a rule to the existing transactions failed and was rolled back."
+  },
+  "ruleMoreOptions": "More options for “{name}”",
+  "@ruleMoreOptions": {
+    "description": "Tooltip of a rule's overflow menu button in the rules list.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Coffee runs"
+      }
+    }
+  },
+  "ruleEditorMoreOptions": "More options",
+  "@ruleEditorMoreOptions": {
+    "description": "Tooltip of the rule editor's overflow menu button."
+  },
+  "ruleApplying": "Applying the rule to your transactions",
+  "@ruleApplying": {
+    "description": "Accessibility label of the progress bar shown while a rule is applied to the existing transactions."
   }
 }

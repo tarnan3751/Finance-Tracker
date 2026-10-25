@@ -2,9 +2,11 @@
 // value; every condition and action kind round-trips, hide included; an edited rule keeps
 // every action; the bank category picker offers only the built-in categories; delete
 // offers an undo; the preview counts and lists what the rule as edited would change, once
-// every row has a value.
+// every row has a value; a saved, unchanged rule applies to the existing transactions
+// behind a confirmation, once.
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/features/rules/data/in_memory_rule_repository.dart';
+import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
@@ -22,8 +24,9 @@ Future<InMemoryRuleRepository> _pump(
   WidgetTester tester,
   String location, {
   InMemoryStore? store,
+  List<Rule>? initial,
 }) async {
-  final InMemoryRuleRepository rules = seededRules();
+  final InMemoryRuleRepository rules = seededRules(rules: initial);
   await pumpApp(
     tester,
     initialLocation: location,
@@ -303,5 +306,70 @@ void main() {
     await _pump(tester, '/settings/rules/rule-groceries');
     await tester.pumpAndSettle();
     expect(find.text('Would change 0 of 12 transactions'), findsOneWidget);
+  });
+
+  testWidgets('a saved, unchanged rule applies to the existing transactions '
+      'once', (tester) async {
+    final InMemoryStore store = seededStore();
+    await _pump(
+      tester,
+      '/settings/rules/rule-rent',
+      store: store,
+      initial: [everyKindRule, groceriesRule, rentRule],
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Would change 2 of 12 transactions'), findsOneWidget);
+
+    Future<void> apply() async {
+      await tester.tap(find.byTooltip('More options'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Apply to existing transactions'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Apply “Rent” to existing transactions?'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Apply'));
+      await tester.pumpAndSettle();
+    }
+
+    await apply();
+    expect(
+      find.text(
+        '2 transactions changed: 0 filed, 2 tagged, 0 renamed, 0 hidden',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      store.transactions(TransactionQuery(tags: const {'home'})),
+      hasLength(2),
+    );
+    expect(find.text('Would change 0 of 12 transactions'), findsOneWidget);
+
+    ScaffoldMessenger.of(tester.element(find.byType(Form)))
+        .removeCurrentSnackBar();
+    await tester.pumpAndSettle();
+    await apply();
+    expect(find.text('No transactions changed.'), findsOneWidget);
+  });
+
+  testWidgets('a rule with unsaved changes is not applied', (tester) async {
+    await _pump(
+      tester,
+      '/settings/rules/rule-rent',
+      initial: [everyKindRule, groceriesRule, rentRule],
+    );
+    await tester.enterText(_field('Name'), 'Rent and more');
+    await tester.tap(find.byTooltip('More options'));
+    await tester.pumpAndSettle();
+    expect(find.text('Save the rule first'), findsOneWidget);
+    await tester.tap(find.text('Apply to existing transactions'));
+    await tester.pumpAndSettle();
+    expect(find.text('Apply “Rent” to existing transactions?'), findsNothing);
+  });
+
+  testWidgets('a new rule has no menu', (tester) async {
+    await _pump(tester, '/settings/rules/new');
+    expect(find.byTooltip('More options'), findsNothing);
   });
 }

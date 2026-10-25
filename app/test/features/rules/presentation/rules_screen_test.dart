@@ -1,8 +1,15 @@
 // The rules screen: the rules in the order they are tried, with their counts; reordering
-// by the drag handle and by the list's semantic move actions; delete with an undo; the
-// empty state; the way in from Settings and from the categories screen's menu.
+// by the drag handle and by the list's semantic move actions; delete with an undo; apply
+// to the existing transactions from a rule's menu, with progress shown and no second
+// application while one runs; the empty state; the way in from Settings and from the
+// categories screen's menu.
+import 'dart:async';
+
+import 'package:finance_tracker/core/db/in_memory_store.dart';
+import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/rules/data/in_memory_rule_repository.dart';
+import 'package:finance_tracker/features/transactions/data/in_memory_transaction_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -181,6 +188,113 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Coffee on the card'), findsOneWidget);
   });
+
+  testWidgets('a rule\'s menu applies it to the existing transactions', (
+    tester,
+  ) async {
+    await _pump(tester, rules: [everyKindRule, groceriesRule, rentRule]);
+    await tester.tap(find.byTooltip('More options for “Rent”'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Apply to existing transactions'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Apply'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        '2 transactions changed: 0 filed, 2 tagged, 0 renamed, 0 hidden',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('while an application runs, progress shows and Apply is '
+      'refused', (tester) async {
+    final InMemoryStore store = seededStore();
+    final _SlowWrites transactions = _SlowWrites(store);
+    await pumpApp(
+      tester,
+      initialLocation: '/settings/rules',
+      overrides: [
+        storeOverride(store),
+        rulesOverride(
+          seededRules(rules: [everyKindRule, groceriesRule, rentRule]),
+        ),
+        transactionRepositoryProvider.overrideWithValue(transactions),
+      ],
+    );
+    // The progress bar animates until the application ends: pump frames, not settle.
+    Future<void> openApply() async {
+      await tester.tap(find.byTooltip('More options for “Rent”'));
+      for (int i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+    }
+
+    await tester.tap(find.byTooltip('More options for “Rent”'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Apply to existing transactions'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Apply'));
+    await tester.pump(const Duration(milliseconds: 500));
+    final LinearProgressIndicator progress = tester.widget(
+      find.byType(LinearProgressIndicator),
+    );
+    expect(progress.semanticsLabel, 'Applying the rule to your transactions');
+
+    // The first write waits: a second Apply is offered disabled and does nothing.
+    await openApply();
+    final PopupMenuItem<void> item = tester.widget(
+      find.widgetWithText(
+        PopupMenuItem<void>,
+        'Apply to existing transactions',
+      ),
+    );
+    expect(item.enabled, isFalse);
+    await tester.tap(find.text('Apply to existing transactions'));
+    for (int i = 0; i < 5; i++) {
+      await tester.pump(const Duration(milliseconds: 200));
+    }
+    expect(find.text('Apply “Rent” to existing transactions?'), findsNothing);
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pump(const Duration(milliseconds: 500));
+
+    transactions.release.complete();
+    await tester.pumpAndSettle();
+    expect(find.byType(LinearProgressIndicator), findsNothing);
+    expect(
+      find.text(
+        '2 transactions changed: 0 filed, 2 tagged, 0 renamed, 0 hidden',
+      ),
+      findsOneWidget,
+    );
+    expect(transactions.writes, 2);
+  });
+
+  testWidgets('cancelling the confirmation applies nothing', (tester) async {
+    await _pump(tester, rules: [everyKindRule, groceriesRule, rentRule]);
+    await tester.tap(find.byTooltip('More options for “Rent”'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Apply to existing transactions'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('changed'), findsNothing);
+  });
+}
+
+/// The in-memory transactions, holding every batch write until [release] completes.
+final class _SlowWrites extends InMemoryTransactionRepository {
+  _SlowWrites(super.store) : super(recorder: const NoChangeRecorder());
+
+  final Completer<void> release = Completer<void>();
+  int writes = 0;
+
+  @override
+  Future<void> upsertAll(List<Transaction> batch) async {
+    await release.future;
+    writes += batch.length;
+    return super.upsertAll(batch);
+  }
 }
 
 /// The test rules, refusing every reorder.

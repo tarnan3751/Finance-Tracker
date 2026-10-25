@@ -1,6 +1,6 @@
 // Rules for screen tests, over the test seed's accounts and the system categories: one
-// with a row of every condition and action kind,
-// and a plain one after it.
+// with a row of every condition and action kind, a plain one after it, and one that
+// changes two of the seed's transactions.
 //
 //   final InMemoryRuleRepository rules = seededRules();
 //   await pumpApp(tester, overrides: [storeOverride(seededStore()), rulesOverride(rules)]);
@@ -59,6 +59,17 @@ const Rule groceriesRule = Rule(
       value: 'plaid:FOOD_AND_DRINK_GROCERIES',
     ),
   ],
+);
+
+/// A rule after [groceriesRule] that tags the test seed's two rents `home`.
+const Rule rentRule = Rule(
+  id: 'rule-rent',
+  name: 'Rent',
+  position: 2,
+  conditions: [
+    RuleCondition(kind: RuleConditionKind.merchantContains, text: 'rent'),
+  ],
+  actions: [RuleAction(kind: RuleActionKind.addTag, value: 'home')],
 );
 
 /// An in-memory rule repository on [testClock] holding [rules] ([everyKindRule] and

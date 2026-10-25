@@ -1,12 +1,13 @@
 /// The rules (Settings, Data, Rules; and the categories screen's menu): the live rules
 /// in the order they are tried, reordered by dragging a rule's handle (or by the list's
-/// move actions for assistive technology), each deleted with an undo, and "Add rule".
-/// Tapping a rule opens its editor.
+/// move actions for assistive technology), each deleted with an undo or, from its menu,
+/// applied to the existing transactions, and "Add rule". Tapping a rule opens its editor.
 library;
 
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/features/rules/application/rules_providers.dart';
+import 'package:finance_tracker/features/rules/presentation/apply_rule.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_editor_screen.dart'
     show undoDuration;
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -71,8 +72,12 @@ class _RulesScreenState extends ConsumerState<RulesScreen> {
     ref.listen(rulesProvider, (_, _) => setState(() => _dropped = null));
     final List<Rule>? live = ref.watch(rulesProvider).value;
     final List<Rule>? rules = _dropped ?? live;
+    final bool applying = ref.watch(ruleApplyingProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.rulesTitle)),
+      appBar: AppBar(
+        title: Text(l10n.rulesTitle),
+        bottom: ruleApplyProgress(l10n, applying),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => const NewRuleRoute().push<void>(context),
         icon: const Icon(Icons.add),
@@ -124,10 +129,26 @@ class _RulesScreenState extends ConsumerState<RulesScreen> {
                   l10n.ruleActionCount(rule.actions.length),
                 ),
               ),
-              trailing: IconButton(
-                tooltip: l10n.ruleDeleteNamed(rule.name),
-                icon: const Icon(Icons.delete_outline),
-                onPressed: () => _delete(rule),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    tooltip: l10n.ruleDeleteNamed(rule.name),
+                    icon: const Icon(Icons.delete_outline),
+                    onPressed: () => _delete(rule),
+                  ),
+                  PopupMenuButton<void>(
+                    tooltip: l10n.ruleMoreOptions(rule.name),
+                    // The menu's own context is gone once an item is tapped.
+                    itemBuilder: (_) => [
+                      PopupMenuItem<void>(
+                        enabled: !ref.read(ruleApplyingProvider),
+                        onTap: () => confirmAndApplyRule(context, ref, rule),
+                        child: Text(l10n.ruleApplyToHistory),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               onTap: () => EditRuleRoute(rule.id).push<void>(context),
             );
