@@ -45,6 +45,9 @@ import 'package:finance_tracker/features/categories/data/demo_category_repositor
 import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
 import 'package:finance_tracker/features/categories/data/in_memory_category_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
+import 'package:finance_tracker/features/duplicates/data/drift_dismissed_pair_store.dart';
+import 'package:finance_tracker/features/duplicates/data/in_memory_dismissed_pair_store.dart';
+import 'package:finance_tracker/features/duplicates/domain/dismissed_pair_store.dart';
 import 'package:finance_tracker/features/items/data/demo_item_repository.dart';
 import 'package:finance_tracker/features/items/data/drift_item_repository.dart';
 import 'package:finance_tracker/features/items/data/in_memory_item_repository.dart';
@@ -269,6 +272,17 @@ PlaidPullStore plaidPullStore(Ref ref) {
   return InMemoryPlaidPullStore();
 }
 
+/// The duplicate pairs the user dismissed, kept on the device and never synced: in memory
+/// by default and in the demo (beside the in-memory store, so a new store starts it
+/// afresh), `dismissed_pairs` in dev and prod.
+@Riverpod(keepAlive: true)
+DismissedPairStore dismissedPairStore(Ref ref) {
+  ref.watch(inMemoryStoreProvider);
+  final InMemoryDismissedPairStore store = InMemoryDismissedPairStore();
+  ref.onDispose(store.close);
+  return store;
+}
+
 /// What the Plaid pull does with the transactions it inserts: the rules
 /// (`docs/reference/rules.md`, **On arrival**).
 @Riverpod(keepAlive: true)
@@ -386,6 +400,12 @@ final List<Override> _driftOverrides = [
     (ref) => DriftSettingsRepository(
       ref.watch(databaseProvider),
       recorder: ref.watch(changeRecorderProvider),
+    ),
+  ),
+  dismissedPairStoreProvider.overrideWith(
+    (ref) => DriftDismissedPairStore(
+      ref.watch(databaseProvider),
+      ref.watch(clockProvider),
     ),
   ),
 ];

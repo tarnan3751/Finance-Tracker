@@ -1266,6 +1266,65 @@ final class PlaidPullStoreProvider
 
 String _$plaidPullStoreHash() => r'd709e2b573f3075367004dffce0fe76d43590c0a';
 
+/// The duplicate pairs the user dismissed, kept on the device and never synced: in memory
+/// by default and in the demo (beside the in-memory store, so a new store starts it
+/// afresh), `dismissed_pairs` in dev and prod.
+
+@ProviderFor(dismissedPairStore)
+final dismissedPairStoreProvider = DismissedPairStoreProvider._();
+
+/// The duplicate pairs the user dismissed, kept on the device and never synced: in memory
+/// by default and in the demo (beside the in-memory store, so a new store starts it
+/// afresh), `dismissed_pairs` in dev and prod.
+
+final class DismissedPairStoreProvider
+    extends
+        $FunctionalProvider<
+          DismissedPairStore,
+          DismissedPairStore,
+          DismissedPairStore
+        >
+    with $Provider<DismissedPairStore> {
+  /// The duplicate pairs the user dismissed, kept on the device and never synced: in memory
+  /// by default and in the demo (beside the in-memory store, so a new store starts it
+  /// afresh), `dismissed_pairs` in dev and prod.
+  DismissedPairStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'dismissedPairStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$dismissedPairStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<DismissedPairStore> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  DismissedPairStore create(Ref ref) {
+    return dismissedPairStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DismissedPairStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DismissedPairStore>(value),
+    );
+  }
+}
+
+String _$dismissedPairStoreHash() =>
+    r'7ed3e2b5233371d8c439614aa131195ffe2bf0f1';
+
 /// What the Plaid pull does with the transactions it inserts: the rules
 /// (`docs/reference/rules.md`, **On arrival**).
 

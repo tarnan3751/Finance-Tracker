@@ -68,6 +68,12 @@ void main() {
     await verifier.migrateAndValidate(database, 6);
   });
 
+  test('a new database matches the schema 7 dump', () async {
+    final AppDatabase database = AppDatabase(await verifier.startAt(7));
+    addTearDown(database.close);
+    await verifier.migrateAndValidate(database, 7);
+  });
+
   group('schema 1 to 2', () {
     // 2026-10-01 09:00 UTC, the v1 rows' audit instants; 2026-10-02, a v1 delete.
     const int created = 1759309200000;
@@ -794,6 +800,85 @@ void main() {
     );
   });
 
+  group('schema 6 to 7', () {
+    const int created = 1759309200000; // 2026-10-01 09:00 UTC
+    const int dismissed = 1761318000000; // 2026-10-24 15:00 UTC
+
+    // A manual account with a manual and a bank transaction, a rule and sync state.
+    void insertRows(InitializedSchema schema) => schema.rawDatabase.execute('''
+      INSERT INTO accounts (id, item_id, type, subtype, name, official_name, mask,
+        currency, current_balance_minor, available_balance_minor, credit_limit_minor,
+        balances_as_of, is_hidden, display_order, created_at, updated_at, deleted_at,
+        sync_version)
+      VALUES ('acc-manual', NULL, 'depository', NULL, 'Wallet', NULL, NULL, 'USD',
+        NULL, NULL, NULL, NULL, 0, 0, $created, $created, NULL, 0);
+      INSERT INTO transactions (id, account_id, amount_minor, currency, date,
+        authorized_date, pending, pending_transaction_id, name, merchant_name,
+        merchant_logo_url, plaid_primary_category, plaid_detailed_category,
+        user_category_id, notes, receipt_path, source, created_at, updated_at,
+        deleted_at, sync_version, deleted_with_account, hidden)
+      VALUES
+        ('t-manual', 'acc-manual', -1250, 'USD', '2026-09-30', NULL, 0, NULL,
+         'Lunch', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'manual', $created,
+         $created, NULL, 0, 0, 1),
+        ('t-bank', 'acc-manual', -1250, 'USD', '2026-10-01', NULL, 0, NULL,
+         'LUNCH SPOT', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'plaid', $created,
+         $created, NULL, 3, 0, 0);
+      INSERT INTO rules (id, name, position, conditions, actions, created_at,
+        updated_at, deleted_at)
+      VALUES ('r1', 'Lunch', 0, '[]', '[]', $created, $created, NULL);
+      INSERT INTO sync_meta (key, value) VALUES ('pull_cursor', '7');
+    ''');
+
+    Future<void> rowsIntact(AppDatabase database) async {
+      final List<TransactionRow> rows = await (database.select(
+        database.transactions,
+      )..orderBy([(t) => OrderingTerm.asc(t.id)])).get();
+      expect(
+        [for (final TransactionRow t in rows) (t.id, t.hidden)],
+        [('t-bank', false), ('t-manual', true)],
+      );
+      expect(await database.select(database.accounts).get(), hasLength(1));
+      expect(await database.select(database.rules).get(), hasLength(1));
+      expect((await database.select(database.syncMeta).getSingle()).value, '7');
+      expect(await database.select(database.changeLog).get(), isEmpty);
+    }
+
+    test('keeps every row and adds the empty dismissed_pairs table', () async {
+      final schema = await verifier.schemaAt(6);
+      insertRows(schema);
+      final AppDatabase database = AppDatabase(schema.newConnection());
+      addTearDown(database.close);
+      await verifier.migrateAndValidate(database, 7);
+      await rowsIntact(database);
+      expect(await database.select(database.dismissedPairs).get(), isEmpty);
+    });
+
+    test('run again at schema 6 after the table was created, it keeps the '
+        'table and its rows', () async {
+      final schema = await verifier.schemaAt(6);
+      insertRows(schema);
+      final AppDatabase first = AppDatabase(schema.newConnection());
+      addTearDown(first.close);
+      await verifier.migrateAndValidate(first, 7);
+      schema.rawDatabase.execute('''
+        INSERT INTO dismissed_pairs (id_a, id_b, dismissed_at)
+        VALUES ('t-bank', 't-manual', $dismissed);
+        PRAGMA user_version = 6;
+      ''');
+
+      final AppDatabase again = AppDatabase(schema.newConnection());
+      addTearDown(again.close);
+      await verifier.migrateAndValidate(again, 7);
+      await rowsIntact(again);
+      final DismissedPairRow pair = await again
+          .select(again.dismissedPairs)
+          .getSingle();
+      expect((pair.idA, pair.idB), ('t-bank', 't-manual'));
+      expect(pair.dismissedAt.millisecondsSinceEpoch, dismissed);
+    });
+  });
+
   // Drift writes the new version only after onUpgrade returns, so an upgrade that fails
   // part way, or an app killed during one, runs every step again at the old version on
   // the next open: each step must find its own work done and carry on.
@@ -849,7 +934,7 @@ void main() {
       });
     }
 
-    for (final int from in [1, 2, 3, 4, 5]) {
+    for (final int from in [1, 2, 3, 4, 5, 6]) {
       test('from schema $from, after a whole run whose version was not '
           'written', () async {
         final schema = await verifier.schemaAt(from);

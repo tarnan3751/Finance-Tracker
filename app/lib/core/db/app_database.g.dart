@@ -7708,6 +7708,275 @@ class BudgetAlertsCompanion extends UpdateCompanion<BudgetAlertRow> {
   }
 }
 
+class $DismissedPairsTable extends DismissedPairs
+    with TableInfo<$DismissedPairsTable, DismissedPairRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DismissedPairsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idAMeta = const VerificationMeta('idA');
+  @override
+  late final GeneratedColumn<String> idA = GeneratedColumn<String>(
+    'id_a',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _idBMeta = const VerificationMeta('idB');
+  @override
+  late final GeneratedColumn<String> idB = GeneratedColumn<String>(
+    'id_b',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> dismissedAt =
+      GeneratedColumn<int>(
+        'dismissed_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($DismissedPairsTable.$converterdismissedAt);
+  @override
+  List<GeneratedColumn> get $columns => [idA, idB, dismissedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'dismissed_pairs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DismissedPairRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id_a')) {
+      context.handle(
+        _idAMeta,
+        idA.isAcceptableOrUnknown(data['id_a']!, _idAMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_idAMeta);
+    }
+    if (data.containsKey('id_b')) {
+      context.handle(
+        _idBMeta,
+        idB.isAcceptableOrUnknown(data['id_b']!, _idBMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_idBMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {idA, idB};
+  @override
+  DismissedPairRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DismissedPairRow(
+      idA: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id_a'],
+      )!,
+      idB: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id_b'],
+      )!,
+      dismissedAt: $DismissedPairsTable.$converterdismissedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}dismissed_at'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $DismissedPairsTable createAlias(String alias) {
+    return $DismissedPairsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<DateTime, int> $converterdismissedAt =
+      const UtcMillisColumnConverter();
+}
+
+class DismissedPairRow extends DataClass
+    implements Insertable<DismissedPairRow> {
+  final String idA;
+  final String idB;
+  final DateTime dismissedAt;
+  const DismissedPairRow({
+    required this.idA,
+    required this.idB,
+    required this.dismissedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id_a'] = Variable<String>(idA);
+    map['id_b'] = Variable<String>(idB);
+    {
+      map['dismissed_at'] = Variable<int>(
+        $DismissedPairsTable.$converterdismissedAt.toSql(dismissedAt),
+      );
+    }
+    return map;
+  }
+
+  DismissedPairsCompanion toCompanion(bool nullToAbsent) {
+    return DismissedPairsCompanion(
+      idA: Value(idA),
+      idB: Value(idB),
+      dismissedAt: Value(dismissedAt),
+    );
+  }
+
+  factory DismissedPairRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DismissedPairRow(
+      idA: serializer.fromJson<String>(json['idA']),
+      idB: serializer.fromJson<String>(json['idB']),
+      dismissedAt: serializer.fromJson<DateTime>(json['dismissedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'idA': serializer.toJson<String>(idA),
+      'idB': serializer.toJson<String>(idB),
+      'dismissedAt': serializer.toJson<DateTime>(dismissedAt),
+    };
+  }
+
+  DismissedPairRow copyWith({
+    String? idA,
+    String? idB,
+    DateTime? dismissedAt,
+  }) => DismissedPairRow(
+    idA: idA ?? this.idA,
+    idB: idB ?? this.idB,
+    dismissedAt: dismissedAt ?? this.dismissedAt,
+  );
+  DismissedPairRow copyWithCompanion(DismissedPairsCompanion data) {
+    return DismissedPairRow(
+      idA: data.idA.present ? data.idA.value : this.idA,
+      idB: data.idB.present ? data.idB.value : this.idB,
+      dismissedAt: data.dismissedAt.present
+          ? data.dismissedAt.value
+          : this.dismissedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DismissedPairRow(')
+          ..write('idA: $idA, ')
+          ..write('idB: $idB, ')
+          ..write('dismissedAt: $dismissedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(idA, idB, dismissedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DismissedPairRow &&
+          other.idA == this.idA &&
+          other.idB == this.idB &&
+          other.dismissedAt == this.dismissedAt);
+}
+
+class DismissedPairsCompanion extends UpdateCompanion<DismissedPairRow> {
+  final Value<String> idA;
+  final Value<String> idB;
+  final Value<DateTime> dismissedAt;
+  final Value<int> rowid;
+  const DismissedPairsCompanion({
+    this.idA = const Value.absent(),
+    this.idB = const Value.absent(),
+    this.dismissedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DismissedPairsCompanion.insert({
+    required String idA,
+    required String idB,
+    required DateTime dismissedAt,
+    this.rowid = const Value.absent(),
+  }) : idA = Value(idA),
+       idB = Value(idB),
+       dismissedAt = Value(dismissedAt);
+  static Insertable<DismissedPairRow> custom({
+    Expression<String>? idA,
+    Expression<String>? idB,
+    Expression<int>? dismissedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (idA != null) 'id_a': idA,
+      if (idB != null) 'id_b': idB,
+      if (dismissedAt != null) 'dismissed_at': dismissedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DismissedPairsCompanion copyWith({
+    Value<String>? idA,
+    Value<String>? idB,
+    Value<DateTime>? dismissedAt,
+    Value<int>? rowid,
+  }) {
+    return DismissedPairsCompanion(
+      idA: idA ?? this.idA,
+      idB: idB ?? this.idB,
+      dismissedAt: dismissedAt ?? this.dismissedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (idA.present) {
+      map['id_a'] = Variable<String>(idA.value);
+    }
+    if (idB.present) {
+      map['id_b'] = Variable<String>(idB.value);
+    }
+    if (dismissedAt.present) {
+      map['dismissed_at'] = Variable<int>(
+        $DismissedPairsTable.$converterdismissedAt.toSql(dismissedAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DismissedPairsCompanion(')
+          ..write('idA: $idA, ')
+          ..write('idB: $idB, ')
+          ..write('dismissedAt: $dismissedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $AccountsTable accounts = $AccountsTable(this);
@@ -7728,6 +7997,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $RulesTable rules = $RulesTable(this);
   late final $BudgetsTable budgets = $BudgetsTable(this);
   late final $BudgetAlertsTable budgetAlerts = $BudgetAlertsTable(this);
+  late final $DismissedPairsTable dismissedPairs = $DismissedPairsTable(this);
   late final Index transactionsAccountDate = Index(
     'transactions_account_date',
     'CREATE INDEX transactions_account_date ON transactions (account_id, date)',
@@ -7784,6 +8054,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     rules,
     budgets,
     budgetAlerts,
+    dismissedPairs,
     transactionsAccountDate,
     transactionsUserCategory,
     transactionsPendingTransaction,

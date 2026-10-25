@@ -14,8 +14,9 @@
 /// records sync held. Schema 6 adds `transactions.hidden`, the user's hidden override; its
 /// column is added before every other step, so the schema 2 backfill and the later steps
 /// read the transactions as this version declares them, and its migration materializes
-/// the transaction records sync held for a field this version now stores. Every schema
-/// change follows the procedure
+/// the transaction records sync held for a field this version now stores. Schema 7 adds
+/// the duplicate pairs the user dismissed (`dismissed_pairs`), local to the device; its
+/// migration creates the empty table. Every schema change follows the procedure
 /// in `data.md`, every step idempotent: Drift runs `onUpgrade` outside a transaction and
 /// writes the new version only after it returns, so a step that fails or an app killed
 /// mid-upgrade runs every step again at the old version on the next open. Tables are
@@ -37,6 +38,7 @@ import 'package:finance_tracker/core/db/tables/budget_alerts.dart';
 import 'package:finance_tracker/core/db/tables/budgets.dart';
 import 'package:finance_tracker/core/db/tables/categories.dart';
 import 'package:finance_tracker/core/db/tables/change_log.dart';
+import 'package:finance_tracker/core/db/tables/dismissed_pairs.dart';
 import 'package:finance_tracker/core/db/tables/held_records.dart';
 import 'package:finance_tracker/core/db/tables/items.dart';
 import 'package:finance_tracker/core/db/tables/record_clocks.dart';
@@ -76,6 +78,7 @@ final Logger _log = Logger('db');
     Rules,
     Budgets,
     BudgetAlerts,
+    DismissedPairs,
   ],
 )
 final class AppDatabase extends _$AppDatabase {
@@ -97,7 +100,7 @@ final class AppDatabase extends _$AppDatabase {
   final String Function() newNodeId;
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -161,6 +164,9 @@ final class AppDatabase extends _$AppDatabase {
             EntityType.transaction,
           ),
         );
+      }
+      if (from < 7) {
+        await m.createTable(dismissedPairs);
       }
     },
     beforeOpen: (details) async {
