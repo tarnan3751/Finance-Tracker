@@ -1,7 +1,8 @@
 // Test data for screen tests: the in-memory store with the system categories and the
 // test seed (test_seed.dart) dated to testClock's today (two USD accounts, twelve transactions), or with
 // whatever seed a test builds; testBanks are three linked banks, one per status the
-// linked banks screen shows.
+// linked banks screen shows; linkedStore adds two linked accounts at those banks (one
+// with reported balances, one never synced) and Plaid transactions with raw names.
 //
 //   final InMemoryStore store = seededStore();
 //   await pumpApp(tester, overrides: [storeOverride(store)]);
@@ -107,3 +108,104 @@ final List<ServerItem> testBanks = [
     institution: const Institution(id: 'ins_109512', name: 'Houndstooth Bank'),
   ),
 ];
+
+/// The linked checking account at First Platypus Bank, `linked-checking`.
+const String linkedCheckingId = 'linked-checking';
+
+/// The linked card at Tartan Bank, `linked-card`.
+const String linkedCardId = 'linked-card';
+
+/// Two linked accounts: Platypus Checking at First Platypus Bank, with the balances the
+/// bank reported an hour before [testClock]'s now, and Tartan Card at Tartan Bank, never
+/// synced, so with no reported balance.
+final List<Account> testLinkedAccounts = [
+  Account(
+    id: linkedCheckingId,
+    itemId: 'bank-platypus',
+    type: AccountType.depository,
+    subtype: 'checking',
+    name: 'Platypus Checking',
+    officialName: 'Plaid Gold Standard 0% Interest Checking',
+    mask: '0000',
+    currencyCode: 'USD',
+    currentBalance: Money(110000, 'USD'),
+    availableBalance: Money(100000, 'USD'),
+    balancesAsOf: DateTime.utc(2026, 10, 24, 14),
+    isHidden: false,
+    displayOrder: 2,
+  ),
+  const Account(
+    id: linkedCardId,
+    itemId: 'bank-tartan',
+    type: AccountType.credit,
+    subtype: 'credit card',
+    name: 'Tartan Card',
+    mask: '3333',
+    currencyCode: 'USD',
+    isHidden: false,
+    displayOrder: 3,
+  ),
+];
+
+/// Bank transactions on [linkedCheckingId] as Plaid sends them: a merchant Plaid named
+/// with its logo, raw names the dictionary knows and does not know, and a pending ride.
+final List<Transaction> testLinkedTransactions = [
+  _plaid(
+    'plaid-1',
+    'Starbucks',
+    -575,
+    daysAgo: 0,
+    merchant: 'Starbucks',
+    logo: Uri.parse('https://plaid-merchant-logos.plaid.com/starbucks_956.png'),
+  ),
+  _plaid(
+    'plaid-2',
+    'UBER 588639690 RIDE 05/12',
+    -1820,
+    daysAgo: 0,
+    pending: true,
+  ),
+  _plaid('plaid-3', 'NETFLIX.COM', -1549, daysAgo: 2),
+  _plaid('plaid-4', 'TST*TACO ROCK - LORTON', -2311, daysAgo: 3),
+  _plaid('plaid-5', 'Sweetgreen inc payroll ppd id', 250000, daysAgo: 5),
+];
+
+Transaction _plaid(
+  String id,
+  String name,
+  int cents, {
+  required int daysAgo,
+  String? merchant,
+  Uri? logo,
+  bool pending = false,
+}) {
+  final DateTime at = testClock.nowUtc();
+  return Transaction(
+    id: id,
+    accountId: linkedCheckingId,
+    amount: Money(cents, 'USD'),
+    date: testClock.today().addDays(-daysAgo),
+    pending: pending,
+    name: name,
+    merchantName: merchant,
+    merchantLogoUrl: logo,
+    source: DataSource.plaid,
+    createdAt: at,
+    updatedAt: at,
+    syncVersion: 1,
+  );
+}
+
+/// A store with the system categories, the test banks, [testLinkedAccounts] and
+/// [testLinkedTransactions], and, with [manual], the test seed's manual accounts and
+/// transactions too.
+InMemoryStore linkedStore({bool manual = false}) {
+  final InMemoryStore store = seededStore(
+    seed: manual ? null : const DemoSeed.empty(),
+  );
+  store
+    ..applyPlaidItems(testBanks, testClock.nowUtc())
+    ..applyPlaidAccounts(testLinkedAccounts)
+    ..applyPlaidTransactions(testLinkedTransactions);
+  return store;
+}

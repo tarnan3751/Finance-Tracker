@@ -153,7 +153,7 @@ void main() {
     await tester.enterText(find.byType(TextField), 'payroll');
     await tester.pumpAndSettle();
 
-    expect(find.text('ACME CORP PAYROLL'), findsNWidgets(2));
+    expect(find.text('Acme Corp Payroll'), findsNWidgets(2));
     expect(find.text('Rent'), findsNothing);
 
     await tester.enterText(find.byType(TextField), 'nothing like this');
@@ -267,7 +267,7 @@ void main() {
     await _apply(tester);
 
     expect(find.text('Rent'), findsNWidgets(2));
-    expect(find.text('ACME CORP PAYROLL'), findsNothing);
+    expect(find.text('Acme Corp Payroll'), findsNothing);
     expect(find.text('Netflix'), findsNothing);
     expect(
       find.widgetWithText(InputChip, r'$1,000.00 – $2,000.00'),

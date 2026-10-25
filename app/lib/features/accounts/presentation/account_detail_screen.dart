@@ -12,9 +12,9 @@ import 'package:finance_tracker/core/widgets/amount_text.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_errors.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_type_style.dart';
-import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
+import 'package:finance_tracker/features/transactions/domain/enrichment.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_dates.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_tile.dart';
@@ -174,18 +174,12 @@ class _Detail extends ConsumerWidget {
           final Transaction transaction = entry.transaction;
           final Category? category = effectiveCategory(transaction, categories);
           return TransactionTile(
-            title: transaction.merchantName ?? transaction.name,
+            merchant: EnrichedMerchant.resolve(transaction),
             caption: l10n.captionPair(
               transactionDateLabel(l10n, transaction.date, today),
               category?.name ?? l10n.uncategorized,
             ),
             amount: transaction.amount,
-            icon: category == null
-                ? fallbackCategoryIcon
-                : categoryIconFor(category.icon),
-            iconColor: category == null
-                ? theme.colorScheme.outline
-                : categoryColor(context, category.color),
             pending: transaction.pending,
             runningBalance: entry.balance,
             onTap: () => TransactionRoute(transaction.id).push<void>(context),

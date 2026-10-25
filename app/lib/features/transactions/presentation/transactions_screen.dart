@@ -9,10 +9,10 @@ import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
-import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
 import 'package:finance_tracker/features/transactions/application/transaction_filters.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
+import 'package:finance_tracker/features/transactions/domain/enrichment.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_dates.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_filter_sheet.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_tile.dart';
@@ -172,7 +172,6 @@ class _TransactionList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ThemeData theme = Theme.of(context);
     final Map<String, Account> accounts = ref.watch(accountsByIdProvider);
     final CategoryLookup categories = ref.watch(
       transactionCategoryLookupProvider,
@@ -198,7 +197,7 @@ class _TransactionList extends ConsumerWidget {
             );
             return TransactionTile(
               key: ValueKey(transaction.id),
-              title: transaction.merchantName ?? transaction.name,
+              merchant: EnrichedMerchant.resolve(transaction),
               caption: switch (accounts[transaction.accountId]) {
                 // An account deleted or not yet synced: the category alone.
                 null => category?.name ?? l10n.uncategorized,
@@ -208,12 +207,6 @@ class _TransactionList extends ConsumerWidget {
                 ),
               },
               amount: transaction.amount,
-              icon: category == null
-                  ? fallbackCategoryIcon
-                  : categoryIconFor(category.icon),
-              iconColor: category == null
-                  ? theme.colorScheme.outline
-                  : categoryColor(context, category.color),
               pending: transaction.pending,
               onTap: () => TransactionRoute(transaction.id).push<void>(context),
             );
