@@ -30,6 +30,8 @@ import 'package:finance_tracker/features/accounts/domain/account_not_found_excep
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
+import 'package:finance_tracker/features/rules/application/rule_preview.dart';
+import 'package:finance_tracker/features/rules/application/rules_providers.dart';
 import 'package:finance_tracker/features/rules/domain/rule_repository.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
 import 'package:finance_tracker/features/settings/domain/settings_repository.dart';
@@ -697,6 +699,105 @@ void main() {
           'plaid:FOOD_AND_DRINK_COFFEE',
         );
       }
+    });
+
+    group('applied to the existing transactions', () {
+      // Every row on the shared account: the manual ones and a bank row.
+      const Rule tagAll = Rule(
+        id: 'r-history',
+        name: 'Everything on acc',
+        position: 0,
+        conditions: [
+          RuleCondition(kind: RuleConditionKind.account, text: 'acc'),
+        ],
+        actions: [
+          RuleAction(
+            kind: RuleActionKind.setCategory,
+            value: 'plaid:FOOD_AND_DRINK_COFFEE',
+          ),
+          RuleAction(kind: RuleActionKind.addTag, value: 'seen'),
+        ],
+      );
+      final Transaction bank = testTransaction(
+        'p1',
+        'acc',
+        -450,
+        name: 'BLUE BOTTLE COFFEE',
+      ).copyWith(source: DataSource.plaid, syncVersion: 1);
+
+      // Both devices hold the shared rows, the bank row and the rule.
+      Future<void> ledger(Device a, Device b) async {
+        await shared(a, [b]);
+        await a.pullPage([bank]);
+        await b.pullPage([bank]);
+        await a.rules.upsert(tagAll);
+        await expectConverged([a, b]);
+      }
+
+      RuleActions actions(Device d) => d.container.read(ruleActionsProvider);
+
+      Future<void> expectApplied(List<Device> devices) async {
+        for (final Device d in devices) {
+          final List<Transaction> rows = await d.transactions
+              .watch(TransactionQuery())
+              .first;
+          expect(rows, hasLength(5), reason: d.name);
+          for (final Transaction t in rows) {
+            expect(t.tags, ['seen'], reason: '${d.name} ${t.id}');
+            expect(
+              t.userCategoryId,
+              'plaid:FOOD_AND_DRINK_COFFEE',
+              reason: '${d.name} ${t.id}',
+            );
+          }
+        }
+      }
+
+      test('on one device, reaches the other as the same rows', () async {
+        final Device a = device('dev-a');
+        final Device b = device('dev-b');
+        await ledger(a, b);
+
+        final RulePreview applied = await actions(a).applyToHistory(tagAll);
+        expect(applied.changes, hasLength(5));
+        await expectConverged([a, b]);
+        await expectApplied([a, b]);
+
+        // Again, on either device: nothing changes, nothing is recorded.
+        expect((await actions(b).applyToHistory(tagAll)).changes, isEmpty);
+        expect((await actions(a).applyToHistory(tagAll)).changes, isEmpty);
+        expect(await a.store.unsynced(), isEmpty);
+        expect(await b.store.unsynced(), isEmpty);
+      });
+
+      test('on both devices at once, converges with each tag once', () async {
+        final Device a = device('dev-a');
+        final Device b = device('dev-b', skew: const Duration(seconds: 5));
+        await ledger(a, b);
+
+        expect((await actions(a).applyToHistory(tagAll)).changes, hasLength(5));
+        expect((await actions(b).applyToHistory(tagAll)).changes, hasLength(5));
+        await expectConverged([a, b]);
+        await expectApplied([a, b]);
+      });
+
+      test('leaves a bank row\'s field the other device\'s user set', () async {
+        final Device a = device('dev-a');
+        final Device b = device('dev-b');
+        await ledger(a, b);
+
+        final Transaction p1 = (await b.transactions.watchById('p1').first)!;
+        await b.transactions.upsert(p1.copyWith(tags: const ['mine']));
+        await expectConverged([a, b]);
+
+        await actions(a).applyToHistory(tagAll);
+        await expectConverged([a, b]);
+        for (final Device d in [a, b]) {
+          final Transaction row = (await d.transactions.watchById('p1').first)!;
+          expect(row.tags, ['mine'], reason: d.name);
+          expect(row.userCategoryId, 'plaid:FOOD_AND_DRINK_COFFEE');
+        }
+      });
     });
 
     test(
