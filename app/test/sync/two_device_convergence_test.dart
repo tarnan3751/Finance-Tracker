@@ -1,6 +1,7 @@
 // Two (and three) devices, each the real app wiring over its own Drift database (the
 // Drift repositories, the recorder, the device clock, the sync controller), syncing
-// through one relay: scripted conflicts, rules among them, and seeded random runs, after
+// through one relay: scripted conflicts, rules and budgets among them, and seeded random
+// runs, after
 // which every device's entity tables and sync records are the same (sync-app.md,
 // **Testing**). The Plaid pull after each session goes to an in-app fake server with no
 // bank linked, so it brings nothing and never touches the network; a test that needs a
@@ -27,6 +28,7 @@ import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
+import 'package:finance_tracker/features/budgets/domain/budget_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
 import 'package:finance_tracker/features/rules/domain/rule_repository.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
@@ -39,6 +41,7 @@ import 'package:sync_engine/sync_engine.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../contract/repository_fixture.dart';
+import '../helpers/random_budgets.dart';
 
 /// The server the Plaid pull of every device asks: no bank linked.
 final FakeServer _bankless = FakeServer(dataset: FakeDataset.empty())
@@ -142,6 +145,7 @@ final class Device {
       container.read(categoryRepositoryProvider);
   SettingsRepository get settings => container.read(settingsRepositoryProvider);
   RuleRepository get rules => container.read(ruleRepositoryProvider);
+  BudgetRepository get budgets => container.read(budgetRepositoryProvider);
   ArrivalProcessor get arrival => container.read(arrivalProcessorProvider);
 
   /// Applies [page] as a page of the Plaid pull does: the rows inserted, the overrides
@@ -176,7 +180,7 @@ final class Device {
   }
 
   /// The entity tables, without the audit columns each device stamps for itself on
-  /// accounts, categories and rules (they are not in the synced records).
+  /// accounts, categories, rules and budgets (they are not in the synced records).
   Future<Map<String, List<Map<String, Object?>>>> dump() async {
     Future<List<Map<String, Object?>>> rows(String sql) async => [
       for (final QueryRow row in await database.customSelect(sql).get())
@@ -203,6 +207,10 @@ final class Device {
       'rules': await rows(
         'SELECT id, name, position, conditions, actions, deleted_at '
         'FROM rules ORDER BY id',
+      ),
+      'budgets': await rows(
+        'SELECT id, category_id, period, period_start_day, amount_minor, currency, '
+        'rollover, start_date, deleted_at FROM budgets ORDER BY id',
       ),
       'app_settings': await rows('SELECT * FROM app_settings ORDER BY key'),
       'held_records': await rows(
@@ -735,6 +743,138 @@ void main() {
               }
             } on EntityDeletedException {
               // An edit of a rule this device already knows is deleted.
+            }
+          }
+          await expectConverged(run);
+          for (final Device d in run) {
+            await d.close();
+            devices.remove(d);
+          }
+        }
+      },
+      timeout: const Timeout.factor(3),
+    );
+  });
+
+  group('budgets', () {
+    Budget budget(String id, {int amount = 40000, bool rollover = false}) =>
+        Budget(
+          id: id,
+          categoryId: 'plaid:FOOD_AND_DRINK',
+          period: BudgetPeriodKind.monthly,
+          periodStartDay: 1,
+          amount: Money(amount, 'USD'),
+          rollover: rollover,
+          startDate: LocalDate(2026, 8, 1),
+        );
+
+    Future<List<Budget>> live(Device d) => d.budgets.watchAll().first;
+
+    Future<void> sharedBudgets(Device a, Device b) async {
+      await a.budgets.upsert(budget('b1'));
+      await a.budgets.upsert(budget('b2', amount: 15000));
+      await expectConverged([a, b]);
+    }
+
+    test('concurrent edits of the amount and the rollover merge', () async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b');
+      await sharedBudgets(a, b);
+
+      await a.budgets.upsert(budget('b1', amount: 50000));
+      await b.budgets.upsert(budget('b1', rollover: true));
+      await expectConverged([a, b]);
+      for (final Device d in [a, b]) {
+        expect(
+          (await live(d)).first,
+          budget('b1', amount: 50000, rollover: true),
+        );
+      }
+    });
+
+    test('concurrent edits of one amount converge on the later', () async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b', skew: const Duration(seconds: 30));
+      await sharedBudgets(a, b);
+
+      await b.budgets.upsert(budget('b2', amount: 20000));
+      await a.budgets.upsert(budget('b2', amount: 25000));
+      await expectConverged([a, b]);
+      // B's clock runs 30 s ahead, so its edit is the later one.
+      expect((await live(a))[1].amount, Money(20000, 'USD'));
+    });
+
+    test(
+      'a delete wins over a concurrent edit; a restore shows the edit',
+      () async {
+        final Device a = device('dev-a');
+        final Device b = device('dev-b');
+        await sharedBudgets(a, b);
+
+        await a.budgets.delete('b2');
+        await b.budgets.upsert(budget('b2', amount: 99000));
+        await expectConverged([a, b]);
+        expect([for (final Budget x in await live(b)) x.id], ['b1']);
+        await expectLater(
+          a.budgets.upsert(budget('b2')),
+          throwsA(isA<EntityDeletedException>()),
+        );
+
+        await b.budgets.restore('b2');
+        await expectConverged([a, b]);
+        expect((await live(a))[1].amount, Money(99000, 'USD'));
+      },
+    );
+
+    test(
+      'a seeded random run of budget edits on three devices converges',
+      () async {
+        for (int seed = 0; seed < 15; seed++) {
+          setUpRandom(seed);
+          world = World();
+          relay = SwappableRelay(
+            InMemorySyncRelay(nowWallMillis: () => world.now),
+          );
+          final Random random = Random(seed);
+          final List<Device> run = [
+            for (final (int i, int skew) in [(0, 0), (1, 45), (2, -60)])
+              device('dev-$i', skew: Duration(seconds: skew)),
+          ];
+          final List<String> ids = [];
+          for (int step = 0; step < 80; step++) {
+            final Device d = run[random.nextInt(run.length)];
+            String pick() => ids[random.nextInt(ids.length)];
+            try {
+              switch (random.nextInt(8)) {
+                case 0 || 1:
+                  final String id = 'b${ids.length}';
+                  ids.add(id);
+                  await d.budgets.upsert(randomBudget(random, id));
+                case 2 when ids.isNotEmpty:
+                  final Budget? b = await d.budgets.watchById(pick()).first;
+                  if (b != null) {
+                    final Budget other = randomBudget(random, b.id);
+                    await d.budgets.upsert(switch (random.nextInt(4)) {
+                      0 => b.copyWith(
+                        amount: Money(
+                          random.nextInt(90000),
+                          b.amount.currencyCode,
+                        ),
+                      ),
+                      1 => b.copyWith(rollover: !b.rollover),
+                      2 => b.copyWith(periodStartDay: other.periodStartDay),
+                      _ => b.copyWith(startDate: other.startDate),
+                    });
+                  }
+                case 3 when ids.isNotEmpty:
+                  await d.budgets.delete(pick());
+                case 4 when ids.isNotEmpty:
+                  await d.budgets.restore(pick());
+                default:
+                  await d.sync();
+              }
+            } on EntityDeletedException {
+              // An edit of a budget this device already knows is deleted.
             }
           }
           await expectConverged(run);
