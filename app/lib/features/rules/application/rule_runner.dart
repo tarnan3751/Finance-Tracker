@@ -46,8 +46,6 @@ final class RuleRunner implements ArrivalProcessor {
   /// Where the device's sync records are, or null when its data never syncs.
   final SyncStore? syncStore;
 
-  bool _hideLogged = false;
-
   @override
   Future<void> onArrived(List<Transaction> added) async {
     if (added.isEmpty) return;
@@ -90,10 +88,6 @@ final class RuleRunner implements ArrivalProcessor {
     }
     for (final MapEntry(key: (String id, RuleSkip reason), value: int n)
         in skipped.entries) {
-      if (reason == RuleSkip.unsupported) {
-        if (_hideLogged) continue;
-        _hideLogged = true;
-      }
       _log.info('rule $id: ${reason.name} on $n transaction(s)');
     }
     if (applied > 0) _log.info('rules changed $applied of ${added.length}');
@@ -106,7 +100,11 @@ final class RuleRunner implements ArrivalProcessor {
     final EntityRecord? record = await store.read(EntityType.transaction, t.id);
     if (record == null) return const {};
     return {
-      for (final String f in const [ruleCategoryField, ruleTagsField])
+      for (final String f in const [
+        ruleCategoryField,
+        ruleTagsField,
+        ruleHiddenField,
+      ])
         if (record.fieldClocks.containsKey(f)) f,
     };
   }

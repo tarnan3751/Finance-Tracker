@@ -1,5 +1,5 @@
 // Rules for screen tests, over the test seed's accounts and the system categories: one
-// with a row of every condition and action kind (a hide from a newer version included),
+// with a row of every condition and action kind,
 // and a plain one after it.
 //
 //   final InMemoryRuleRepository rules = seededRules();

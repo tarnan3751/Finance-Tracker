@@ -1,8 +1,7 @@
 /// The rule editor, for `/settings/rules/new` and `/settings/rules/:id`: the name, the
 /// conditions (one row each, of any kind the model has: text the merchant or description
 /// contains, an amount range in one currency, an account, a bank category) and the
-/// actions (set the category, add a tag, rename; a `hide` a newer version added is shown
-/// as unsupported and kept). A rule needs a name, a condition and an action, and every
+/// actions (set the category, add a tag, rename, hide). A rule needs a name, a condition and an action, and every
 /// row its value, before it saves. Deleting from here offers an undo.
 library;
 
@@ -110,21 +109,17 @@ final class _ActionDraft {
             ? from?.value
             : null,
       ),
-      categoryId = kind == RuleActionKind.setCategory ? from?.value : null,
-      _kept = kind == RuleActionKind.hide ? from : null;
+      categoryId = kind == RuleActionKind.setCategory ? from?.value : null;
 
   final RuleActionKind kind;
   final TextEditingController value;
   String? categoryId;
 
-  // An action this version does not apply, kept as it came.
-  final RuleAction? _kept;
-
   RuleAction toAction() => switch (kind) {
     RuleActionKind.setCategory => RuleAction(kind: kind, value: categoryId),
     RuleActionKind.addTag ||
     RuleActionKind.rename => RuleAction(kind: kind, value: value.text.trim()),
-    RuleActionKind.hide => _kept ?? RuleAction(kind: kind),
+    RuleActionKind.hide => RuleAction(kind: kind),
   };
 
   void dispose() => value.dispose();
@@ -552,7 +547,7 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
           ),
           caption(l10n.ruleActionRenameCaption),
         ],
-        RuleActionKind.hide => const [],
+        RuleActionKind.hide => [caption(l10n.ruleActionHideCaption)],
       },
     );
   }
@@ -640,12 +635,7 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
                 onSelected: (kind) =>
                     setState(() => _actions.add(_ActionDraft(kind))),
                 itemBuilder: (context) => [
-                  // Hide is not offered: transactions have no hidden field yet.
-                  for (final RuleActionKind kind in const [
-                    RuleActionKind.setCategory,
-                    RuleActionKind.addTag,
-                    RuleActionKind.rename,
-                  ])
+                  for (final RuleActionKind kind in RuleActionKind.values)
                     PopupMenuItem(
                       value: kind,
                       child: Text(_actionLabel(l10n, kind)),

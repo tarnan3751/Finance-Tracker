@@ -1,6 +1,6 @@
 // The rules on arrival, over the in-memory and the Drift repositories: a matching rule
-// files an arriving Plaid transaction and is recorded as an override; a field another
-// device (or the user) has set is left alone; a row the runner cannot write is logged
+// files (or hides) an arriving Plaid transaction and is recorded as an override; a field
+// another device (or the user) has set, hidden included, is left alone; a row the runner cannot write is logged
 // and skipped, never thrown, and the others still change.
 import 'package:finance_tracker/features/rules/application/rule_runner.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -68,6 +68,30 @@ void main() {
           if (e.entityId == id)
             '${e.operation.name} ${(e.payload.keys.toList()..sort()).join(',')}',
       ];
+
+      test(
+        'a hide rule hides an arriving row unless the user unhid it',
+        () async {
+          await f.rules.upsert(
+            _coffee.copyWith(
+              actions: const [RuleAction(kind: RuleActionKind.hide)],
+            ),
+          );
+          await f.transactions.upsert(_plaid('p1'));
+          await f.transactions.upsert(_plaid('p2'));
+          // The user (here, or on another device) hid and then unhid p2.
+          await f.transactions.upsert(_plaid('p2').copyWith(hidden: true));
+          await f.transactions.upsert(_plaid('p2'));
+          await runner.onArrived([
+            (await f.transactions.watchById('p1').first)!,
+            (await f.transactions.watchById('p2').first)!,
+          ]);
+          expect((await f.transactions.watchById('p1').first)!.hidden, isTrue);
+          expect(await entries('p1'), ['update hidden']);
+          expect((await f.transactions.watchById('p2').first)!.hidden, isFalse);
+          expect(await entries('p2'), ['update hidden', 'update hidden']);
+        },
+      );
 
       test(
         'a matching rule files the transaction, recorded as an override',

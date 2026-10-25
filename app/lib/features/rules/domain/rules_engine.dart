@@ -25,10 +25,12 @@
 /// - `addTag` appends the tag when the transaction does not carry it;
 /// - `rename` sets the name of a `manual` or `import` transaction (a bank's or the demo's
 ///   name is the bank's);
-/// - `hide` is not applied: transactions have no hidden field until Phase 4.
+/// - `hide` sets `hidden` when the transaction is not hidden (it still counts toward its
+///   account's balance).
 ///
-/// A field in `ownedFields` (record field names: `user_category_id`, `tags`) is left as it
-/// is: the caller's way of saying a person, or another device's rule, has already set it.
+/// A field in `ownedFields` (record field names: `user_category_id`, `tags`, `hidden`) is
+/// left as it is: the caller's way of saying a person, or another device's rule, has
+/// already set it.
 library;
 
 import 'package:finance_tracker/core/util/binary_compare.dart';
@@ -54,9 +56,6 @@ enum RuleSkip {
 
   /// The name of a bank (or demo) transaction is not renamed.
   bankName,
-
-  /// The action is not supported yet (`hide`).
-  unsupported,
 }
 
 /// What the rules do to one transaction.
@@ -83,6 +82,9 @@ const String ruleCategoryField = 'user_category_id';
 
 /// The record field of a transaction's tags.
 const String ruleTagsField = 'tags';
+
+/// The record field of a transaction's hidden override.
+const String ruleHiddenField = 'hidden';
 
 /// Applies the first of [rules] that matches [transaction]; [lookup] holds the live
 /// categories, and [ownedFields] the fields the rules must leave alone.
@@ -190,6 +192,10 @@ bool conditionMatches(RuleCondition condition, Transaction transaction) {
       if (t.name == value) return (t, RuleSkip.alreadySet);
       return (t.copyWith(name: value), null);
     case RuleActionKind.hide:
-      return (t, RuleSkip.unsupported);
+      if (ownedFields.contains(ruleHiddenField)) {
+        return (t, RuleSkip.ownedByUser);
+      }
+      if (t.hidden) return (t, RuleSkip.alreadySet);
+      return (t.copyWith(hidden: true), null);
   }
 }

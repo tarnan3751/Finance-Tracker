@@ -1,6 +1,6 @@
 // The rule editor: a rule needs a name, a condition and an action, and each row its
-// value; every condition and action kind round-trips; an edited rule keeps an action
-// this version does not apply (hide); the bank category picker offers only the built-in
+// value; every condition and action kind round-trips, hide included; an edited rule keeps
+// every action; the bank category picker offers only the built-in
 // categories; delete offers an undo.
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/features/rules/data/in_memory_rule_repository.dart';
@@ -125,6 +125,14 @@ void main() {
       ),
       findsOneWidget,
     );
+    await _add(tester, 'Add action', 'Hide');
+    expect(
+      find.text(
+        'Hidden transactions leave the list, budgets and reports, and still '
+        "count toward their account's balance.",
+      ),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
@@ -154,6 +162,7 @@ void main() {
       ),
       RuleAction(kind: RuleActionKind.addTag, value: 'coffee'),
       RuleAction(kind: RuleActionKind.rename, value: 'Coffee'),
+      RuleAction(kind: RuleActionKind.hide),
     ]);
   });
 
@@ -173,7 +182,7 @@ void main() {
     },
   );
 
-  testWidgets('an edit keeps what it does not show, the hide action included', (
+  testWidgets('an edit keeps the actions it shows, the hide action included', (
     tester,
   ) async {
     final InMemoryRuleRepository rules = await _pump(
@@ -181,7 +190,17 @@ void main() {
       '/settings/rules/${everyKindRule.id}',
     );
     expect(find.text('Edit rule'), findsOneWidget);
-    expect(find.text('Hide (not supported in this version)'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Hide'),
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(ListView),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    expect(find.text('Hide'), findsOneWidget);
     expect(find.text('Rewards Card'), findsOneWidget);
     expect(find.text('Coffee'), findsWidgets);
     await tester.enterText(_field('Name'), 'Coffee, card');

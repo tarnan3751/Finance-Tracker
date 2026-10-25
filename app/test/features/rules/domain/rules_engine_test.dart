@@ -232,15 +232,20 @@ void main() {
       }
     });
 
-    test('hide is not applied; the other actions still are', () {
-      final RuleOutcome outcome = run([
-        const RuleAction(kind: RuleActionKind.hide),
-        _category,
-      ], _t());
-      expect(outcome.changed!.userCategoryId, 'c1');
-      expect(outcome.skipped, [
-        (kind: RuleActionKind.hide, reason: RuleSkip.unsupported),
-      ]);
+    test('hide sets hidden once, on any source, and leaves an owned field', () {
+      const RuleAction hide = RuleAction(kind: RuleActionKind.hide);
+      for (final DataSource source in DataSource.values) {
+        final RuleOutcome outcome = run([hide, _category], _t(source: source));
+        expect(outcome.changed!.hidden, isTrue, reason: source.name);
+        expect(outcome.changed!.userCategoryId, 'c1');
+        expect(outcome.skipped, isEmpty);
+      }
+      final RuleOutcome again = run([hide], _t().copyWith(hidden: true));
+      expect(again.changed, isNull);
+      expect(again.skipped.single.reason, RuleSkip.alreadySet);
+      final RuleOutcome owned = run([hide], _t(), owned: {ruleHiddenField});
+      expect(owned.changed, isNull);
+      expect(owned.skipped.single.reason, RuleSkip.ownedByUser);
     });
 
     test('an empty value is skipped', () {
@@ -290,7 +295,7 @@ void main() {
           _rule('first', [any], const [RuleAction(kind: RuleActionKind.hide)]),
           _rule('second', [any], [_category], position: 1),
         ],
-        _t(),
+        _t().copyWith(hidden: true),
         lookup: _lookup,
       );
       expect(outcome.rule!.id, 'first');

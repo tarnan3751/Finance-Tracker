@@ -1550,7 +1550,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Renames manual and imported transactions. Bank transactions keep the description your bank sends.';
 
   @override
-  String get ruleActionHide => 'Hide (not supported in this version)';
+  String get ruleActionHide => 'Hide';
+
+  @override
+  String get ruleActionHideCaption =>
+      'Hidden transactions leave the list, budgets and reports, and still count toward their account\'s balance.';
 
   @override
   String get ruleChooseCategory => 'Choose a category';

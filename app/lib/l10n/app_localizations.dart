@@ -2637,11 +2637,17 @@ abstract class AppLocalizations {
   /// **'Renames manual and imported transactions. Bank transactions keep the description your bank sends.'**
   String get ruleActionRenameCaption;
 
-  /// An action a newer version of the app added to this rule; kept but not applied.
+  /// The rule action that hides the transactions the rule matches.
   ///
   /// In en, this message translates to:
-  /// **'Hide (not supported in this version)'**
+  /// **'Hide'**
   String get ruleActionHide;
+
+  /// Caption of the hide action, explaining what hiding does.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden transactions leave the list, budgets and reports, and still count toward their account\'s balance.'**
+  String get ruleActionHideCaption;
 
   /// Placeholder of an empty category picker row in the rule editor.
   ///

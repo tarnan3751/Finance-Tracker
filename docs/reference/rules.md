@@ -1,6 +1,6 @@
 # Rules
 
-User-authored rules that categorize, tag and rename transactions: applied by the Plaid pull
+User-authored rules that categorize, tag, rename and hide transactions: applied by the Plaid pull
 to the transactions it brings in, and on demand from the transaction editor; synced between
 devices through the change log. Code: `app/lib/features/rules/` (`domain/rules_engine.dart`,
 the evaluator; `domain/rule_repository.dart` and `data/`, the repositories;
@@ -29,7 +29,7 @@ fraction.
 | `set_category` | a category id | sets `userCategoryId` when it is null, to a live category, on a transaction without splits (splits are the user's own categorization, `PLAN.md` §12) |
 | `add_tag` | the tag | appends the tag when the transaction does not carry it |
 | `rename` | the new name | sets the name of a `manual` or `import` transaction; a `plaid` or `demo` transaction keeps its bank's name (`merchant_name` is Plaid's, not an override), and the editor says so |
-| `hide` | none | nothing: transactions have no hidden field until Phase 4. The kind stays in the model, the editor does not offer it (a rule a newer version wrote shows it as unsupported and keeps it), and the runner logs it once |
+| `hide` | none | sets `hidden` when the transaction is not hidden, whatever its source; a hidden transaction still counts toward its account's balance (`transactions.md`) |
 
 ## Evaluation
 
@@ -42,7 +42,8 @@ changes) and the matching rule's actions that changed nothing, with why (`RuleSk
   one of its conditions does; a rule with no condition or no action never matches (the
   editor requires both, but a synced rule is taken as it is).
 - **The first matching rule wins**, and all its actions apply. No later rule is looked at,
-  even when the winner's actions change nothing (a `hide`, or a rename of a bank row), so
+  even when the winner's actions change nothing (a `hide` of a hidden row, or a rename of
+  a bank row), so
   which rule wins never depends on what is already set.
 - **Deterministic**: the same rules, transaction, categories and owned fields give the same
   outcome on every device; a seeded property test runs random rules over random
@@ -52,7 +53,8 @@ changes) and the matching rule's actions that changed nothing, with why (`RuleSk
   falls back to, so on a transaction with no merchant name a second run can match a
   different rule. Rename applies only to manual and imported rows, which the rules reach
   only on demand, where the user sees the result before saving.
-- `ownedFields` (record field names, `user_category_id` and `tags`) are left as they are:
+- `ownedFields` (record field names, `user_category_id`, `tags` and `hidden`) are left as
+  they are:
   the runner's way of saying a person, or a rule on another device, has set them.
 
 ## On arrival
@@ -64,7 +66,7 @@ devices recorded and the pull laid over the new rows are already there.
 
 - It reads the live rules and categories once per page, applies the engine to each row and
   upserts the changed ones through `TransactionRepository.upsert`: recorded like a user's
-  edit, so on a `plaid` row an update of `user_category_id` and `tags` only. The row keeps
+  edit, so on a `plaid` row an update of `user_category_id`, `tags` and `hidden` only. The row keeps
   the `updatedAt` the server sent, so every device holds the same row.
 - **The guard.** On a `plaid` row, a field that already has a sync clock is the user's, or
   another device's rule's, and is left alone; the runner reads the record through the sync
@@ -116,7 +118,8 @@ each changes some of that persona's demo transactions).
   The name; the conditions, one card per row, added from a menu of every condition kind
   (text; an amount range with the currency chosen among the accounts' currencies, parsed as
   the transaction editor parses amounts; an account; a bank category from the category
-  picker's built-in categories); the actions, added from a menu of set category, add tag and
-  rename (with the caption that bank transactions keep their name). A rule saves only with a
+  picker's built-in categories); the actions, added from a menu of set category, add tag,
+  rename (with the caption that bank transactions keep their name) and hide (with the
+  caption that hidden transactions still count toward their balance). A rule saves only with a
   name, a condition, an action and every row's value; a new rule goes after the last one.
   Delete offers an undo.

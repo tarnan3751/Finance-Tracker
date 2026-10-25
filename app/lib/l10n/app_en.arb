@@ -2150,9 +2150,13 @@
   "@ruleActionRenameCaption": {
     "description": "Caption of the rename action, explaining that bank transactions are not renamed."
   },
-  "ruleActionHide": "Hide (not supported in this version)",
+  "ruleActionHide": "Hide",
   "@ruleActionHide": {
-    "description": "An action a newer version of the app added to this rule; kept but not applied."
+    "description": "The rule action that hides the transactions the rule matches."
+  },
+  "ruleActionHideCaption": "Hidden transactions leave the list, budgets and reports, and still count toward their account's balance.",
+  "@ruleActionHideCaption": {
+    "description": "Caption of the hide action, explaining what hiding does."
   },
   "ruleChooseCategory": "Choose a category",
   "@ruleChooseCategory": {
