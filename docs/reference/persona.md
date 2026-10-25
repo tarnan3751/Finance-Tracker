@@ -202,9 +202,12 @@ per https://plaid.com/docs/api/sandbox/#sandboxpublic_tokencreate):
     `currency`);
   - `holdings` and `investment_transactions` on investment accounts: the newest 60 buys,
     since the holdings carry the whole position;
-  - `liability`: `credit` for cards, `student` for student loans, `loan` for auto loans.
-    **A mortgage has no liability block**: "Mortgages are not currently supported in the
-    custom Sandbox". The demo seed keeps its liability.
+  - `liability`: `credit` for cards and `student` for student loans, and **no other
+    loan kind carries one**. A mortgage has none ("Mortgages are not currently supported
+    in the custom Sandbox"), and an auto loan has none because a block of `type: loan`
+    makes `/sandbox/public_token/create` answer 500 `INTERNAL_SERVER_ERROR` (verified
+    against Sandbox on 2026-10-24 by bisection: the same configuration without the block
+    is accepted; `PLAN.md` §4). The demo seed keeps every liability.
 - **Signs.** In Plaid's convention positive is money out, so `amount` is the domain amount
   negated. `starting_balance` is the balance on the as-of date: money held for depository
   and investment accounts, money owed (positive) for cards and loans.
@@ -296,7 +299,7 @@ under a tier A brief that says so (`CLAUDE.md`, **Tiers**).
 | `balance_test.dart` | Closure; transfer pairing; loans replayed month by month from their opening; positions are their opening plus their buys; depository accounts never end a day below zero |
 | `recurrence_test.dart` | Every expectation occurs once per scheduled date within tolerance, in range, with no extras; monthly subscriptions once a month |
 | `coverage_test.dart` | All 18 primary categories used; every code is Plaid v2; anomalies two or three a year, both kinds, each new merchant exactly once; weekly and seasonal shapes visible |
-| `sandbox_limits_test.dart`, `sandbox_output_test.dart` | The limits, the partition, no student-loan injection, signs, starting balances, the liability blocks, newest-first batches, the interest switch, the date shift moving every date and nothing else |
+| `sandbox_limits_test.dart`, `sandbox_output_test.dart` | The limits, the partition, no student-loan injection, signs, starting balances, the liability blocks (none on a mortgage or an auto loan, while the demo seed keeps both), newest-first batches, the interest switch, the date shift moving every date and nothing else |
 | `provenance_test.dart` | Every record is `demo`, in the model and the JSON; no clock, `dart:math` or `double` in `lib/` |
 | `determinism_test.dart` | Same seed, same bytes; another seed differs; the goldens match |
 | `property_test.dart` | Every invariant (closure, pairing, dates, the depository floor, provenance, loans, positions, anomalies, the Sandbox limits) over 100 seeds per persona; and over 15 as-of dates from 2024 to 2030 (month ends, leap days, year ends, around a semester's disbursement) times windows of 1, 2, 7, 31, 120, 365 and 730 days, which also checks that the as-of state does not depend on the window |

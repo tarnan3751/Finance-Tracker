@@ -123,20 +123,25 @@ void main() {
     },
   );
 
-  test('a mortgage carries no liability block; an auto loan a loan block', () {
-    final users = sandboxUsers(family);
-    final tartan = users.firstWhere((u) => u.split.institution.key == 'tartan');
-    final mortgage = _maps(tartan.config['override_accounts']).single;
-    expect(mortgage['subtype'], 'mortgage');
-    expect(mortgage.containsKey('liability'), isFalse);
-    final gingham = users.firstWhere(
-      (u) => u.split.institution.key == 'gingham',
-    );
-    for (final auto in _maps(gingham.config['override_accounts'])) {
-      final l = auto['liability']! as Map<String, Object?>;
-      expect(l['type'], 'loan');
-      expect(l['payment_frequency'], 'monthly');
+  test('neither a mortgage nor an auto loan carries a liability block; the demo seed '
+      'keeps both liabilities', () {
+    final loans = <String>[];
+    for (final user in sandboxUsers(family)) {
+      for (final account in _maps(user.config['override_accounts'])) {
+        if (account['type'] != 'loan') continue;
+        loans.add(account['subtype']! as String);
+        expect(account.containsKey('liability'), isFalse, reason: '$account');
+      }
     }
+    expect(loans, containsAll(['mortgage', 'auto', 'auto']));
+    final kinds = [
+      for (final l in family.liabilities)
+        if (l is LoanLiability) l.kind,
+    ];
+    expect(
+      kinds,
+      containsAll([LoanKind.mortgage, LoanKind.auto, LoanKind.auto]),
+    );
   });
 
   test('the brokerage carries holdings and recent buys', () {

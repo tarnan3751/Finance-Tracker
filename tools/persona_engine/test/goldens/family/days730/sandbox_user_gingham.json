@@ -382,24 +382,7 @@
           "description": "PAYMENT RECEIVED - THANK YOU",
           "currency": "USD"
         }
-      ],
-      "liability": {
-        "type": "loan",
-        "interest_rate": {
-          "percentage": 4.89,
-          "type": "fixed"
-        },
-        "principal_balance": 13791.80,
-        "origination_principal_amount": 26000.00,
-        "loan_term_months": 60,
-        "maturity_date": "2029-04-24",
-        "payment_frequency": "monthly",
-        "next_payment_amount": 489.35,
-        "next_payment_due_date": "2026-11-16",
-        "last_payment_date": "2026-10-15",
-        "last_payment_amount": 489.35,
-        "ytd_interest_paid": 657.53
-      }
+      ]
     },
     {
       "type": "loan",
@@ -780,24 +763,7 @@
           "description": "PAYMENT RECEIVED - THANK YOU",
           "currency": "USD"
         }
-      ],
-      "liability": {
-        "type": "loan",
-        "interest_rate": {
-          "percentage": 6.49,
-          "type": "fixed"
-        },
-        "principal_balance": 6472.49,
-        "origination_principal_amount": 17500.00,
-        "loan_term_months": 60,
-        "maturity_date": "2028-06-24",
-        "payment_frequency": "monthly",
-        "next_payment_amount": 342.33,
-        "next_payment_due_date": "2026-11-23",
-        "last_payment_date": "2026-10-22",
-        "last_payment_amount": 342.33,
-        "ytd_interest_paid": 439.51
-      }
+      ]
     }
   ]
 }

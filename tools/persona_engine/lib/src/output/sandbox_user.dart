@@ -13,7 +13,12 @@
 ///   account and for money owed on a card or loan.
 /// - Every number is written from `Money.toDecimalString()` or an integer scale, never
 ///   through a `double`.
-/// - Mortgages carry no `liability` block: the custom Sandbox does not support one.
+/// - Only cards and student loans carry a `liability` block (`credit`, `student`). Plaid
+///   says mortgages are not supported in the custom Sandbox, and a block of `type: loan`
+///   (an auto loan) makes `/sandbox/public_token/create` answer 500
+///   `INTERNAL_SERVER_ERROR` (verified 2026-10-24, `PLAN.md` §4: the same configuration
+///   without it is accepted), so every other loan kind emits none. The demo seed keeps
+///   every liability.
 ///
 /// [shiftSandboxUserDates] applies the provisioning job's one date shift to a
 /// configuration.
@@ -220,7 +225,7 @@ Map<String, Object?> _investmentTransaction(InvestmentTransaction t) => {
   'security': _security(t.security!),
 };
 
-/// The liability block; null for a mortgage.
+/// The liability block: a card's or a student loan's; null for every other loan kind.
 Map<String, Object?>? _liability(Liability liability) {
   switch (liability) {
     case final CreditLiability c:
@@ -233,8 +238,6 @@ Map<String, Object?>? _liability(Liability liability) {
         'minimum_payment_amount': plaidNumber(c.minimumPayment),
         'is_overdue': false,
       };
-    case final LoanLiability l when l.kind == LoanKind.mortgage:
-      return null;
     case final LoanLiability l when l.kind == LoanKind.student:
       final next = l.nextPaymentAmount;
       return {
@@ -251,27 +254,7 @@ Map<String, Object?>? _liability(Liability liability) {
         'is_federal': true,
         if (next != null) 'minimum_payment_amount': plaidNumber(next),
       };
-    case final LoanLiability l:
-      final lastDate = l.lastPaymentDate;
-      final lastAmount = l.lastPaymentAmount;
-      final next = l.nextPaymentAmount;
-      final nextDue = l.nextPaymentDueDate;
-      return {
-        'type': 'loan',
-        'interest_rate': {
-          'percentage': scaledDecimal(l.aprBasisPoints, 2),
-          'type': 'fixed',
-        },
-        'principal_balance': plaidNumber(l.principalBalance),
-        'origination_principal_amount': plaidNumber(l.originationPrincipal),
-        'loan_term_months': l.termMonths,
-        'maturity_date': l.maturityDate.toIso(),
-        'payment_frequency': 'monthly',
-        if (next != null) 'next_payment_amount': plaidNumber(next),
-        if (nextDue != null) 'next_payment_due_date': nextDue.toIso(),
-        if (lastDate != null) 'last_payment_date': lastDate.toIso(),
-        if (lastAmount != null) 'last_payment_amount': plaidNumber(lastAmount),
-        'ytd_interest_paid': plaidNumber(l.ytdInterestPaid),
-      };
+    case LoanLiability():
+      return null;
   }
 }
