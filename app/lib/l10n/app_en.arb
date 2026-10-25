@@ -1344,6 +1344,368 @@
   "@syncNow": {
     "description": "Button that starts a sync at once."
   },
+  "settingsDeveloper": "Developer",
+  "@settingsDeveloper": {
+    "description": "Heading of the settings section with the development tools (dev builds only)."
+  },
+  "developerDevice": "Device",
+  "@developerDevice": {
+    "description": "Developer row showing this device's id at the server."
+  },
+  "developerDeviceNone": "Not signed in",
+  "@developerDeviceNone": {
+    "description": "Value of the Device row when nobody is signed in, so there is no device id."
+  },
+  "developerLastSync": "Last sync",
+  "@developerLastSync": {
+    "description": "Developer row showing when the last sync session finished."
+  },
+  "developerBankData": "Bank data pulled",
+  "@developerBankData": {
+    "description": "Developer row showing when the bank data was last pulled from the server."
+  },
+  "developerNever": "Never",
+  "@developerNever": {
+    "description": "Value of a developer time row before the first time it happened."
+  },
+  "developerLedger": "Outbox",
+  "@developerLedger": {
+    "description": "Developer row showing the sync outbox and the held records."
+  },
+  "developerLedgerValue": "{pending} waiting, {held} held",
+  "@developerLedgerValue": {
+    "description": "Value of the Outbox row: changes waiting to sync, and synced records this version cannot show.",
+    "placeholders": {
+      "pending": {
+        "type": "int",
+        "example": "3"
+      },
+      "held": {
+        "type": "int",
+        "example": "0"
+      }
+    }
+  },
+  "developerLedgerUnknown": "Not read yet",
+  "@developerLedgerUnknown": {
+    "description": "Value of the Outbox row before the sync status has read the outbox, or when this build does not sync."
+  },
+  "developerPullNow": "Pull now",
+  "@developerPullNow": {
+    "description": "Button that pulls the bank data from the server at once."
+  },
+  "developerPulled": "Pulled; bank data updated {time}",
+  "@developerPulled": {
+    "description": "Result of Pull now; time is when the last whole pull finished, in the device's time zone.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "Oct 24, 2026 3:00 PM"
+      }
+    }
+  },
+  "developerPullFailed": "Pull failed: {error}",
+  "@developerPullFailed": {
+    "description": "Result of a pull that failed; error names the exception (its type, status and code).",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "NetworkError(- -)"
+      }
+    }
+  },
+  "developerCopy": "Copy diagnostics",
+  "@developerCopy": {
+    "description": "Button that copies the developer diagnostics (server, device, sync times and counts) as plain text."
+  },
+  "developerCopied": "Diagnostics copied",
+  "@developerCopied": {
+    "description": "Snack bar after the diagnostics were copied to the clipboard."
+  },
+  "developerOpenSandbox": "Sandbox controls",
+  "@developerOpenSandbox": {
+    "description": "Developer row opening the screen with the Item and Sandbox controls, and the title of that screen."
+  },
+  "developerOpenSandboxDetail": "Refresh, reset login, webhooks, injected transactions, persona provisioning",
+  "@developerOpenSandboxDetail": {
+    "description": "Subtitle of the Sandbox controls row: what the screen offers."
+  },
+  "developerItemSection": "Item",
+  "@developerItemSection": {
+    "description": "Heading of the developer screen's Item controls."
+  },
+  "developerItem": "Item",
+  "@developerItem": {
+    "description": "Label of the picker choosing which linked Item the controls act on."
+  },
+  "developerItemOption": "{institution} ({id})",
+  "@developerItemOption": {
+    "description": "One choice of the Item picker: the institution's name and the Item's id.",
+    "placeholders": {
+      "institution": {
+        "type": "String",
+        "example": "First Platypus Bank"
+      },
+      "id": {
+        "type": "String",
+        "example": "sample-item-1"
+      }
+    }
+  },
+  "developerNoItems": "No linked banks yet. Link one, or pull, first.",
+  "@developerNoItems": {
+    "description": "Shown instead of the Item controls when the device has no linked Item."
+  },
+  "developerRefreshTransactions": "Refresh transactions",
+  "@developerRefreshTransactions": {
+    "description": "Button asking Plaid to refresh the Item's transactions."
+  },
+  "developerRefreshBalances": "Refresh balances",
+  "@developerRefreshBalances": {
+    "description": "Button asking Plaid for the Item's current balances."
+  },
+  "developerResetLogin": "Reset login",
+  "@developerResetLogin": {
+    "description": "Button putting the Sandbox Item into the state where its login must be repaired."
+  },
+  "developerWebhookCode": "Webhook code",
+  "@developerWebhookCode": {
+    "description": "Label of the picker choosing which Plaid webhook to fire."
+  },
+  "developerFireWebhook": "Fire webhook",
+  "@developerFireWebhook": {
+    "description": "Button asking Plaid Sandbox to fire the chosen webhook for the Item."
+  },
+  "developerRunning": "Running…",
+  "@developerRunning": {
+    "description": "Shown while a developer operation and the pull after it run."
+  },
+  "developerRefreshed": "Refresh {status}: {added} added, {modified} modified, {removed} removed",
+  "@developerRefreshed": {
+    "description": "Result of Refresh transactions; status is the server's sync status identifier.",
+    "placeholders": {
+      "status": {
+        "type": "String",
+        "example": "started"
+      },
+      "added": {
+        "type": "int",
+        "example": "0"
+      },
+      "modified": {
+        "type": "int",
+        "example": "0"
+      },
+      "removed": {
+        "type": "int",
+        "example": "0"
+      }
+    }
+  },
+  "developerBalancesRefreshed": "{count, plural, =1{Balances refreshed for 1 account} other{Balances refreshed for {count} accounts}}",
+  "@developerBalancesRefreshed": {
+    "description": "Result of Refresh balances.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "developerLoginReset": "Login reset; the Item needs its connection fixed",
+  "@developerLoginReset": {
+    "description": "Result of Reset login."
+  },
+  "developerWebhookFired": "Webhook fired",
+  "@developerWebhookFired": {
+    "description": "Result of Fire webhook."
+  },
+  "developerInjected": "{count, plural, =1{Injected 1 transaction} other{Injected {count} transactions}}",
+  "@developerInjected": {
+    "description": "Result of Inject transactions.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "developerFailed": "Failed: {error}",
+  "@developerFailed": {
+    "description": "Result of a developer operation that failed; error names the exception (its type, status and code).",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Conflict(409 conflict)"
+      }
+    }
+  },
+  "developerThenPullFailed": "{result}; the pull after it failed: {error}",
+  "@developerThenPullFailed": {
+    "description": "Result of an operation that succeeded when the pull after it failed.",
+    "placeholders": {
+      "result": {
+        "type": "String",
+        "example": "Webhook fired"
+      },
+      "error": {
+        "type": "String",
+        "example": "NetworkError(- -)"
+      }
+    }
+  },
+  "developerInjectSection": "Inject transactions",
+  "@developerInjectSection": {
+    "description": "Heading of the form that injects transactions into the Sandbox Item."
+  },
+  "developerAccount": "Account",
+  "@developerAccount": {
+    "description": "Label of the picker choosing the Item's account the injected transactions go to."
+  },
+  "developerNoAccounts": "This Item has no accounts on the device yet.",
+  "@developerNoAccounts": {
+    "description": "Shown instead of the injection form when the Item's accounts have not been pulled."
+  },
+  "developerCount": "How many (1 to 10)",
+  "@developerCount": {
+    "description": "Label of the field for how many transactions to inject."
+  },
+  "developerCountInvalid": "Enter a whole number from 1 to 10",
+  "@developerCountInvalid": {
+    "description": "Error under the count field."
+  },
+  "developerDescription": "Description",
+  "@developerDescription": {
+    "description": "Label of the field for the injected transactions' description."
+  },
+  "developerDescriptionDefault": "Developer test",
+  "@developerDescriptionDefault": {
+    "description": "The description field's starting value."
+  },
+  "developerDescriptionInvalid": "Enter 1 to 196 characters",
+  "@developerDescriptionInvalid": {
+    "description": "Error under the description field (the server takes up to 200, and a number is added to each)."
+  },
+  "developerAmount": "Amount",
+  "@developerAmount": {
+    "description": "Label of the field for the injected transactions' amount."
+  },
+  "developerAmountHelper": "Negative is money out of the account",
+  "@developerAmountHelper": {
+    "description": "Helper under the amount field: the app's sign convention."
+  },
+  "developerDaysBack": "Days before Plaid's today (0 to 730)",
+  "@developerDaysBack": {
+    "description": "Label of the field for how many days before Plaid Sandbox's current date the transactions are dated."
+  },
+  "developerDaysBackInvalid": "Enter a whole number from 0 to 730",
+  "@developerDaysBackInvalid": {
+    "description": "Error under the days-back field."
+  },
+  "developerDate": "Dated {date}",
+  "@developerDate": {
+    "description": "Shows the date the injected transactions will carry.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Oct 24, 2026"
+      }
+    }
+  },
+  "developerInject": "Inject",
+  "@developerInject": {
+    "description": "Button that injects the transactions."
+  },
+  "developerProvisionSection": "Provision a persona",
+  "@developerProvisionSection": {
+    "description": "Heading of the form that provisions a persona's banks into Plaid Sandbox."
+  },
+  "developerPersona": "Persona",
+  "@developerPersona": {
+    "description": "Label of the picker choosing which persona to provision."
+  },
+  "developerSeed": "Seed",
+  "@developerSeed": {
+    "description": "Label of the field for the persona generator's seed."
+  },
+  "developerSeedInvalid": "Enter a whole number of at least 1",
+  "@developerSeedInvalid": {
+    "description": "Error under the seed field."
+  },
+  "developerDays": "Days of history (30 to 730)",
+  "@developerDays": {
+    "description": "Label of the field for how many days of history to provision."
+  },
+  "developerDaysInvalid": "Enter a whole number from 30 to 730",
+  "@developerDaysInvalid": {
+    "description": "Error under the days-of-history field."
+  },
+  "developerProvision": "Start",
+  "@developerProvision": {
+    "description": "Button that starts the provisioning job."
+  },
+  "developerJobStatus": "Job {status}",
+  "@developerJobStatus": {
+    "description": "The provisioning job's state; status is the server's identifier (queued, running, completed, failed).",
+    "placeholders": {
+      "status": {
+        "type": "String",
+        "example": "running"
+      }
+    }
+  },
+  "developerJobItems": "Items linked: {linked} of {total}",
+  "@developerJobItems": {
+    "description": "Provisioning progress: Items linked so far.",
+    "placeholders": {
+      "linked": {
+        "type": "int",
+        "example": "1"
+      },
+      "total": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "developerJobBatches": "Batches sent: {sent} of {total}",
+  "@developerJobBatches": {
+    "description": "Provisioning progress: injection batches sent so far.",
+    "placeholders": {
+      "sent": {
+        "type": "int",
+        "example": "2"
+      },
+      "total": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "developerJobSkipped": "Transactions skipped: {count}",
+  "@developerJobSkipped": {
+    "description": "Provisioning progress: transactions outside Plaid's 730-day window.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "0"
+      }
+    }
+  },
+  "developerJobError": "Error: {error}",
+  "@developerJobError": {
+    "description": "Why the provisioning job failed, as the server says.",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "PLAID_ERROR"
+      }
+    }
+  },
+  "developerJobProgress": "Provisioning progress",
+  "@developerJobProgress": {
+    "description": "Semantics label of the provisioning progress bar."
+  },
   "settingsDemoData": "Demo data",
   "@settingsDemoData": {
     "description": "Heading of the settings section, in the demo build only, that chooses which made-up household the demo shows."

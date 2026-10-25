@@ -2,7 +2,8 @@
 /// (when this build's data syncs: dev and prod, `sync_section.dart`), Appearance (theme
 /// mode, dynamic color), Data (category management, rules) and About (app name, version and
 /// build, flavor, the time zone dates are computed in), then Demo data (demo only,
-/// `demo_data_section.dart`).
+/// `demo_data_section.dart`) and Developer (dev only,
+/// `features/developer/presentation/developer_section.dart`).
 library;
 
 import 'package:finance_tracker/core/config/app_config.dart';
@@ -11,6 +12,7 @@ import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/features/auth/presentation/account_section.dart';
+import 'package:finance_tracker/features/developer/presentation/developer_section.dart';
 import 'package:finance_tracker/features/settings/application/package_info.dart';
 import 'package:finance_tracker/features/settings/application/settings_controller.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
@@ -112,6 +114,8 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(title: Text(l10n.aboutTimeZone), subtitle: Text(timeZone)),
           if (ref.watch(appConfigProvider).flavor == Flavor.demo)
             const DemoDataSection(),
+          if (ref.watch(appConfigProvider).flavor == Flavor.dev)
+            const DeveloperSection(),
         ],
       ),
     );

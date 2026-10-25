@@ -1696,6 +1696,371 @@ abstract class AppLocalizations {
   /// **'Sync now'**
   String get syncNow;
 
+  /// Heading of the settings section with the development tools (dev builds only).
+  ///
+  /// In en, this message translates to:
+  /// **'Developer'**
+  String get settingsDeveloper;
+
+  /// Developer row showing this device's id at the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Device'**
+  String get developerDevice;
+
+  /// Value of the Device row when nobody is signed in, so there is no device id.
+  ///
+  /// In en, this message translates to:
+  /// **'Not signed in'**
+  String get developerDeviceNone;
+
+  /// Developer row showing when the last sync session finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Last sync'**
+  String get developerLastSync;
+
+  /// Developer row showing when the bank data was last pulled from the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank data pulled'**
+  String get developerBankData;
+
+  /// Value of a developer time row before the first time it happened.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get developerNever;
+
+  /// Developer row showing the sync outbox and the held records.
+  ///
+  /// In en, this message translates to:
+  /// **'Outbox'**
+  String get developerLedger;
+
+  /// Value of the Outbox row: changes waiting to sync, and synced records this version cannot show.
+  ///
+  /// In en, this message translates to:
+  /// **'{pending} waiting, {held} held'**
+  String developerLedgerValue(int pending, int held);
+
+  /// Value of the Outbox row before the sync status has read the outbox, or when this build does not sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Not read yet'**
+  String get developerLedgerUnknown;
+
+  /// Button that pulls the bank data from the server at once.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull now'**
+  String get developerPullNow;
+
+  /// Result of Pull now; time is when the last whole pull finished, in the device's time zone.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulled; bank data updated {time}'**
+  String developerPulled(String time);
+
+  /// Result of a pull that failed; error names the exception (its type, status and code).
+  ///
+  /// In en, this message translates to:
+  /// **'Pull failed: {error}'**
+  String developerPullFailed(String error);
+
+  /// Button that copies the developer diagnostics (server, device, sync times and counts) as plain text.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy diagnostics'**
+  String get developerCopy;
+
+  /// Snack bar after the diagnostics were copied to the clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics copied'**
+  String get developerCopied;
+
+  /// Developer row opening the screen with the Item and Sandbox controls, and the title of that screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Sandbox controls'**
+  String get developerOpenSandbox;
+
+  /// Subtitle of the Sandbox controls row: what the screen offers.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh, reset login, webhooks, injected transactions, persona provisioning'**
+  String get developerOpenSandboxDetail;
+
+  /// Heading of the developer screen's Item controls.
+  ///
+  /// In en, this message translates to:
+  /// **'Item'**
+  String get developerItemSection;
+
+  /// Label of the picker choosing which linked Item the controls act on.
+  ///
+  /// In en, this message translates to:
+  /// **'Item'**
+  String get developerItem;
+
+  /// One choice of the Item picker: the institution's name and the Item's id.
+  ///
+  /// In en, this message translates to:
+  /// **'{institution} ({id})'**
+  String developerItemOption(String institution, String id);
+
+  /// Shown instead of the Item controls when the device has no linked Item.
+  ///
+  /// In en, this message translates to:
+  /// **'No linked banks yet. Link one, or pull, first.'**
+  String get developerNoItems;
+
+  /// Button asking Plaid to refresh the Item's transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh transactions'**
+  String get developerRefreshTransactions;
+
+  /// Button asking Plaid for the Item's current balances.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh balances'**
+  String get developerRefreshBalances;
+
+  /// Button putting the Sandbox Item into the state where its login must be repaired.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset login'**
+  String get developerResetLogin;
+
+  /// Label of the picker choosing which Plaid webhook to fire.
+  ///
+  /// In en, this message translates to:
+  /// **'Webhook code'**
+  String get developerWebhookCode;
+
+  /// Button asking Plaid Sandbox to fire the chosen webhook for the Item.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire webhook'**
+  String get developerFireWebhook;
+
+  /// Shown while a developer operation and the pull after it run.
+  ///
+  /// In en, this message translates to:
+  /// **'Running…'**
+  String get developerRunning;
+
+  /// Result of Refresh transactions; status is the server's sync status identifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh {status}: {added} added, {modified} modified, {removed} removed'**
+  String developerRefreshed(
+    String status,
+    int added,
+    int modified,
+    int removed,
+  );
+
+  /// Result of Refresh balances.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Balances refreshed for 1 account} other{Balances refreshed for {count} accounts}}'**
+  String developerBalancesRefreshed(int count);
+
+  /// Result of Reset login.
+  ///
+  /// In en, this message translates to:
+  /// **'Login reset; the Item needs its connection fixed'**
+  String get developerLoginReset;
+
+  /// Result of Fire webhook.
+  ///
+  /// In en, this message translates to:
+  /// **'Webhook fired'**
+  String get developerWebhookFired;
+
+  /// Result of Inject transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Injected 1 transaction} other{Injected {count} transactions}}'**
+  String developerInjected(int count);
+
+  /// Result of a developer operation that failed; error names the exception (its type, status and code).
+  ///
+  /// In en, this message translates to:
+  /// **'Failed: {error}'**
+  String developerFailed(String error);
+
+  /// Result of an operation that succeeded when the pull after it failed.
+  ///
+  /// In en, this message translates to:
+  /// **'{result}; the pull after it failed: {error}'**
+  String developerThenPullFailed(String result, String error);
+
+  /// Heading of the form that injects transactions into the Sandbox Item.
+  ///
+  /// In en, this message translates to:
+  /// **'Inject transactions'**
+  String get developerInjectSection;
+
+  /// Label of the picker choosing the Item's account the injected transactions go to.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get developerAccount;
+
+  /// Shown instead of the injection form when the Item's accounts have not been pulled.
+  ///
+  /// In en, this message translates to:
+  /// **'This Item has no accounts on the device yet.'**
+  String get developerNoAccounts;
+
+  /// Label of the field for how many transactions to inject.
+  ///
+  /// In en, this message translates to:
+  /// **'How many (1 to 10)'**
+  String get developerCount;
+
+  /// Error under the count field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number from 1 to 10'**
+  String get developerCountInvalid;
+
+  /// Label of the field for the injected transactions' description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get developerDescription;
+
+  /// The description field's starting value.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer test'**
+  String get developerDescriptionDefault;
+
+  /// Error under the description field (the server takes up to 200, and a number is added to each).
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 1 to 196 characters'**
+  String get developerDescriptionInvalid;
+
+  /// Label of the field for the injected transactions' amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get developerAmount;
+
+  /// Helper under the amount field: the app's sign convention.
+  ///
+  /// In en, this message translates to:
+  /// **'Negative is money out of the account'**
+  String get developerAmountHelper;
+
+  /// Label of the field for how many days before Plaid Sandbox's current date the transactions are dated.
+  ///
+  /// In en, this message translates to:
+  /// **'Days before Plaid\'s today (0 to 730)'**
+  String get developerDaysBack;
+
+  /// Error under the days-back field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number from 0 to 730'**
+  String get developerDaysBackInvalid;
+
+  /// Shows the date the injected transactions will carry.
+  ///
+  /// In en, this message translates to:
+  /// **'Dated {date}'**
+  String developerDate(String date);
+
+  /// Button that injects the transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Inject'**
+  String get developerInject;
+
+  /// Heading of the form that provisions a persona's banks into Plaid Sandbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Provision a persona'**
+  String get developerProvisionSection;
+
+  /// Label of the picker choosing which persona to provision.
+  ///
+  /// In en, this message translates to:
+  /// **'Persona'**
+  String get developerPersona;
+
+  /// Label of the field for the persona generator's seed.
+  ///
+  /// In en, this message translates to:
+  /// **'Seed'**
+  String get developerSeed;
+
+  /// Error under the seed field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number of at least 1'**
+  String get developerSeedInvalid;
+
+  /// Label of the field for how many days of history to provision.
+  ///
+  /// In en, this message translates to:
+  /// **'Days of history (30 to 730)'**
+  String get developerDays;
+
+  /// Error under the days-of-history field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number from 30 to 730'**
+  String get developerDaysInvalid;
+
+  /// Button that starts the provisioning job.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get developerProvision;
+
+  /// The provisioning job's state; status is the server's identifier (queued, running, completed, failed).
+  ///
+  /// In en, this message translates to:
+  /// **'Job {status}'**
+  String developerJobStatus(String status);
+
+  /// Provisioning progress: Items linked so far.
+  ///
+  /// In en, this message translates to:
+  /// **'Items linked: {linked} of {total}'**
+  String developerJobItems(int linked, int total);
+
+  /// Provisioning progress: injection batches sent so far.
+  ///
+  /// In en, this message translates to:
+  /// **'Batches sent: {sent} of {total}'**
+  String developerJobBatches(int sent, int total);
+
+  /// Provisioning progress: transactions outside Plaid's 730-day window.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions skipped: {count}'**
+  String developerJobSkipped(int count);
+
+  /// Why the provisioning job failed, as the server says.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String developerJobError(String error);
+
+  /// Semantics label of the provisioning progress bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Provisioning progress'**
+  String get developerJobProgress;
+
   /// Heading of the settings section, in the demo build only, that chooses which made-up household the demo shows.
   ///
   /// In en, this message translates to:

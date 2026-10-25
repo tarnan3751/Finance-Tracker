@@ -992,6 +992,237 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncNow => 'Sync now';
 
   @override
+  String get settingsDeveloper => 'Developer';
+
+  @override
+  String get developerDevice => 'Device';
+
+  @override
+  String get developerDeviceNone => 'Not signed in';
+
+  @override
+  String get developerLastSync => 'Last sync';
+
+  @override
+  String get developerBankData => 'Bank data pulled';
+
+  @override
+  String get developerNever => 'Never';
+
+  @override
+  String get developerLedger => 'Outbox';
+
+  @override
+  String developerLedgerValue(int pending, int held) {
+    return '$pending waiting, $held held';
+  }
+
+  @override
+  String get developerLedgerUnknown => 'Not read yet';
+
+  @override
+  String get developerPullNow => 'Pull now';
+
+  @override
+  String developerPulled(String time) {
+    return 'Pulled; bank data updated $time';
+  }
+
+  @override
+  String developerPullFailed(String error) {
+    return 'Pull failed: $error';
+  }
+
+  @override
+  String get developerCopy => 'Copy diagnostics';
+
+  @override
+  String get developerCopied => 'Diagnostics copied';
+
+  @override
+  String get developerOpenSandbox => 'Sandbox controls';
+
+  @override
+  String get developerOpenSandboxDetail =>
+      'Refresh, reset login, webhooks, injected transactions, persona provisioning';
+
+  @override
+  String get developerItemSection => 'Item';
+
+  @override
+  String get developerItem => 'Item';
+
+  @override
+  String developerItemOption(String institution, String id) {
+    return '$institution ($id)';
+  }
+
+  @override
+  String get developerNoItems =>
+      'No linked banks yet. Link one, or pull, first.';
+
+  @override
+  String get developerRefreshTransactions => 'Refresh transactions';
+
+  @override
+  String get developerRefreshBalances => 'Refresh balances';
+
+  @override
+  String get developerResetLogin => 'Reset login';
+
+  @override
+  String get developerWebhookCode => 'Webhook code';
+
+  @override
+  String get developerFireWebhook => 'Fire webhook';
+
+  @override
+  String get developerRunning => 'Running…';
+
+  @override
+  String developerRefreshed(
+    String status,
+    int added,
+    int modified,
+    int removed,
+  ) {
+    return 'Refresh $status: $added added, $modified modified, $removed removed';
+  }
+
+  @override
+  String developerBalancesRefreshed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Balances refreshed for $count accounts',
+      one: 'Balances refreshed for 1 account',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get developerLoginReset =>
+      'Login reset; the Item needs its connection fixed';
+
+  @override
+  String get developerWebhookFired => 'Webhook fired';
+
+  @override
+  String developerInjected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Injected $count transactions',
+      one: 'Injected 1 transaction',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String developerFailed(String error) {
+    return 'Failed: $error';
+  }
+
+  @override
+  String developerThenPullFailed(String result, String error) {
+    return '$result; the pull after it failed: $error';
+  }
+
+  @override
+  String get developerInjectSection => 'Inject transactions';
+
+  @override
+  String get developerAccount => 'Account';
+
+  @override
+  String get developerNoAccounts =>
+      'This Item has no accounts on the device yet.';
+
+  @override
+  String get developerCount => 'How many (1 to 10)';
+
+  @override
+  String get developerCountInvalid => 'Enter a whole number from 1 to 10';
+
+  @override
+  String get developerDescription => 'Description';
+
+  @override
+  String get developerDescriptionDefault => 'Developer test';
+
+  @override
+  String get developerDescriptionInvalid => 'Enter 1 to 196 characters';
+
+  @override
+  String get developerAmount => 'Amount';
+
+  @override
+  String get developerAmountHelper => 'Negative is money out of the account';
+
+  @override
+  String get developerDaysBack => 'Days before Plaid\'s today (0 to 730)';
+
+  @override
+  String get developerDaysBackInvalid => 'Enter a whole number from 0 to 730';
+
+  @override
+  String developerDate(String date) {
+    return 'Dated $date';
+  }
+
+  @override
+  String get developerInject => 'Inject';
+
+  @override
+  String get developerProvisionSection => 'Provision a persona';
+
+  @override
+  String get developerPersona => 'Persona';
+
+  @override
+  String get developerSeed => 'Seed';
+
+  @override
+  String get developerSeedInvalid => 'Enter a whole number of at least 1';
+
+  @override
+  String get developerDays => 'Days of history (30 to 730)';
+
+  @override
+  String get developerDaysInvalid => 'Enter a whole number from 30 to 730';
+
+  @override
+  String get developerProvision => 'Start';
+
+  @override
+  String developerJobStatus(String status) {
+    return 'Job $status';
+  }
+
+  @override
+  String developerJobItems(int linked, int total) {
+    return 'Items linked: $linked of $total';
+  }
+
+  @override
+  String developerJobBatches(int sent, int total) {
+    return 'Batches sent: $sent of $total';
+  }
+
+  @override
+  String developerJobSkipped(int count) {
+    return 'Transactions skipped: $count';
+  }
+
+  @override
+  String developerJobError(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get developerJobProgress => 'Provisioning progress';
+
+  @override
   String get settingsDemoData => 'Demo data';
 
   @override
