@@ -16,7 +16,11 @@
 ///    so a failure anywhere in a page leaves the cursor where it was. A cursor past the
 ///    server's version (`SyncCursorInvalid`) restarts from 0 once per run, replacing
 ///    rows by id;
-/// 3. `plaid_pulled_at`, when the whole run succeeded.
+/// 3. the institution logos: for each Item whose institution has a `logo_url` and whose
+///    bytes are missing (never fetched, or the URL changed), `GET
+///    /institutions/{id}/logo` (bearer-secured, so the screen cannot load the URL
+///    itself); a failure is logged and the logo fetched again on the next run;
+/// 4. `plaid_pulled_at`, when the whole run succeeded.
 ///
 /// Nothing is recorded, and every row keeps the `source` the server sent. [PlaidPull.run]
 /// is single-flight: a call during a run gets one more run that starts after it, shared
@@ -35,6 +39,7 @@ import 'package:finance_tracker/core/api/problems.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
+import 'package:finance_tracker/features/items/domain/linked_bank.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart';
@@ -136,10 +141,14 @@ final class PlaidPull {
     final List<LinkedItem> listed = await api.listItems();
     final List<Account> linked = await api.listAccounts();
     final DateTime at = clock.nowUtc();
-    await store.transaction(() async {
+    final List<LinkedBank> banks = await store.transaction(() async {
       await accounts.applyPlaid(linked);
-      await items.applyPlaid(listed, pulledAt: at);
+      final List<LinkedBank> stored = await items.applyPlaid(
+        listed,
+        pulledAt: at,
+      );
       await store.savePulledListsAt(at);
+      return stored;
     });
     int since = await store.transactionsSince() ?? 0;
     bool restarted = false;
@@ -169,11 +178,30 @@ final class PlaidPull {
       since = page.nextSince;
       if (!page.hasMore) break;
     }
+    await _fetchLogos(banks);
     await store.savePulledAt(clock.nowUtc());
     _log.info(
       'pulled ${listed.length} items, ${linked.length} accounts, '
       '$pages transaction pages ($added new)',
     );
+  }
+}
+
+extension on PlaidPull {
+  Future<void> _fetchLogos(List<LinkedBank> banks) async {
+    for (final LinkedBank bank in banks) {
+      final Uri? url = bank.institution.logoUrl;
+      if (url == null || bank.logo != null) continue;
+      try {
+        await items.saveLogo(
+          bank.id,
+          url,
+          await api.getInstitutionLogo(bank.institution.id),
+        );
+      } on ApiException catch (e) {
+        _log.warning('logo of ${bank.institution.id} not fetched: ${e.code}');
+      }
+    }
   }
 }
 

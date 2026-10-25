@@ -1,6 +1,8 @@
 /// An [ItemRepository] over an [InMemoryStore]: what tests use.
 library;
 
+import 'dart:typed_data';
+
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/db/repository_support.dart';
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
@@ -23,16 +25,23 @@ base class InMemoryItemRepository implements ItemRepository {
   Stream<LinkedBank?> watchById(String id) => store.watch(() => store.item(id));
 
   @override
-  Future<void> applyPlaid(
+  Future<List<LinkedBank>> applyPlaid(
     List<ServerItem> items, {
     required DateTime pulledAt,
-  }) async => store.applyPlaidItems(items, pulledAt);
+  }) async {
+    store.applyPlaidItems(items, pulledAt);
+    return [for (final ServerItem i in items) store.item(i.item.id)!];
+  }
 
   @override
   Future<void> applyPlaidItem(
     ServerItem item, {
     required DateTime pulledAt,
   }) async => store.applyPlaidItem(item, pulledAt);
+
+  @override
+  Future<void> saveLogo(String id, Uri logoUrl, Uint8List bytes) async =>
+      store.saveItemLogo(id, logoUrl, bytes);
 
   @override
   Future<void> markLoginRequired(String id) async =>

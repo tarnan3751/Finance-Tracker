@@ -6,6 +6,8 @@
 /// nothing here is recorded in the change log.
 library;
 
+import 'dart:typed_data';
+
 import 'package:finance_tracker/features/items/domain/linked_bank.dart';
 import 'package:shared_models/shared_models.dart';
 
@@ -28,12 +30,20 @@ abstract interface class ItemRepository {
   /// [pulledAt]: a listed Item is inserted or updated with every field the server gave
   /// (its logo bytes kept while its logo URL is unchanged), and a stored Item the list
   /// does not hold is removed (its accounts leave the server's account list, which the
-  /// account repository's `applyPlaid` applies).
-  Future<void> applyPlaid(List<ServerItem> items, {required DateTime pulledAt});
+  /// account repository's `applyPlaid` applies). Returns the Items as now stored, in
+  /// [items]' order, logo bytes included.
+  Future<List<LinkedBank>> applyPlaid(
+    List<ServerItem> items, {
+    required DateTime pulledAt,
+  });
 
   /// Inserts or updates the one Item [item] as [applyPlaid] does, leaving the others:
   /// the answer to an exchange, before the next pull.
   Future<void> applyPlaidItem(ServerItem item, {required DateTime pulledAt});
+
+  /// Stores [bytes], the logo fetched from [logoUrl], on Item [id], unless the Item is
+  /// gone or its logo URL has changed since (a pull wrote another one meanwhile).
+  Future<void> saveLogo(String id, Uri logoUrl, Uint8List bytes);
 
   /// Marks Item [id] as needing its login repaired (`loginRequired`, Plaid's
   /// `ITEM_LOGIN_REQUIRED`), as the server answered; the next pull confirms it. Does

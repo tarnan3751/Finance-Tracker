@@ -4,6 +4,7 @@ library;
 
 import 'package:drift/drift.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
+import 'package:finance_tracker/core/db/converters.dart';
 import 'package:finance_tracker/core/db/repository_support.dart';
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
 import 'package:finance_tracker/features/items/domain/linked_bank.dart';
@@ -36,16 +37,20 @@ final class DriftItemRepository implements ItemRepository {
           .distinct();
 
   @override
-  Future<void> applyPlaid(
+  Future<List<LinkedBank>> applyPlaid(
     List<ServerItem> items, {
     required DateTime pulledAt,
   }) => _database.transaction(() async {
     for (final ServerItem item in items) {
       await applyPlaidItem(item, pulledAt: pulledAt);
     }
-    await (_database.delete(
-      _items,
-    )..where((i) => i.id.isNotIn([for (final i in items) i.item.id]))).go();
+    final List<String> ids = [for (final i in items) i.item.id];
+    await (_database.delete(_items)..where((i) => i.id.isNotIn(ids))).go();
+    final Map<String, ItemRow> stored = {
+      for (final ItemRow row in await _database.select(_items).get())
+        row.id: row,
+    };
+    return [for (final String id in ids) linkedBankFromRow(stored[id]!)];
   });
 
   @override
@@ -77,6 +82,17 @@ final class DriftItemRepository implements ItemRepository {
               ),
             );
       });
+
+  @override
+  Future<void> saveLogo(String id, Uri logoUrl, Uint8List bytes) =>
+      (_database.update(_items)..where(
+            (i) =>
+                i.id.equals(id) &
+                i.institutionLogoUrl.equals(
+                  const UriColumnConverter().toSql(logoUrl),
+                ),
+          ))
+          .write(ItemsCompanion(institutionLogo: Value(bytes)));
 
   @override
   Future<void> markLoginRequired(String id) =>

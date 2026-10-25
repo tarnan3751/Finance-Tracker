@@ -12,6 +12,7 @@
 library;
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/db/repository_support.dart';
@@ -493,6 +494,19 @@ final class InMemoryStore {
           : null,
       pulledAt: pulledAt,
     );
+  }
+
+  /// `ItemRepository.saveLogo`.
+  void saveItemLogo(String id, Uri logoUrl, Uint8List bytes) {
+    final LinkedBank? existing = _items[id];
+    if (existing == null || existing.institution.logoUrl != logoUrl) return;
+    _items[id] = LinkedBank(
+      item: existing.item,
+      institution: existing.institution,
+      logo: bytes,
+      pulledAt: existing.pulledAt,
+    );
+    _changed();
   }
 
   /// `ItemRepository.markLoginRequired`.

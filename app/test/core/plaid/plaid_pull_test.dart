@@ -4,7 +4,10 @@
 // page, a failed page leaving the cursor, a cursor past the server restarting from 0, an
 // unlinked Item's data going, an override pulled before its row landing on it, single
 // flight, the arrival seam, and nothing recorded.
+import 'dart:typed_data';
+
 import 'package:drift/native.dart';
+import 'package:finance_tracker/core/api/fake/fake_dataset.dart';
 import 'package:finance_tracker/core/api/fake/fake_server.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/drift_plaid_pull_store.dart';
@@ -248,6 +251,41 @@ void main() {
       expect(arrivals.pages.last, isEmpty, reason: 'the rerun inserts nothing');
     },
   );
+
+  test('fetches a logo once, and again after a failed fetch', () async {
+    final Uint8List png = Uint8List.fromList([137, 80, 78, 71, 13, 10]);
+    final FakeItemData sample = newFakeServer().dataset.items.single;
+    server = newFakeServer(
+      dataset: FakeDataset(
+        items: [
+          FakeItemData(
+            id: sample.id,
+            institution: sample.institution,
+            institutionLogo: png,
+            accounts: sample.accounts,
+            transactions: sample.transactions,
+          ),
+        ],
+      ),
+    );
+    client = FakeClient.signedIn(server);
+    await link();
+    server.failNext('getInstitutionLogo', 500);
+    await pull().run();
+    final DriftItemRepository items = DriftItemRepository(database);
+    expect((await items.watchById('sample-item-1').first)!.logo, isNull);
+    expect(
+      await store.pulledAt(),
+      isNotNull,
+      reason: 'a logo never fails the pull',
+    );
+
+    await pull().run();
+    expect((await items.watchById('sample-item-1').first)!.logo, png);
+    server.calls.clear();
+    await pull().run();
+    expect(server.calls, isNot(contains('getInstitutionLogo')));
+  });
 
   test('the in-memory repositories take the same pull', () async {
     await link();
