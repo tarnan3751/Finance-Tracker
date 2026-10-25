@@ -10,11 +10,15 @@
 // user_transactions_dynamic at First Platypus Bank through the real server code (every
 // response checked against the contract), syncs it, checks the data carries source
 // plaid, exercises a repeated exchange, balances, an unknown webhook key and
-// reset-login, and removes the Item; a failed step still removes it. About twenty Plaid
-// calls, well inside Sandbox's limits.
+// reset-login, and removes the Item; a failed step still removes it. A second case links
+// a user_custom with one 401(k) at Tartan Bank, an investment-only Item whose accounts no
+// /transactions/sync page lists, finds the account and its holding through the server's
+// sync, and removes the Item. About thirty Plaid calls in all, well inside Sandbox's
+// limits.
 import 'dart:io';
 
 import 'package:finance_tracker_server/server.dart';
+import 'package:shared_models/shared_models.dart';
 import 'package:test/test.dart';
 
 import '../support/test_server.dart';
@@ -175,6 +179,94 @@ void main() {
           );
           expect(locked.status, 409);
           expect(locked.code, 'item_login_required');
+
+          final unlinked = await server.call(
+            'delete',
+            '/plaid/items/$itemId',
+            token: ada.access,
+          );
+          expect(unlinked.status, 204, reason: '$unlinked');
+          itemId = null;
+        },
+        timeout: const Timeout(Duration(minutes: 5)),
+      );
+
+      test(
+        "an investment-only Item's account is found through the sync",
+        () async {
+          // Plaid's today is the date at UTC−12 (`PLAN.md` §12); the price is the day
+          // before's.
+          final asOf = LocalDate.fromDateTime(
+            DateTime.now().toUtc().subtract(const Duration(hours: 36)),
+          );
+          final config =
+              '{"version":2,"seed":"finance-tracker-live-401k",'
+              '"roll_dates_forward":false,"override_accounts":[{'
+              '"type":"investment","subtype":"401k","starting_balance":15050,'
+              '"currency":"USD","meta":{"name":"401(k)",'
+              '"official_name":"Tartan Bank Retirement Savings Plan","mask":"0401"},'
+              '"transactions":[],"holdings":[{"institution_price":150.5,'
+              '"institution_price_as_of":"${asOf.toIso()}","cost_basis":12000,'
+              '"quantity":100,"currency":"USD","security":{'
+              '"ticker_symbol":"TD50","name":"Target Date 2050","currency":"USD"}}],'
+              '"investment_transactions":[]}]}';
+          final publicToken = await plaid.sandboxPublicTokenCreate(
+            institutionId: 'ins_109511',
+            products: const ['transactions', 'investments'],
+            overrideUsername: 'user_custom',
+            overridePassword: config,
+            daysRequested: 730,
+          );
+          final exchanged = await server.call(
+            'post',
+            '/plaid/exchange',
+            token: ada.access,
+            body: {'public_token': publicToken},
+          );
+          expect(exchanged.status, 201, reason: '$exchanged');
+          itemId = exchanged.json['id']! as String;
+          addTearDown(() async {
+            if (itemId != null) {
+              await server.call(
+                'delete',
+                '/plaid/items/$itemId',
+                token: ada.access,
+              );
+            }
+          });
+
+          Map<String, Object?>? run;
+          for (var i = 0; i < 24; i++) {
+            final r = await server.call(
+              'post',
+              '/plaid/items/$itemId/sync',
+              token: ada.access,
+            );
+            expect(r.status, 202, reason: '$r');
+            run = r.json;
+            if (run['status'] == 'completed') break;
+            await Future<void>.delayed(const Duration(seconds: 5));
+          }
+          expect(run!['status'], 'completed');
+
+          final accounts = await server.call(
+            'get',
+            '/accounts',
+            token: ada.access,
+          );
+          final account = accounts.list.single! as Map<String, Object?>;
+          expect(account['name'], '401(k)');
+          expect(account['mask'], '0401');
+          expect(account['type'], 'investment');
+          final holdings = await server.call(
+            'get',
+            '/investments/holdings',
+            token: ada.access,
+          );
+          final holding =
+              (holdings.json['holdings']! as List<Object?>).single!
+                  as Map<String, Object?>;
+          expect(holding['account_id'], account['id']);
 
           final unlinked = await server.call(
             'delete',
