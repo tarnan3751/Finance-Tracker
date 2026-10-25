@@ -1,7 +1,8 @@
 /// The Plaid proxy: `createLinkToken`, `exchangePublicToken`, `listItems`, `deleteItem`,
 /// `syncItem`, `refreshItem`, `refreshBalances` and `createUpdateLinkToken`, the
-/// institution logo (`getInstitutionLogo`), plus the webhook receiver, which answers 401
-/// `webhook_unverified` to every delivery until Phase 3 verifies them. Item JSON carries
+/// institution logo (`getInstitutionLogo`), plus the webhook receiver, which reads the
+/// body's exact bytes and hands them to [WebhookService] (204 for every verified delivery,
+/// 401 `webhook_unverified` otherwise). Item JSON carries
 /// logo URLs built from the request's own scheme and host, so the emulator's `10.0.2.2`
 /// works.
 library;
@@ -10,14 +11,15 @@ import 'package:finance_tracker_server/src/http/api_route.dart';
 import 'package:finance_tracker_server/src/http/problem.dart';
 import 'package:finance_tracker_server/src/http/wire.dart';
 import 'package:finance_tracker_server/src/plaid/item_service.dart';
+import 'package:finance_tracker_server/src/plaid/webhook_service.dart';
 import 'package:shelf/shelf.dart';
 
 final _packageName = RegExp(
   r'^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$',
 );
 
-/// The Plaid routes over [items].
-List<ApiRoute> plaidRoutes(ItemService items) => [
+/// The Plaid routes over [items] and [webhooks].
+List<ApiRoute> plaidRoutes(ItemService items, WebhookService webhooks) => [
   ApiRoute('createLinkToken', 'post', '/plaid/link-token', (r) async {
     final body = ObjectReader(await r.json(), const {
       'android_package_name',
@@ -121,15 +123,11 @@ List<ApiRoute> plaidRoutes(ItemService items) => [
       );
     },
   ),
-  ApiRoute(
-    'receivePlaidWebhook',
-    'post',
-    '/webhooks/plaid',
-    (r) async => throw const ProblemException.unauthorized(
-      ProblemCode.webhookUnverified,
-      detail:
-          'Webhook verification arrives in Phase 3; no delivery is processed',
-    ),
-    authenticated: false,
-  ),
+  ApiRoute('receivePlaidWebhook', 'post', '/webhooks/plaid', (r) async {
+    await webhooks.receive(
+      await readBodyBytes(r.raw),
+      r.raw.headers['plaid-verification'],
+    );
+    return noContent();
+  }, authenticated: false),
 ];

@@ -34,15 +34,12 @@ String instantJson(int millis) => const UtcInstantConverter().toJson(
 String? optionalInstantJson(int? millis) =>
     millis == null ? null : instantJson(millis);
 
-/// Reads [request]'s body as a JSON object of at most [limit] bytes; anything else is a
-/// [ValidationException] on the body as a whole (`field` is the empty string).
-Future<Map<String, Object?>> readJsonObject(
+/// [request]'s body bytes exactly as received, at most [limit] of them; more is a
+/// [ValidationException] on the body as a whole.
+Future<List<int>> readBodyBytes(
   Request request, {
   int limit = defaultBodyLimit,
 }) async {
-  if (request.mimeType != 'application/json') {
-    throw ValidationException.single('', 'the body must be application/json');
-  }
   final declared = request.contentLength;
   if (declared != null && declared > limit) {
     throw ValidationException.single('', 'the body exceeds $limit bytes');
@@ -54,6 +51,19 @@ Future<Map<String, Object?>> readJsonObject(
       throw ValidationException.single('', 'the body exceeds $limit bytes');
     }
   }
+  return bytes;
+}
+
+/// Reads [request]'s body as a JSON object of at most [limit] bytes; anything else is a
+/// [ValidationException] on the body as a whole (`field` is the empty string).
+Future<Map<String, Object?>> readJsonObject(
+  Request request, {
+  int limit = defaultBodyLimit,
+}) async {
+  if (request.mimeType != 'application/json') {
+    throw ValidationException.single('', 'the body must be application/json');
+  }
+  final bytes = await readBodyBytes(request, limit: limit);
   final Object? decoded;
   try {
     decoded = jsonDecode(utf8.decode(bytes));

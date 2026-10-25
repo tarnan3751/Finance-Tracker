@@ -685,6 +685,50 @@ final class ItemService {
     return row['institution_logo']! as List<int>;
   }
 
+  /// Sets the status (and Plaid's code, null to clear it) of the Item [itemId] as a
+  /// webhook reported it, unless it was removed at Plaid meanwhile.
+  Future<void> setStatus(String itemId, String status, String? errorCode) =>
+      db.read(
+        (tx) => tx.execute(
+          'UPDATE items SET status = ?, error_code = ? WHERE id = ? '
+          'AND plaid_removed_at IS NULL',
+          [status, errorCode, itemId],
+        ),
+      );
+
+  /// Fetches the Item's recurring streams alone and replaces the stored ones (Plaid's
+  /// `RECURRING_TRANSACTIONS_UPDATE`), behind the Item's lock.
+  Future<void> refreshRecurring(String userId, String itemId) =>
+      _serialized(itemId, () async {
+        final item = await loadActive(userId, itemId);
+        final currencies = await _storedCurrencies(itemId);
+        final recurring = await itemCall(
+          itemId,
+          () => plaid.transactionsRecurringGet(
+            item.accessToken,
+            currencyOf: (accountId) => currencies[accountId],
+          ),
+        );
+        await db.transaction((tx) async {
+          if (tx.first(
+                'SELECT 1 FROM items WHERE id = ? AND plaid_removed_at IS NULL',
+                [itemId],
+              ) ==
+              null) {
+            throw const ProblemException.notFound('The Item was removed');
+          }
+          final accounts = {
+            for (final r in tx.select(
+              'SELECT id, plaid_account_id FROM accounts WHERE item_id = ?',
+              [itemId],
+            ))
+              r['plaid_account_id'] as String: r['id'] as String,
+          };
+          _replaceRecurring(tx, userId, itemId, accounts, recurring);
+        });
+        _log.info(LogEvent('item_recurring_refreshed', {'item_id': itemId}));
+      });
+
   /// A Plaid call for the Item [itemId]: `ITEM_LOGIN_REQUIRED` marks it `login_required`
   /// and answers 409 `item_login_required`; any other failure is [plaidProblem].
   Future<T> itemCall<T>(String itemId, Future<T> Function() call) async {
@@ -840,9 +884,15 @@ final class ItemService {
           investments,
         );
       }
+      // A completed run proves the login works, but not that a pending expiration
+      // was dealt with: that status stays until LOGIN_REPAIRED, an exchange or a
+      // login-required error replaces it.
       tx.execute(
-        "UPDATE items SET cursor = ?, run_start_cursor = ?, status = 'healthy', "
-        'error_code = NULL, last_successful_sync_at = ?, '
+        'UPDATE items SET cursor = ?, run_start_cursor = ?, '
+        "status = CASE WHEN status = 'pending_expiration' THEN status "
+        "ELSE 'healthy' END, "
+        "error_code = CASE WHEN status = 'pending_expiration' THEN error_code "
+        'ELSE NULL END, last_successful_sync_at = ?, '
         'investments_synced_at = COALESCE(?, investments_synced_at) '
         'WHERE id = ? AND plaid_removed_at IS NULL',
         [

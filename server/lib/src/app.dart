@@ -28,6 +28,8 @@ import 'package:finance_tracker_server/src/plaid/provisioning_service.dart';
 import 'package:finance_tracker_server/src/plaid/sandbox_routes.dart';
 import 'package:finance_tracker_server/src/plaid/sandbox_service.dart';
 import 'package:finance_tracker_server/src/plaid/token_cipher.dart';
+import 'package:finance_tracker_server/src/plaid/webhook_service.dart';
+import 'package:finance_tracker_server/src/plaid/webhook_verifier.dart';
 import 'package:finance_tracker_server/src/sync/change_log_relay.dart';
 import 'package:finance_tracker_server/src/sync/sync_routes.dart';
 import 'package:finance_tracker_server/src/users/user_routes.dart';
@@ -91,7 +93,14 @@ final class ServerApp {
     routes = [
       ...authRoutes(auth),
       ...userRoutes(db: db, auth: auth, items: items),
-      ...plaidRoutes(items),
+      ...plaidRoutes(
+        items,
+        WebhookService(
+          db: db,
+          items: items,
+          verifier: WebhookVerifier(plaid: plaid, now: this.now),
+        ),
+      ),
       ...sandboxRoutes(sandbox, provisioning),
       ...dataRoutes(db),
       ...syncRoutes(ChangeLogRelay(db: db, now: this.now)),
