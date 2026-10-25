@@ -2,8 +2,9 @@
 // answers where Sandbox did not show a case: NOT_READY answered at once to a request and
 // retried by a background run, the restart after a mutation during pagination,
 // pending-to-posted, the repeated exchange of one Item (the caller's, then another
-// user's), the investment-transactions window, and the accounts /accounts/get lists
-// (an investment-only Item, a page's balance winning, a failed call).
+// user's), the investment-transactions window, the accounts /accounts/get lists
+// (an investment-only Item, a page's balance winning, a failed call), and balances in
+// the app's sign.
 import 'dart:async';
 import 'dart:convert';
 
@@ -636,6 +637,83 @@ void main() {
       expect(row['status'], 'login_required');
       expect(row['cursor'], isNull);
       expect(await accounts(), isEmpty);
+    });
+  });
+
+  group('balance signs', () {
+    /// The stored balances by mask: current, available, limit in minor units.
+    Map<String, List<int?>> balances(List<Object?> accounts) => {
+      for (final a in accounts.cast<Map<String, Object?>>())
+        a['mask']! as String: [
+          for (final key in const [
+            'current_balance',
+            'available_balance',
+            'credit_limit',
+          ])
+            (a[key] as Map<String, Object?>?)?['minor_units'] as int?,
+        ],
+    };
+
+    // The recorded Item's seven accounts, Plaid reporting every current as positive:
+    // owed on the card and the loans, held on the checking account.
+    const expected = {
+      '1000': [50000, 34210, null], // checking
+      '2000': [-50000, 428301, 480000], // credit card
+      '3000': [-50000, null, null], // mortgage
+      '4000': [-2500000, 2500000, null], // student loan, available as reported
+      '5000': [-50000, null, null], // auto loan
+      '6000': [-50000, null, null], // consumer loan
+      '7000': [-50000, null, null], // line of credit
+    };
+
+    test(
+      'a sync stores a card and loans negative, the rest as reported',
+      () async {
+        transport.script('/transactions/sync', [
+          'transactions_sync_up_to_date',
+        ]);
+        final itemId = await link();
+        expect((await sync(itemId)).json['status'], 'completed');
+        final accounts = await server.call(
+          'get',
+          '/accounts',
+          token: ada.access,
+        );
+        expect(balances(accounts.list), expected);
+      },
+    );
+
+    test('a balance refresh stores and answers the same signs', () async {
+      transport.byDefault('/accounts/balance/get', 'accounts_balance_get');
+      final itemId = await link();
+      final r = await server.call(
+        'post',
+        '/plaid/items/$itemId/balances',
+        token: ada.access,
+      );
+      expect(r.status, 200, reason: '$r');
+      expect(balances(r.list), expected);
+      final accounts = await server.call('get', '/accounts', token: ada.access);
+      expect(balances(accounts.list), expected);
+    });
+
+    test('an overpaid card holds money: stored positive', () async {
+      transport.script('/accounts/get', [
+        (
+          status: 200,
+          body: fixtureAnswer('accounts_get').body.replaceFirst(
+            RegExp(
+              r'"current": 500(?=,\s*"iso_currency_code": "USD",\s*"limit": 4800)',
+            ),
+            '"current": -25',
+          ),
+        ),
+      ]);
+      transport.script('/transactions/sync', ['transactions_sync_up_to_date']);
+      final itemId = await link();
+      expect((await sync(itemId)).json['status'], 'completed');
+      final accounts = await server.call('get', '/accounts', token: ada.access);
+      expect(balances(accounts.list)['2000'], [2500, 428301, 480000]);
     });
   });
 }

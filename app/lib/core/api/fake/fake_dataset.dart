@@ -218,7 +218,8 @@ final class FakeDataset {
               name: 'Platypus Rewards Card',
               mask: '3333',
               currencyCode: usd,
-              currentBalance: Money(51234, usd),
+              // Owed, so negative in the app's sign (`api/openapi.yaml`, `Account`).
+              currentBalance: Money(-51234, usd),
               availableBalance: Money(448766, usd),
               creditLimit: Money(500000, usd),
               balancesAsOf: asOf,

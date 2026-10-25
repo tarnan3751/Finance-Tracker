@@ -124,8 +124,9 @@ void main() {
     expect([for (final a in accounts) a['display_order']], [0, 1, 2]);
     final credit = accounts[2];
     expect(credit['type'], 'credit');
+    // Plaid reports the card owing 410.27; stored in the app's sign.
     expect(credit['current_balance'], {
-      'minor_units': 41027,
+      'minor_units': -41027,
       'currency': 'USD',
     });
     expect(credit['credit_limit'], {'minor_units': 200000, 'currency': 'USD'});

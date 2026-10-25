@@ -6,7 +6,8 @@
 /// a failure to fetch it is logged and never fails the exchange.
 ///
 /// It depends only on [PlaidClient] (the fake or the HTTP client), and stamps every stored
-/// row with the client's `provenance`. Access
+/// row with the client's `provenance`, an account's current balance in the app's sign
+/// (a `credit` or `loan` account's negated). Access
 /// tokens are stored sealed by [TokenCipher]. A sync run lists the Item's accounts
 /// through `/accounts/get`, since a `/transactions/sync` page lists only those
 /// Transactions covers, and a page's later report of an account wins. No Plaid call is
@@ -974,7 +975,9 @@ final class ItemService {
   }
 
   /// Upserts [reported], the last report of an account winning; Plaid's account id to
-  /// ours.
+  /// ours. The current balance is stored in the app's sign: Plaid reports what a
+  /// `credit` or `loan` account owes as positive, so it is negated; available amounts
+  /// and limits are stored as reported (`docs/reference/server.md`, **Signs**).
   Map<String, String> _upsertAccounts(
     Tx tx,
     String userId,
@@ -992,6 +995,8 @@ final class ItemService {
         r['plaid_account_id'] as String: r['id'] as String,
     };
     for (final a in latest.values) {
+      final owed = a.type == 'credit' || a.type == 'loan';
+      final current = owed && a.current != null ? -a.current! : a.current;
       final values = [
         _accountType(a.type),
         a.subtype,
@@ -999,7 +1004,7 @@ final class ItemService {
         a.officialName,
         a.mask,
         a.currencyCode,
-        a.current?.minorUnits,
+        current?.minorUnits,
         a.available?.minorUnits,
         a.limit?.minorUnits,
         _nowMillis,

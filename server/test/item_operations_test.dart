@@ -2,6 +2,7 @@
 // balances, unlinking with the history kept or deleted (the `removed` status), the
 // Item's `error_code`, and the institution logo route.
 import 'package:finance_tracker_server/server.dart';
+import 'package:shared_models/shared_models.dart';
 import 'package:test/test.dart';
 
 import 'support/test_server.dart';
@@ -150,6 +151,26 @@ void main() {
       expect(a['balances_as_of'], '2026-10-24T09:40:00.000Z');
     }
     expect(await get('/accounts'), again.list);
+    // In the app's sign: the card owing 410.27 is negative; its available credit and
+    // limit, and the checking account, as reported.
+    final byType = {
+      for (final a in again.list.cast<Map<String, Object?>>())
+        a['subtype']: [
+          a['current_balance'],
+          a['available_balance'],
+          a['credit_limit'],
+        ],
+    };
+    expect(byType['checking'], [
+      Money(121043, 'USD').toJson(),
+      Money(118043, 'USD').toJson(),
+      null,
+    ]);
+    expect(byType['credit card'], [
+      Money(-41027, 'USD').toJson(),
+      Money(158973, 'USD').toJson(),
+      Money(200000, 'USD').toJson(),
+    ]);
   });
 
   test(
