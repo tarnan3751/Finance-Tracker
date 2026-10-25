@@ -1594,11 +1594,11 @@
   "@developerAmountHelper": {
     "description": "Helper under the amount field: the app's sign convention."
   },
-  "developerDaysBack": "Days before Plaid's today (0 to 730)",
+  "developerDaysBack": "Days before Plaid's today (0 to 728)",
   "@developerDaysBack": {
     "description": "Label of the field for how many days before Plaid Sandbox's current date the transactions are dated."
   },
-  "developerDaysBackInvalid": "Enter a whole number from 0 to 730",
+  "developerDaysBackInvalid": "Enter a whole number from 0 to 728",
   "@developerDaysBackInvalid": {
     "description": "Error under the days-back field."
   },

@@ -30,6 +30,11 @@ const Duration provisionPollInterval = Duration(seconds: 5);
 /// The most transactions one injection takes (the contract's limit).
 const int maxInjected = 10;
 
+/// The most days before [plaidToday] an injection is dated: Plaid's oldest accepted date
+/// is the UTC date minus 729 (`PLAN.md` §4, verified 2026-10-25), and [plaidToday] is the
+/// UTC date or the day before, so 728 back is always inside.
+const int maxDaysBack = 728;
+
 /// Plaid Sandbox's "today" at the instant [nowUtc]: the calendar date at UTC−12, the
 /// latest date `sandboxCreateTransactions` accepts (`PLAN.md` §12, contract 0.3.0 as
 /// delivered).

@@ -43,10 +43,12 @@ fake server**), which is how the menu is tested on the harness.
   accounts on the device (`developerItemAccountsProvider`), how many (1 to 10, numbered
   after the description when more than one), a description, an amount in the app's
   sign (negative is money out; the client negates it for the wire) in the account's
-  currency, and how many days before **Plaid's today** they are dated. Plaid's today is
-  the calendar date at UTC−12 of the device clock (`plaidToday`): the server refuses a
-  later date, so before 12:00 UTC it is yesterday's UTC date (`PLAN.md` §12, contract
-  0.3.0 as delivered). The form shows the resulting date.
+  currency, and how many days before **Plaid's today** they are dated, 0 to 728
+  (`maxDaysBack`: Plaid refuses a date older than the UTC date minus 729, and Plaid's
+  today is the UTC date or the day before, so 728 back is always accepted). Plaid's
+  today is the calendar date at UTC−12 of the device clock (`plaidToday`): the server
+  refuses a later date, so before 12:00 UTC it is yesterday's UTC date (`PLAN.md` §12,
+  contract 0.3.0 as delivered). The form shows the resulting date.
 - **Provision a persona** (`provisionPersona`): persona, seed (at least 1) and days of
   history (30 to 730), Start; then the job's state, a progress bar over Items linked and
   batches sent, the skipped count and the job's error, asked for (`getProvisionJob`)

@@ -224,7 +224,7 @@ void main() {
     await tester.enterText(
       find.widgetWithText(
         TextFormField,
-        "Days before Plaid's today (0 to 730)",
+        "Days before Plaid's today (0 to 728)",
       ),
       '2',
     );
@@ -262,6 +262,30 @@ void main() {
     );
     await _tap(tester, find.text('Inject'));
     expect(find.text('Enter a whole number from 1 to 10'), findsOneWidget);
+    expect(fake.calls, isEmpty);
+  });
+
+  testWidgets('the injection form refuses more than 728 days back', (
+    tester,
+  ) async {
+    final FakeServer fake = await _openControls(tester, seededStore());
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Description'),
+      'Coffee',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Amount'),
+      '-4.5',
+    );
+    await tester.enterText(
+      find.widgetWithText(
+        TextFormField,
+        "Days before Plaid's today (0 to 728)",
+      ),
+      '729',
+    );
+    await _tap(tester, find.text('Inject'));
+    expect(find.text('Enter a whole number from 0 to 728'), findsOneWidget);
     expect(fake.calls, isEmpty);
   });
 

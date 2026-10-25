@@ -1962,13 +1962,13 @@ abstract class AppLocalizations {
   /// Label of the field for how many days before Plaid Sandbox's current date the transactions are dated.
   ///
   /// In en, this message translates to:
-  /// **'Days before Plaid\'s today (0 to 730)'**
+  /// **'Days before Plaid\'s today (0 to 728)'**
   String get developerDaysBack;
 
   /// Error under the days-back field.
   ///
   /// In en, this message translates to:
-  /// **'Enter a whole number from 0 to 730'**
+  /// **'Enter a whole number from 0 to 728'**
   String get developerDaysBackInvalid;
 
   /// Shows the date the injected transactions will carry.

@@ -1160,10 +1160,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get developerAmountHelper => 'Negative is money out of the account';
 
   @override
-  String get developerDaysBack => 'Days before Plaid\'s today (0 to 730)';
+  String get developerDaysBack => 'Days before Plaid\'s today (0 to 728)';
 
   @override
-  String get developerDaysBackInvalid => 'Enter a whole number from 0 to 730';
+  String get developerDaysBackInvalid => 'Enter a whole number from 0 to 728';
 
   @override
   String developerDate(String date) {

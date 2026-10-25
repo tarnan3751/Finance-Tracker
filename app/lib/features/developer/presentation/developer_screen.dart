@@ -230,7 +230,7 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
         accounts.where((a) => a.id == _accountId).firstOrNull ??
         accounts.firstOrNull;
     if (account == null) return _Padded(Text(l10n.developerNoAccounts));
-    final int? daysBack = _intIn(_daysBack.text, 0, 730);
+    final int? daysBack = _intIn(_daysBack.text, 0, maxDaysBack);
     final LocalDate today = plaidToday(ref.watch(clockProvider).nowUtc());
 
     return Form(
@@ -323,7 +323,7 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
                 border: const OutlineInputBorder(),
               ),
               onChanged: (_) => setState(() {}),
-              validator: (text) => _intIn(text ?? '', 0, 730) == null
+              validator: (text) => _intIn(text ?? '', 0, maxDaysBack) == null
                   ? l10n.developerDaysBackInvalid
                   : null,
             ),
@@ -344,7 +344,7 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
                             _amount.text,
                             account.currencyCode,
                           )!,
-                          daysBack: _intIn(_daysBack.text, 0, 730)!,
+                          daysBack: _intIn(_daysBack.text, 0, maxDaysBack)!,
                         );
                       }
                     : null,
