@@ -163,6 +163,32 @@ void main() {
     expect(ServerConfig.fromValues(_valid()).plaidWebhookUrl, isNull);
   });
 
+  test('PLAID_POLL_INTERVAL_SECONDS is 0 or at least 60', () {
+    expect(
+      ServerConfig.fromValues(_valid()).pollInterval,
+      const Duration(seconds: 180),
+    );
+    expect(
+      ServerConfig.fromValues(_valid({'PLAID_POLL_INTERVAL_SECONDS': '0'}))
+          .pollInterval,
+      Duration.zero,
+    );
+    expect(
+      ServerConfig.fromValues(_valid({'PLAID_POLL_INTERVAL_SECONDS': '60'}))
+          .pollInterval,
+      const Duration(seconds: 60),
+    );
+    for (final text in ['59', '1', '-1', 'often']) {
+      expect(
+        () => ServerConfig.fromValues(
+          _valid({'PLAID_POLL_INTERVAL_SECONDS': text}),
+        ),
+        _error('PLAID_POLL_INTERVAL_SECONDS'),
+        reason: text,
+      );
+    }
+  });
+
   test('PLAID_MODE is fake or sandbox', () {
     expect(
       () => ServerConfig.fromValues(_valid({'PLAID_MODE': 'live'})),

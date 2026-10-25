@@ -74,6 +74,7 @@ final class ServerConfig {
     this.plaidEnv = 'sandbox',
     this.plaidMode = PlaidMode.fake,
     this.plaidWebhookUrl,
+    this.pollInterval = const Duration(seconds: 180),
     this.seedUserEmail,
     this.seedUserPassword,
     this.argon2 = Argon2Parameters.owaspBaseline,
@@ -166,6 +167,18 @@ final class ServerConfig {
       }
     }
 
+    final pollSeconds = integer(
+      'PLAID_POLL_INTERVAL_SECONDS',
+      180,
+      min: 0,
+      max: 86400,
+    );
+    if (pollSeconds > 0 && pollSeconds < 60) {
+      throw const ConfigException(
+        'PLAID_POLL_INTERVAL_SECONDS must be 0 (no polling) or at least 60',
+      );
+    }
+
     final seedEmail = value('SEED_USER_EMAIL');
     final seedPassword = value('SEED_USER_PASSWORD');
     if ((seedEmail == null) != (seedPassword == null)) {
@@ -211,6 +224,7 @@ final class ServerConfig {
       plaidEnv: plaidEnv,
       plaidMode: plaidMode,
       plaidWebhookUrl: webhookUrl,
+      pollInterval: Duration(seconds: pollSeconds),
       seedUserEmail: seedEmail,
       seedUserPassword: seedPassword,
       argon2: Argon2Parameters(
@@ -265,6 +279,10 @@ final class ServerConfig {
 
   /// The user seeded at startup (`SEED_USER_EMAIL`), or null.
   final String? seedUserEmail;
+
+  /// How long the poll waits between ticks (`PLAID_POLL_INTERVAL_SECONDS`); zero for no
+  /// polling.
+  final Duration pollInterval;
 
   /// The seeded user's password (`SEED_USER_PASSWORD`), or null.
   final String? seedUserPassword;

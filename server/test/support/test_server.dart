@@ -19,11 +19,13 @@ final OpenApiDocument contract = OpenApiDocument.load(
   File(p.join('..', 'api', 'openapi.yaml')),
 );
 
-/// A configuration for tests: fixed keys, tiny Argon2 parameters.
+/// A configuration for tests: fixed keys, tiny Argon2 parameters, no polling.
 final ServerConfig testConfig = ServerConfig(
   jwtSecret: List.filled(32, 7),
   tokenEncryptionKey: List.filled(32, 9),
   argon2: const Argon2Parameters(memoryKib: 64, iterations: 1, parallelism: 1),
+  // Tests run ticks themselves; nothing polls on its own.
+  pollInterval: Duration.zero,
 );
 
 /// A clock the test moves.

@@ -6,7 +6,9 @@
 /// against `PLAID_ENV` with the keys, which are never printed), and serves `/v1` on
 /// `HOST:PORT`. Prints one line with the base URL and the Plaid mode; in fake mode, a
 /// warning that Plaid data is synthetic and carries `source: demo`. A bad configuration
-/// exits with status 78 and the key it names. Stop it with Ctrl-C.
+/// exits with status 78 and the key it names. Polls every Item every
+/// `PLAID_POLL_INTERVAL_SECONDS` unless it is 0. Stop it with Ctrl-C, which ends the poll
+/// first.
 library;
 
 import 'dart:async';
@@ -60,10 +62,17 @@ Future<void> main() async {
   }
 
   final server = await shelf_io.serve(app.handler, config.host, config.port);
+  final polling = config.pollInterval > Duration.zero;
+  if (polling) app.poller.start();
   stdout.writeln(
     'Serving http://${server.address.host}:${server.port}/v1 '
     '(Plaid: ${config.plaidMode.name}'
     '${config.plaidMode == PlaidMode.sandbox ? ' against ${config.plaidEnv}' : ''})',
+  );
+  stdout.writeln(
+    polling
+        ? 'Polling every Item every ${config.pollInterval.inSeconds} s'
+        : 'Polling is off (PLAID_POLL_INTERVAL_SECONDS=0)',
   );
   if (config.plaidMode == PlaidMode.fake) {
     stdout.writeln(
@@ -74,6 +83,7 @@ Future<void> main() async {
   late final StreamSubscription<ProcessSignal> stop;
   stop = ProcessSignal.sigint.watch().listen((_) async {
     await stop.cancel();
+    await app.poller.stop();
     await server.close();
     if (plaid is HttpPlaidClient) plaid.close();
     await db.close();

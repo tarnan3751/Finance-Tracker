@@ -23,6 +23,7 @@ import 'package:finance_tracker_server/src/http/wire.dart';
 import 'package:finance_tracker_server/src/plaid/item_service.dart';
 import 'package:finance_tracker_server/src/plaid/plaid_client.dart';
 import 'package:finance_tracker_server/src/plaid/plaid_routes.dart';
+import 'package:finance_tracker_server/src/plaid/poll_scheduler.dart';
 import 'package:finance_tracker_server/src/plaid/provisioning_service.dart';
 import 'package:finance_tracker_server/src/plaid/sandbox_routes.dart';
 import 'package:finance_tracker_server/src/plaid/sandbox_service.dart';
@@ -80,6 +81,12 @@ final class ServerApp {
       now: this.now,
       delay: delay,
     );
+    poller = PollScheduler(
+      db: db,
+      items: items,
+      interval: config.pollInterval,
+      delay: delay,
+    );
     limiter = RateLimiter(now: this.now);
     routes = [
       ...authRoutes(auth),
@@ -124,6 +131,10 @@ final class ServerApp {
 
   /// The persona provisioning jobs.
   late final ProvisioningService provisioning;
+
+  /// The background poll of every Item; `bin/server.dart` starts it unless the interval
+  /// is zero.
+  late final PollScheduler poller;
 
   /// The token bucket.
   late final RateLimiter limiter;
