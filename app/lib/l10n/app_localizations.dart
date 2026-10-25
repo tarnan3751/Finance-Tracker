@@ -1983,6 +1983,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No rule matches this transaction.'**
   String get transactionRulesNoMatch;
+
+  /// Title of the rules screen, and its entry in Settings and in the categories screen's menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Rules'**
+  String get rulesTitle;
+
+  /// Headline of the rules screen with no rules.
+  ///
+  /// In en, this message translates to:
+  /// **'No rules yet'**
+  String get rulesEmptyHeadline;
+
+  /// Body of the rules screen with no rules.
+  ///
+  /// In en, this message translates to:
+  /// **'A rule files, tags or renames transactions as they arrive from your bank. Rules are tried from the top; the first one that matches applies.'**
+  String get rulesEmptyBody;
+
+  /// Note above the list of rules.
+  ///
+  /// In en, this message translates to:
+  /// **'Rules are tried from the top; the first one that matches a transaction applies. Drag to reorder.'**
+  String get rulesOrderNote;
+
+  /// Button that opens the editor of a new rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Add rule'**
+  String get ruleAdd;
+
+  /// Title of the editor of a new rule.
+  ///
+  /// In en, this message translates to:
+  /// **'New rule'**
+  String get ruleNewTitle;
+
+  /// Title of the editor of an existing rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit rule'**
+  String get ruleEditTitle;
+
+  /// Shown when the rule being edited was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'This rule no longer exists.'**
+  String get ruleNotFound;
+
+  /// Label of the rule name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get ruleName;
+
+  /// Error under an empty rule name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get ruleNameRequired;
+
+  /// Heading above a rule's conditions.
+  ///
+  /// In en, this message translates to:
+  /// **'When a transaction matches all of these'**
+  String get ruleConditionsHeader;
+
+  /// Heading above a rule's actions.
+  ///
+  /// In en, this message translates to:
+  /// **'Then'**
+  String get ruleActionsHeader;
+
+  /// Button that adds a condition to a rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Add condition'**
+  String get ruleAddCondition;
+
+  /// Button that adds an action to a rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Add action'**
+  String get ruleAddAction;
+
+  /// Shown when a rule has no condition.
+  ///
+  /// In en, this message translates to:
+  /// **'A rule needs at least one condition.'**
+  String get ruleNeedsCondition;
+
+  /// Shown when a rule has no action.
+  ///
+  /// In en, this message translates to:
+  /// **'A rule needs at least one action.'**
+  String get ruleNeedsAction;
+
+  /// Tooltip of the button that removes a condition.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove condition'**
+  String get ruleRemoveCondition;
+
+  /// Tooltip of the button that removes an action.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove action'**
+  String get ruleRemoveAction;
+
+  /// Condition kind: text found in the merchant name, or in the description when there is no merchant name.
+  ///
+  /// In en, this message translates to:
+  /// **'Merchant or description contains'**
+  String get ruleConditionMerchant;
+
+  /// Condition kind: the amount, ignoring its sign, within a range.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount between'**
+  String get ruleConditionAmount;
+
+  /// Condition kind: the transaction is on an account.
+  ///
+  /// In en, this message translates to:
+  /// **'Account is'**
+  String get ruleConditionAccount;
+
+  /// Condition kind: the bank's category of the transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank category is'**
+  String get ruleConditionBankCategory;
+
+  /// Label of the text field of a "contains" condition.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get ruleText;
+
+  /// Error under an empty text field of a condition.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter some text'**
+  String get ruleTextRequired;
+
+  /// Error when an amount condition has neither bound.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least one amount'**
+  String get ruleAmountRequired;
+
+  /// Error when an amount condition's minimum exceeds its maximum.
+  ///
+  /// In en, this message translates to:
+  /// **'The minimum is above the maximum'**
+  String get ruleAmountOrder;
+
+  /// Error when an account condition has no account.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an account'**
+  String get ruleAccountRequired;
+
+  /// Error when a category picker of a rule has no choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category'**
+  String get ruleCategoryRequired;
+
+  /// Action kind: file the transaction under a category.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the category'**
+  String get ruleActionSetCategory;
+
+  /// Caption of the set-category action.
+  ///
+  /// In en, this message translates to:
+  /// **'Only for transactions without a category of your own.'**
+  String get ruleActionSetCategoryCaption;
+
+  /// Action kind: add a tag to the transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a tag'**
+  String get ruleActionAddTag;
+
+  /// Label of the tag field of an add-tag action.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag'**
+  String get ruleTag;
+
+  /// Error under an empty tag field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a tag'**
+  String get ruleTagRequired;
+
+  /// Action kind: change the transaction's description.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get ruleActionRename;
+
+  /// Label of the text field of a rename action.
+  ///
+  /// In en, this message translates to:
+  /// **'New description'**
+  String get ruleNewDescription;
+
+  /// Error under an empty rename field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the new description'**
+  String get ruleNewDescriptionRequired;
+
+  /// Caption of the rename action, explaining that bank transactions are not renamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Renames manual and imported transactions. Bank transactions keep the description your bank sends.'**
+  String get ruleActionRenameCaption;
+
+  /// An action a newer version of the app added to this rule; kept but not applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide (not supported in this version)'**
+  String get ruleActionHide;
+
+  /// Placeholder of an empty category picker row in the rule editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category'**
+  String get ruleChooseCategory;
+
+  /// Snack bar after deleting a rule, with an undo action.
+  ///
+  /// In en, this message translates to:
+  /// **'Rule deleted'**
+  String get ruleDeleted;
+
+  /// Tooltip of the button that deletes a rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{name}”'**
+  String ruleDeleteNamed(String name);
+
+  /// Accessibility label of a rule's drag handle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder “{name}”'**
+  String ruleReorderNamed(String name);
+
+  /// How many conditions a rule has.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 condition} other{{count} conditions}}'**
+  String ruleConditionCount(int count);
+
+  /// How many actions a rule has.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 action} other{{count} actions}}'**
+  String ruleActionCount(int count);
+
+  /// A rule's subtitle in the list: its condition count, then its action count.
+  ///
+  /// In en, this message translates to:
+  /// **'{conditions} · {actions}'**
+  String ruleSummary(String conditions, String actions);
+
+  /// Snack bar when saving a new order of the rules fails; the list shows the stored order again.
+  ///
+  /// In en, this message translates to:
+  /// **'The rules could not be reordered.'**
+  String get ruleReorderFailed;
+
+  /// Tooltip of the categories screen's overflow menu button.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get categoriesMoreOptions;
 }
 
 class _AppLocalizationsDelegate

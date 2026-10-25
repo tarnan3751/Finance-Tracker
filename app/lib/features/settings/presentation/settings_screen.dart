@@ -1,6 +1,6 @@
 /// The Settings tab: Account (`features/auth/presentation/account_section.dart`), Sync
 /// (when this build's data syncs: dev and prod, `sync_section.dart`), Appearance (theme
-/// mode, dynamic color), Data (category management) and About (app name, version and
+/// mode, dynamic color), Data (category management, rules) and About (app name, version and
 /// build, flavor, the time zone dates are computed in), then Demo data (demo only,
 /// `demo_data_section.dart`).
 library;
@@ -88,6 +88,12 @@ class SettingsScreen extends ConsumerWidget {
             title: Text(l10n.categoriesTitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => const CategoriesRoute().push<void>(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.rule),
+            title: Text(l10n.rulesTitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => const RulesRoute().push<void>(context),
           ),
           SettingsSectionHeader(l10n.settingsAbout),
           ListTile(title: Text(l10n.aboutAppName), subtitle: Text(appName)),

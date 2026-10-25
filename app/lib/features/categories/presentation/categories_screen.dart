@@ -1,7 +1,7 @@
 /// Category management (Settings, Categories): the hierarchy, each top-level category
 /// expandable to the categories under it, the system categories (seeded from Plaid's
-/// taxonomy) marked with a lock; search; "Add category". Tapping a category opens its
-/// editor.
+/// taxonomy) marked with a lock; search; "Add category"; the rules from the menu. Tapping
+/// a category opens its editor.
 library;
 
 import 'package:finance_tracker/core/router/routes.dart';
@@ -73,7 +73,20 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       ref.watch(categoriesByIdProvider),
     );
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.categoriesTitle)),
+      appBar: AppBar(
+        title: Text(l10n.categoriesTitle),
+        actions: [
+          PopupMenuButton<void>(
+            tooltip: l10n.categoriesMoreOptions,
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                onTap: () => const RulesRoute().push<void>(context),
+                child: Text(l10n.rulesTitle),
+              ),
+            ],
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => const NewCategoryRoute().push<void>(context),
         icon: const Icon(Icons.add),

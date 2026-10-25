@@ -1154,4 +1154,171 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transactionRulesNoMatch => 'No rule matches this transaction.';
+
+  @override
+  String get rulesTitle => 'Rules';
+
+  @override
+  String get rulesEmptyHeadline => 'No rules yet';
+
+  @override
+  String get rulesEmptyBody =>
+      'A rule files, tags or renames transactions as they arrive from your bank. Rules are tried from the top; the first one that matches applies.';
+
+  @override
+  String get rulesOrderNote =>
+      'Rules are tried from the top; the first one that matches a transaction applies. Drag to reorder.';
+
+  @override
+  String get ruleAdd => 'Add rule';
+
+  @override
+  String get ruleNewTitle => 'New rule';
+
+  @override
+  String get ruleEditTitle => 'Edit rule';
+
+  @override
+  String get ruleNotFound => 'This rule no longer exists.';
+
+  @override
+  String get ruleName => 'Name';
+
+  @override
+  String get ruleNameRequired => 'Enter a name';
+
+  @override
+  String get ruleConditionsHeader => 'When a transaction matches all of these';
+
+  @override
+  String get ruleActionsHeader => 'Then';
+
+  @override
+  String get ruleAddCondition => 'Add condition';
+
+  @override
+  String get ruleAddAction => 'Add action';
+
+  @override
+  String get ruleNeedsCondition => 'A rule needs at least one condition.';
+
+  @override
+  String get ruleNeedsAction => 'A rule needs at least one action.';
+
+  @override
+  String get ruleRemoveCondition => 'Remove condition';
+
+  @override
+  String get ruleRemoveAction => 'Remove action';
+
+  @override
+  String get ruleConditionMerchant => 'Merchant or description contains';
+
+  @override
+  String get ruleConditionAmount => 'Amount between';
+
+  @override
+  String get ruleConditionAccount => 'Account is';
+
+  @override
+  String get ruleConditionBankCategory => 'Bank category is';
+
+  @override
+  String get ruleText => 'Text';
+
+  @override
+  String get ruleTextRequired => 'Enter some text';
+
+  @override
+  String get ruleAmountRequired => 'Enter at least one amount';
+
+  @override
+  String get ruleAmountOrder => 'The minimum is above the maximum';
+
+  @override
+  String get ruleAccountRequired => 'Choose an account';
+
+  @override
+  String get ruleCategoryRequired => 'Choose a category';
+
+  @override
+  String get ruleActionSetCategory => 'Set the category';
+
+  @override
+  String get ruleActionSetCategoryCaption =>
+      'Only for transactions without a category of your own.';
+
+  @override
+  String get ruleActionAddTag => 'Add a tag';
+
+  @override
+  String get ruleTag => 'Tag';
+
+  @override
+  String get ruleTagRequired => 'Enter a tag';
+
+  @override
+  String get ruleActionRename => 'Rename';
+
+  @override
+  String get ruleNewDescription => 'New description';
+
+  @override
+  String get ruleNewDescriptionRequired => 'Enter the new description';
+
+  @override
+  String get ruleActionRenameCaption =>
+      'Renames manual and imported transactions. Bank transactions keep the description your bank sends.';
+
+  @override
+  String get ruleActionHide => 'Hide (not supported in this version)';
+
+  @override
+  String get ruleChooseCategory => 'Choose a category';
+
+  @override
+  String get ruleDeleted => 'Rule deleted';
+
+  @override
+  String ruleDeleteNamed(String name) {
+    return 'Delete “$name”';
+  }
+
+  @override
+  String ruleReorderNamed(String name) {
+    return 'Drag to reorder “$name”';
+  }
+
+  @override
+  String ruleConditionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count conditions',
+      one: '1 condition',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ruleActionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count actions',
+      one: '1 action',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ruleSummary(String conditions, String actions) {
+    return '$conditions · $actions';
+  }
+
+  @override
+  String get ruleReorderFailed => 'The rules could not be reordered.';
+
+  @override
+  String get categoriesMoreOptions => 'More options';
 }

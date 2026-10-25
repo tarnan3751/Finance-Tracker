@@ -1553,5 +1553,227 @@
   "transactionRulesNoMatch": "No rule matches this transaction.",
   "@transactionRulesNoMatch": {
     "description": "Snack bar after running the rules: no rule matched."
+  },
+  "rulesTitle": "Rules",
+  "@rulesTitle": {
+    "description": "Title of the rules screen, and its entry in Settings and in the categories screen's menu."
+  },
+  "rulesEmptyHeadline": "No rules yet",
+  "@rulesEmptyHeadline": {
+    "description": "Headline of the rules screen with no rules."
+  },
+  "rulesEmptyBody": "A rule files, tags or renames transactions as they arrive from your bank. Rules are tried from the top; the first one that matches applies.",
+  "@rulesEmptyBody": {
+    "description": "Body of the rules screen with no rules."
+  },
+  "rulesOrderNote": "Rules are tried from the top; the first one that matches a transaction applies. Drag to reorder.",
+  "@rulesOrderNote": {
+    "description": "Note above the list of rules."
+  },
+  "ruleAdd": "Add rule",
+  "@ruleAdd": {
+    "description": "Button that opens the editor of a new rule."
+  },
+  "ruleNewTitle": "New rule",
+  "@ruleNewTitle": {
+    "description": "Title of the editor of a new rule."
+  },
+  "ruleEditTitle": "Edit rule",
+  "@ruleEditTitle": {
+    "description": "Title of the editor of an existing rule."
+  },
+  "ruleNotFound": "This rule no longer exists.",
+  "@ruleNotFound": {
+    "description": "Shown when the rule being edited was deleted."
+  },
+  "ruleName": "Name",
+  "@ruleName": {
+    "description": "Label of the rule name field."
+  },
+  "ruleNameRequired": "Enter a name",
+  "@ruleNameRequired": {
+    "description": "Error under an empty rule name field."
+  },
+  "ruleConditionsHeader": "When a transaction matches all of these",
+  "@ruleConditionsHeader": {
+    "description": "Heading above a rule's conditions."
+  },
+  "ruleActionsHeader": "Then",
+  "@ruleActionsHeader": {
+    "description": "Heading above a rule's actions."
+  },
+  "ruleAddCondition": "Add condition",
+  "@ruleAddCondition": {
+    "description": "Button that adds a condition to a rule."
+  },
+  "ruleAddAction": "Add action",
+  "@ruleAddAction": {
+    "description": "Button that adds an action to a rule."
+  },
+  "ruleNeedsCondition": "A rule needs at least one condition.",
+  "@ruleNeedsCondition": {
+    "description": "Shown when a rule has no condition."
+  },
+  "ruleNeedsAction": "A rule needs at least one action.",
+  "@ruleNeedsAction": {
+    "description": "Shown when a rule has no action."
+  },
+  "ruleRemoveCondition": "Remove condition",
+  "@ruleRemoveCondition": {
+    "description": "Tooltip of the button that removes a condition."
+  },
+  "ruleRemoveAction": "Remove action",
+  "@ruleRemoveAction": {
+    "description": "Tooltip of the button that removes an action."
+  },
+  "ruleConditionMerchant": "Merchant or description contains",
+  "@ruleConditionMerchant": {
+    "description": "Condition kind: text found in the merchant name, or in the description when there is no merchant name."
+  },
+  "ruleConditionAmount": "Amount between",
+  "@ruleConditionAmount": {
+    "description": "Condition kind: the amount, ignoring its sign, within a range."
+  },
+  "ruleConditionAccount": "Account is",
+  "@ruleConditionAccount": {
+    "description": "Condition kind: the transaction is on an account."
+  },
+  "ruleConditionBankCategory": "Bank category is",
+  "@ruleConditionBankCategory": {
+    "description": "Condition kind: the bank's category of the transaction."
+  },
+  "ruleText": "Text",
+  "@ruleText": {
+    "description": "Label of the text field of a \"contains\" condition."
+  },
+  "ruleTextRequired": "Enter some text",
+  "@ruleTextRequired": {
+    "description": "Error under an empty text field of a condition."
+  },
+  "ruleAmountRequired": "Enter at least one amount",
+  "@ruleAmountRequired": {
+    "description": "Error when an amount condition has neither bound."
+  },
+  "ruleAmountOrder": "The minimum is above the maximum",
+  "@ruleAmountOrder": {
+    "description": "Error when an amount condition's minimum exceeds its maximum."
+  },
+  "ruleAccountRequired": "Choose an account",
+  "@ruleAccountRequired": {
+    "description": "Error when an account condition has no account."
+  },
+  "ruleCategoryRequired": "Choose a category",
+  "@ruleCategoryRequired": {
+    "description": "Error when a category picker of a rule has no choice."
+  },
+  "ruleActionSetCategory": "Set the category",
+  "@ruleActionSetCategory": {
+    "description": "Action kind: file the transaction under a category."
+  },
+  "ruleActionSetCategoryCaption": "Only for transactions without a category of your own.",
+  "@ruleActionSetCategoryCaption": {
+    "description": "Caption of the set-category action."
+  },
+  "ruleActionAddTag": "Add a tag",
+  "@ruleActionAddTag": {
+    "description": "Action kind: add a tag to the transaction."
+  },
+  "ruleTag": "Tag",
+  "@ruleTag": {
+    "description": "Label of the tag field of an add-tag action."
+  },
+  "ruleTagRequired": "Enter a tag",
+  "@ruleTagRequired": {
+    "description": "Error under an empty tag field."
+  },
+  "ruleActionRename": "Rename",
+  "@ruleActionRename": {
+    "description": "Action kind: change the transaction's description."
+  },
+  "ruleNewDescription": "New description",
+  "@ruleNewDescription": {
+    "description": "Label of the text field of a rename action."
+  },
+  "ruleNewDescriptionRequired": "Enter the new description",
+  "@ruleNewDescriptionRequired": {
+    "description": "Error under an empty rename field."
+  },
+  "ruleActionRenameCaption": "Renames manual and imported transactions. Bank transactions keep the description your bank sends.",
+  "@ruleActionRenameCaption": {
+    "description": "Caption of the rename action, explaining that bank transactions are not renamed."
+  },
+  "ruleActionHide": "Hide (not supported in this version)",
+  "@ruleActionHide": {
+    "description": "An action a newer version of the app added to this rule; kept but not applied."
+  },
+  "ruleChooseCategory": "Choose a category",
+  "@ruleChooseCategory": {
+    "description": "Placeholder of an empty category picker row in the rule editor."
+  },
+  "ruleDeleted": "Rule deleted",
+  "@ruleDeleted": {
+    "description": "Snack bar after deleting a rule, with an undo action."
+  },
+  "ruleDeleteNamed": "Delete “{name}”",
+  "@ruleDeleteNamed": {
+    "description": "Tooltip of the button that deletes a rule.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Coffee runs"
+      }
+    }
+  },
+  "ruleReorderNamed": "Drag to reorder “{name}”",
+  "@ruleReorderNamed": {
+    "description": "Accessibility label of a rule's drag handle.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Coffee runs"
+      }
+    }
+  },
+  "ruleConditionCount": "{count, plural, =1{1 condition} other{{count} conditions}}",
+  "@ruleConditionCount": {
+    "description": "How many conditions a rule has.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "ruleActionCount": "{count, plural, =1{1 action} other{{count} actions}}",
+  "@ruleActionCount": {
+    "description": "How many actions a rule has.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "ruleSummary": "{conditions} · {actions}",
+  "@ruleSummary": {
+    "description": "A rule's subtitle in the list: its condition count, then its action count.",
+    "placeholders": {
+      "conditions": {
+        "type": "String",
+        "example": "2 conditions"
+      },
+      "actions": {
+        "type": "String",
+        "example": "1 action"
+      }
+    }
+  },
+  "ruleReorderFailed": "The rules could not be reordered.",
+  "@ruleReorderFailed": {
+    "description": "Snack bar when saving a new order of the rules fails; the list shows the stored order again."
+  },
+  "categoriesMoreOptions": "More options",
+  "@categoriesMoreOptions": {
+    "description": "Tooltip of the categories screen's overflow menu button."
   }
 }

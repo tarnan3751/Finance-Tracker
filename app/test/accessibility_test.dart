@@ -1,16 +1,17 @@
 // The accessibility baseline for every screen, in light and dark: tap targets are large
 // enough and labelled, text has enough contrast, and nothing overflows at twice the text
 // size. The shell's tabs and the linked banks are checked empty; every screen is also
-// checked on the demo seed (two accounts, twelve transactions, the system categories, and
-// the three test banks), and the filter sheet and the category picker open over their
-// screens. The sign-in and registration screens are
-// checked signed out; their text scale is checked with their errors showing, in
-// test/features/auth/auth_screens_test.dart.
+// checked on the demo seed (two accounts, twelve transactions, the system categories, the
+// three test banks and two rules), and the filter sheet, the category picker and the
+// transaction editor's menu open over their screens. The sign-in and registration
+// screens are checked signed out; their text scale is checked with their errors showing,
+// in test/features/auth/auth_screens_test.dart.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/pump_app.dart';
+import 'helpers/rule_seed.dart';
 import 'helpers/seed.dart';
 
 /// A screen to check: where it is, whether it runs on the seed, and what to do after it
@@ -79,6 +80,15 @@ final Map<String, _Screen> _screens = {
     open: (tester) => _tapAndSettle(tester, find.text('Category')),
   ),
   'Categories': (location: '/settings/categories', seeded: true, open: null),
+  'Rules (empty)': (location: '/settings/rules', seeded: false, open: null),
+  'Rules': (location: '/settings/rules', seeded: true, open: null),
+  'New rule': (location: '/settings/rules/new', seeded: true, open: null),
+  'Rule': (location: '/settings/rules/rule-every', seeded: true, open: null),
+  'Transaction menu': (
+    location: '/transactions/demo-txn-04',
+    seeded: true,
+    open: (tester) => _tapAndSettle(tester, find.byTooltip('More options')),
+  ),
   'New category': (
     location: '/settings/categories/new',
     seeded: true,
@@ -96,6 +106,7 @@ List<Override> _overrides(_Screen screen) => screen.seeded
         storeOverride(
           seededStore()..applyPlaidItems(testBanks, testClock.nowUtc()),
         ),
+        rulesOverride(seededRules()),
       ]
     : const [];
 

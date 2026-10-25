@@ -5,7 +5,7 @@
 /// |---|---|
 /// | Accounts | `/accounts`, `/accounts/new`, `/accounts/linked-banks`, `/accounts/:id`, `/accounts/:id/edit` |
 /// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/:id` |
-/// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id` |
+/// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
 /// user is sent in dev and prod. `/` redirects to `/accounts` (`app_router.dart`). Detail and editor routes are
@@ -25,6 +25,8 @@ import 'package:finance_tracker/features/auth/presentation/sign_in_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/categories_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/category_editor_screen.dart';
 import 'package:finance_tracker/features/items/presentation/items_screen.dart';
+import 'package:finance_tracker/features/rules/presentation/rule_editor_screen.dart';
+import 'package:finance_tracker/features/rules/presentation/rules_screen.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_editor_screen.dart';
 import 'package:finance_tracker/features/transactions/presentation/transactions_screen.dart';
@@ -75,6 +77,13 @@ part 'routes.g.dart';
               routes: <TypedRoute<RouteData>>[
                 TypedGoRoute<NewCategoryRoute>(path: 'new'),
                 TypedGoRoute<EditCategoryRoute>(path: ':id'),
+              ],
+            ),
+            TypedGoRoute<RulesRoute>(
+              path: 'rules',
+              routes: <TypedRoute<RouteData>>[
+                TypedGoRoute<NewRuleRoute>(path: 'new'),
+                TypedGoRoute<EditRuleRoute>(path: ':id'),
               ],
             ),
           ],
@@ -234,6 +243,35 @@ class EditCategoryRoute extends GoRouteData with $EditCategoryRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       CategoryEditorScreen(categoryId: id);
+}
+
+/// `/settings/rules`: the rules, in the order they are tried.
+class RulesRoute extends GoRouteData with $RulesRoute {
+  const RulesRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const RulesScreen();
+}
+
+/// `/settings/rules/new`: the editor of a new rule.
+class NewRuleRoute extends GoRouteData with $NewRuleRoute {
+  const NewRuleRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const RuleEditorScreen();
+}
+
+/// `/settings/rules/:id`: the editor of an existing rule.
+class EditRuleRoute extends GoRouteData with $EditRuleRoute {
+  const EditRuleRoute(this.id);
+
+  final String id;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      RuleEditorScreen(ruleId: id);
 }
 
 /// `/sign-in`: the sign-in screen, outside the shell.

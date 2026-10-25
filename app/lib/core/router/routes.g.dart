@@ -94,6 +94,23 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
                 ),
               ],
             ),
+            GoRouteData.$route(
+              path: 'rules',
+              hasOverriddenOnExit: false,
+              factory: $RulesRoute._fromState,
+              routes: [
+                GoRouteData.$route(
+                  path: 'new',
+                  hasOverriddenOnExit: false,
+                  factory: $NewRuleRoute._fromState,
+                ),
+                GoRouteData.$route(
+                  path: ':id',
+                  hasOverriddenOnExit: false,
+                  factory: $EditRuleRoute._fromState,
+                ),
+              ],
+            ),
           ],
         ),
       ],
@@ -357,6 +374,70 @@ mixin $EditCategoryRoute on GoRouteData {
   String get location => GoRouteData.$location(
     '/settings/categories/${Uri.encodeComponent(_self.id)}',
   );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $RulesRoute on GoRouteData {
+  static RulesRoute _fromState(GoRouterState state) => const RulesRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings/rules');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $NewRuleRoute on GoRouteData {
+  static NewRuleRoute _fromState(GoRouterState state) => const NewRuleRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings/rules/new');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $EditRuleRoute on GoRouteData {
+  static EditRuleRoute _fromState(GoRouterState state) =>
+      EditRuleRoute(state.pathParameters['id']!);
+
+  EditRuleRoute get _self => this as EditRuleRoute;
+
+  @override
+  String get location =>
+      GoRouteData.$location('/settings/rules/${Uri.encodeComponent(_self.id)}');
 
   @override
   void go(BuildContext context) => context.go(location);

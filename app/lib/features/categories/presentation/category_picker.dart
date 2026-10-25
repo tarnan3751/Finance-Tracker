@@ -1,6 +1,7 @@
-/// The full-screen category picker of the transaction editor and the filter sheet: a
-/// search field, "None" (uncategorized) when allowed, the recently used categories, then
-/// the whole hierarchy, and a link to category management.
+/// The full-screen category picker of the transaction editor, the filter sheet and the
+/// rule editor: a search field, "None" (uncategorized) when allowed, the recently used
+/// categories, then the whole hierarchy (only the built-in categories when asked), and a
+/// link to category management.
 library;
 
 import 'package:finance_tracker/core/router/routes.dart';
@@ -23,16 +24,21 @@ final class CategoryChoice {
 const int _recentCount = 5;
 
 /// Shows the picker with [selectedId] marked; completes with the choice, or null when the
-/// user backs out. [allowNone] offers "None".
+/// user backs out. [allowNone] offers "None"; [systemOnly] lists only the categories with
+/// a Plaid code (the built-in ones).
 Future<CategoryChoice?> showCategoryPicker(
   BuildContext context, {
   String? selectedId,
   bool allowNone = true,
+  bool systemOnly = false,
 }) => Navigator.of(context).push<CategoryChoice>(
   MaterialPageRoute(
     fullscreenDialog: true,
-    builder: (context) =>
-        CategoryPickerScreen(selectedId: selectedId, allowNone: allowNone),
+    builder: (context) => CategoryPickerScreen(
+      selectedId: selectedId,
+      allowNone: allowNone,
+      systemOnly: systemOnly,
+    ),
   ),
 );
 
@@ -42,10 +48,12 @@ class CategoryPickerScreen extends ConsumerStatefulWidget {
     super.key,
     this.selectedId,
     this.allowNone = true,
+    this.systemOnly = false,
   });
 
   final String? selectedId;
   final bool allowNone;
+  final bool systemOnly;
 
   @override
   ConsumerState<CategoryPickerScreen> createState() =>
@@ -82,11 +90,12 @@ class _CategoryPickerScreenState extends ConsumerState<CategoryPickerScreen> {
     final Map<String, Category> byId = ref.watch(categoriesByIdProvider);
     final String query = _query.trim().toLowerCase();
     String? parentName(Category c) => byId[c.parentId]?.name;
+    bool shown(Category c) => !widget.systemOnly || c.plaidCategory != null;
     if (query.isNotEmpty) {
       return [
         for (final CategoryGroup group in tree)
           for (final Category c in [group.primary, ...group.children])
-            if (c.name.toLowerCase().contains(query))
+            if (shown(c) && c.name.toLowerCase().contains(query))
               _CategoryRow(c, parentName: parentName(c)),
       ];
     }
@@ -94,7 +103,7 @@ class _CategoryPickerScreenState extends ConsumerState<CategoryPickerScreen> {
       for (final String id
           in ref.watch(transactionUsageProvider).value?.recentCategoryIds ??
               const <String>[])
-        ?byId[id],
+        if (byId[id] case final Category c when shown(c)) c,
     ].take(_recentCount).toList();
     return [
       if (widget.allowNone) const _NoneRow(),
@@ -105,9 +114,9 @@ class _CategoryPickerScreenState extends ConsumerState<CategoryPickerScreen> {
       ],
       _HeaderRow(l10n.categoryPickerAll),
       for (final CategoryGroup group in tree) ...[
-        _CategoryRow(group.primary),
+        if (shown(group.primary)) _CategoryRow(group.primary),
         for (final Category c in group.children)
-          _CategoryRow(c, indented: true),
+          if (shown(c)) _CategoryRow(c, indented: true),
       ],
     ];
   }
