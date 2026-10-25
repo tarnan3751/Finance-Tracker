@@ -28,7 +28,9 @@ const webhookCodes = {
   'ERROR',
 };
 
-/// How far back `/sandbox/transactions/create` accepts a date (`PLAN.md` §4).
+/// Plaid's transaction window in days: what a Link token requests, and the span of
+/// `/sandbox/transactions/create`'s past bound, whose oldest accepted date is the UTC
+/// date minus 729 ([plaidOldestDate]; `PLAN.md` §4).
 const plaidWindowDays = 730;
 
 /// "Today" for Plaid's Sandbox: the calendar date at UTC−12 of [now], the earliest date
@@ -37,9 +39,17 @@ const plaidWindowDays = 730;
 LocalDate plaidToday(DateTime now) =>
     LocalDate.fromDateTime(now.toUtc().subtract(const Duration(hours: 12)));
 
-/// Whether [date] is within Plaid's window as of [today]: today or up to 730 days back.
-bool inPlaidWindow(LocalDate date, LocalDate today) =>
-    !date.isAfter(today) && !date.isBefore(today.addDays(-plaidWindowDays));
+/// The oldest date `/sandbox/transactions/create` accepts at [now]: the UTC calendar
+/// date minus 729. Plaid measures this bound from the UTC date, not from [plaidToday],
+/// and strictly: 730 days back is refused ("date_posted must be within the last 730
+/// days"; verified 2026-10-25, `PLAN.md` §4).
+LocalDate plaidOldestDate(DateTime now) =>
+    LocalDate.fromDateTime(now.toUtc()).addDays(-(plaidWindowDays - 1));
+
+/// Whether [date] is within Plaid's window at [now]: from [plaidOldestDate] to
+/// [plaidToday], both included.
+bool inPlaidWindow(LocalDate date, DateTime now) =>
+    !date.isAfter(plaidToday(now)) && !date.isBefore(plaidOldestDate(now));
 
 /// An injected transaction as the contract's `SandboxTransaction` carries it: [amount]
 /// in Plaid's sign, [accountId] this API's account id.
@@ -149,18 +159,18 @@ final class SandboxService {
     };
     final checking = rows.where((r) => r['subtype'] == 'checking').firstOrNull;
     final fallback = (checking ?? rows.firstOrNull)?['id'] as String?;
-    final today = plaidToday(now());
+    final at = now();
     final errors = <FieldError>[];
     for (final (i, t) in transactions.indexed) {
       for (final (key, date) in [
         ('date_transacted', t.dateTransacted),
         ('date_posted', t.datePosted),
       ]) {
-        if (!inPlaidWindow(date, today)) {
+        if (!inPlaidWindow(date, at)) {
           errors.add(
             FieldError(
               'transactions[$i].$key',
-              'must be today or up to $plaidWindowDays days back',
+              'must be from ${plaidOldestDate(at)} to ${plaidToday(at)}',
             ),
           );
         }

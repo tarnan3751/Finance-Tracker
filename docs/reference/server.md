@@ -632,9 +632,11 @@ each date against Plaid's window, each `account_id` against the Item's accounts,
 each amount's currency against its account's (the Item's checking account, else its
 first, when none is named, since Plaid then picks checking), with a 400 naming the field
 ("currency must be the account's": a mixed-currency account would break its derived
-balance); then it sends Plaid's account ids. Plaid's "today" is the calendar date
-at UTC−12 of the server's clock (`plaidToday`), never ahead of Plaid's in any zone; the
-window is that day and the 730 before it. In fake mode a webhook is a no-op that is
+balance); then it sends Plaid's account ids. The window (`inPlaidWindow`) runs from
+the UTC calendar date of the server's clock minus 729 (`plaidOldestDate`: Plaid measures
+its past bound from the UTC date and refuses 730 back, verified 2026-10-25, `PLAN.md`
+§4) to Plaid's "today", the calendar date at UTC−12 (`plaidToday`), never ahead of
+Plaid's in any zone. In fake mode a webhook is a no-op that is
 logged, and created transactions reach the next sync with `source: demo`.
 
 ## Provisioning
@@ -669,8 +671,10 @@ The job, `queued` then `running`, then `completed` or `failed` (with `finished_a
    time, and on each Item at least 35 s after its previous call (Plaid documents 2 per
    minute per Item and 50 per minute per client: four Items stay under 7 a minute). At
    each call the batch is checked against the window of that moment; what falls outside
-   is counted in `skipped` (a 730-day persona ends one day inside Plaid's 730, so only a
-   job that outlasts the day after it started loses its oldest days). `batches_sent`
+   is counted in `skipped`. A 730-day persona's oldest day lands on Plaid's today minus
+   729, so a job that runs before 12:00 UTC (when the UTC date is a day past Plaid's
+   today) skips it, as does a job that outlasts a UTC midnight; one that runs after
+   12:00 UTC injects every row. `batches_sent`
    counts batches handled, sent or wholly skipped. A full 730-day renter takes about 100
    minutes.
 4. Syncs each Item once more, so the injected history lands.
@@ -788,8 +792,8 @@ router's 404.
 | `sync_convergence_test.dart` | two engine sessions through the server converge, identically to the reference relay |
 | `plaid_flow_test.dart` | link token, exchange, `NOT_READY`, a completed sync, then the data with `source: demo` and rising versions; created, modified and removed transactions; paging; all-or-nothing runs and the mutation restart; a skipped secondary product; two concurrent runs applying once; the Item or user removed during a run (404); login required and update mode; other users' Items; Plaid errors; a failed `/item/get` removing the new Item; an exchange whose device is removed meanwhile (401, no Item left); `ITEM_NOT_FOUND` counting as removed; Item deletion; removed Items hidden from every data endpoint; a null optional field; tokens encrypted at rest; the webhook 401 |
 | `item_operations_test.dart` | refresh (Plaid called, `started`, the background run applied), login required on refresh and balances (409, `error_code`, cleared by a sync), balances stored and answered (the card's current negative, its available credit and limit as reported), unlinking with history kept (data visible, `removed`, 409s, no further Plaid call) and deleted, a login-required answer to a sync in flight not undoing a kept unlink, a bad `history`, account deletion after a kept unlink, the logo route and `logo_url`, other users' Items |
-| `sandbox_test.dart` | reset-login then login required on sync, every webhook code and the refused ones, created transactions arriving `demo` in our sign on the named account, every refused body, date and currency (the window's edge included), a login-required Item, other users' Items 404, a removed Item 409, a server that cannot drive Sandbox 409 |
-| `provisioning_test.dart` | on a clock the job's waits move: the queued answer, the counters, every engine transaction arriving once with the one shift, the accounts by name and mask, the `NOT_READY` wait; pacing at 35 s per Item and interleaving; rate-limit retries and their limit; Plaid 5xx retries 15 s apart and their limit on every step (exchange, `/item/get`, first and final sync), a 4xx on the exchange failing at once, and which failures count as one; a rate-limited `/item/get` retried with a fresh custom user, one Item kept; two accounts sharing a name and mask failing the job; the family persona's investment-only Tartan Bank Item mapped and the job completed; a failure recorded with no token logged; days skipped by a job that outlasts its day; one job per user (finished and failed ones do not block); foreign and unknown jobs 404; bodies outside the contract 400; a server that cannot drive Sandbox 409; the fake refusing a custom user it cannot read |
+| `sandbox_test.dart` | reset-login then login required on sync, every webhook code and the refused ones, created transactions arriving `demo` in our sign on the named account, every refused body, date and currency, the window's edges (the UTC date minus 730 refused and minus 729 accepted, Plaid's today accepted and the day after refused, at 09:30 and at 13:00 UTC), a login-required Item, other users' Items 404, a removed Item 409, a server that cannot drive Sandbox 409 |
+| `provisioning_test.dart` | on a clock the job's waits move: the queued answer, the counters, every engine transaction arriving once with the one shift, the accounts by name and mask, the `NOT_READY` wait; pacing at 35 s per Item and interleaving; rate-limit retries and their limit; Plaid 5xx retries 15 s apart and their limit on every step (exchange, `/item/get`, first and final sync), a 4xx on the exchange failing at once, and which failures count as one; a rate-limited `/item/get` retried with a fresh custom user, one Item kept; two accounts sharing a name and mask failing the job; the family persona's investment-only Tartan Bank Item mapped and the job completed; a failure recorded with no token logged; a 730-day persona's oldest day skipped and counted before 12:00 UTC and every row injected after; days skipped by a job that outlasts its day; one job per user (finished and failed ones do not block); foreign and unknown jobs 404; bodies outside the contract 400; a server that cannot drive Sandbox 409; the fake refusing a custom user it cannot read |
 | `account_deletion_test.dart` | every row gone and nobody else's touched, retries, a permanent failure deleting nothing, then a retry finishing; an Item linked during the retries removed too; Items that keep appearing giving 502; `ITEM_NOT_FOUND` not blocking; a sync whose user is deleted while Plaid is called (404); an exchange still at Plaid when the user is deleted (401, no Item left) |
 | `contract_routes_test.dart` | one route per operation and none outside the contract, mounted with its security; the problem and rejection codes equal the contract's enums and the engine's reasons; every body the contract rejects is a 400; the contract's examples are accepted |
 | `logging_test.dart` | request lines and no secrets; a 500 with the request id, and on a forced SQLite failure a log line with the error's type and codes but no SQL, parameters or operation; the text format |

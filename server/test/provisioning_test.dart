@@ -441,6 +441,63 @@ void main() {
     }
   });
 
+  group("a 730-day persona against Plaid's past bound", () {
+    // Plaid's oldest accepted date is the UTC date minus 729 (`PLAN.md` §4, 2026-10-25);
+    // the shift is Plaid's today (UTC−12) minus the as-of date.
+    final household = generateHousehold(
+      personaFor(PersonaId.renter),
+      seed: 1,
+      asOf: provisioningAsOf,
+    );
+    final user = sandboxUsers(household).single;
+    final rows = [...user.split.customUser, ...user.split.injected];
+
+    Future<(Map<String, Object?>, List<Map<String, Object?>>)> run() async {
+      final job = await runJob({'persona': 'renter'});
+      expect(job['status'], 'completed', reason: '$job');
+      return (
+        job['progress']! as Map<String, Object?>,
+        await allTransactions(),
+      );
+    }
+
+    test('before 12:00 UTC the oldest day is skipped and counted', () async {
+      // 09:30 UTC on 2026-10-24: Plaid's today is 2026-10-23, a shift of −1, so the
+      // persona's oldest day lands on 2024-10-24, the UTC date minus 730.
+      final oldest = LocalDate(2026, 10, 24).addDays(-729);
+      final outside = [
+        for (final t in rows)
+          if (t.date.addDays(-1).isBefore(oldest) ||
+              t.authorizedDate!.addDays(-1).isBefore(oldest))
+            t,
+      ];
+      expect(outside, isNotEmpty);
+      final (progress, stored) = await run();
+      expect(progress['skipped'], outside.length);
+      expect(progress['batches_sent'], progress['batches_total']);
+      expect(stored.length, rows.length - outside.length);
+      // The job filters on both dates, so neither is older than the bound.
+      for (final t in stored) {
+        for (final key in const ['date', 'authorized_date']) {
+          expect(
+            LocalDate.parse(t[key]! as String).isBefore(oldest),
+            isFalse,
+            reason: '$key of $t',
+          );
+        }
+      }
+    });
+
+    test('after 12:00 UTC every row is injected', () async {
+      // 13:00 UTC: Plaid's today is the UTC date, a shift of 0.
+      server.clock.advance(const Duration(hours: 3, minutes: 30));
+      ada = await server.login();
+      final (progress, stored) = await run();
+      expect(progress['skipped'], 0);
+      expect(stored, hasLength(rows.length));
+    });
+  });
+
   test('what leaves the window while the job runs is skipped', () async {
     // The window is checked at every call, against the shift computed once: a job that
     // stalls for two days (here, from its first injection) finds its oldest days outside
@@ -469,12 +526,10 @@ void main() {
       stored.length + skipped,
       user.split.customUser.length + user.split.injected.length,
     );
-    final today = LocalDate(2026, 10, 25);
+    // The job ends on 2026-10-26 UTC; Plaid's oldest date then is that minus 729.
+    final oldest = LocalDate(2026, 10, 26).addDays(-729);
     for (final t in stored) {
-      expect(
-        LocalDate.parse(t['date']! as String).isBefore(today.addDays(-730)),
-        isFalse,
-      );
+      expect(LocalDate.parse(t['date']! as String).isBefore(oldest), isFalse);
     }
   });
 

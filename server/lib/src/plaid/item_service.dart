@@ -15,8 +15,9 @@
 /// page and every product first, then applies all of it, both cursors included, in one
 /// transaction, so a failure part-way leaves the store as it was (`PLAN.md` §4: apply
 /// every page before persisting the cursor). Runs are serialized per Item. A secondary
-/// product that fails is skipped and logged; the transactions still apply. An Item whose removal at Plaid succeeded, or
-/// that Plaid no longer knows (`ITEM_NOT_FOUND`), carries `plaid_removed_at`; it is
+/// product that fails is skipped and logged; the transactions still apply. An Item
+/// whose removal at Plaid succeeded, or that Plaid no longer knows (`ITEM_NOT_FOUND`),
+/// carries `plaid_removed_at`; it is
 /// hidden from every Item and data route, and a retried account deletion skips it, unless
 /// it was unlinked with its history kept: then its status is `removed`, it stays listed
 /// with its data, and every call that would reach Plaid for it is 409 `conflict`. An

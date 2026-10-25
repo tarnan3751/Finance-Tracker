@@ -14,10 +14,11 @@
 /// `Retry-After` (60 s by default) at most three times, and a Plaid 5xx 15 s apart at most
 /// three times; the first other failure, a 4xx included, ends the job `failed` with the
 /// step and Plaid's code, never a token. A transaction whose shifted date falls outside
-/// Plaid's window at the moment of its call is left out and counted in `skipped`: the
-/// window is checked at every call against the shift computed once, and a 730-day persona
-/// ends one day inside Plaid's 730, so this happens to a job that outlasts the day after
-/// it started.
+/// Plaid's window at the moment of its call (the UTC date minus 729 to Plaid's today,
+/// `inPlaidWindow`) is left out and counted in `skipped`: the window is checked at every
+/// call against the shift computed once. A 730-day persona's oldest day is therefore
+/// skipped by a job that runs before 12:00 UTC, when the UTC date is a day past Plaid's
+/// today, and by one that outlasts a UTC midnight; after 12:00 UTC every row fits.
 ///
 /// Jobs live in memory: a restart forgets them, and the Items they linked stay. One job
 /// per user runs at a time. Every record the job causes is stored from Plaid's own
@@ -421,20 +422,17 @@ final class ProvisioningService {
   /// [config] without the transactions whose dates fall outside Plaid's window today,
   /// each counted in [job]'s `skipped`.
   Map<String, Object?> _withinWindow(_Job job, Map<String, Object?> config) {
-    final today = plaidToday(now());
+    final at = now();
     final accounts = <Object?>[];
     for (final raw in config['override_accounts']! as List<Object?>) {
       final account = raw! as Map<String, Object?>;
       final kept = <Object?>[];
       for (final raw in account['transactions']! as List<Object?>) {
         final t = raw! as Map<String, Object?>;
-        if (inPlaidWindow(
-              LocalDate.parse(t['date_posted']! as String),
-              today,
-            ) &&
+        if (inPlaidWindow(LocalDate.parse(t['date_posted']! as String), at) &&
             inPlaidWindow(
               LocalDate.parse(t['date_transacted']! as String),
-              today,
+              at,
             )) {
           kept.add(t);
         } else {
@@ -457,11 +455,11 @@ final class ProvisioningService {
       final wait = last.add(injectionInterval).difference(now());
       if (wait > Duration.zero) await delay(wait);
     }
-    final today = plaidToday(now());
+    final at = now();
     final inside = [
       for (final t in batch)
-        if (inPlaidWindow(t.dateTransacted, today) &&
-            inPlaidWindow(t.datePosted, today))
+        if (inPlaidWindow(t.dateTransacted, at) &&
+            inPlaidWindow(t.datePosted, at))
           t,
     ];
     job.skipped += batch.length - inside.length;

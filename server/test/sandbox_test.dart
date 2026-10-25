@@ -219,8 +219,28 @@ void main() {
           reason: '$r',
         );
       }
-      // The oldest date Plaid takes is 730 days back.
-      expect((await create(itemId, [spotify(date: '2024-10-23')])).status, 204);
+    },
+  );
+
+  test(
+    "the window runs from the UTC date minus 729 to Plaid's today",
+    () async {
+      final itemId = await linkAndSync();
+      Future<int> status(String date) async =>
+          (await create(itemId, [spotify(date: date)])).status;
+      // 2026-10-24 09:30 UTC: the past bound is measured from the UTC date
+      // (2026-10-24), strictly; the future bound is Plaid's today (2026-10-23).
+      expect(await status('2024-10-24'), 400, reason: 'UTC date − 730');
+      expect(await status('2024-10-25'), 204, reason: 'UTC date − 729');
+      expect(await status('2026-10-23'), 204, reason: "Plaid's today");
+      expect(await status('2026-10-24'), 400, reason: "Plaid's today + 1");
+      // 13:00 UTC: Plaid's today has caught up with the UTC date.
+      server.clock.advance(const Duration(hours: 3, minutes: 30));
+      ada = await server.login();
+      expect(await status('2026-10-24'), 204, reason: "Plaid's today");
+      expect(await status('2026-10-25'), 400, reason: "Plaid's today + 1");
+      expect(await status('2024-10-24'), 400, reason: 'UTC date − 730');
+      expect(await status('2024-10-25'), 204, reason: 'UTC date − 729');
     },
   );
 

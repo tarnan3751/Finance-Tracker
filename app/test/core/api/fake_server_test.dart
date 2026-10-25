@@ -615,6 +615,40 @@ void main() {
     });
 
     test(
+      "created transactions reach back to the UTC date minus 729, as Plaid's",
+      () async {
+        // fakeNow is 2026-10-24 15:00 UTC: Plaid takes dates from 2024-10-25, the UTC date
+        // minus 729, and refuses 730 back (`PLAN.md` §4, 2026-10-25).
+        final FakeClient client = FakeClient.signedIn(server);
+        server.seedLinkedItems('ada@example.com');
+        SandboxTransaction on(LocalDate day) => SandboxTransaction(
+          dateTransacted: day,
+          datePosted: day,
+          amount: Money(-100, 'USD'),
+          description: 'OLD',
+        );
+        await expectLater(
+          client.api.sandboxCreateTransactions('sample-item-1', [
+            on(LocalDate(2024, 10, 24)),
+          ]),
+          throwsA(
+            isA<ValidationFailed>().having(
+              (e) => e.errors.map((f) => f.field),
+              'fields',
+              [
+                'transactions[0].date_transacted',
+                'transactions[0].date_posted',
+              ],
+            ),
+          ),
+        );
+        await client.api.sandboxCreateTransactions('sample-item-1', [
+          on(LocalDate(2024, 10, 25)),
+        ]);
+      },
+    );
+
+    test(
       'a provisioning job completes on the next tick with the persona linked',
       () async {
         final FakeClient client = FakeClient.signedIn(server);

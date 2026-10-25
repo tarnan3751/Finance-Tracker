@@ -1114,6 +1114,10 @@ final class FakeServer {
   LocalDate get _plaidToday =>
       LocalDate.fromDateTime(now().subtract(const Duration(hours: 12)));
 
+  /// The oldest date Plaid's Sandbox accepts: the UTC date minus 729, as on the server
+  /// (`PLAN.md` §4, verified 2026-10-25).
+  LocalDate get _plaidOldest => LocalDate.fromDateTime(now()).addDays(-729);
+
   FakeResponse _createTransactions(
     String itemId,
     Map<String, Object?> json,
@@ -1133,6 +1137,7 @@ final class FakeServer {
                 linked.data.accounts.firstOrNull)
             ?.id;
     final LocalDate today = _plaidToday;
+    final LocalDate oldest = _plaidOldest;
     final List<Transaction> created = [];
     if (raw != null && (raw.isEmpty || raw.length > 10)) {
       r.errors.add((
@@ -1177,11 +1182,10 @@ final class FakeServer {
           ('date_transacted', transacted),
           ('date_posted', posted),
         ]) {
-          if (date != null &&
-              (date.isAfter(today) || date.isBefore(today.addDays(-730)))) {
+          if (date != null && (date.isAfter(today) || date.isBefore(oldest))) {
             r.errors.add((
               field: 'transactions[$i].$key',
-              message: 'must be today or up to 730 days back',
+              message: 'must be from $oldest to $today',
             ));
           }
         }
