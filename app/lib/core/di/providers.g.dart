@@ -1059,6 +1059,57 @@ final class RuleRepositoryProvider
 
 String _$ruleRepositoryHash() => r'e61eb88d426fccdfd23056fa18a0df7098bab5c9';
 
+/// The budgets.
+
+@ProviderFor(budgetRepository)
+final budgetRepositoryProvider = BudgetRepositoryProvider._();
+
+/// The budgets.
+
+final class BudgetRepositoryProvider
+    extends
+        $FunctionalProvider<
+          BudgetRepository,
+          BudgetRepository,
+          BudgetRepository
+        >
+    with $Provider<BudgetRepository> {
+  /// The budgets.
+  BudgetRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'budgetRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$budgetRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<BudgetRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  BudgetRepository create(Ref ref) {
+    return budgetRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(BudgetRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<BudgetRepository>(value),
+    );
+  }
+}
+
+String _$budgetRepositoryHash() => r'f78e75f5318ada075b16c6955547b9a30e3f9697';
+
 /// Where the app preferences are kept.
 
 @ProviderFor(settingsRepository)

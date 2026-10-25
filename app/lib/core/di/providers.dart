@@ -33,6 +33,11 @@ import 'package:finance_tracker/features/accounts/data/in_memory_account_reposit
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
 import 'package:finance_tracker/features/auth/domain/session_state.dart';
+import 'package:finance_tracker/features/budgets/data/demo_budget_repository.dart';
+import 'package:finance_tracker/features/budgets/data/demo_budgets.dart';
+import 'package:finance_tracker/features/budgets/data/drift_budget_repository.dart';
+import 'package:finance_tracker/features/budgets/data/in_memory_budget_repository.dart';
+import 'package:finance_tracker/features/budgets/domain/budget_repository.dart';
 import 'package:finance_tracker/features/categories/data/demo_category_repository.dart';
 import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
 import 'package:finance_tracker/features/categories/data/in_memory_category_repository.dart';
@@ -227,6 +232,17 @@ RuleRepository ruleRepository(Ref ref) {
   return repository;
 }
 
+/// The budgets.
+@Riverpod(keepAlive: true)
+BudgetRepository budgetRepository(Ref ref) {
+  final InMemoryBudgetRepository repository = InMemoryBudgetRepository(
+    ref.watch(clockProvider),
+    recorder: ref.watch(changeRecorderProvider),
+  );
+  ref.onDispose(repository.close);
+  return repository;
+}
+
 /// Where the app preferences are kept.
 @Riverpod(keepAlive: true)
 SettingsRepository settingsRepository(Ref ref) {
@@ -348,6 +364,13 @@ final List<Override> _driftOverrides = [
       recorder: ref.watch(changeRecorderProvider),
     ),
   ),
+  budgetRepositoryProvider.overrideWith(
+    (ref) => DriftBudgetRepository(
+      ref.watch(databaseProvider),
+      ref.watch(clockProvider),
+      recorder: ref.watch(changeRecorderProvider),
+    ),
+  ),
   settingsRepositoryProvider.overrideWith(
     (ref) => DriftSettingsRepository(
       ref.watch(databaseProvider),
@@ -398,6 +421,15 @@ final List<Override> _demoOverrides = [
     final DemoRuleRepository repository = DemoRuleRepository(
       ref.watch(clockProvider),
       initial: demoRules(ref.watch(demoPersonaProvider)),
+    );
+    ref.onDispose(repository.close);
+    return repository;
+  }),
+  budgetRepositoryProvider.overrideWith((ref) {
+    final Clock clock = ref.watch(clockProvider);
+    final DemoBudgetRepository repository = DemoBudgetRepository(
+      clock,
+      initial: demoBudgets(ref.watch(demoPersonaProvider), clock.today()),
     );
     ref.onDispose(repository.close);
     return repository;

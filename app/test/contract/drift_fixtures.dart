@@ -6,6 +6,7 @@ import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/accounts/data/drift_account_repository.dart';
+import 'package:finance_tracker/features/budgets/data/drift_budget_repository.dart';
 import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
 import 'package:finance_tracker/features/items/data/drift_item_repository.dart';
 import 'package:finance_tracker/features/rules/data/drift_rule_repository.dart';
@@ -47,6 +48,7 @@ FixtureFactory driftFixtures() {
         settings: DriftSettingsRepository(database, recorder: recorder),
         items: DriftItemRepository(database),
         rules: DriftRuleRepository(database, clock, recorder: recorder),
+        budgets: DriftBudgetRepository(database, clock, recorder: recorder),
       );
     },
     dispose: () => database.close(),

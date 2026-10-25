@@ -1,5 +1,5 @@
 // The recording contract: every user-authored write of the account, transaction,
-// category, rule and settings repositories records exactly one change-log entry per entity it
+// category, rule, budget and settings repositories records exactly one change-log entry per entity it
 // changed, and nothing else is recorded (Plaid rows only through their five overrides;
 // derived and demo transactions, linked accounts and the seeding never). The Drift and
 // in-memory implementations run it from test/core/sync/; the demo one records nothing.
@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 
+import 'budget_repository_contract.dart' show testBudget;
 import 'repository_fixture.dart';
 import 'rule_repository_contract.dart' show testRule;
 
@@ -268,6 +269,32 @@ void runRecordingContract(
       final EntityRecord record = (await sync.read(EntityType.rule, 'r1'))!;
       expect(record.isComplete, isTrue);
       expect(record.fields['position'], 1);
+    });
+
+    test('budgets: every write records what it changed', () async {
+      await f.budgets.upsert(testBudget('b1'));
+      expect(await recorded(), [
+        'budget/b1 create amount,category_id,id,period,period_start_day,'
+            'rollover,start_date',
+      ]);
+      await f.budgets.upsert(testBudget('b1', amount: 50000));
+      await f.budgets.upsert(testBudget('b1', amount: 50000));
+      expect(await recorded(), ['budget/b1 update amount']);
+      await f.budgets.delete('b1');
+      expect(await recorded(), ['budget/b1 delete deleted_at']);
+      await expectLater(
+        f.budgets.upsert(testBudget('b1')),
+        throwsA(isA<EntityDeletedException>()),
+      );
+      await f.budgets.restore('b1');
+      expect(await recorded(), ['budget/b1 update deleted_at']);
+      final EntityRecord record = (await sync.read(EntityType.budget, 'b1'))!;
+      expect(record.isComplete, isTrue);
+      expect(record.fields['amount'], {
+        'minor_units': 50000,
+        'currency': 'USD',
+      });
+      expect(record.fields['start_date'], '2026-08-25');
     });
 
     test(

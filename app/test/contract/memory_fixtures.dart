@@ -1,10 +1,12 @@
 // Fixtures of the in-memory and demo implementations for the contract suites: the
 // repositories over one fresh InMemoryStore (the demo one loaded with an empty seed and no
-// rules, so the suites' "fresh repository" cases hold; the real seed has its own test).
+// rules or budgets, so the suites' "fresh repository" cases hold; the real seed has its own test).
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/accounts/data/demo_account_repository.dart';
 import 'package:finance_tracker/features/accounts/data/in_memory_account_repository.dart';
+import 'package:finance_tracker/features/budgets/data/demo_budget_repository.dart';
+import 'package:finance_tracker/features/budgets/data/in_memory_budget_repository.dart';
 import 'package:finance_tracker/features/categories/data/demo_category_repository.dart';
 import 'package:finance_tracker/features/categories/data/in_memory_category_repository.dart';
 import 'package:finance_tracker/features/items/data/demo_item_repository.dart';
@@ -49,6 +51,7 @@ FixtureFactory inMemoryFixtures() {
         settings: InMemorySettingsRepository(recorder: recorder),
         items: InMemoryItemRepository(store),
         rules: InMemoryRuleRepository(clock, recorder: recorder),
+        budgets: InMemoryBudgetRepository(clock, recorder: recorder),
       );
     },
     dispose: () => store.close(),
@@ -71,6 +74,7 @@ FixtureFactory demoFixtures() {
         settings: DemoSettingsRepository(),
         items: DemoItemRepository(store),
         rules: DemoRuleRepository(clock),
+        budgets: DemoBudgetRepository(clock),
       );
     },
     dispose: () => store.close(),
