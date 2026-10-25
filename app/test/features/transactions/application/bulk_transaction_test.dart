@@ -144,7 +144,13 @@ void main() {
         testTransaction('m1', 'a1', -100),
         testTransaction('m2', 'a1', -200),
       ], true),
-      throwsA(anything),
+      throwsA(
+        isA<SqliteException>().having(
+          (e) => e.message,
+          'message',
+          contains('refused by the test'),
+        ),
+      ),
     );
     expect((await transactions.watchById('m1').first)!.hidden, isFalse);
     expect((await syncStore.unsynced(limit: 1000)).length, outbox);
