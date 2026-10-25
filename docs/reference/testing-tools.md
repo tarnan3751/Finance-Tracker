@@ -117,7 +117,7 @@ capture added later is held to the same rule.
 `server/test/live/sandbox_live_test.dart` runs the server's real code against Plaid
 Sandbox: one Item for `user_transactions_dynamic` at First Platypus Bank, linked (with a
 repeated exchange), synced to completion, its data checked as `source: plaid`, balances
-refreshed, an unknown webhook key asked for, reset to login-required, and removed. A
+refreshed, an unknown webhook key asked for, reset to login-required, and removed. A second case links a `user_custom` with one 401(k) at Tartan Bank (`ins_109511`, products `transactions` and `investments`), an investment-only Item, and finds the account and its holding through the server's sync before removing it. A
 failed step still removes the Item. It is skipped unless `PLAID_LIVE_TESTS=1`,
 `PLAID_CLIENT_ID` and `PLAID_SECRET` are all in the environment, so the gate, CI and the
 lanes never run it (`PLAN.md` §13: local only). The owner runs it from `server/` with the
