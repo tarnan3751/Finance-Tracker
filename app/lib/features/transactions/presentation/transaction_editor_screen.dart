@@ -6,7 +6,8 @@
 /// code resolves to, captioned as the bank's. Deleting from here offers an undo for five
 /// seconds; a Plaid transaction has no Delete, since only the bank removes one. "Run
 /// rules on this transaction" (the overflow menu) applies the user's rules to the values
-/// in the form, which Save then keeps like any edit.
+/// in the form, which Save then keeps like any edit. "Hidden" (the overflow menu, checked
+/// when on) hides the transaction from the list, budgets and reports, saved with Save.
 library;
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
@@ -159,6 +160,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     text: widget.initial?.notes,
   );
   late List<String> _tags = [...?widget.initial?.tags];
+  late bool _hidden = widget.initial?.hidden ?? false;
   final TextEditingController _tagInput = TextEditingController();
   bool _saving = false;
 
@@ -225,6 +227,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
       categoryId: _categoryId,
       notes: notes.isEmpty ? null : notes,
       tags: _tags,
+      hidden: _hidden,
     );
   }
 
@@ -260,6 +263,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
               userCategoryId: draft.categoryId,
               notes: draft.notes,
               tags: draft.tags,
+              hidden: draft.hidden,
             );
     final RuleOutcome outcome = applyRules(
       rules,
@@ -272,6 +276,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
         _name.text = changed.name;
         _categoryId = changed.userCategoryId;
         _tags = changed.tags;
+        _hidden = changed.hidden;
       });
     }
     final String? name = outcome.rule?.name;
@@ -387,6 +392,14 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
               PopupMenuItem(
                 onTap: _runRules,
                 child: Text(l10n.transactionRunRules),
+              ),
+              CheckedPopupMenuItem(
+                checked: _hidden,
+                onTap: () => setState(() => _hidden = !_hidden),
+                child: Semantics(
+                  checked: _hidden,
+                  child: Text(l10n.transactionHiddenOption),
+                ),
               ),
             ],
           ),

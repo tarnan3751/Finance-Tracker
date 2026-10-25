@@ -208,6 +208,7 @@ class _Detail extends ConsumerWidget {
             ),
             amount: transaction.amount,
             pending: transaction.pending,
+            hidden: transaction.hidden,
             runningBalance: entry.balance,
             runningBalanceFromReported: balance.reported,
             onTap: () => TransactionRoute(transaction.id).push<void>(context),

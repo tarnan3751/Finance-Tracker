@@ -1,8 +1,10 @@
 /// What the transaction screens show and do: the list under its search and filters, paged
 /// fifty at a time and grouped by date; the lookup that gives each transaction its
 /// effective category; what the editor and the filter sheet suggest (tags, recently used
-/// categories and accounts); and the editor's writes.
+/// categories and accounts); and the writes of the editor and of bulk edit.
 library;
+
+import 'dart:async';
 
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/clock.dart';
@@ -14,6 +16,7 @@ import 'package:finance_tracker/features/transactions/domain/transaction_reposit
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_models/shared_models.dart';
+import 'package:sync_engine/sync_engine.dart';
 import 'package:uuid/uuid.dart';
 
 part 'transactions_providers.g.dart';
@@ -138,11 +141,12 @@ Stream<Transaction?> transaction(Ref ref, String id) =>
 Stream<TransactionUsage> transactionUsage(Ref ref) =>
     ref.watch(transactionRepositoryProvider).watchUsage();
 
-/// The writes of the transaction editor.
+/// The writes of the transaction editor and of bulk edit.
 @riverpod
 TransactionActions transactionActions(Ref ref) => TransactionActions(
   ref.watch(transactionRepositoryProvider),
   ref.watch(clockProvider),
+  syncStore: ref.watch(recordingSyncStoreProvider),
 );
 
 /// What the editor enters: everything a user sets on a transaction.
@@ -154,16 +158,29 @@ typedef TransactionDraft = ({
   String? categoryId,
   String? notes,
   List<String> tags,
+  bool hidden,
 });
 
-/// Creates, edits, deletes and restores transactions. The repository's typed exceptions
-/// (`AccountNotFoundException`, `CurrencyMismatchException`, `EntityDeletedException`)
-/// reach the caller, which explains them.
+/// Creates, edits, deletes and restores transactions, one at a time or in bulk. The
+/// repository's typed exceptions (`AccountNotFoundException`, `CurrencyMismatchException`,
+/// `EntityDeletedException`, and for the bulk writes `TransactionBatchException`) reach
+/// the caller, which explains them.
 final class TransactionActions {
-  TransactionActions(this._transactions, this._clock);
+  TransactionActions(this._transactions, this._clock, {this._syncStore});
 
   final TransactionRepository _transactions;
   final Clock _clock;
+
+  // The store the writes are recorded into, whose transaction is the database's in dev
+  // and prod; null in the demo, which records nothing.
+  final SyncStore? _syncStore;
+
+  // Runs [body] in one store transaction, so a sync pull cannot land between a bulk
+  // action's reads and its write; directly when there is no store.
+  Future<T> _inTransaction<T>(Future<T> Function() body) {
+    final SyncStore? store = _syncStore;
+    return store == null ? body() : store.transaction(body);
+  }
 
   static const Uuid _uuid = Uuid();
 
@@ -182,6 +199,7 @@ final class TransactionActions {
         userCategoryId: draft.categoryId,
         notes: draft.notes,
         tags: draft.tags,
+        hidden: draft.hidden,
         source: DataSource.manual,
         createdAt: now,
         updatedAt: now,
@@ -203,6 +221,7 @@ final class TransactionActions {
           userCategoryId: draft.categoryId,
           notes: draft.notes,
           tags: draft.tags,
+          hidden: draft.hidden,
           updatedAt: _clock.nowUtc(),
         ),
       );
@@ -212,4 +231,67 @@ final class TransactionActions {
 
   /// Restores deleted transaction [id] (the undo of [delete]).
   Future<void> restore(String id) => _transactions.restore(id);
+
+  /// Sets the user category of [selected] to [categoryId] (null clears it). Returns how
+  /// many changed.
+  Future<int> setCategory(List<Transaction> selected, String? categoryId) =>
+      _bulk(selected, (t) => t.copyWith(userCategoryId: categoryId));
+
+  /// Adds [tag] to those of [selected] that do not carry it. Returns how many changed.
+  Future<int> addTag(List<Transaction> selected, String tag) => _bulk(
+    selected,
+    (t) => t.tags.contains(tag) ? t : t.copyWith(tags: [...t.tags, tag]),
+  );
+
+  /// Hides [selected], or unhides them when [hidden] is false. Returns how many changed.
+  Future<int> setHidden(List<Transaction> selected, bool hidden) =>
+      _bulk(selected, (t) => t.copyWith(hidden: hidden));
+
+  /// Deletes [ids] in one write, all or none (none of them may be `plaid`).
+  Future<void> deleteAll(List<String> ids) =>
+      _inTransaction(() => _transactions.deleteAll(ids));
+
+  // Applies [change] to each of [selected] as the repository holds it now (an edit
+  // synced since the list last showed it is kept; a row deleted since is skipped) and
+  // writes the rows it changes in one recorded batch, stamped now; returns how many.
+  // The reads and the write share one transaction, so nothing synced in between is
+  // written back.
+  Future<int> _bulk(
+    List<Transaction> selected,
+    Transaction Function(Transaction) change,
+  ) => _inTransaction(() async {
+    final List<Transaction> changed = [];
+    for (final Transaction t in selected) {
+      final Transaction? current = await _current(
+        _transactions.watchById(t.id),
+      );
+      if (current == null) continue;
+      final Transaction next = change(current);
+      if (next != current) changed.add(next);
+    }
+    final DateTime now = _clock.nowUtc();
+    await _transactions.upsertAll([
+      for (final Transaction t in changed) t.copyWith(updatedAt: now),
+    ]);
+    return changed.length;
+  });
+}
+
+// The first value of [stream], the repository's current one. Unlike `Stream.first` it
+// does not wait for the subscription's cancel, whose future a widget test's fake clock
+// never completes for the in-memory repositories' streams (as `RuleRunner` reads).
+Future<T> _current<T>(Stream<T> stream) {
+  final Completer<T> value = Completer<T>();
+  late final StreamSubscription<T> subscription;
+  subscription = stream.listen(
+    (v) {
+      if (value.isCompleted) return;
+      value.complete(v);
+      unawaited(subscription.cancel());
+    },
+    onError: (Object e, StackTrace s) {
+      if (!value.isCompleted) value.completeError(e, s);
+    },
+  );
+  return value.future;
 }

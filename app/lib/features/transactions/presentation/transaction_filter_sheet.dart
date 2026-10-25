@@ -1,6 +1,7 @@
-/// The transaction list's filter sheet: accounts, categories, a date range (this month,
-/// last month, the last 90 days, this year, or a custom range), an amount range in one
-/// currency, and tags. Nothing changes until "Apply"; "Clear" empties the sheet.
+/// The transaction list's filter sheet: whether hidden transactions are shown, first,
+/// then accounts, categories, a date range (this month, last month, the last 90 days,
+/// this year, or a custom range), an amount range in one currency, and tags. Nothing changes until
+/// "Apply"; "Clear" empties the sheet.
 library;
 
 import 'package:finance_tracker/core/time/today_provider.dart';
@@ -72,6 +73,7 @@ class _TransactionFilterSheetState
   late Set<String> _accounts = {...widget.initial.accountIds};
   late Set<String> _categories = {...widget.initial.categoryIds};
   late Set<String> _tags = {...widget.initial.tags};
+  late bool _showHidden = widget.initial.showHidden;
   late DateFilter? _date = widget.initial.date;
   late String? _currency =
       widget.initial.minAmount?.currencyCode ??
@@ -94,6 +96,7 @@ class _TransactionFilterSheetState
     _accounts = {};
     _categories = {};
     _tags = {};
+    _showHidden = false;
     _date = null;
     _min.clear();
     _max.clear();
@@ -200,6 +203,14 @@ class _TransactionFilterSheetState
               controller: scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
+                // First, so it is on screen whatever the sections below hold.
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.filterShowHidden),
+                  subtitle: Text(l10n.filterShowHiddenCaption),
+                  value: _showHidden,
+                  onChanged: (on) => setState(() => _showHidden = on),
+                ),
                 section(l10n.navAccounts),
                 Wrap(
                   spacing: 8,
@@ -381,6 +392,7 @@ class _TransactionFilterSheetState
                             minAmount: min,
                             maxAmount: max,
                             tags: _tags,
+                            showHidden: _showHidden,
                           ),
                         ),
                   child: Text(l10n.filterApply),

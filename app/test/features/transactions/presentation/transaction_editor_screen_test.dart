@@ -1,7 +1,8 @@
 // The transaction editor: a new transaction is a manual expense or income on the route's
 // account (else the only one, else the last used), dated today; amounts parse in the
 // account's currency and are never rounded; tags and categories; an edit keeps the
-// source and what the editor does not show; delete offers an undo for five seconds, and
+// source and what the editor does not show; Hidden in the menu is saved with Save; delete
+// offers an undo for five seconds, and
 // a Plaid transaction has no Delete.
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/features/categories/data/category_defaults.dart';
@@ -252,6 +253,53 @@ void main() {
     expect(after.splits, before.splits);
     expect(after.createdAt, before.createdAt);
     expect(after.updatedAt, testClock.nowUtc());
+  });
+
+  testWidgets('Hidden in the menu is checked as stored and saved with Save', (
+    tester,
+  ) async {
+    final InMemoryStore store = seededStore();
+    await _pumpEditor(tester, store, '/transactions/demo-txn-04');
+    final SemanticsHandle semantics = tester.ensureSemantics();
+    try {
+      await tester.tap(find.byTooltip('More options'));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<CheckedPopupMenuItem<void>>(
+              find.byType(CheckedPopupMenuItem<void>),
+            )
+            .checked,
+        isFalse,
+      );
+      expect(
+        tester.getSemantics(find.text('Hidden')),
+        isSemantics(label: 'Hidden', hasCheckedState: true, isChecked: false),
+      );
+      await tester.tap(find.text('Hidden'));
+      await tester.pumpAndSettle();
+      expect(store.transaction('demo-txn-04')!.hidden, isFalse);
+
+      await tester.tap(find.byTooltip('More options'));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<CheckedPopupMenuItem<void>>(
+              find.byType(CheckedPopupMenuItem<void>),
+            )
+            .checked,
+        isTrue,
+      );
+      await tester.tapAt(Offset.zero);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+    } finally {
+      semantics.dispose();
+    }
+    final Transaction saved = store.transaction('demo-txn-04')!;
+    expect(saved.hidden, isTrue);
+    expect(saved.updatedAt, testClock.nowUtc());
   });
 
   testWidgets('delete offers an undo that restores the transaction', (

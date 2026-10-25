@@ -1834,4 +1834,130 @@ class AppLocalizationsEn extends AppLocalizations {
   ) {
     return '$category reached $percent % of $available on $date';
   }
+
+  @override
+  String get transactionHidden => 'Hidden';
+
+  @override
+  String get transactionHiddenOption => 'Hidden';
+
+  @override
+  String get transactionSelect => 'Select';
+
+  @override
+  String get filterShowHidden => 'Show hidden';
+
+  @override
+  String get filterShowHiddenCaption =>
+      'Hidden transactions still count toward their account\'s balance.';
+
+  @override
+  String get filterIncludingHidden => 'Including hidden';
+
+  @override
+  String transactionsSelected(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get selectionCancel => 'Cancel selection';
+
+  @override
+  String get selectAll => 'Select all';
+
+  @override
+  String get bulkSetCategory => 'Set category';
+
+  @override
+  String get bulkAddTag => 'Add tag';
+
+  @override
+  String get bulkTagLabel => 'Tag';
+
+  @override
+  String get bulkTagAdd => 'Add';
+
+  @override
+  String get bulkHide => 'Hide';
+
+  @override
+  String get bulkUnhide => 'Unhide';
+
+  @override
+  String bulkCategorySet(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Category set on $count transactions',
+      one: 'Category set on 1 transaction',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bulkTagAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Tag added to $count transactions',
+      one: 'Tag added to 1 transaction',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bulkHidden(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions hidden',
+      one: '1 transaction hidden',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bulkUnhidden(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions unhidden',
+      one: '1 transaction unhidden',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bulkDeleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions deleted',
+      one: '1 transaction deleted',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bulkDeleteTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Delete $count transactions?',
+      one: 'Delete 1 transaction?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bulkDeleteBody =>
+      'They leave every list and their accounts\' balances.';
+
+  @override
+  String get bulkFailed =>
+      'Nothing changed: the transactions could not be updated.';
+
+  @override
+  String get bulkFailedDeleted =>
+      'Nothing changed: one of the transactions was deleted meanwhile.';
 }

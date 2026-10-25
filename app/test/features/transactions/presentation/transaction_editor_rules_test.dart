@@ -76,6 +76,50 @@ void main() {
     expect(saved.source, DataSource.manual);
   });
 
+  testWidgets('a hide rule checks Hidden in the menu; Save keeps it', (
+    tester,
+  ) async {
+    final InMemoryStore store = seededStore();
+    await pumpApp(
+      tester,
+      initialLocation: '/transactions/new?account=$checkingId',
+      overrides: [
+        storeOverride(store),
+        rulesOverride(
+          seededRules(
+            rules: [
+              _coffee.copyWith(
+                actions: const [RuleAction(kind: RuleActionKind.hide)],
+              ),
+            ],
+          ),
+        ),
+      ],
+      size: const Size(412, 1600),
+    );
+    await tester.enterText(_field('Amount'), '4.50');
+    await tester.enterText(_field('Description'), 'Corner Coffee');
+    await _runRules(tester);
+    await tester.tap(find.byTooltip('More options'));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<CheckedPopupMenuItem<void>>(
+            find.byType(CheckedPopupMenuItem<void>),
+          )
+          .checked,
+      isTrue,
+    );
+    await tester.tapAt(Offset.zero);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(
+      store.transactions(TransactionQuery(text: 'Corner')).single.hidden,
+      isTrue,
+    );
+  });
+
   testWidgets('no match, and a match with nothing to change', (tester) async {
     final InMemoryStore store = seededStore();
     await pumpApp(

@@ -57,7 +57,8 @@ final class DateFilter {
 }
 
 /// The search text and the filters of the transaction list. Empty sets and nulls mean
-/// no filter; the amount bounds share one currency.
+/// no filter; the amount bounds share one currency. Hidden transactions are left out
+/// unless [showHidden].
 final class TransactionFilters {
   const TransactionFilters({
     this.text = '',
@@ -67,6 +68,7 @@ final class TransactionFilters {
     this.minAmount,
     this.maxAmount,
     this.tags = const {},
+    this.showHidden = false,
   });
 
   /// No search and no filter.
@@ -80,19 +82,25 @@ final class TransactionFilters {
   final Money? maxAmount;
   final Set<String> tags;
 
-  /// Whether a filter other than the search text is set.
+  /// Whether hidden transactions are listed too.
+  final bool showHidden;
+
+  /// Whether a filter other than the search text is set ("Show hidden" counts: the list
+  /// then holds more than its default).
   bool get hasFilters =>
       accountIds.isNotEmpty ||
       categoryIds.isNotEmpty ||
       date != null ||
       minAmount != null ||
       maxAmount != null ||
-      tags.isNotEmpty;
+      tags.isNotEmpty ||
+      showHidden;
 
   /// The query of these filters on [today], returning at most [limit] transactions. Each
   /// chosen category brings the categories [childrenOf] it gives along, and every
   /// category included brings its Plaid code ([plaidCodeOf]), so a transaction matches
-  /// on its effective category (`effective_category.dart`).
+  /// on its effective category (`effective_category.dart`). Hidden transactions are
+  /// left out unless [showHidden].
   TransactionQuery toQuery(
     LocalDate today, {
     int? limit,
@@ -111,6 +119,7 @@ final class TransactionFilters {
       },
       range: date?.rangeOn(today),
       text: text.trim().isEmpty ? null : text.trim(),
+      hidden: showHidden ? null : false,
       tags: tags,
       minAmount: minAmount,
       maxAmount: maxAmount,
@@ -127,6 +136,7 @@ final class TransactionFilters {
     minAmount: minAmount,
     maxAmount: maxAmount,
     tags: tags,
+    showHidden: showHidden,
   );
 
   /// A copy without account [id].
@@ -147,12 +157,16 @@ final class TransactionFilters {
   /// A copy without the amount bounds.
   TransactionFilters withoutAmount() => _copy(clearAmount: true);
 
+  /// A copy that leaves hidden transactions out.
+  TransactionFilters withoutHidden() => _copy(hideHidden: true);
+
   TransactionFilters _copy({
     Set<String>? accountIds,
     Set<String>? categoryIds,
     Set<String>? tags,
     bool clearDate = false,
     bool clearAmount = false,
+    bool hideHidden = false,
   }) => TransactionFilters(
     text: text,
     accountIds: accountIds ?? this.accountIds,
@@ -161,6 +175,7 @@ final class TransactionFilters {
     minAmount: clearAmount ? null : minAmount,
     maxAmount: clearAmount ? null : maxAmount,
     tags: tags ?? this.tags,
+    showHidden: !hideHidden && showHidden,
   );
 
   @override
@@ -172,7 +187,8 @@ final class TransactionFilters {
       other.date == date &&
       other.minAmount == minAmount &&
       other.maxAmount == maxAmount &&
-      _same(other.tags, tags);
+      _same(other.tags, tags) &&
+      other.showHidden == showHidden;
 
   @override
   int get hashCode => Object.hash(
@@ -183,6 +199,7 @@ final class TransactionFilters {
     minAmount,
     maxAmount,
     Object.hashAllUnordered(tags),
+    showHidden,
   );
 }
 

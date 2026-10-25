@@ -17,8 +17,10 @@ the rest of the last week, then the full date, through intl's `DateFormat` in th
 locale (`transaction_dates.dart`). A row (`transaction_tile.dart`, built from plain values,
 no stream per row) shows the merchant's avatar and name (**Merchants**), the account and
 the effective category (**The effective category**; "Uncategorized" when there is none),
-the amount colored by `FinanceColors`, and a "Pending" label. The account detail's ledger
-rows are the same tile, with the effective category and the running balance.
+the amount colored by `FinanceColors`, a "Pending" label, and a "Hidden" label on a
+transaction the user hid (**Hiding**). The account detail's ledger rows are the same
+tile, with the effective category and the running balance; the ledger lists hidden rows,
+labelled, since they count toward the balance.
 
 - **Paging.** `TransactionListController` holds the filters and how many pages are loaded;
   `transactionPageProvider` watches the repository with `limit` = pages × 50
@@ -35,13 +37,42 @@ rows are the same tile, with the effective category and the running balance.
   last 90 days, this year, or a custom range from the range picker), an amount range
   (absolute amounts in one currency, chosen among the accounts' currencies when there is
   more than one; invalid input, or a maximum below the minimum, is an inline error that
-  disables Apply) and tags. A preset is kept as a preset and
+  disables Apply), tags, and "Show hidden" (off by default; on, it lights the filter
+  badge and shows an "Including hidden" chip that turns it off). A preset is kept as a preset and
   resolved against `todayProvider` each time the query is built (`DateFilter.rangeOn`), so
   "This month" follows the calendar, past midnight included. Active filters show as chips under the app bar, each
   removing its filter.
 
 `TransactionFilters` and `DateFilter` are in `application/transaction_filters.dart`;
-`toQuery(today, limit:)` makes the `TransactionQuery`.
+`toQuery(today, limit:)` makes the `TransactionQuery`, with `hidden: false` unless
+`showHidden`.
+
+## Hiding
+
+`Transaction.hidden` is the user's override (`PLAN.md` §12): a hidden transaction still
+counts toward its account's balance, since the money moved, and is left out of the
+default list, budgets and reports. It is set from the editor's menu, by bulk edit or by
+a rule's `hide` (`rules.md`), on any source; on a `plaid` row it is recorded as an
+override like the category (`sync-app.md`), so it survives the bank's later updates.
+
+## Bulk edit
+
+A long press on a row starts selection mode (`transactions_screen.dart`): each row shows
+a checkbox in the avatar's place and a tap toggles it (unticking the last leaves the
+mode); the app bar shows the count (read as "N selected"), Cancel, and the actions Set
+category (the category picker, "None" included), Add tag (a prompt; rows that carry the
+tag are left alone), Hide, or Unhide when every selected row is hidden, Delete (enabled
+when no selected row is `plaid`, after a confirmation naming the count; no undo), and in
+its menu Select all (the rows loaded). Back and Cancel leave it, and a row that leaves
+the list (hidden, deleted, filtered out) leaves the selection. Each action ends selection
+and writes the rows it changes, read again from the repository when it runs, in the
+same sync-store transaction as the write (the database's in dev and prod, none in the
+demo), so an edit synced since the selection is kept, a row deleted since is skipped,
+and nothing synced in between is written back; stamped `updatedAt`, through one
+`TransactionRepository.upsertAll` (Delete through `deleteAll`, `data.md`), so it is one
+recorded batch, all or nothing; a snack bar gives the count changed, or says nothing
+changed when the batch was refused (a row deleted meanwhile, say). A `plaid` row takes
+the category, tags and hidden only, which is all these actions change.
 
 ## The effective category
 
@@ -128,6 +159,8 @@ rows (logo, dictionary hit, cleaned name, pending).
   bar names the rule (or says none matches, or that it had nothing to change), and only
   Save writes the result, recorded like any edit. Nothing runs the rules on a manual
   entry by itself.
+- **Hidden.** The menu's "Hidden", checked when the transaction is hidden, toggles the
+  form's value (a rule's `hide` checks it too); Save writes it.
 - **Deleting.** A Plaid transaction has no Delete: only the bank removes one (`data.md`).
   Delete soft-deletes and shows "Transaction deleted" with Undo for five
   seconds in the tab's own messenger, so it appears on the screen below, above the
@@ -138,4 +171,5 @@ rows (logo, dictionary hit, cleaned name, pending).
 `transactionUsageProvider` (`TransactionRepository.watchUsage`, `data.md`: limited and
 distinct queries, never a scan of every transaction) gives the editor and the filter sheet
 the tags in use and the recently used categories and accounts;
-`transactionActionsProvider` makes the writes.
+`transactionActionsProvider` makes the writes, the bulk ones included (`setCategory`,
+`addTag`, `setHidden`, `deleteAll`).

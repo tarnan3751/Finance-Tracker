@@ -4,9 +4,11 @@
 // checked on the demo seed (two accounts, twelve transactions, the system categories, two
 // rules and the three test budgets) with the linked test data (the three test banks, two
 // linked accounts, Plaid transactions), and the filter sheet, the category picker, the
-// transaction editor's menu and the budget alerts sheet open over their screens. The
-// sign-in and registration screens are checked signed out; their text scale is checked
-// with their errors showing, in test/features/auth/auth_screens_test.dart.
+// transaction editor's menu, the budget alerts sheet and the transaction list's
+// selection mode open over their screens. The sign-in and registration screens are
+// checked signed out; their text scale is checked with their errors showing, in
+// test/features/auth/auth_screens_test.dart.
+import 'package:finance_tracker/features/transactions/presentation/transaction_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -71,6 +73,14 @@ final Map<String, _Screen> _screens = {
     open: null,
   ),
   'Transactions': (location: '/transactions', seeded: true, open: null),
+  'Transactions, selecting': (
+    location: '/transactions',
+    seeded: true,
+    open: (tester) async {
+      await tester.longPress(find.byType(TransactionTile).first);
+      await tester.pumpAndSettle();
+    },
+  ),
   'Filter sheet': (
     location: '/transactions',
     seeded: true,

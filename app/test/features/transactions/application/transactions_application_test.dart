@@ -1,9 +1,11 @@
 // The transaction list's application layer: the date presets resolved against today, the
 // query the filters make (a category with the ones under it, and their Plaid codes),
 // grouping by date, and paging one page at a time.
+import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/features/transactions/application/transaction_filters.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
+import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
@@ -79,15 +81,32 @@ void main() {
         range: LocalDateRange(LocalDate(2026, 3, 1), LocalDate(2026, 4, 1)),
         minAmount: Money(500, 'USD'),
         tags: const {'t'},
+        hidden: false,
         limit: 50,
       ),
     );
-    expect(TransactionFilters.none.toQuery(today), TransactionQuery.all);
+    expect(
+      TransactionFilters.none.toQuery(today),
+      TransactionQuery(hidden: false),
+    );
     expect(TransactionFilters.none.withText('x').hasFilters, isFalse);
     expect(filters.withoutAccount('a').accountIds, isEmpty);
     expect(filters.withoutAmount().minAmount, isNull);
     expect(filters.withoutDate().date, isNull);
   });
+
+  test(
+    'show hidden lists every row, counts as a filter and survives edits',
+    () {
+      const TransactionFilters shown = TransactionFilters(showHidden: true);
+      expect(shown.toQuery(today), TransactionQuery.all);
+      expect(shown.hasFilters, isTrue);
+      expect(shown.withText('x').showHidden, isTrue);
+      expect(shown.withoutTag('t').showHidden, isTrue);
+      expect(shown.withoutHidden(), TransactionFilters.none);
+      expect(shown, isNot(TransactionFilters.none));
+    },
+  );
 
   test('groupByDate puts a header before each date', () {
     final List<TransactionListItem> items = groupByDate([
@@ -155,5 +174,35 @@ void main() {
     // A filter change goes back to the first page.
     controller.setText('x');
     expect(container.read(transactionListControllerProvider).pages, 1);
+  });
+
+  test('a bulk action applies to the rows as stored when it runs', () async {
+    final ProviderContainer container = ProviderContainer.test(
+      overrides: [storeOverride(seededStore())],
+    );
+    final TransactionRepository repository = container.read(
+      transactionRepositoryProvider,
+    );
+    await repository.upsert(testTransaction('m1', name: 'Alpha'));
+    await repository.upsert(testTransaction('m2', name: 'Beta'));
+    // What the list showed when the rows were selected.
+    final List<Transaction> selected = [
+      (await repository.watchById('m1').first)!,
+      (await repository.watchById('m2').first)!,
+    ];
+    // Synced in since: an edit of m1's notes, and m2 deleted.
+    await repository.upsert(
+      selected[0].copyWith(notes: 'from the other device'),
+    );
+    await repository.delete('m2');
+
+    final int changed = await container
+        .read(transactionActionsProvider)
+        .setHidden(selected, true);
+    expect(changed, 1);
+    final Transaction m1 = (await repository.watchById('m1').first)!;
+    expect(m1.hidden, isTrue);
+    expect(m1.notes, 'from the other device');
+    expect(await repository.watchById('m2').first, isNull);
   });
 }

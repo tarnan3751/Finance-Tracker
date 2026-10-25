@@ -312,12 +312,12 @@ final class TransactionUsageProvider
 
 String _$transactionUsageHash() => r'a490a29d0c3b40d516d3f383a85ad49960422ec5';
 
-/// The writes of the transaction editor.
+/// The writes of the transaction editor and of bulk edit.
 
 @ProviderFor(transactionActions)
 final transactionActionsProvider = TransactionActionsProvider._();
 
-/// The writes of the transaction editor.
+/// The writes of the transaction editor and of bulk edit.
 
 final class TransactionActionsProvider
     extends
@@ -327,7 +327,7 @@ final class TransactionActionsProvider
           TransactionActions
         >
     with $Provider<TransactionActions> {
-  /// The writes of the transaction editor.
+  /// The writes of the transaction editor and of bulk edit.
   TransactionActionsProvider._()
     : super(
         from: null,
@@ -363,4 +363,4 @@ final class TransactionActionsProvider
 }
 
 String _$transactionActionsHash() =>
-    r'6ec05b17029004f5cd54d4425c5ca321b365207c';
+    r'ab07f2d4846b94293a7a2553d08adeb91c57bac7';

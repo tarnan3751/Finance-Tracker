@@ -2591,5 +2591,136 @@
         "example": "Oct 20"
       }
     }
+  },
+  "transactionHidden": "Hidden",
+  "@transactionHidden": {
+    "description": "Label on a transaction the user hid from the list, budgets and reports."
+  },
+  "transactionHiddenOption": "Hidden",
+  "@transactionHiddenOption": {
+    "description": "Checked item of the transaction editor's overflow menu that hides the transaction."
+  },
+  "transactionSelect": "Select",
+  "@transactionSelect": {
+    "description": "What a long press on a transaction row does, announced by screen readers."
+  },
+  "filterShowHidden": "Show hidden",
+  "@filterShowHidden": {
+    "description": "Switch in the filter sheet that lists hidden transactions too."
+  },
+  "filterShowHiddenCaption": "Hidden transactions still count toward their account's balance.",
+  "@filterShowHiddenCaption": {
+    "description": "Caption of the Show hidden switch."
+  },
+  "filterIncludingHidden": "Including hidden",
+  "@filterIncludingHidden": {
+    "description": "Chip under the transactions app bar while hidden transactions are shown; removing it hides them again."
+  },
+  "transactionsSelected": "{count} selected",
+  "@transactionsSelected": {
+    "description": "Title of the transactions app bar in selection mode.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectionCancel": "Cancel selection",
+  "@selectionCancel": {
+    "description": "Tooltip of the button that leaves selection mode."
+  },
+  "selectAll": "Select all",
+  "@selectAll": {
+    "description": "Menu item that selects every transaction loaded in the list."
+  },
+  "bulkSetCategory": "Set category",
+  "@bulkSetCategory": {
+    "description": "Tooltip of the selection action that sets the category of the selected transactions."
+  },
+  "bulkAddTag": "Add tag",
+  "@bulkAddTag": {
+    "description": "Tooltip of the selection action that adds a tag, and the title of its dialog."
+  },
+  "bulkTagLabel": "Tag",
+  "@bulkTagLabel": {
+    "description": "Label of the field in the add tag dialog."
+  },
+  "bulkTagAdd": "Add",
+  "@bulkTagAdd": {
+    "description": "Button of the add tag dialog that adds the tag."
+  },
+  "bulkHide": "Hide",
+  "@bulkHide": {
+    "description": "Tooltip of the selection action that hides the selected transactions."
+  },
+  "bulkUnhide": "Unhide",
+  "@bulkUnhide": {
+    "description": "Tooltip of the selection action that unhides the selected transactions, when all are hidden."
+  },
+  "bulkCategorySet": "{count, plural, =1{Category set on 1 transaction} other{Category set on {count} transactions}}",
+  "@bulkCategorySet": {
+    "description": "Snack bar after setting the category of selected transactions; count is how many changed.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkTagAdded": "{count, plural, =1{Tag added to 1 transaction} other{Tag added to {count} transactions}}",
+  "@bulkTagAdded": {
+    "description": "Snack bar after adding a tag to selected transactions; count is how many changed.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkHidden": "{count, plural, =1{1 transaction hidden} other{{count} transactions hidden}}",
+  "@bulkHidden": {
+    "description": "Snack bar after hiding selected transactions; count is how many changed.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkUnhidden": "{count, plural, =1{1 transaction unhidden} other{{count} transactions unhidden}}",
+  "@bulkUnhidden": {
+    "description": "Snack bar after unhiding selected transactions; count is how many changed.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleted": "{count, plural, =1{1 transaction deleted} other{{count} transactions deleted}}",
+  "@bulkDeleted": {
+    "description": "Snack bar after deleting selected transactions.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteTitle": "{count, plural, =1{Delete 1 transaction?} other{Delete {count} transactions?}}",
+  "@bulkDeleteTitle": {
+    "description": "Title of the confirmation before deleting selected transactions.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteBody": "They leave every list and their accounts' balances.",
+  "@bulkDeleteBody": {
+    "description": "Body of the confirmation before deleting selected transactions."
+  },
+  "bulkFailed": "Nothing changed: the transactions could not be updated.",
+  "@bulkFailed": {
+    "description": "Snack bar when a bulk action is refused and nothing is written."
+  },
+  "bulkFailedDeleted": "Nothing changed: one of the transactions was deleted meanwhile.",
+  "@bulkFailedDeleted": {
+    "description": "Snack bar when a bulk action is refused because a selected transaction was deleted (on another device, say)."
   }
 }

@@ -3005,6 +3005,150 @@ abstract class AppLocalizations {
     String available,
     String date,
   );
+
+  /// Label on a transaction the user hid from the list, budgets and reports.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get transactionHidden;
+
+  /// Checked item of the transaction editor's overflow menu that hides the transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get transactionHiddenOption;
+
+  /// What a long press on a transaction row does, announced by screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get transactionSelect;
+
+  /// Switch in the filter sheet that lists hidden transactions too.
+  ///
+  /// In en, this message translates to:
+  /// **'Show hidden'**
+  String get filterShowHidden;
+
+  /// Caption of the Show hidden switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden transactions still count toward their account\'s balance.'**
+  String get filterShowHiddenCaption;
+
+  /// Chip under the transactions app bar while hidden transactions are shown; removing it hides them again.
+  ///
+  /// In en, this message translates to:
+  /// **'Including hidden'**
+  String get filterIncludingHidden;
+
+  /// Title of the transactions app bar in selection mode.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String transactionsSelected(int count);
+
+  /// Tooltip of the button that leaves selection mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel selection'**
+  String get selectionCancel;
+
+  /// Menu item that selects every transaction loaded in the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get selectAll;
+
+  /// Tooltip of the selection action that sets the category of the selected transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Set category'**
+  String get bulkSetCategory;
+
+  /// Tooltip of the selection action that adds a tag, and the title of its dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Add tag'**
+  String get bulkAddTag;
+
+  /// Label of the field in the add tag dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag'**
+  String get bulkTagLabel;
+
+  /// Button of the add tag dialog that adds the tag.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get bulkTagAdd;
+
+  /// Tooltip of the selection action that hides the selected transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get bulkHide;
+
+  /// Tooltip of the selection action that unhides the selected transactions, when all are hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Unhide'**
+  String get bulkUnhide;
+
+  /// Snack bar after setting the category of selected transactions; count is how many changed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Category set on 1 transaction} other{Category set on {count} transactions}}'**
+  String bulkCategorySet(int count);
+
+  /// Snack bar after adding a tag to selected transactions; count is how many changed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Tag added to 1 transaction} other{Tag added to {count} transactions}}'**
+  String bulkTagAdded(int count);
+
+  /// Snack bar after hiding selected transactions; count is how many changed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 transaction hidden} other{{count} transactions hidden}}'**
+  String bulkHidden(int count);
+
+  /// Snack bar after unhiding selected transactions; count is how many changed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 transaction unhidden} other{{count} transactions unhidden}}'**
+  String bulkUnhidden(int count);
+
+  /// Snack bar after deleting selected transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 transaction deleted} other{{count} transactions deleted}}'**
+  String bulkDeleted(int count);
+
+  /// Title of the confirmation before deleting selected transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Delete 1 transaction?} other{Delete {count} transactions?}}'**
+  String bulkDeleteTitle(int count);
+
+  /// Body of the confirmation before deleting selected transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'They leave every list and their accounts\' balances.'**
+  String get bulkDeleteBody;
+
+  /// Snack bar when a bulk action is refused and nothing is written.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing changed: the transactions could not be updated.'**
+  String get bulkFailed;
+
+  /// Snack bar when a bulk action is refused because a selected transaction was deleted (on another device, say).
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing changed: one of the transactions was deleted meanwhile.'**
+  String get bulkFailedDeleted;
 }
 
 class _AppLocalizationsDelegate
