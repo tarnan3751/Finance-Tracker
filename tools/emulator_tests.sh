@@ -9,12 +9,17 @@
 #                         for its activity to take focus, and save a screenshot (default
 #                         app/build/emulator/demo.png); prints the path
 #   run <command...>      boot, then run the command with FT_EMULATOR_SERIAL exported
-#   stop                  shut down the ft-lane emulator; refuses while a live run holds the lock
+#   stop [--force]        shut down the ft-lane emulator; refuses while a live run holds the
+#                         lock, unless --force, which kills the emulator and removes the lock
+#                         whoever holds it, printing the holder
 #   status                who holds the lock, and whether ft-lane is running and on which serial
 # The script runs from the repository root: a relative screenshot path is relative to it, and
 # `run` runs its command in it.
 # integration, demo and run hold the lock for their whole run and release it on exit (normal,
-# failure or signal) through a trap; the emulator is left running so the next run reuses it.
+# failure or signal) through a trap; the emulator is left running so the next run reuses it,
+# but only when it is healthy (boot completed, `pm path android` answering within 30 s) and
+# has been up less than FT_EMULATOR_MAX_UPTIME seconds (default four hours): otherwise the run
+# kills it (`emu kill`, then SIGTERM, then SIGKILL, 10 s apart) and boots a fresh one.
 # Their long steps (flutter, sdkmanager, the run command) run as a background child that the
 # script waits on, so SIGTERM or SIGINT takes effect at once: the trap stops the child and its
 # descendants, then releases the lock, and exits 143 or 130.
@@ -42,6 +47,8 @@ LOCK_DIR="${TMPDIR:-/tmp}"
 LOCK_DIR="${LOCK_DIR%/}/finance-tracker-emulator.lock"
 LOCK_TIMEOUT="${FT_EMULATOR_LOCK_TIMEOUT:-1800}"
 BOOT_TIMEOUT=240
+HEALTH_TIMEOUT=30
+MAX_UPTIME="${FT_EMULATOR_MAX_UPTIME:-14400}"
 DEMO_PACKAGE="dev.tarnan.financetracker.demo"
 OUT_DIR="$root/app/build/emulator"
 
@@ -123,9 +130,10 @@ make_candidate() {
 
 # Renames a stale lock away and removes it. Of several waiters judging the same lock stale,
 # only one wins the rename. A waiter that judged it just before another reclaimed it and took
-# a fresh lock finds a different pid in what it renamed, and puts that lock back.
+# a fresh lock finds a different pid in what it renamed, and puts that lock back. $1 is what
+# to say on success (`stop --force` removes a live lock the same way).
 reclaim_stale() {
-  local judged holder away="$LOCK_DIR.stale.$$"
+  local done="${1:-reclaimed a stale lock}" judged holder away="$LOCK_DIR.stale.$$"
   judged="$(cat "$LOCK_DIR/pid" 2>/dev/null)"
   holder="$(lock_holder)"
   rm -rf "$away"
@@ -135,7 +143,7 @@ reclaim_stale() {
     return 0
   fi
   rm -rf "$away"
-  say "reclaimed a stale lock ($holder)"
+  say "$done ($holder)"
 }
 
 release_lock() {
@@ -280,6 +288,82 @@ emulator_alive() {
   if [ -n "$1" ]; then kill -0 "$1" 2>/dev/null; else pgrep -f -- "-avd $AVD_NAME( |$)" >/dev/null; fi
 }
 
+# Seconds since the oldest ft-lane emulator process started, from ps's [[dd-]hh:]mm:ss.
+avd_age() {
+  local pid elapsed days=0 h=0 m s a b c
+  pid="$(pgrep -o -f -- "-avd $AVD_NAME( |$)")" || return 1
+  elapsed="$(ps -o etime= -p "$pid" | tr -d ' ')"
+  [ -n "$elapsed" ] || return 1
+  case "$elapsed" in *-*) days="${elapsed%%-*}"; elapsed="${elapsed#*-}" ;; esac
+  IFS=: read -r a b c <<<"$elapsed"
+  if [ -n "$c" ]; then h="$a"; m="$b"; s="$c"; else m="$a"; s="$b"; fi
+  echo $((10#$days * 86400 + 10#$h * 3600 + 10#$m * 60 + 10#$s))
+}
+
+# Runs `adb -s $2 <args...>` and prints its output, or fails when it has not answered within
+# $1 seconds (macOS has no timeout(1)); a wedged emulator can leave adb shell hanging.
+adb_within() {
+  local limit="$1" serial="$2" out pid n=0 status
+  shift 2
+  out="$(mktemp "${TMPDIR:-/tmp}/finance-tracker-adb.XXXXXX")"
+  "$ADB" -s "$serial" "$@" >"$out" 2>&1 &
+  pid=$!
+  while alive "$pid"; do
+    if [ $n -ge $((limit * 2)) ]; then
+      kill -KILL "$pid" 2>/dev/null
+      wait "$pid" 2>/dev/null
+      rm -f "$out"
+      return 1
+    fi
+    sleep 0.5
+    n=$((n + 1))
+  done
+  wait "$pid"
+  status=$?
+  tr -d '\r' <"$out"
+  rm -f "$out"
+  return $status
+}
+
+# Whether the emulator on $1 can take a run: online, boot completed, and the package manager
+# answering `pm path android` within HEALTH_TIMEOUT seconds. A wedged emulator (system_server
+# restarted, binder out of space) answers "Can't find service: package" and never recovers.
+healthy() {
+  [ "$("$ADB" -s "$1" get-state 2>/dev/null)" = "device" ] \
+    && [ "$(adb_within "$HEALTH_TIMEOUT" "$1" shell getprop sys.boot_completed)" = "1" ] \
+    && adb_within "$HEALTH_TIMEOUT" "$1" shell pm path android | grep -q '^package:'
+}
+
+# Waits up to 10 s for every ft-lane emulator process to be gone.
+avd_gone_within_10s() {
+  local n=0
+  while emulator_alive "" && [ $n -lt 20 ]; do
+    sleep 0.5
+    n=$((n + 1))
+  done
+  ! emulator_alive ""
+}
+
+# Kills the ft-lane emulator: `emu kill` through the console when adb sees it on $1, then
+# SIGTERM, then SIGKILL, each given 10 s. Only processes started with `-avd ft-lane` are
+# signalled, so no other emulator is touched.
+kill_avd() {
+  local serial="${1:-}"
+  if [ -n "$serial" ]; then
+    assert_ours "$serial"
+    say "stopping $AVD_NAME on $serial"
+    "$ADB" -s "$serial" emu kill >/dev/null 2>&1
+    avd_gone_within_10s && return 0
+  fi
+  emulator_alive "" || return 0
+  say "sending SIGTERM to the $AVD_NAME emulator"
+  pkill -TERM -f -- "-avd $AVD_NAME( |$)"
+  avd_gone_within_10s && return 0
+  say "sending SIGKILL to the $AVD_NAME emulator"
+  pkill -KILL -f -- "-avd $AVD_NAME( |$)"
+  avd_gone_within_10s || die "the $AVD_NAME emulator survived SIGKILL"
+}
+
 # Waits until SERIAL is booted and its package manager answers, then turns animations off.
 # $1 is the emulator's pid when this run started it, else empty; $2 the start time.
 wait_for_boot() {
@@ -302,11 +386,33 @@ wait_for_boot() {
   done
 }
 
-# Boots ft-lane unless it is already running, waits until it is booted (a running one too: an
-# interrupted run can leave it offline or still booting), then sets SERIAL.
+# Kills a running ft-lane that must not take this run: one up longer than MAX_UPTIME (a
+# long-lived emulator wedged twice under several lanes), and one past its boot window that is
+# not healthy. One younger than BOOT_TIMEOUT is left to finish booting: an interrupted run can
+# leave it offline or still booting.
+recycle_if_needed() {
+  local age serial=""
+  age="$(avd_age)" || return 0
+  serial="$(our_serial)"
+  if [ "$age" -ge "$MAX_UPTIME" ]; then
+    say "$AVD_NAME has been up $((age / 60)) min, past the $((MAX_UPTIME / 60)) min limit: recycling it"
+  elif [ -n "$serial" ] && healthy "$serial"; then
+    return 0
+  elif [ "$age" -lt "$BOOT_TIMEOUT" ]; then
+    return 0
+  else
+    say "$AVD_NAME${serial:+ on $serial} is not healthy after $((age / 60)) min (boot not completed, or the package manager not answering within ${HEALTH_TIMEOUT}s): recycling it"
+  fi
+  kill_avd "$serial"
+}
+
+# Boots ft-lane unless a reusable one is running (recycle_if_needed), waits until it is booted
+# (a running one too: an interrupted run can leave it offline or still booting), then sets
+# SERIAL.
 boot() {
   mkdir -p "$OUT_DIR"
   "$ADB" start-server >/dev/null 2>&1
+  recycle_if_needed
   local emulator_pid="" started=$SECONDS
   if SERIAL="$(our_serial)"; then
     say "reusing the running $AVD_NAME emulator on $SERIAL"
@@ -382,21 +488,29 @@ cmd_run() {
   run_child "$@"
 }
 
+# With --force, a live holder's lock is removed after the emulator is gone; the holder is not
+# signalled: a run stuck on the emulator fails once it is gone, and its exit leaves a lock
+# taken since in place, since it releases only a lock holding its own pid.
 cmd_stop() {
+  local force=0 forced=""
+  case "${1:-}" in
+    "") ;;
+    --force) force=1 ;;
+    *) die "usage: tools/emulator_tests.sh stop [--force]" ;;
+  esac
   if [ -d "$LOCK_DIR" ]; then
-    lock_is_stale || die "a run holds the lock ($(lock_holder)); stop it first, or wait for it to finish"
-    reclaim_stale
+    if lock_is_stale; then
+      reclaim_stale
+    elif [ $force -eq 1 ]; then
+      forced="$(cat "$LOCK_DIR/pid" 2>/dev/null)"
+      say "forcing past the lock held by $(lock_holder)"
+    else
+      die "a run holds the lock ($(lock_holder)); stop it first, wait for it to finish, or run tools/emulator_tests.sh stop --force"
+    fi
   fi
-  local serial
-  if serial="$(our_serial)"; then
-    say "stopping $AVD_NAME on $serial"
-    "$ADB" -s "$serial" emu kill >/dev/null 2>&1
-    local started=$SECONDS
-    while pgrep -f -- "-avd $AVD_NAME( |$)" >/dev/null && [ $((SECONDS - started)) -lt 30 ]; do sleep 1; done
-  fi
-  if pgrep -f -- "-avd $AVD_NAME( |$)" >/dev/null; then
-    say "killing the remaining $AVD_NAME emulator process"
-    pkill -f -- "-avd $AVD_NAME( |$)"
+  kill_avd "$(our_serial)"
+  if [ -n "$forced" ] && [ "$(cat "$LOCK_DIR/pid" 2>/dev/null)" = "$forced" ]; then
+    reclaim_stale "removed the lock"
   fi
   say "stopped"
 }
@@ -425,7 +539,7 @@ case "$command" in
     acquire_lock "$command" "$@"
     "cmd_$command" "$@"
     ;;
-  stop | status) "cmd_$command" ;;
+  stop | status) "cmd_$command" "$@" ;;
   -h | --help | help) sed -n '2,/^set -uo/p' "$0" | sed '$d; s/^# \{0,1\}//' ;;
   *) die "unknown command '$command'; one of integration, demo, run, stop, status" ;;
 esac

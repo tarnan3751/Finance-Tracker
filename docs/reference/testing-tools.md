@@ -170,7 +170,7 @@ loudly otherwise.
 | `integration [-- <args>]` | The default. Boots `ft-lane`, then runs `flutter test integration_test --flavor demo -d <serial>` from `app/`, passing any extra arguments through; the tests run against the in-app fakes. |
 | `demo [<screenshot>]` | Boots, builds the demo debug APK, installs it with `adb install -r`, launches the launcher activity of `dev.tarnan.financetracker.demo`, waits (up to 60 s) for it to take window focus plus a short settle for the first frame, and saves a screenshot, by default `app/build/emulator/demo.png`; prints the path. |
 | `run <command...>` | Boots, then runs the command with `FT_EMULATOR_SERIAL` set to the emulator's serial: anything else against the AVD goes through this. |
-| `stop` | Shuts down the `ft-lane` emulator and removes a stale lock. Refuses while a live run holds the lock. |
+| `stop [--force]` | Shuts down the `ft-lane` emulator and removes a stale lock. Refuses while a live run holds the lock, unless `--force`: then it prints the holder, kills the emulator and removes the lock whoever holds it. |
 | `status` | Who holds the lock (pid, since when, command), and whether `ft-lane` is running and on which serial. |
 
 **The lock.** `integration`, `demo` and `run` hold it for their whole run. It is the
@@ -184,8 +184,9 @@ holder every 60 s. A lock is stale when its pid is dead, or when it has no `pid`
 older than 30 s (only a crash of an earlier version of the script leaves one); a waiter
 reclaims it by renaming it away and removing it, so of several waiters only one wins. A trap
 releases the lock on exit, failure or signal, but leaves the emulator running so the next
-run reuses it; `stop` shuts it down. The long steps (`flutter`, `sdkmanager`, the `run`
-command) run as a background child the script waits on, so `SIGTERM` or `SIGINT` takes
+run reuses it (after the checks of **Recycling**, below); `stop` shuts it down. The long
+steps (`flutter`, `sdkmanager`, the `run` command) run as a background child the script
+waits on, so `SIGTERM` or `SIGINT` takes
 effect at once: the trap stops the child and its descendants (TERM, then KILL after 10 s),
 releases the lock and exits 143 or 130, and no orphan is left driving the emulator. A run
 killed with `SIGKILL` leaves its lock and its child behind, and the next run reclaims the
@@ -202,7 +203,43 @@ swiftshader_indirect` on the first free even port from 5554 to 5584, so an emula
 owner already has on 5554 is left alone; the boot waits up to 240 s for `sys.boot_completed`
 and the package manager, then turns the window, transition and animator animations off. A
 run that finds `ft-lane` already running waits the same way before using it, since an
-interrupted run can leave it offline or still booting. The SDK comes from `ANDROID_HOME`,
+interrupted run can leave it offline or still booting.
+
+**Recycling.** A long-lived `ft-lane` can wedge: twice on 2026-10-25, after hours under
+several lanes, `system_server` restarted, the `package` service was gone (`pm path android`
+answering "Can't find service: package") and binder reported "No space left on device";
+every run then died in the boot wait, which never recovers. So before a run reuses a running
+`ft-lane` it checks two things. When the emulator process has been up
+`FT_EMULATOR_MAX_UPTIME` seconds or more (default 14400, four hours) the run recycles it;
+otherwise it runs the health check, `sys.boot_completed` 1 and `pm path android` answering
+`package:` within 30 s, and recycles an emulator that fails it, unless the emulator is
+younger than the 240 s boot window, which an interrupted run can leave still booting and
+which the run waits for as before. Recycling kills the emulator (`adb emu kill`, then
+`SIGTERM`, then `SIGKILL`, each given 10 s, signalling only processes started with `-avd
+ft-lane`) and boots a fresh one in the same run. `stop --force` is the way out when a run
+holds the lock while stuck on a wedged emulator: it says who held the lock, kills the
+emulator, then removes the lock (renamed away first, so a lock taken by another run in the
+meantime is put back). It does not signal the holder: a run waiting on the emulator fails
+once it is gone, and its exit leaves any newer lock in place.
+
+To exercise these paths in a lane (the dry run; each takes the lock, so one at a time):
+
+1. `tools/emulator_tests.sh run true` twice: the second says "reusing the running ft-lane
+   emulator".
+2. Wedge it the way the incident did, with the SDK's `platform-tools` on `PATH`:
+   `tools/emulator_tests.sh run sh -c 'adb -s "$FT_EMULATOR_SERIAL" root && sleep 3 && adb
+   -s "$FT_EMULATOR_SERIAL" shell stop'` (the `google_apis` image allows `adb root`; `stop`
+   takes the framework down, so `pm path android` answers "Can't find service: package");
+   the next `tools/emulator_tests.sh run true` says it is not healthy, recycles it and boots
+   a fresh one.
+3. `FT_EMULATOR_MAX_UPTIME=60 tools/emulator_tests.sh run true` on an emulator up more than a
+   minute recycles it for its uptime.
+4. In one shell `tools/emulator_tests.sh run sleep 600`; in another `tools/emulator_tests.sh
+   stop` refuses, naming the holder, and `tools/emulator_tests.sh stop --force` kills the
+   emulator and removes the lock; `status` then shows the lock free and `ft-lane` not running.
+5. `tools/emulator_tests.sh integration` boots a fresh emulator and runs the suite.
+
+The SDK comes from `ANDROID_HOME`,
 else `ANDROID_SDK_ROOT`, else `~/Library/Android/sdk`; a missing `adb`, `emulator`,
 `avdmanager` or `sdkmanager` fails with the fix.
 
