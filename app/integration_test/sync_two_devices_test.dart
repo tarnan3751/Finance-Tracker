@@ -58,7 +58,9 @@ final class Instance {
     );
     final ProviderContainer container = ProviderContainer(
       overrides: [
-        ...overridesFor(AppConfig.dev()),
+        // The dev wiring without its API: the instances share this test's fake server,
+        // with or without FT_FAKE_SERVER (which would give each its own).
+        ...localDataOverridesFor(AppConfig.dev()),
         databaseProvider.overrideWithValue(database),
         fakeServerProvider.overrideWithValue(server),
         tokenStoreProvider.overrideWithValue(

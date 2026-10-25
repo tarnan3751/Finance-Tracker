@@ -69,9 +69,11 @@ Each feature's own providers (the screens' streams, derived values and writes) a
 `application/` folder and its reference file (`accounts.md`, `transactions.md`,
 `categories.md`).
 
-`overridesFor(AppConfig)` is the one place a flavor's wiring is decided: the Drift
-repositories for dev and prod, the demo ones for demo, and the API's
-(`apiOverridesFor`: the in-app fake server for demo, and for dev under
+`overridesFor(AppConfig)` is the one place a flavor's wiring is decided (it is
+`localDataOverridesFor(config)`, the flavor and its local data, then `apiOverridesFor`;
+a test that brings its own API, such as the two-device integration test sharing one fake
+server, takes the first alone): the Drift repositories for dev and prod, the demo ones for
+demo, and the API's (`apiOverridesFor`: the in-app fake server for demo, and for dev under
 `FT_FAKE_SERVER`); later phases add theirs there.
 
 riverpod_lint runs as an analyzer plugin declared in the workspace root's

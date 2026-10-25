@@ -216,12 +216,19 @@ class LegacyImportResult extends _$LegacyImportResult {
 
 /// The provider overrides that make up the app for [config].
 List<Override> overridesFor(AppConfig config) => [
+  ...localDataOverridesFor(config),
+  ...apiOverridesFor(config),
+];
+
+/// [overridesFor] without the API's: the flavor and its local data. For a test that
+/// supplies its own API (a fake server shared by several app instances), whatever
+/// `FT_FAKE_SERVER` says.
+List<Override> localDataOverridesFor(AppConfig config) => [
   appConfigProvider.overrideWithValue(config),
   ...switch (config.flavor) {
     Flavor.dev || Flavor.prod => _driftOverrides,
     Flavor.demo => _demoOverrides,
   },
-  ...apiOverridesFor(config),
 ];
 
 /// dev and prod: the Drift repositories over the encrypted database, recording into the
