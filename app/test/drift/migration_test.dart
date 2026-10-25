@@ -49,6 +49,12 @@ void main() {
     await verifier.migrateAndValidate(database, 3);
   });
 
+  test('a new database matches the schema 4 dump', () async {
+    final AppDatabase database = AppDatabase(await verifier.startAt(4));
+    addTearDown(database.close);
+    await verifier.migrateAndValidate(database, 4);
+  });
+
   group('schema 1 to 2', () {
     // 2026-10-01 09:00 UTC, the v1 rows' audit instants; 2026-10-02, a v1 delete.
     const int created = 1759309200000;
@@ -371,5 +377,142 @@ void main() {
       );
       expect(await database.select(database.items).get(), isEmpty);
     });
+  });
+
+  group('schema 3 to 4', () {
+    const int created = 1759309200000; // 2026-10-01 09:00 UTC
+    const int migratedAt = 1761318000000; // 2026-10-24 15:00 UTC
+    const String clock = '001759309200000-00000-dev-b';
+
+    String rule(String id, {Map<String, Object?> extra = const {}}) =>
+        jsonEncode({
+          'id': id,
+          'name': 'Coffee',
+          'position': 1,
+          'conditions': [
+            {
+              'kind': 'merchant_contains',
+              'text': 'Starbucks',
+              'min_amount': null,
+              'max_amount': {'minor_units': 2500, 'currency': 'USD'},
+            },
+          ],
+          'actions': [
+            {'kind': 'add_tag', 'value': 'coffee'},
+          ],
+          'deleted_at': null,
+          ...extra,
+        }).replaceAll("'", "''");
+
+    String clocks(String id, List<String> fields) =>
+        [for (final String f in fields) "('rule', '$id', '$f', '$clock')"]
+            .join(', ');
+
+    test(
+      'keeps every row, adds the rules table and materializes the held rules',
+      () async {
+        const List<String> all = [
+          'id',
+          'name',
+          'position',
+          'conditions',
+          'actions',
+          'deleted_at',
+        ];
+        final schema = await verifier.schemaAt(3);
+        schema.rawDatabase.execute('''
+          INSERT INTO accounts (id, item_id, type, subtype, name, official_name, mask,
+            currency, current_balance_minor, available_balance_minor, credit_limit_minor,
+            balances_as_of, is_hidden, display_order, created_at, updated_at, deleted_at,
+            sync_version)
+          VALUES ('acc-manual', NULL, 'depository', NULL, 'Wallet', NULL, NULL, 'USD',
+            NULL, NULL, NULL, NULL, 0, 0, $created, $created, NULL, 0);
+          INSERT INTO transactions (id, account_id, amount_minor, currency, date,
+            authorized_date, pending, pending_transaction_id, name, merchant_name,
+            merchant_logo_url, plaid_primary_category, plaid_detailed_category,
+            user_category_id, notes, receipt_path, source, created_at, updated_at,
+            deleted_at, sync_version, deleted_with_account)
+          VALUES ('t-manual', 'acc-manual', -1250, 'USD', '2026-09-30', NULL, 0, NULL,
+            'Lunch', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'manual', $created,
+            $created, NULL, 0, 0);
+          INSERT INTO held_records (entity_type, entity_id, fields, reason)
+          VALUES
+            ('rule', 'r-complete', '${rule('r-complete')}', 'unsupported_type'),
+            ('rule', 'r-updates', '{"name":"Renamed"}', 'unsupported_type'),
+            ('rule', 'r-newer', '${rule('r-newer', extra: {'priority': 2})}',
+             'unsupported_type'),
+            ('goal', 'g1', '{"name":"Holiday"}', 'unsupported_type');
+          INSERT INTO record_clocks (entity_type, entity_id, field, hlc)
+          VALUES ${clocks('r-complete', [...all, '_create'])},
+            ${clocks('r-updates', ['name'])},
+            ${clocks('r-newer', [...all, 'priority', '_create'])},
+            ('goal', 'g1', 'name', '$clock');
+          INSERT INTO sync_meta (key, value)
+          VALUES ('pull_cursor', '12'), ('device_id', 'dev-a');
+          INSERT INTO items (id, institution_id, institution_name, institution_logo_url,
+            institution_logo, institution_color, status, error_code,
+            last_successful_sync_at, pulled_at)
+          VALUES ('item-1', 'ins_109508', 'First Platypus Bank', NULL, NULL, NULL,
+            'healthy', NULL, $created, $created);
+        ''');
+        final AppDatabase database = AppDatabase(
+          schema.newConnection(),
+          wallMillis: () => migratedAt,
+        );
+        addTearDown(database.close);
+        await verifier.migrateAndValidate(database, 4);
+
+        expect(await database.select(database.accounts).get(), hasLength(1));
+        expect(
+          await database.select(database.transactions).get(),
+          hasLength(1),
+        );
+        expect(await database.select(database.changeLog).get(), isEmpty);
+        expect(
+          (await database.select(database.items).getSingle()).institutionName,
+          'First Platypus Bank',
+        );
+        final List<RuleRow> rules = await (database.select(
+          database.rules,
+        )..orderBy([(r) => OrderingTerm.asc(r.id)])).get();
+        expect(rules.map((r) => r.id), ['r-complete', 'r-newer']);
+        expect(rules.first.position, 1);
+        expect(rules.first.createdAt.millisecondsSinceEpoch, migratedAt);
+        expect(rules.first.deletedAt, isNull);
+        expect(
+          {
+            for (final HeldRecordRow h
+                in await database.select(database.heldRecords).get())
+              '${h.entityType}/${h.entityId}': h.reason,
+          },
+          {
+            'rule/r-updates': 'incomplete',
+            'rule/r-newer': 'unknown_fields',
+            'goal/g1': 'unsupported_type',
+          },
+        );
+        // The records read back as they were, the unknown field included.
+        final DriftSyncStore store = DriftSyncStore(database, testClock);
+        final EntityRecord newer = (await store.read(
+          EntityType.rule,
+          'r-newer',
+        ))!;
+        expect(newer.fields['priority'], 2);
+        expect(
+          (await store.read(EntityType.rule, 'r-complete'))!.fields['actions'],
+          [
+            {'kind': 'add_tag', 'value': 'coffee'},
+          ],
+        );
+        expect(
+          {
+            for (final SyncMetaRow m
+                in await database.select(database.syncMeta).get())
+              m.key: m.value,
+          },
+          {'pull_cursor': '12', 'device_id': 'dev-a'},
+        );
+      },
+    );
   });
 }

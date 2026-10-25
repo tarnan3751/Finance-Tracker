@@ -14,6 +14,7 @@ import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 
 import '../../contract/repository_fixture.dart';
+import '../../helpers/random_rules.dart';
 
 EntityRecord goal(String id, String name) => EntityRecord(
   type: EntityType.goal,
@@ -323,6 +324,91 @@ void main() {
           'theme_mode': 'dark',
           'use_dynamic_color': false,
         }, at),
+      );
+    });
+
+    test('a rule, live and deleted, round-trips through its row', () async {
+      final Rule rule = Rule(
+        id: 'r1',
+        name: 'Coffee',
+        position: 3,
+        conditions: [
+          const RuleCondition(
+            kind: RuleConditionKind.merchantContains,
+            text: 'Starbucks',
+          ),
+          RuleCondition(
+            kind: RuleConditionKind.amountBetween,
+            minAmount: Money(100, 'USD'),
+            maxAmount: Money(2500, 'USD'),
+          ),
+        ],
+        actions: const [
+          RuleAction(kind: RuleActionKind.setCategory, value: 'c1'),
+          RuleAction(kind: RuleActionKind.hide),
+        ],
+      );
+      await roundTrips(
+        complete(EntityType.rule, 'r1', ruleRecordJson(rule), at),
+      );
+      final RuleRow row = await database.select(database.rules).getSingle();
+      expect(row.position, 3);
+      expect(row.deletedAt, isNull);
+      await roundTrips(
+        complete(
+          EntityType.rule,
+          'r1',
+          ruleRecordJson(rule, deletedAt: DateTime.utc(2026, 10, 2)),
+          at,
+        ),
+      );
+      expect(
+        (await database.select(database.rules).getSingle()).deletedAt,
+        DateTime.utc(2026, 10, 2),
+      );
+      expect(await database.select(database.heldRecords).get(), isEmpty);
+    });
+
+    test('randomized rules round-trip', () async {
+      for (int seed = 0; seed < 50; seed++) {
+        final Random random = Random(seed);
+        final Rule rule = randomRule(random, 'r$seed');
+        final Map<String, Object?> fields = ruleRecordJson(rule);
+        if (random.nextBool()) fields.remove(deletedAtField);
+        await roundTrips(complete(EntityType.rule, rule.id, fields, at));
+      }
+      expect(await database.select(database.heldRecords).get(), isEmpty);
+    });
+
+    test('a rule that does not decode is held and leaves the row', () async {
+      const Rule rule = Rule(
+        id: 'r1',
+        name: 'Coffee',
+        position: 0,
+        conditions: [
+          RuleCondition(kind: RuleConditionKind.account, text: 'a1'),
+        ],
+        actions: [RuleAction(kind: RuleActionKind.addTag, value: 'x')],
+      );
+      await store.write(
+        complete(EntityType.rule, 'r1', ruleRecordJson(rule), at),
+      );
+      final Map<String, Object?> newer = {
+        ...ruleRecordJson(rule),
+        'conditions': [
+          {'kind': 'weekday_is', 'text': 'monday'},
+        ],
+      };
+      await roundTrips(
+        complete(EntityType.rule, 'r1', newer, Hlc(at.wallMillis + 1, 0, 'b')),
+      );
+      expect(
+        (await database.select(database.heldRecords).getSingle()).reason,
+        'unrepresentable',
+      );
+      expect(
+        (await database.select(database.rules).getSingle()).conditions,
+        contains('account'),
       );
     });
 

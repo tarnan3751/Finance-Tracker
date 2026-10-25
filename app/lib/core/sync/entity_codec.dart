@@ -1,9 +1,9 @@
 /// How the app's entities appear as sync records (`docs/reference/sync-app.md`).
 ///
 /// A record's fields are the entity's `shared_models` JSON, plus what the app keeps beside
-/// it: `deleted_at` for accounts and categories (whose entities carry no tombstone), and
-/// `deleted_with_account` for transactions (the cascade flag, synced so a restore on any
-/// device brings back the same rows). Settings are the one record `settings/local`, with
+/// it: `deleted_at` for accounts, categories and rules (whose entities carry no
+/// tombstone), and `deleted_with_account` for transactions (the cascade flag, synced so a
+/// restore on any device brings back the same rows). Settings are the one record `settings/local`, with
 /// `theme_mode` and `use_dynamic_color`. Nested values (tags, splits, amounts) are whole
 /// field values.
 ///
@@ -55,6 +55,13 @@ Map<String, Object?> categoryRecordJson(
   DateTime? deletedAt,
 }) => {..._plain(category.toJson()), deletedAtField: _instant(deletedAt)};
 
+/// The record fields of [rule], deleted at [deletedAt] (null while live). Its conditions
+/// and actions are whole field values.
+Map<String, Object?> ruleRecordJson(Rule rule, {DateTime? deletedAt}) => {
+  ..._plain(rule.toJson()),
+  deletedAtField: _instant(deletedAt),
+};
+
 /// The record fields of [settings].
 Map<String, Object?> settingsRecordJson(Settings settings) => {
   'theme_mode': settings.themeMode.name,
@@ -80,6 +87,7 @@ Set<String> knownRecordFields(EntityType type) => switch (type) {
   EntityType.account => _accountFields,
   EntityType.transaction => _transactionFields,
   EntityType.category => _categoryFields,
+  EntityType.rule => _ruleFields,
   EntityType.settings => const {'theme_mode', 'use_dynamic_color'},
   _ => const {},
 };
@@ -112,6 +120,10 @@ final Set<String> _transactionFields = transactionRecordJson(
 
 final Set<String> _categoryFields = categoryRecordJson(
   const Category(id: '', name: '', isSystem: false, icon: '', color: 0),
+).keys.toSet();
+
+final Set<String> _ruleFields = ruleRecordJson(
+  const Rule(id: '', name: '', position: 0, conditions: [], actions: []),
 ).keys.toSet();
 
 /// The JSON name of [value]: its Dart name in snake case (`recurring_stream`,

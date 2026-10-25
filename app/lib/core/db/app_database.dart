@@ -7,7 +7,9 @@
 /// (`sync_meta`) and the records the entity tables cannot hold yet (`held_records`); its
 /// migration backfills the change log from the existing rows (`sync_backfill.dart`).
 /// Schema 3 adds the user's Plaid Items (`items`), which the Plaid pull fills; its
-/// migration creates the empty table. Every schema change follows the procedure
+/// migration creates the empty table. Schema 4 adds the user's rules (`rules`); its
+/// migration also materializes the rule records sync held before this version could
+/// store them. Every schema change follows the procedure
 /// in `data.md`: bump [AppDatabase.schemaVersion], write the step in `onUpgrade`, dump the
 /// schema, regenerate the test helpers, and add the migration test. How the file is found,
 /// keyed and opened is `open_database.dart`; this file stays free of Flutter so the schema
@@ -16,6 +18,7 @@ library;
 
 import 'package:drift/drift.dart';
 import 'package:finance_tracker/core/db/converters.dart';
+import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/db/sync_backfill.dart';
 import 'package:finance_tracker/core/db/tables/accounts.dart';
 import 'package:finance_tracker/core/db/tables/app_meta.dart';
@@ -25,12 +28,15 @@ import 'package:finance_tracker/core/db/tables/change_log.dart';
 import 'package:finance_tracker/core/db/tables/held_records.dart';
 import 'package:finance_tracker/core/db/tables/items.dart';
 import 'package:finance_tracker/core/db/tables/record_clocks.dart';
+import 'package:finance_tracker/core/db/tables/rules.dart';
 import 'package:finance_tracker/core/db/tables/sync_meta.dart';
 import 'package:finance_tracker/core/db/tables/transaction_splits.dart';
 import 'package:finance_tracker/core/db/tables/transaction_tags.dart';
 import 'package:finance_tracker/core/db/tables/transactions.dart';
+import 'package:finance_tracker/core/time/clock.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'package:uuid/uuid.dart';
 
 part 'app_database.g.dart';
@@ -55,6 +61,7 @@ final Logger _log = Logger('db');
     SyncMeta,
     HeldRecords,
     Items,
+    Rules,
   ],
 )
 final class AppDatabase extends _$AppDatabase {
@@ -69,14 +76,14 @@ final class AppDatabase extends _$AppDatabase {
   /// Whether `beforeOpen` logs the cipher in use.
   final bool logEncryption;
 
-  /// The wall clock, UTC milliseconds, the backfill stamps its entries with.
+  /// The wall clock, UTC milliseconds, the migrations stamp with.
   final int Function() wallMillis;
 
   /// The provisional sync node of a database migrated from schema 1.
   final String Function() newNodeId;
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -103,6 +110,16 @@ final class AppDatabase extends _$AppDatabase {
       }
       if (from < 3) {
         await m.createTable(items);
+      }
+      if (from < 4) {
+        await transaction(() async {
+          await m.createTable(rules);
+          await m.createIndex(rulesPosition);
+          await releaseHeldRecords(
+            DriftSyncStore(this, _WallClock(wallMillis)),
+            EntityType.rule,
+          );
+        });
       }
     },
     beforeOpen: (details) async {
@@ -132,3 +149,29 @@ final class AppDatabase extends _$AppDatabase {
 String provisionalNodeId() => 'local-${const Uuid().v4()}';
 
 int _systemWallMillis() => DateTime.now().millisecondsSinceEpoch;
+
+/// Writes again every record of [type] that [store] holds, so the ones a new table can
+/// now store (records pulled before this version had it, held as `unsupported_type`)
+/// become rows and stop being held; the rest stay held, for the reason that applies now.
+Future<void> releaseHeldRecords(DriftSyncStore store, EntityType type) async =>
+    store.materializeHeld(type, await store.heldIds(type));
+
+// The migrations' clock: only "now", from the database's wall clock.
+final class _WallClock implements Clock {
+  _WallClock(this._wallMillis);
+
+  final int Function() _wallMillis;
+
+  @override
+  DateTime nowUtc() =>
+      DateTime.fromMillisecondsSinceEpoch(_wallMillis(), isUtc: true);
+
+  @override
+  DateTime todayLocalMidnight() => throw UnsupportedError('no zone here');
+
+  @override
+  LocalDate today() => throw UnsupportedError('no zone here');
+
+  @override
+  tz.Location get location => throw UnsupportedError('no zone here');
+}
