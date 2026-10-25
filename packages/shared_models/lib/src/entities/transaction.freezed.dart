@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Transaction {
 
- String get id; String get accountId; Money get amount; LocalDate get date; LocalDate? get authorizedDate; bool get pending; String? get pendingTransactionId; String get name; String? get merchantName; Uri? get merchantLogoUrl; String? get plaidPrimaryCategory; String? get plaidDetailedCategory; String? get userCategoryId; String? get notes; List<String> get tags; List<TransactionSplit> get splits; String? get receiptPath; DataSource get source;@UtcInstantConverter() DateTime get createdAt;@UtcInstantConverter() DateTime get updatedAt;@UtcInstantConverter() DateTime? get deletedAt; int get syncVersion;
+ String get id; String get accountId; Money get amount; LocalDate get date; LocalDate? get authorizedDate; bool get pending; String? get pendingTransactionId; String get name; String? get merchantName; Uri? get merchantLogoUrl; String? get plaidPrimaryCategory; String? get plaidDetailedCategory; String? get userCategoryId; String? get notes; List<String> get tags; List<TransactionSplit> get splits; String? get receiptPath; bool get hidden; DataSource get source;@UtcInstantConverter() DateTime get createdAt;@UtcInstantConverter() DateTime get updatedAt;@UtcInstantConverter() DateTime? get deletedAt; int get syncVersion;
 /// Create a copy of Transaction
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $TransactionCopyWith<Transaction> get copyWith => _$TransactionCopyWithImpl<Tran
 @override
 bool operator ==(Object other) {
   final _this = this as Transaction;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Transaction&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.accountId, _this.accountId) || other.accountId == _this.accountId)&&(identical(other.amount, _this.amount) || other.amount == _this.amount)&&(identical(other.date, _this.date) || other.date == _this.date)&&(identical(other.authorizedDate, _this.authorizedDate) || other.authorizedDate == _this.authorizedDate)&&(identical(other.pending, _this.pending) || other.pending == _this.pending)&&(identical(other.pendingTransactionId, _this.pendingTransactionId) || other.pendingTransactionId == _this.pendingTransactionId)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.merchantName, _this.merchantName) || other.merchantName == _this.merchantName)&&(identical(other.merchantLogoUrl, _this.merchantLogoUrl) || other.merchantLogoUrl == _this.merchantLogoUrl)&&(identical(other.plaidPrimaryCategory, _this.plaidPrimaryCategory) || other.plaidPrimaryCategory == _this.plaidPrimaryCategory)&&(identical(other.plaidDetailedCategory, _this.plaidDetailedCategory) || other.plaidDetailedCategory == _this.plaidDetailedCategory)&&(identical(other.userCategoryId, _this.userCategoryId) || other.userCategoryId == _this.userCategoryId)&&(identical(other.notes, _this.notes) || other.notes == _this.notes)&&const DeepCollectionEquality().equals(other.tags, _this.tags)&&const DeepCollectionEquality().equals(other.splits, _this.splits)&&(identical(other.receiptPath, _this.receiptPath) || other.receiptPath == _this.receiptPath)&&(identical(other.source, _this.source) || other.source == _this.source)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.updatedAt, _this.updatedAt) || other.updatedAt == _this.updatedAt)&&(identical(other.deletedAt, _this.deletedAt) || other.deletedAt == _this.deletedAt)&&(identical(other.syncVersion, _this.syncVersion) || other.syncVersion == _this.syncVersion));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Transaction&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.accountId, _this.accountId) || other.accountId == _this.accountId)&&(identical(other.amount, _this.amount) || other.amount == _this.amount)&&(identical(other.date, _this.date) || other.date == _this.date)&&(identical(other.authorizedDate, _this.authorizedDate) || other.authorizedDate == _this.authorizedDate)&&(identical(other.pending, _this.pending) || other.pending == _this.pending)&&(identical(other.pendingTransactionId, _this.pendingTransactionId) || other.pendingTransactionId == _this.pendingTransactionId)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.merchantName, _this.merchantName) || other.merchantName == _this.merchantName)&&(identical(other.merchantLogoUrl, _this.merchantLogoUrl) || other.merchantLogoUrl == _this.merchantLogoUrl)&&(identical(other.plaidPrimaryCategory, _this.plaidPrimaryCategory) || other.plaidPrimaryCategory == _this.plaidPrimaryCategory)&&(identical(other.plaidDetailedCategory, _this.plaidDetailedCategory) || other.plaidDetailedCategory == _this.plaidDetailedCategory)&&(identical(other.userCategoryId, _this.userCategoryId) || other.userCategoryId == _this.userCategoryId)&&(identical(other.notes, _this.notes) || other.notes == _this.notes)&&const DeepCollectionEquality().equals(other.tags, _this.tags)&&const DeepCollectionEquality().equals(other.splits, _this.splits)&&(identical(other.receiptPath, _this.receiptPath) || other.receiptPath == _this.receiptPath)&&(identical(other.hidden, _this.hidden) || other.hidden == _this.hidden)&&(identical(other.source, _this.source) || other.source == _this.source)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.updatedAt, _this.updatedAt) || other.updatedAt == _this.updatedAt)&&(identical(other.deletedAt, _this.deletedAt) || other.deletedAt == _this.deletedAt)&&(identical(other.syncVersion, _this.syncVersion) || other.syncVersion == _this.syncVersion));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Transaction;
-  return Object.hashAll([runtimeType,_this.id,_this.accountId,_this.amount,_this.date,_this.authorizedDate,_this.pending,_this.pendingTransactionId,_this.name,_this.merchantName,_this.merchantLogoUrl,_this.plaidPrimaryCategory,_this.plaidDetailedCategory,_this.userCategoryId,_this.notes,const DeepCollectionEquality().hash(_this.tags),const DeepCollectionEquality().hash(_this.splits),_this.receiptPath,_this.source,_this.createdAt,_this.updatedAt,_this.deletedAt,_this.syncVersion]);
+  return Object.hashAll([runtimeType,_this.id,_this.accountId,_this.amount,_this.date,_this.authorizedDate,_this.pending,_this.pendingTransactionId,_this.name,_this.merchantName,_this.merchantLogoUrl,_this.plaidPrimaryCategory,_this.plaidDetailedCategory,_this.userCategoryId,_this.notes,const DeepCollectionEquality().hash(_this.tags),const DeepCollectionEquality().hash(_this.splits),_this.receiptPath,_this.hidden,_this.source,_this.createdAt,_this.updatedAt,_this.deletedAt,_this.syncVersion]);
 }
 
 @override
 String toString() {
   final _this = this as Transaction;
-  return 'Transaction(id: ${_this.id}, accountId: ${_this.accountId}, amount: ${_this.amount}, date: ${_this.date}, authorizedDate: ${_this.authorizedDate}, pending: ${_this.pending}, pendingTransactionId: ${_this.pendingTransactionId}, name: ${_this.name}, merchantName: ${_this.merchantName}, merchantLogoUrl: ${_this.merchantLogoUrl}, plaidPrimaryCategory: ${_this.plaidPrimaryCategory}, plaidDetailedCategory: ${_this.plaidDetailedCategory}, userCategoryId: ${_this.userCategoryId}, notes: ${_this.notes}, tags: ${_this.tags}, splits: ${_this.splits}, receiptPath: ${_this.receiptPath}, source: ${_this.source}, createdAt: ${_this.createdAt}, updatedAt: ${_this.updatedAt}, deletedAt: ${_this.deletedAt}, syncVersion: ${_this.syncVersion})';
+  return 'Transaction(id: ${_this.id}, accountId: ${_this.accountId}, amount: ${_this.amount}, date: ${_this.date}, authorizedDate: ${_this.authorizedDate}, pending: ${_this.pending}, pendingTransactionId: ${_this.pendingTransactionId}, name: ${_this.name}, merchantName: ${_this.merchantName}, merchantLogoUrl: ${_this.merchantLogoUrl}, plaidPrimaryCategory: ${_this.plaidPrimaryCategory}, plaidDetailedCategory: ${_this.plaidDetailedCategory}, userCategoryId: ${_this.userCategoryId}, notes: ${_this.notes}, tags: ${_this.tags}, splits: ${_this.splits}, receiptPath: ${_this.receiptPath}, hidden: ${_this.hidden}, source: ${_this.source}, createdAt: ${_this.createdAt}, updatedAt: ${_this.updatedAt}, deletedAt: ${_this.deletedAt}, syncVersion: ${_this.syncVersion})';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $TransactionCopyWith<$Res>  {
   factory $TransactionCopyWith(Transaction value, $Res Function(Transaction) _then) = _$TransactionCopyWithImpl;
 @useResult
 $Res call({
- String id, String accountId, Money amount, LocalDate date, LocalDate? authorizedDate, bool pending, String? pendingTransactionId, String name, String? merchantName, Uri? merchantLogoUrl, String? plaidPrimaryCategory, String? plaidDetailedCategory, String? userCategoryId, String? notes, List<String> tags, List<TransactionSplit> splits, String? receiptPath, DataSource source,@UtcInstantConverter() DateTime createdAt,@UtcInstantConverter() DateTime updatedAt,@UtcInstantConverter() DateTime? deletedAt, int syncVersion
+ String id, String accountId, Money amount, LocalDate date, LocalDate? authorizedDate, bool pending, String? pendingTransactionId, String name, String? merchantName, Uri? merchantLogoUrl, String? plaidPrimaryCategory, String? plaidDetailedCategory, String? userCategoryId, String? notes, List<String> tags, List<TransactionSplit> splits, String? receiptPath, bool hidden, DataSource source,@UtcInstantConverter() DateTime createdAt,@UtcInstantConverter() DateTime updatedAt,@UtcInstantConverter() DateTime? deletedAt, int syncVersion
 });
 
 
@@ -71,7 +71,7 @@ class _$TransactionCopyWithImpl<$Res>
 
 /// Create a copy of Transaction
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? accountId = null,Object? amount = null,Object? date = null,Object? authorizedDate = freezed,Object? pending = null,Object? pendingTransactionId = freezed,Object? name = null,Object? merchantName = freezed,Object? merchantLogoUrl = freezed,Object? plaidPrimaryCategory = freezed,Object? plaidDetailedCategory = freezed,Object? userCategoryId = freezed,Object? notes = freezed,Object? tags = null,Object? splits = null,Object? receiptPath = freezed,Object? source = null,Object? createdAt = null,Object? updatedAt = null,Object? deletedAt = freezed,Object? syncVersion = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? accountId = null,Object? amount = null,Object? date = null,Object? authorizedDate = freezed,Object? pending = null,Object? pendingTransactionId = freezed,Object? name = null,Object? merchantName = freezed,Object? merchantLogoUrl = freezed,Object? plaidPrimaryCategory = freezed,Object? plaidDetailedCategory = freezed,Object? userCategoryId = freezed,Object? notes = freezed,Object? tags = null,Object? splits = null,Object? receiptPath = freezed,Object? hidden = null,Object? source = null,Object? createdAt = null,Object? updatedAt = null,Object? deletedAt = freezed,Object? syncVersion = null,}) {
   return _then(Transaction(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,accountId: null == accountId ? _self.accountId : accountId // ignore: cast_nullable_to_non_nullable
@@ -90,7 +90,8 @@ as String?,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullabl
 as String?,tags: null == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
 as List<String>,splits: null == splits ? _self.splits : splits // ignore: cast_nullable_to_non_nullable
 as List<TransactionSplit>,receiptPath: freezed == receiptPath ? _self.receiptPath : receiptPath // ignore: cast_nullable_to_non_nullable
-as String?,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String?,hidden: null == hidden ? _self.hidden : hidden // ignore: cast_nullable_to_non_nullable
+as bool,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
 as DataSource,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,deletedAt: freezed == deletedAt ? _self.deletedAt : deletedAt // ignore: cast_nullable_to_non_nullable
@@ -180,10 +181,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String accountId,  Money amount,  LocalDate date,  LocalDate? authorizedDate,  bool pending,  String? pendingTransactionId,  String name,  String? merchantName,  Uri? merchantLogoUrl,  String? plaidPrimaryCategory,  String? plaidDetailedCategory,  String? userCategoryId,  String? notes,  List<String> tags,  List<TransactionSplit> splits,  String? receiptPath,  DataSource source, @UtcInstantConverter()  DateTime createdAt, @UtcInstantConverter()  DateTime updatedAt, @UtcInstantConverter()  DateTime? deletedAt,  int syncVersion)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String accountId,  Money amount,  LocalDate date,  LocalDate? authorizedDate,  bool pending,  String? pendingTransactionId,  String name,  String? merchantName,  Uri? merchantLogoUrl,  String? plaidPrimaryCategory,  String? plaidDetailedCategory,  String? userCategoryId,  String? notes,  List<String> tags,  List<TransactionSplit> splits,  String? receiptPath,  bool hidden,  DataSource source, @UtcInstantConverter()  DateTime createdAt, @UtcInstantConverter()  DateTime updatedAt, @UtcInstantConverter()  DateTime? deletedAt,  int syncVersion)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Transaction() when $default != null:
-return $default(_that.id,_that.accountId,_that.amount,_that.date,_that.authorizedDate,_that.pending,_that.pendingTransactionId,_that.name,_that.merchantName,_that.merchantLogoUrl,_that.plaidPrimaryCategory,_that.plaidDetailedCategory,_that.userCategoryId,_that.notes,_that.tags,_that.splits,_that.receiptPath,_that.source,_that.createdAt,_that.updatedAt,_that.deletedAt,_that.syncVersion);case _:
+return $default(_that.id,_that.accountId,_that.amount,_that.date,_that.authorizedDate,_that.pending,_that.pendingTransactionId,_that.name,_that.merchantName,_that.merchantLogoUrl,_that.plaidPrimaryCategory,_that.plaidDetailedCategory,_that.userCategoryId,_that.notes,_that.tags,_that.splits,_that.receiptPath,_that.hidden,_that.source,_that.createdAt,_that.updatedAt,_that.deletedAt,_that.syncVersion);case _:
   return orElse();
 
 }
@@ -201,10 +202,10 @@ return $default(_that.id,_that.accountId,_that.amount,_that.date,_that.authorize
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String accountId,  Money amount,  LocalDate date,  LocalDate? authorizedDate,  bool pending,  String? pendingTransactionId,  String name,  String? merchantName,  Uri? merchantLogoUrl,  String? plaidPrimaryCategory,  String? plaidDetailedCategory,  String? userCategoryId,  String? notes,  List<String> tags,  List<TransactionSplit> splits,  String? receiptPath,  DataSource source, @UtcInstantConverter()  DateTime createdAt, @UtcInstantConverter()  DateTime updatedAt, @UtcInstantConverter()  DateTime? deletedAt,  int syncVersion)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String accountId,  Money amount,  LocalDate date,  LocalDate? authorizedDate,  bool pending,  String? pendingTransactionId,  String name,  String? merchantName,  Uri? merchantLogoUrl,  String? plaidPrimaryCategory,  String? plaidDetailedCategory,  String? userCategoryId,  String? notes,  List<String> tags,  List<TransactionSplit> splits,  String? receiptPath,  bool hidden,  DataSource source, @UtcInstantConverter()  DateTime createdAt, @UtcInstantConverter()  DateTime updatedAt, @UtcInstantConverter()  DateTime? deletedAt,  int syncVersion)  $default,) {final _that = this;
 switch (_that) {
 case _Transaction():
-return $default(_that.id,_that.accountId,_that.amount,_that.date,_that.authorizedDate,_that.pending,_that.pendingTransactionId,_that.name,_that.merchantName,_that.merchantLogoUrl,_that.plaidPrimaryCategory,_that.plaidDetailedCategory,_that.userCategoryId,_that.notes,_that.tags,_that.splits,_that.receiptPath,_that.source,_that.createdAt,_that.updatedAt,_that.deletedAt,_that.syncVersion);case _:
+return $default(_that.id,_that.accountId,_that.amount,_that.date,_that.authorizedDate,_that.pending,_that.pendingTransactionId,_that.name,_that.merchantName,_that.merchantLogoUrl,_that.plaidPrimaryCategory,_that.plaidDetailedCategory,_that.userCategoryId,_that.notes,_that.tags,_that.splits,_that.receiptPath,_that.hidden,_that.source,_that.createdAt,_that.updatedAt,_that.deletedAt,_that.syncVersion);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -221,10 +222,10 @@ return $default(_that.id,_that.accountId,_that.amount,_that.date,_that.authorize
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String accountId,  Money amount,  LocalDate date,  LocalDate? authorizedDate,  bool pending,  String? pendingTransactionId,  String name,  String? merchantName,  Uri? merchantLogoUrl,  String? plaidPrimaryCategory,  String? plaidDetailedCategory,  String? userCategoryId,  String? notes,  List<String> tags,  List<TransactionSplit> splits,  String? receiptPath,  DataSource source, @UtcInstantConverter()  DateTime createdAt, @UtcInstantConverter()  DateTime updatedAt, @UtcInstantConverter()  DateTime? deletedAt,  int syncVersion)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String accountId,  Money amount,  LocalDate date,  LocalDate? authorizedDate,  bool pending,  String? pendingTransactionId,  String name,  String? merchantName,  Uri? merchantLogoUrl,  String? plaidPrimaryCategory,  String? plaidDetailedCategory,  String? userCategoryId,  String? notes,  List<String> tags,  List<TransactionSplit> splits,  String? receiptPath,  bool hidden,  DataSource source, @UtcInstantConverter()  DateTime createdAt, @UtcInstantConverter()  DateTime updatedAt, @UtcInstantConverter()  DateTime? deletedAt,  int syncVersion)?  $default,) {final _that = this;
 switch (_that) {
 case _Transaction() when $default != null:
-return $default(_that.id,_that.accountId,_that.amount,_that.date,_that.authorizedDate,_that.pending,_that.pendingTransactionId,_that.name,_that.merchantName,_that.merchantLogoUrl,_that.plaidPrimaryCategory,_that.plaidDetailedCategory,_that.userCategoryId,_that.notes,_that.tags,_that.splits,_that.receiptPath,_that.source,_that.createdAt,_that.updatedAt,_that.deletedAt,_that.syncVersion);case _:
+return $default(_that.id,_that.accountId,_that.amount,_that.date,_that.authorizedDate,_that.pending,_that.pendingTransactionId,_that.name,_that.merchantName,_that.merchantLogoUrl,_that.plaidPrimaryCategory,_that.plaidDetailedCategory,_that.userCategoryId,_that.notes,_that.tags,_that.splits,_that.receiptPath,_that.hidden,_that.source,_that.createdAt,_that.updatedAt,_that.deletedAt,_that.syncVersion);case _:
   return null;
 
 }
@@ -236,7 +237,7 @@ return $default(_that.id,_that.accountId,_that.amount,_that.date,_that.authorize
 @JsonSerializable()
 
 class _Transaction implements Transaction {
-  const _Transaction({required this.id, required this.accountId, required this.amount, required this.date, this.authorizedDate, required this.pending, this.pendingTransactionId, required this.name, this.merchantName, this.merchantLogoUrl, this.plaidPrimaryCategory, this.plaidDetailedCategory, this.userCategoryId, this.notes,  List<String> tags = const <String>[],  List<TransactionSplit> splits = const <TransactionSplit>[], this.receiptPath, required this.source, @UtcInstantConverter() required this.createdAt, @UtcInstantConverter() required this.updatedAt, @UtcInstantConverter() this.deletedAt, required this.syncVersion}): _tags = tags,_splits = splits;
+  const _Transaction({required this.id, required this.accountId, required this.amount, required this.date, this.authorizedDate, required this.pending, this.pendingTransactionId, required this.name, this.merchantName, this.merchantLogoUrl, this.plaidPrimaryCategory, this.plaidDetailedCategory, this.userCategoryId, this.notes,  List<String> tags = const <String>[],  List<TransactionSplit> splits = const <TransactionSplit>[], this.receiptPath, this.hidden = false, required this.source, @UtcInstantConverter() required this.createdAt, @UtcInstantConverter() required this.updatedAt, @UtcInstantConverter() this.deletedAt, required this.syncVersion}): _tags = tags,_splits = splits;
   factory _Transaction.fromJson(Map<String, dynamic> json) => _$TransactionFromJson(json);
 
 @override final  String id;
@@ -268,6 +269,7 @@ class _Transaction implements Transaction {
 }
 
 @override final  String? receiptPath;
+@override@JsonKey() final  bool hidden;
 @override final  DataSource source;
 @override@UtcInstantConverter() final  DateTime createdAt;
 @override@UtcInstantConverter() final  DateTime updatedAt;
@@ -287,18 +289,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Transaction&&(identical(other.id, id) || other.id == id)&&(identical(other.accountId, accountId) || other.accountId == accountId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.date, date) || other.date == date)&&(identical(other.authorizedDate, authorizedDate) || other.authorizedDate == authorizedDate)&&(identical(other.pending, pending) || other.pending == pending)&&(identical(other.pendingTransactionId, pendingTransactionId) || other.pendingTransactionId == pendingTransactionId)&&(identical(other.name, name) || other.name == name)&&(identical(other.merchantName, merchantName) || other.merchantName == merchantName)&&(identical(other.merchantLogoUrl, merchantLogoUrl) || other.merchantLogoUrl == merchantLogoUrl)&&(identical(other.plaidPrimaryCategory, plaidPrimaryCategory) || other.plaidPrimaryCategory == plaidPrimaryCategory)&&(identical(other.plaidDetailedCategory, plaidDetailedCategory) || other.plaidDetailedCategory == plaidDetailedCategory)&&(identical(other.userCategoryId, userCategoryId) || other.userCategoryId == userCategoryId)&&(identical(other.notes, notes) || other.notes == notes)&&const DeepCollectionEquality().equals(other.tags, _tags)&&const DeepCollectionEquality().equals(other.splits, _splits)&&(identical(other.receiptPath, receiptPath) || other.receiptPath == receiptPath)&&(identical(other.source, source) || other.source == source)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.deletedAt, deletedAt) || other.deletedAt == deletedAt)&&(identical(other.syncVersion, syncVersion) || other.syncVersion == syncVersion));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Transaction&&(identical(other.id, id) || other.id == id)&&(identical(other.accountId, accountId) || other.accountId == accountId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.date, date) || other.date == date)&&(identical(other.authorizedDate, authorizedDate) || other.authorizedDate == authorizedDate)&&(identical(other.pending, pending) || other.pending == pending)&&(identical(other.pendingTransactionId, pendingTransactionId) || other.pendingTransactionId == pendingTransactionId)&&(identical(other.name, name) || other.name == name)&&(identical(other.merchantName, merchantName) || other.merchantName == merchantName)&&(identical(other.merchantLogoUrl, merchantLogoUrl) || other.merchantLogoUrl == merchantLogoUrl)&&(identical(other.plaidPrimaryCategory, plaidPrimaryCategory) || other.plaidPrimaryCategory == plaidPrimaryCategory)&&(identical(other.plaidDetailedCategory, plaidDetailedCategory) || other.plaidDetailedCategory == plaidDetailedCategory)&&(identical(other.userCategoryId, userCategoryId) || other.userCategoryId == userCategoryId)&&(identical(other.notes, notes) || other.notes == notes)&&const DeepCollectionEquality().equals(other.tags, _tags)&&const DeepCollectionEquality().equals(other.splits, _splits)&&(identical(other.receiptPath, receiptPath) || other.receiptPath == receiptPath)&&(identical(other.hidden, hidden) || other.hidden == hidden)&&(identical(other.source, source) || other.source == source)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.deletedAt, deletedAt) || other.deletedAt == deletedAt)&&(identical(other.syncVersion, syncVersion) || other.syncVersion == syncVersion));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hashAll([runtimeType,id,accountId,amount,date,authorizedDate,pending,pendingTransactionId,name,merchantName,merchantLogoUrl,plaidPrimaryCategory,plaidDetailedCategory,userCategoryId,notes,const DeepCollectionEquality().hash(_tags),const DeepCollectionEquality().hash(_splits),receiptPath,source,createdAt,updatedAt,deletedAt,syncVersion]);
+    return Object.hashAll([runtimeType,id,accountId,amount,date,authorizedDate,pending,pendingTransactionId,name,merchantName,merchantLogoUrl,plaidPrimaryCategory,plaidDetailedCategory,userCategoryId,notes,const DeepCollectionEquality().hash(_tags),const DeepCollectionEquality().hash(_splits),receiptPath,hidden,source,createdAt,updatedAt,deletedAt,syncVersion]);
 }
 
 @override
 String toString() {
-    return 'Transaction(id: $id, accountId: $accountId, amount: $amount, date: $date, authorizedDate: $authorizedDate, pending: $pending, pendingTransactionId: $pendingTransactionId, name: $name, merchantName: $merchantName, merchantLogoUrl: $merchantLogoUrl, plaidPrimaryCategory: $plaidPrimaryCategory, plaidDetailedCategory: $plaidDetailedCategory, userCategoryId: $userCategoryId, notes: $notes, tags: $tags, splits: $splits, receiptPath: $receiptPath, source: $source, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, syncVersion: $syncVersion)';
+    return 'Transaction(id: $id, accountId: $accountId, amount: $amount, date: $date, authorizedDate: $authorizedDate, pending: $pending, pendingTransactionId: $pendingTransactionId, name: $name, merchantName: $merchantName, merchantLogoUrl: $merchantLogoUrl, plaidPrimaryCategory: $plaidPrimaryCategory, plaidDetailedCategory: $plaidDetailedCategory, userCategoryId: $userCategoryId, notes: $notes, tags: $tags, splits: $splits, receiptPath: $receiptPath, hidden: $hidden, source: $source, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, syncVersion: $syncVersion)';
 }
 
 
@@ -309,7 +311,7 @@ abstract mixin class _$TransactionCopyWith<$Res> implements $TransactionCopyWith
   factory _$TransactionCopyWith(_Transaction value, $Res Function(_Transaction) _then) = __$TransactionCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String accountId, Money amount, LocalDate date, LocalDate? authorizedDate, bool pending, String? pendingTransactionId, String name, String? merchantName, Uri? merchantLogoUrl, String? plaidPrimaryCategory, String? plaidDetailedCategory, String? userCategoryId, String? notes, List<String> tags, List<TransactionSplit> splits, String? receiptPath, DataSource source,@UtcInstantConverter() DateTime createdAt,@UtcInstantConverter() DateTime updatedAt,@UtcInstantConverter() DateTime? deletedAt, int syncVersion
+ String id, String accountId, Money amount, LocalDate date, LocalDate? authorizedDate, bool pending, String? pendingTransactionId, String name, String? merchantName, Uri? merchantLogoUrl, String? plaidPrimaryCategory, String? plaidDetailedCategory, String? userCategoryId, String? notes, List<String> tags, List<TransactionSplit> splits, String? receiptPath, bool hidden, DataSource source,@UtcInstantConverter() DateTime createdAt,@UtcInstantConverter() DateTime updatedAt,@UtcInstantConverter() DateTime? deletedAt, int syncVersion
 });
 
 
@@ -326,7 +328,7 @@ class __$TransactionCopyWithImpl<$Res>
 
 /// Create a copy of Transaction
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? accountId = null,Object? amount = null,Object? date = null,Object? authorizedDate = freezed,Object? pending = null,Object? pendingTransactionId = freezed,Object? name = null,Object? merchantName = freezed,Object? merchantLogoUrl = freezed,Object? plaidPrimaryCategory = freezed,Object? plaidDetailedCategory = freezed,Object? userCategoryId = freezed,Object? notes = freezed,Object? tags = null,Object? splits = null,Object? receiptPath = freezed,Object? source = null,Object? createdAt = null,Object? updatedAt = null,Object? deletedAt = freezed,Object? syncVersion = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? accountId = null,Object? amount = null,Object? date = null,Object? authorizedDate = freezed,Object? pending = null,Object? pendingTransactionId = freezed,Object? name = null,Object? merchantName = freezed,Object? merchantLogoUrl = freezed,Object? plaidPrimaryCategory = freezed,Object? plaidDetailedCategory = freezed,Object? userCategoryId = freezed,Object? notes = freezed,Object? tags = null,Object? splits = null,Object? receiptPath = freezed,Object? hidden = null,Object? source = null,Object? createdAt = null,Object? updatedAt = null,Object? deletedAt = freezed,Object? syncVersion = null,}) {
   return _then(_Transaction(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,accountId: null == accountId ? _self.accountId : accountId // ignore: cast_nullable_to_non_nullable
@@ -345,7 +347,8 @@ as String?,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullabl
 as String?,tags: null == tags ? _self._tags : tags // ignore: cast_nullable_to_non_nullable
 as List<String>,splits: null == splits ? _self._splits : splits // ignore: cast_nullable_to_non_nullable
 as List<TransactionSplit>,receiptPath: freezed == receiptPath ? _self.receiptPath : receiptPath // ignore: cast_nullable_to_non_nullable
-as String?,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String?,hidden: null == hidden ? _self.hidden : hidden // ignore: cast_nullable_to_non_nullable
+as bool,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
 as DataSource,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,deletedAt: freezed == deletedAt ? _self.deletedAt : deletedAt // ignore: cast_nullable_to_non_nullable

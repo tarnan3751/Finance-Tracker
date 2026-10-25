@@ -13,7 +13,7 @@ import 'package:built_value/serializer.dart';
 
 part 'transaction.g.dart';
 
-/// Mirrors `shared_models` `Transaction`. `amount` is negative for an outflow (Plaid's sign flipped at the server). `name` is Plaid's raw name; `merchant_name` is Plaid's cleaned merchant, null when Plaid has none. `deleted_at` is the tombstone.
+/// Mirrors `shared_models` `Transaction`. `amount` is negative for an outflow (Plaid's sign flipped at the server). `name` is Plaid's raw name; `merchant_name` is Plaid's cleaned merchant, null when Plaid has none. `deleted_at` is the tombstone. `hidden` is the user's override, synced through the change log; the server never sets it and always serves `false`.
 ///
 /// Properties:
 /// * [id]
@@ -33,6 +33,7 @@ part 'transaction.g.dart';
 /// * [tags]
 /// * [splits]
 /// * [receiptPath]
+/// * [hidden] - The user's override: a hidden transaction still counts toward its account's balance and is left out of budgets, reports and the default transaction list. User data synced through the change log; `GET /transactions` always serves `false`.
 /// * [source_]
 /// * [createdAt]
 /// * [updatedAt]
@@ -91,6 +92,10 @@ abstract class Transaction implements Built<Transaction, TransactionBuilder> {
   @BuiltValueField(wireName: r'receipt_path')
   String? get receiptPath;
 
+  /// The user's override: a hidden transaction still counts toward its account's balance and is left out of budgets, reports and the default transaction list. User data synced through the change log; `GET /transactions` always serves `false`.
+  @BuiltValueField(wireName: r'hidden')
+  bool get hidden;
+
   @BuiltValueField(wireName: r'source')
   DataSource get source_;
   // enum source_Enum {  plaid,  manual,  import,  derived,  demo,  };
@@ -112,7 +117,7 @@ abstract class Transaction implements Built<Transaction, TransactionBuilder> {
   factory Transaction([void updates(TransactionBuilder b)]) = _$Transaction;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(TransactionBuilder b) => b;
+  static void _defaults(TransactionBuilder b) => b..hidden = false;
 
   @BuiltValueSerializer(custom: true)
   static Serializer<Transaction> get serializer => _$TransactionSerializer();
@@ -233,6 +238,11 @@ class _$TransactionSerializer implements PrimitiveSerializer<Transaction> {
             object.receiptPath,
             specifiedType: const FullType.nullable(String),
           );
+    yield r'hidden';
+    yield serializers.serialize(
+      object.hidden,
+      specifiedType: const FullType(bool),
+    );
     yield r'source';
     yield serializers.serialize(
       object.source_,
@@ -416,6 +426,13 @@ class _$TransactionSerializer implements PrimitiveSerializer<Transaction> {
           ) as String?;
           if (valueDes == null) continue;
           result.receiptPath = valueDes;
+          break;
+        case r'hidden':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(bool),
+          ) as bool;
+          result.hidden = valueDes;
           break;
         case r'source':
           final valueDes = serializers.deserialize(

@@ -42,6 +42,8 @@ class _$Transaction extends Transaction {
   @override
   final String? receiptPath;
   @override
+  final bool hidden;
+  @override
   final DataSource source_;
   @override
   final DateTime createdAt;
@@ -73,6 +75,7 @@ class _$Transaction extends Transaction {
     required this.tags,
     required this.splits,
     this.receiptPath,
+    required this.hidden,
     required this.source_,
     required this.createdAt,
     required this.updatedAt,
@@ -107,6 +110,7 @@ class _$Transaction extends Transaction {
         tags == other.tags &&
         splits == other.splits &&
         receiptPath == other.receiptPath &&
+        hidden == other.hidden &&
         source_ == other.source_ &&
         createdAt == other.createdAt &&
         updatedAt == other.updatedAt &&
@@ -134,6 +138,7 @@ class _$Transaction extends Transaction {
     _$hash = $jc(_$hash, tags.hashCode);
     _$hash = $jc(_$hash, splits.hashCode);
     _$hash = $jc(_$hash, receiptPath.hashCode);
+    _$hash = $jc(_$hash, hidden.hashCode);
     _$hash = $jc(_$hash, source_.hashCode);
     _$hash = $jc(_$hash, createdAt.hashCode);
     _$hash = $jc(_$hash, updatedAt.hashCode);
@@ -163,6 +168,7 @@ class _$Transaction extends Transaction {
           ..add('tags', tags)
           ..add('splits', splits)
           ..add('receiptPath', receiptPath)
+          ..add('hidden', hidden)
           ..add('source_', source_)
           ..add('createdAt', createdAt)
           ..add('updatedAt', updatedAt)
@@ -250,6 +256,10 @@ class TransactionBuilder implements Builder<Transaction, TransactionBuilder> {
   String? get receiptPath => _$this._receiptPath;
   set receiptPath(String? receiptPath) => _$this._receiptPath = receiptPath;
 
+  bool? _hidden;
+  bool? get hidden => _$this._hidden;
+  set hidden(bool? hidden) => _$this._hidden = hidden;
+
   DataSource? _source_;
   DataSource? get source_ => _$this._source_;
   set source_(DataSource? source_) => _$this._source_ = source_;
@@ -294,6 +304,7 @@ class TransactionBuilder implements Builder<Transaction, TransactionBuilder> {
       _tags = $v.tags.toBuilder();
       _splits = $v.splits.toBuilder();
       _receiptPath = $v.receiptPath;
+      _hidden = $v.hidden;
       _source_ = $v.source_;
       _createdAt = $v.createdAt;
       _updatedAt = $v.updatedAt;
@@ -356,6 +367,11 @@ class TransactionBuilder implements Builder<Transaction, TransactionBuilder> {
             tags: tags.build(),
             splits: splits.build(),
             receiptPath: receiptPath,
+            hidden: BuiltValueNullFieldError.checkNotNull(
+              hidden,
+              r'Transaction',
+              'hidden',
+            ),
             source_: BuiltValueNullFieldError.checkNotNull(
               source_,
               r'Transaction',

@@ -60,6 +60,7 @@ _Transaction _$TransactionFromJson(Map<String, dynamic> json) => $checkedCreate(
             const <TransactionSplit>[],
       ),
       receiptPath: $checkedConvert('receipt_path', (v) => v as String?),
+      hidden: $checkedConvert('hidden', (v) => v as bool? ?? false),
       source: $checkedConvert(
         'source',
         (v) => $enumDecode(_$DataSourceEnumMap, v),
@@ -119,6 +120,7 @@ Map<String, dynamic> _$TransactionToJson(_Transaction instance) =>
       'tags': instance.tags,
       'splits': instance.splits.map((e) => e.toJson()).toList(),
       'receipt_path': instance.receiptPath,
+      'hidden': instance.hidden,
       'source': _$DataSourceEnumMap[instance.source]!,
       'created_at': const UtcInstantConverter().toJson(instance.createdAt),
       'updated_at': const UtcInstantConverter().toJson(instance.updatedAt),

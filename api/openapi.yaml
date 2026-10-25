@@ -1618,6 +1618,8 @@ components:
         Mirrors `shared_models` `Transaction`. `amount` is negative for an outflow (Plaid's
         sign flipped at the server). `name` is Plaid's raw name; `merchant_name` is Plaid's
         cleaned merchant, null when Plaid has none. `deleted_at` is the tombstone.
+        `hidden` is the user's override, synced through the change log; the server never
+        sets it and always serves `false`.
       required:
         - id
         - account_id
@@ -1636,6 +1638,7 @@ components:
         - tags
         - splits
         - receipt_path
+        - hidden
         - source
         - created_at
         - updated_at
@@ -1693,6 +1696,14 @@ components:
         receipt_path:
           type: string
           nullable: true
+        hidden:
+          type: boolean
+          default: false
+          description: >-
+            The user's override: a hidden transaction still counts toward its account's
+            balance and is left out of budgets, reports and the default transaction list.
+            User data synced through the change log; `GET /transactions` always serves
+            `false`.
         source:
           $ref: '#/components/schemas/DataSource'
         created_at:
@@ -1734,6 +1745,7 @@ components:
         tags: []
         splits: []
         receipt_path: null
+        hidden: false
         source: plaid
         created_at: '2026-10-23T12:00:00.000Z'
         updated_at: '2026-10-23T12:00:00.000Z'

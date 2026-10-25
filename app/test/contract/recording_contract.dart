@@ -50,7 +50,7 @@ void runRecordingContract(
         'official_name,subtype,type';
     const String transactionFields =
         'account_id,amount,authorized_date,created_at,date,deleted_with_account,'
-        'id,merchant_logo_url,merchant_name,name,notes,pending,'
+        'hidden,id,merchant_logo_url,merchant_name,name,notes,pending,'
         'pending_transaction_id,plaid_detailed_category,plaid_primary_category,'
         'receipt_path,source,splits,sync_version,tags,updated_at,user_category_id';
 

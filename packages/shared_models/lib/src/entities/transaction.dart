@@ -20,6 +20,10 @@ part 'transaction.g.dart';
 /// The enrichment fallback is display-side: it reads [name] when [merchantName] is null
 /// and never writes [merchantName] or any other Plaid field.
 ///
+/// [hidden] is the user's override: a hidden transaction still counts toward its
+/// account's balance (the money moved) and is left out of budgets, reports and the
+/// default transaction list. The server never sets it; it travels through the change log.
+///
 /// [source] is the record's provenance (`PLAN.md` §7.1). [deletedAt] is the tombstone.
 @freezed
 abstract class Transaction with _$Transaction {
@@ -42,6 +46,7 @@ abstract class Transaction with _$Transaction {
     @Default(<String>[]) List<String> tags,
     @Default(<TransactionSplit>[]) List<TransactionSplit> splits,
     String? receiptPath,
+    @Default(false) bool hidden,
     required DataSource source,
     @UtcInstantConverter() required DateTime createdAt,
     @UtcInstantConverter() required DateTime updatedAt,

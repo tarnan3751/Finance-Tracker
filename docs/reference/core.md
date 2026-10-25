@@ -138,6 +138,9 @@ obvious from the field list:
 - `Transaction.amount` is negative for an outflow. `name` is Plaid's raw name or the user's
   description and is always present; `merchantName` is Plaid's cleaned merchant name
   only, and the enrichment fallback is display-side, never written into it.
+- `Transaction.hidden` (default false) is the user's override: a hidden transaction still
+  counts toward its account's balance and is left out of budgets, reports and the default
+  transaction list.
 - `Budget.periodStartDay` is 1 to 28; JSON outside that range is rejected in every
   build, not only by the debug-mode assertion.
 - `Budget.startDate` (`start_date`, required) is the first day of the budget's first

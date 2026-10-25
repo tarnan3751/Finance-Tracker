@@ -56,7 +56,10 @@ same name is its JSON exactly: `Money`, `User`, `Device`, `Institution`, `Item`,
 `Transaction`, `TransactionSplit`, `RecurringStream`, `ChangeLogEntry` and the enums. The
 documented differences: the API's `Item` embeds its `Institution` (`shared_models` keeps it
 apart, by `institution_id`); `ChangeLogEntry` travels without `synced`, which is local
-state; `PulledChangeLogEntry` is the same fields plus the server's `seq`. The two entry
+state; `PulledChangeLogEntry` is the same fields plus the server's `seq`. `Transaction`'s
+user-owned fields (`user_category_id`, `notes`, `tags`, `splits`, `receipt_path`, `hidden`)
+are in the schema because the entity has them, but they reach other devices through the
+change log: the server serves them empty, `hidden` as `false`. The two entry
 schemas are flat rather than composed with `allOf`, because the generator makes a composed
 parent uninstantiable. The liability, holding, security and investment-transaction
 schemas exist only in the contract until Phase 3 adds their entities. Entities that

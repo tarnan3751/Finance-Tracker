@@ -116,6 +116,7 @@ _entities = [
         TransactionSplit(categoryId: 'cat2', amount: _usd(-299)),
       ],
       receiptPath: 'receipts/t1.jpg',
+      hidden: true,
       source: DataSource.plaid,
       createdAt: _instant,
       updatedAt: _later,

@@ -49,6 +49,7 @@ final _transactionFull = Transaction(
     TransactionSplit(categoryId: 'c2', amount: _usd(-299)),
   ],
   receiptPath: 'receipts/t1.jpg',
+  hidden: true,
   source: DataSource.plaid,
   createdAt: _instant,
   updatedAt: _instant,
