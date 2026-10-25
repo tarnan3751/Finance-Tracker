@@ -85,7 +85,7 @@ enum UnlinkHistory {
 }
 
 /// The problem a [PlaidException] is answered with: 429 for Plaid's rate limit, 502
-/// `plaid_error` otherwise.
+/// `plaid_error` otherwise, carrying [e] as its `cause`.
 ProblemException plaidProblem(PlaidException e) => e.isRateLimit
     ? const ProblemException(
         429,
@@ -97,6 +97,7 @@ ProblemException plaidProblem(PlaidException e) => e.isRateLimit
         502,
         ProblemCode.plaidError,
         detail: 'Plaid answered ${e.errorCode}',
+        cause: e,
       );
 
 /// The Item flows.

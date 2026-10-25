@@ -43,6 +43,7 @@ final class ProblemException implements Exception {
     this.code, {
     this.detail,
     this.headers = const {},
+    this.cause,
   });
 
   /// 401 with [code].
@@ -64,6 +65,10 @@ final class ProblemException implements Exception {
 
   /// Extra response headers (`Retry-After`).
   final Map<String, String> headers;
+
+  /// The failure behind the problem (the `PlaidException` of a 502 `plaid_error`), for
+  /// the server's own retries; never written to the answer or the log.
+  final Object? cause;
 
   @override
   String toString() => 'ProblemException($status ${code.wire}: $detail)';

@@ -6,7 +6,7 @@ import 'dart:convert';
 
 import 'package:finance_tracker_server/server.dart';
 import 'package:finance_tracker_server/src/plaid/provisioning_service.dart'
-    show provisioningAsOf;
+    show isPlaidServerError, provisioningAsOf;
 import 'package:logging/logging.dart';
 import 'package:persona_engine/persona_engine.dart';
 import 'package:shared_models/shared_models.dart';
@@ -203,6 +203,109 @@ void main() {
       expect(injections[1].difference(injections[0]), lessThan(interval));
     },
   );
+
+  test('a Plaid 5xx is retried 15 s apart, at most three times', () async {
+    const error = PlaidException('API_ERROR', 'INTERNAL_SERVER_ERROR');
+    server.plaid.failNext('sandboxPublicTokenCreate', error);
+    final job = await runJob({'persona': 'renter', 'days': 30});
+    expect(job['status'], 'completed', reason: '$job');
+    expect(job['item_ids'], hasLength(1));
+    expect(waits.where((w) => w == const Duration(seconds: 15)), hasLength(1));
+
+    waits.clear();
+    server.plaid.failNext('sandboxPublicTokenCreate', error, times: 4);
+    final failed = await runJob({'persona': 'renter', 'days': 30, 'seed': 2});
+    expect(failed['status'], 'failed');
+    expect(failed['error'], 'link platypus: INTERNAL_SERVER_ERROR');
+    expect(waits.where((w) => w == const Duration(seconds: 15)), hasLength(3));
+  });
+
+  for (final (method, skip) in [
+    ('exchangePublicToken', 0),
+    ('getItem', 0),
+    ('transactionsSync', 0),
+    ('transactionsSync', 2),
+  ]) {
+    final where = method == 'transactionsSync'
+        ? (skip == 0 ? 'the first sync' : 'the final sync')
+        : method;
+    test(
+      'a Plaid 5xx on $where is retried once and the job completes',
+      () async {
+        server.plaid.failNext(
+          method,
+          const PlaidException('API_ERROR', 'INTERNAL_SERVER_ERROR'),
+          skip: skip,
+        );
+        final job = await runJob({'persona': 'renter', 'days': 30});
+        expect(job['status'], 'completed', reason: '$job');
+        expect(job['item_ids'], hasLength(1));
+        expect(
+          waits.where((w) => w == const Duration(seconds: 15)),
+          hasLength(1),
+        );
+        // A failed /item/get removed its Item at Plaid; one Item is left.
+        expect(server.plaid.liveItemCount, 1);
+        expect(
+          (await server.call('get', '/plaid/items', token: ada.access)).list,
+          hasLength(1),
+        );
+      },
+    );
+  }
+
+  test('a 4xx on the exchange fails the job at once', () async {
+    server.plaid.failNext(
+      'exchangePublicToken',
+      const PlaidException('INVALID_INPUT', 'INVALID_PUBLIC_TOKEN'),
+    );
+    final job = await runJob({'persona': 'renter', 'days': 30});
+    expect(job['status'], 'failed');
+    expect(
+      job['error'],
+      'link platypus: plaid_error (Plaid answered INVALID_PUBLIC_TOKEN)',
+    );
+    expect(job['item_ids'], isEmpty);
+    expect(waits.where((w) => w == const Duration(seconds: 15)), isEmpty);
+  });
+
+  test(
+    'four 5xx in a row on the first sync fail the job with the code',
+    () async {
+      server.plaid.failNext(
+        'transactionsSync',
+        const PlaidException('API_ERROR', 'HTTP_503'),
+        times: 4,
+      );
+      final job = await runJob({'persona': 'renter', 'days': 30});
+      expect(job['status'], 'failed');
+      expect(job['error'], 'first sync platypus: HTTP_503');
+      expect(
+        waits.where((w) => w == const Duration(seconds: 15)),
+        hasLength(3),
+      );
+    },
+  );
+
+  test('isPlaidServerError names Plaid failing on its side only', () {
+    for (final code in [
+      'INTERNAL_SERVER_ERROR',
+      'HTTP_500',
+      'HTTP_503',
+      'TIMEOUT',
+      'NETWORK_ERROR',
+    ]) {
+      expect(isPlaidServerError(PlaidException('API_ERROR', code)), isTrue);
+    }
+    for (final e in const [
+      PlaidException('API_ERROR', 'HTTP_400'),
+      PlaidException('API_ERROR', 'INVALID_RESPONSE'),
+      PlaidException('INVALID_INPUT', 'INTERNAL_SERVER_ERROR'),
+      PlaidException('RATE_LIMIT_EXCEEDED', 'HTTP_429'),
+    ]) {
+      expect(isPlaidServerError(e), isFalse, reason: '$e');
+    }
+  });
 
   test(
     'a rate limit on /item/get retries with a fresh custom user, one Item kept',

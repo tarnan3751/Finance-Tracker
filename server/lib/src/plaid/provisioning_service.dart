@@ -11,12 +11,13 @@
 /// engine's accounts to the Item's by name and mask. It then injects the older history,
 /// ten per call, newest first, one round across the Items at a time, at least 35 s apart
 /// per Item, and syncs each Item once more. A Plaid rate limit is retried after its
-/// `Retry-After` (60 s by default) at most three times; the first other failure ends the
-/// job `failed` with the step and Plaid's code, never a token. A transaction whose
-/// shifted date falls outside Plaid's window at the moment of its call is left out and
-/// counted in `skipped`: the window is checked at every call against the shift computed
-/// once, and a 730-day persona ends one day inside Plaid's 730, so this happens to a job
-/// that outlasts the day after it started.
+/// `Retry-After` (60 s by default) at most three times, and a Plaid 5xx 15 s apart at most
+/// three times; the first other failure, a 4xx included, ends the job `failed` with the
+/// step and Plaid's code, never a token. A transaction whose shifted date falls outside
+/// Plaid's window at the moment of its call is left out and counted in `skipped`: the
+/// window is checked at every call against the shift computed once, and a 730-day persona
+/// ends one day inside Plaid's 730, so this happens to a job that outlasts the day after
+/// it started.
 ///
 /// Jobs live in memory: a restart forgets them, and the Items they linked stay. One job
 /// per user runs at a time. Every record the job causes is stored from Plaid's own
@@ -56,6 +57,23 @@ const rateLimitWait = Duration(seconds: 60);
 
 /// How many times a rate-limited call is retried.
 const rateLimitRetries = 3;
+
+/// The wait before retrying a call Plaid failed on its side (a 5xx).
+const serverErrorWait = Duration(seconds: 15);
+
+/// How many times a call Plaid failed on its side is retried.
+const serverErrorRetries = 3;
+
+final _http5xx = RegExp(r'^HTTP_5[0-9]{2}$');
+
+/// Whether [e] is Plaid failing on its side: `API_ERROR` with
+/// `INTERNAL_SERVER_ERROR`, `HTTP_5xx`, `TIMEOUT` or `NETWORK_ERROR`.
+bool isPlaidServerError(PlaidException e) =>
+    e.errorType == 'API_ERROR' &&
+    (e.errorCode == 'INTERNAL_SERVER_ERROR' ||
+        e.errorCode == 'TIMEOUT' ||
+        e.errorCode == 'NETWORK_ERROR' ||
+        _http5xx.hasMatch(e.errorCode));
 
 /// A job's state (the contract's `ProvisionJobStatus`).
 enum ProvisionStatus { queued, running, completed, failed }
@@ -455,19 +473,42 @@ final class ProvisioningService {
     item.lastCall = now();
   }
 
-  /// Runs [call], retrying a rate limit after its wait at most [rateLimitRetries] times;
-  /// any other failure ends the job with [step] and the code.
+  /// Runs [call], retrying a rate limit after its wait at most [rateLimitRetries] times
+  /// and a Plaid 5xx ([isPlaidServerError]) [serverErrorWait] apart at most
+  /// [serverErrorRetries] times; any other failure, a 4xx included, ends the job with
+  /// [step] and the code. A 5xx counts whether it arrives raw (a Sandbox call) or as the
+  /// cause of a 502 `plaid_error` from [ItemService] (the exchange and the syncs).
   Future<T> _step<T>(String step, Future<T> Function() call) async {
+    var serverErrors = 0;
     for (var retry = 0; ; retry++) {
       try {
         return await call();
       } on PlaidException catch (e) {
+        if (isPlaidServerError(e)) {
+          if (serverErrors >= serverErrorRetries) {
+            throw _JobFailure('$step: ${e.errorCode}');
+          }
+          retry--;
+          await _serverError(step, e, ++serverErrors);
+          continue;
+        }
         if (!e.isRateLimit) throw _JobFailure('$step: ${e.errorCode}');
         if (retry >= rateLimitRetries) {
           throw _JobFailure('$step: ${e.errorCode}');
         }
         await _rateLimited(step, rateLimitWait);
       } on ProblemException catch (e) {
+        final cause = e.cause;
+        if (e.status == 502 &&
+            cause is PlaidException &&
+            isPlaidServerError(cause)) {
+          if (serverErrors >= serverErrorRetries) {
+            throw _JobFailure('$step: ${cause.errorCode}');
+          }
+          retry--;
+          await _serverError(step, cause, ++serverErrors);
+          continue;
+        }
         if (e.status != 429) {
           throw _JobFailure(
             '$step: ${e.code.wire}${e.detail == null ? '' : ' (${e.detail})'}',
@@ -481,6 +522,17 @@ final class ProvisioningService {
         );
       }
     }
+  }
+
+  Future<void> _serverError(String step, PlaidException e, int attempt) {
+    _log.info(
+      LogEvent('provision_plaid_server_error', {
+        'step': step,
+        'code': e.errorCode,
+        'attempt': attempt,
+      }),
+    );
+    return delay(serverErrorWait);
   }
 
   Future<void> _rateLimited(String step, Duration wait) {

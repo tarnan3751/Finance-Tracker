@@ -656,7 +656,19 @@ The job, `queued` then `running`, then `completed` or `failed` (with `finished_a
 4. Syncs each Item once more, so the injected history lands.
 
 A Plaid rate limit (or a 429 from a sync) is retried after its `Retry-After`, 60 s when
-there is none, at most three times. Any other failure ends the job `failed` with
+there is none, at most three times. Plaid failing on its side (`API_ERROR` with
+`INTERNAL_SERVER_ERROR`, `HTTP_5xx`, `TIMEOUT` or `NETWORK_ERROR`, `isPlaidServerError`)
+is retried 15 s apart at most three times, then fails the job with the step and the code
+(for example `link gingham: INTERNAL_SERVER_ERROR`); a 4xx fails it at once. The retry
+covers every step: the Sandbox calls, which raise the `PlaidException` itself, and the
+exchange, `/item/get` and the first and final syncs, which go through `ItemService` and
+arrive as a 502 `plaid_error` whose `ProblemException.cause` is the `PlaidException`
+(never written to the answer); a 502 whose cause is a 4xx still fails at once. A retried
+link recreates the public token, so a failed `/item/get` still removes its Item at Plaid
+first. `/sandbox/transactions/create` is not idempotent: a batch Plaid commits before
+answering a 5xx is injected twice when retried, which on synthetic history is accepted and
+found by inspection after a run. Any other
+failure ends the job `failed` with
 `"<step>: <code>"` (for example `link tartan: INVALID_INSTITUTION`), never a token.
 Every record comes from Plaid's own answers with the client's provenance; the job
 fabricates none. `tools/scripts/provision_persona.sh` drives it from the command line
@@ -718,6 +730,7 @@ which can carry SQL and its parameters: `errorFields` writes `error_type` and, f
 - the Sandbox events: `sandbox_reset_login`, `sandbox_webhook_fired`,
   `sandbox_transactions_created` (a count), and the provisioning events
   `provision_started`, `provision_item_linked`, `provision_rate_limited`,
+  `provision_plaid_server_error`,
   `provision_completed`, `provision_failed`;
 - `unhandled_error`, with the stack.
 
@@ -756,7 +769,7 @@ router's 404.
 | `plaid_flow_test.dart` | link token, exchange, `NOT_READY`, a completed sync, then the data with `source: demo` and rising versions; created, modified and removed transactions; paging; all-or-nothing runs and the mutation restart; a skipped secondary product; two concurrent runs applying once; the Item or user removed during a run (404); login required and update mode; other users' Items; Plaid errors; a failed `/item/get` removing the new Item; an exchange whose device is removed meanwhile (401, no Item left); `ITEM_NOT_FOUND` counting as removed; Item deletion; removed Items hidden from every data endpoint; a null optional field; tokens encrypted at rest; the webhook 401 |
 | `item_operations_test.dart` | refresh (Plaid called, `started`, the background run applied), login required on refresh and balances (409, `error_code`, cleared by a sync), balances stored and answered, unlinking with history kept (data visible, `removed`, 409s, no further Plaid call) and deleted, a login-required answer to a sync in flight not undoing a kept unlink, a bad `history`, account deletion after a kept unlink, the logo route and `logo_url`, other users' Items |
 | `sandbox_test.dart` | reset-login then login required on sync, every webhook code and the refused ones, created transactions arriving `demo` in our sign on the named account, every refused body, date and currency (the window's edge included), a login-required Item, other users' Items 404, a removed Item 409, a server that cannot drive Sandbox 409 |
-| `provisioning_test.dart` | on a clock the job's waits move: the queued answer, the counters, every engine transaction arriving once with the one shift, the accounts by name and mask, the `NOT_READY` wait; pacing at 35 s per Item and interleaving; rate-limit retries and their limit; a rate-limited `/item/get` retried with a fresh custom user, one Item kept; two accounts sharing a name and mask failing the job; a failure recorded with no token logged; days skipped by a job that outlasts its day; one job per user (finished and failed ones do not block); foreign and unknown jobs 404; bodies outside the contract 400; a server that cannot drive Sandbox 409; the fake refusing a custom user it cannot read |
+| `provisioning_test.dart` | on a clock the job's waits move: the queued answer, the counters, every engine transaction arriving once with the one shift, the accounts by name and mask, the `NOT_READY` wait; pacing at 35 s per Item and interleaving; rate-limit retries and their limit; Plaid 5xx retries 15 s apart and their limit on every step (exchange, `/item/get`, first and final sync), a 4xx on the exchange failing at once, and which failures count as one; a rate-limited `/item/get` retried with a fresh custom user, one Item kept; two accounts sharing a name and mask failing the job; a failure recorded with no token logged; days skipped by a job that outlasts its day; one job per user (finished and failed ones do not block); foreign and unknown jobs 404; bodies outside the contract 400; a server that cannot drive Sandbox 409; the fake refusing a custom user it cannot read |
 | `account_deletion_test.dart` | every row gone and nobody else's touched, retries, a permanent failure deleting nothing, then a retry finishing; an Item linked during the retries removed too; Items that keep appearing giving 502; `ITEM_NOT_FOUND` not blocking; a sync whose user is deleted while Plaid is called (404); an exchange still at Plaid when the user is deleted (401, no Item left) |
 | `contract_routes_test.dart` | one route per operation and none outside the contract, mounted with its security; the problem and rejection codes equal the contract's enums and the engine's reasons; every body the contract rejects is a 400; the contract's examples are accepted |
 | `logging_test.dart` | request lines and no secrets; a 500 with the request id, and on a forced SQLite failure a log line with the error's type and codes but no SQL, parameters or operation; the text format |
