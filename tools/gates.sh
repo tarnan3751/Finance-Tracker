@@ -154,17 +154,32 @@ else
 fi
 
 # 6. Tests ---------------------------------------------------------------------------
-: >"$scratch/tests.txt"; bad=0; ran=0
+# The report keeps the last 200 lines, so the packages that passed come first and the
+# ones that failed last, each failed one led by its failing tests ("[E]" lines and the
+# "Failing tests:" block), so a failure is never cut off by a later package's output.
+: >"$scratch/tests-ok.txt"; : >"$scratch/tests-bad.txt"; bad=0; ran=0
 for p in "${packages[@]}"; do
   [ -d "$p/test" ] || continue
-  ran=$((ran + 1))
+  ran=$((ran + 1)); one_ok=1
   if is_flutter "$p"; then
-    (cd "$p" && $FLUTTER test --no-pub) >"$scratch/tests-one.txt" 2>&1 || bad=$((bad + 1))
+    (cd "$p" && $FLUTTER test --no-pub) >"$scratch/tests-one.txt" 2>&1 || one_ok=0
   else
-    (cd "$p" && $DART test) >"$scratch/tests-one.txt" 2>&1 || bad=$((bad + 1))
+    (cd "$p" && $DART test) >"$scratch/tests-one.txt" 2>&1 || one_ok=0
   fi
-  { echo "== $p"; tail -40 "$scratch/tests-one.txt"; } >>"$scratch/tests.txt"
+  if [ $one_ok -eq 1 ]; then
+    { echo "== $p"; tail -40 "$scratch/tests-one.txt"; } >>"$scratch/tests-ok.txt"
+  else
+    bad=$((bad + 1))
+    {
+      echo "== $p FAILED"
+      grep -E '\[E\]|^Failing tests:|^  /|Expected:|Actual:|TimeoutException' \
+        "$scratch/tests-one.txt" | tail -60
+      echo "-- last 40 lines"
+      tail -40 "$scratch/tests-one.txt"
+    } >>"$scratch/tests-bad.txt"
+  fi
 done
+cat "$scratch/tests-ok.txt" "$scratch/tests-bad.txt" >"$scratch/tests.txt"
 if [ $ran -eq 0 ]; then
   report tests FAILED "no package has a test/ directory" "$scratch/tests.txt"
 elif [ $bad -eq 0 ]; then
