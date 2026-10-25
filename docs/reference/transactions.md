@@ -43,6 +43,9 @@ labelled, since they count toward the balance.
   resolved against `todayProvider` each time the query is built (`DateFilter.rangeOn`), so
   "This month" follows the calendar, past midnight included. Active filters show as chips under the app bar, each
   removing its filter.
+- **Duplicates.** Outside selection mode, the app bar's menu has "Review duplicates",
+  with a badge on the menu button counting the likely duplicate pairs
+  (`duplicateCandidatesProvider`); it opens the duplicate review (`duplicates.md`).
 
 `TransactionFilters` and `DateFilter` are in `application/transaction_filters.dart`;
 `toQuery(today, limit:)` makes the `TransactionQuery`, with `hidden: false` unless

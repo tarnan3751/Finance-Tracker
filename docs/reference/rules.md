@@ -1,12 +1,16 @@
 # Rules
 
-User-authored rules that categorize, tag, rename and hide transactions: applied by the Plaid pull
-to the transactions it brings in, and on demand from the transaction editor; synced between
-devices through the change log. Code: `app/lib/features/rules/` (`domain/rules_engine.dart`,
-the evaluator; `domain/rule_repository.dart` and `data/`, the repositories;
-`application/rule_runner.dart`, the arrival processor; `presentation/`, the screens).
-Tests: `app/test/features/rules/`, `app/test/contract/rule_repository_contract.dart`,
-`app/test/sync/two_device_convergence_test.dart` (**rules**). The model is `shared_models`'
+User-authored rules that categorize, tag, rename and hide transactions: applied by the
+Plaid pull to the transactions it brings in, on demand from the transaction editor, and,
+one rule at a time, to the existing transactions, previewed first; synced between devices
+through the change log. Code: `app/lib/features/rules/` (`domain/rules_engine.dart`, the
+evaluator; `domain/rule_repository.dart` and `data/`, the repositories;
+`application/rule_runner.dart`, the arrival processor; `application/rule_support.dart`, the
+owned-field guard; `application/rule_preview.dart`, a rule on the existing transactions;
+`presentation/`, the screens). Tests: `app/test/features/rules/`,
+`app/test/contract/rule_repository_contract.dart`,
+`app/test/sync/two_device_convergence_test.dart` (**rules**, with its group **applied to the
+existing transactions**). The model is `shared_models`'
 `Rule`, `RuleCondition` and `RuleAction` (`core.md`); the table and the repositories'
 shared rules are `data.md`'s, the sync record `sync-app.md`'s.
 
@@ -68,16 +72,23 @@ devices recorded and the pull laid over the new rows are already there.
   upserts the changed ones through `TransactionRepository.upsert`: recorded like a user's
   edit, so on a `plaid` row an update of `user_category_id`, `tags` and `hidden` only. The row keeps
   the `updatedAt` the server sent, so every device holds the same row.
-- **The guard.** On a `plaid` row, a field that already has a sync clock is the user's, or
-  another device's rule's, and is left alone; the runner reads the record through the sync
-  store the recorder writes to (`recordingSyncStoreProvider`; none in the demo, which never
-  syncs).
+- It applies **the guard** (below) to every row.
 - **Total**: it never throws, since a failure would roll the page back. Each upsert is its
   own nested transaction (a savepoint in Drift), so a row that cannot be written (its account
   gone, say) rolls back alone, with its entry; it is logged by rule id and exception type and
   skipped. Logs carry rule ids, counts and types only, never a name, merchant or amount.
 - Rules run on every row a pull inserts, `plaid` in dev and prod and `demo` in the demo
   flavor's linked bank (not recorded there).
+
+## The guard
+
+On a `plaid` row, a field that already has a sync clock is the user's, or another device's
+rule's, and is left alone. `ruleOwnedFields(store, transaction)` (`rule_support.dart`)
+gives those fields (`user_category_id`, `tags`, `hidden`) by reading the record through the sync
+store the recorder writes to (`recordingSyncStoreProvider`; none in the demo, which never
+syncs, so nothing is owned there); a row of any other source owns nothing, the actions'
+fill-only-what-is-unset being its protection. Arrival and the existing transactions use
+this one guard.
 
 **Several devices.** Every device runs its own Plaid pull, so every device that inserts a
 transaction runs the rules on it, and they record the same values; last-writer-wins
@@ -89,8 +100,43 @@ before the pull failed) writes the rule's value at a later clock, which wins ove
 
 The transaction editor's menu has "Run rules on this transaction" (`transactions.md`): the
 engine runs on the values in the form, with no owned fields (the user is editing), and Save
-writes the result like any edit. Nothing else runs rules on manual entries; applying a rule
-to the existing ledger is Phase 4's.
+writes the result like any edit. One rule at a time is applied to every existing
+transaction from the rules screens (**On the existing transactions**).
+
+## On the existing transactions
+
+`evaluateRuleOnHistory(rule, transactions, lookup:, ownedFields:)` (`rule_preview.dart`)
+runs one rule through the engine on each live transaction on a live account (a transaction
+synced before its account is left out until the account arrives), with **the guard**, and
+returns a `RulePreview`: how many transactions it was tried on, the changed ones as
+`(before, after)` in the order given (newest first), and how many it files, tags, renames
+and hides. The guard reads the sync store, so it is asked only about the rows the rule would
+change without it; it only ever removes a change, so the result is the one asking about
+every row gives (a test compares them).
+
+- **The preview.** `rulePreviewProvider(rule)` evaluates the rule as the editor holds it,
+  saved or not, against the repository's live transactions, accounts and categories, and
+  recomputes when they change. It writes nothing.
+- **Apply.** `RuleActions.applyToHistory(rule)` evaluates the same way and writes the
+  changed rows, all inside one transaction of the recording sync store: the database's in
+  dev and prod, so a sync pull cannot land between the read and the write and a failure
+  rolls the whole application back (a test makes one row's write fail); the demo has none
+  and writes directly. The rows are written as one recorded batch,
+  `TransactionRepository.upsertAll` (all or nothing), each recorded like a user's edit (on
+  a `plaid` row, the override fields only) and keeping its `updatedAt`, so other devices
+  receive the same rows.
+- **Deterministic**: the result depends only on the rule, the transactions, the categories
+  and the sync clocks. Applied on one device, another receives identical rows; applied on
+  two devices at once, they converge on identical rows with each tag once (last writer
+  wins on the whole `tags` list, and both write the same list); a field the other device's
+  user set on a bank row stays once that edit has reached this device. The residual race
+  is arrival's (**Several devices**): applied before this device has pulled another
+  device's edit of a row, the rule writes at a later clock and wins over that edit, on a
+  bank row as on a manual one (the guard covers only the clocks this device holds).
+- **Idempotent**: a second application changes nothing and records nothing, since the
+  actions only fill what is unset and, on a `plaid` row, the first application gave the
+  fields a clock. The rename caveat of **Evaluation** does not arise with one rule: a
+  renamed row that no longer matches is simply not changed.
 
 ## The repositories
 
@@ -123,3 +169,19 @@ each changes some of that persona's demo transactions).
   caption that hidden transactions still count toward their balance). A rule saves only with a
   name, a condition, an action and every row's value; a new rule goes after the last one.
   Delete offers an undo.
+  - **The preview**, under the actions: "Would change 14 of 1,929 transactions", once
+    every condition and action has a valid value (the name is not needed), else a line
+    asking to finish them; recomputed 300 ms after the last edit, outside the build.
+    "Preview" opens a sheet (`rule_preview_sheet.dart`) listing the first 50 changed
+    transactions, newest first, each with the category before and after, the tag added,
+    the description before and after and "Hidden", and how many more are not listed.
+  - **Apply to existing transactions**, in the app bar's menu of a saved rule, enabled
+    while the form holds the rule as saved ("Save the rule first" otherwise).
+- **Apply to existing transactions** (`apply_rule.dart`), from the editor's menu and from
+  each rule's menu in the list ("More options for …", beside its delete button): a
+  confirmation, then `applyToHistory`, then a snack bar with how many transactions
+  changed and how many were filed, tagged, renamed and hidden, or "No transactions
+  changed."
+  While it runs, a progress bar (labelled for screen readers) shows under the app bar and
+  both Apply entries are disabled (`ruleApplyingProvider`), so one application runs at a
+  time.

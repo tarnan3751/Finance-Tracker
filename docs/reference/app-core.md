@@ -55,9 +55,10 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `inMemoryStoreProvider` | `core/di/providers.dart` | The `InMemoryStore` behind the in-memory and demo repositories; the demo flavor's holds the system categories and the demo seed |
 | `accountRepositoryProvider`, `transactionRepositoryProvider`, `categoryRepositoryProvider`, `itemRepositoryProvider`, `ruleRepositoryProvider`, `budgetRepositoryProvider`, `settingsRepositoryProvider` | `core/di/providers.dart` | In memory by default; Drift in dev and prod and demo in demo, through `overridesFor` |
 | `budgetAlertStoreProvider` | `core/di/providers.dart` | Which budget alerts this device raised (`budgets.md`): in memory by default and in demo, `budget_alerts` in dev and prod |
+| `dismissedPairStoreProvider` | `core/di/providers.dart` | The duplicate pairs the user dismissed, on the device only: in memory by default and in demo (rebuilt with the in-memory store), `dismissed_pairs` in dev and prod (`duplicates.md`) |
 | `appNotifierProvider`, `inAppNotificationsProvider` | `core/platform/in_app_notifications.dart` | Where the app's notifications go (**Notifications**): the in-app list in every flavor |
 | `plaidPullStoreProvider`, `arrivalProcessorProvider`, `plaidPullProvider` | `core/di/providers.dart` | The Plaid pull (`sync-app.md`, **The Plaid pull**): its cursors in memory by default and in `sync_meta` in dev and prod, the rules run on what it inserts (`RuleRunner`, `rules.md`), and the pull over the API into the repositories |
-| `inMemorySyncStoreProvider`, `driftSyncStoreProvider`, `deviceClockProvider`, `changeRecorderProvider`, `recordingSyncStoreProvider` | `core/di/providers.dart` | The sync stores, the device clock, the recorder the repositories record through, and the store it records into (which the rules on arrival read): in memory by default, Drift in dev and prod, none in demo (`sync-app.md`) |
+| `inMemorySyncStoreProvider`, `driftSyncStoreProvider`, `deviceClockProvider`, `changeRecorderProvider`, `recordingSyncStoreProvider` | `core/di/providers.dart` | The sync stores, the device clock, the recorder the repositories record through, and the store it records into (which the rules' owned-field guard reads, and in whose transaction a rule is applied to the existing transactions): in memory by default, Drift in dev and prod, none in demo (`sync-app.md`) |
 | `syncDeviceIdProvider`, `syncRelayProvider`, `localDataSyncsProvider`, `syncDebounceProvider` | `core/di/providers.dart` | The session's device id and the API's relay as that device while signed in (null otherwise), whether the local data syncs (dev and prod), and the debounce after a local change |
 | `syncControllerProvider` | `core/sync/sync_controller.dart` | The sync status and Sync now (`sync-app.md`) |
 | `demoPersonaProvider`, `demoSeedProvider` | `core/di/providers.dart` | The persona the demo flavor shows and its demo seed (`data.md`, **The demo seed**) |
@@ -72,8 +73,8 @@ the scope's `retry` says otherwise (the tests turn it off).
 
 Each feature's own providers (the screens' streams, derived values and writes) are in its
 `application/` folder and its reference file (`accounts.md`, `transactions.md`,
-`categories.md`, `developer.md`, `budgets.md`: the budget statuses and the alert watcher,
-which `bootstrap` listens to in every flavor).
+`categories.md`, `rules.md`, `duplicates.md`, `developer.md`, `budgets.md`: the budget
+statuses and the alert watcher, which `bootstrap` listens to in every flavor).
 
 `overridesFor(AppConfig)` is the one place a flavor's wiring is decided (it is
 `localDataOverridesFor(config)`, the flavor and its local data, then `apiOverridesFor`;
@@ -217,6 +218,7 @@ keeping its own navigation stack.
 | | `EditAccountRoute` | `/accounts/:id/edit` | `account_editor_screen.dart` |
 | Transactions | `TransactionsRoute` | `/transactions` | `features/transactions/presentation/transactions_screen.dart` |
 | | `NewTransactionRoute` | `/transactions/new?account=<id>` | `transaction_editor_screen.dart` |
+| | `DuplicatesRoute` | `/transactions/duplicates` | `features/duplicates/presentation/duplicate_review_screen.dart` (`duplicates.md`) |
 | | `TransactionRoute` | `/transactions/:id` | `transaction_editor_screen.dart` |
 | Budgets | `BudgetsRoute` | `/budgets` | `features/budgets/presentation/budgets_screen.dart` (`budgets.md`) |
 | | `NewBudgetRoute` | `/budgets/new` | `budget_editor_screen.dart` |
@@ -240,8 +242,9 @@ keeping its own navigation stack.
 - Navigate with the route classes (`const SettingsRoute().go(context)`,
   `AccountDetailRoute(id).push(context)`), never with path strings. Detail and editor
   routes are sub-routes of their branch, so each tab keeps its own stack. `/accounts/new`
-  and `/accounts/linked-banks` are declared before `/accounts/:id` so neither is read as
-  an id.
+  and `/accounts/linked-banks` are declared before `/accounts/:id`, and
+  `/transactions/new` and `/transactions/duplicates` before `/transactions/:id`, so none
+  is read as an id.
 - Pushing a route of another branch (a transaction from an account's detail or a
   budget's, category management from the category picker) puts it on top of the current tab's stack: the
   selected tab does not change, and back returns where the user was.

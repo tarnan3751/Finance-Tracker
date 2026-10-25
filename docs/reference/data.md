@@ -11,7 +11,7 @@ The entities and `Money` are `shared_models` (`core.md`); the providers and star
 
 ## The database
 
-Drift on SQLite, at schema version 6 (`core/db/app_database.dart`; one file per table under
+Drift on SQLite, at schema version 7 (`core/db/app_database.dart`; one file per table under
 `core/db/tables/`). `app_database.dart` and the tables import no Flutter, so `drift_dev`
 can run them in the Dart VM to dump the schema.
 
@@ -32,6 +32,7 @@ can run them in the Dart VM to dump the schema.
 | `rules` | The user's rules (schema 4, `rules.md`): `name`, `position`, and the `conditions` and `actions` as JSON lists of the `shared_models` JSON (an amount bound is `Money`'s `{minor_units, currency}`) |
 | `budgets` | The user's budgets (schema 5, `budgets.md`): `category_id`, `period`, `period_start_day`, `amount_minor` in `currency`, `rollover`, `start_date` |
 | `budget_alerts` | The budget alerts this device has raised, never synced (schema 5, `budgets.md`): `(budget_id, period_start, threshold_bp)` primary key, `raised_at` |
+| `dismissed_pairs` | The duplicate pairs the user marked as not duplicates (schema 7, `duplicates.md`): `id_a` and `id_b`, two transaction ids in `BINARY` order (a CHECK), the primary key, and `dismissed_at`; local to the device, never recorded or synced, no foreign key |
 
 How values are stored (`core/db/converters.dart`):
 
@@ -329,6 +330,11 @@ demo ones are checked to record nothing. A new repository gets a contract file a
 test file per implementation; a new rule gets a contract case, not an implementation
 test.
 
+Device-local stores that hold no user data to sync and no seed, such as the Plaid pull's
+cursors and the dismissed duplicate pairs (`DismissedPairStore`, `duplicates.md`), have a
+Drift and an in-memory implementation, the demo flavor using the in-memory one;
+`runDismissedPairStoreContract` (`dismissed_pair_store_contract.dart`) runs on both.
+
 ## The demo seed
 
 `core/db/demo_seed.dart`. The demo flavor's data is the persona engine's demo seed
@@ -393,7 +399,12 @@ app's data directory.
 
 ## Changing the schema
 
-**Schema 6** adds `transactions.hidden`. Its column is added first in `onUpgrade`, before
+**Schema 7** adds `dismissed_pairs`; its step creates the empty table (`IF NOT EXISTS`, so a
+run repeated at schema 6 keeps it and its rows), and `migration_test.dart` opens a schema 6
+database with manual and Plaid rows (one hidden), a rule and sync state, checks they
+survive, and repeats the upgrade at schema 6 after the table has a row.
+
+**Schema 6** added `transactions.hidden`. Its column is added first in `onUpgrade`, before
 every other step, and only when the table lacks it: the schema 2 backfill and the later
 steps read the transactions through this version's table, which would otherwise name a
 column an older file lacks. The step then writes again every held `transaction` record
