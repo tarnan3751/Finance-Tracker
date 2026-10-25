@@ -2659,6 +2659,78 @@
   "@transactionSelect": {
     "description": "What a long press on a transaction row does, announced by screen readers."
   },
+  "transactionSplitLabel": "Split",
+  "@transactionSplitLabel": {
+    "description": "Shown where a transaction row names its category when the transaction is split across categories."
+  },
+  "transactionSplitAcross": "{count, plural, =1{Split across 1 category} other{Split across {count} categories}}",
+  "@transactionSplitAcross": {
+    "description": "The transaction editor's category row when the transaction has splits.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "splitsTitle": "Splits",
+  "@splitsTitle": {
+    "description": "Heading of the transaction editor's split section."
+  },
+  "splitAdd": "Add split",
+  "@splitAdd": {
+    "description": "Button that adds a split row (a category and an amount) to the transaction editor."
+  },
+  "splitRemove": "Remove split",
+  "@splitRemove": {
+    "description": "Tooltip of the button that removes one split row."
+  },
+  "splitDistribute": "Distribute evenly",
+  "@splitDistribute": {
+    "description": "Button that divides the transaction's amount evenly across its split rows."
+  },
+  "splitAmount": "Split amount",
+  "@splitAmount": {
+    "description": "Label of a split row's amount field."
+  },
+  "splitChooseCategory": "Choose a category",
+  "@splitChooseCategory": {
+    "description": "A split row's category cell before a category is chosen."
+  },
+  "splitCategoryRequired": "Choose a category for every split",
+  "@splitCategoryRequired": {
+    "description": "Error in the split section when a split row has no category."
+  },
+  "splitUnallocated": "Unallocated {amount}",
+  "@splitUnallocated": {
+    "description": "Running line under the splits: how much of the transaction's amount no split takes yet.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$12.34"
+      }
+    }
+  },
+  "splitOverAllocated": "Over by {amount}",
+  "@splitOverAllocated": {
+    "description": "Running line under the splits when they add up to more than the transaction's amount.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$12.34"
+      }
+    }
+  },
+  "splitMustBalance": "Splits must add up to {amount}",
+  "@splitMustBalance": {
+    "description": "Error that refuses Save while the splits do not sum to the transaction's amount.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$12.34"
+      }
+    }
+  },
   "filterShowHidden": "Show hidden",
   "@filterShowHidden": {
     "description": "Switch in the filter sheet that lists hidden transactions too."

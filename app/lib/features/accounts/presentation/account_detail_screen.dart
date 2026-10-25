@@ -199,12 +199,11 @@ class _Detail extends ConsumerWidget {
           }
           final LedgerEntry entry = ledger[index - 1];
           final Transaction transaction = entry.transaction;
-          final Category? category = effectiveCategory(transaction, categories);
           return TransactionTile(
             merchant: EnrichedMerchant.resolve(transaction),
             caption: l10n.captionPair(
               transactionDateLabel(l10n, transaction.date, today),
-              category?.name ?? l10n.uncategorized,
+              transactionCategoryLabel(l10n, transaction, categories),
             ),
             amount: transaction.amount,
             pending: transaction.pending,

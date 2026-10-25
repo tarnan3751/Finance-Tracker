@@ -220,7 +220,9 @@ TransactionActions transactionActions(Ref ref) => TransactionActions(
   syncStore: ref.watch(recordingSyncStoreProvider),
 );
 
-/// What the editor enters: everything a user sets on a transaction.
+/// What the editor enters: everything a user sets on a transaction. [splits] are signed
+/// like [amount] and sum to it; with splits, [categoryId] is null, the splits being the
+/// transaction's categorization.
 typedef TransactionDraft = ({
   String accountId,
   Money amount,
@@ -229,6 +231,7 @@ typedef TransactionDraft = ({
   String? categoryId,
   String? notes,
   List<String> tags,
+  List<TransactionSplit> splits,
   bool hidden,
 });
 
@@ -270,6 +273,7 @@ final class TransactionActions {
         userCategoryId: draft.categoryId,
         notes: draft.notes,
         tags: draft.tags,
+        splits: draft.splits,
         hidden: draft.hidden,
         source: DataSource.manual,
         createdAt: now,
@@ -281,7 +285,7 @@ final class TransactionActions {
   }
 
   /// Saves [draft] over [existing]. Everything the editor does not show (the source, the
-  /// merchant name, the splits, the Plaid fields, `createdAt`) is kept as it was.
+  /// merchant name, the Plaid fields, `createdAt`) is kept as it was.
   Future<void> update(Transaction existing, TransactionDraft draft) =>
       _transactions.upsert(
         existing.copyWith(
@@ -292,6 +296,7 @@ final class TransactionActions {
           userCategoryId: draft.categoryId,
           notes: draft.notes,
           tags: draft.tags,
+          splits: draft.splits,
           hidden: draft.hidden,
           updatedAt: _clock.nowUtc(),
         ),

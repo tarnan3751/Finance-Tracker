@@ -3084,6 +3084,78 @@ abstract class AppLocalizations {
   /// **'Select'**
   String get transactionSelect;
 
+  /// Shown where a transaction row names its category when the transaction is split across categories.
+  ///
+  /// In en, this message translates to:
+  /// **'Split'**
+  String get transactionSplitLabel;
+
+  /// The transaction editor's category row when the transaction has splits.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Split across 1 category} other{Split across {count} categories}}'**
+  String transactionSplitAcross(int count);
+
+  /// Heading of the transaction editor's split section.
+  ///
+  /// In en, this message translates to:
+  /// **'Splits'**
+  String get splitsTitle;
+
+  /// Button that adds a split row (a category and an amount) to the transaction editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Add split'**
+  String get splitAdd;
+
+  /// Tooltip of the button that removes one split row.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove split'**
+  String get splitRemove;
+
+  /// Button that divides the transaction's amount evenly across its split rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Distribute evenly'**
+  String get splitDistribute;
+
+  /// Label of a split row's amount field.
+  ///
+  /// In en, this message translates to:
+  /// **'Split amount'**
+  String get splitAmount;
+
+  /// A split row's category cell before a category is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category'**
+  String get splitChooseCategory;
+
+  /// Error in the split section when a split row has no category.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category for every split'**
+  String get splitCategoryRequired;
+
+  /// Running line under the splits: how much of the transaction's amount no split takes yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Unallocated {amount}'**
+  String splitUnallocated(String amount);
+
+  /// Running line under the splits when they add up to more than the transaction's amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Over by {amount}'**
+  String splitOverAllocated(String amount);
+
+  /// Error that refuses Save while the splits do not sum to the transaction's amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Splits must add up to {amount}'**
+  String splitMustBalance(String amount);
+
   /// Switch in the filter sheet that lists hidden transactions too.
   ///
   /// In en, this message translates to:

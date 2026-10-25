@@ -1882,6 +1882,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transactionSelect => 'Select';
 
   @override
+  String get transactionSplitLabel => 'Split';
+
+  @override
+  String transactionSplitAcross(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Split across $count categories',
+      one: 'Split across 1 category',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get splitsTitle => 'Splits';
+
+  @override
+  String get splitAdd => 'Add split';
+
+  @override
+  String get splitRemove => 'Remove split';
+
+  @override
+  String get splitDistribute => 'Distribute evenly';
+
+  @override
+  String get splitAmount => 'Split amount';
+
+  @override
+  String get splitChooseCategory => 'Choose a category';
+
+  @override
+  String get splitCategoryRequired => 'Choose a category for every split';
+
+  @override
+  String splitUnallocated(String amount) {
+    return 'Unallocated $amount';
+  }
+
+  @override
+  String splitOverAllocated(String amount) {
+    return 'Over by $amount';
+  }
+
+  @override
+  String splitMustBalance(String amount) {
+    return 'Splits must add up to $amount';
+  }
+
+  @override
   String get filterShowHidden => 'Show hidden';
 
   @override

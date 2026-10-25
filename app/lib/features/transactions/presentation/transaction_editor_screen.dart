@@ -1,13 +1,19 @@
 /// The transaction editor, which is also a transaction's detail: expense or income, the
 /// amount (parsed in the device locale for the account's currency, never rounded), the
 /// account, the date (today by default, in the device zone), the description, the
-/// category, notes and tags. A new transaction is `manual`; an edited one keeps its
-/// source. With no category of the user's own, the category row shows the one its Plaid
-/// code resolves to, captioned as the bank's. Deleting from here offers an undo for five
-/// seconds; a Plaid transaction has no Delete, since only the bank removes one. "Run
-/// rules on this transaction" (the overflow menu) applies the user's rules to the values
-/// in the form, which Save then keeps like any edit. "Hidden" (the overflow menu, checked
-/// when on) hides the transaction from the list, budgets and reports, saved with Save.
+/// category, the splits, notes and tags. A new transaction is `manual`; an edited one
+/// keeps its source. With no category of the user's own, the category row shows the one
+/// its Plaid code resolves to, captioned as the bank's. Splits (category and unsigned
+/// amount rows, signed like the transaction) must add up to its amount before Save
+/// takes them, unless no row was edited and the amount is as stored, when the stored
+/// splits are saved back as they are; "Distribute evenly" divides it with the larger
+/// parts last; with splits the category row reads "Split across N categories" and Save
+/// clears the single category, which removing every split brings back. Deleting from
+/// here offers an undo for five seconds; a Plaid transaction has no Delete, since only
+/// the bank removes one. "Run rules on this transaction" (the overflow menu) applies the
+/// user's rules to the values in the form, which Save then keeps like any edit.
+/// "Hidden" (the overflow menu, checked when on) hides the transaction from the list,
+/// budgets and reports, saved with Save.
 library;
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
@@ -24,6 +30,7 @@ import 'package:finance_tracker/features/rules/application/rules_providers.dart'
 import 'package:finance_tracker/features/rules/domain/rules_engine.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
+import 'package:finance_tracker/features/transactions/domain/split_math.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
 import 'package:finance_tracker/features/transactions/presentation/amount_input.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_dates.dart';
@@ -160,6 +167,19 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     text: widget.initial?.notes,
   );
   late List<String> _tags = [...?widget.initial?.tags];
+  late final List<_SplitRow> _splits = [
+    for (final TransactionSplit split
+        in widget.initial?.splits ?? const <TransactionSplit>[])
+      _SplitRow(
+        categoryId: split.categoryId,
+        amount: split.amount.abs().format(symbol: false),
+        note: split.note,
+      ),
+  ];
+  final GlobalKey<FormFieldState<void>> _splitsField =
+      GlobalKey<FormFieldState<void>>();
+  // Whether a split row was edited, added or removed.
+  bool _splitsEdited = false;
   late bool _hidden = widget.initial?.hidden ?? false;
   final TextEditingController _tagInput = TextEditingController();
   bool _saving = false;
@@ -179,6 +199,9 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     _name.dispose();
     _notes.dispose();
     _tagInput.dispose();
+    for (final _SplitRow row in _splits) {
+      row.amount.dispose();
+    }
     super.dispose();
   }
 
@@ -205,6 +228,106 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     }
   }
 
+  // The transaction's magnitude as typed, or null while it is not a valid amount.
+  Money? get _magnitude {
+    final Money? amount = parseAmountInput(_amount.text, _currency);
+    return amount == null || amount.isNegative ? null : amount;
+  }
+
+  // Row [row]'s magnitude as typed, or null while it is not a valid amount.
+  Money? _splitMagnitude(_SplitRow row) {
+    final Money? amount = parseAmountInput(row.amount.text, _currency);
+    return amount == null || amount.isNegative ? null : amount;
+  }
+
+  // The transaction's amount as typed, signed, or null while it is not valid.
+  Money? get _signedAmount {
+    final Money? magnitude = _magnitude;
+    return magnitude == null || _income ? magnitude : -magnitude;
+  }
+
+  // Whether Save keeps the stored splits as they are: no row was edited, added or
+  // removed and the amount is the stored one (its currency included). They are then
+  // not held to the sum rule, so splits of mixed signs (synced or imported) or a gap
+  // the bank's amount change left never block an unrelated edit.
+  bool get _keepsStoredSplits {
+    final Transaction? initial = widget.initial;
+    return !_splitsEdited &&
+        initial != null &&
+        initial.splits.isNotEmpty &&
+        _signedAmount == initial.amount;
+  }
+
+  // Applies [change] to the splits and, once Save has shown an error on them, checks
+  // them again so the error follows the edit. [edit] is false when only the amount
+  // they are measured against changed.
+  void _editSplits(VoidCallback change, {bool edit = true}) {
+    if (edit) _splitsEdited = true;
+    setState(change);
+    if (_splitsField.currentState?.hasError ?? false) {
+      _splitsField.currentState!.validate();
+    }
+  }
+
+  void _addSplit() => _editSplits(() => _splits.add(_SplitRow()));
+
+  void _removeSplit(_SplitRow row) {
+    _editSplits(() => _splits.remove(row));
+    // Its field is still mounted until the next frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) => row.amount.dispose());
+  }
+
+  Future<void> _pickSplitCategory(_SplitRow row) async {
+    final CategoryChoice? choice = await showCategoryPicker(
+      context,
+      selectedId: row.categoryId,
+      allowNone: false,
+    );
+    if (choice != null && mounted) {
+      _editSplits(() => row.categoryId = choice.categoryId);
+    }
+  }
+
+  // Divides the amount across the rows, the larger parts last.
+  void _distributeEvenly() {
+    final Money? total = _magnitude;
+    if (total == null) return;
+    final List<Money> parts = distributeEvenly(total, _splits.length);
+    _editSplits(() {
+      for (int i = 0; i < _splits.length; i++) {
+        _splits[i].amount.text = parts[i].format(symbol: false);
+      }
+    });
+  }
+
+  // The split section's error: a row without a category, or splits that do not add up.
+  // A row whose amount does not parse shows its own error.
+  String? _splitsError(AppLocalizations l10n) {
+    if (_splits.isEmpty || _keepsStoredSplits) return null;
+    if (_splits.any((row) => row.categoryId == null)) {
+      return l10n.splitCategoryRequired;
+    }
+    final Money? total = _magnitude;
+    final List<Money?> parts = [
+      for (final row in _splits) _splitMagnitude(row),
+    ];
+    if (total == null || parts.contains(null)) return null;
+    return splitsBalance(total, parts.cast<Money>())
+        ? null
+        : l10n.splitMustBalance(total.format());
+  }
+
+  // What [initial]'s stored splits leave of its amount, in the amount's direction.
+  static Money _storedGap(Transaction initial) {
+    final Money gap =
+        initial.amount -
+        Money.sum(
+          initial.splits.map((s) => s.amount),
+          currencyCode: initial.amount.currencyCode,
+        );
+    return initial.amount.isNegative ? -gap : gap;
+  }
+
   void _addTag(String text) {
     final String tag = text.trim();
     _tagInput.clear();
@@ -217,16 +340,29 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
 
   // What the form holds; call it once the form validates.
   TransactionDraft _draft() {
+    Money signed(Money magnitude) => _income ? magnitude : -magnitude;
     final Money magnitude = parseAmountInput(_amount.text, _currency)!;
     final String notes = _notes.text.trim();
+    final List<TransactionSplit> splits = _keepsStoredSplits
+        ? widget.initial!.splits
+        : [
+            for (final _SplitRow row in _splits)
+              TransactionSplit(
+                categoryId: row.categoryId!,
+                amount: signed(parseAmountInput(row.amount.text, _currency)!),
+                note: row.note,
+              ),
+          ];
     return (
       accountId: _accountId,
-      amount: _income ? magnitude : -magnitude,
+      amount: signed(magnitude),
       date: _date,
       name: _name.text.trim(),
-      categoryId: _categoryId,
+      // A split transaction is categorized by its splits.
+      categoryId: splits.isEmpty ? _categoryId : null,
       notes: notes.isEmpty ? null : notes,
       tags: _tags,
+      splits: splits,
       hidden: _hidden,
     );
   }
@@ -263,6 +399,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
               userCategoryId: draft.categoryId,
               notes: draft.notes,
               tags: draft.tags,
+              splits: draft.splits,
               hidden: draft.hidden,
             );
     final RuleOutcome outcome = applyRules(
@@ -274,7 +411,8 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     if (changed != null) {
       setState(() {
         _name.text = changed.name;
-        _categoryId = changed.userCategoryId;
+        // A rule sets no category on a split transaction; the earlier choice stays.
+        if (_splits.isEmpty) _categoryId = changed.userCategoryId;
         _tags = changed.tags;
         _hidden = changed.hidden;
       });
@@ -349,6 +487,86 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
       ),
     );
   }
+
+  // The split section: "Add split" alone while there are none; else the rows, the
+  // running unallocated line (or the error that refuses Save), and the actions.
+  Widget _buildSplits(
+    AppLocalizations l10n,
+    ThemeData theme,
+    CategoryLookup categories,
+  ) => FormField<void>(
+    key: _splitsField,
+    validator: (_) => _splitsError(l10n),
+    builder: (field) {
+      final Widget add = TextButton.icon(
+        onPressed: _addSplit,
+        icon: const Icon(Icons.add),
+        label: Text(l10n.splitAdd),
+      );
+      if (_splits.isEmpty) {
+        return Align(alignment: AlignmentDirectional.centerStart, child: add);
+      }
+      final Money? total = _magnitude;
+      final Transaction? initial = widget.initial;
+      final Money? left = _keepsStoredSplits
+          // The stored splits as signed: what they leave of the amount, positive when
+          // they fall short of it.
+          ? _storedGap(initial!)
+          : total == null
+          ? null
+          : unallocated(total, [
+              for (final _SplitRow row in _splits)
+                _splitMagnitude(row) ?? Money.zero(_currency),
+            ]);
+      final String? error = field.errorText;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 8),
+          Text(l10n.splitsTitle, style: theme.textTheme.titleSmall),
+          for (final _SplitRow row in _splits)
+            _SplitRowFields(
+              key: ObjectKey(row),
+              row: row,
+              category: categories.byId[row.categoryId],
+              currency: _currency,
+              onPickCategory: () => _pickSplitCategory(row),
+              onChanged: () => _editSplits(() {}),
+              onRemove: () => _removeSplit(row),
+            ),
+          const SizedBox(height: 8),
+          if (error != null || left != null)
+            Semantics(
+              liveRegion: true,
+              child: Text(
+                error ??
+                    (left!.isNegative
+                        ? l10n.splitOverAllocated((-left).format())
+                        : l10n.splitUnallocated(left.format())),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: error != null
+                      ? theme.colorScheme.error
+                      : theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          Wrap(
+            spacing: 8,
+            children: [
+              add,
+              TextButton.icon(
+                onPressed: total == null || total.isZero
+                    ? null
+                    : _distributeEvenly,
+                icon: const Icon(Icons.balance),
+                label: Text(l10n.splitDistribute),
+              ),
+            ],
+          ),
+        ],
+      );
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -449,6 +667,10 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
                 signed: false,
                 nonZero: true,
               ),
+              // The splits' unallocated line follows the amount.
+              onChanged: (_) {
+                if (_splits.isNotEmpty) _editSplits(() {}, edit: false);
+              },
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
@@ -490,34 +712,47 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
                   : null,
             ),
             const SizedBox(height: 8),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(
-                category == null
-                    ? fallbackCategoryIcon
-                    : categoryIconFor(category.icon),
-                color: category == null
-                    ? theme.colorScheme.outline
-                    : categoryColor(context, category.color),
-              ),
-              title: Text(l10n.transactionCategory),
-              subtitle: fromBank == null
-                  ? Text(category?.name ?? l10n.uncategorized)
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(fromBank.name),
-                        Text(
-                          l10n.transactionCategoryFromBank,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
+            if (_splits.isNotEmpty)
+              // The splits are the category; the section below edits them.
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(
+                  Icons.call_split,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                title: Text(l10n.transactionCategory),
+                subtitle: Text(l10n.transactionSplitAcross(_splits.length)),
+              )
+            else
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(
+                  category == null
+                      ? fallbackCategoryIcon
+                      : categoryIconFor(category.icon),
+                  color: category == null
+                      ? theme.colorScheme.outline
+                      : categoryColor(context, category.color),
+                ),
+                title: Text(l10n.transactionCategory),
+                subtitle: fromBank == null
+                    ? Text(category?.name ?? l10n.uncategorized)
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(fromBank.name),
+                          Text(
+                            l10n.transactionCategoryFromBank,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: _pickCategory,
-            ),
+                        ],
+                      ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _pickCategory,
+              ),
+            _buildSplits(l10n, theme, categories),
             const SizedBox(height: 8),
             TextFormField(
               controller: _notes,
@@ -571,6 +806,108 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+// One split row of the form: its category, its amount as typed, and its note, which the
+// editor keeps without showing it.
+final class _SplitRow {
+  _SplitRow({this.categoryId, String amount = '', this.note})
+    : amount = TextEditingController(text: amount);
+
+  String? categoryId;
+  final TextEditingController amount;
+  final String? note;
+}
+
+// A split row's fields: the category (the picker) above the unsigned amount, and the
+// row's remove button.
+class _SplitRowFields extends StatelessWidget {
+  const _SplitRowFields({
+    super.key,
+    required this.row,
+    required this.category,
+    required this.currency,
+    required this.onPickCategory,
+    required this.onChanged,
+    required this.onRemove,
+  });
+
+  final _SplitRow row;
+
+  /// The row's category when it names a live one.
+  final Category? category;
+  final String currency;
+  final VoidCallback onPickCategory;
+  final VoidCallback onChanged;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ThemeData theme = Theme.of(context);
+    final Category? category = this.category;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    category == null
+                        ? fallbackCategoryIcon
+                        : categoryIconFor(category.icon),
+                    color: category == null
+                        ? theme.colorScheme.outline
+                        : categoryColor(context, category.color),
+                  ),
+                  title: Text(
+                    category?.name ??
+                        (row.categoryId == null
+                            ? l10n.splitChooseCategory
+                            : l10n.uncategorized),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: onPickCategory,
+                ),
+                TextFormField(
+                  controller: row.amount,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: l10n.splitAmount,
+                    prefixText: currencySymbol(currency),
+                    errorMaxLines: 3,
+                    border: const OutlineInputBorder(),
+                  ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) => amountInputError(
+                    l10n,
+                    value ?? '',
+                    currency,
+                    required: true,
+                    signed: false,
+                    nonZero: true,
+                  ),
+                  onChanged: (_) => onChanged(),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            tooltip: l10n.splitRemove,
+            icon: const Icon(Icons.remove_circle_outline),
+            onPressed: onRemove,
+          ),
+        ],
       ),
     );
   }

@@ -499,7 +499,8 @@ class _TransactionList extends ConsumerWidget {
           case DateHeaderItem(:final LocalDate date):
             return _DateHeader(transactionDateLabel(l10n, date, today));
           case TransactionItem(:final Transaction transaction):
-            final Category? category = effectiveCategory(
+            final String category = transactionCategoryLabel(
+              l10n,
               transaction,
               categories,
             );
@@ -508,10 +509,10 @@ class _TransactionList extends ConsumerWidget {
               merchant: EnrichedMerchant.resolve(transaction),
               caption: switch (accounts[transaction.accountId]) {
                 // An account deleted or not yet synced: the category alone.
-                null => category?.name ?? l10n.uncategorized,
+                null => category,
                 final Account account => l10n.captionPair(
                   account.name,
-                  category?.name ?? l10n.uncategorized,
+                  category,
                 ),
               },
               amount: transaction.amount,

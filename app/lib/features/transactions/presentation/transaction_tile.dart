@@ -1,6 +1,7 @@
 /// One transaction as a list row: the merchant's avatar and name
 /// (`EnrichedMerchant.resolve`: Plaid's merchant and logo, else the enrichment fallback),
-/// a caption, the amount colored by direction, a "Pending" label while it is pending, a
+/// a caption (the category in it named by [transactionCategoryLabel]: "Split" for a split
+/// transaction), the amount colored by direction, a "Pending" label while it is pending, a
 /// "Hidden" label when the user hid it, and optionally the running balance after it (the
 /// account detail's ledger), captioned as worked back from the reported balance when it
 /// is. In the list's selection mode a checkbox takes the avatar's place. Built from plain
@@ -9,10 +10,22 @@ library;
 
 import 'package:finance_tracker/core/widgets/amount_text.dart';
 import 'package:finance_tracker/core/widgets/merchant_avatar.dart';
+import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:finance_tracker/features/transactions/domain/enrichment.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_models/shared_models.dart';
+
+/// The category a row names for [transaction]: "Split" when it has splits (a split
+/// transaction has no single category), else its effective category's name, else
+/// "Uncategorized".
+String transactionCategoryLabel(
+  AppLocalizations l10n,
+  Transaction transaction,
+  CategoryLookup categories,
+) => transaction.splits.isNotEmpty
+    ? l10n.transactionSplitLabel
+    : effectiveCategory(transaction, categories)?.name ?? l10n.uncategorized;
 
 /// A transaction row.
 class TransactionTile extends StatelessWidget {

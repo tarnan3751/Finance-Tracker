@@ -1,9 +1,9 @@
 // The transaction editor: a new transaction is a manual expense or income on the route's
 // account (else the only one, else the last used), dated today; amounts parse in the
 // account's currency and are never rounded; tags and categories; an edit keeps the
-// source and what the editor does not show; Hidden in the menu is saved with Save; delete
-// offers an undo for five seconds, and
-// a Plaid transaction has no Delete.
+// source, its splits and what the editor does not show; Hidden in the menu is saved
+// with Save; delete offers an undo for five seconds, and a Plaid transaction has no
+// Delete.
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/features/categories/data/category_defaults.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
@@ -242,12 +242,13 @@ void main() {
     await _pumpEditor(tester, store, '/transactions/demo-txn-04');
 
     expect(find.text('124.18'), findsOneWidget);
-    await tester.enterText(_field('Amount'), '130');
+    await tester.enterText(_field('Notes'), 'weekly shop');
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     final Transaction after = store.transaction('demo-txn-04')!;
-    expect(after.amount, Money(-13000, 'USD'));
+    expect(after.notes, 'weekly shop');
+    expect(after.amount, before.amount);
     expect(after.source, DataSource.demo);
     expect(after.merchantName, before.merchantName);
     expect(after.splits, before.splits);
