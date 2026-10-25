@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Budget {
 
- String get id; String get categoryId; BudgetPeriodKind get period;@_PeriodStartDayConverter() int get periodStartDay; Money get amount; bool get rollover;
+ String get id; String get categoryId; BudgetPeriodKind get period;@_PeriodStartDayConverter() int get periodStartDay; Money get amount; bool get rollover; LocalDate get startDate;
 /// Create a copy of Budget
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $BudgetCopyWith<Budget> get copyWith => _$BudgetCopyWithImpl<Budget>(this as Bud
 @override
 bool operator ==(Object other) {
   final _this = this as Budget;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Budget&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.categoryId, _this.categoryId) || other.categoryId == _this.categoryId)&&(identical(other.period, _this.period) || other.period == _this.period)&&(identical(other.periodStartDay, _this.periodStartDay) || other.periodStartDay == _this.periodStartDay)&&(identical(other.amount, _this.amount) || other.amount == _this.amount)&&(identical(other.rollover, _this.rollover) || other.rollover == _this.rollover));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Budget&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.categoryId, _this.categoryId) || other.categoryId == _this.categoryId)&&(identical(other.period, _this.period) || other.period == _this.period)&&(identical(other.periodStartDay, _this.periodStartDay) || other.periodStartDay == _this.periodStartDay)&&(identical(other.amount, _this.amount) || other.amount == _this.amount)&&(identical(other.rollover, _this.rollover) || other.rollover == _this.rollover)&&(identical(other.startDate, _this.startDate) || other.startDate == _this.startDate));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Budget;
-  return Object.hash(runtimeType,_this.id,_this.categoryId,_this.period,_this.periodStartDay,_this.amount,_this.rollover);
+  return Object.hash(runtimeType,_this.id,_this.categoryId,_this.period,_this.periodStartDay,_this.amount,_this.rollover,_this.startDate);
 }
 
 @override
 String toString() {
   final _this = this as Budget;
-  return 'Budget(id: ${_this.id}, categoryId: ${_this.categoryId}, period: ${_this.period}, periodStartDay: ${_this.periodStartDay}, amount: ${_this.amount}, rollover: ${_this.rollover})';
+  return 'Budget(id: ${_this.id}, categoryId: ${_this.categoryId}, period: ${_this.period}, periodStartDay: ${_this.periodStartDay}, amount: ${_this.amount}, rollover: ${_this.rollover}, startDate: ${_this.startDate})';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $BudgetCopyWith<$Res>  {
   factory $BudgetCopyWith(Budget value, $Res Function(Budget) _then) = _$BudgetCopyWithImpl;
 @useResult
 $Res call({
- String id, String categoryId, BudgetPeriodKind period,@_PeriodStartDayConverter() int periodStartDay, Money amount, bool rollover
+ String id, String categoryId, BudgetPeriodKind period,@_PeriodStartDayConverter() int periodStartDay, Money amount, bool rollover, LocalDate startDate
 });
 
 
@@ -71,7 +71,7 @@ class _$BudgetCopyWithImpl<$Res>
 
 /// Create a copy of Budget
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? categoryId = null,Object? period = null,Object? periodStartDay = null,Object? amount = null,Object? rollover = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? categoryId = null,Object? period = null,Object? periodStartDay = null,Object? amount = null,Object? rollover = null,Object? startDate = null,}) {
   return _then(Budget(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,categoryId: null == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
@@ -79,7 +79,8 @@ as String,period: null == period ? _self.period : period // ignore: cast_nullabl
 as BudgetPeriodKind,periodStartDay: null == periodStartDay ? _self.periodStartDay : periodStartDay // ignore: cast_nullable_to_non_nullable
 as int,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as Money,rollover: null == rollover ? _self.rollover : rollover // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,startDate: null == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
+as LocalDate,
   ));
 }
 
@@ -164,10 +165,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String categoryId,  BudgetPeriodKind period, @_PeriodStartDayConverter()  int periodStartDay,  Money amount,  bool rollover)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String categoryId,  BudgetPeriodKind period, @_PeriodStartDayConverter()  int periodStartDay,  Money amount,  bool rollover,  LocalDate startDate)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Budget() when $default != null:
-return $default(_that.id,_that.categoryId,_that.period,_that.periodStartDay,_that.amount,_that.rollover);case _:
+return $default(_that.id,_that.categoryId,_that.period,_that.periodStartDay,_that.amount,_that.rollover,_that.startDate);case _:
   return orElse();
 
 }
@@ -185,10 +186,10 @@ return $default(_that.id,_that.categoryId,_that.period,_that.periodStartDay,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String categoryId,  BudgetPeriodKind period, @_PeriodStartDayConverter()  int periodStartDay,  Money amount,  bool rollover)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String categoryId,  BudgetPeriodKind period, @_PeriodStartDayConverter()  int periodStartDay,  Money amount,  bool rollover,  LocalDate startDate)  $default,) {final _that = this;
 switch (_that) {
 case _Budget():
-return $default(_that.id,_that.categoryId,_that.period,_that.periodStartDay,_that.amount,_that.rollover);case _:
+return $default(_that.id,_that.categoryId,_that.period,_that.periodStartDay,_that.amount,_that.rollover,_that.startDate);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -205,10 +206,10 @@ return $default(_that.id,_that.categoryId,_that.period,_that.periodStartDay,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String categoryId,  BudgetPeriodKind period, @_PeriodStartDayConverter()  int periodStartDay,  Money amount,  bool rollover)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String categoryId,  BudgetPeriodKind period, @_PeriodStartDayConverter()  int periodStartDay,  Money amount,  bool rollover,  LocalDate startDate)?  $default,) {final _that = this;
 switch (_that) {
 case _Budget() when $default != null:
-return $default(_that.id,_that.categoryId,_that.period,_that.periodStartDay,_that.amount,_that.rollover);case _:
+return $default(_that.id,_that.categoryId,_that.period,_that.periodStartDay,_that.amount,_that.rollover,_that.startDate);case _:
   return null;
 
 }
@@ -220,7 +221,7 @@ return $default(_that.id,_that.categoryId,_that.period,_that.periodStartDay,_tha
 @JsonSerializable()
 
 class _Budget implements Budget {
-  const _Budget({required this.id, required this.categoryId, required this.period, @_PeriodStartDayConverter() required this.periodStartDay, required this.amount, required this.rollover}): assert(periodStartDay >= 1 && periodStartDay <= 28, 'periodStartDay must be 1 to 28');
+  const _Budget({required this.id, required this.categoryId, required this.period, @_PeriodStartDayConverter() required this.periodStartDay, required this.amount, required this.rollover, required this.startDate}): assert(periodStartDay >= 1 && periodStartDay <= 28, 'periodStartDay must be 1 to 28');
   factory _Budget.fromJson(Map<String, dynamic> json) => _$BudgetFromJson(json);
 
 @override final  String id;
@@ -229,6 +230,7 @@ class _Budget implements Budget {
 @override@_PeriodStartDayConverter() final  int periodStartDay;
 @override final  Money amount;
 @override final  bool rollover;
+@override final  LocalDate startDate;
 
 /// Create a copy of Budget
 /// with the given fields replaced by the non-null parameter values.
@@ -243,18 +245,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Budget&&(identical(other.id, id) || other.id == id)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.period, period) || other.period == period)&&(identical(other.periodStartDay, periodStartDay) || other.periodStartDay == periodStartDay)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.rollover, rollover) || other.rollover == rollover));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Budget&&(identical(other.id, id) || other.id == id)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.period, period) || other.period == period)&&(identical(other.periodStartDay, periodStartDay) || other.periodStartDay == periodStartDay)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.rollover, rollover) || other.rollover == rollover)&&(identical(other.startDate, startDate) || other.startDate == startDate));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,categoryId,period,periodStartDay,amount,rollover);
+    return Object.hash(runtimeType,id,categoryId,period,periodStartDay,amount,rollover,startDate);
 }
 
 @override
 String toString() {
-    return 'Budget(id: $id, categoryId: $categoryId, period: $period, periodStartDay: $periodStartDay, amount: $amount, rollover: $rollover)';
+    return 'Budget(id: $id, categoryId: $categoryId, period: $period, periodStartDay: $periodStartDay, amount: $amount, rollover: $rollover, startDate: $startDate)';
 }
 
 
@@ -265,7 +267,7 @@ abstract mixin class _$BudgetCopyWith<$Res> implements $BudgetCopyWith<$Res> {
   factory _$BudgetCopyWith(_Budget value, $Res Function(_Budget) _then) = __$BudgetCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String categoryId, BudgetPeriodKind period,@_PeriodStartDayConverter() int periodStartDay, Money amount, bool rollover
+ String id, String categoryId, BudgetPeriodKind period,@_PeriodStartDayConverter() int periodStartDay, Money amount, bool rollover, LocalDate startDate
 });
 
 
@@ -282,7 +284,7 @@ class __$BudgetCopyWithImpl<$Res>
 
 /// Create a copy of Budget
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? categoryId = null,Object? period = null,Object? periodStartDay = null,Object? amount = null,Object? rollover = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? categoryId = null,Object? period = null,Object? periodStartDay = null,Object? amount = null,Object? rollover = null,Object? startDate = null,}) {
   return _then(_Budget(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,categoryId: null == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
@@ -290,7 +292,8 @@ as String,period: null == period ? _self.period : period // ignore: cast_nullabl
 as BudgetPeriodKind,periodStartDay: null == periodStartDay ? _self.periodStartDay : periodStartDay // ignore: cast_nullable_to_non_nullable
 as int,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as Money,rollover: null == rollover ? _self.rollover : rollover // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,startDate: null == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
+as LocalDate,
   ));
 }
 

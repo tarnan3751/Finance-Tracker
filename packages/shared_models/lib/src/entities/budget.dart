@@ -4,6 +4,7 @@ library;
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared_models/src/entities/enums.dart';
 import 'package:shared_models/src/money/money.dart';
+import 'package:shared_models/src/time/local_date.dart';
 
 part 'budget.freezed.dart';
 part 'budget.g.dart';
@@ -11,9 +12,11 @@ part 'budget.g.dart';
 /// A budget for a category (a parent category budgets its group) per period.
 @freezed
 abstract class Budget with _$Budget {
-  /// A budget; each period starts on [periodStartDay], 1 to 28. The assertion checks
-  /// constructed values in debug builds; JSON is checked in every build, because an
-  /// assertion is compiled out of release builds.
+  /// A budget; each period starts on [periodStartDay], 1 to 28. [startDate] is the first
+  /// day of the budget's first period (the period that contains it), from which rollover
+  /// accumulates, so every device computes the same carry from the synced budget alone.
+  /// The assertion checks constructed values in debug builds; JSON is checked in every
+  /// build, because an assertion is compiled out of release builds.
   @Assert(
     'periodStartDay >= 1 && periodStartDay <= 28',
     'periodStartDay must be 1 to 28',
@@ -25,6 +28,7 @@ abstract class Budget with _$Budget {
     @_PeriodStartDayConverter() required int periodStartDay,
     required Money amount,
     required bool rollover,
+    required LocalDate startDate,
   }) = _Budget;
 
   /// Reads the snake_case JSON form.

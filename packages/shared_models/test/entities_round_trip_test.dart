@@ -219,6 +219,7 @@ _entities = [
       periodStartDay: 25,
       amount: _usd(40000),
       rollover: true,
+      startDate: LocalDate(2026, 9, 25),
     ),
     Budget(
       id: 'b1',
@@ -227,6 +228,7 @@ _entities = [
       periodStartDay: 1,
       amount: _usd(0),
       rollover: false,
+      startDate: LocalDate(2024, 2, 29),
     ),
     Budget.fromJson,
   ),
@@ -580,8 +582,28 @@ void main() {
           periodStartDay: 29,
           amount: _usd(1),
           rollover: false,
+          startDate: LocalDate(2026, 10, 1),
         ),
         throwsA(isA<AssertionError>()),
+      );
+    });
+
+    test('a budget needs its start date, as an ISO date', () {
+      final Map<String, dynamic> json = _toJson(_entities[11].$2);
+      expect(json['start_date'], '2026-09-25');
+      expect(
+        () => Budget.fromJson(Map.of(json)..remove('start_date')),
+        throwsA(
+          isA<CheckedFromJsonException>().having(
+            (e) => e.key,
+            'key',
+            'start_date',
+          ),
+        ),
+      );
+      expect(
+        () => Budget.fromJson(Map.of(json)..['start_date'] = '2026-02-30'),
+        throwsA(isA<CheckedFromJsonException>()),
       );
     });
   });

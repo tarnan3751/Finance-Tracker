@@ -26,12 +26,17 @@ _Budget _$BudgetFromJson(Map<String, dynamic> json) => $checkedCreate(
         (v) => Money.fromJson(v as Map<String, dynamic>),
       ),
       rollover: $checkedConvert('rollover', (v) => v as bool),
+      startDate: $checkedConvert(
+        'start_date',
+        (v) => LocalDate.fromJson(v as String),
+      ),
     );
     return val;
   },
   fieldKeyMap: const {
     'categoryId': 'category_id',
     'periodStartDay': 'period_start_day',
+    'startDate': 'start_date',
   },
 );
 
@@ -44,6 +49,7 @@ Map<String, dynamic> _$BudgetToJson(_Budget instance) => <String, dynamic>{
   ),
   'amount': instance.amount.toJson(),
   'rollover': instance.rollover,
+  'start_date': instance.startDate.toJson(),
 };
 
 const _$BudgetPeriodKindEnumMap = {BudgetPeriodKind.monthly: 'monthly'};
