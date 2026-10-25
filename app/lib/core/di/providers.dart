@@ -35,8 +35,11 @@ import 'package:finance_tracker/features/auth/application/session_controller.dar
 import 'package:finance_tracker/features/auth/domain/session_state.dart';
 import 'package:finance_tracker/features/budgets/data/demo_budget_repository.dart';
 import 'package:finance_tracker/features/budgets/data/demo_budgets.dart';
+import 'package:finance_tracker/features/budgets/data/drift_budget_alert_store.dart';
 import 'package:finance_tracker/features/budgets/data/drift_budget_repository.dart';
+import 'package:finance_tracker/features/budgets/data/in_memory_budget_alert_store.dart';
 import 'package:finance_tracker/features/budgets/data/in_memory_budget_repository.dart';
+import 'package:finance_tracker/features/budgets/domain/budget_alert_store.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_repository.dart';
 import 'package:finance_tracker/features/categories/data/demo_category_repository.dart';
 import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
@@ -243,6 +246,11 @@ BudgetRepository budgetRepository(Ref ref) {
   return repository;
 }
 
+/// Which budget alerts this device has raised: in memory by default and in the demo
+/// flavor, `budget_alerts` in dev and prod.
+@Riverpod(keepAlive: true)
+BudgetAlertStore budgetAlertStore(Ref ref) => InMemoryBudgetAlertStore();
+
 /// Where the app preferences are kept.
 @Riverpod(keepAlive: true)
 SettingsRepository settingsRepository(Ref ref) {
@@ -370,6 +378,9 @@ final List<Override> _driftOverrides = [
       ref.watch(clockProvider),
       recorder: ref.watch(changeRecorderProvider),
     ),
+  ),
+  budgetAlertStoreProvider.overrideWith(
+    (ref) => DriftBudgetAlertStore(ref.watch(databaseProvider)),
   ),
   settingsRepositoryProvider.overrideWith(
     (ref) => DriftSettingsRepository(

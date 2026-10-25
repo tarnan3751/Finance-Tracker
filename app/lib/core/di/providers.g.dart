@@ -1110,6 +1110,60 @@ final class BudgetRepositoryProvider
 
 String _$budgetRepositoryHash() => r'f78e75f5318ada075b16c6955547b9a30e3f9697';
 
+/// Which budget alerts this device has raised: in memory by default and in the demo
+/// flavor, `budget_alerts` in dev and prod.
+
+@ProviderFor(budgetAlertStore)
+final budgetAlertStoreProvider = BudgetAlertStoreProvider._();
+
+/// Which budget alerts this device has raised: in memory by default and in the demo
+/// flavor, `budget_alerts` in dev and prod.
+
+final class BudgetAlertStoreProvider
+    extends
+        $FunctionalProvider<
+          BudgetAlertStore,
+          BudgetAlertStore,
+          BudgetAlertStore
+        >
+    with $Provider<BudgetAlertStore> {
+  /// Which budget alerts this device has raised: in memory by default and in the demo
+  /// flavor, `budget_alerts` in dev and prod.
+  BudgetAlertStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'budgetAlertStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$budgetAlertStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<BudgetAlertStore> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  BudgetAlertStore create(Ref ref) {
+    return budgetAlertStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(BudgetAlertStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<BudgetAlertStore>(value),
+    );
+  }
+}
+
+String _$budgetAlertStoreHash() => r'6750109fbb393e2b675f6fb7f1ca2aa3d7e92ff9';
+
 /// Where the app preferences are kept.
 
 @ProviderFor(settingsRepository)
