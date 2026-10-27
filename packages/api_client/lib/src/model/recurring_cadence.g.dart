@@ -9,6 +9,7 @@ part of 'recurring_cadence.dart';
 const RecurringCadence _$weekly = const RecurringCadence._('weekly');
 const RecurringCadence _$biweekly = const RecurringCadence._('biweekly');
 const RecurringCadence _$semiMonthly = const RecurringCadence._('semiMonthly');
+const RecurringCadence _$quarterly = const RecurringCadence._('quarterly');
 const RecurringCadence _$monthly = const RecurringCadence._('monthly');
 const RecurringCadence _$annually = const RecurringCadence._('annually');
 const RecurringCadence _$unknown = const RecurringCadence._('unknown');
@@ -21,6 +22,8 @@ RecurringCadence _$valueOf(String name) {
       return _$biweekly;
     case 'semiMonthly':
       return _$semiMonthly;
+    case 'quarterly':
+      return _$quarterly;
     case 'monthly':
       return _$monthly;
     case 'annually':
@@ -37,6 +40,7 @@ final BuiltSet<RecurringCadence> _$values = BuiltSet<RecurringCadence>(
     _$weekly,
     _$biweekly,
     _$semiMonthly,
+    _$quarterly,
     _$monthly,
     _$annually,
     _$unknown,
@@ -48,6 +52,7 @@ class _$RecurringCadenceMeta {
   RecurringCadence get weekly => _$weekly;
   RecurringCadence get biweekly => _$biweekly;
   RecurringCadence get semiMonthly => _$semiMonthly;
+  RecurringCadence get quarterly => _$quarterly;
   RecurringCadence get monthly => _$monthly;
   RecurringCadence get annually => _$annually;
   RecurringCadence get unknown => _$unknown;
@@ -69,6 +74,7 @@ class _$RecurringCadenceSerializer
     'weekly': 'weekly',
     'biweekly': 'biweekly',
     'semiMonthly': 'semi_monthly',
+    'quarterly': 'quarterly',
     'monthly': 'monthly',
     'annually': 'annually',
     'unknown': 'unknown',
@@ -77,6 +83,7 @@ class _$RecurringCadenceSerializer
     'weekly': 'weekly',
     'biweekly': 'biweekly',
     'semi_monthly': 'semiMonthly',
+    'quarterly': 'quarterly',
     'monthly': 'monthly',
     'annually': 'annually',
     'unknown': 'unknown',

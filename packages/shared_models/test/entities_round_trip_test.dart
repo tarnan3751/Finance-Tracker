@@ -246,12 +246,13 @@ _entities = [
       status: RecurringStatus.active,
       isSubscription: true,
       source: RecurringSource.plaid,
+      transactionIds: ['t1', 't2'],
     ),
     RecurringStream(
       id: 's2',
       accountId: 'acc1',
       merchantName: 'Gym',
-      cadence: RecurringCadence.monthly,
+      cadence: RecurringCadence.quarterly,
       averageAmount: _usd(-4000),
       status: RecurringStatus.ended,
       isSubscription: false,
@@ -502,7 +503,7 @@ void main() {
       expect(Item.fromJson(item).status, ItemStatus.unknown);
       final account = _toJson(_entities[4].$2)..['type'] = 'crypto';
       expect(Account.fromJson(account).type, AccountType.other);
-      final stream = _toJson(_entities[12].$2)..['cadence'] = 'quarterly';
+      final stream = _toJson(_entities[12].$2)..['cadence'] = 'fortnightly';
       expect(
         RecurringStream.fromJson(stream).cadence,
         RecurringCadence.unknown,

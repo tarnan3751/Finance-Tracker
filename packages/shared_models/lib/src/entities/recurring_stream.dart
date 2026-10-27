@@ -13,6 +13,8 @@ part 'recurring_stream.g.dart';
 @freezed
 abstract class RecurringStream with _$RecurringStream {
   /// A stream; [lastExpected] and [nextExpected] are null when unknown.
+  /// [transactionIds] are its member transactions' ids, as the app stores them (for a
+  /// Plaid stream, the server's ids of Plaid's members it holds).
   const factory RecurringStream({
     required String id,
     required String accountId,
@@ -25,6 +27,7 @@ abstract class RecurringStream with _$RecurringStream {
     required RecurringStatus status,
     required bool isSubscription,
     required RecurringSource source,
+    @Default(<String>[]) List<String> transactionIds,
   }) = _RecurringStream;
 
   /// Reads the snake_case JSON form.

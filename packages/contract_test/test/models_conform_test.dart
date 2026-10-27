@@ -199,6 +199,7 @@ final _responses = <(String, Map<String, Object?>, Map<String, Object?>)>[
         status: RecurringStatus.ended,
         isSubscription: true,
         source: RecurringSource.detected,
+        transactionIds: ['t1', 't2'],
       ),
     ),
     _wire(
@@ -206,7 +207,7 @@ final _responses = <(String, Map<String, Object?>, Map<String, Object?>)>[
         id: 's1',
         accountId: 'a1',
         merchantName: 'Payroll',
-        cadence: RecurringCadence.unknown,
+        cadence: RecurringCadence.quarterly,
         averageAmount: _usd(250000),
         status: RecurringStatus.active,
         isSubscription: false,

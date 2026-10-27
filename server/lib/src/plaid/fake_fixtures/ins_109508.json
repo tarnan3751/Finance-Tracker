@@ -234,7 +234,8 @@
         "last_date": "2026-10-01",
         "predicted_next_date": "2026-11-01",
         "is_active": true,
-        "status": "MATURE"
+        "status": "MATURE",
+        "transaction_ids": ["tx03"]
       }
     ]
   },

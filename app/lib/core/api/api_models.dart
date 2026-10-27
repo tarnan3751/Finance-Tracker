@@ -13,6 +13,8 @@ import 'package:shared_models/shared_models.dart';
 Money? _money(Object? json) =>
     json == null ? null : Money.fromJson(json as Map<String, dynamic>);
 
+DataSource _source(Object? json) => DataSource.values.byName(json! as String);
+
 LocalDate? _date(Object? json) =>
     json == null ? null : LocalDate.parse(json as String);
 
@@ -110,6 +112,7 @@ final class Apr {
 final class CreditLiability {
   const CreditLiability({
     required this.accountId,
+    required this.source,
     this.aprs = const [],
     this.isOverdue,
     this.lastPaymentAmount,
@@ -123,6 +126,7 @@ final class CreditLiability {
   factory CreditLiability.fromJson(Map<String, dynamic> json) =>
       CreditLiability(
         accountId: json['account_id'] as String,
+        source: _source(json['source']),
         aprs: [
           for (final Object? a in json['aprs'] as List<dynamic>)
             Apr.fromJson(a as Map<String, dynamic>),
@@ -137,6 +141,9 @@ final class CreditLiability {
       );
 
   final String accountId;
+
+  /// `plaid` or `demo`, as the server stored it.
+  final DataSource source;
   final List<Apr> aprs;
   final bool? isOverdue;
   final Money? lastPaymentAmount;
@@ -148,6 +155,7 @@ final class CreditLiability {
 
   Map<String, dynamic> toJson() => {
     'account_id': accountId,
+    'source': source.name,
     'aprs': [for (final Apr a in aprs) a.toJson()],
     'is_overdue': isOverdue,
     'last_payment_amount': lastPaymentAmount?.toJson(),
@@ -163,6 +171,7 @@ final class CreditLiability {
 final class MortgageLiability {
   const MortgageLiability({
     required this.accountId,
+    required this.source,
     this.loanTypeDescription,
     this.loanTerm,
     this.interestRatePercentage,
@@ -186,6 +195,7 @@ final class MortgageLiability {
   factory MortgageLiability.fromJson(Map<String, dynamic> json) =>
       MortgageLiability(
         accountId: json['account_id'] as String,
+        source: _source(json['source']),
         loanTypeDescription: json['loan_type_description'] as String?,
         loanTerm: json['loan_term'] as String?,
         interestRatePercentage: json['interest_rate_percentage'] as String?,
@@ -209,6 +219,9 @@ final class MortgageLiability {
       );
 
   final String accountId;
+
+  /// `plaid` or `demo`, as the server stored it.
+  final DataSource source;
   final String? loanTypeDescription;
   final String? loanTerm;
 
@@ -232,6 +245,7 @@ final class MortgageLiability {
 
   Map<String, dynamic> toJson() => {
     'account_id': accountId,
+    'source': source.name,
     'loan_type_description': loanTypeDescription,
     'loan_term': loanTerm,
     'interest_rate_percentage': interestRatePercentage,
@@ -257,6 +271,7 @@ final class MortgageLiability {
 final class StudentLoanLiability {
   const StudentLoanLiability({
     required this.accountId,
+    required this.source,
     this.loanName,
     this.guarantor,
     required this.interestRatePercentage,
@@ -280,6 +295,7 @@ final class StudentLoanLiability {
   factory StudentLoanLiability.fromJson(Map<String, dynamic> json) =>
       StudentLoanLiability(
         accountId: json['account_id'] as String,
+        source: _source(json['source']),
         loanName: json['loan_name'] as String?,
         guarantor: json['guarantor'] as String?,
         interestRatePercentage: json['interest_rate_percentage'] as String,
@@ -303,6 +319,9 @@ final class StudentLoanLiability {
       );
 
   final String accountId;
+
+  /// `plaid` or `demo`, as the server stored it.
+  final DataSource source;
   final String? loanName;
   final String? guarantor;
 
@@ -326,6 +345,7 @@ final class StudentLoanLiability {
 
   Map<String, dynamic> toJson() => {
     'account_id': accountId,
+    'source': source.name,
     'loan_name': loanName,
     'guarantor': guarantor,
     'interest_rate_percentage': interestRatePercentage,

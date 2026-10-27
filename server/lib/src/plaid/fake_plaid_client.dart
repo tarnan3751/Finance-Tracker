@@ -369,8 +369,9 @@ final class FakePlaidClient implements PlaidClient {
   }) async {
     await _maybeFail('transactionsRecurringGet');
     final item = _healthyItem(accessToken);
-    final recurring = item.prefixAccounts(
+    final recurring = item._prefix(
       item.fixture['recurring']! as Map<String, Object?>,
+      const ['account_id', 'transaction_ids'],
     );
     List<PlaidRecurringStream> streams(String key) => [
       for (final s in recurring[key]! as List<Object?>)
@@ -614,9 +615,15 @@ final class _FakeItem {
     Object? walk(Object? node) => switch (node) {
       final Map<String, Object?> map => {
         for (final MapEntry(:key, :value) in map.entries)
-          key: keys.contains(key) && value is String
-              ? '$itemId-$value'
-              : walk(value),
+          key: !keys.contains(key)
+              ? walk(value)
+              : switch (value) {
+                  final String id => '$itemId-$id',
+                  final List<Object?> ids => [
+                    for (final id in ids) '$itemId-$id',
+                  ],
+                  _ => value,
+                },
       },
       final List<Object?> list => [for (final e in list) walk(e)],
       _ => node,

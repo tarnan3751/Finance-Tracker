@@ -10,6 +10,8 @@ class _$MortgageLiability extends MortgageLiability {
   @override
   final String accountId;
   @override
+  final DataSource source_;
+  @override
   final String? loanTypeDescription;
   @override
   final String? loanTerm;
@@ -52,6 +54,7 @@ class _$MortgageLiability extends MortgageLiability {
 
   _$MortgageLiability._({
     required this.accountId,
+    required this.source_,
     this.loanTypeDescription,
     this.loanTerm,
     this.interestRatePercentage,
@@ -84,6 +87,7 @@ class _$MortgageLiability extends MortgageLiability {
     if (identical(other, this)) return true;
     return other is MortgageLiability &&
         accountId == other.accountId &&
+        source_ == other.source_ &&
         loanTypeDescription == other.loanTypeDescription &&
         loanTerm == other.loanTerm &&
         interestRatePercentage == other.interestRatePercentage &&
@@ -108,6 +112,7 @@ class _$MortgageLiability extends MortgageLiability {
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, accountId.hashCode);
+    _$hash = $jc(_$hash, source_.hashCode);
     _$hash = $jc(_$hash, loanTypeDescription.hashCode);
     _$hash = $jc(_$hash, loanTerm.hashCode);
     _$hash = $jc(_$hash, interestRatePercentage.hashCode);
@@ -134,6 +139,7 @@ class _$MortgageLiability extends MortgageLiability {
   String toString() {
     return (newBuiltValueToStringHelper(r'MortgageLiability')
           ..add('accountId', accountId)
+          ..add('source_', source_)
           ..add('loanTypeDescription', loanTypeDescription)
           ..add('loanTerm', loanTerm)
           ..add('interestRatePercentage', interestRatePercentage)
@@ -163,6 +169,10 @@ class MortgageLiabilityBuilder
   String? _accountId;
   String? get accountId => _$this._accountId;
   set accountId(String? accountId) => _$this._accountId = accountId;
+
+  DataSource? _source_;
+  DataSource? get source_ => _$this._source_;
+  set source_(DataSource? source_) => _$this._source_ = source_;
 
   String? _loanTypeDescription;
   String? get loanTypeDescription => _$this._loanTypeDescription;
@@ -264,6 +274,7 @@ class MortgageLiabilityBuilder
     final $v = _$v;
     if ($v != null) {
       _accountId = $v.accountId;
+      _source_ = $v.source_;
       _loanTypeDescription = $v.loanTypeDescription;
       _loanTerm = $v.loanTerm;
       _interestRatePercentage = $v.interestRatePercentage;
@@ -310,6 +321,11 @@ class MortgageLiabilityBuilder
               accountId,
               r'MortgageLiability',
               'accountId',
+            ),
+            source_: BuiltValueNullFieldError.checkNotNull(
+              source_,
+              r'MortgageLiability',
+              'source_',
             ),
             loanTypeDescription: loanTypeDescription,
             loanTerm: loanTerm,

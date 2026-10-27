@@ -27,7 +27,7 @@ final class SchemaTooNewException implements Exception {
 }
 
 /// The migrations, oldest first.
-const List<String> migrations = [_v1, _v2, _v3];
+const List<String> migrations = [_v1, _v2, _v3, _v4];
 
 /// Applies every migration [db] has not yet applied, each in its own transaction. A rerun
 /// applies nothing.
@@ -276,4 +276,10 @@ ALTER TABLE items ADD COLUMN institution_primary_color INTEGER;
 /// only for the days since (with an overlap) instead of 730 days every run.
 const _v3 = '''
 ALTER TABLE items ADD COLUMN investments_synced_at INTEGER;
+''';
+
+/// v4: each recurring stream's members, Plaid's `transaction_ids` as a JSON array of
+/// Plaid's ids; `/recurring` serves them as the server's own transaction ids.
+const _v4 = '''
+ALTER TABLE recurring_streams ADD COLUMN plaid_transaction_ids TEXT NOT NULL DEFAULT '[]';
 ''';

@@ -413,6 +413,11 @@ void main() {
       );
       expect(netflix.averageAmount, Money(1957, 'USD'));
       expect(netflix.predictedNextDate, isNotNull);
+      expect(netflix.transactionIds, hasLength(7));
+      expect(
+        netflix.transactionIds.first,
+        '7mQ4oZrwaAibDjMM5Vj5ioE4kGZPRDFdLB8q7',
+      );
       final spotify = recurring.outflow.firstWhere(
         (s) => s.merchantName == 'Spotify',
       );

@@ -1153,11 +1153,12 @@ final class ItemService {
         // Plaid does not say whether a stream is a subscription; the app's detector does.
         0,
         _source,
+        jsonEncode(s.transactionIds),
       ];
       final changed = tx.execute(
         'UPDATE recurring_streams SET account_id = ?, merchant_name = ?, cadence = ?, '
         'average_amount_minor = ?, currency = ?, last_date = ?, next_date = ?, '
-        'status = ?, is_subscription = ?, source = ? '
+        'status = ?, is_subscription = ?, source = ?, plaid_transaction_ids = ? '
         'WHERE item_id = ? AND plaid_stream_id = ?',
         [...values, itemId, s.streamId],
       );
@@ -1165,8 +1166,9 @@ final class ItemService {
         tx.execute(
           'INSERT INTO recurring_streams (account_id, merchant_name, cadence, '
           'average_amount_minor, currency, last_date, next_date, status, '
-          'is_subscription, source, id, user_id, item_id, plaid_stream_id) '
-          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'is_subscription, source, plaid_transaction_ids, id, user_id, item_id, '
+          'plaid_stream_id) '
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [...values, newId(), userId, itemId, s.streamId],
         );
       }

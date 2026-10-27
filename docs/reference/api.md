@@ -8,7 +8,7 @@ implement the contract; none of them defines a shape of its own (`PLAN.md` §6.5
 
 ## The contract
 
-OpenAPI **3.0.3**, `info.version` `0.3.0`, every path under `/v1`. The servers are the dev
+OpenAPI **3.0.3**, `info.version` `0.4.0`, every path under `/v1`. The servers are the dev
 server from the emulator (`http://10.0.2.2:8080/v1`) and from the machine
 (`http://localhost:8080/v1`). Operations are grouped by tag: `auth`, `me`, `devices`,
 `plaid`, `institutions`, `data`, `sync`, `webhooks`, `sandbox`, `health`; each has a camelCase `operationId`, which is
@@ -61,8 +61,13 @@ user-owned fields (`user_category_id`, `notes`, `tags`, `splits`, `receipt_path`
 are in the schema because the entity has them, but they reach other devices through the
 change log: the server serves them empty, `hidden` as `false`. The two entry
 schemas are flat rather than composed with `allOf`, because the generator makes a composed
-parent uninstantiable. The liability, holding, security and investment-transaction
-schemas exist only in the contract until Phase 3 adds their entities. Entities that
+parent uninstantiable. `RecurringStream.transaction_ids` are the stream's members as
+`/transactions` serves them (the server's ids, not Plaid's), and `RecurringCadence` has
+`quarterly`, which Plaid never reports and the app's detector does. The three liability
+schemas carry the `source` the server stored (`plaid`, or `demo` from the fake Plaid
+client); the app reads them into `shared_models`' `Liability` (`liabilities.md`). The
+holding, security and investment-transaction schemas exist only in the contract until
+Phase 6 adds their entities. Entities that
 travel only inside change-log payloads (categories, budgets, rules, goals, bill reminders,
 snapshots) have no schema: the payload is a free-form object.
 

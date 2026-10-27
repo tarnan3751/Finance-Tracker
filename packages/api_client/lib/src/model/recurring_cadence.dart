@@ -9,6 +9,7 @@ import 'package:built_value/serializer.dart';
 
 part 'recurring_cadence.g.dart';
 
+/// Plaid's `frequency` in our naming; `quarterly` is never Plaid's (its frequencies have none) and comes from the app's own detector
 class RecurringCadence extends EnumClass {
   @BuiltValueEnumConst(wireName: r'weekly')
   static const RecurringCadence weekly = _$weekly;
@@ -16,6 +17,8 @@ class RecurringCadence extends EnumClass {
   static const RecurringCadence biweekly = _$biweekly;
   @BuiltValueEnumConst(wireName: r'semi_monthly')
   static const RecurringCadence semiMonthly = _$semiMonthly;
+  @BuiltValueEnumConst(wireName: r'quarterly')
+  static const RecurringCadence quarterly = _$quarterly;
   @BuiltValueEnumConst(wireName: r'monthly')
   static const RecurringCadence monthly = _$monthly;
   @BuiltValueEnumConst(wireName: r'annually')

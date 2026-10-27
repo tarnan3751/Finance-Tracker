@@ -44,6 +44,12 @@ _RecurringStream _$RecurringStreamFromJson(Map<String, dynamic> json) =>
             'source',
             (v) => $enumDecode(_$RecurringSourceEnumMap, v),
           ),
+          transactionIds: $checkedConvert(
+            'transaction_ids',
+            (v) =>
+                (v as List<dynamic>?)?.map((e) => e as String).toList() ??
+                const <String>[],
+          ),
         );
         return val;
       },
@@ -54,6 +60,7 @@ _RecurringStream _$RecurringStreamFromJson(Map<String, dynamic> json) =>
         'lastExpected': 'last_expected',
         'nextExpected': 'next_expected',
         'isSubscription': 'is_subscription',
+        'transactionIds': 'transaction_ids',
       },
     );
 
@@ -69,12 +76,14 @@ Map<String, dynamic> _$RecurringStreamToJson(_RecurringStream instance) =>
       'status': _$RecurringStatusEnumMap[instance.status]!,
       'is_subscription': instance.isSubscription,
       'source': _$RecurringSourceEnumMap[instance.source]!,
+      'transaction_ids': instance.transactionIds,
     };
 
 const _$RecurringCadenceEnumMap = {
   RecurringCadence.weekly: 'weekly',
   RecurringCadence.biweekly: 'biweekly',
   RecurringCadence.semiMonthly: 'semi_monthly',
+  RecurringCadence.quarterly: 'quarterly',
   RecurringCadence.monthly: 'monthly',
   RecurringCadence.annually: 'annually',
   RecurringCadence.unknown: 'unknown',

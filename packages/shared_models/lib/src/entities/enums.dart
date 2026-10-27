@@ -40,12 +40,14 @@ enum RecurringSource { plaid, detected, user, demo }
 @JsonEnum(fieldRename: FieldRename.snake)
 enum RecurringStatus { active, ended }
 
-/// How often a recurring stream recurs; mirrors Plaid's `frequency`.
+/// How often a recurring stream recurs; mirrors Plaid's `frequency`, plus [quarterly],
+/// which Plaid never reports and the app's own detector does.
 @JsonEnum(fieldRename: FieldRename.snake)
 enum RecurringCadence {
   weekly,
   biweekly,
   semiMonthly,
+  quarterly,
   monthly,
   annually,
   unknown,

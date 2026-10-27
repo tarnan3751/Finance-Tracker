@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RecurringStream {
 
- String get id; String get accountId; String get merchantName;@JsonKey(unknownEnumValue: RecurringCadence.unknown) RecurringCadence get cadence; Money get averageAmount; LocalDate? get lastExpected; LocalDate? get nextExpected; RecurringStatus get status; bool get isSubscription; RecurringSource get source;
+ String get id; String get accountId; String get merchantName;@JsonKey(unknownEnumValue: RecurringCadence.unknown) RecurringCadence get cadence; Money get averageAmount; LocalDate? get lastExpected; LocalDate? get nextExpected; RecurringStatus get status; bool get isSubscription; RecurringSource get source; List<String> get transactionIds;
 /// Create a copy of RecurringStream
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $RecurringStreamCopyWith<RecurringStream> get copyWith => _$RecurringStreamCopyW
 @override
 bool operator ==(Object other) {
   final _this = this as RecurringStream;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecurringStream&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.accountId, _this.accountId) || other.accountId == _this.accountId)&&(identical(other.merchantName, _this.merchantName) || other.merchantName == _this.merchantName)&&(identical(other.cadence, _this.cadence) || other.cadence == _this.cadence)&&(identical(other.averageAmount, _this.averageAmount) || other.averageAmount == _this.averageAmount)&&(identical(other.lastExpected, _this.lastExpected) || other.lastExpected == _this.lastExpected)&&(identical(other.nextExpected, _this.nextExpected) || other.nextExpected == _this.nextExpected)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.isSubscription, _this.isSubscription) || other.isSubscription == _this.isSubscription)&&(identical(other.source, _this.source) || other.source == _this.source));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecurringStream&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.accountId, _this.accountId) || other.accountId == _this.accountId)&&(identical(other.merchantName, _this.merchantName) || other.merchantName == _this.merchantName)&&(identical(other.cadence, _this.cadence) || other.cadence == _this.cadence)&&(identical(other.averageAmount, _this.averageAmount) || other.averageAmount == _this.averageAmount)&&(identical(other.lastExpected, _this.lastExpected) || other.lastExpected == _this.lastExpected)&&(identical(other.nextExpected, _this.nextExpected) || other.nextExpected == _this.nextExpected)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.isSubscription, _this.isSubscription) || other.isSubscription == _this.isSubscription)&&(identical(other.source, _this.source) || other.source == _this.source)&&const DeepCollectionEquality().equals(other.transactionIds, _this.transactionIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as RecurringStream;
-  return Object.hash(runtimeType,_this.id,_this.accountId,_this.merchantName,_this.cadence,_this.averageAmount,_this.lastExpected,_this.nextExpected,_this.status,_this.isSubscription,_this.source);
+  return Object.hash(runtimeType,_this.id,_this.accountId,_this.merchantName,_this.cadence,_this.averageAmount,_this.lastExpected,_this.nextExpected,_this.status,_this.isSubscription,_this.source,const DeepCollectionEquality().hash(_this.transactionIds));
 }
 
 @override
 String toString() {
   final _this = this as RecurringStream;
-  return 'RecurringStream(id: ${_this.id}, accountId: ${_this.accountId}, merchantName: ${_this.merchantName}, cadence: ${_this.cadence}, averageAmount: ${_this.averageAmount}, lastExpected: ${_this.lastExpected}, nextExpected: ${_this.nextExpected}, status: ${_this.status}, isSubscription: ${_this.isSubscription}, source: ${_this.source})';
+  return 'RecurringStream(id: ${_this.id}, accountId: ${_this.accountId}, merchantName: ${_this.merchantName}, cadence: ${_this.cadence}, averageAmount: ${_this.averageAmount}, lastExpected: ${_this.lastExpected}, nextExpected: ${_this.nextExpected}, status: ${_this.status}, isSubscription: ${_this.isSubscription}, source: ${_this.source}, transactionIds: ${_this.transactionIds})';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $RecurringStreamCopyWith<$Res>  {
   factory $RecurringStreamCopyWith(RecurringStream value, $Res Function(RecurringStream) _then) = _$RecurringStreamCopyWithImpl;
 @useResult
 $Res call({
- String id, String accountId, String merchantName,@JsonKey(unknownEnumValue: RecurringCadence.unknown) RecurringCadence cadence, Money averageAmount, LocalDate? lastExpected, LocalDate? nextExpected, RecurringStatus status, bool isSubscription, RecurringSource source
+ String id, String accountId, String merchantName,@JsonKey(unknownEnumValue: RecurringCadence.unknown) RecurringCadence cadence, Money averageAmount, LocalDate? lastExpected, LocalDate? nextExpected, RecurringStatus status, bool isSubscription, RecurringSource source, List<String> transactionIds
 });
 
 
@@ -71,7 +71,7 @@ class _$RecurringStreamCopyWithImpl<$Res>
 
 /// Create a copy of RecurringStream
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? accountId = null,Object? merchantName = null,Object? cadence = null,Object? averageAmount = null,Object? lastExpected = freezed,Object? nextExpected = freezed,Object? status = null,Object? isSubscription = null,Object? source = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? accountId = null,Object? merchantName = null,Object? cadence = null,Object? averageAmount = null,Object? lastExpected = freezed,Object? nextExpected = freezed,Object? status = null,Object? isSubscription = null,Object? source = null,Object? transactionIds = null,}) {
   return _then(RecurringStream(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,accountId: null == accountId ? _self.accountId : accountId // ignore: cast_nullable_to_non_nullable
@@ -83,7 +83,8 @@ as LocalDate?,nextExpected: freezed == nextExpected ? _self.nextExpected : nextE
 as LocalDate?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as RecurringStatus,isSubscription: null == isSubscription ? _self.isSubscription : isSubscription // ignore: cast_nullable_to_non_nullable
 as bool,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
-as RecurringSource,
+as RecurringSource,transactionIds: null == transactionIds ? _self.transactionIds : transactionIds // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 
@@ -168,10 +169,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String accountId,  String merchantName, @JsonKey(unknownEnumValue: RecurringCadence.unknown)  RecurringCadence cadence,  Money averageAmount,  LocalDate? lastExpected,  LocalDate? nextExpected,  RecurringStatus status,  bool isSubscription,  RecurringSource source)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String accountId,  String merchantName, @JsonKey(unknownEnumValue: RecurringCadence.unknown)  RecurringCadence cadence,  Money averageAmount,  LocalDate? lastExpected,  LocalDate? nextExpected,  RecurringStatus status,  bool isSubscription,  RecurringSource source,  List<String> transactionIds)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RecurringStream() when $default != null:
-return $default(_that.id,_that.accountId,_that.merchantName,_that.cadence,_that.averageAmount,_that.lastExpected,_that.nextExpected,_that.status,_that.isSubscription,_that.source);case _:
+return $default(_that.id,_that.accountId,_that.merchantName,_that.cadence,_that.averageAmount,_that.lastExpected,_that.nextExpected,_that.status,_that.isSubscription,_that.source,_that.transactionIds);case _:
   return orElse();
 
 }
@@ -189,10 +190,10 @@ return $default(_that.id,_that.accountId,_that.merchantName,_that.cadence,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String accountId,  String merchantName, @JsonKey(unknownEnumValue: RecurringCadence.unknown)  RecurringCadence cadence,  Money averageAmount,  LocalDate? lastExpected,  LocalDate? nextExpected,  RecurringStatus status,  bool isSubscription,  RecurringSource source)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String accountId,  String merchantName, @JsonKey(unknownEnumValue: RecurringCadence.unknown)  RecurringCadence cadence,  Money averageAmount,  LocalDate? lastExpected,  LocalDate? nextExpected,  RecurringStatus status,  bool isSubscription,  RecurringSource source,  List<String> transactionIds)  $default,) {final _that = this;
 switch (_that) {
 case _RecurringStream():
-return $default(_that.id,_that.accountId,_that.merchantName,_that.cadence,_that.averageAmount,_that.lastExpected,_that.nextExpected,_that.status,_that.isSubscription,_that.source);case _:
+return $default(_that.id,_that.accountId,_that.merchantName,_that.cadence,_that.averageAmount,_that.lastExpected,_that.nextExpected,_that.status,_that.isSubscription,_that.source,_that.transactionIds);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -209,10 +210,10 @@ return $default(_that.id,_that.accountId,_that.merchantName,_that.cadence,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String accountId,  String merchantName, @JsonKey(unknownEnumValue: RecurringCadence.unknown)  RecurringCadence cadence,  Money averageAmount,  LocalDate? lastExpected,  LocalDate? nextExpected,  RecurringStatus status,  bool isSubscription,  RecurringSource source)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String accountId,  String merchantName, @JsonKey(unknownEnumValue: RecurringCadence.unknown)  RecurringCadence cadence,  Money averageAmount,  LocalDate? lastExpected,  LocalDate? nextExpected,  RecurringStatus status,  bool isSubscription,  RecurringSource source,  List<String> transactionIds)?  $default,) {final _that = this;
 switch (_that) {
 case _RecurringStream() when $default != null:
-return $default(_that.id,_that.accountId,_that.merchantName,_that.cadence,_that.averageAmount,_that.lastExpected,_that.nextExpected,_that.status,_that.isSubscription,_that.source);case _:
+return $default(_that.id,_that.accountId,_that.merchantName,_that.cadence,_that.averageAmount,_that.lastExpected,_that.nextExpected,_that.status,_that.isSubscription,_that.source,_that.transactionIds);case _:
   return null;
 
 }
@@ -224,7 +225,7 @@ return $default(_that.id,_that.accountId,_that.merchantName,_that.cadence,_that.
 @JsonSerializable()
 
 class _RecurringStream implements RecurringStream {
-  const _RecurringStream({required this.id, required this.accountId, required this.merchantName, @JsonKey(unknownEnumValue: RecurringCadence.unknown) required this.cadence, required this.averageAmount, this.lastExpected, this.nextExpected, required this.status, required this.isSubscription, required this.source});
+  const _RecurringStream({required this.id, required this.accountId, required this.merchantName, @JsonKey(unknownEnumValue: RecurringCadence.unknown) required this.cadence, required this.averageAmount, this.lastExpected, this.nextExpected, required this.status, required this.isSubscription, required this.source,  List<String> transactionIds = const <String>[]}): _transactionIds = transactionIds;
   factory _RecurringStream.fromJson(Map<String, dynamic> json) => _$RecurringStreamFromJson(json);
 
 @override final  String id;
@@ -237,6 +238,13 @@ class _RecurringStream implements RecurringStream {
 @override final  RecurringStatus status;
 @override final  bool isSubscription;
 @override final  RecurringSource source;
+ final  List<String> _transactionIds;
+@override@JsonKey() List<String> get transactionIds {
+  if (_transactionIds is EqualUnmodifiableListView) return _transactionIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_transactionIds);
+}
+
 
 /// Create a copy of RecurringStream
 /// with the given fields replaced by the non-null parameter values.
@@ -251,18 +259,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RecurringStream&&(identical(other.id, id) || other.id == id)&&(identical(other.accountId, accountId) || other.accountId == accountId)&&(identical(other.merchantName, merchantName) || other.merchantName == merchantName)&&(identical(other.cadence, cadence) || other.cadence == cadence)&&(identical(other.averageAmount, averageAmount) || other.averageAmount == averageAmount)&&(identical(other.lastExpected, lastExpected) || other.lastExpected == lastExpected)&&(identical(other.nextExpected, nextExpected) || other.nextExpected == nextExpected)&&(identical(other.status, status) || other.status == status)&&(identical(other.isSubscription, isSubscription) || other.isSubscription == isSubscription)&&(identical(other.source, source) || other.source == source));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RecurringStream&&(identical(other.id, id) || other.id == id)&&(identical(other.accountId, accountId) || other.accountId == accountId)&&(identical(other.merchantName, merchantName) || other.merchantName == merchantName)&&(identical(other.cadence, cadence) || other.cadence == cadence)&&(identical(other.averageAmount, averageAmount) || other.averageAmount == averageAmount)&&(identical(other.lastExpected, lastExpected) || other.lastExpected == lastExpected)&&(identical(other.nextExpected, nextExpected) || other.nextExpected == nextExpected)&&(identical(other.status, status) || other.status == status)&&(identical(other.isSubscription, isSubscription) || other.isSubscription == isSubscription)&&(identical(other.source, source) || other.source == source)&&const DeepCollectionEquality().equals(other.transactionIds, _transactionIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,accountId,merchantName,cadence,averageAmount,lastExpected,nextExpected,status,isSubscription,source);
+    return Object.hash(runtimeType,id,accountId,merchantName,cadence,averageAmount,lastExpected,nextExpected,status,isSubscription,source,const DeepCollectionEquality().hash(_transactionIds));
 }
 
 @override
 String toString() {
-    return 'RecurringStream(id: $id, accountId: $accountId, merchantName: $merchantName, cadence: $cadence, averageAmount: $averageAmount, lastExpected: $lastExpected, nextExpected: $nextExpected, status: $status, isSubscription: $isSubscription, source: $source)';
+    return 'RecurringStream(id: $id, accountId: $accountId, merchantName: $merchantName, cadence: $cadence, averageAmount: $averageAmount, lastExpected: $lastExpected, nextExpected: $nextExpected, status: $status, isSubscription: $isSubscription, source: $source, transactionIds: $transactionIds)';
 }
 
 
@@ -273,7 +281,7 @@ abstract mixin class _$RecurringStreamCopyWith<$Res> implements $RecurringStream
   factory _$RecurringStreamCopyWith(_RecurringStream value, $Res Function(_RecurringStream) _then) = __$RecurringStreamCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String accountId, String merchantName,@JsonKey(unknownEnumValue: RecurringCadence.unknown) RecurringCadence cadence, Money averageAmount, LocalDate? lastExpected, LocalDate? nextExpected, RecurringStatus status, bool isSubscription, RecurringSource source
+ String id, String accountId, String merchantName,@JsonKey(unknownEnumValue: RecurringCadence.unknown) RecurringCadence cadence, Money averageAmount, LocalDate? lastExpected, LocalDate? nextExpected, RecurringStatus status, bool isSubscription, RecurringSource source, List<String> transactionIds
 });
 
 
@@ -290,7 +298,7 @@ class __$RecurringStreamCopyWithImpl<$Res>
 
 /// Create a copy of RecurringStream
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? accountId = null,Object? merchantName = null,Object? cadence = null,Object? averageAmount = null,Object? lastExpected = freezed,Object? nextExpected = freezed,Object? status = null,Object? isSubscription = null,Object? source = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? accountId = null,Object? merchantName = null,Object? cadence = null,Object? averageAmount = null,Object? lastExpected = freezed,Object? nextExpected = freezed,Object? status = null,Object? isSubscription = null,Object? source = null,Object? transactionIds = null,}) {
   return _then(_RecurringStream(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,accountId: null == accountId ? _self.accountId : accountId // ignore: cast_nullable_to_non_nullable
@@ -302,7 +310,8 @@ as LocalDate?,nextExpected: freezed == nextExpected ? _self.nextExpected : nextE
 as LocalDate?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as RecurringStatus,isSubscription: null == isSubscription ? _self.isSubscription : isSubscription // ignore: cast_nullable_to_non_nullable
 as bool,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
-as RecurringSource,
+as RecurringSource,transactionIds: null == transactionIds ? _self._transactionIds : transactionIds // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 

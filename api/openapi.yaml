@@ -6,7 +6,7 @@
 openapi: 3.0.3
 info:
   title: Finance Tracker API
-  version: 0.3.0
+  version: 0.4.0
   description: >-
     The API between the Finance Tracker app and its server. All JSON, snake_case. Money is
     integer minor units plus an ISO 4217 code (`Money`), never a floating-point number;
@@ -1114,7 +1114,10 @@ components:
       enum: [plaid, manual, import, derived, demo]
     RecurringCadence:
       type: string
-      enum: [weekly, biweekly, semi_monthly, monthly, annually, unknown]
+      description: >-
+        Plaid's `frequency` in our naming; `quarterly` is never Plaid's (its frequencies
+        have none) and comes from the app's own detector
+      enum: [weekly, biweekly, semi_monthly, quarterly, monthly, annually, unknown]
     RecurringStatus:
       type: string
       enum: [active, ended]
@@ -1780,6 +1783,7 @@ components:
         - status
         - is_subscription
         - source
+        - transaction_ids
       properties:
         id:
           type: string
@@ -1806,6 +1810,13 @@ components:
           type: boolean
         source:
           $ref: '#/components/schemas/RecurringSource'
+        transaction_ids:
+          type: array
+          description: >-
+            The ids of the stream's transactions as `/transactions` serves them, in
+            Plaid's order; a member the server does not hold (yet) is left out
+          items:
+            type: string
       example:
         id: stream-1
         account_id: acc-1
@@ -1819,9 +1830,12 @@ components:
         status: active
         is_subscription: true
         source: plaid
+        transaction_ids: [txn-1, txn-2]
 
     # Liabilities (Plaid /liabilities/get, in our naming, without account numbers or
     # addresses) -----------------------------------------------------------------------------
+    # Each liability carries the `source` the server stored: `plaid` from Plaid, `demo`
+    # from the fake Plaid client (PLAN.md §7.1).
     Liabilities:
       type: object
       required: [credit, mortgage, student]
@@ -1859,6 +1873,7 @@ components:
       type: object
       required:
         - account_id
+        - source
         - aprs
         - is_overdue
         - last_payment_amount
@@ -1870,6 +1885,8 @@ components:
       properties:
         account_id:
           type: string
+        source:
+          $ref: '#/components/schemas/DataSource'
         aprs:
           type: array
           items:
@@ -1903,6 +1920,7 @@ components:
           nullable: true
       example:
         account_id: acc-2
+        source: plaid
         aprs:
           - apr_percentage: '15.24'
             apr_type: purchase_apr
@@ -1929,6 +1947,7 @@ components:
       type: object
       required:
         - account_id
+        - source
         - loan_type_description
         - loan_term
         - interest_rate_percentage
@@ -1950,6 +1969,8 @@ components:
       properties:
         account_id:
           type: string
+        source:
+          $ref: '#/components/schemas/DataSource'
         loan_type_description:
           type: string
           nullable: true
@@ -2022,6 +2043,7 @@ components:
       type: object
       required:
         - account_id
+        - source
         - loan_name
         - guarantor
         - interest_rate_percentage
@@ -2043,6 +2065,8 @@ components:
       properties:
         account_id:
           type: string
+        source:
+          $ref: '#/components/schemas/DataSource'
         loan_name:
           type: string
           nullable: true

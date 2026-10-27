@@ -10,6 +10,8 @@ class _$StudentLoanLiability extends StudentLoanLiability {
   @override
   final String accountId;
   @override
+  final DataSource source_;
+  @override
   final String? loanName;
   @override
   final String? guarantor;
@@ -52,6 +54,7 @@ class _$StudentLoanLiability extends StudentLoanLiability {
 
   _$StudentLoanLiability._({
     required this.accountId,
+    required this.source_,
     this.loanName,
     this.guarantor,
     required this.interestRatePercentage,
@@ -85,6 +88,7 @@ class _$StudentLoanLiability extends StudentLoanLiability {
     if (identical(other, this)) return true;
     return other is StudentLoanLiability &&
         accountId == other.accountId &&
+        source_ == other.source_ &&
         loanName == other.loanName &&
         guarantor == other.guarantor &&
         interestRatePercentage == other.interestRatePercentage &&
@@ -109,6 +113,7 @@ class _$StudentLoanLiability extends StudentLoanLiability {
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, accountId.hashCode);
+    _$hash = $jc(_$hash, source_.hashCode);
     _$hash = $jc(_$hash, loanName.hashCode);
     _$hash = $jc(_$hash, guarantor.hashCode);
     _$hash = $jc(_$hash, interestRatePercentage.hashCode);
@@ -135,6 +140,7 @@ class _$StudentLoanLiability extends StudentLoanLiability {
   String toString() {
     return (newBuiltValueToStringHelper(r'StudentLoanLiability')
           ..add('accountId', accountId)
+          ..add('source_', source_)
           ..add('loanName', loanName)
           ..add('guarantor', guarantor)
           ..add('interestRatePercentage', interestRatePercentage)
@@ -164,6 +170,10 @@ class StudentLoanLiabilityBuilder
   String? _accountId;
   String? get accountId => _$this._accountId;
   set accountId(String? accountId) => _$this._accountId = accountId;
+
+  DataSource? _source_;
+  DataSource? get source_ => _$this._source_;
+  set source_(DataSource? source_) => _$this._source_ = source_;
 
   String? _loanName;
   String? get loanName => _$this._loanName;
@@ -267,6 +277,7 @@ class StudentLoanLiabilityBuilder
     final $v = _$v;
     if ($v != null) {
       _accountId = $v.accountId;
+      _source_ = $v.source_;
       _loanName = $v.loanName;
       _guarantor = $v.guarantor;
       _interestRatePercentage = $v.interestRatePercentage;
@@ -313,6 +324,11 @@ class StudentLoanLiabilityBuilder
               accountId,
               r'StudentLoanLiability',
               'accountId',
+            ),
+            source_: BuiltValueNullFieldError.checkNotNull(
+              source_,
+              r'StudentLoanLiability',
+              'source_',
             ),
             loanName: loanName,
             guarantor: guarantor,

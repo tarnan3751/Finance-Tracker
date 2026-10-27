@@ -296,13 +296,15 @@ void main() {
           data.transactions[i].copyWith(syncVersion: i + 1),
       ]);
       expect(page.items.map((t) => t.source).toSet(), {DataSource.demo});
-      expect(
-        (await client.api.listRecurringStreams()).single.source,
-        RecurringSource.demo,
-      );
+      final RecurringStream stream =
+          (await client.api.listRecurringStreams()).single;
+      expect(stream, data.recurringStreams.single);
+      expect(stream.source, RecurringSource.demo);
+      expect(stream.transactionIds, ['sample-txn-12', 'sample-txn-01']);
       final Liabilities liabilities = await client.api.getLiabilities();
       expect(liabilities.toJson(), data.liabilities.toJson());
       expect(liabilities.credit.single.aprs.single.aprPercentage, '24.99');
+      expect(liabilities.credit.single.source, DataSource.demo);
       expect((await client.api.listHoldings()).holdings, isEmpty);
       expect(
         (await client.api.listItems()).single.item.lastSuccessfulSyncAt,
@@ -468,7 +470,7 @@ void main() {
     });
 
     test('health reports the contract version', () async {
-      expect((await FakeClient(server).api.getHealth()).version, '0.3.0');
+      expect((await FakeClient(server).api.getHealth()).version, '0.4.0');
     });
   });
 
@@ -810,6 +812,23 @@ void main() {
           institution: sample.institution,
           accounts: const [],
           transactions: sample.transactions,
+        ),
+        throwsArgumentError,
+      );
+      final CreditLiability card = sample.liabilities.credit.single;
+      expect(
+        () => FakeItemData(
+          id: 'x',
+          institution: sample.institution,
+          accounts: sample.accounts,
+          liabilities: Liabilities(
+            credit: [
+              CreditLiability(
+                accountId: card.accountId,
+                source: DataSource.plaid,
+              ),
+            ],
+          ),
         ),
         throwsArgumentError,
       );

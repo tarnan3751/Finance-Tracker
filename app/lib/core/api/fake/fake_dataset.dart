@@ -2,8 +2,8 @@
 /// accounts, transactions, recurring streams, liabilities and investments.
 ///
 /// This is demo data (`PLAN.md` §7.1: synthesis lives in the demo flavor), so every
-/// transaction and recurring stream must say `source: demo`; the constructor refuses any
-/// other. The fake keeps every id as given and assigns only `sync_version`, per user, when
+/// transaction, recurring stream and liability must say `source: demo`; the constructor
+/// refuses any other. The fake keeps every id as given and assigns only `sync_version`, per user, when
 /// an Item's first completed sync applies it (`fake_server.dart`). [FakeDataset.sample] is
 /// a small hand-written dataset (the tests and the dev flavor's fake);
 /// [FakeDataset.fromDemoSeed] is the persona engine's household the demo flavor shows.
@@ -19,8 +19,8 @@ import 'package:shared_models/shared_models.dart';
 /// One Item's data.
 final class FakeItemData {
   /// The Item [id] at [institution]. Each transaction, stream, liability, holding and
-  /// investment transaction must belong to one of [accounts]; transactions and streams
-  /// must be `demo`.
+  /// investment transaction must belong to one of [accounts]; transactions, streams and
+  /// liabilities must be `demo`.
   FakeItemData({
     required this.id,
     required this.institution,
@@ -54,14 +54,23 @@ final class FakeItemData {
       }
       owned(s.accountId, 'stream ${s.id}');
     }
+    void demo(DataSource source, String what) {
+      if (source != DataSource.demo) {
+        throw ArgumentError('$what is ${source.name}, not demo');
+      }
+    }
+
     for (final CreditLiability c in liabilities.credit) {
       owned(c.accountId, 'a credit liability');
+      demo(c.source, 'the credit liability of ${c.accountId}');
     }
     for (final MortgageLiability m in liabilities.mortgage) {
       owned(m.accountId, 'a mortgage');
+      demo(m.source, 'the mortgage of ${m.accountId}');
     }
     for (final StudentLoanLiability s in liabilities.student) {
       owned(s.accountId, 'a student loan');
+      demo(s.source, 'the student loan of ${s.accountId}');
     }
     for (final Holding h in holdings) {
       owned(h.accountId, 'a holding');
@@ -346,12 +355,14 @@ final class FakeDataset {
               status: RecurringStatus.active,
               isSubscription: true,
               source: RecurringSource.demo,
+              transactionIds: const ['sample-txn-12', 'sample-txn-01'],
             ),
           ],
           liabilities: Liabilities(
             credit: [
               CreditLiability(
                 accountId: card,
+                source: DataSource.demo,
                 aprs: [
                   Apr(
                     aprPercentage: '24.99',

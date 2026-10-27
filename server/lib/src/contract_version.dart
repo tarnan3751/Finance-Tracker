@@ -4,4 +4,4 @@
 library;
 
 /// `info.version` of the contract this server implements.
-const contractVersion = '0.3.0';
+const contractVersion = '0.4.0';

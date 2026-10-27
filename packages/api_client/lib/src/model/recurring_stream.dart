@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:built_collection/built_collection.dart';
 import 'package:api_client/src/model/money.dart';
 import 'package:api_client/src/model/recurring_status.dart';
 import 'package:api_client/src/model/recurring_cadence.dart';
@@ -26,6 +27,7 @@ part 'recurring_stream.g.dart';
 /// * [status]
 /// * [isSubscription]
 /// * [source_]
+/// * [transactionIds] - The ids of the stream's transactions as `/transactions` serves them, in Plaid's order; a member the server does not hold (yet) is left out
 @BuiltValue()
 abstract class RecurringStream
     implements Built<RecurringStream, RecurringStreamBuilder> {
@@ -40,7 +42,7 @@ abstract class RecurringStream
 
   @BuiltValueField(wireName: r'cadence')
   RecurringCadence get cadence;
-  // enum cadenceEnum {  weekly,  biweekly,  semi_monthly,  monthly,  annually,  unknown,  };
+  // enum cadenceEnum {  weekly,  biweekly,  semi_monthly,  quarterly,  monthly,  annually,  unknown,  };
 
   @BuiltValueField(wireName: r'average_amount')
   Money get averageAmount;
@@ -61,6 +63,10 @@ abstract class RecurringStream
   @BuiltValueField(wireName: r'source')
   RecurringSource get source_;
   // enum source_Enum {  plaid,  detected,  user,  demo,  };
+
+  /// The ids of the stream's transactions as `/transactions` serves them, in Plaid's order; a member the server does not hold (yet) is left out
+  @BuiltValueField(wireName: r'transaction_ids')
+  BuiltList<String> get transactionIds;
 
   RecurringStream._();
 
@@ -141,6 +147,11 @@ class _$RecurringStreamSerializer
     yield serializers.serialize(
       object.source_,
       specifiedType: const FullType(RecurringSource),
+    );
+    yield r'transaction_ids';
+    yield serializers.serialize(
+      object.transactionIds,
+      specifiedType: const FullType(BuiltList, [FullType(String)]),
     );
   }
 
@@ -240,6 +251,13 @@ class _$RecurringStreamSerializer
             specifiedType: const FullType(RecurringSource),
           ) as RecurringSource;
           result.source_ = valueDes;
+          break;
+        case r'transaction_ids':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltList, [FullType(String)]),
+          ) as BuiltList<String>;
+          result.transactionIds.replace(valueDes);
           break;
         default:
           unhandled.add(key);

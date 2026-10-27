@@ -110,9 +110,47 @@ void main() {
     expect(item['investments_synced_at'], isNull);
     expect(
       db.select('SELECT MAX(version) AS v FROM schema_migrations').first['v'],
-      3,
+      migrations.length,
     );
   });
+
+  test(
+    'a v3 database with a recurring stream migrates to v4 with no members',
+    () {
+      final db = sqlite3.openInMemory();
+      addTearDown(db.close);
+      db.execute(
+        'CREATE TABLE schema_migrations ('
+        'version INTEGER PRIMARY KEY, applied_at INTEGER NOT NULL)',
+      );
+      for (var v = 0; v < 3; v++) {
+        db.execute(migrations[v]);
+      }
+      db.execute('INSERT INTO schema_migrations VALUES (1, 0), (2, 0), (3, 0)');
+      db.execute("INSERT INTO users VALUES ('u', 'a@b.test', 'h', 'a', 0)");
+      db.execute(
+        'INSERT INTO items (id, user_id, plaid_item_id, institution_id, '
+        'institution_name, products, access_token_ciphertext, access_token_nonce, '
+        "status, created_at) VALUES ('i', 'u', 'p', 'ins_1', 'Bank', '[]', "
+        "x'00', x'00', 'healthy', 0)",
+      );
+      db.execute(
+        'INSERT INTO recurring_streams (id, user_id, item_id, plaid_stream_id, '
+        'account_id, merchant_name, cadence, average_amount_minor, currency, '
+        'last_date, next_date, status, is_subscription, source) VALUES '
+        "('s', 'u', 'i', 'ps', 'a', 'Netflix', 'monthly', -1549, 'USD', "
+        "'2026-10-01', '2026-11-01', 'active', 0, 'demo')",
+      );
+      migrate(db);
+      final stream = db.select('SELECT * FROM recurring_streams').single;
+      expect(stream['merchant_name'], 'Netflix');
+      expect(stream['plaid_transaction_ids'], '[]');
+      expect(
+        db.select('SELECT MAX(version) AS v FROM schema_migrations').first['v'],
+        4,
+      );
+    },
+  );
 
   test('a database newer than the server is refused', () {
     final db = sqlite3.openInMemory();

@@ -26,7 +26,7 @@ import 'package:logging/logging.dart';
 
 /// The contract version this client is built against (`api/openapi.yaml` `info.version`;
 /// a test holds them equal). `GET /health` reports the server's.
-const String contractVersion = '0.3.0';
+const String contractVersion = '0.4.0';
 
 /// The `RequestOptions.extra` key naming the operation's path template, for the log.
 const String pathTemplateKey = 'ft.path';

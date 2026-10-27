@@ -139,7 +139,7 @@ the schema to version `i + 1`, applied in its own transaction and recorded in
 the server knows is refused at startup. Tests open in-memory databases through the same
 migrator.
 
-Schema v3 (v1, v2 adding three `items` columns, v3 adding `items.investments_synced_at`). Instants are INTEGER milliseconds UTC; dates are ISO TEXT; amounts are
+Schema v4 (v1, v2 adding three `items` columns, v3 adding `items.investments_synced_at`, v4 adding `recurring_streams.plaid_transaction_ids`). Instants are INTEGER milliseconds UTC; dates are ISO TEXT; amounts are
 `*_minor` INTEGER beside a currency code; `Decimal` values are TEXT. Every row a user owns
 reaches `users` through `ON DELETE CASCADE`, which a test checks for every table.
 
@@ -151,7 +151,7 @@ reaches `users` through `ON DELETE CASCADE`, which a test checks for every table
 | `items` | the Plaid Item: plaid_item_id, the institution (and from v2 its `institution_logo` PNG and `institution_primary_color` ARGB from `/institutions/get_by_id`), products, the sealed access token and its nonce, status (`removed` for an Item unlinked with its history kept), `error_code` (v2), `cursor` and `run_start_cursor`, last_successful_sync_at, `investments_synced_at` (v3: the last successful investment-transactions fetch), `plaid_removed_at` |
 | `accounts` | Plaid accounts, keyed by (item_id, plaid_account_id), with the reported balances and `source` |
 | `transactions` | Plaid transactions, keyed by (item_id, plaid_transaction_id), with `source`, `sync_version` and `deleted_at`; `item_id` has no foreign key, so tombstones outlive their Item. The user's overrides (category, notes, tags, splits, receipt, `hidden`) are not stored here: they travel through the change log, and `GET /transactions` serves them empty, `hidden` as `false` |
-| `recurring_streams`, `liabilities` (the contract's JSON per account and kind), `securities`, `holdings`, `investment_transactions` | the other Plaid products, each with `source` |
+| `recurring_streams`, `liabilities` (the contract's JSON per account and kind), `securities`, `holdings`, `investment_transactions` | the other Plaid products, each with `source`; a stream's `plaid_transaction_ids` (v4) are Plaid's `transaction_ids`, a JSON array of Plaid's ids |
 | `change_log` | the sync relay's entries: global `seq` (AUTOINCREMENT), user_id, device_id, hlc, entity, operation, payload JSON, received_at; unique per (user_id, device_id, hlc) |
 | `user_versions` | the per-user change counter |
 
@@ -540,7 +540,7 @@ so no page is applied twice.
    balance wins, and a new account takes its display order from `/accounts/get`);
    insert, update or tombstone transactions, each under a new version, with Plaid's
    `pending_transaction_id` mapped to ours; upsert recurring streams by Plaid's id (ids
-   stay stable); replace liabilities,
+   stay stable), with Plaid's member ids; replace liabilities,
    holdings and securities; upsert investment transactions (a new version only when one
    changed; rows outside the date window are left alone); store `cursor` and
    `run_start_cursor`; set the Item healthy (a `pending_expiration` stays) and
@@ -710,7 +710,10 @@ fabricates none. `tools/scripts/provision_persona.sh` drives it from the command
   past the user's current version is 409 `sync_cursor_invalid`: reset to 0 and read
   again.
 - **The other endpoints.** `GET /accounts` (by display order), `GET /liabilities`,
-  `GET /investments/holdings` (securities deduplicated by id) and `GET /recurring`.
+  `GET /investments/holdings` (securities deduplicated by id) and `GET /recurring`
+  (each stream's `transaction_ids` are the server's ids of the live transactions its
+  Plaid member ids name in its Item, in Plaid's order; a member the server does not hold
+  is left out).
 - **JSON.** Accounts, transactions and recurring streams are written through
   `shared_models`' entities.
 - **User-authored fields.** The user-authored fields of a Plaid transaction travel through
@@ -719,10 +722,11 @@ fabricates none. `tools/scripts/provision_persona.sh` drives it from the command
   part-way) are hidden from every data endpoint, as the Item is, unless the Item is
   `removed` with its history kept, whose rows stay visible. Tombstones of an Item
   whose row is gone stay visible.
-- **Provenance in fake mode.** Transactions are `source: demo`, and recurring streams are
-  `source: demo` (the contract's `RecurringSource` has `demo` for this). Accounts,
-  liabilities, holdings, securities and investment transactions store `source`
-  server-side but do not expose it. Exposing it is a later contract change.
+- **Provenance in fake mode.** Transactions, recurring streams and liabilities are
+  `source: demo` (the contract's `RecurringSource` has `demo` for this; `/liabilities`
+  adds each row's stored `source` to its object). Accounts, holdings, securities and
+  investment transactions store `source` server-side but do not expose it. Exposing it
+  is a later contract change.
 
 ## Logging
 
@@ -786,7 +790,7 @@ router's 404.
 | `unit/token_cipher_test.dart` | the round trip, fresh nonces, tampered ciphertext, tag or nonce, another Item, another key |
 | `unit/plaid_money_test.dart` | decimal text and ints to minor units, no double, no rounding when strict, malformed text; with a mode, sub-cent and float-noise text rounded (every mode, ties, the range edge) and exponent forms expanded; `#rrggbb` to ARGB |
 | `unit/plaid_json_test.dart` | numbers as ints or their text, never a double; everything else as `jsonDecode`; malformed text |
-| `unit/migrations_test.dart` | an empty database migrated, a v1 database with an Item migrated to v2, a v2 database with an Item migrated to v3, an idempotent rerun, a newer schema refused, a cascade on every table |
+| `unit/migrations_test.dart` | an empty database migrated, a v1 database with an Item migrated to v2, a v2 database with an Item migrated to v3, a v3 database with a stream migrated to v4, an idempotent rerun, a newer schema refused, a cascade on every table |
 | `auth_test.dart` | register and login, every documented error, the rehash on login, rotation, reuse detection, expiry of both tokens, logout, device removal, the rate limit |
 | `sync_relay_test.dart` | each rejection code, idempotent resends (`1` resent as `1.0` included), conflicting duplicates, own-entry filtering, paging, isolation between users, the 409, 400s |
 | `sync_convergence_test.dart` | two engine sessions through the server converge, identically to the reference relay |

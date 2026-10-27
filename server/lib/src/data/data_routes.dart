@@ -7,8 +7,10 @@
 /// flipped at ingestion); balances, limits, liability amounts and holding values are the
 /// institution's reported figures. The user-authored fields of a Plaid transaction
 /// (category, notes, tags, splits, receipt) travel through the change log and are always
-/// empty here. Accounts, liabilities, holdings, securities and investment transactions
-/// store their `source` but do not expose it until a later contract change does. Rows of
+/// empty here. Liabilities carry the `source` they were stored with; accounts, holdings,
+/// securities and investment transactions store theirs but do not expose it until a later
+/// contract change does. A recurring stream's members are Plaid's transaction ids, served
+/// as the server's own ids of the live transactions it holds for them, in Plaid's order. Rows of
 /// an Item marked `plaid_removed_at` are hidden from every endpoint, unless the Item was
 /// unlinked with its history kept (status `removed`).
 library;
@@ -90,14 +92,18 @@ List<ApiRoute> dataRoutes(AppDatabase db) => [
   ApiRoute('getLiabilities', 'get', '/liabilities', (r) async {
     final rows = await db.read(
       (tx) => tx.select(
-        'SELECT kind, payload FROM liabilities x WHERE user_id = ? AND $_live '
-        'ORDER BY account_id',
+        'SELECT kind, payload, source FROM liabilities x '
+        'WHERE user_id = ? AND $_live ORDER BY account_id',
         [r.userId],
       ),
     );
     List<Object?> of(String kind) => [
       for (final row in rows)
-        if (row['kind'] == kind) jsonDecode(row['payload'] as String),
+        if (row['kind'] == kind)
+          {
+            ...jsonDecode(row['payload'] as String) as Map<String, Object?>,
+            'source': row['source'],
+          },
     ];
     return jsonResponse({
       'credit': of('credit'),
@@ -190,13 +196,44 @@ List<ApiRoute> dataRoutes(AppDatabase db) => [
     });
   }),
   ApiRoute('listRecurringStreams', 'get', '/recurring', (r) async {
-    final rows = await db.read(
-      (tx) => tx.select(
+    final (rows, members) = await db.read((tx) {
+      final streams = tx.select(
         'SELECT * FROM recurring_streams x WHERE user_id = ? AND $_live '
         'ORDER BY merchant_name, id',
         [r.userId],
-      ),
-    );
+      );
+      // Plaid's member ids to the server's ids of the live transactions they name, per
+      // stream, in Plaid's order; a member the server does not hold is left out.
+      final members = <String, List<String>>{};
+      for (final s in streams) {
+        final plaidIds = [
+          for (final id in jsonDecode(
+            s['plaid_transaction_ids'] as String,
+          ) as List<Object?>)
+            id! as String,
+        ];
+        final ours = <String, String>{};
+        for (var start = 0; start < plaidIds.length; start += 500) {
+          final chunk = plaidIds.sublist(
+            start,
+            start + 500 > plaidIds.length ? plaidIds.length : start + 500,
+          );
+          for (final t in tx.select(
+            'SELECT id, plaid_transaction_id FROM transactions '
+            'WHERE item_id = ? AND deleted_at IS NULL AND plaid_transaction_id IN '
+            '(${List.filled(chunk.length, '?').join(', ')})',
+            [s['item_id'], ...chunk],
+          )) {
+            ours[t['plaid_transaction_id'] as String] = t['id'] as String;
+          }
+        }
+        members[s['id'] as String] = [
+          for (final id in plaidIds)
+            if (ours[id] case final String own) own,
+        ];
+      }
+      return (streams, members);
+    });
     return jsonResponse([
       for (final s in rows)
         RecurringStream(
@@ -217,6 +254,7 @@ List<ApiRoute> dataRoutes(AppDatabase db) => [
           // A stream's finder is the stored provenance: `plaid` from the real client,
           // `demo` from the fake one.
           source: RecurringSource.values.byName(s['source'] as String),
+          transactionIds: members[s['id']]!,
         ).toJson(),
     ]);
   }),

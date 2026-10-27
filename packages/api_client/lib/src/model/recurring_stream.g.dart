@@ -27,6 +27,8 @@ class _$RecurringStream extends RecurringStream {
   final bool isSubscription;
   @override
   final RecurringSource source_;
+  @override
+  final BuiltList<String> transactionIds;
 
   factory _$RecurringStream([void Function(RecurringStreamBuilder)? updates]) =>
       (RecurringStreamBuilder()..update(updates))._build();
@@ -42,6 +44,7 @@ class _$RecurringStream extends RecurringStream {
     required this.status,
     required this.isSubscription,
     required this.source_,
+    required this.transactionIds,
   }) : super._();
   @override
   RecurringStream rebuild(void Function(RecurringStreamBuilder) updates) =>
@@ -63,7 +66,8 @@ class _$RecurringStream extends RecurringStream {
         nextExpected == other.nextExpected &&
         status == other.status &&
         isSubscription == other.isSubscription &&
-        source_ == other.source_;
+        source_ == other.source_ &&
+        transactionIds == other.transactionIds;
   }
 
   @override
@@ -79,6 +83,7 @@ class _$RecurringStream extends RecurringStream {
     _$hash = $jc(_$hash, status.hashCode);
     _$hash = $jc(_$hash, isSubscription.hashCode);
     _$hash = $jc(_$hash, source_.hashCode);
+    _$hash = $jc(_$hash, transactionIds.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -95,7 +100,8 @@ class _$RecurringStream extends RecurringStream {
           ..add('nextExpected', nextExpected)
           ..add('status', status)
           ..add('isSubscription', isSubscription)
-          ..add('source_', source_))
+          ..add('source_', source_)
+          ..add('transactionIds', transactionIds))
         .toString();
   }
 }
@@ -146,6 +152,12 @@ class RecurringStreamBuilder
   RecurringSource? get source_ => _$this._source_;
   set source_(RecurringSource? source_) => _$this._source_ = source_;
 
+  ListBuilder<String>? _transactionIds;
+  ListBuilder<String> get transactionIds =>
+      _$this._transactionIds ??= ListBuilder<String>();
+  set transactionIds(ListBuilder<String>? transactionIds) =>
+      _$this._transactionIds = transactionIds;
+
   RecurringStreamBuilder() {
     RecurringStream._defaults(this);
   }
@@ -163,6 +175,7 @@ class RecurringStreamBuilder
       _status = $v.status;
       _isSubscription = $v.isSubscription;
       _source_ = $v.source_;
+      _transactionIds = $v.transactionIds.toBuilder();
       _$v = null;
     }
     return this;
@@ -225,12 +238,16 @@ class RecurringStreamBuilder
               r'RecurringStream',
               'source_',
             ),
+            transactionIds: transactionIds.build(),
           );
     } catch (_) {
       late String _$failedField;
       try {
         _$failedField = 'averageAmount';
         averageAmount.build();
+
+        _$failedField = 'transactionIds';
+        transactionIds.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
           r'RecurringStream',

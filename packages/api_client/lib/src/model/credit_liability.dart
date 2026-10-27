@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:api_client/src/model/data_source.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:api_client/src/model/apr.dart';
 import 'package:api_client/src/model/money.dart';
@@ -16,6 +17,7 @@ part 'credit_liability.g.dart';
 ///
 /// Properties:
 /// * [accountId]
+/// * [source_]
 /// * [aprs]
 /// * [isOverdue]
 /// * [lastPaymentAmount]
@@ -29,6 +31,10 @@ abstract class CreditLiability
     implements Built<CreditLiability, CreditLiabilityBuilder> {
   @BuiltValueField(wireName: r'account_id')
   String get accountId;
+
+  @BuiltValueField(wireName: r'source')
+  DataSource get source_;
+  // enum source_Enum {  plaid,  manual,  import,  derived,  demo,  };
 
   @BuiltValueField(wireName: r'aprs')
   BuiltList<Apr> get aprs;
@@ -84,6 +90,11 @@ class _$CreditLiabilitySerializer
     yield serializers.serialize(
       object.accountId,
       specifiedType: const FullType(String),
+    );
+    yield r'source';
+    yield serializers.serialize(
+      object.source_,
+      specifiedType: const FullType(DataSource),
     );
     yield r'aprs';
     yield serializers.serialize(
@@ -172,6 +183,13 @@ class _$CreditLiabilitySerializer
             specifiedType: const FullType(String),
           ) as String;
           result.accountId = valueDes;
+          break;
+        case r'source':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(DataSource),
+          ) as DataSource;
+          result.source_ = valueDes;
           break;
         case r'aprs':
           final valueDes = serializers.deserialize(

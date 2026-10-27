@@ -311,10 +311,11 @@ final class PlaidRecurringStream {
     this.lastDate,
     this.predictedNextDate,
     required this.isActive,
+    this.transactionIds = const [],
   });
 
   /// Reads an element of `inflow_streams` or `outflow_streams`; an empty `merchant_name`
-  /// counts as none. Sandbox's `average_amount` may carry no currency code; [currency] is
+  /// counts as none, and a missing `transaction_ids` as no members. Sandbox's `average_amount` may carry no currency code; [currency] is
   /// then the stream's account's.
   factory PlaidRecurringStream.fromPlaidJson(
     Map<String, Object?> json, {
@@ -342,6 +343,11 @@ final class PlaidRecurringStream {
       lastDate: last == null ? null : LocalDate.parse(last),
       predictedNextDate: next == null ? null : LocalDate.parse(next),
       isActive: json['is_active']! as bool,
+      transactionIds: [
+        for (final id
+            in (json['transaction_ids'] as List<Object?>?) ?? const [])
+          id! as String,
+      ],
     );
   }
 
@@ -368,6 +374,9 @@ final class PlaidRecurringStream {
 
   /// Whether the stream is still active.
   final bool isActive;
+
+  /// Plaid's `transaction_ids`: the stream's members, Plaid's ids, in Plaid's order.
+  final List<String> transactionIds;
 }
 
 /// `/transactions/recurring/get`'s streams.

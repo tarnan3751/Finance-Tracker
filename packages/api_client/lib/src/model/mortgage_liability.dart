@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:api_client/src/model/data_source.dart';
 import 'package:api_client/src/model/money.dart';
 import 'package:api_client/src/model/date.dart';
 import 'package:built_value/built_value.dart';
@@ -14,6 +15,7 @@ part 'mortgage_liability.g.dart';
 ///
 /// Properties:
 /// * [accountId]
+/// * [source_]
 /// * [loanTypeDescription]
 /// * [loanTerm]
 /// * [interestRatePercentage] - An exact decimal number as a string, for per-unit prices, share quantities and rates, which need more precision than minor units. Never an amount of money: totals are `Money`.
@@ -37,6 +39,10 @@ abstract class MortgageLiability
     implements Built<MortgageLiability, MortgageLiabilityBuilder> {
   @BuiltValueField(wireName: r'account_id')
   String get accountId;
+
+  @BuiltValueField(wireName: r'source')
+  DataSource get source_;
+  // enum source_Enum {  plaid,  manual,  import,  derived,  demo,  };
 
   @BuiltValueField(wireName: r'loan_type_description')
   String? get loanTypeDescription;
@@ -124,6 +130,11 @@ class _$MortgageLiabilitySerializer
     yield serializers.serialize(
       object.accountId,
       specifiedType: const FullType(String),
+    );
+    yield r'source';
+    yield serializers.serialize(
+      object.source_,
+      specifiedType: const FullType(DataSource),
     );
     yield r'loan_type_description';
     yield object.loanTypeDescription == null
@@ -284,6 +295,13 @@ class _$MortgageLiabilitySerializer
             specifiedType: const FullType(String),
           ) as String;
           result.accountId = valueDes;
+          break;
+        case r'source':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(DataSource),
+          ) as DataSource;
+          result.source_ = valueDes;
           break;
         case r'loan_type_description':
           final valueDes = serializers.deserialize(

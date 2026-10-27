@@ -1,6 +1,8 @@
 // The Plaid proxy and the data endpoints with the fake client: link token, exchange, a
 // NOT_READY sync, a completed sync, then accounts, transactions, liabilities and recurring
 // streams visible with source demo and increasing versions; and the paths around them.
+import 'dart:convert';
+
 import 'package:finance_tracker_server/server.dart';
 import 'package:finance_tracker_server/src/http/problem.dart';
 import 'package:finance_tracker_server/src/plaid/item_service.dart';
@@ -161,6 +163,7 @@ void main() {
       (card['aprs']! as List<Object?>).single,
       containsPair('apr_percentage', '12.5'),
     );
+    expect(card['source'], 'demo');
     expect(liabilities.json['mortgage'], isEmpty);
 
     final recurring = await server.call('get', '/recurring', token: ada.access);
@@ -170,6 +173,8 @@ void main() {
     expect(stream['average_amount'], {'minor_units': -1549, 'currency': 'USD'});
     expect(stream['source'], 'demo');
     expect(stream['account_id'], credit['id']);
+    // Plaid's member ids, served as the server's own transaction ids.
+    expect(stream['transaction_ids'], [netflix['id']]);
 
     final holdings = await server.call(
       'get',
@@ -210,6 +215,26 @@ void main() {
     expect(third.json['added'], 0);
     final again = await server.call('get', '/recurring', token: ada.access);
     expect((again.list.single! as Map)['id'], stream['id']);
+
+    // A member the server does not hold is left out; the others keep Plaid's order.
+    await server.app.db.transaction((tx) async {
+      final plaidId = tx.first(
+        'SELECT plaid_transaction_id AS p FROM transactions WHERE id = ?',
+        [netflix['id']],
+      )!['p'];
+      final payroll = tx.first(
+        'SELECT plaid_transaction_id AS p FROM transactions WHERE id = ?',
+        [txns.firstWhere((t) => t['name'] == 'ACME CORP PAYROLL')['id']],
+      )!['p'];
+      tx.execute('UPDATE recurring_streams SET plaid_transaction_ids = ?', [
+        jsonEncode([payroll, 'not-held', plaidId]),
+      ]);
+    });
+    final members = await server.call('get', '/recurring', token: ada.access);
+    expect((members.list.single! as Map)['transaction_ids'], [
+      txns.firstWhere((t) => t['name'] == 'ACME CORP PAYROLL')['id'],
+      netflix['id'],
+    ]);
   });
 
   test(

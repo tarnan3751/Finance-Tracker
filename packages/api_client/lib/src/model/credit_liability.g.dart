@@ -10,6 +10,8 @@ class _$CreditLiability extends CreditLiability {
   @override
   final String accountId;
   @override
+  final DataSource source_;
+  @override
   final BuiltList<Apr> aprs;
   @override
   final bool? isOverdue;
@@ -31,6 +33,7 @@ class _$CreditLiability extends CreditLiability {
 
   _$CreditLiability._({
     required this.accountId,
+    required this.source_,
     required this.aprs,
     this.isOverdue,
     this.lastPaymentAmount,
@@ -52,6 +55,7 @@ class _$CreditLiability extends CreditLiability {
     if (identical(other, this)) return true;
     return other is CreditLiability &&
         accountId == other.accountId &&
+        source_ == other.source_ &&
         aprs == other.aprs &&
         isOverdue == other.isOverdue &&
         lastPaymentAmount == other.lastPaymentAmount &&
@@ -66,6 +70,7 @@ class _$CreditLiability extends CreditLiability {
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, accountId.hashCode);
+    _$hash = $jc(_$hash, source_.hashCode);
     _$hash = $jc(_$hash, aprs.hashCode);
     _$hash = $jc(_$hash, isOverdue.hashCode);
     _$hash = $jc(_$hash, lastPaymentAmount.hashCode);
@@ -82,6 +87,7 @@ class _$CreditLiability extends CreditLiability {
   String toString() {
     return (newBuiltValueToStringHelper(r'CreditLiability')
           ..add('accountId', accountId)
+          ..add('source_', source_)
           ..add('aprs', aprs)
           ..add('isOverdue', isOverdue)
           ..add('lastPaymentAmount', lastPaymentAmount)
@@ -101,6 +107,10 @@ class CreditLiabilityBuilder
   String? _accountId;
   String? get accountId => _$this._accountId;
   set accountId(String? accountId) => _$this._accountId = accountId;
+
+  DataSource? _source_;
+  DataSource? get source_ => _$this._source_;
+  set source_(DataSource? source_) => _$this._source_ = source_;
 
   ListBuilder<Apr>? _aprs;
   ListBuilder<Apr> get aprs => _$this._aprs ??= ListBuilder<Apr>();
@@ -151,6 +161,7 @@ class CreditLiabilityBuilder
     final $v = _$v;
     if ($v != null) {
       _accountId = $v.accountId;
+      _source_ = $v.source_;
       _aprs = $v.aprs.toBuilder();
       _isOverdue = $v.isOverdue;
       _lastPaymentAmount = $v.lastPaymentAmount?.toBuilder();
@@ -187,6 +198,11 @@ class CreditLiabilityBuilder
               accountId,
               r'CreditLiability',
               'accountId',
+            ),
+            source_: BuiltValueNullFieldError.checkNotNull(
+              source_,
+              r'CreditLiability',
+              'source_',
             ),
             aprs: aprs.build(),
             isOverdue: isOverdue,
