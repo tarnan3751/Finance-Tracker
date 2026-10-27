@@ -3162,5 +3162,71 @@
   "billRemindersChannelDescription": "Reminders before your bills are due",
   "@billRemindersChannelDescription": {
     "description": "Description of the bill reminders' notification channel in the system's notification settings."
+  },
+  "billUnnamed": "Bill",
+  "@billUnnamed": {
+    "description": "The name shown for a bill that has none."
+  },
+  "billReminderTitleToday": "{name} is due today",
+  "@billReminderTitleToday": {
+    "description": "Title of a bill reminder on its due date.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Rent"
+      }
+    }
+  },
+  "billReminderTitleTomorrow": "{name} is due tomorrow",
+  "@billReminderTitleTomorrow": {
+    "description": "Title of a bill reminder the day before its due date.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Rent"
+      }
+    }
+  },
+  "billReminderTitleOn": "{name} is due {date}",
+  "@billReminderTitleOn": {
+    "description": "Title of a bill reminder days before its due date.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Rent"
+      },
+      "date": {
+        "type": "String",
+        "example": "Mon, Nov 2"
+      }
+    }
+  },
+  "billReminderBody": "Expected {amount}",
+  "@billReminderBody": {
+    "description": "Text of a bill reminder: the bill's expected amount.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$1,500.00"
+      }
+    }
+  },
+  "billReminderBodyNoAmount": "Open the bill to mark it paid",
+  "@billReminderBodyNoAmount": {
+    "description": "Text of a bill reminder for a bill with no expected amount."
+  },
+  "alertBillDue": "{name} is due {date}",
+  "@alertBillDue": {
+    "description": "An in-app notification: a bill's occurrence is due today or tomorrow.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Rent"
+      },
+      "date": {
+        "type": "String",
+        "example": "Nov 2"
+      }
+    }
   }
 }

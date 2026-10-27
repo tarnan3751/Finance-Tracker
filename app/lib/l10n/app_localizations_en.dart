@@ -2311,4 +2311,35 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get billRemindersChannelDescription =>
       'Reminders before your bills are due';
+
+  @override
+  String get billUnnamed => 'Bill';
+
+  @override
+  String billReminderTitleToday(String name) {
+    return '$name is due today';
+  }
+
+  @override
+  String billReminderTitleTomorrow(String name) {
+    return '$name is due tomorrow';
+  }
+
+  @override
+  String billReminderTitleOn(String name, String date) {
+    return '$name is due $date';
+  }
+
+  @override
+  String billReminderBody(String amount) {
+    return 'Expected $amount';
+  }
+
+  @override
+  String get billReminderBodyNoAmount => 'Open the bill to mark it paid';
+
+  @override
+  String alertBillDue(String name, String date) {
+    return '$name is due $date';
+  }
 }

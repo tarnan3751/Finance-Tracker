@@ -18,6 +18,7 @@ import 'dart:ui' show PlatformDispatcher;
 import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
+import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/db/database_key_store.dart';
 import 'package:finance_tracker/core/db/demo_seed.dart';
@@ -307,6 +308,11 @@ LiabilityRepository liabilityRepository(Ref ref) {
 @Riverpod(keepAlive: true)
 BudgetAlertStore budgetAlertStore(Ref ref) => InMemoryBudgetAlertStore();
 
+/// Facts about this install (`app_meta`): in memory by default and in the demo flavor,
+/// the database's in dev and prod.
+@Riverpod(keepAlive: true)
+AppMetaStore appMetaStore(Ref ref) => InMemoryAppMetaStore();
+
 /// The bills.
 @Riverpod(keepAlive: true)
 BillRepository billRepository(Ref ref) {
@@ -490,6 +496,9 @@ final List<Override> _driftOverrides = [
   ),
   billAlertStoreProvider.overrideWith(
     (ref) => DriftBillAlertStore(ref.watch(databaseProvider)),
+  ),
+  appMetaStoreProvider.overrideWith(
+    (ref) => DriftAppMetaStore(ref.watch(databaseProvider)),
   ),
   recurringStreamRepositoryProvider.overrideWith(
     (ref) => DriftRecurringStreamRepository(

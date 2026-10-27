@@ -1,8 +1,8 @@
 /// The budget alerts in the app: the bell on the Budgets screen's app bar, badged with
 /// the unread count, and the sheet it opens over the whole app, listing `inAppNotificationsProvider`'s
 /// notifications newest first ("Groceries reached 80 % of $500.00 on Oct 20", the day in
-/// the device zone), with "Mark all read". Tapping one marks it read and opens its
-/// budget's transactions in the period it was raised for.
+/// the device zone; "Rent is due Nov 1"), with "Mark all read". Tapping one marks it read
+/// and opens its budget's transactions in the period it was raised for.
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
@@ -11,6 +11,7 @@ import 'package:finance_tracker/core/platform/notifier.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
+import 'package:finance_tracker/features/bills/application/bills_providers.dart';
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_period.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
@@ -61,6 +62,10 @@ class BudgetAlertsButton extends ConsumerWidget {
             Navigator.of(sheetContext).pop();
             _open(context, ref, notification);
           },
+          onOpenBill: (notification) {
+            Navigator.of(sheetContext).pop();
+            _openBill(context, ref, notification);
+          },
         ),
       ),
     );
@@ -92,12 +97,20 @@ class BudgetAlertsButton extends ConsumerWidget {
     }
     BudgetTransactionsRoute(notification.budgetId).push<void>(context);
   }
+
+  // Marks [notification] read.
+  void _openBill(
+    BuildContext context,
+    WidgetRef ref,
+    BillDueNotification notification,
+  ) => ref.read(inAppNotificationsProvider.notifier).markRead(notification.key);
 }
 
 class _AlertsSheet extends ConsumerWidget {
-  const _AlertsSheet({required this.onOpen});
+  const _AlertsSheet({required this.onOpen, required this.onOpenBill});
 
   final ValueChanged<BudgetThresholdNotification> onOpen;
+  final ValueChanged<BillDueNotification> onOpenBill;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -168,6 +181,15 @@ class _AlertsSheet extends ConsumerWidget {
                       full: alert.thresholdBp >= 10000,
                       read: n.read,
                       onTap: () => onOpen(alert),
+                    ),
+                    final BillDueNotification due => _AlertTile(
+                      text: l10n.alertBillDue(
+                        billName(due.name, l10n),
+                        DateFormat.MMMd().format(due.dueDate.toDateTime()),
+                      ),
+                      full: false,
+                      read: n.read,
+                      onTap: () => onOpenBill(due),
                     ),
                   },
               ],

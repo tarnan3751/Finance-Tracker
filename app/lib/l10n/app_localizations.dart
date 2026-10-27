@@ -3575,6 +3575,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reminders before your bills are due'**
   String get billRemindersChannelDescription;
+
+  /// The name shown for a bill that has none.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill'**
+  String get billUnnamed;
+
+  /// Title of a bill reminder on its due date.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is due today'**
+  String billReminderTitleToday(String name);
+
+  /// Title of a bill reminder the day before its due date.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is due tomorrow'**
+  String billReminderTitleTomorrow(String name);
+
+  /// Title of a bill reminder days before its due date.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is due {date}'**
+  String billReminderTitleOn(String name, String date);
+
+  /// Text of a bill reminder: the bill's expected amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected {amount}'**
+  String billReminderBody(String amount);
+
+  /// Text of a bill reminder for a bill with no expected amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the bill to mark it paid'**
+  String get billReminderBodyNoAmount;
+
+  /// An in-app notification: a bill's occurrence is due today or tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is due {date}'**
+  String alertBillDue(String name, String date);
 }
 
 class _AppLocalizationsDelegate

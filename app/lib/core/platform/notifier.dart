@@ -65,3 +65,34 @@ final class BudgetThresholdNotification extends AppNotification {
   @override
   String get key => 'budget/$budgetId/$periodStart/$thresholdBp';
 }
+
+/// Bill [billId], named [name] (null when it has none), is due on [dueDate], today or
+/// tomorrow, expecting [amount] when known (in the app's sign, an outflow negative).
+final class BillDueNotification extends AppNotification {
+  /// The notification.
+  const BillDueNotification({
+    required this.billId,
+    required this.name,
+    required this.dueDate,
+    required this.amount,
+    required this.raisedAt,
+  });
+
+  /// The bill.
+  final String billId;
+
+  /// Its name, or its stream's for a bill recorded before bills had names.
+  final String? name;
+
+  /// The occurrence that is due.
+  final LocalDate dueDate;
+
+  /// The expected amount.
+  final Money? amount;
+
+  @override
+  final DateTime raisedAt;
+
+  @override
+  String get key => 'bill/$billId/$dueDate';
+}

@@ -1,8 +1,8 @@
 /// Startup shared by the three entry points: checks the configuration, sets up logging,
 /// time zones and the locale, opens the local data (dev and prod), reads the stored
 /// session, starts sync and the budget alerts, then runs the app on its Riverpod
-/// container; after the first frame, dev and prod sweep the receipt files no
-/// transaction references.
+/// container; after the first frame, the bill reminders are planned, and dev and prod
+/// sweep the receipt files no transaction references.
 library;
 
 import 'dart:async';
@@ -20,6 +20,7 @@ import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/time/time_zone_setup.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
+import 'package:finance_tracker/features/bills/application/reminder_planner.dart';
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
 import 'package:finance_tracker/features/recurring/application/detector_runner.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
@@ -85,6 +86,11 @@ Future<void> bootstrap(AppConfig config) async {
       container: container,
       child: const FinanceTrackerApp(),
     ),
+  );
+  // The bill reminders are planned from the first frame on, in every flavor, and again
+  // whenever their inputs, a sync or the device's zone change (reminder_planner.dart).
+  WidgetsBinding.instance.addPostFrameCallback(
+    (_) => container.listen(reminderWatcherProvider, (_, _) {}),
   );
   if (config.flavor != Flavor.demo) {
     // Once per launch, off the first frame: a delete that became final while the app

@@ -21,7 +21,7 @@ Future<void> setUpTimeZones() async {
   tzdata.initializeTimeZones();
   final String identifier;
   try {
-    identifier = (await FlutterTimezone.getLocalTimezone()).identifier;
+    identifier = await deviceZoneName();
   } catch (error) {
     _log.warning(
       'Could not read the device time zone ($error); dates are computed in '
@@ -31,6 +31,12 @@ Future<void> setUpTimeZones() async {
   }
   applyLocalTimeZone(identifier);
 }
+
+/// The IANA name of the device's zone, as the platform reports it now. The bill
+/// reminders read it on resume to notice a zone change (`features/bills/`). Throws what
+/// the platform call throws.
+Future<String> deviceZoneName() async =>
+    (await FlutterTimezone.getLocalTimezone()).identifier;
 
 /// Sets `tz.local` to the zone named [identifier], or leaves it unchanged and logs a
 /// warning when the database has no such zone. The database must be initialized.

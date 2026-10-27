@@ -1,5 +1,5 @@
 /// The `app_meta` table: facts about this install (`legacy_import_done`, `install_date`,
-/// `fts_definition`).
+/// `fts_definition`, `reminders_zone`, `reminders_scheduled_at`).
 library;
 
 import 'package:drift/drift.dart';

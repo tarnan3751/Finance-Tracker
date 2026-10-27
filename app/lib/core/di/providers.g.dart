@@ -1270,6 +1270,55 @@ final class BudgetAlertStoreProvider
 
 String _$budgetAlertStoreHash() => r'6750109fbb393e2b675f6fb7f1ca2aa3d7e92ff9';
 
+/// Facts about this install (`app_meta`): in memory by default and in the demo flavor,
+/// the database's in dev and prod.
+
+@ProviderFor(appMetaStore)
+final appMetaStoreProvider = AppMetaStoreProvider._();
+
+/// Facts about this install (`app_meta`): in memory by default and in the demo flavor,
+/// the database's in dev and prod.
+
+final class AppMetaStoreProvider
+    extends $FunctionalProvider<AppMetaStore, AppMetaStore, AppMetaStore>
+    with $Provider<AppMetaStore> {
+  /// Facts about this install (`app_meta`): in memory by default and in the demo flavor,
+  /// the database's in dev and prod.
+  AppMetaStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'appMetaStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$appMetaStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<AppMetaStore> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  AppMetaStore create(Ref ref) {
+    return appMetaStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AppMetaStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AppMetaStore>(value),
+    );
+  }
+}
+
+String _$appMetaStoreHash() => r'2f9b9904345e82a25ff5f6ef051da553d75a0f5c';
+
 /// The bills.
 
 @ProviderFor(billRepository)
