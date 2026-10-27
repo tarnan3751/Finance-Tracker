@@ -259,4 +259,6 @@ count of `inAppNotificationsProvider`. It opens a sheet over the whole app that 
 notifications newest first ("Groceries reached 80 % of $500.00 on Oct 20", the day in the
 device zone). Unread ones are bold, with a dot that reads "Unread". "Mark all read" clears
 them all. Tapping one marks it read, selects the period it was raised for, and opens the
-budget's detail.
+budget's detail. A bill due today or tomorrow is listed too ("Rent is due Nov 1",
+`bills.md`, **Reminders**), left out once that occurrence is paid; tapping it marks it
+read and opens the bill.

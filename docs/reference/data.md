@@ -13,7 +13,7 @@ The entities and `Money` are `shared_models` (`core.md`); the providers and star
 
 ## The database
 
-Drift on SQLite, at schema version 9 (`core/db/app_database.dart`; one file per table under
+Drift on SQLite, at schema version 10 (`core/db/app_database.dart`; one file per table under
 `core/db/tables/`). `app_database.dart` and the tables import no Flutter, so `drift_dev`
 can run them in the Dart VM to dump the schema.
 
@@ -25,7 +25,7 @@ can run them in the Dart VM to dump the schema.
 | `transaction_splits` | A transaction's splits, `(transaction_id, position)` primary key, in list order |
 | `categories` | The system categories and the user's |
 | `app_settings` | The app preferences: `key` is the field name, `value` its JSON |
-| `app_meta` | Facts about the install: `legacy_import_done`, `install_date`, `fts_definition` (**Full-text search**) |
+| `app_meta` | Facts about the install: `legacy_import_done`, `install_date`, `fts_definition` (**Full-text search**), `reminders_zone` and `reminders_scheduled_at` (the zone and time the bill reminders were last planned in, `bills.md`) |
 | `change_log` | The sync outbox (schema 2): one row per local change-log entry (`sync-app.md`) |
 | `record_clocks` | The sync clock of each field of each synced entity, `_create` holding its create's (schema 2) |
 | `sync_meta` | The device's sync state: `pull_cursor`, `last_clock`, `device_id`, `last_sync_at`, `last_report` (schema 2); the Plaid pull's `plaid_transactions_since`, `plaid_accounts_pulled_at`, `plaid_items_pulled_at`, `plaid_pulled_at` (`sync-app.md`) |
@@ -35,6 +35,8 @@ can run them in the Dart VM to dump the schema.
 | `budgets` | The user's budgets (schema 5, `budgets.md`): `category_id`, `period`, `period_start_day`, `amount_minor` in `currency`, `rollover`, `start_date` |
 | `budget_alerts` | The budget alerts this device has raised, never synced (schema 5, `budgets.md`): `(budget_id, period_start, threshold_bp)` primary key, `raised_at` |
 | `dismissed_pairs` | The duplicate pairs the user marked as not duplicates (schema 7, `duplicates.md`): `id_a` and `id_b`, two transaction ids in `BINARY` order (a CHECK), the primary key, and `dismissed_at`; local to the device, never recorded or synced, no foreign key |
+| `bills` | The user's bills (schema 10, `bills.md`): `name`, `amount_minor` and `currency` (both or neither), `due_date` (the first), `cadence` (the JSON name, no CHECK), `account_id`, `stream_id`, `liability_account_id`, `reminder_offset_days` (a JSON array), `reminder_minutes` (a CHECK, 0 to 1439), `active`, `autopay`, `paid_occurrences` (a JSON array of ISO dates), the three audit columns |
+| `bill_alerts` | The bill notifications this device raised, never synced (schema 10, `bills.md`): `(bill_id, due_date)` primary key, `raised_at` |
 | `saved_filters` | The transaction list's saved filters (schema 8, `transactions.md`): `name`, `query_json` (`TransactionFilters.toJson`), `position`, `created_at`, `updated_at`; on this device only, never synced or recorded |
 | `recurring_streams` | The recurring streams (schema 9, `recurring.md`): the server's (`plaid`, `demo`) and the detector's (`detected`), each replaced whole, never recorded: `account_id`, `merchant_name`, `cadence` (its JSON name, no CHECK), `average_amount_minor` in `currency`, `last_expected`, `next_expected`, `status`, `is_subscription`, `source`, `transaction_ids` (a JSON array), `pulled_at` |
 | `stream_overrides` | The user's choices per stream (schema 9, `recurring.md`): `stream_id` primary key (no foreign key), `muted`, `is_subscription` and `display_name` (null: the stream's own), the three audit columns; synced as the `recurring_stream` record |
@@ -78,7 +80,8 @@ Phase 2's sync may apply a transaction before its account, so the repositories c
 the account exists. Indexes: `transactions(account_id, date)`,
 `transactions(user_category_id)`, `transactions(pending_transaction_id)`,
 `transaction_tags(tag)`, `categories(parent_id)`, `rules(position)`,
-`budgets(category_id)`, `saved_filters(position)`, `recurring_streams(account_id)`.
+`budgets(category_id)`, `saved_filters(position)`, `recurring_streams(account_id)`,
+`bills(due_date)`.
 
 ## Full-text search
 
@@ -225,6 +228,7 @@ and exposes streams that start with the current value and emit again only when i
 | `BudgetRepository` | `watchAll()` (by `categoryId`, then id), `watchById`, `upsert`, `delete`, `restore` (`budgets.md`) |
 | `RecurringStreamRepository` | `watchAll()` (each stream with its live override as a `StreamView`, by merchant name ignoring ASCII case, then id), `watchById`, `applyPlaid(streams)`, `replaceDetected(streams)`, `setOverride(id, change)`, `clearOverride(id)` (`recurring.md`) |
 | `LiabilityRepository` | `watchAll()` (by account, then kind), `watchByAccount`, `applyPlaid(liabilities)` (`liabilities.md`) |
+| `BillRepository` | `watchAll()` (by first due date, then id), `watchById`, `upsert`, `delete`, `restore` (`bills.md`) |
 | `SavedFilterRepository` | `watchAll()` (by `position`, then id), `save(name, filters)` (appended), `rename`, `delete` (final: the table is local, nothing is recorded); a blank name is an `ArgumentError` (`transactions.md`) |
 | `SettingsRepository` | `watch()`, `read()`, `save()` |
 
@@ -523,6 +527,16 @@ app's data directory.
 
 ## Changing the schema
 
+**Schema 10** adds `bills` and `bill_alerts`. Its step creates both tables and the
+`bills(due_date)` index (only when `sqlite_master` lacks it) and, in the same
+transaction, writes again every `bill_reminder` record held in `held_records`: a complete
+record becomes a row, one of only updates stays `incomplete`, one with a field this
+version does not know lands and stays held `unknown_fields`, and one that does not
+decode (a cadence this version lacks) stays `unrepresentable`. `migration_test.dart`
+opens a schema 9 database with a row, sync state, a stream override and each kind of
+held bill record, and runs the step again at version 9 after a run whose version was not
+written, with an alert already in the new table.
+
 **Schema 9** adds `recurring_streams`, `stream_overrides` and `liabilities`. Its step, in
 one transaction, creates the three tables (`IF NOT EXISTS`) and the stream index (only
 when missing), and writes again every `recurring_stream` record held in `held_records`
@@ -533,7 +547,7 @@ whose fields do not decode stays `unrepresentable`. `migration_test.dart` opens 
 database with manual and Plaid rows, an Item, sync state and those held records, checks
 the empty stream and liability tables, the released overrides and what stays held, and
 runs the step again at version 8. The **every step runs again at the old version** group
-covers every version from 1 to 8.
+covers every version from 1 to 8 (from 1 to 9 since schema 10).
 
 **Schema 8** adds `saved_filters`; its step creates the empty table and its index, the
 index only when `sqlite_master` lacks it: the version is written after `beforeOpen`,

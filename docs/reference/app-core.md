@@ -32,7 +32,11 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
    (`sync-app.md`, **The controller**) and, in every flavor, the budget alert watcher is
    listened to (`budgets.md`, **Alerts**);
 9. `runApp(UncontrolledProviderScope(container: container, child: FinanceTrackerApp()))`;
-10. in dev and prod, after the first frame, `sweepReceipts(container)`: the receipt files
+10. after the first frame, in every flavor, the reminder watcher is listened to (the bill
+    reminders are planned then and whenever their inputs change, `bills.md`,
+    **Reminders**) and `reminderSchedulerProvider.openedBillIds` pushes `/bills/:id` for
+    a tapped reminder;
+11. in dev and prod, after the first frame, `sweepReceipts(container)`: the receipt files
     no live transaction references are deleted (`data.md`, **Receipts**), a failure
     logged by type only.
 
@@ -60,6 +64,9 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `recurringStreamRepositoryProvider`, `liabilityRepositoryProvider` | `core/di/providers.dart` | The recurring streams with their overrides and the liabilities (`recurring.md`, `liabilities.md`): in memory by default, Drift in dev and prod, demo in demo (the persona's, rebuilt with it) |
 | `recurringStreamsProvider`, `subscriptionsProvider`, `streamActionsProvider`; `liabilitiesProvider` | `features/recurring/application/`; `features/liabilities/application/` | The streams with their overrides, the subscriptions with their annual cost, the actions on a stream; the liabilities |
 | `budgetAlertStoreProvider` | `core/di/providers.dart` | Which budget alerts this device raised (`budgets.md`): in memory by default and in demo, `budget_alerts` in dev and prod |
+| `billRepositoryProvider`, `billAlertStoreProvider` | `core/di/providers.dart` | The bills (in memory by default, Drift in dev and prod, the persona's two in demo) and which bill notifications this device raised (in memory, `bill_alerts` in dev and prod; `bills.md`) |
+| `appMetaStoreProvider` | `core/di/providers.dart` | Facts about the install (`app_meta`): in memory by default and in demo, the database's in dev and prod; the reminders' zone and time among them |
+| `reminderSchedulerProvider` | `core/platform/reminder_scheduler_provider.dart` | The bill reminders' scheduler (**Reminders**): the fake by default and in demo, `flutter_local_notifications` in dev and prod |
 | `dismissedPairStoreProvider` | `core/di/providers.dart` | The duplicate pairs the user dismissed, on the device only: in memory by default and in demo (rebuilt with the in-memory store), `dismissed_pairs` in dev and prod (`duplicates.md`) |
 | `appNotifierProvider`, `inAppNotificationsProvider` | `core/platform/in_app_notifications.dart` | Where the app's notifications go (**Notifications**): the in-app list in every flavor |
 | `plaidPullStoreProvider`, `arrivalProcessorProvider`, `plaidPullProvider` | `core/di/providers.dart` | The Plaid pull (`sync-app.md`, **The Plaid pull**): its cursors in memory by default and in `sync_meta` in dev and prod, the rules run on what it inserts (`RuleRunner`, `rules.md`), and the pull over the API into the repositories |
@@ -81,14 +88,15 @@ the scope's `retry` says otherwise (the tests turn it off).
 Each feature's own providers (the screens' streams, derived values and writes) are in its
 `application/` folder and its reference file (`accounts.md`, `transactions.md`,
 `categories.md`, `rules.md`, `duplicates.md`, `developer.md`, `budgets.md`: the budget
-statuses and the alert watcher, which `bootstrap` listens to in every flavor).
+statuses and the alert watcher, which `bootstrap` listens to in every flavor; `bills.md`:
+the bill statuses and the reminder watcher, which it listens to from the first frame).
 
 `overridesFor(AppConfig)` is the one place a flavor's wiring is decided (it is
 `localDataOverridesFor(config)`, the flavor and its local data, then `apiOverridesFor`;
 a test that brings its own API, such as the two-device integration test sharing one fake
 server, takes the first alone): the Drift repositories and the Plaid pull's `sync_meta`
-store for dev and prod with the receipt files, the demo ones for demo with the fake
-image source, and the API's (`apiOverridesFor`: the in-app fake server, with the fake
+store for dev and prod with the receipt files and the notification plugin's reminder
+scheduler, the demo ones for demo with the fake image source (and the fake scheduler), and the API's (`apiOverridesFor`: the in-app fake server, with the fake
 Link launcher over it, for demo, and for dev under `FT_FAKE_SERVER`); later phases add
 theirs there.
 
@@ -269,6 +277,9 @@ keeping its own navigation stack.
 | | `NewBudgetRoute` | `/budgets/new` | `budget_editor_screen.dart` |
 | | `EditBudgetRoute` | `/budgets/:id` | `budget_editor_screen.dart` |
 | | `BudgetTransactionsRoute` | `/budgets/:id/transactions` | `budget_detail_screen.dart` |
+| | `BillsRoute` | `/bills` | `features/bills/presentation/bills_screen.dart` (`bills.md`), the branch's second root |
+| | `NewBillRoute` | `/bills/new` | `bill_editor_screen.dart` |
+| | `EditBillRoute` | `/bills/:id` | `bill_editor_screen.dart`, where a tapped reminder opens it |
 | Settings | `SettingsRoute` | `/settings` | `features/settings/presentation/settings_screen.dart` |
 | | `CategoriesRoute` | `/settings/categories` | `features/categories/presentation/categories_screen.dart` |
 | | `NewCategoryRoute` | `/settings/categories/new` | `category_editor_screen.dart` |
@@ -288,8 +299,9 @@ keeping its own navigation stack.
   `AccountDetailRoute(id).push(context)`), never with path strings. Detail and editor
   routes are sub-routes of their branch, so each tab keeps its own stack. `/accounts/new`
   and `/accounts/linked-banks` are declared before `/accounts/:id`, and
-  `/transactions/new` and `/transactions/duplicates` before `/transactions/:id`, so none
-  is read as an id.
+  `/transactions/new` and `/transactions/duplicates` before `/transactions/:id`, and
+  `/bills/new` before `/bills/:id`, so none is read as an id. The Budgets branch has two
+  roots, `/budgets` and `/bills`; Phase 5's Plan tab takes the branch over.
 - Pushing a route of another branch (a transaction from an account's detail or a
   budget's, category management from the category picker) puts it on top of the current tab's stack: the
   selected tab does not change, and back returns where the user was.
@@ -349,8 +361,9 @@ narrow no-break space intl puts before AM and PM (U+202F) replaced by a no-break
 (U+00A0), which the test fonts carry (**Tests**, goldens).
 
 `setUpTimeZones()` (`core/time/time_zone_setup.dart`) loads the full `latest` time zone
-database (not `latest_10y`, `PLAN.md` §12) and sets `tz.local` from
-`FlutterTimezone.getLocalTimezone()`'s identifier. A failing platform call, or an identifier
+database (not `latest_10y`, `PLAN.md` §12) and sets `tz.local` from `deviceZoneName()`,
+`FlutterTimezone.getLocalTimezone()`'s identifier, which the bill reminders also read on
+resume (`bills.md`). A failing platform call, or an identifier
 the database does not know, logs a warning and leaves `tz.local` at UTC, so startup goes
 on; the settings About section shows the active zone, so the fallback is visible.
 
@@ -358,13 +371,26 @@ on; the settings About section shows the active zone, so the fallback is visible
 
 `core/platform/notifier.dart` is the boundary between what the app tells the user and how
 the platform shows it: `Notifier.notify(AppNotification)`, where an `AppNotification` is a
-sealed class of typed data, never text, so whoever shows it localizes it (one case so far,
-`BudgetThresholdNotification`, `budgets.md`). `appNotifierProvider` is `InAppNotifier`, which
+sealed class of typed data, never text, so whoever shows it localizes it (`BudgetThresholdNotification`, `budgets.md`; `BillDueNotification`, a bill due today
+or tomorrow, `bills.md`). `appNotifierProvider` is `InAppNotifier`, which
 adds to `inAppNotificationsProvider`: newest first, one per key, at most 50, each with a read
 flag (`markRead(key)`, `markAllRead()`), in memory, so a restart empties it. Android's
 notification channels are Phase 8's implementation of the same interface. The Budgets
 screen's bell shows the in-app list (`budgets.md`, **Screens**). Platform code
 stays behind interfaces like this one (`CLAUDE.md`, **Security and platform**).
+
+## Reminders
+
+`core/platform/reminder_scheduler.dart` is the platform boundary for bill reminders, pure
+Dart: `ReminderScheduler` with `ensurePermission({request})`, `replaceAll(reminders)` (the
+pending set made exactly those, the rest cancelled by id, a shown notification kept),
+`pending()`, `cancelAll()` (pending only), `openSettings()` and `openedBillIds`, over
+`ScheduledReminder(id, billId, dueDate, at, title, body)`, whose payload carries the bill,
+the due date and the instant. `local_notifications_scheduler.dart` implements it over
+`flutter_local_notifications` in dev and prod (inexact, the one channel
+`bill_reminders`, the small icon `ic_stat_bill`; `build.md` for the Android pieces), and
+`fake_reminder_scheduler.dart` in the demo flavor and the tests. The instants and the
+rescheduling rules are `bills.md`, **Reminders**.
 
 ## Logging
 
