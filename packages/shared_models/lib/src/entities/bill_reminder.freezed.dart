@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$BillReminder {
 
- String get id; String? get streamId; String? get name; Money? get amount; LocalDate get dueDate; List<int> get reminderOffsetDays;
+ String get id; String? get streamId; String? get name; Money? get amount; LocalDate get dueDate;@_OffsetsConverter() List<int> get reminderOffsetDays; RecurringCadence? get cadence; String? get accountId; String? get liabilityAccountId;@_MinutesConverter() int get reminderMinutes; bool get active; bool get autopay;@_PaidConverter() List<LocalDate> get paidOccurrences;
 /// Create a copy of BillReminder
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $BillReminderCopyWith<BillReminder> get copyWith => _$BillReminderCopyWithImpl<B
 @override
 bool operator ==(Object other) {
   final _this = this as BillReminder;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BillReminder&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.streamId, _this.streamId) || other.streamId == _this.streamId)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.amount, _this.amount) || other.amount == _this.amount)&&(identical(other.dueDate, _this.dueDate) || other.dueDate == _this.dueDate)&&const DeepCollectionEquality().equals(other.reminderOffsetDays, _this.reminderOffsetDays));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BillReminder&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.streamId, _this.streamId) || other.streamId == _this.streamId)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.amount, _this.amount) || other.amount == _this.amount)&&(identical(other.dueDate, _this.dueDate) || other.dueDate == _this.dueDate)&&const DeepCollectionEquality().equals(other.reminderOffsetDays, _this.reminderOffsetDays)&&(identical(other.cadence, _this.cadence) || other.cadence == _this.cadence)&&(identical(other.accountId, _this.accountId) || other.accountId == _this.accountId)&&(identical(other.liabilityAccountId, _this.liabilityAccountId) || other.liabilityAccountId == _this.liabilityAccountId)&&(identical(other.reminderMinutes, _this.reminderMinutes) || other.reminderMinutes == _this.reminderMinutes)&&(identical(other.active, _this.active) || other.active == _this.active)&&(identical(other.autopay, _this.autopay) || other.autopay == _this.autopay)&&const DeepCollectionEquality().equals(other.paidOccurrences, _this.paidOccurrences));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as BillReminder;
-  return Object.hash(runtimeType,_this.id,_this.streamId,_this.name,_this.amount,_this.dueDate,const DeepCollectionEquality().hash(_this.reminderOffsetDays));
+  return Object.hash(runtimeType,_this.id,_this.streamId,_this.name,_this.amount,_this.dueDate,const DeepCollectionEquality().hash(_this.reminderOffsetDays),_this.cadence,_this.accountId,_this.liabilityAccountId,_this.reminderMinutes,_this.active,_this.autopay,const DeepCollectionEquality().hash(_this.paidOccurrences));
 }
 
 @override
 String toString() {
   final _this = this as BillReminder;
-  return 'BillReminder(id: ${_this.id}, streamId: ${_this.streamId}, name: ${_this.name}, amount: ${_this.amount}, dueDate: ${_this.dueDate}, reminderOffsetDays: ${_this.reminderOffsetDays})';
+  return 'BillReminder(id: ${_this.id}, streamId: ${_this.streamId}, name: ${_this.name}, amount: ${_this.amount}, dueDate: ${_this.dueDate}, reminderOffsetDays: ${_this.reminderOffsetDays}, cadence: ${_this.cadence}, accountId: ${_this.accountId}, liabilityAccountId: ${_this.liabilityAccountId}, reminderMinutes: ${_this.reminderMinutes}, active: ${_this.active}, autopay: ${_this.autopay}, paidOccurrences: ${_this.paidOccurrences})';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $BillReminderCopyWith<$Res>  {
   factory $BillReminderCopyWith(BillReminder value, $Res Function(BillReminder) _then) = _$BillReminderCopyWithImpl;
 @useResult
 $Res call({
- String id, String? streamId, String? name, Money? amount, LocalDate dueDate, List<int> reminderOffsetDays
+ String id, String? streamId, String? name, Money? amount, LocalDate dueDate,@_OffsetsConverter() List<int> reminderOffsetDays, RecurringCadence? cadence, String? accountId, String? liabilityAccountId,@_MinutesConverter() int reminderMinutes, bool active, bool autopay,@_PaidConverter() List<LocalDate> paidOccurrences
 });
 
 
@@ -71,7 +71,7 @@ class _$BillReminderCopyWithImpl<$Res>
 
 /// Create a copy of BillReminder
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? streamId = freezed,Object? name = freezed,Object? amount = freezed,Object? dueDate = null,Object? reminderOffsetDays = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? streamId = freezed,Object? name = freezed,Object? amount = freezed,Object? dueDate = null,Object? reminderOffsetDays = null,Object? cadence = freezed,Object? accountId = freezed,Object? liabilityAccountId = freezed,Object? reminderMinutes = null,Object? active = null,Object? autopay = null,Object? paidOccurrences = null,}) {
   return _then(BillReminder(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,streamId: freezed == streamId ? _self.streamId : streamId // ignore: cast_nullable_to_non_nullable
@@ -79,7 +79,14 @@ as String?,name: freezed == name ? _self.name : name // ignore: cast_nullable_to
 as String?,amount: freezed == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as Money?,dueDate: null == dueDate ? _self.dueDate : dueDate // ignore: cast_nullable_to_non_nullable
 as LocalDate,reminderOffsetDays: null == reminderOffsetDays ? _self.reminderOffsetDays : reminderOffsetDays // ignore: cast_nullable_to_non_nullable
-as List<int>,
+as List<int>,cadence: freezed == cadence ? _self.cadence : cadence // ignore: cast_nullable_to_non_nullable
+as RecurringCadence?,accountId: freezed == accountId ? _self.accountId : accountId // ignore: cast_nullable_to_non_nullable
+as String?,liabilityAccountId: freezed == liabilityAccountId ? _self.liabilityAccountId : liabilityAccountId // ignore: cast_nullable_to_non_nullable
+as String?,reminderMinutes: null == reminderMinutes ? _self.reminderMinutes : reminderMinutes // ignore: cast_nullable_to_non_nullable
+as int,active: null == active ? _self.active : active // ignore: cast_nullable_to_non_nullable
+as bool,autopay: null == autopay ? _self.autopay : autopay // ignore: cast_nullable_to_non_nullable
+as bool,paidOccurrences: null == paidOccurrences ? _self.paidOccurrences : paidOccurrences // ignore: cast_nullable_to_non_nullable
+as List<LocalDate>,
   ));
 }
 
@@ -164,10 +171,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? streamId,  String? name,  Money? amount,  LocalDate dueDate,  List<int> reminderOffsetDays)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? streamId,  String? name,  Money? amount,  LocalDate dueDate, @_OffsetsConverter()  List<int> reminderOffsetDays,  RecurringCadence? cadence,  String? accountId,  String? liabilityAccountId, @_MinutesConverter()  int reminderMinutes,  bool active,  bool autopay, @_PaidConverter()  List<LocalDate> paidOccurrences)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BillReminder() when $default != null:
-return $default(_that.id,_that.streamId,_that.name,_that.amount,_that.dueDate,_that.reminderOffsetDays);case _:
+return $default(_that.id,_that.streamId,_that.name,_that.amount,_that.dueDate,_that.reminderOffsetDays,_that.cadence,_that.accountId,_that.liabilityAccountId,_that.reminderMinutes,_that.active,_that.autopay,_that.paidOccurrences);case _:
   return orElse();
 
 }
@@ -185,10 +192,10 @@ return $default(_that.id,_that.streamId,_that.name,_that.amount,_that.dueDate,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? streamId,  String? name,  Money? amount,  LocalDate dueDate,  List<int> reminderOffsetDays)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? streamId,  String? name,  Money? amount,  LocalDate dueDate, @_OffsetsConverter()  List<int> reminderOffsetDays,  RecurringCadence? cadence,  String? accountId,  String? liabilityAccountId, @_MinutesConverter()  int reminderMinutes,  bool active,  bool autopay, @_PaidConverter()  List<LocalDate> paidOccurrences)  $default,) {final _that = this;
 switch (_that) {
 case _BillReminder():
-return $default(_that.id,_that.streamId,_that.name,_that.amount,_that.dueDate,_that.reminderOffsetDays);case _:
+return $default(_that.id,_that.streamId,_that.name,_that.amount,_that.dueDate,_that.reminderOffsetDays,_that.cadence,_that.accountId,_that.liabilityAccountId,_that.reminderMinutes,_that.active,_that.autopay,_that.paidOccurrences);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -205,10 +212,10 @@ return $default(_that.id,_that.streamId,_that.name,_that.amount,_that.dueDate,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? streamId,  String? name,  Money? amount,  LocalDate dueDate,  List<int> reminderOffsetDays)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? streamId,  String? name,  Money? amount,  LocalDate dueDate, @_OffsetsConverter()  List<int> reminderOffsetDays,  RecurringCadence? cadence,  String? accountId,  String? liabilityAccountId, @_MinutesConverter()  int reminderMinutes,  bool active,  bool autopay, @_PaidConverter()  List<LocalDate> paidOccurrences)?  $default,) {final _that = this;
 switch (_that) {
 case _BillReminder() when $default != null:
-return $default(_that.id,_that.streamId,_that.name,_that.amount,_that.dueDate,_that.reminderOffsetDays);case _:
+return $default(_that.id,_that.streamId,_that.name,_that.amount,_that.dueDate,_that.reminderOffsetDays,_that.cadence,_that.accountId,_that.liabilityAccountId,_that.reminderMinutes,_that.active,_that.autopay,_that.paidOccurrences);case _:
   return null;
 
 }
@@ -219,8 +226,8 @@ return $default(_that.id,_that.streamId,_that.name,_that.amount,_that.dueDate,_t
 /// @nodoc
 @JsonSerializable()
 
-class _BillReminder implements BillReminder {
-  const _BillReminder({required this.id, this.streamId, this.name, this.amount, required this.dueDate, required  List<int> reminderOffsetDays}): _reminderOffsetDays = reminderOffsetDays;
+class _BillReminder extends BillReminder {
+  const _BillReminder({required this.id, this.streamId, this.name, this.amount, required this.dueDate, @_OffsetsConverter()  List<int> reminderOffsetDays = const [2], this.cadence, this.accountId, this.liabilityAccountId, @_MinutesConverter() this.reminderMinutes = defaultReminderMinutes, this.active = true, this.autopay = false, @_PaidConverter()  List<LocalDate> paidOccurrences = const <LocalDate>[]}): _reminderOffsetDays = reminderOffsetDays,_paidOccurrences = paidOccurrences,super._();
   factory _BillReminder.fromJson(Map<String, dynamic> json) => _$BillReminderFromJson(json);
 
 @override final  String id;
@@ -229,10 +236,23 @@ class _BillReminder implements BillReminder {
 @override final  Money? amount;
 @override final  LocalDate dueDate;
  final  List<int> _reminderOffsetDays;
-@override List<int> get reminderOffsetDays {
+@override@JsonKey()@_OffsetsConverter() List<int> get reminderOffsetDays {
   if (_reminderOffsetDays is EqualUnmodifiableListView) return _reminderOffsetDays;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_reminderOffsetDays);
+}
+
+@override final  RecurringCadence? cadence;
+@override final  String? accountId;
+@override final  String? liabilityAccountId;
+@override@JsonKey()@_MinutesConverter() final  int reminderMinutes;
+@override@JsonKey() final  bool active;
+@override@JsonKey() final  bool autopay;
+ final  List<LocalDate> _paidOccurrences;
+@override@JsonKey()@_PaidConverter() List<LocalDate> get paidOccurrences {
+  if (_paidOccurrences is EqualUnmodifiableListView) return _paidOccurrences;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_paidOccurrences);
 }
 
 
@@ -249,18 +269,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BillReminder&&(identical(other.id, id) || other.id == id)&&(identical(other.streamId, streamId) || other.streamId == streamId)&&(identical(other.name, name) || other.name == name)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.dueDate, dueDate) || other.dueDate == dueDate)&&const DeepCollectionEquality().equals(other.reminderOffsetDays, _reminderOffsetDays));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BillReminder&&(identical(other.id, id) || other.id == id)&&(identical(other.streamId, streamId) || other.streamId == streamId)&&(identical(other.name, name) || other.name == name)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.dueDate, dueDate) || other.dueDate == dueDate)&&const DeepCollectionEquality().equals(other.reminderOffsetDays, _reminderOffsetDays)&&(identical(other.cadence, cadence) || other.cadence == cadence)&&(identical(other.accountId, accountId) || other.accountId == accountId)&&(identical(other.liabilityAccountId, liabilityAccountId) || other.liabilityAccountId == liabilityAccountId)&&(identical(other.reminderMinutes, reminderMinutes) || other.reminderMinutes == reminderMinutes)&&(identical(other.active, active) || other.active == active)&&(identical(other.autopay, autopay) || other.autopay == autopay)&&const DeepCollectionEquality().equals(other.paidOccurrences, _paidOccurrences));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,streamId,name,amount,dueDate,const DeepCollectionEquality().hash(_reminderOffsetDays));
+    return Object.hash(runtimeType,id,streamId,name,amount,dueDate,const DeepCollectionEquality().hash(_reminderOffsetDays),cadence,accountId,liabilityAccountId,reminderMinutes,active,autopay,const DeepCollectionEquality().hash(_paidOccurrences));
 }
 
 @override
 String toString() {
-    return 'BillReminder(id: $id, streamId: $streamId, name: $name, amount: $amount, dueDate: $dueDate, reminderOffsetDays: $reminderOffsetDays)';
+    return 'BillReminder(id: $id, streamId: $streamId, name: $name, amount: $amount, dueDate: $dueDate, reminderOffsetDays: $reminderOffsetDays, cadence: $cadence, accountId: $accountId, liabilityAccountId: $liabilityAccountId, reminderMinutes: $reminderMinutes, active: $active, autopay: $autopay, paidOccurrences: $paidOccurrences)';
 }
 
 
@@ -271,7 +291,7 @@ abstract mixin class _$BillReminderCopyWith<$Res> implements $BillReminderCopyWi
   factory _$BillReminderCopyWith(_BillReminder value, $Res Function(_BillReminder) _then) = __$BillReminderCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String? streamId, String? name, Money? amount, LocalDate dueDate, List<int> reminderOffsetDays
+ String id, String? streamId, String? name, Money? amount, LocalDate dueDate,@_OffsetsConverter() List<int> reminderOffsetDays, RecurringCadence? cadence, String? accountId, String? liabilityAccountId,@_MinutesConverter() int reminderMinutes, bool active, bool autopay,@_PaidConverter() List<LocalDate> paidOccurrences
 });
 
 
@@ -288,7 +308,7 @@ class __$BillReminderCopyWithImpl<$Res>
 
 /// Create a copy of BillReminder
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? streamId = freezed,Object? name = freezed,Object? amount = freezed,Object? dueDate = null,Object? reminderOffsetDays = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? streamId = freezed,Object? name = freezed,Object? amount = freezed,Object? dueDate = null,Object? reminderOffsetDays = null,Object? cadence = freezed,Object? accountId = freezed,Object? liabilityAccountId = freezed,Object? reminderMinutes = null,Object? active = null,Object? autopay = null,Object? paidOccurrences = null,}) {
   return _then(_BillReminder(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,streamId: freezed == streamId ? _self.streamId : streamId // ignore: cast_nullable_to_non_nullable
@@ -296,7 +316,14 @@ as String?,name: freezed == name ? _self.name : name // ignore: cast_nullable_to
 as String?,amount: freezed == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as Money?,dueDate: null == dueDate ? _self.dueDate : dueDate // ignore: cast_nullable_to_non_nullable
 as LocalDate,reminderOffsetDays: null == reminderOffsetDays ? _self._reminderOffsetDays : reminderOffsetDays // ignore: cast_nullable_to_non_nullable
-as List<int>,
+as List<int>,cadence: freezed == cadence ? _self.cadence : cadence // ignore: cast_nullable_to_non_nullable
+as RecurringCadence?,accountId: freezed == accountId ? _self.accountId : accountId // ignore: cast_nullable_to_non_nullable
+as String?,liabilityAccountId: freezed == liabilityAccountId ? _self.liabilityAccountId : liabilityAccountId // ignore: cast_nullable_to_non_nullable
+as String?,reminderMinutes: null == reminderMinutes ? _self.reminderMinutes : reminderMinutes // ignore: cast_nullable_to_non_nullable
+as int,active: null == active ? _self.active : active // ignore: cast_nullable_to_non_nullable
+as bool,autopay: null == autopay ? _self.autopay : autopay // ignore: cast_nullable_to_non_nullable
+as bool,paidOccurrences: null == paidOccurrences ? _self._paidOccurrences : paidOccurrences // ignore: cast_nullable_to_non_nullable
+as List<LocalDate>,
   ));
 }
 

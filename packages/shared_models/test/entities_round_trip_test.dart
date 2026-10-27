@@ -269,6 +269,13 @@ _entities = [
       amount: _usd(-1299),
       dueDate: _date,
       reminderOffsetDays: const [3, 1],
+      cadence: RecurringCadence.monthly,
+      accountId: 'acc1',
+      liabilityAccountId: 'acc2',
+      reminderMinutes: 1200,
+      active: false,
+      autopay: true,
+      paidOccurrences: [LocalDate(2026, 9, 24)],
     ),
     BillReminder(id: 'br2', dueDate: _date, reminderOffsetDays: const []),
     BillReminder.fromJson,
@@ -607,6 +614,119 @@ void main() {
         () => Budget.fromJson(Map.of(json)..['start_date'] = '2026-02-30'),
         throwsA(isA<CheckedFromJsonException>()),
       );
+    });
+  });
+
+  group('bill reminder', () {
+    test('a record from before the bill fields decodes with the defaults', () {
+      final BillReminder bill = BillReminder.fromJson({
+        'id': 'br',
+        'stream_id': 's1',
+        'name': null,
+        'amount': null,
+        'due_date': '2026-10-24',
+        'reminder_offset_days': [1],
+      });
+      expect(bill.reminderOffsetDays, [1]);
+      expect(bill.cadence, isNull);
+      expect(bill.accountId, isNull);
+      expect(bill.liabilityAccountId, isNull);
+      expect(bill.reminderMinutes, defaultReminderMinutes);
+      expect(bill.active, isTrue);
+      expect(bill.autopay, isFalse);
+      expect(bill.paidOccurrences, isEmpty);
+      expect(
+        BillReminder.fromJson({'id': 'b', 'due_date': '2026-10-24'})
+            .reminderOffsetDays,
+        [2],
+      );
+    });
+
+    test('offsets and the reminder time are checked in JSON', () {
+      final Map<String, dynamic> json = _toJson(_entities[13].$2);
+      for (final List<int> offsets in [
+        [-1],
+        [31],
+        [2, 2],
+      ]) {
+        expect(
+          () => BillReminder.fromJson(
+            Map.of(json)..['reminder_offset_days'] = offsets,
+          ),
+          throwsA(
+            isA<CheckedFromJsonException>()
+                .having((e) => e.key, 'key', 'reminder_offset_days')
+                .having((e) => e.innerError, 'innerError', isFormatException),
+          ),
+          reason: '$offsets',
+        );
+      }
+      for (final int minutes in [-1, 1440]) {
+        expect(
+          () => BillReminder.fromJson(
+            Map.of(json)..['reminder_minutes'] = minutes,
+          ),
+          throwsA(
+            isA<CheckedFromJsonException>().having(
+              (e) => e.key,
+              'key',
+              'reminder_minutes',
+            ),
+          ),
+          reason: '$minutes',
+        );
+      }
+    });
+
+    test('a cadence this version lacks is an error, not a guess', () {
+      final Map<String, dynamic> json = _toJson(_entities[13].$2)
+        ..['cadence'] = 'fortnightly_ish';
+      expect(
+        () => BillReminder.fromJson(json),
+        throwsA(isA<CheckedFromJsonException>()),
+      );
+    });
+
+    test('paid marks are normalized when read', () {
+      final Map<String, dynamic> json = _toJson(_entities[13].$2);
+      expect(
+        BillReminder.fromJson(
+          Map.of(json)
+            ..['paid_occurrences'] = ['2027-03-01', '2027-01-01', '2027-03-01'],
+        ).paidOccurrences,
+        [LocalDate(2027, 1, 1), LocalDate(2027, 3, 1)],
+      );
+      final List<String> thirty = [
+        for (int i = 30; i > 0; i--) LocalDate(2024, 1, 1).addMonths(i).toIso(),
+      ];
+      final List<LocalDate> kept = BillReminder.fromJson(
+        Map.of(json)..['paid_occurrences'] = thirty,
+      ).paidOccurrences;
+      expect(kept, hasLength(paidOccurrenceLimit));
+      expect(kept.first, LocalDate(2024, 1, 1).addMonths(7));
+      expect(kept.last, LocalDate(2024, 1, 1).addMonths(30));
+      expect(
+        BillReminder(
+          id: 'b',
+          dueDate: _date,
+          paidOccurrences: [LocalDate(2027, 3, 1), LocalDate(2027, 1, 1)],
+        ).unmarkPaid(LocalDate(2027, 2, 1)).paidOccurrences,
+        [LocalDate(2027, 1, 1), LocalDate(2027, 3, 1)],
+      );
+    });
+
+    test('paid marks stay sorted, distinct and at most the limit', () {
+      BillReminder bill = BillReminder(id: 'b', dueDate: _date);
+      for (int i = 30; i > 0; i--) {
+        bill = bill.markPaid(LocalDate(2024, 1, 1).addMonths(i));
+      }
+      bill = bill.markPaid(LocalDate(2024, 1, 1).addMonths(30));
+      expect(bill.paidOccurrences, hasLength(paidOccurrenceLimit));
+      expect(bill.paidOccurrences.first, LocalDate(2024, 1, 1).addMonths(7));
+      expect(bill.paidOccurrences.last, LocalDate(2024, 1, 1).addMonths(30));
+      final LocalDate due = LocalDate(2024, 1, 1).addMonths(10);
+      expect(bill.unmarkPaid(due).paidOccurrences, isNot(contains(due)));
+      expect(bill.unmarkPaid(due).paidOccurrences, hasLength(23));
     });
   });
 

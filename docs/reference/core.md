@@ -145,6 +145,13 @@ obvious from the field list:
   build, not only by the debug-mode assertion.
 - `Budget.startDate` (`start_date`, required) is the first day of the budget's first
   period, from which rollover accumulates (`budgets.md`).
+- `BillReminder` is a bill (`bills.md`): `dueDate` is its first due date, repeated by
+  `cadence` (null: once); every field after `dueDate` has a default (`reminderOffsetDays`
+  `[2]`, distinct, 0 to 30; `reminderMinutes` 540, 0 to 1439; `active` true; `autopay`
+  false; `paidOccurrences` empty), so older records decode, and JSON outside those ranges
+  is rejected. Its `cadence` does not fall back: a value this version lacks is an error.
+  `paidOccurrences` is ascending, distinct and the newest 24: JSON is normalized so when
+  read, and `markPaid` and `unmarkPaid` keep it so.
 - `Item.errorCode` is Plaid's error code (`ITEM_LOGIN_REQUIRED`, ...) while the status is
   `loginRequired` or `error`, else null; `ItemStatus.removed` is an Item unlinked with its
   history kept, whose accounts and transactions stay.
@@ -155,7 +162,7 @@ obvious from the field list:
   `LiabilityApr`), the server's object whole in `payload`, and `source` `plaid` or
   `demo` (`liabilities.md`).
 - Enums that mirror Plaid fall back instead of throwing on a new value: `ItemStatus` and
-  `RecurringCadence` to `unknown`, `AccountType` to `other`. Account `subtype` is an open
+  `RecurringStream.cadence` to `unknown`, `AccountType` to `other`. Account `subtype` is an open
   string.
 
 ## The HLC value
