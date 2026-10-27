@@ -3,7 +3,8 @@
 // applied as the server sent them, paging by sync_version with the cursor saved per
 // page, a failed page leaving the cursor, a cursor past the server restarting from 0, an
 // unlinked Item's data going, an override pulled before its row landing on it, single
-// flight, the arrival seam, nothing recorded, and the rules applied on arrival.
+// flight, the arrival seam, nothing recorded, the rules applied on arrival, and the
+// recurring streams replaced, a failure of their list leaving the run whole.
 import 'dart:typed_data';
 
 import 'package:drift/native.dart';
@@ -23,6 +24,9 @@ import 'package:finance_tracker/features/categories/data/drift_category_reposito
 import 'package:finance_tracker/features/items/data/drift_item_repository.dart';
 import 'package:finance_tracker/features/items/data/in_memory_item_repository.dart';
 import 'package:finance_tracker/features/items/domain/linked_bank.dart';
+import 'package:finance_tracker/features/recurring/data/drift_recurring_stream_repository.dart';
+import 'package:finance_tracker/features/recurring/data/in_memory_recurring_stream_repository.dart';
+import 'package:finance_tracker/features/recurring/domain/stream_view.dart';
 import 'package:finance_tracker/features/rules/application/rule_runner.dart';
 import 'package:finance_tracker/features/rules/data/drift_rule_repository.dart';
 import 'package:finance_tracker/features/transactions/data/drift_transaction_repository.dart';
@@ -87,6 +91,11 @@ void main() {
     items: DriftItemRepository(database),
     accounts: DriftAccountRepository(database, clock, recorder: recorder()),
     transactions: DriftTransactionRepository(
+      database,
+      clock,
+      recorder: recorder(),
+    ),
+    streams: DriftRecurringStreamRepository(
       database,
       clock,
       recorder: recorder(),
@@ -230,6 +239,11 @@ void main() {
           clock,
           recorder: recorder(),
         ),
+        streams: DriftRecurringStreamRepository(
+          database,
+          clock,
+          recorder: recorder(),
+        ),
         clock: clock,
         arrival: seen,
       ).run();
@@ -256,6 +270,68 @@ void main() {
       expect(arrivals.pages.last, isEmpty, reason: 'the rerun inserts nothing');
     },
   );
+
+  group('recurring streams', () {
+    DriftRecurringStreamRepository streams() =>
+        DriftRecurringStreamRepository(database, clock, recorder: recorder());
+
+    RecurringStream detected(String id) => RecurringStream(
+      id: id,
+      accountId: 'manual-acc',
+      merchantName: 'Gym',
+      cadence: RecurringCadence.monthly,
+      averageAmount: Money(-4000, 'USD'),
+      status: RecurringStatus.active,
+      isSubscription: false,
+      source: RecurringSource.detected,
+    );
+
+    test('are replaced by the server\'s list, the detected ones and the '
+        'overrides kept, nothing recorded', () async {
+      final RecurringStream netflix =
+          server.dataset.items.single.recurringStreams.single;
+      await streams().replaceDetected([detected('det-1')]);
+      await streams().applyPlaid([
+        netflix.copyWith(id: 'gone', source: RecurringSource.plaid),
+      ]);
+      await link();
+      await pull().run();
+      final List<StreamView> views = await streams().watchAll().first;
+      expect(
+        [for (final StreamView v in views) v.stream],
+        [detected('det-1'), netflix],
+      );
+      expect(views.last.stream.transactionIds, netflix.transactionIds);
+      expect(await syncStore.unsynced(), isEmpty);
+
+      await streams().setOverride(netflix.id, (o) => o.withMuted(true));
+      await pull().run();
+      expect((await streams().watchById(netflix.id).first)!.muted, isTrue);
+    });
+
+    test('a failed list is logged and leaves the transactions pulled and the '
+        'stored streams as they were', () async {
+      final RecurringStream old = detected('old')
+          .copyWith(source: RecurringSource.demo);
+      await streams().applyPlaid([old]);
+      await link();
+      server.failNext('listRecurringStreams', 500);
+      await pull().run();
+      expect(await live(), hasLength(12));
+      expect(await store.transactionsSince(), 12);
+      expect(await store.pulledAt(), isNotNull);
+      expect(
+        [for (final StreamView v in await streams().watchAll().first) v.stream],
+        [old],
+      );
+
+      await pull().run();
+      expect(
+        (await streams().watchAll().first).single.stream.id,
+        'sample-stream-netflix',
+      );
+    });
+  });
 
   test('fetches a logo once, and again after a failed fetch', () async {
     final Uint8List png = Uint8List.fromList([137, 80, 78, 71, 13, 10]);
@@ -303,17 +379,24 @@ void main() {
       () => clock.nowUtc().millisecondsSinceEpoch,
     );
     final InMemoryPlaidPullStore memoryStore = InMemoryPlaidPullStore();
+    final InMemoryRecurringStreamRepository memoryStreams =
+        InMemoryRecurringStreamRepository(clock, recorder: recording);
+    addTearDown(memoryStreams.close);
     await PlaidPull(
       api: client.api,
       store: memoryStore,
       items: InMemoryItemRepository(memory),
       accounts: InMemoryAccountRepository(memory, recorder: recording),
       transactions: InMemoryTransactionRepository(memory, recorder: recording),
+      streams: memoryStreams,
       clock: clock,
     ).run();
     expect(memory.items(), hasLength(1));
     expect(memory.accounts(), hasLength(3));
     expect(memory.count(TransactionQuery.all), 12);
+    expect([
+      for (final StreamView v in await memoryStreams.watchAll().first) v.stream,
+    ], server.dataset.items.single.recurringStreams);
     expect(await memoryStore.transactionsSince(), 12);
     expect(await outbox.unsynced(), isEmpty);
   });
@@ -353,6 +436,11 @@ void main() {
         items: DriftItemRepository(database),
         accounts: DriftAccountRepository(database, clock, recorder: recorder()),
         transactions: transactions,
+        streams: DriftRecurringStreamRepository(
+          database,
+          clock,
+          recorder: recorder(),
+        ),
         clock: clock,
         arrival: RuleRunner(
           rules: DriftRuleRepository(database, clock, recorder: recorder()),
@@ -394,6 +482,11 @@ void main() {
         items: DriftItemRepository(database),
         accounts: DriftAccountRepository(database, clock, recorder: recorder()),
         transactions: transactions,
+        streams: DriftRecurringStreamRepository(
+          database,
+          clock,
+          recorder: recorder(),
+        ),
         clock: clock,
         arrival: RuleRunner(
           rules: DriftRuleRepository(database, clock, recorder: recorder()),
@@ -505,6 +598,10 @@ final class _PlaidSourced implements FinanceApi {
   @override
   Future<Uint8List> getInstitutionLogo(String institutionId) =>
       _inner.getInstitutionLogo(institutionId);
+
+  @override
+  Future<List<RecurringStream>> listRecurringStreams() =>
+      _inner.listRecurringStreams();
 
   @override
   Future<VersionPage<Transaction>> listTransactions({

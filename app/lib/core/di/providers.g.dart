@@ -1110,6 +1110,59 @@ final class BudgetRepositoryProvider
 
 String _$budgetRepositoryHash() => r'f78e75f5318ada075b16c6955547b9a30e3f9697';
 
+/// The recurring streams and the user's overrides of them.
+
+@ProviderFor(recurringStreamRepository)
+final recurringStreamRepositoryProvider = RecurringStreamRepositoryProvider._();
+
+/// The recurring streams and the user's overrides of them.
+
+final class RecurringStreamRepositoryProvider
+    extends
+        $FunctionalProvider<
+          RecurringStreamRepository,
+          RecurringStreamRepository,
+          RecurringStreamRepository
+        >
+    with $Provider<RecurringStreamRepository> {
+  /// The recurring streams and the user's overrides of them.
+  RecurringStreamRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'recurringStreamRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$recurringStreamRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<RecurringStreamRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  RecurringStreamRepository create(Ref ref) {
+    return recurringStreamRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(RecurringStreamRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<RecurringStreamRepository>(value),
+    );
+  }
+}
+
+String _$recurringStreamRepositoryHash() =>
+    r'd0ff435257b759faaf4bc56f2e59b93308fd4afb';
+
 /// Which budget alerts this device has raised: in memory by default and in the demo
 /// flavor, `budget_alerts` in dev and prod.
 
@@ -1528,7 +1581,7 @@ final class PlaidPullProvider
   }
 }
 
-String _$plaidPullHash() => r'16fdcc9a18e9f3938591ebec6222bbc1ef7df0c5';
+String _$plaidPullHash() => r'b341c8869009b93a007de30b4deb0ccfcae29cc9';
 
 /// What the legacy importer did at this launch (`bootstrap`), or null when it did nothing;
 /// Phase 1d shows it once.

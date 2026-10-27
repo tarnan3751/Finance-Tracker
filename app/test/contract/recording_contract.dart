@@ -1,7 +1,8 @@
 // The recording contract: every user-authored write of the account, transaction,
-// category, rule, budget and settings repositories records exactly one change-log entry per entity it
+// category, rule, budget, settings and recurring stream repositories records exactly one change-log entry per entity it
 // changed, and nothing else is recorded (Plaid rows only through their six overrides;
-// derived and demo transactions, linked accounts and the seeding never). The Drift and
+// derived and demo transactions, linked accounts, the seeding and the streams
+// themselves never; a stream's override only as updates). The Drift and
 // in-memory implementations run it from test/core/sync/; the demo one records nothing.
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/sync/entity_codec.dart';
@@ -12,6 +13,7 @@ import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 
 import 'budget_repository_contract.dart' show testBudget;
+import 'recurring_stream_repository_contract.dart' show testStream;
 import 'repository_fixture.dart';
 import 'rule_repository_contract.dart' show testRule;
 
@@ -362,6 +364,43 @@ void runRecordingContract(
         expect(await recorded(), ['settings/local update use_dynamic_color']);
       },
     );
+
+    test('stream overrides: each write an update of what changed, a clear a '
+        'delete; the streams themselves record nothing', () async {
+      await f.streams.applyPlaid([testStream('s1')]);
+      await f.streams.replaceDetected([
+        testStream('d1', source: RecurringSource.detected),
+      ]);
+      expect(await recorded(), isEmpty);
+      await f.streams.setOverride('s1', (o) => o.withMuted(true));
+      expect(await recorded(), ['recurring_stream/s1 update muted']);
+      await f.streams.setOverride('s1', (o) => o.withMuted(true));
+      expect(await recorded(), isEmpty);
+      await f.streams.setOverride(
+        's1',
+        (o) => o.withDisplayName('TV').withSubscription(true),
+      );
+      expect(await recorded(), [
+        'recurring_stream/s1 update display_name,is_subscription',
+      ]);
+      await f.streams.clearOverride('s1');
+      expect(await recorded(), ['recurring_stream/s1 delete deleted_at']);
+      await f.streams.setOverride('s1', (o) => o.withMuted(true));
+      expect(await recorded(), [
+        'recurring_stream/s1 update deleted_at,display_name,is_subscription',
+      ]);
+      final EntityRecord record = (await sync.read(
+        EntityType.recurringStream,
+        's1',
+      ))!;
+      expect(record.isComplete, isFalse, reason: 'never created');
+      expect(record.fields, {
+        'muted': true,
+        'is_subscription': null,
+        'display_name': null,
+        deletedAtField: null,
+      });
+    });
 
     test(
       'each entry carries the values written, at increasing clocks',

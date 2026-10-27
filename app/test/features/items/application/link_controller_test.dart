@@ -114,6 +114,7 @@ void main() {
       'listItems',
       'listAccounts',
       'listTransactions',
+      'listRecurringStreams',
     ]);
     expect(seen.map((s) => s.newLink?.step ?? s.byItem['item-a']?.step), [
       ItemStep.linking,
@@ -160,6 +161,7 @@ void main() {
         'listItems',
         'listAccounts',
         'listTransactions',
+        'listRecurringStreams',
       ]);
     },
   );

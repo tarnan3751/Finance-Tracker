@@ -56,6 +56,10 @@ import 'package:finance_tracker/features/items/data/demo_item_repository.dart';
 import 'package:finance_tracker/features/items/data/drift_item_repository.dart';
 import 'package:finance_tracker/features/items/data/in_memory_item_repository.dart';
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
+import 'package:finance_tracker/features/recurring/data/demo_recurring_stream_repository.dart';
+import 'package:finance_tracker/features/recurring/data/drift_recurring_stream_repository.dart';
+import 'package:finance_tracker/features/recurring/data/in_memory_recurring_stream_repository.dart';
+import 'package:finance_tracker/features/recurring/domain/recurring_stream_repository.dart';
 import 'package:finance_tracker/features/rules/application/rule_runner.dart';
 import 'package:finance_tracker/features/rules/data/demo_rule_repository.dart';
 import 'package:finance_tracker/features/rules/data/demo_rules.dart';
@@ -258,6 +262,18 @@ BudgetRepository budgetRepository(Ref ref) {
   return repository;
 }
 
+/// The recurring streams and the user's overrides of them.
+@Riverpod(keepAlive: true)
+RecurringStreamRepository recurringStreamRepository(Ref ref) {
+  final InMemoryRecurringStreamRepository repository =
+      InMemoryRecurringStreamRepository(
+        ref.watch(clockProvider),
+        recorder: ref.watch(changeRecorderProvider),
+      );
+  ref.onDispose(repository.close);
+  return repository;
+}
+
 /// Which budget alerts this device has raised: in memory by default and in the demo
 /// flavor, `budget_alerts` in dev and prod.
 @Riverpod(keepAlive: true)
@@ -325,6 +341,7 @@ PlaidPull plaidPull(Ref ref) => PlaidPull(
   items: ref.watch(itemRepositoryProvider),
   accounts: ref.watch(accountRepositoryProvider),
   transactions: ref.watch(transactionRepositoryProvider),
+  streams: ref.watch(recurringStreamRepositoryProvider),
   clock: ref.watch(clockProvider),
   arrival: ref.watch(arrivalProcessorProvider),
 );
@@ -419,6 +436,13 @@ final List<Override> _driftOverrides = [
   budgetAlertStoreProvider.overrideWith(
     (ref) => DriftBudgetAlertStore(ref.watch(databaseProvider)),
   ),
+  recurringStreamRepositoryProvider.overrideWith(
+    (ref) => DriftRecurringStreamRepository(
+      ref.watch(databaseProvider),
+      ref.watch(clockProvider),
+      recorder: ref.watch(changeRecorderProvider),
+    ),
+  ),
   savedFilterRepositoryProvider.overrideWith(
     (ref) => DriftSavedFilterRepository(
       ref.watch(databaseProvider),
@@ -497,6 +521,12 @@ final List<Override> _demoOverrides = [
       clock,
       initial: demoBudgets(ref.watch(demoPersonaProvider), clock.today()),
     );
+    ref.onDispose(repository.close);
+    return repository;
+  }),
+  recurringStreamRepositoryProvider.overrideWith((ref) {
+    final DemoRecurringStreamRepository repository =
+        DemoRecurringStreamRepository(ref.watch(clockProvider));
     ref.onDispose(repository.close);
     return repository;
   }),

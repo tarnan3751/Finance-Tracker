@@ -11,6 +11,8 @@ import 'package:finance_tracker/features/categories/data/demo_category_repositor
 import 'package:finance_tracker/features/categories/data/in_memory_category_repository.dart';
 import 'package:finance_tracker/features/items/data/demo_item_repository.dart';
 import 'package:finance_tracker/features/items/data/in_memory_item_repository.dart';
+import 'package:finance_tracker/features/recurring/data/demo_recurring_stream_repository.dart';
+import 'package:finance_tracker/features/recurring/data/in_memory_recurring_stream_repository.dart';
 import 'package:finance_tracker/features/rules/data/demo_rule_repository.dart';
 import 'package:finance_tracker/features/rules/data/in_memory_rule_repository.dart';
 import 'package:finance_tracker/features/settings/data/demo_settings_repository.dart';
@@ -52,6 +54,7 @@ FixtureFactory inMemoryFixtures() {
         items: InMemoryItemRepository(store),
         rules: InMemoryRuleRepository(clock, recorder: recorder),
         budgets: InMemoryBudgetRepository(clock, recorder: recorder),
+        streams: InMemoryRecurringStreamRepository(clock, recorder: recorder),
       );
     },
     dispose: () => store.close(),
@@ -75,6 +78,7 @@ FixtureFactory demoFixtures() {
         items: DemoItemRepository(store),
         rules: DemoRuleRepository(clock),
         budgets: DemoBudgetRepository(clock),
+        streams: DemoRecurringStreamRepository(clock),
       );
     },
     dispose: () => store.close(),

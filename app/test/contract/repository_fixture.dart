@@ -1,5 +1,5 @@
-// What the account, transaction, category, item, rule and budget contract suites run
-// against:
+// What the account, transaction, category, item, rule, budget and recurring stream
+// contract suites run against:
 // the repositories of one implementation over one backing store (an in-memory store, or
 // one Drift database), and the clock their deletes are stamped with. Each implementation's
 // test file builds a fixture per test; the suites never see which implementation it is.
@@ -8,6 +8,7 @@ import 'package:finance_tracker/features/accounts/domain/account_repository.dart
 import 'package:finance_tracker/features/budgets/domain/budget_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
+import 'package:finance_tracker/features/recurring/domain/recurring_stream_repository.dart';
 import 'package:finance_tracker/features/rules/domain/rule_repository.dart';
 import 'package:finance_tracker/features/settings/domain/settings_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
@@ -26,6 +27,7 @@ final class RepositoryFixture {
     required this.items,
     required this.rules,
     required this.budgets,
+    required this.streams,
     required this.clock,
     this.syncStore,
   });
@@ -37,6 +39,7 @@ final class RepositoryFixture {
   final ItemRepository items;
   final RuleRepository rules;
   final BudgetRepository budgets;
+  final RecurringStreamRepository streams;
 
   /// Where the writes are recorded.
   final SyncStore? syncStore;

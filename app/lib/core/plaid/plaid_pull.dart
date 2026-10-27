@@ -1,5 +1,5 @@
-/// The Plaid pull: the server's Items, linked accounts and Plaid-sourced transactions
-/// brought into the local store (`docs/reference/sync-app.md`, **The Plaid pull**;
+/// The Plaid pull: the server's Items, linked accounts, Plaid-sourced transactions and
+/// recurring streams brought into the local store (`docs/reference/sync-app.md`, **The Plaid pull**;
 /// `PLAN.md` §6.4: Plaid data is server-authoritative and only pulled, never pushed).
 ///
 /// One run:
@@ -16,11 +16,15 @@
 ///    so a failure anywhere in a page leaves the cursor where it was. A cursor past the
 ///    server's version (`SyncCursorInvalid`) restarts from 0 once per run, replacing
 ///    rows by id;
-/// 3. the institution logos: for each Item whose institution has a `logo_url` and whose
+/// 3. `GET /recurring`, the server's whole list, applied in one store transaction
+///    (`RecurringStreamRepository.applyPlaid`: every server-supplied stream replaced, the
+///    detector's and the user's overrides left alone). A failure is logged by its type
+///    and does not fail the run: the transactions matter more;
+/// 4. the institution logos: for each Item whose institution has a `logo_url` and whose
 ///    bytes are missing (never fetched, or the URL changed), `GET
 ///    /institutions/{id}/logo` (bearer-secured, so the screen cannot load the URL
 ///    itself); a failure is logged and the logo fetched again on the next run;
-/// 4. `plaid_pulled_at`, when the whole run succeeded.
+/// 5. `plaid_pulled_at`, when the run succeeded (a failed list does not stop it).
 ///
 /// Nothing is recorded, and every row keeps the `source` the server sent. [PlaidPull.run]
 /// is single-flight: a call during a run gets one more run that starts after it, shared
@@ -40,6 +44,7 @@ import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
 import 'package:finance_tracker/features/items/domain/linked_bank.dart';
+import 'package:finance_tracker/features/recurring/domain/recurring_stream_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart';
@@ -103,6 +108,7 @@ final class PlaidPull {
     required this.items,
     required this.accounts,
     required this.transactions,
+    required this.streams,
     required this.clock,
     this.arrival = const NoArrivalProcessor(),
     this.pageSize = 500,
@@ -113,6 +119,7 @@ final class PlaidPull {
   final ItemRepository items;
   final AccountRepository accounts;
   final TransactionRepository transactions;
+  final RecurringStreamRepository streams;
   final Clock clock;
   final ArrivalProcessor arrival;
 
@@ -178,16 +185,35 @@ final class PlaidPull {
       since = page.nextSince;
       if (!page.hasMore) break;
     }
+    final int? streamCount = await _pullList('recurring streams', () async {
+      final List<RecurringStream> pulled = await api.listRecurringStreams();
+      await store.transaction(() => streams.applyPlaid(pulled));
+      return pulled.length;
+    });
     await _fetchLogos(banks);
     await store.savePulledAt(clock.nowUtc());
     _log.info(
       'pulled ${listed.length} items, ${linked.length} accounts, '
-      '$pages transaction pages ($added new)',
+      '$pages transaction pages ($added new), '
+      '${streamCount ?? 'no'} recurring streams',
     );
   }
 }
 
 extension on PlaidPull {
+  // Fetches and applies one of the lists after the transactions, returning how many it
+  // applied, or null when it failed: logged by type, never failing the run.
+  Future<int?> _pullList(String what, Future<int> Function() pull) async {
+    try {
+      return await pull();
+    } on Exception catch (e) {
+      _log.warning('$what not pulled: ${e.runtimeType}');
+    } on ArgumentError catch (e) {
+      _log.warning('$what not pulled: ${e.runtimeType}');
+    }
+    return null;
+  }
+
   Future<void> _fetchLogos(List<LinkedBank> banks) async {
     for (final LinkedBank bank in banks) {
       final Uri? url = bank.institution.logoUrl;
