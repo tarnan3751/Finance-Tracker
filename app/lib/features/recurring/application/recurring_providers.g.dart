@@ -9,15 +9,17 @@ part of 'recurring_providers.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// Every stored stream with the user's override resolved, by merchant name ignoring
-/// ASCII case, then id. Phase 5's detector merges its own streams in later; muted ones
-/// are included, for the screen that unmutes them.
+/// ASCII case, then id; muted ones are included, for the screen that unmutes them. The
+/// screens read `mergedStreamsProvider` (`merged_streams.dart`): these streams merged
+/// with the detector's and classified.
 
 @ProviderFor(recurringStreams)
 final recurringStreamsProvider = RecurringStreamsProvider._();
 
 /// Every stored stream with the user's override resolved, by merchant name ignoring
-/// ASCII case, then id. Phase 5's detector merges its own streams in later; muted ones
-/// are included, for the screen that unmutes them.
+/// ASCII case, then id; muted ones are included, for the screen that unmutes them. The
+/// screens read `mergedStreamsProvider` (`merged_streams.dart`): these streams merged
+/// with the detector's and classified.
 
 final class RecurringStreamsProvider
     extends
@@ -28,8 +30,9 @@ final class RecurringStreamsProvider
         >
     with $FutureModifier<List<StreamView>>, $StreamProvider<List<StreamView>> {
   /// Every stored stream with the user's override resolved, by merchant name ignoring
-  /// ASCII case, then id. Phase 5's detector merges its own streams in later; muted ones
-  /// are included, for the screen that unmutes them.
+  /// ASCII case, then id; muted ones are included, for the screen that unmutes them. The
+  /// screens read `mergedStreamsProvider` (`merged_streams.dart`): these streams merged
+  /// with the detector's and classified.
   RecurringStreamsProvider._()
     : super(
         from: null,
@@ -59,13 +62,13 @@ final class RecurringStreamsProvider
 String _$recurringStreamsHash() => r'b78e5979c906f9c564da194815b91234a940466b';
 
 /// The active, unmuted streams counted as subscriptions, with each one's annual cost,
-/// in [recurringStreams]' order.
+/// in [recurringStreams]' order: of the merged and classified streams.
 
 @ProviderFor(subscriptions)
 final subscriptionsProvider = SubscriptionsProvider._();
 
 /// The active, unmuted streams counted as subscriptions, with each one's annual cost,
-/// in [recurringStreams]' order.
+/// in [recurringStreams]' order: of the merged and classified streams.
 
 final class SubscriptionsProvider
     extends
@@ -78,7 +81,7 @@ final class SubscriptionsProvider
         $FutureModifier<List<Subscription>>,
         $StreamProvider<List<Subscription>> {
   /// The active, unmuted streams counted as subscriptions, with each one's annual cost,
-  /// in [recurringStreams]' order.
+  /// in [recurringStreams]' order: of the merged and classified streams.
   SubscriptionsProvider._()
     : super(
         from: null,
@@ -105,7 +108,7 @@ final class SubscriptionsProvider
   }
 }
 
-String _$subscriptionsHash() => r'd83852204301ceaa208d68e1b63f563466b045e8';
+String _$subscriptionsHash() => r'a16f32cd8c4378aeeec75add6de20425b18353d7';
 
 /// The user's actions on a stream.
 

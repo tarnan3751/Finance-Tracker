@@ -4,6 +4,7 @@
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/features/recurring/application/merged_streams.dart';
 import 'package:finance_tracker/features/recurring/domain/recurring_stream_repository.dart';
 import 'package:finance_tracker/features/recurring/domain/stream_view.dart';
 import 'package:finance_tracker/features/recurring/domain/subscriptions.dart';
@@ -12,19 +13,19 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'recurring_providers.g.dart';
 
 /// Every stored stream with the user's override resolved, by merchant name ignoring
-/// ASCII case, then id. Phase 5's detector merges its own streams in later; muted ones
-/// are included, for the screen that unmutes them.
+/// ASCII case, then id; muted ones are included, for the screen that unmutes them. The
+/// screens read `mergedStreamsProvider` (`merged_streams.dart`): these streams merged
+/// with the detector's and classified.
 @riverpod
 Stream<List<StreamView>> recurringStreams(Ref ref) =>
     ref.watch(recurringStreamRepositoryProvider).watchAll();
 
 /// The active, unmuted streams counted as subscriptions, with each one's annual cost,
-/// in [recurringStreams]' order.
+/// in [recurringStreams]' order: of the merged and classified streams.
 @riverpod
-Stream<List<Subscription>> subscriptions(Ref ref) => ref
-    .watch(recurringStreamRepositoryProvider)
-    .watchAll()
-    .map(subscriptionsOf);
+Stream<List<Subscription>> subscriptions(Ref ref) async* {
+  yield subscriptionsOf(await ref.watch(mergedStreamsProvider.future));
+}
 
 /// The user's actions on a stream.
 @riverpod

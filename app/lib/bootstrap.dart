@@ -21,6 +21,7 @@ import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/time/time_zone_setup.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
+import 'package:finance_tracker/features/recurring/application/detector_runner.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -77,6 +78,8 @@ Future<void> bootstrap(AppConfig config) async {
   container.read(syncControllerProvider);
   // The budget alerts are evaluated whenever the statuses change, in every flavor.
   container.listen(budgetAlertWatcherProvider, (_, _) {});
+  // The detected recurring streams follow the transactions, in every flavor.
+  container.listen(detectorRunnerProvider, (_, _) {});
   runApp(
     UncontrolledProviderScope(
       container: container,
