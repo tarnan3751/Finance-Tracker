@@ -10995,6 +10995,1263 @@ class LiabilitiesCompanion extends UpdateCompanion<LiabilityRow> {
   }
 }
 
+class $BillsTable extends Bills with TableInfo<$BillsTable, BillRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BillsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _amountMinorMeta = const VerificationMeta(
+    'amountMinor',
+  );
+  @override
+  late final GeneratedColumn<int> amountMinor = GeneratedColumn<int>(
+    'amount_minor',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _currencyMeta = const VerificationMeta(
+    'currency',
+  );
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate, String> dueDate =
+      GeneratedColumn<String>(
+        'due_date',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<LocalDate>($BillsTable.$converterdueDate);
+  @override
+  late final GeneratedColumnWithTypeConverter<RecurringCadence?, String>
+  cadence = GeneratedColumn<String>(
+    'cadence',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<RecurringCadence?>($BillsTable.$convertercadencen);
+  static const VerificationMeta _accountIdMeta = const VerificationMeta(
+    'accountId',
+  );
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+    'account_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _streamIdMeta = const VerificationMeta(
+    'streamId',
+  );
+  @override
+  late final GeneratedColumn<String> streamId = GeneratedColumn<String>(
+    'stream_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _liabilityAccountIdMeta =
+      const VerificationMeta('liabilityAccountId');
+  @override
+  late final GeneratedColumn<String> liabilityAccountId =
+      GeneratedColumn<String>(
+        'liability_account_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _reminderOffsetDaysMeta =
+      const VerificationMeta('reminderOffsetDays');
+  @override
+  late final GeneratedColumn<String> reminderOffsetDays =
+      GeneratedColumn<String>(
+        'reminder_offset_days',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _reminderMinutesMeta = const VerificationMeta(
+    'reminderMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> reminderMinutes = GeneratedColumn<int>(
+    'reminder_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _activeMeta = const VerificationMeta('active');
+  @override
+  late final GeneratedColumn<bool> active = GeneratedColumn<bool>(
+    'active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("active" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _autopayMeta = const VerificationMeta(
+    'autopay',
+  );
+  @override
+  late final GeneratedColumn<bool> autopay = GeneratedColumn<bool>(
+    'autopay',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("autopay" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _paidOccurrencesMeta = const VerificationMeta(
+    'paidOccurrences',
+  );
+  @override
+  late final GeneratedColumn<String> paidOccurrences = GeneratedColumn<String>(
+    'paid_occurrences',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> createdAt =
+      GeneratedColumn<int>(
+        'created_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($BillsTable.$convertercreatedAt);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> updatedAt =
+      GeneratedColumn<int>(
+        'updated_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($BillsTable.$converterupdatedAt);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime?, int> deletedAt =
+      GeneratedColumn<int>(
+        'deleted_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<DateTime?>($BillsTable.$converterdeletedAtn);
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    amountMinor,
+    currency,
+    dueDate,
+    cadence,
+    accountId,
+    streamId,
+    liabilityAccountId,
+    reminderOffsetDays,
+    reminderMinutes,
+    active,
+    autopay,
+    paidOccurrences,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'bills';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BillRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    }
+    if (data.containsKey('amount_minor')) {
+      context.handle(
+        _amountMinorMeta,
+        amountMinor.isAcceptableOrUnknown(
+          data['amount_minor']!,
+          _amountMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
+    }
+    if (data.containsKey('account_id')) {
+      context.handle(
+        _accountIdMeta,
+        accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta),
+      );
+    }
+    if (data.containsKey('stream_id')) {
+      context.handle(
+        _streamIdMeta,
+        streamId.isAcceptableOrUnknown(data['stream_id']!, _streamIdMeta),
+      );
+    }
+    if (data.containsKey('liability_account_id')) {
+      context.handle(
+        _liabilityAccountIdMeta,
+        liabilityAccountId.isAcceptableOrUnknown(
+          data['liability_account_id']!,
+          _liabilityAccountIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_offset_days')) {
+      context.handle(
+        _reminderOffsetDaysMeta,
+        reminderOffsetDays.isAcceptableOrUnknown(
+          data['reminder_offset_days']!,
+          _reminderOffsetDaysMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_reminderOffsetDaysMeta);
+    }
+    if (data.containsKey('reminder_minutes')) {
+      context.handle(
+        _reminderMinutesMeta,
+        reminderMinutes.isAcceptableOrUnknown(
+          data['reminder_minutes']!,
+          _reminderMinutesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_reminderMinutesMeta);
+    }
+    if (data.containsKey('active')) {
+      context.handle(
+        _activeMeta,
+        active.isAcceptableOrUnknown(data['active']!, _activeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_activeMeta);
+    }
+    if (data.containsKey('autopay')) {
+      context.handle(
+        _autopayMeta,
+        autopay.isAcceptableOrUnknown(data['autopay']!, _autopayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_autopayMeta);
+    }
+    if (data.containsKey('paid_occurrences')) {
+      context.handle(
+        _paidOccurrencesMeta,
+        paidOccurrences.isAcceptableOrUnknown(
+          data['paid_occurrences']!,
+          _paidOccurrencesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_paidOccurrencesMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BillRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BillRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      ),
+      amountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount_minor'],
+      ),
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      ),
+      dueDate: $BillsTable.$converterdueDate.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}due_date'],
+        )!,
+      ),
+      cadence: $BillsTable.$convertercadencen.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}cadence'],
+        ),
+      ),
+      accountId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}account_id'],
+      ),
+      streamId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}stream_id'],
+      ),
+      liabilityAccountId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}liability_account_id'],
+      ),
+      reminderOffsetDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reminder_offset_days'],
+      )!,
+      reminderMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_minutes'],
+      )!,
+      active: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}active'],
+      )!,
+      autopay: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}autopay'],
+      )!,
+      paidOccurrences: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}paid_occurrences'],
+      )!,
+      createdAt: $BillsTable.$convertercreatedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}created_at'],
+        )!,
+      ),
+      updatedAt: $BillsTable.$converterupdatedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}updated_at'],
+        )!,
+      ),
+      deletedAt: $BillsTable.$converterdeletedAtn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}deleted_at'],
+        ),
+      ),
+    );
+  }
+
+  @override
+  $BillsTable createAlias(String alias) {
+    return $BillsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<LocalDate, String> $converterdueDate =
+      const LocalDateColumnConverter();
+  static TypeConverter<RecurringCadence, String> $convertercadence =
+      const RecurringCadenceColumnConverter();
+  static TypeConverter<RecurringCadence?, String?> $convertercadencen =
+      NullAwareTypeConverter.wrap($convertercadence);
+  static TypeConverter<DateTime, int> $convertercreatedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime, int> $converterupdatedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime, int> $converterdeletedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime?, int?> $converterdeletedAtn =
+      NullAwareTypeConverter.wrap($converterdeletedAt);
+}
+
+class BillRow extends DataClass implements Insertable<BillRow> {
+  final String id;
+  final String? name;
+  final int? amountMinor;
+  final String? currency;
+  final LocalDate dueDate;
+  final RecurringCadence? cadence;
+  final String? accountId;
+  final String? streamId;
+  final String? liabilityAccountId;
+  final String reminderOffsetDays;
+  final int reminderMinutes;
+  final bool active;
+  final bool autopay;
+  final String paidOccurrences;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const BillRow({
+    required this.id,
+    this.name,
+    this.amountMinor,
+    this.currency,
+    required this.dueDate,
+    this.cadence,
+    this.accountId,
+    this.streamId,
+    this.liabilityAccountId,
+    required this.reminderOffsetDays,
+    required this.reminderMinutes,
+    required this.active,
+    required this.autopay,
+    required this.paidOccurrences,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    if (!nullToAbsent || amountMinor != null) {
+      map['amount_minor'] = Variable<int>(amountMinor);
+    }
+    if (!nullToAbsent || currency != null) {
+      map['currency'] = Variable<String>(currency);
+    }
+    {
+      map['due_date'] = Variable<String>(
+        $BillsTable.$converterdueDate.toSql(dueDate),
+      );
+    }
+    if (!nullToAbsent || cadence != null) {
+      map['cadence'] = Variable<String>(
+        $BillsTable.$convertercadencen.toSql(cadence),
+      );
+    }
+    if (!nullToAbsent || accountId != null) {
+      map['account_id'] = Variable<String>(accountId);
+    }
+    if (!nullToAbsent || streamId != null) {
+      map['stream_id'] = Variable<String>(streamId);
+    }
+    if (!nullToAbsent || liabilityAccountId != null) {
+      map['liability_account_id'] = Variable<String>(liabilityAccountId);
+    }
+    map['reminder_offset_days'] = Variable<String>(reminderOffsetDays);
+    map['reminder_minutes'] = Variable<int>(reminderMinutes);
+    map['active'] = Variable<bool>(active);
+    map['autopay'] = Variable<bool>(autopay);
+    map['paid_occurrences'] = Variable<String>(paidOccurrences);
+    {
+      map['created_at'] = Variable<int>(
+        $BillsTable.$convertercreatedAt.toSql(createdAt),
+      );
+    }
+    {
+      map['updated_at'] = Variable<int>(
+        $BillsTable.$converterupdatedAt.toSql(updatedAt),
+      );
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(
+        $BillsTable.$converterdeletedAtn.toSql(deletedAt),
+      );
+    }
+    return map;
+  }
+
+  BillsCompanion toCompanion(bool nullToAbsent) {
+    return BillsCompanion(
+      id: Value(id),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      amountMinor: amountMinor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(amountMinor),
+      currency: currency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currency),
+      dueDate: Value(dueDate),
+      cadence: cadence == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cadence),
+      accountId: accountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountId),
+      streamId: streamId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(streamId),
+      liabilityAccountId: liabilityAccountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(liabilityAccountId),
+      reminderOffsetDays: Value(reminderOffsetDays),
+      reminderMinutes: Value(reminderMinutes),
+      active: Value(active),
+      autopay: Value(autopay),
+      paidOccurrences: Value(paidOccurrences),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory BillRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BillRow(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String?>(json['name']),
+      amountMinor: serializer.fromJson<int?>(json['amountMinor']),
+      currency: serializer.fromJson<String?>(json['currency']),
+      dueDate: serializer.fromJson<LocalDate>(json['dueDate']),
+      cadence: serializer.fromJson<RecurringCadence?>(json['cadence']),
+      accountId: serializer.fromJson<String?>(json['accountId']),
+      streamId: serializer.fromJson<String?>(json['streamId']),
+      liabilityAccountId: serializer.fromJson<String?>(
+        json['liabilityAccountId'],
+      ),
+      reminderOffsetDays: serializer.fromJson<String>(
+        json['reminderOffsetDays'],
+      ),
+      reminderMinutes: serializer.fromJson<int>(json['reminderMinutes']),
+      active: serializer.fromJson<bool>(json['active']),
+      autopay: serializer.fromJson<bool>(json['autopay']),
+      paidOccurrences: serializer.fromJson<String>(json['paidOccurrences']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String?>(name),
+      'amountMinor': serializer.toJson<int?>(amountMinor),
+      'currency': serializer.toJson<String?>(currency),
+      'dueDate': serializer.toJson<LocalDate>(dueDate),
+      'cadence': serializer.toJson<RecurringCadence?>(cadence),
+      'accountId': serializer.toJson<String?>(accountId),
+      'streamId': serializer.toJson<String?>(streamId),
+      'liabilityAccountId': serializer.toJson<String?>(liabilityAccountId),
+      'reminderOffsetDays': serializer.toJson<String>(reminderOffsetDays),
+      'reminderMinutes': serializer.toJson<int>(reminderMinutes),
+      'active': serializer.toJson<bool>(active),
+      'autopay': serializer.toJson<bool>(autopay),
+      'paidOccurrences': serializer.toJson<String>(paidOccurrences),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  BillRow copyWith({
+    String? id,
+    Value<String?> name = const Value.absent(),
+    Value<int?> amountMinor = const Value.absent(),
+    Value<String?> currency = const Value.absent(),
+    LocalDate? dueDate,
+    Value<RecurringCadence?> cadence = const Value.absent(),
+    Value<String?> accountId = const Value.absent(),
+    Value<String?> streamId = const Value.absent(),
+    Value<String?> liabilityAccountId = const Value.absent(),
+    String? reminderOffsetDays,
+    int? reminderMinutes,
+    bool? active,
+    bool? autopay,
+    String? paidOccurrences,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => BillRow(
+    id: id ?? this.id,
+    name: name.present ? name.value : this.name,
+    amountMinor: amountMinor.present ? amountMinor.value : this.amountMinor,
+    currency: currency.present ? currency.value : this.currency,
+    dueDate: dueDate ?? this.dueDate,
+    cadence: cadence.present ? cadence.value : this.cadence,
+    accountId: accountId.present ? accountId.value : this.accountId,
+    streamId: streamId.present ? streamId.value : this.streamId,
+    liabilityAccountId: liabilityAccountId.present
+        ? liabilityAccountId.value
+        : this.liabilityAccountId,
+    reminderOffsetDays: reminderOffsetDays ?? this.reminderOffsetDays,
+    reminderMinutes: reminderMinutes ?? this.reminderMinutes,
+    active: active ?? this.active,
+    autopay: autopay ?? this.autopay,
+    paidOccurrences: paidOccurrences ?? this.paidOccurrences,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  BillRow copyWithCompanion(BillsCompanion data) {
+    return BillRow(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      amountMinor: data.amountMinor.present
+          ? data.amountMinor.value
+          : this.amountMinor,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      dueDate: data.dueDate.present ? data.dueDate.value : this.dueDate,
+      cadence: data.cadence.present ? data.cadence.value : this.cadence,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      streamId: data.streamId.present ? data.streamId.value : this.streamId,
+      liabilityAccountId: data.liabilityAccountId.present
+          ? data.liabilityAccountId.value
+          : this.liabilityAccountId,
+      reminderOffsetDays: data.reminderOffsetDays.present
+          ? data.reminderOffsetDays.value
+          : this.reminderOffsetDays,
+      reminderMinutes: data.reminderMinutes.present
+          ? data.reminderMinutes.value
+          : this.reminderMinutes,
+      active: data.active.present ? data.active.value : this.active,
+      autopay: data.autopay.present ? data.autopay.value : this.autopay,
+      paidOccurrences: data.paidOccurrences.present
+          ? data.paidOccurrences.value
+          : this.paidOccurrences,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BillRow(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('currency: $currency, ')
+          ..write('dueDate: $dueDate, ')
+          ..write('cadence: $cadence, ')
+          ..write('accountId: $accountId, ')
+          ..write('streamId: $streamId, ')
+          ..write('liabilityAccountId: $liabilityAccountId, ')
+          ..write('reminderOffsetDays: $reminderOffsetDays, ')
+          ..write('reminderMinutes: $reminderMinutes, ')
+          ..write('active: $active, ')
+          ..write('autopay: $autopay, ')
+          ..write('paidOccurrences: $paidOccurrences, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    amountMinor,
+    currency,
+    dueDate,
+    cadence,
+    accountId,
+    streamId,
+    liabilityAccountId,
+    reminderOffsetDays,
+    reminderMinutes,
+    active,
+    autopay,
+    paidOccurrences,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BillRow &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.amountMinor == this.amountMinor &&
+          other.currency == this.currency &&
+          other.dueDate == this.dueDate &&
+          other.cadence == this.cadence &&
+          other.accountId == this.accountId &&
+          other.streamId == this.streamId &&
+          other.liabilityAccountId == this.liabilityAccountId &&
+          other.reminderOffsetDays == this.reminderOffsetDays &&
+          other.reminderMinutes == this.reminderMinutes &&
+          other.active == this.active &&
+          other.autopay == this.autopay &&
+          other.paidOccurrences == this.paidOccurrences &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class BillsCompanion extends UpdateCompanion<BillRow> {
+  final Value<String> id;
+  final Value<String?> name;
+  final Value<int?> amountMinor;
+  final Value<String?> currency;
+  final Value<LocalDate> dueDate;
+  final Value<RecurringCadence?> cadence;
+  final Value<String?> accountId;
+  final Value<String?> streamId;
+  final Value<String?> liabilityAccountId;
+  final Value<String> reminderOffsetDays;
+  final Value<int> reminderMinutes;
+  final Value<bool> active;
+  final Value<bool> autopay;
+  final Value<String> paidOccurrences;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const BillsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.amountMinor = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.dueDate = const Value.absent(),
+    this.cadence = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.streamId = const Value.absent(),
+    this.liabilityAccountId = const Value.absent(),
+    this.reminderOffsetDays = const Value.absent(),
+    this.reminderMinutes = const Value.absent(),
+    this.active = const Value.absent(),
+    this.autopay = const Value.absent(),
+    this.paidOccurrences = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BillsCompanion.insert({
+    required String id,
+    this.name = const Value.absent(),
+    this.amountMinor = const Value.absent(),
+    this.currency = const Value.absent(),
+    required LocalDate dueDate,
+    this.cadence = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.streamId = const Value.absent(),
+    this.liabilityAccountId = const Value.absent(),
+    required String reminderOffsetDays,
+    required int reminderMinutes,
+    required bool active,
+    required bool autopay,
+    required String paidOccurrences,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       dueDate = Value(dueDate),
+       reminderOffsetDays = Value(reminderOffsetDays),
+       reminderMinutes = Value(reminderMinutes),
+       active = Value(active),
+       autopay = Value(autopay),
+       paidOccurrences = Value(paidOccurrences),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<BillRow> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<int>? amountMinor,
+    Expression<String>? currency,
+    Expression<String>? dueDate,
+    Expression<String>? cadence,
+    Expression<String>? accountId,
+    Expression<String>? streamId,
+    Expression<String>? liabilityAccountId,
+    Expression<String>? reminderOffsetDays,
+    Expression<int>? reminderMinutes,
+    Expression<bool>? active,
+    Expression<bool>? autopay,
+    Expression<String>? paidOccurrences,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (amountMinor != null) 'amount_minor': amountMinor,
+      if (currency != null) 'currency': currency,
+      if (dueDate != null) 'due_date': dueDate,
+      if (cadence != null) 'cadence': cadence,
+      if (accountId != null) 'account_id': accountId,
+      if (streamId != null) 'stream_id': streamId,
+      if (liabilityAccountId != null)
+        'liability_account_id': liabilityAccountId,
+      if (reminderOffsetDays != null)
+        'reminder_offset_days': reminderOffsetDays,
+      if (reminderMinutes != null) 'reminder_minutes': reminderMinutes,
+      if (active != null) 'active': active,
+      if (autopay != null) 'autopay': autopay,
+      if (paidOccurrences != null) 'paid_occurrences': paidOccurrences,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BillsCompanion copyWith({
+    Value<String>? id,
+    Value<String?>? name,
+    Value<int?>? amountMinor,
+    Value<String?>? currency,
+    Value<LocalDate>? dueDate,
+    Value<RecurringCadence?>? cadence,
+    Value<String?>? accountId,
+    Value<String?>? streamId,
+    Value<String?>? liabilityAccountId,
+    Value<String>? reminderOffsetDays,
+    Value<int>? reminderMinutes,
+    Value<bool>? active,
+    Value<bool>? autopay,
+    Value<String>? paidOccurrences,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return BillsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      amountMinor: amountMinor ?? this.amountMinor,
+      currency: currency ?? this.currency,
+      dueDate: dueDate ?? this.dueDate,
+      cadence: cadence ?? this.cadence,
+      accountId: accountId ?? this.accountId,
+      streamId: streamId ?? this.streamId,
+      liabilityAccountId: liabilityAccountId ?? this.liabilityAccountId,
+      reminderOffsetDays: reminderOffsetDays ?? this.reminderOffsetDays,
+      reminderMinutes: reminderMinutes ?? this.reminderMinutes,
+      active: active ?? this.active,
+      autopay: autopay ?? this.autopay,
+      paidOccurrences: paidOccurrences ?? this.paidOccurrences,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (amountMinor.present) {
+      map['amount_minor'] = Variable<int>(amountMinor.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (dueDate.present) {
+      map['due_date'] = Variable<String>(
+        $BillsTable.$converterdueDate.toSql(dueDate.value),
+      );
+    }
+    if (cadence.present) {
+      map['cadence'] = Variable<String>(
+        $BillsTable.$convertercadencen.toSql(cadence.value),
+      );
+    }
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (streamId.present) {
+      map['stream_id'] = Variable<String>(streamId.value);
+    }
+    if (liabilityAccountId.present) {
+      map['liability_account_id'] = Variable<String>(liabilityAccountId.value);
+    }
+    if (reminderOffsetDays.present) {
+      map['reminder_offset_days'] = Variable<String>(reminderOffsetDays.value);
+    }
+    if (reminderMinutes.present) {
+      map['reminder_minutes'] = Variable<int>(reminderMinutes.value);
+    }
+    if (active.present) {
+      map['active'] = Variable<bool>(active.value);
+    }
+    if (autopay.present) {
+      map['autopay'] = Variable<bool>(autopay.value);
+    }
+    if (paidOccurrences.present) {
+      map['paid_occurrences'] = Variable<String>(paidOccurrences.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(
+        $BillsTable.$convertercreatedAt.toSql(createdAt.value),
+      );
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(
+        $BillsTable.$converterupdatedAt.toSql(updatedAt.value),
+      );
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(
+        $BillsTable.$converterdeletedAtn.toSql(deletedAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BillsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('currency: $currency, ')
+          ..write('dueDate: $dueDate, ')
+          ..write('cadence: $cadence, ')
+          ..write('accountId: $accountId, ')
+          ..write('streamId: $streamId, ')
+          ..write('liabilityAccountId: $liabilityAccountId, ')
+          ..write('reminderOffsetDays: $reminderOffsetDays, ')
+          ..write('reminderMinutes: $reminderMinutes, ')
+          ..write('active: $active, ')
+          ..write('autopay: $autopay, ')
+          ..write('paidOccurrences: $paidOccurrences, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BillAlertsTable extends BillAlerts
+    with TableInfo<$BillAlertsTable, BillAlertRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BillAlertsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _billIdMeta = const VerificationMeta('billId');
+  @override
+  late final GeneratedColumn<String> billId = GeneratedColumn<String>(
+    'bill_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate, String> dueDate =
+      GeneratedColumn<String>(
+        'due_date',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<LocalDate>($BillAlertsTable.$converterdueDate);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> raisedAt =
+      GeneratedColumn<int>(
+        'raised_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($BillAlertsTable.$converterraisedAt);
+  @override
+  List<GeneratedColumn> get $columns => [billId, dueDate, raisedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'bill_alerts';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BillAlertRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('bill_id')) {
+      context.handle(
+        _billIdMeta,
+        billId.isAcceptableOrUnknown(data['bill_id']!, _billIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_billIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {billId, dueDate};
+  @override
+  BillAlertRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BillAlertRow(
+      billId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bill_id'],
+      )!,
+      dueDate: $BillAlertsTable.$converterdueDate.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}due_date'],
+        )!,
+      ),
+      raisedAt: $BillAlertsTable.$converterraisedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}raised_at'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $BillAlertsTable createAlias(String alias) {
+    return $BillAlertsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<LocalDate, String> $converterdueDate =
+      const LocalDateColumnConverter();
+  static TypeConverter<DateTime, int> $converterraisedAt =
+      const UtcMillisColumnConverter();
+}
+
+class BillAlertRow extends DataClass implements Insertable<BillAlertRow> {
+  final String billId;
+  final LocalDate dueDate;
+  final DateTime raisedAt;
+  const BillAlertRow({
+    required this.billId,
+    required this.dueDate,
+    required this.raisedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['bill_id'] = Variable<String>(billId);
+    {
+      map['due_date'] = Variable<String>(
+        $BillAlertsTable.$converterdueDate.toSql(dueDate),
+      );
+    }
+    {
+      map['raised_at'] = Variable<int>(
+        $BillAlertsTable.$converterraisedAt.toSql(raisedAt),
+      );
+    }
+    return map;
+  }
+
+  BillAlertsCompanion toCompanion(bool nullToAbsent) {
+    return BillAlertsCompanion(
+      billId: Value(billId),
+      dueDate: Value(dueDate),
+      raisedAt: Value(raisedAt),
+    );
+  }
+
+  factory BillAlertRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BillAlertRow(
+      billId: serializer.fromJson<String>(json['billId']),
+      dueDate: serializer.fromJson<LocalDate>(json['dueDate']),
+      raisedAt: serializer.fromJson<DateTime>(json['raisedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'billId': serializer.toJson<String>(billId),
+      'dueDate': serializer.toJson<LocalDate>(dueDate),
+      'raisedAt': serializer.toJson<DateTime>(raisedAt),
+    };
+  }
+
+  BillAlertRow copyWith({
+    String? billId,
+    LocalDate? dueDate,
+    DateTime? raisedAt,
+  }) => BillAlertRow(
+    billId: billId ?? this.billId,
+    dueDate: dueDate ?? this.dueDate,
+    raisedAt: raisedAt ?? this.raisedAt,
+  );
+  BillAlertRow copyWithCompanion(BillAlertsCompanion data) {
+    return BillAlertRow(
+      billId: data.billId.present ? data.billId.value : this.billId,
+      dueDate: data.dueDate.present ? data.dueDate.value : this.dueDate,
+      raisedAt: data.raisedAt.present ? data.raisedAt.value : this.raisedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BillAlertRow(')
+          ..write('billId: $billId, ')
+          ..write('dueDate: $dueDate, ')
+          ..write('raisedAt: $raisedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(billId, dueDate, raisedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BillAlertRow &&
+          other.billId == this.billId &&
+          other.dueDate == this.dueDate &&
+          other.raisedAt == this.raisedAt);
+}
+
+class BillAlertsCompanion extends UpdateCompanion<BillAlertRow> {
+  final Value<String> billId;
+  final Value<LocalDate> dueDate;
+  final Value<DateTime> raisedAt;
+  final Value<int> rowid;
+  const BillAlertsCompanion({
+    this.billId = const Value.absent(),
+    this.dueDate = const Value.absent(),
+    this.raisedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BillAlertsCompanion.insert({
+    required String billId,
+    required LocalDate dueDate,
+    required DateTime raisedAt,
+    this.rowid = const Value.absent(),
+  }) : billId = Value(billId),
+       dueDate = Value(dueDate),
+       raisedAt = Value(raisedAt);
+  static Insertable<BillAlertRow> custom({
+    Expression<String>? billId,
+    Expression<String>? dueDate,
+    Expression<int>? raisedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (billId != null) 'bill_id': billId,
+      if (dueDate != null) 'due_date': dueDate,
+      if (raisedAt != null) 'raised_at': raisedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BillAlertsCompanion copyWith({
+    Value<String>? billId,
+    Value<LocalDate>? dueDate,
+    Value<DateTime>? raisedAt,
+    Value<int>? rowid,
+  }) {
+    return BillAlertsCompanion(
+      billId: billId ?? this.billId,
+      dueDate: dueDate ?? this.dueDate,
+      raisedAt: raisedAt ?? this.raisedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (billId.present) {
+      map['bill_id'] = Variable<String>(billId.value);
+    }
+    if (dueDate.present) {
+      map['due_date'] = Variable<String>(
+        $BillAlertsTable.$converterdueDate.toSql(dueDate.value),
+      );
+    }
+    if (raisedAt.present) {
+      map['raised_at'] = Variable<int>(
+        $BillAlertsTable.$converterraisedAt.toSql(raisedAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BillAlertsCompanion(')
+          ..write('billId: $billId, ')
+          ..write('dueDate: $dueDate, ')
+          ..write('raisedAt: $raisedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $AccountsTable accounts = $AccountsTable(this);
@@ -11024,6 +12281,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $LiabilitiesTable liabilities = $LiabilitiesTable(this);
+  late final $BillsTable bills = $BillsTable(this);
+  late final $BillAlertsTable billAlerts = $BillAlertsTable(this);
   late final Index transactionsAccountDate = Index(
     'transactions_account_date',
     'CREATE INDEX transactions_account_date ON transactions (account_id, date)',
@@ -11068,6 +12327,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'recurring_streams_account',
     'CREATE INDEX recurring_streams_account ON recurring_streams (account_id)',
   );
+  late final Index billsDueDate = Index(
+    'bills_due_date',
+    'CREATE INDEX bills_due_date ON bills (due_date)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -11093,6 +12356,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     recurringStreams,
     streamOverrides,
     liabilities,
+    bills,
+    billAlerts,
     transactionsAccountDate,
     transactionsUserCategory,
     transactionsPendingTransaction,
@@ -11104,6 +12369,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     budgetsCategory,
     savedFiltersPosition,
     recurringStreamsAccount,
+    billsDueDate,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

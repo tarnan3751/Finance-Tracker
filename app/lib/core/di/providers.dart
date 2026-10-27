@@ -42,6 +42,14 @@ import 'package:finance_tracker/features/accounts/data/in_memory_account_reposit
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
 import 'package:finance_tracker/features/auth/domain/session_state.dart';
+import 'package:finance_tracker/features/bills/data/demo_bill_repository.dart';
+import 'package:finance_tracker/features/bills/data/demo_bills.dart';
+import 'package:finance_tracker/features/bills/data/drift_bill_alert_store.dart';
+import 'package:finance_tracker/features/bills/data/drift_bill_repository.dart';
+import 'package:finance_tracker/features/bills/data/in_memory_bill_alert_store.dart';
+import 'package:finance_tracker/features/bills/data/in_memory_bill_repository.dart';
+import 'package:finance_tracker/features/bills/domain/bill_alert_store.dart';
+import 'package:finance_tracker/features/bills/domain/bill_repository.dart';
 import 'package:finance_tracker/features/budgets/data/demo_budget_repository.dart';
 import 'package:finance_tracker/features/budgets/data/demo_budgets.dart';
 import 'package:finance_tracker/features/budgets/data/drift_budget_alert_store.dart';
@@ -299,6 +307,22 @@ LiabilityRepository liabilityRepository(Ref ref) {
 @Riverpod(keepAlive: true)
 BudgetAlertStore budgetAlertStore(Ref ref) => InMemoryBudgetAlertStore();
 
+/// The bills.
+@Riverpod(keepAlive: true)
+BillRepository billRepository(Ref ref) {
+  final InMemoryBillRepository repository = InMemoryBillRepository(
+    ref.watch(clockProvider),
+    recorder: ref.watch(changeRecorderProvider),
+  );
+  ref.onDispose(repository.close);
+  return repository;
+}
+
+/// Which bill notifications this device has raised: in memory by default and in the
+/// demo flavor, `bill_alerts` in dev and prod.
+@Riverpod(keepAlive: true)
+BillAlertStore billAlertStore(Ref ref) => InMemoryBillAlertStore();
+
 /// The transaction list's saved filters, on this device only.
 @Riverpod(keepAlive: true)
 SavedFilterRepository savedFilterRepository(Ref ref) {
@@ -457,6 +481,16 @@ final List<Override> _driftOverrides = [
   budgetAlertStoreProvider.overrideWith(
     (ref) => DriftBudgetAlertStore(ref.watch(databaseProvider)),
   ),
+  billRepositoryProvider.overrideWith(
+    (ref) => DriftBillRepository(
+      ref.watch(databaseProvider),
+      ref.watch(clockProvider),
+      recorder: ref.watch(changeRecorderProvider),
+    ),
+  ),
+  billAlertStoreProvider.overrideWith(
+    (ref) => DriftBillAlertStore(ref.watch(databaseProvider)),
+  ),
   recurringStreamRepositoryProvider.overrideWith(
     (ref) => DriftRecurringStreamRepository(
       ref.watch(databaseProvider),
@@ -551,6 +585,15 @@ final List<Override> _demoOverrides = [
     final DemoRuleRepository repository = DemoRuleRepository(
       ref.watch(clockProvider),
       initial: demoRules(ref.watch(demoPersonaProvider)),
+    );
+    ref.onDispose(repository.close);
+    return repository;
+  }),
+  billRepositoryProvider.overrideWith((ref) {
+    final Clock clock = ref.watch(clockProvider);
+    final DemoBillRepository repository = DemoBillRepository(
+      clock,
+      initial: demoBills(ref.watch(demoSeedProvider), clock.today()),
     );
     ref.onDispose(repository.close);
     return repository;

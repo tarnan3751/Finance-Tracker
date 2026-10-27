@@ -5,6 +5,7 @@
 // test file builds a fixture per test; the suites never see which implementation it is.
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
+import 'package:finance_tracker/features/bills/domain/bill_repository.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
@@ -30,6 +31,7 @@ final class RepositoryFixture {
     required this.budgets,
     required this.streams,
     required this.liabilities,
+    required this.bills,
     required this.clock,
     this.syncStore,
   });
@@ -43,6 +45,7 @@ final class RepositoryFixture {
   final BudgetRepository budgets;
   final RecurringStreamRepository streams;
   final LiabilityRepository liabilities;
+  final BillRepository bills;
 
   /// Where the writes are recorded.
   final SyncStore? syncStore;

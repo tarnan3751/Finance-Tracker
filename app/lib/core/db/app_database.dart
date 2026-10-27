@@ -21,7 +21,10 @@
 /// (`recurring_streams`, the server's and the detector's, never recorded), the user's
 /// choices about them (`stream_overrides`, synced as the `recurring_stream` record) and
 /// the liabilities (`liabilities`, server-authoritative); its migration materializes the
-/// `recurring_stream` records sync held. The full-text index (`full_text_search.dart`)
+/// `recurring_stream` records sync held. Schema 10 adds the user's bills (`bills`, synced
+/// as the `bill_reminder` record, the paid occurrences a field of it) and the bill
+/// notifications this device raised (`bill_alerts`, local only); its migration
+/// materializes the `bill_reminder` records sync held. The full-text index (`full_text_search.dart`)
 /// is not part of a schema step: `beforeOpen` makes it match whether the bundled SQLite
 /// has FTS5, at every open, and records that in [AppDatabase.fullTextSearch]. Every
 /// schema change follows the procedure
@@ -45,6 +48,8 @@ import 'package:finance_tracker/core/db/sync_backfill.dart';
 import 'package:finance_tracker/core/db/tables/accounts.dart';
 import 'package:finance_tracker/core/db/tables/app_meta.dart';
 import 'package:finance_tracker/core/db/tables/app_settings.dart';
+import 'package:finance_tracker/core/db/tables/bill_alerts.dart';
+import 'package:finance_tracker/core/db/tables/bills.dart';
 import 'package:finance_tracker/core/db/tables/budget_alerts.dart';
 import 'package:finance_tracker/core/db/tables/budgets.dart';
 import 'package:finance_tracker/core/db/tables/categories.dart';
@@ -99,6 +104,8 @@ final Logger _log = Logger('db');
     RecurringStreams,
     StreamOverrides,
     Liabilities,
+    Bills,
+    BillAlerts,
   ],
 )
 final class AppDatabase extends _$AppDatabase {
@@ -134,7 +141,7 @@ final class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -217,6 +224,19 @@ final class AppDatabase extends _$AppDatabase {
           await releaseHeldRecords(
             DriftSyncStore(this, _WallClock(wallMillis)),
             EntityType.recurringStream,
+          );
+        });
+      }
+      if (from < 10) {
+        // One transaction: the tables, and the bills another device recorded before this
+        // version could store them (held as unsupported_type), land together.
+        await transaction(() async {
+          await m.createTable(bills);
+          await _createIndex(m, billsDueDate);
+          await m.createTable(billAlerts);
+          await releaseHeldRecords(
+            DriftSyncStore(this, _WallClock(wallMillis)),
+            EntityType.billReminder,
           );
         });
       }

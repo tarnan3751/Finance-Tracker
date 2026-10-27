@@ -1,8 +1,8 @@
 /// How the app's entities appear as sync records (`docs/reference/sync-app.md`).
 ///
 /// A record's fields are the entity's `shared_models` JSON, plus what the app keeps beside
-/// it: `deleted_at` for accounts, categories, rules and budgets (whose entities carry no
-/// tombstone), and `deleted_with_account` for transactions (the cascade flag, synced so a
+/// it: `deleted_at` for accounts, categories, rules, budgets and bills (whose entities
+/// carry no tombstone), and `deleted_with_account` for transactions (the cascade flag, synced so a
 /// restore on any device brings back the same rows). Settings are the one record `settings/local`, with
 /// `theme_mode` and `use_dynamic_color`. A `recurring_stream` record is the user's
 /// override of one stream (keyed by the stream's id): `muted`, `is_subscription`,
@@ -74,6 +74,11 @@ Map<String, Object?> budgetRecordJson(Budget budget, {DateTime? deletedAt}) => {
   deletedAtField: _instant(deletedAt),
 };
 
+/// The record fields of [bill], deleted at [deletedAt] (null while live). Its amount,
+/// reminder offsets and paid occurrences are whole field values.
+Map<String, Object?> billRecordJson(BillReminder bill, {DateTime? deletedAt}) =>
+    {..._plain(bill.toJson()), deletedAtField: _instant(deletedAt)};
+
 /// The record fields of [settings].
 Map<String, Object?> settingsRecordJson(Settings settings) => {
   'theme_mode': settings.themeMode.name,
@@ -133,6 +138,7 @@ Set<String> knownRecordFields(EntityType type) => switch (type) {
   EntityType.category => _categoryFields,
   EntityType.rule => _ruleFields,
   EntityType.budget => _budgetFields,
+  EntityType.billReminder => _billFields,
   EntityType.settings => const {'theme_mode', 'use_dynamic_color'},
   EntityType.recurringStream => const {
     'muted',
@@ -187,6 +193,10 @@ final Set<String> _budgetFields = budgetRecordJson(
     rollover: false,
     startDate: LocalDate(2026, 1, 1),
   ),
+).keys.toSet();
+
+final Set<String> _billFields = billRecordJson(
+  BillReminder(id: '', dueDate: LocalDate(2026, 1, 1)),
 ).keys.toSet();
 
 /// The JSON name of [value]: its Dart name in snake case (`recurring_stream`,

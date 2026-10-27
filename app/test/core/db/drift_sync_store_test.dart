@@ -490,6 +490,122 @@ void main() {
       }
     });
 
+    BillReminder bill() => BillReminder(
+      id: 'bill1',
+      name: 'Rent',
+      amount: Money(-150000, 'USD'),
+      dueDate: LocalDate(2026, 11, 1),
+      cadence: RecurringCadence.semiMonthly,
+      accountId: 'a1',
+      liabilityAccountId: 'card',
+      reminderOffsetDays: const [0, 3],
+      reminderMinutes: 1020,
+      autopay: true,
+      paidOccurrences: [LocalDate(2026, 9, 1), LocalDate(2026, 10, 1)],
+    );
+
+    test('a bill, live and deleted, round-trips through its row', () async {
+      await roundTrips(
+        complete(EntityType.billReminder, 'bill1', billRecordJson(bill()), at),
+      );
+      final BillRow row = await database.select(database.bills).getSingle();
+      expect(row.amountMinor, -150000);
+      expect(row.currency, 'USD');
+      expect(row.cadence, RecurringCadence.semiMonthly);
+      expect(row.reminderOffsetDays, '[0,3]');
+      expect(row.paidOccurrences, '["2026-09-01","2026-10-01"]');
+      expect(row.deletedAt, isNull);
+      await roundTrips(
+        complete(
+          EntityType.billReminder,
+          'bill1',
+          billRecordJson(bill(), deletedAt: DateTime.utc(2026, 10, 2)),
+          at,
+        ),
+      );
+      expect(
+        (await database.select(database.bills).getSingle()).deletedAt,
+        DateTime.utc(2026, 10, 2),
+      );
+      expect(await database.select(database.heldRecords).get(), isEmpty);
+    });
+
+    test(
+      'a bill recorded before its new fields lands with their defaults',
+      () async {
+        final Map<String, Object?> old = {
+          'id': 'bill1',
+          'stream_id': 's1',
+          'name': null,
+          'amount': {'minor_units': -1549, 'currency': 'USD'},
+          'due_date': '2026-11-05',
+          'reminder_offset_days': [1],
+        };
+        await roundTrips(complete(EntityType.billReminder, 'bill1', old, at));
+        final BillRow row = await database.select(database.bills).getSingle();
+        expect(row.name, isNull);
+        expect(row.streamId, 's1');
+        expect(row.cadence, isNull);
+        expect(row.reminderMinutes, defaultReminderMinutes);
+        expect(row.active, isTrue);
+        expect(row.autopay, isFalse);
+        expect(row.paidOccurrences, '[]');
+        expect(await database.select(database.heldRecords).get(), isEmpty);
+      },
+    );
+
+    test('a bill that does not decode is held and leaves the row', () async {
+      await store.write(
+        complete(EntityType.billReminder, 'bill1', billRecordJson(bill()), at),
+      );
+      int wall = at.wallMillis;
+      for (final Map<String, Object?> newer in [
+        {...billRecordJson(bill()), 'cadence': 'fortnightly'},
+        {...billRecordJson(bill()), 'reminder_minutes': 1440},
+        {
+          ...billRecordJson(bill()),
+          'reminder_offset_days': [2, 2],
+        },
+      ]) {
+        await roundTrips(
+          complete(
+            EntityType.billReminder,
+            'bill1',
+            newer,
+            Hlc(++wall, 0, 'b'),
+          ),
+        );
+        expect(
+          (await database.select(database.heldRecords).getSingle()).reason,
+          'unrepresentable',
+        );
+        final BillRow row = await database.select(database.bills).getSingle();
+        expect(row.cadence, RecurringCadence.semiMonthly);
+        expect(row.reminderMinutes, 1020);
+        expect(row.reminderOffsetDays, '[0,3]');
+      }
+    });
+
+    test(
+      'a bill field this version does not know is held, the rest lands',
+      () async {
+        await roundTrips(
+          complete(EntityType.billReminder, 'bill1', {
+            ...billRecordJson(bill()),
+            'snoozed_until': '2026-11-03',
+          }, at),
+        );
+        expect(
+          (await database.select(database.heldRecords).getSingle()).reason,
+          'unknown_fields',
+        );
+        expect(
+          (await database.select(database.bills).getSingle()).name,
+          'Rent',
+        );
+      },
+    );
+
     // A record of only updates (an override is never created), [fields] at [hlc].
     EntityRecord updates(
       EntityType type,

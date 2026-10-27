@@ -5,6 +5,8 @@ import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/accounts/data/demo_account_repository.dart';
 import 'package:finance_tracker/features/accounts/data/in_memory_account_repository.dart';
+import 'package:finance_tracker/features/bills/data/demo_bill_repository.dart';
+import 'package:finance_tracker/features/bills/data/in_memory_bill_repository.dart';
 import 'package:finance_tracker/features/budgets/data/demo_budget_repository.dart';
 import 'package:finance_tracker/features/budgets/data/in_memory_budget_repository.dart';
 import 'package:finance_tracker/features/categories/data/demo_category_repository.dart';
@@ -56,6 +58,7 @@ FixtureFactory inMemoryFixtures() {
         items: InMemoryItemRepository(store),
         rules: InMemoryRuleRepository(clock, recorder: recorder),
         budgets: InMemoryBudgetRepository(clock, recorder: recorder),
+        bills: InMemoryBillRepository(clock, recorder: recorder),
         streams: InMemoryRecurringStreamRepository(clock, recorder: recorder),
         liabilities: InMemoryLiabilityRepository(),
       );
@@ -81,6 +84,7 @@ FixtureFactory demoFixtures() {
         items: DemoItemRepository(store),
         rules: DemoRuleRepository(clock),
         budgets: DemoBudgetRepository(clock),
+        bills: DemoBillRepository(clock),
         streams: DemoRecurringStreamRepository(clock),
         liabilities: DemoLiabilityRepository(),
       );

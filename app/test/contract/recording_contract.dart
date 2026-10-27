@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 
+import 'bill_repository_contract.dart' show testBill;
 import 'budget_repository_contract.dart' show testBudget;
 import 'recurring_stream_repository_contract.dart' show testStream;
 import 'repository_fixture.dart';
@@ -349,6 +350,36 @@ void runRecordingContract(
         'currency': 'USD',
       });
       expect(record.fields['start_date'], '2026-08-25');
+    });
+
+    test('bills: every write records what it changed', () async {
+      await f.bills.upsert(testBill('b1'));
+      expect(await recorded(), [
+        'bill_reminder/b1 create account_id,active,amount,autopay,cadence,due_date,'
+            'id,liability_account_id,name,paid_occurrences,reminder_minutes,'
+            'reminder_offset_days,stream_id',
+      ]);
+      await f.bills.upsert(testBill('b1', paid: [LocalDate(2026, 11, 1)]));
+      await f.bills.upsert(testBill('b1', paid: [LocalDate(2026, 11, 1)]));
+      expect(await recorded(), ['bill_reminder/b1 update paid_occurrences']);
+      await f.bills.delete('b1');
+      expect(await recorded(), ['bill_reminder/b1 delete deleted_at']);
+      await expectLater(
+        f.bills.upsert(testBill('b1')),
+        throwsA(isA<EntityDeletedException>()),
+      );
+      await f.bills.restore('b1');
+      expect(await recorded(), ['bill_reminder/b1 update deleted_at']);
+      final EntityRecord record = (await sync.read(
+        EntityType.billReminder,
+        'b1',
+      ))!;
+      expect(record.isComplete, isTrue);
+      expect(record.fields['paid_occurrences'], ['2026-11-01']);
+      expect(record.fields['amount'], {
+        'minor_units': -150000,
+        'currency': 'USD',
+      });
     });
 
     test(

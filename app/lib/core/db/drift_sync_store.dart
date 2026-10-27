@@ -7,8 +7,8 @@
 /// to the fields that have a clock, so a field the record never set (`deleted_at` before
 /// the first delete) is absent. Writing a record writes its clocks and then:
 ///
-/// - a complete record (its create merged) of an account, transaction, category, rule or
-///   budget replaces the row, children included, as the record says, without the repositories' checks:
+/// - a complete record (its create merged) of an account, transaction, category, rule,
+///   budget or bill replaces the row, children included, as the record says, without the repositories' checks:
 ///   those are preconditions of a local edit, and applying them to merged state would make
 ///   it depend on arrival order. A transaction's currency is its amount's, even when that
 ///   is no longer its account's; a transaction may be written before its account;
@@ -38,6 +38,7 @@ import 'package:finance_tracker/core/db/tables/sync_meta.dart';
 import 'package:finance_tracker/core/sync/entity_codec.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/data/drift_account_repository.dart';
+import 'package:finance_tracker/features/bills/data/drift_bill_repository.dart';
 import 'package:finance_tracker/features/budgets/data/drift_budget_repository.dart';
 import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
 import 'package:finance_tracker/features/recurring/data/stream_override_rows.dart';
@@ -55,7 +56,7 @@ enum HeldReason { incomplete, unrepresentable, unknownFields, unsupportedType }
 typedef SyncLedger = ({int pending, int rejected, Hlc? lastRejected, int held});
 
 /// The [SyncStore] of the dev and prod flavors, over [AppDatabase]. Accounts, categories,
-/// rules and budgets carry no audit fields in their records, so materializing one stamps its
+/// rules, budgets and bills carry no audit fields in their records, so materializing one stamps its
 /// `updated_at` (and `created_at` on insert) from [_clock].
 final class DriftSyncStore implements SyncStore {
   /// The store over [_database], stamping from [_clock].
@@ -242,7 +243,12 @@ final class DriftSyncStore implements SyncStore {
                 streamOverrideFromRow(row),
                 deletedAt: row.deletedAt,
               );
-      case EntityType.billReminder || EntityType.goal:
+      case EntityType.billReminder:
+        final BillRow? row = await _billRow(id);
+        return row == null
+            ? null
+            : billRecordJson(billFromRow(row), deletedAt: row.deletedAt);
+      case EntityType.goal:
         return null;
     }
   }
@@ -265,6 +271,10 @@ final class DriftSyncStore implements SyncStore {
 
   Future<BudgetRow?> _budgetRow(String id) => (_database.select(
     _database.budgets,
+  )..where((b) => b.id.equals(id))).getSingleOrNull();
+
+  Future<BillRow?> _billRow(String id) => (_database.select(
+    _database.bills,
   )..where((b) => b.id.equals(id))).getSingleOrNull();
 
   // Writes [record] into its entity's table, or returns why it is held.
@@ -323,7 +333,8 @@ final class DriftSyncStore implements SyncStore {
         type != EntityType.transaction &&
         type != EntityType.category &&
         type != EntityType.rule &&
-        type != EntityType.budget) {
+        type != EntityType.budget &&
+        type != EntityType.billReminder) {
       return HeldReason.unsupportedType;
     }
     final Map<String, Object?> fields;
@@ -339,6 +350,7 @@ final class DriftSyncStore implements SyncStore {
       EntityType.category => (await _categoryRow(record.id))?.createdAt,
       EntityType.rule => (await _ruleRow(record.id))?.createdAt,
       EntityType.budget => (await _budgetRow(record.id))?.createdAt,
+      EntityType.billReminder => (await _billRow(record.id))?.createdAt,
       _ => null,
     };
     try {
@@ -453,6 +465,17 @@ final class DriftSyncStore implements SyncStore {
         );
         return () =>
             _database.into(_database.budgets).insertOnConflictUpdate(row);
+      case EntityType.billReminder:
+        final BillReminder bill = BillReminder.fromJson(fields);
+        if (bill.id != id) throw FormatException('id mismatch', bill.id);
+        final BillsCompanion row = billCompanion(
+          bill,
+          createdAt: createdAt ?? now,
+          now: now,
+          deletedAt: Value(deletedAtOf(fields)),
+        );
+        return () =>
+            _database.into(_database.bills).insertOnConflictUpdate(row);
       case _:
         throw ArgumentError.value(type, 'type', 'not materialized');
     }

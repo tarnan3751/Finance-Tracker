@@ -1270,6 +1270,101 @@ final class BudgetAlertStoreProvider
 
 String _$budgetAlertStoreHash() => r'6750109fbb393e2b675f6fb7f1ca2aa3d7e92ff9';
 
+/// The bills.
+
+@ProviderFor(billRepository)
+final billRepositoryProvider = BillRepositoryProvider._();
+
+/// The bills.
+
+final class BillRepositoryProvider
+    extends $FunctionalProvider<BillRepository, BillRepository, BillRepository>
+    with $Provider<BillRepository> {
+  /// The bills.
+  BillRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'billRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$billRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<BillRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  BillRepository create(Ref ref) {
+    return billRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(BillRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<BillRepository>(value),
+    );
+  }
+}
+
+String _$billRepositoryHash() => r'3717e3c97ab9a89c47ef9f5f2194a9d4f214c51d';
+
+/// Which bill notifications this device has raised: in memory by default and in the
+/// demo flavor, `bill_alerts` in dev and prod.
+
+@ProviderFor(billAlertStore)
+final billAlertStoreProvider = BillAlertStoreProvider._();
+
+/// Which bill notifications this device has raised: in memory by default and in the
+/// demo flavor, `bill_alerts` in dev and prod.
+
+final class BillAlertStoreProvider
+    extends $FunctionalProvider<BillAlertStore, BillAlertStore, BillAlertStore>
+    with $Provider<BillAlertStore> {
+  /// Which bill notifications this device has raised: in memory by default and in the
+  /// demo flavor, `bill_alerts` in dev and prod.
+  BillAlertStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'billAlertStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$billAlertStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<BillAlertStore> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  BillAlertStore create(Ref ref) {
+    return billAlertStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(BillAlertStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<BillAlertStore>(value),
+    );
+  }
+}
+
+String _$billAlertStoreHash() => r'150465590c05fac350f8dfe6fbb8e01512a7aadf';
+
 /// The transaction list's saved filters, on this device only.
 
 @ProviderFor(savedFilterRepository)

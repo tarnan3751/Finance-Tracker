@@ -88,6 +88,12 @@ void main() {
     await verifier.migrateAndValidate(database, 9);
   });
 
+  test('a new database matches the schema 10 dump', () async {
+    final AppDatabase database = AppDatabase(await verifier.startAt(10));
+    addTearDown(database.close);
+    await verifier.migrateAndValidate(database, 10);
+  });
+
   group('schema 1 to 2', () {
     // 2026-10-01 09:00 UTC, the v1 rows' audit instants; 2026-10-02, a v1 delete.
     const int created = 1759309200000;
@@ -958,7 +964,7 @@ void main() {
       });
     }
 
-    for (final int from in [1, 2, 3, 4, 5, 6, 7, 8]) {
+    for (final int from in [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
       test('from schema $from, after a whole run whose version was not '
           'written', () async {
         final schema = await verifier.schemaAt(from);
@@ -1200,7 +1206,7 @@ void main() {
         wallMillis: () => migratedAt,
       );
       addTearDown(database.close);
-      await verifier.migrateAndValidate(database, 9);
+      await verifier.migrateAndValidate(database, database.schemaVersion);
       await checkMigrated(database);
     });
 
@@ -1210,7 +1216,7 @@ void main() {
         schema.newConnection(),
         wallMillis: () => migratedAt,
       );
-      await verifier.migrateAndValidate(first, 9);
+      await verifier.migrateAndValidate(first, first.schemaVersion);
       await first.close();
       schema.rawDatabase.execute('PRAGMA user_version = 8');
 
@@ -1219,7 +1225,171 @@ void main() {
         wallMillis: () => migratedAt + 1000,
       );
       addTearDown(again.close);
-      await verifier.migrateAndValidate(again, 9);
+      await verifier.migrateAndValidate(again, again.schemaVersion);
+      await checkMigrated(again);
+    });
+  });
+
+  group('schema 9 to 10', () {
+    const int created = 1759309200000; // 2026-10-01 09:00 UTC
+    const int migratedAt = 1761318000000; // 2026-10-24 15:00 UTC
+    const String clock = '001759309200000-00000-dev-b';
+    const List<String> all = [
+      'id',
+      'stream_id',
+      'name',
+      'amount',
+      'due_date',
+      'reminder_offset_days',
+      'cadence',
+      'account_id',
+      'liability_account_id',
+      'reminder_minutes',
+      'active',
+      'autopay',
+      'paid_occurrences',
+      'deleted_at',
+    ];
+
+    String clocks(String id, List<String> fields) => [
+      for (final String f in fields) "('bill_reminder', '$id', '$f', '$clock')",
+    ].join(', ');
+
+    String fields(String id, {String extra = ''}) =>
+        '{"id":"$id","stream_id":null,"name":"Rent",'
+        '"amount":{"minor_units":-150000,"currency":"USD"},'
+        '"due_date":"2026-11-01","reminder_offset_days":[2],'
+        '"cadence":"monthly","account_id":"acc","liability_account_id":null,'
+        '"reminder_minutes":540,"active":true,"autopay":false,'
+        '"paid_occurrences":["2026-10-01"],"deleted_at":null$extra}';
+
+    // A schema 9 database with a manual row, sync state, a stream override, and bill
+    // records another device recorded before this version could store them: a complete
+    // one, one of only updates, one from a newer version with an unknown field, and one
+    // whose cadence this version lacks.
+    Future<InitializedSchema> seeded() async {
+      final schema = await verifier.schemaAt(9);
+      schema.rawDatabase.execute('''
+        INSERT INTO accounts (id, item_id, type, subtype, name, official_name, mask,
+          currency, current_balance_minor, available_balance_minor, credit_limit_minor,
+          balances_as_of, is_hidden, display_order, created_at, updated_at, deleted_at,
+          sync_version)
+        VALUES ('acc', NULL, 'depository', NULL, 'Wallet', NULL, NULL, 'USD',
+          NULL, NULL, NULL, NULL, 0, 0, $created, $created, NULL, 0);
+        INSERT INTO transactions (id, account_id, amount_minor, currency, date,
+          authorized_date, pending, pending_transaction_id, name, merchant_name,
+          merchant_logo_url, plaid_primary_category, plaid_detailed_category,
+          user_category_id, notes, receipt_path, hidden, source, created_at, updated_at,
+          deleted_at, sync_version, deleted_with_account)
+        VALUES ('t-rent', 'acc', -150000, 'USD', '2026-10-01', NULL, 0, NULL, 'Rent',
+          NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'manual', $created, $created,
+          NULL, 0, 0);
+        INSERT INTO stream_overrides (stream_id, muted, is_subscription, display_name,
+          created_at, updated_at, deleted_at)
+        VALUES ('s1', 1, NULL, NULL, $created, $created, NULL);
+        INSERT INTO held_records (entity_type, entity_id, fields, reason)
+        VALUES
+          ('bill_reminder', 'b-complete', '${fields('b-complete')}',
+           'unsupported_type'),
+          ('bill_reminder', 'b-updates', '{"name":"Power"}', 'unsupported_type'),
+          ('bill_reminder', 'b-newer',
+           '${fields('b-newer', extra: ',"snoozed_until":"2026-11-03"')}',
+           'unsupported_type'),
+          ('bill_reminder', 'b-bad',
+           '${fields('b-bad').replaceFirst('"monthly"', '"fortnightly"')}',
+           'unsupported_type'),
+          ('goal', 'g1', '{"name":"Holiday"}', 'unsupported_type');
+        INSERT INTO record_clocks (entity_type, entity_id, field, hlc)
+        VALUES ${clocks('b-complete', [...all, '_create'])},
+          ${clocks('b-updates', ['name'])},
+          ${clocks('b-newer', [...all, 'snoozed_until', '_create'])},
+          ${clocks('b-bad', [...all, '_create'])},
+          ('goal', 'g1', 'name', '$clock');
+        INSERT INTO sync_meta (key, value)
+        VALUES ('pull_cursor', '12'), ('device_id', 'dev-a');
+      ''');
+      return schema;
+    }
+
+    Future<Map<String, String>> held(AppDatabase database) async => {
+      for (final HeldRecordRow h
+          in await database.select(database.heldRecords).get())
+        '${h.entityType}/${h.entityId}': h.reason,
+    };
+
+    Future<void> checkMigrated(AppDatabase database) async {
+      expect(
+        (await database.select(database.transactions).get()).map((t) => t.id),
+        ['t-rent'],
+      );
+      expect(
+        await database.select(database.streamOverrides).get(),
+        hasLength(1),
+      );
+      expect(await database.select(database.billAlerts).get(), isEmpty);
+      final List<BillRow> bills = await (database.select(
+        database.bills,
+      )..orderBy([(b) => OrderingTerm.asc(b.id)])).get();
+      expect(bills.map((b) => b.id), ['b-complete', 'b-newer']);
+      final BillRow rent = bills.first;
+      expect(rent.name, 'Rent');
+      expect(rent.amountMinor, -150000);
+      expect(rent.cadence, RecurringCadence.monthly);
+      expect(rent.paidOccurrences, '["2026-10-01"]');
+      expect(rent.deletedAt, isNull);
+      expect(rent.createdAt.millisecondsSinceEpoch, migratedAt);
+      expect(await held(database), {
+        'bill_reminder/b-updates': 'incomplete',
+        'bill_reminder/b-newer': 'unknown_fields',
+        'bill_reminder/b-bad': 'unrepresentable',
+        'goal/g1': 'unsupported_type',
+      });
+      final DriftSyncStore store = DriftSyncStore(database, testClock);
+      expect(await store.pullCursor(), 12);
+      expect(
+        (await store.read(
+          EntityType.billReminder,
+          'b-newer',
+        ))!.fields['snoozed_until'],
+        '2026-11-03',
+      );
+    }
+
+    test(
+      'keeps every row, adds the two tables and materializes the held bills',
+      () async {
+        final AppDatabase database = AppDatabase(
+          (await seeded()).newConnection(),
+          wallMillis: () => migratedAt,
+        );
+        addTearDown(database.close);
+        await verifier.migrateAndValidate(database, 10);
+        await checkMigrated(database);
+      },
+    );
+
+    test('runs again after a run whose version was not written', () async {
+      final schema = await seeded();
+      final AppDatabase first = AppDatabase(
+        schema.newConnection(),
+        wallMillis: () => migratedAt,
+      );
+      await verifier.migrateAndValidate(first, 10);
+      await first.close();
+      schema.rawDatabase.execute('PRAGMA user_version = 9');
+      schema.rawDatabase.execute('''
+        INSERT INTO bill_alerts (bill_id, due_date, raised_at)
+        VALUES ('b-complete', '2026-11-01', $migratedAt);
+      ''');
+
+      final AppDatabase again = AppDatabase(
+        schema.newConnection(),
+        wallMillis: () => migratedAt + 1000,
+      );
+      addTearDown(again.close);
+      await verifier.migrateAndValidate(again, 10);
+      expect(await again.select(again.billAlerts).get(), hasLength(1));
+      await again.delete(again.billAlerts).go();
       await checkMigrated(again);
     });
   });
