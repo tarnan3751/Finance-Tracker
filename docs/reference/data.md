@@ -5,7 +5,7 @@ photos, the demo seed, and the one-time import of the original app's data. Code:
 `app/lib/core/db/` (schema, open path, key store, in-memory store, receipt store, demo
 seed, importer) and each feature's `domain/`
 (interfaces) and `data/` (implementations): `features/accounts/`, `features/transactions/`,
-`features/categories/`, `features/rules/`, `features/budgets/`, `features/settings/`, `features/items/`. Tests: `app/test/contract/` (the contract
+`features/categories/`, `features/rules/`, `features/budgets/`, `features/settings/`, `features/items/`, `features/recurring/`, `features/liabilities/`. Tests: `app/test/contract/` (the contract
 suites), `app/test/core/db/`, `app/test/drift/`, `app/integration_test/encrypted_database_test.dart`,
 `app/integration_test/transactions_search_test.dart`.
 The entities and `Money` are `shared_models` (`core.md`); the providers and startup are
@@ -13,7 +13,7 @@ The entities and `Money` are `shared_models` (`core.md`); the providers and star
 
 ## The database
 
-Drift on SQLite, at schema version 8 (`core/db/app_database.dart`; one file per table under
+Drift on SQLite, at schema version 9 (`core/db/app_database.dart`; one file per table under
 `core/db/tables/`). `app_database.dart` and the tables import no Flutter, so `drift_dev`
 can run them in the Dart VM to dump the schema.
 
@@ -36,6 +36,9 @@ can run them in the Dart VM to dump the schema.
 | `budget_alerts` | The budget alerts this device has raised, never synced (schema 5, `budgets.md`): `(budget_id, period_start, threshold_bp)` primary key, `raised_at` |
 | `dismissed_pairs` | The duplicate pairs the user marked as not duplicates (schema 7, `duplicates.md`): `id_a` and `id_b`, two transaction ids in `BINARY` order (a CHECK), the primary key, and `dismissed_at`; local to the device, never recorded or synced, no foreign key |
 | `saved_filters` | The transaction list's saved filters (schema 8, `transactions.md`): `name`, `query_json` (`TransactionFilters.toJson`), `position`, `created_at`, `updated_at`; on this device only, never synced or recorded |
+| `recurring_streams` | The recurring streams (schema 9, `recurring.md`): the server's (`plaid`, `demo`) and the detector's (`detected`), each replaced whole, never recorded: `account_id`, `merchant_name`, `cadence` (its JSON name, no CHECK), `average_amount_minor` in `currency`, `last_expected`, `next_expected`, `status`, `is_subscription`, `source`, `transaction_ids` (a JSON array), `pulled_at` |
+| `stream_overrides` | The user's choices per stream (schema 9, `recurring.md`): `stream_id` primary key (no foreign key), `muted`, `is_subscription` and `display_name` (null: the stream's own), the three audit columns; synced as the `recurring_stream` record |
+| `liabilities` | The linked accounts' liability detail (schema 9, `liabilities.md`): `(account_id, kind)` primary key, every amount a `*_minor` in the row's nullable `currency`, the dates, `is_overdue`, `aprs` (JSON), `interest_rate_bp`, `loan_term`, `payload` (the server's object as JSON), `source` (`plaid` or `demo`), `pulled_at`; server-authoritative, never recorded |
 
 The full-text index (**Full-text search** below) adds a view, two tables and five triggers
 that are not part of the Drift schema.
@@ -75,7 +78,7 @@ Phase 2's sync may apply a transaction before its account, so the repositories c
 the account exists. Indexes: `transactions(account_id, date)`,
 `transactions(user_category_id)`, `transactions(pending_transaction_id)`,
 `transaction_tags(tag)`, `categories(parent_id)`, `rules(position)`,
-`budgets(category_id)`, `saved_filters(position)`.
+`budgets(category_id)`, `saved_filters(position)`, `recurring_streams(account_id)`.
 
 ## Full-text search
 
@@ -220,6 +223,8 @@ and exposes streams that start with the current value and emit again only when i
 | `ItemRepository` | `watchAll()` (by institution name ignoring ASCII case, then id), `watchById`, `applyPlaid(items, pulledAt:)`, `applyPlaidItem`, `saveLogo`, `markLoginRequired` |
 | `RuleRepository` | `watchAll()` (by `position`, then id), `upsert`, `delete`, `restore`, `reorder(ids)` (`rules.md`) |
 | `BudgetRepository` | `watchAll()` (by `categoryId`, then id), `watchById`, `upsert`, `delete`, `restore` (`budgets.md`) |
+| `RecurringStreamRepository` | `watchAll()` (each stream with its live override as a `StreamView`, by merchant name ignoring ASCII case, then id), `watchById`, `applyPlaid(streams)`, `replaceDetected(streams)`, `setOverride(id, change)`, `clearOverride(id)` (`recurring.md`) |
+| `LiabilityRepository` | `watchAll()` (by account, then kind), `watchByAccount`, `applyPlaid(liabilities)` (`liabilities.md`) |
 | `SavedFilterRepository` | `watchAll()` (by `position`, then id), `save(name, filters)` (appended), `rename`, `delete` (final: the table is local, nothing is recorded); a blank name is an `ArgumentError` (`transactions.md`) |
 | `SettingsRepository` | `watch()`, `read()`, `save()` |
 
@@ -301,6 +306,14 @@ authoritative.
   new amount are dropped, only their count logged) and its `deleted_with_account`. A
   tombstone for a transaction the device never had is skipped. It returns the live rows
   it inserted, for the arrival seam.
+- `RecurringStreamRepository.applyPlaid(streams)` takes the server's whole list
+  (`GET /recurring`) and replaces every `plaid` and `demo` stream with it, leaving the
+  detector's streams and the overrides; a stream of another source or a repeated id is an
+  `ArgumentError` before anything is written.
+- `LiabilityRepository.applyPlaid(liabilities)` takes the server's whole list
+  (`GET /liabilities`, read into entities) and replaces every stored liability; a source
+  other than `plaid` or `demo`, a repeated account and kind, or amounts in two currencies
+  are refused before anything is written.
 - `ItemRepository.applyPlaid(items, pulledAt:)` replaces the stored Items with the
   server's list and returns them as stored: listed ones upserted with every field, the
   `removed` status and Plaid's `error_code` included (the logo bytes kept while the logo
@@ -375,7 +388,7 @@ field; a missing or unreadable value reads as that field's default.
 
 The in-memory account, transaction, category and item repositories share one `InMemoryStore`,
 because balances, currency checks and the cascade cross repositories (the rule,
-budget and settings ones keep their own state: nothing crosses into them); its operations are
+budget, recurring stream, liability and settings ones keep their own state: nothing crosses into them); its operations are
 synchronous so the demo seed loads in a provider. Rules both implementations need
 (the category edit rule, the audit-instant rule, the transaction order, SQLite's text
 comparisons, list and map equality) are in `core/db/repository_support.dart`; the `BINARY`
@@ -385,7 +398,8 @@ the rules engine orders rules the same way without importing the data layer.
 The contract suites are in `app/test/contract/`, one file per repository:
 `runAccountRepositoryContract`, `runTransactionRepositoryContract`,
 `runCategoryRepositoryContract`, `runItemRepositoryContract`,
-`runRuleRepositoryContract` and `runBudgetRepositoryContract` take a factory of a
+`runRuleRepositoryContract`, `runBudgetRepositoryContract`,
+`runRecurringStreamRepositoryContract` and `runLiabilityRepositoryContract` take a factory of a
 `RepositoryFixture` (the repositories of one implementation over one store) and a dispose
 (the account and transaction suites' `applyPlaid` groups check the kept fields, the
 tombstones, the order of new accounts, the server's `source` and that nothing is
@@ -458,8 +472,10 @@ loading it as a transaction, as a manual account's opening balance is, makes eac
 balance equal the balance the engine reports. **Investment accounts** have no transaction
 history in the engine, so they derive to their uninvested cash only, a known gap until
 Phase 6 brings holdings. The engine's Items are loaded first, with their institutions
-(the demo's fake server lists the same ones); its liabilities, holdings, recurring
-expectations and anomalies are not: the app has no repositories for them yet. Choosing another persona
+(the demo's fake server lists the same ones). Its recurring expectations become the demo
+recurring stream repository's `demo` streams and its card, mortgage and student-loan
+liabilities the demo liability repository's (`recurring.md`, `liabilities.md`); its
+holdings and anomalies are not loaded: the app has no repositories for them yet. Choosing another persona
 rebuilds the store and the repositories over it, so the demo's own edits are lost. The demo's
 rule repository holds two rules written for the persona it shows (`demo_rules.dart`,
 `rules.md`), and its budget repository two budgets (`demo_budgets.dart`, `budgets.md`). The
@@ -506,6 +522,18 @@ package id changed (`PLAN.md` §12), it only serves an install that shares the o
 app's data directory.
 
 ## Changing the schema
+
+**Schema 9** adds `recurring_streams`, `stream_overrides` and `liabilities`. Its step, in
+one transaction, creates the three tables (`IF NOT EXISTS`) and the stream index (only
+when missing), and writes again every `recurring_stream` record held in `held_records`
+(another device's overrides, held `unsupported_type` before this version): one that
+decodes becomes a `stream_overrides` row (an override record is only updates, laid over
+the defaults), one with unknown fields lands and stays held `unknown_fields`, and one
+whose fields do not decode stays `unrepresentable`. `migration_test.dart` opens a schema 8
+database with manual and Plaid rows, an Item, sync state and those held records, checks
+the empty stream and liability tables, the released overrides and what stays held, and
+runs the step again at version 8. The **every step runs again at the old version** group
+covers every version from 1 to 8.
 
 **Schema 8** adds `saved_filters`; its step creates the empty table and its index, the
 index only when `sqlite_master` lacks it: the version is written after `beforeOpen`,

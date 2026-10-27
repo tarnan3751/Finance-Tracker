@@ -57,6 +57,8 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `databaseProvider` | `core/di/providers.dart` | The encrypted `AppDatabase` of dev and prod, closed with the container; a `StateError` in demo |
 | `inMemoryStoreProvider` | `core/di/providers.dart` | The `InMemoryStore` behind the in-memory and demo repositories; the demo flavor's holds the system categories and the demo seed |
 | `accountRepositoryProvider`, `transactionRepositoryProvider`, `categoryRepositoryProvider`, `itemRepositoryProvider`, `ruleRepositoryProvider`, `budgetRepositoryProvider`, `settingsRepositoryProvider` | `core/di/providers.dart` | In memory by default; Drift in dev and prod and demo in demo, through `overridesFor` |
+| `recurringStreamRepositoryProvider`, `liabilityRepositoryProvider` | `core/di/providers.dart` | The recurring streams with their overrides and the liabilities (`recurring.md`, `liabilities.md`): in memory by default, Drift in dev and prod, demo in demo (the persona's, rebuilt with it) |
+| `recurringStreamsProvider`, `subscriptionsProvider`, `streamActionsProvider`; `liabilitiesProvider` | `features/recurring/application/`; `features/liabilities/application/` | The streams with their overrides, the subscriptions with their annual cost, the actions on a stream; the liabilities |
 | `budgetAlertStoreProvider` | `core/di/providers.dart` | Which budget alerts this device raised (`budgets.md`): in memory by default and in demo, `budget_alerts` in dev and prod |
 | `dismissedPairStoreProvider` | `core/di/providers.dart` | The duplicate pairs the user dismissed, on the device only: in memory by default and in demo (rebuilt with the in-memory store), `dismissed_pairs` in dev and prod (`duplicates.md`) |
 | `appNotifierProvider`, `inAppNotificationsProvider` | `core/platform/in_app_notifications.dart` | Where the app's notifications go (**Notifications**): the in-app list in every flavor |
@@ -137,7 +139,7 @@ client (`api.md`), which nothing outside this folder imports.
 | File | What |
 |---|---|
 | `finance_api.dart` | `FinanceApi`: one method per contract operation (the webhook receiver aside), taking and returning `shared_models` values, the sync engine's `PushResult` and `PullPage`, and `api_models.dart`'s values; and `sessionEnded`, fired when the client ended the session itself |
-| `api_models.dart` | The values without a `shared_models` entity yet: `AuthResult`, `LinkToken`, `LinkedItem` (an `Item` with its `Institution`), `SyncRun`, `VersionPage<T>`, `Health`, and the liability, holding, security and investment-transaction values (`Money` amounts, `LocalDate` dates, `Decimal` strings), each with the contract's JSON |
+| `api_models.dart` | The values in the contract's own shapes: `AuthResult`, `LinkToken`, `LinkedItem` (an `Item` with its `Institution`), `SyncRun`, `VersionPage<T>`, `Health`, the liability values with their `source` (read into `shared_models`' `Liability` by `Liabilities.toEntities`, the rates in basis points through `basisPointsOf`), and the holding, security and investment-transaction values (`Money` amounts, `LocalDate` dates, `Decimal` strings), each with the contract's JSON |
 | `http_finance_api.dart` | `HttpFinanceApi`: the implementation over the generated client |
 | `api_config.dart` | `buildDio(config, {adapter, baseUrl, version})`, `apiBaseUrl`, `contractVersion` |
 | `auth_interceptor.dart` | Bearer tokens and the single-flight refresh |
@@ -202,14 +204,17 @@ sign-in; opaque access tokens valid 15 minutes on its clock; rotation with reuse
 the live-family bearer check; logout, device removal and account deletion; passwords as
 salted SHA-256 (the fake only); one `InMemorySyncRelay` per user behind the server's two
 extra `invalid` checks, with 409 `sync_cursor_invalid`; and the Plaid proxy and data
-endpoints over a `FakeDataset` (`fake_dataset.dart`). A dataset's transactions and
-streams must be `demo`; the fake keeps its ids and assigns only each user's
+endpoints over a `FakeDataset` (`fake_dataset.dart`). A dataset's transactions,
+streams and liabilities must be `demo`; the fake keeps its ids and assigns only each user's
 `sync_version`s, in a fixed order, when an Item's first sync completes (`not_ready`
 first, as Plaid). It remembers each link token's user and update Item, so
 `completeLink(linkToken)` can play Plaid's side of Link for the fake launcher
 (`items.md`). `FakeDataset.sample(today)` is one Item, three accounts and a dozen
-transactions; `FakeDataset.fromDemoSeed(seed)` is the persona engine's household (its
-Items, accounts and transactions; its liabilities and investments are not carried yet);
+transactions, a Netflix stream and the card's liability; `FakeDataset.fromDemoSeed(seed)`
+is the persona engine's household (its Items, accounts and transactions, its recurring
+expectations as `demo` streams and its card, mortgage and student-loan liabilities, as
+the demo repositories hold them, `recurring.md`, `liabilities.md`; its investments are
+not carried yet);
 `FakeDataset.empty()` has none; a `FakeItemData` may carry `institutionLogo` bytes, which
 the logo route serves and `logo_url` then points at. The fake also mirrors contract 0.3.0's
 Item operations: a refresh answers `started` and makes the next sync re-apply the Item's

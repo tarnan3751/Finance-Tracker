@@ -15,7 +15,7 @@ schema 2 tables under `app/lib/core/db/tables/`, the repositories' writes
 `app/integration_test/sync_two_devices_test.dart`, `app/test/core/plaid/plaid_pull_test.dart`.
 
 Sync covers the user-authored data the app stores now: accounts, transactions,
-categories, rules, budgets and the settings. Other entity types arrive with their phases; a record of one
+categories, rules, budgets, the overrides of recurring streams and the settings. Other entity types arrive with their phases; a record of one
 pulled before then is kept (**The store**, held records).
 
 ## Records
@@ -30,6 +30,7 @@ plus what the app keeps beside it:
 | `category` | `Category.toJson()` and `deleted_at` |
 | `rule` | `Rule.toJson()` and `deleted_at`; `conditions` and `actions` are whole field values, so concurrent edits of two conditions of one rule resolve last-writer-wins on the list |
 | `budget` | `Budget.toJson()` and `deleted_at`; the amount is one whole field value (`{minor_units, currency}`) and `start_date` an ISO date (`budgets.md`) |
+| `recurring_stream` | the user's override of one stream, keyed by the stream's id: `muted`, `is_subscription`, `display_name` and `deleted_at`; never the stream itself, which is the server's or the detector's (`recurring.md`) |
 | `settings` | the one record `settings/local`: `theme_mode`, `use_dynamic_color` |
 
 Tags, splits and amounts are whole field values. The audit fields of accounts, categories,
@@ -67,7 +68,9 @@ keep.
   so a later restore shows them;
 - an **incomplete** record (only updates merged) whose row exists is laid over the row: a
   Plaid transaction's overrides, a system category's icon or color, the settings (which
-  always exist);
+  always exist); a stream's override, whose record is only ever updates, is laid over
+  its stored row or over the defaults when there is none, so it never waits for a
+  create;
 - a record the table cannot hold exactly is also kept whole in `held_records`:
   - `unknown_fields`: fields this version does not know (a newer app's). The known ones
     land in the row; the unknown ones survive local edits and travel back to every device;
@@ -110,6 +113,8 @@ The filter by `source` is `userAuthoredChange`, shared by every implementation:
 | a `derived` or `demo` transaction | nothing |
 | an account with an `item_id` | nothing, until Phase 3 rules on linked-account overrides |
 | categories, rules, budgets, settings | all of it; the seeding of the system categories is not recorded |
+| a stream's override | as updates against the stored override, or the defaults when there is none (as settings are), so first choices on two devices merge field by field; a clear is a delete |
+| recurring streams, liabilities | nothing: the server's, or the detector's on each device |
 
 A rule's change to an arriving transaction (`rules.md`, **On arrival**) is an ordinary
 transaction write: on a `plaid` row an update of `user_category_id` or `tags`, so other
@@ -198,7 +203,8 @@ records this version cannot show, and Sync now. Counts and times only: a change'
 
 Plaid data is server-authoritative and only pulled, never pushed (`PLAN.md` §6.4).
 `PlaidPull` (`core/plaid/plaid_pull.dart`, `plaidPullProvider`) brings the server's
-Items, linked accounts and Plaid-sourced transactions into the store through the
+Items, linked accounts, Plaid-sourced transactions, recurring streams and liabilities
+into the store through the
 repositories' apply paths (`data.md`, **The Plaid apply paths**), which record nothing
 and keep the `source` the server sent. One run:
 
@@ -212,10 +218,16 @@ and keep the `source` the server sent. One run:
    cursor saved; a failure anywhere in a page rolls it back and leaves the cursor. A
    cursor past the server's version (`SyncCursorInvalid`) restarts from 0 once per run,
    replacing rows by id;
-3. the institution logos the Items lack (never fetched, or their URL changed), through
+3. `GET /recurring` and then `GET /liabilities`, each the server's whole list, each
+   applied in its own store transaction (`RecurringStreamRepository.applyPlaid`: every
+   server-supplied stream replaced, the detector's and the overrides kept;
+   `LiabilityRepository.applyPlaid`: every liability replaced; `recurring.md`,
+   `liabilities.md`). A failure of either is logged by its type and fails neither the
+   run nor the other: the transactions matter more;
+4. the institution logos the Items lack (never fetched, or their URL changed), through
    `GET /institutions/{id}/logo`; a failed fetch is logged and tried again next run, and
    never fails the pull;
-4. `plaid_pulled_at`, when the whole run succeeded.
+5. `plaid_pulled_at`, when the run succeeded (a failed list does not stop it).
 
 `run()` is single-flight: a call during a run gets one more run after it, shared by every
 caller during that run, so data a caller has just made the server hold (an Item sync that
@@ -245,13 +257,13 @@ never re-reads rows; `arrivalProcessorProvider` is the rules' `RuleRunner` (`rul
 
 | Suite | What it proves |
 |---|---|
-| `test/drift/migration_test.dart` | A schema 1 database with data migrates: rows kept, one create per user-authored row and a delete per deleted one, clocks increasing on one node, the stored records equal to the fold of the entries; a schema 3 database's held rule records become rows, or stay held for the reason that now applies; a schema 5 database's held transaction records carrying `hidden` land in their rows |
-| `test/core/db/drift_sync_store_test.dart` | The engine's store contract cases; records round-tripping through the tables (randomized transactions and rules included); the held reasons, the row each leaves and their release; unknown fields surviving a local edit; the node substitution; the ledger |
+| `test/drift/migration_test.dart` | A schema 1 database with data migrates: rows kept, one create per user-authored row and a delete per deleted one, clocks increasing on one node, the stored records equal to the fold of the entries; a schema 3 database's held rule records become rows, or stay held for the reason that now applies; a schema 5 database's held transaction records carrying `hidden` land in their rows; a schema 8 database's held `recurring_stream` records become overrides, or stay held |
+| `test/core/db/drift_sync_store_test.dart` | The engine's store contract cases; records round-tripping through the tables (randomized transactions and rules included, a stream override of updates only, live and cleared); the held reasons, the row each leaves and their release; unknown fields surviving a local edit; the node substitution; the ledger |
 | `test/contract/recording_contract.dart` | Exactly the entries each write records, in the Drift and in-memory implementations; a refused write records nothing; a Drift write and its entry roll back together |
 | `test/core/sync/sync_controller_test.dart` | The triggers, the debounce (none on top of the start), single flight with one coalesced rerun, a sign-out and sign-in during a held push (one push at a time, each entry once on the relay), the cursor reset, failures in the status, persistence, demo, in-memory data and signed-out, the Plaid pull after a session and its failure kept apart |
-| `test/core/plaid/plaid_pull_test.dart` | Over the fake server into the Drift repositories: everything applied as sent and nothing recorded, paging with the cursor per page, a failed page rolled back and its cursor kept, the cursor reset, an unlinked Item's data going, an override pulled before its row landing on it, single flight; and the in-memory repositories |
+| `test/core/plaid/plaid_pull_test.dart` | Over the fake server into the Drift repositories: everything applied as sent and nothing recorded, the streams and the liabilities replaced and a failure of either list leaving the run whole, paging with the cursor per page, a failed page rolled back and its cursor kept, the cursor reset, an unlinked Item's data going, an override pulled before its row landing on it, single flight; and the in-memory repositories |
 | `test/core/sync/http_sync_relay_test.dart` | The relay over stub endpoints: pass-through, the device check, the cursor exception, a session through it |
 | `test/core/api/fake_dataset_test.dart` | Every persona's household served by the fake server as the engine gave it; the demo flavor's fake on the persona the demo shows |
 | `test/features/transactions/presentation/orphan_transaction_test.dart` | A live transaction on an account this device does not show: labelled by its category, and the editor says the account is gone |
 | `integration_test/sync_two_devices_test.dart` | On a device: two app instances, encrypted databases and the real client, sync through the fake server, one driven through its screens |
-| `test/sync/two_device_convergence_test.dart` | Devices, each the app's wiring over its own database, converge through one relay: offline edits, delete against edit and against restore, the cascade, settings, a system category, an amount moved to another currency against splits in the old one, clock skew, a wiped relay, changes before sign-in, a seeded random run on three devices; rules: concurrent edits, a reorder against an edit, concurrent reorders, delete against edit, two devices filing one bank transaction by a synced rule, and a seeded random run of rule edits; hidden: a hide against a notes edit and a batch hide, hide against unhide by clock, a hidden bank row kept through the bank's update and a hide pulled before its row |
+| `test/sync/two_device_convergence_test.dart` | Devices, each the app's wiring over its own database, converge through one relay: offline edits, delete against edit and against restore, the cascade, settings, a system category, an amount moved to another currency against splits in the old one, clock skew, a wiped relay, changes before sign-in, a seeded random run on three devices; rules: concurrent edits, a reorder against an edit, concurrent reorders, delete against edit, two devices filing one bank transaction by a synced rule, and a seeded random run of rule edits; hidden: a hide against a notes edit and a batch hide, hide against unhide by clock, a hidden bank row kept through the bank's update and a hide pulled before its row; stream overrides: first choices on two devices merging, a clear winning over an edit and restored by a later choice, an override reaching a device before its stream |

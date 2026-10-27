@@ -171,8 +171,12 @@ pending and no date is in the future.
   - They are listed in `anomalies` as ground truth for the insights feature.
 - **Recurring expectations.** Regular income, bills, subscriptions and loan payments are
   listed in `recurring` with their schedule, tolerance (two days under a weekend rule, else
-  zero) and amount range. `RecurringStream` is not used, because its `source` has no
-  `demo` value.
+  zero) and amount range. They are the engine's own records, the ground truth of the
+  app's detector; the app turns each into a `demo` `RecurringStream` for its demo flavor
+  and in-app fake (`recurring.md`, **The demo**), and the engine's liabilities into the
+  contract's liability objects (`liabilities.md`, **The demo**). The engine's own
+  `Liability` shares its name with `shared_models`' entity, so its libraries that use it
+  hide the shared one.
 
 Ids are `demo-<persona>-<account>` for accounts, `demo-<persona>-t000001` onward for
 transactions in date order, and `demo-<persona>-i000001` onward for investment

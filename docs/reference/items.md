@@ -122,7 +122,10 @@ before the row arrived (a category, notes, tags, splits, a receipt) is already o
 
 The account screens name each linked account's institution and show the balance it
 reported (`accounts.md`, **Balances**); a linked account's detail opens this screen from
-its menu ("Linked banks").
+its menu ("Linked banks"). The pull also brings the Items' recurring streams and their
+cards' and loans' liabilities, each the server's whole list replacing the stored one
+(`recurring.md`, `liabilities.md`): unlinking an Item with its history deleted takes them
+away on the next pull, as the server stops listing them.
 
 A linked account cannot be deleted on the device, and neither can a Plaid transaction
 (`BankDataNotDeletableException`; the account detail and the transaction editor offer no
@@ -158,4 +161,4 @@ fake's rows again over local edits of those `demo` rows.
 | `test/features/items/presentation/items_screen_test.dart` | The chips, the last sync in another zone, Fix connection only where needed, an unlinked bank shown only while its accounts are, linking from the empty state, a failure on its card, the unlink dialog, the entries from Accounts and Settings |
 | `test/features/items/presentation/items_screen_golden_test.dart` | The screen with three banks and empty, light and dark |
 | `test/accessibility_test.dart` | The screen empty and with banks, and the unlink dialog, against the three guidelines and at text scale 2 |
-| `integration_test/items_flow_test.dart` | On the harness: the demo's banks, and the demo linking Houndstooth Bank (absent before, present after); under `FT_FAKE_SERVER`, the dev flavor registering, linking, seeing the accounts, the fake's reset-login showing Needs attention and Fix connection repairing it, then unlinking with its history deleted |
+| `integration_test/items_flow_test.dart` | On the harness: the demo's banks and the persona's streams and liabilities through their providers, and the demo linking Houndstooth Bank (absent before, present after, with its stream and card liability); under `FT_FAKE_SERVER`, the dev flavor registering, linking, seeing the accounts, the stream and the card's liability, the fake's reset-login showing Needs attention and Fix connection repairing it, then unlinking with its history deleted |
