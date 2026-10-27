@@ -1,5 +1,5 @@
-/// The Plaid pull: the server's Items, linked accounts, Plaid-sourced transactions and
-/// recurring streams brought into the local store (`docs/reference/sync-app.md`, **The Plaid pull**;
+/// The Plaid pull: the server's Items, linked accounts, Plaid-sourced transactions,
+/// recurring streams and liabilities brought into the local store (`docs/reference/sync-app.md`, **The Plaid pull**;
 /// `PLAN.md` §6.4: Plaid data is server-authoritative and only pulled, never pushed).
 ///
 /// One run:
@@ -18,8 +18,10 @@
 ///    rows by id;
 /// 3. `GET /recurring`, the server's whole list, applied in one store transaction
 ///    (`RecurringStreamRepository.applyPlaid`: every server-supplied stream replaced, the
-///    detector's and the user's overrides left alone). A failure is logged by its type
-///    and does not fail the run: the transactions matter more;
+///    detector's and the user's overrides left alone), then `GET /liabilities`, likewise
+///    (`LiabilityRepository.applyPlaid`: every liability replaced). A failure of either
+///    list is logged by its type and does not fail the run, nor the other list: the
+///    transactions matter more;
 /// 4. the institution logos: for each Item whose institution has a `logo_url` and whose
 ///    bytes are missing (never fetched, or the URL changed), `GET
 ///    /institutions/{id}/logo` (bearer-secured, so the screen cannot load the URL
@@ -44,6 +46,7 @@ import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
 import 'package:finance_tracker/features/items/domain/linked_bank.dart';
+import 'package:finance_tracker/features/liabilities/domain/liability_repository.dart';
 import 'package:finance_tracker/features/recurring/domain/recurring_stream_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:logging/logging.dart';
@@ -109,6 +112,7 @@ final class PlaidPull {
     required this.accounts,
     required this.transactions,
     required this.streams,
+    required this.liabilities,
     required this.clock,
     this.arrival = const NoArrivalProcessor(),
     this.pageSize = 500,
@@ -120,6 +124,7 @@ final class PlaidPull {
   final AccountRepository accounts;
   final TransactionRepository transactions;
   final RecurringStreamRepository streams;
+  final LiabilityRepository liabilities;
   final Clock clock;
   final ArrivalProcessor arrival;
 
@@ -190,12 +195,18 @@ final class PlaidPull {
       await store.transaction(() => streams.applyPlaid(pulled));
       return pulled.length;
     });
+    final int? liabilityCount = await _pullList('liabilities', () async {
+      final List<Liability> pulled = (await api.getLiabilities()).toEntities();
+      await store.transaction(() => liabilities.applyPlaid(pulled));
+      return pulled.length;
+    });
     await _fetchLogos(banks);
     await store.savePulledAt(clock.nowUtc());
     _log.info(
       'pulled ${listed.length} items, ${linked.length} accounts, '
       '$pages transaction pages ($added new), '
-      '${streamCount ?? 'no'} recurring streams',
+      '${streamCount ?? 'no'} recurring streams, '
+      '${liabilityCount ?? 'no'} liabilities',
     );
   }
 }

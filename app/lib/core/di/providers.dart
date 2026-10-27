@@ -56,6 +56,10 @@ import 'package:finance_tracker/features/items/data/demo_item_repository.dart';
 import 'package:finance_tracker/features/items/data/drift_item_repository.dart';
 import 'package:finance_tracker/features/items/data/in_memory_item_repository.dart';
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
+import 'package:finance_tracker/features/liabilities/data/demo_liability_repository.dart';
+import 'package:finance_tracker/features/liabilities/data/drift_liability_repository.dart';
+import 'package:finance_tracker/features/liabilities/data/in_memory_liability_repository.dart';
+import 'package:finance_tracker/features/liabilities/domain/liability_repository.dart';
 import 'package:finance_tracker/features/recurring/data/demo_recurring_stream_repository.dart';
 import 'package:finance_tracker/features/recurring/data/drift_recurring_stream_repository.dart';
 import 'package:finance_tracker/features/recurring/data/in_memory_recurring_stream_repository.dart';
@@ -274,6 +278,14 @@ RecurringStreamRepository recurringStreamRepository(Ref ref) {
   return repository;
 }
 
+/// The liabilities of the linked accounts.
+@Riverpod(keepAlive: true)
+LiabilityRepository liabilityRepository(Ref ref) {
+  final InMemoryLiabilityRepository repository = InMemoryLiabilityRepository();
+  ref.onDispose(repository.close);
+  return repository;
+}
+
 /// Which budget alerts this device has raised: in memory by default and in the demo
 /// flavor, `budget_alerts` in dev and prod.
 @Riverpod(keepAlive: true)
@@ -342,6 +354,7 @@ PlaidPull plaidPull(Ref ref) => PlaidPull(
   accounts: ref.watch(accountRepositoryProvider),
   transactions: ref.watch(transactionRepositoryProvider),
   streams: ref.watch(recurringStreamRepositoryProvider),
+  liabilities: ref.watch(liabilityRepositoryProvider),
   clock: ref.watch(clockProvider),
   arrival: ref.watch(arrivalProcessorProvider),
 );
@@ -443,6 +456,12 @@ final List<Override> _driftOverrides = [
       recorder: ref.watch(changeRecorderProvider),
     ),
   ),
+  liabilityRepositoryProvider.overrideWith(
+    (ref) => DriftLiabilityRepository(
+      ref.watch(databaseProvider),
+      ref.watch(clockProvider),
+    ),
+  ),
   savedFilterRepositoryProvider.overrideWith(
     (ref) => DriftSavedFilterRepository(
       ref.watch(databaseProvider),
@@ -527,6 +546,11 @@ final List<Override> _demoOverrides = [
   recurringStreamRepositoryProvider.overrideWith((ref) {
     final DemoRecurringStreamRepository repository =
         DemoRecurringStreamRepository(ref.watch(clockProvider));
+    ref.onDispose(repository.close);
+    return repository;
+  }),
+  liabilityRepositoryProvider.overrideWith((ref) {
+    final DemoLiabilityRepository repository = DemoLiabilityRepository();
     ref.onDispose(repository.close);
     return repository;
   }),

@@ -1,11 +1,13 @@
-/// The values the API returns that have no `shared_models` entity yet: the liability,
-/// holding, security and investment-transaction schemas, which exist only in the contract
-/// until Phase 3 adds their entities (`docs/reference/api.md`), and the small results of
-/// the auth, Plaid and health operations.
+/// The values the API returns in the contract's own shapes: the liability schemas (read
+/// into `shared_models`' `Liability` by [Liabilities.toEntities]), the holding, security
+/// and investment-transaction schemas, which exist only in the contract until Phase 6
+/// adds their entities (`docs/reference/api.md`), and the small results of the auth,
+/// Plaid and health operations.
 ///
 /// Amounts are `Money`, dates `LocalDate`, instants UTC; per-unit prices, quantities and
-/// rates are the contract's `Decimal` strings, kept as text. `fromJson` and `toJson` read
-/// and write the contract's JSON exactly, so the client and the fake share one shape.
+/// rates are the contract's `Decimal` strings, kept as text, and a liability's rates
+/// become basis points only in its entity. `fromJson` and `toJson` read and write the
+/// contract's JSON exactly, so the client and the fake share one shape.
 library;
 
 import 'package:shared_models/shared_models.dart';
@@ -77,6 +79,25 @@ typedef VersionPage<T> = ({List<T> items, int nextSince, bool hasMore});
 
 /// `GET /health`: the contract version the server implements.
 typedef Health = ({String status, String version});
+
+/// [percentage], a `Decimal` percentage, in basis points (1 % is 100), rounded half to
+/// even past the second decimal place (`3.875` is 388). Throws [FormatException] when it
+/// is not a `Decimal`.
+int basisPointsOf(String percentage) {
+  final RegExpMatch? match = RegExp(r'^(-?)(0|[1-9][0-9]*)(?:\.([0-9]+))?$')
+      .firstMatch(percentage);
+  if (match == null) throw FormatException('not a Decimal', percentage);
+  final String fraction = (match[3] ?? '').padRight(2, '0');
+  int bp = int.parse(match[2]!) * 100 + int.parse(fraction.substring(0, 2));
+  final String rest = fraction.substring(2);
+  if (rest.isNotEmpty && rest.codeUnitAt(0) >= 0x35) {
+    // At least half a basis point: up, unless exactly half and already even.
+    final bool half =
+        rest[0] == '5' && rest.substring(1).replaceAll('0', '').isEmpty;
+    if (!half || bp.isOdd) bp++;
+  }
+  return match[1] == '-' ? -bp : bp;
+}
 
 /// One APR of a credit account (`Apr`).
 final class Apr {
@@ -152,6 +173,29 @@ final class CreditLiability {
   final Money? lastStatementBalance;
   final Money? minimumPaymentAmount;
   final LocalDate? nextPaymentDueDate;
+
+  /// The entity, with this object as its payload.
+  Liability toLiability() => Liability(
+    accountId: accountId,
+    kind: LiabilityKind.credit,
+    source: source,
+    nextPaymentDueDate: nextPaymentDueDate,
+    minimumPaymentAmount: minimumPaymentAmount,
+    lastStatementBalance: lastStatementBalance,
+    lastStatementIssueDate: lastStatementIssueDate,
+    lastPaymentAmount: lastPaymentAmount,
+    lastPaymentDate: lastPaymentDate,
+    isOverdue: isOverdue,
+    aprs: [
+      for (final Apr a in aprs)
+        LiabilityApr(
+          type: a.aprType,
+          percentageBasisPoints: basisPointsOf(a.aprPercentage),
+          balanceSubjectToApr: a.balanceSubjectToApr,
+        ),
+    ],
+    payload: toJson(),
+  );
 
   Map<String, dynamic> toJson() => {
     'account_id': accountId,
@@ -242,6 +286,27 @@ final class MortgageLiability {
   final Money? pastDueAmount;
   final Money? ytdInterestPaid;
   final Money? ytdPrincipalPaid;
+
+  /// The entity, with this object as its payload.
+  Liability toLiability() => Liability(
+    accountId: accountId,
+    kind: LiabilityKind.mortgage,
+    source: source,
+    nextPaymentDueDate: nextPaymentDueDate,
+    lastPaymentAmount: lastPaymentAmount,
+    lastPaymentDate: lastPaymentDate,
+    interestRateBasisPoints: switch (interestRatePercentage) {
+      null => null,
+      final String rate => basisPointsOf(rate),
+    },
+    originationDate: originationDate,
+    originationPrincipal: originationPrincipalAmount,
+    loanTerm: loanTerm,
+    nextMonthlyPayment: nextMonthlyPayment,
+    ytdInterestPaid: ytdInterestPaid,
+    ytdPrincipalPaid: ytdPrincipalPaid,
+    payload: toJson(),
+  );
 
   Map<String, dynamic> toJson() => {
     'account_id': accountId,
@@ -343,6 +408,26 @@ final class StudentLoanLiability {
   final Money? ytdInterestPaid;
   final Money? ytdPrincipalPaid;
 
+  /// The entity, with this object as its payload.
+  Liability toLiability() => Liability(
+    accountId: accountId,
+    kind: LiabilityKind.student,
+    source: source,
+    nextPaymentDueDate: nextPaymentDueDate,
+    minimumPaymentAmount: minimumPaymentAmount,
+    lastStatementBalance: lastStatementBalance,
+    lastStatementIssueDate: lastStatementIssueDate,
+    lastPaymentAmount: lastPaymentAmount,
+    lastPaymentDate: lastPaymentDate,
+    isOverdue: isOverdue,
+    interestRateBasisPoints: basisPointsOf(interestRatePercentage),
+    originationDate: originationDate,
+    originationPrincipal: originationPrincipalAmount,
+    ytdInterestPaid: ytdInterestPaid,
+    ytdPrincipalPaid: ytdPrincipalPaid,
+    payload: toJson(),
+  );
+
   Map<String, dynamic> toJson() => {
     'account_id': accountId,
     'source': source.name,
@@ -393,6 +478,13 @@ final class Liabilities {
   final List<CreditLiability> credit;
   final List<MortgageLiability> mortgage;
   final List<StudentLoanLiability> student;
+
+  /// Every liability as the entity, credit first, then mortgages, then student loans.
+  List<Liability> toEntities() => [
+    for (final CreditLiability c in credit) c.toLiability(),
+    for (final MortgageLiability m in mortgage) m.toLiability(),
+    for (final StudentLoanLiability s in student) s.toLiability(),
+  ];
 
   Map<String, dynamic> toJson() => {
     'credit': [for (final CreditLiability c in credit) c.toJson()],

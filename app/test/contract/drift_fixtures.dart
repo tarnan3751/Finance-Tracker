@@ -9,6 +9,7 @@ import 'package:finance_tracker/features/accounts/data/drift_account_repository.
 import 'package:finance_tracker/features/budgets/data/drift_budget_repository.dart';
 import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
 import 'package:finance_tracker/features/items/data/drift_item_repository.dart';
+import 'package:finance_tracker/features/liabilities/data/drift_liability_repository.dart';
 import 'package:finance_tracker/features/recurring/data/drift_recurring_stream_repository.dart';
 import 'package:finance_tracker/features/rules/data/drift_rule_repository.dart';
 import 'package:finance_tracker/features/settings/data/drift_settings_repository.dart';
@@ -58,6 +59,7 @@ FixtureFactory driftFixtures({bool fullTextSearch = true}) {
           clock,
           recorder: recorder,
         ),
+        liabilities: DriftLiabilityRepository(database, clock),
       );
     },
     dispose: () => database.close(),

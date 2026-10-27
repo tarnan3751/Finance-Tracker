@@ -4,7 +4,8 @@
 // page, a failed page leaving the cursor, a cursor past the server restarting from 0, an
 // unlinked Item's data going, an override pulled before its row landing on it, single
 // flight, the arrival seam, nothing recorded, the rules applied on arrival, and the
-// recurring streams replaced, a failure of their list leaving the run whole.
+// recurring streams and the liabilities replaced, a failure of either list leaving the
+// run and the other list whole.
 import 'dart:typed_data';
 
 import 'package:drift/native.dart';
@@ -24,6 +25,8 @@ import 'package:finance_tracker/features/categories/data/drift_category_reposito
 import 'package:finance_tracker/features/items/data/drift_item_repository.dart';
 import 'package:finance_tracker/features/items/data/in_memory_item_repository.dart';
 import 'package:finance_tracker/features/items/domain/linked_bank.dart';
+import 'package:finance_tracker/features/liabilities/data/drift_liability_repository.dart';
+import 'package:finance_tracker/features/liabilities/data/in_memory_liability_repository.dart';
 import 'package:finance_tracker/features/recurring/data/drift_recurring_stream_repository.dart';
 import 'package:finance_tracker/features/recurring/data/in_memory_recurring_stream_repository.dart';
 import 'package:finance_tracker/features/recurring/domain/stream_view.dart';
@@ -100,6 +103,7 @@ void main() {
       clock,
       recorder: recorder(),
     ),
+    liabilities: DriftLiabilityRepository(database, clock),
     clock: clock,
     arrival: arrivals,
     pageSize: pageSize,
@@ -244,6 +248,7 @@ void main() {
           clock,
           recorder: recorder(),
         ),
+        liabilities: DriftLiabilityRepository(database, clock),
         clock: clock,
         arrival: seen,
       ).run();
@@ -333,6 +338,59 @@ void main() {
     });
   });
 
+  group('liabilities', () {
+    test('are replaced by the server\'s list, the payload as sent, nothing '
+        'recorded', () async {
+      final DriftLiabilityRepository liabilities = DriftLiabilityRepository(
+        database,
+        clock,
+      );
+      await liabilities.applyPlaid([
+        const Liability(
+          accountId: 'gone',
+          kind: LiabilityKind.student,
+          source: DataSource.demo,
+          payload: {},
+        ),
+      ]);
+      await link();
+      await pull().run();
+      final CreditLiability sent =
+          server.dataset.items.single.liabilities.credit.single;
+      final Liability card = (await liabilities.watchAll().first).single;
+      expect(card, sent.toLiability());
+      expect(card.source, DataSource.demo);
+      expect(card.aprs.single.percentageBasisPoints, 2499);
+      expect(card.minimumPaymentAmount, Money(2500, 'USD'));
+      expect(card.payload, sent.toJson());
+      expect(await syncStore.unsynced(), isEmpty);
+    });
+
+    test('a failed list leaves the transactions and the streams pulled, and '
+        'the stored liabilities as they were', () async {
+      final DriftLiabilityRepository liabilities = DriftLiabilityRepository(
+        database,
+        clock,
+      );
+      await link();
+      server.failNextNetwork('getLiabilities');
+      await pull().run();
+      expect(await live(), hasLength(12));
+      expect(
+        await DriftRecurringStreamRepository(
+          database,
+          clock,
+          recorder: recorder(),
+        ).watchAll().first,
+        hasLength(1),
+      );
+      expect(await store.pulledAt(), isNotNull);
+      expect(await liabilities.watchAll().first, isEmpty);
+      await pull().run();
+      expect(await liabilities.watchAll().first, hasLength(1));
+    });
+  });
+
   test('fetches a logo once, and again after a failed fetch', () async {
     final Uint8List png = Uint8List.fromList([137, 80, 78, 71, 13, 10]);
     final FakeItemData sample = newFakeServer().dataset.items.single;
@@ -382,6 +440,9 @@ void main() {
     final InMemoryRecurringStreamRepository memoryStreams =
         InMemoryRecurringStreamRepository(clock, recorder: recording);
     addTearDown(memoryStreams.close);
+    final InMemoryLiabilityRepository memoryLiabilities =
+        InMemoryLiabilityRepository();
+    addTearDown(memoryLiabilities.close);
     await PlaidPull(
       api: client.api,
       store: memoryStore,
@@ -389,6 +450,7 @@ void main() {
       accounts: InMemoryAccountRepository(memory, recorder: recording),
       transactions: InMemoryTransactionRepository(memory, recorder: recording),
       streams: memoryStreams,
+      liabilities: memoryLiabilities,
       clock: clock,
     ).run();
     expect(memory.items(), hasLength(1));
@@ -397,6 +459,10 @@ void main() {
     expect([
       for (final StreamView v in await memoryStreams.watchAll().first) v.stream,
     ], server.dataset.items.single.recurringStreams);
+    expect(
+      await memoryLiabilities.watchAll().first,
+      server.dataset.items.single.liabilities.toEntities(),
+    );
     expect(await memoryStore.transactionsSince(), 12);
     expect(await outbox.unsynced(), isEmpty);
   });
@@ -441,6 +507,7 @@ void main() {
           clock,
           recorder: recorder(),
         ),
+        liabilities: DriftLiabilityRepository(database, clock),
         clock: clock,
         arrival: RuleRunner(
           rules: DriftRuleRepository(database, clock, recorder: recorder()),
@@ -487,6 +554,7 @@ void main() {
           clock,
           recorder: recorder(),
         ),
+        liabilities: DriftLiabilityRepository(database, clock),
         clock: clock,
         arrival: RuleRunner(
           rules: DriftRuleRepository(database, clock, recorder: recorder()),
@@ -602,6 +670,9 @@ final class _PlaidSourced implements FinanceApi {
   @override
   Future<List<RecurringStream>> listRecurringStreams() =>
       _inner.listRecurringStreams();
+
+  @override
+  Future<Liabilities> getLiabilities() => _inner.getLiabilities();
 
   @override
   Future<VersionPage<Transaction>> listTransactions({

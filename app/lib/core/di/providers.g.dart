@@ -1163,6 +1163,59 @@ final class RecurringStreamRepositoryProvider
 String _$recurringStreamRepositoryHash() =>
     r'd0ff435257b759faaf4bc56f2e59b93308fd4afb';
 
+/// The liabilities of the linked accounts.
+
+@ProviderFor(liabilityRepository)
+final liabilityRepositoryProvider = LiabilityRepositoryProvider._();
+
+/// The liabilities of the linked accounts.
+
+final class LiabilityRepositoryProvider
+    extends
+        $FunctionalProvider<
+          LiabilityRepository,
+          LiabilityRepository,
+          LiabilityRepository
+        >
+    with $Provider<LiabilityRepository> {
+  /// The liabilities of the linked accounts.
+  LiabilityRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'liabilityRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$liabilityRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<LiabilityRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  LiabilityRepository create(Ref ref) {
+    return liabilityRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(LiabilityRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<LiabilityRepository>(value),
+    );
+  }
+}
+
+String _$liabilityRepositoryHash() =>
+    r'd8781db8290d2dabe868a06e7d6ebc612a119c3c';
+
 /// Which budget alerts this device has raised: in memory by default and in the demo
 /// flavor, `budget_alerts` in dev and prod.
 
@@ -1581,7 +1634,7 @@ final class PlaidPullProvider
   }
 }
 
-String _$plaidPullHash() => r'b341c8869009b93a007de30b4deb0ccfcae29cc9';
+String _$plaidPullHash() => r'5ee0d25423b29a235e1115fd63fe9e4e44561cd6';
 
 /// What the legacy importer did at this launch (`bootstrap`), or null when it did nothing;
 /// Phase 1d shows it once.
