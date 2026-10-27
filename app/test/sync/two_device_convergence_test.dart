@@ -1,7 +1,7 @@
 // Two (and three) devices, each the real app wiring over its own Drift database (the
 // Drift repositories, the recorder, the device clock, the sync controller), syncing
-// through one relay: scripted conflicts, rules, budgets and recurring stream overrides
-// among them, and seeded random runs, after
+// through one relay: scripted conflicts, rules, budgets, recurring stream overrides and
+// bills among them, and seeded random runs, after
 // which every device's entity tables and sync records are the same (sync-app.md,
 // **Testing**). The Plaid pull after each session goes to an in-app fake server with no
 // bank linked, so it brings nothing and never touches the network; a test that needs a
@@ -28,6 +28,7 @@ import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
+import 'package:finance_tracker/features/bills/domain/bill_repository.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
 import 'package:finance_tracker/features/recurring/domain/recurring_stream_repository.dart';
@@ -153,6 +154,7 @@ final class Device {
   BudgetRepository get budgets => container.read(budgetRepositoryProvider);
   RecurringStreamRepository get streams =>
       container.read(recurringStreamRepositoryProvider);
+  BillRepository get bills => container.read(billRepositoryProvider);
   ArrivalProcessor get arrival => container.read(arrivalProcessorProvider);
 
   /// Applies [page] as a page of the Plaid pull does: the rows inserted, the overrides
@@ -187,7 +189,7 @@ final class Device {
   }
 
   /// The entity tables, without the audit columns each device stamps for itself on
-  /// accounts, categories, rules and budgets (they are not in the synced records).
+  /// accounts, categories, rules, budgets and bills (they are not in the synced records).
   Future<Map<String, List<Map<String, Object?>>>> dump() async {
     Future<List<Map<String, Object?>>> rows(String sql) async => [
       for (final QueryRow row in await database.customSelect(sql).get())
@@ -222,6 +224,11 @@ final class Device {
       'stream_overrides': await rows(
         'SELECT stream_id, muted, is_subscription, display_name, deleted_at '
         'FROM stream_overrides ORDER BY stream_id',
+      ),
+      'bills': await rows(
+        'SELECT id, name, amount_minor, currency, due_date, cadence, account_id, '
+        'stream_id, liability_account_id, reminder_offset_days, reminder_minutes, '
+        'active, autopay, paid_occurrences, deleted_at FROM bills ORDER BY id',
       ),
       'app_settings': await rows('SELECT * FROM app_settings ORDER BY key'),
       'held_records': await rows(
@@ -863,6 +870,87 @@ void main() {
         }
       },
       timeout: const Timeout.factor(3),
+    );
+  });
+
+  group('bills', () {
+    BillReminder bill(String id, {String name = 'Rent'}) => BillReminder(
+      id: id,
+      name: name,
+      amount: Money(-150000, 'USD'),
+      dueDate: LocalDate(2026, 9, 1),
+      cadence: RecurringCadence.monthly,
+    );
+
+    Future<BillReminder?> one(Device d, String id) =>
+        d.bills.watchById(id).first;
+
+    test(
+      'a paid mark on one device and a rename on the other both survive',
+      () async {
+        final Device a = device('dev-a');
+        final Device b = device('dev-b');
+        await a.bills.upsert(bill('rent'));
+        await expectConverged([a, b]);
+
+        await a.bills.upsert(
+          (await one(a, 'rent'))!.markPaid(LocalDate(2026, 10, 1)),
+        );
+        await b.bills.upsert(
+          (await one(b, 'rent'))!.copyWith(name: 'Rent and parking'),
+        );
+        await expectConverged([a, b]);
+        for (final Device d in [a, b]) {
+          final BillReminder merged = (await one(d, 'rent'))!;
+          expect(merged.name, 'Rent and parking');
+          expect(merged.paidOccurrences, [LocalDate(2026, 10, 1)]);
+        }
+      },
+    );
+
+    test(
+      'marks of two occurrences at once: the later list wins whole',
+      () async {
+        final Device a = device('dev-a');
+        final Device b = device('dev-b', skew: const Duration(seconds: 30));
+        await a.bills.upsert(bill('rent'));
+        await expectConverged([a, b]);
+
+        await b.bills.upsert(
+          (await one(b, 'rent'))!.markPaid(LocalDate(2026, 9, 1)),
+        );
+        await a.bills.upsert(
+          (await one(a, 'rent'))!.markPaid(LocalDate(2026, 10, 1)),
+        );
+        await expectConverged([a, b]);
+        // The paid occurrences are one field: B's clock runs 30 s ahead, so its list wins.
+        expect((await one(a, 'rent'))!.paidOccurrences, [
+          LocalDate(2026, 9, 1),
+        ]);
+      },
+    );
+
+    test(
+      'a delete wins over a concurrent edit; a restore shows the edit',
+      () async {
+        final Device a = device('dev-a');
+        final Device b = device('dev-b');
+        await a.bills.upsert(bill('rent'));
+        await a.bills.upsert(bill('power', name: 'Power'));
+        await expectConverged([a, b]);
+
+        await a.bills.delete('power');
+        await b.bills.upsert(bill('power', name: 'Electric'));
+        await expectConverged([a, b]);
+        expect(
+          [for (final x in await b.bills.watchAll().first) x.id],
+          ['rent'],
+        );
+
+        await b.bills.restore('power');
+        await expectConverged([a, b]);
+        expect((await one(a, 'power'))!.name, 'Electric');
+      },
     );
   });
 
