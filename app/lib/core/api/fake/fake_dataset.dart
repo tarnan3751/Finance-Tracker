@@ -12,6 +12,7 @@ library;
 import 'dart:typed_data';
 
 import 'package:finance_tracker/core/api/api_models.dart';
+import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:persona_engine/persona_engine.dart'
     show DemoSeed, GeneratedHousehold;
 import 'package:shared_models/shared_models.dart';
@@ -109,12 +110,15 @@ final class FakeDataset {
   FakeDataset.empty() : items = const [];
 
   /// The persona engine's household [seed]: one Item per demo Item, at its institution,
-  /// with its accounts and their transactions (all `demo`), ids as the engine gives them.
-  /// The engine's liabilities, holdings and investment transactions are its own types
-  /// and are not carried before Phase 3 and Phase 6 read them; it has no recurring
-  /// streams.
+  /// with its accounts, their transactions, their recurring streams and their
+  /// liabilities, all `demo`, as the demo repositories hold them (`demoRecurringStreams`
+  /// and `demoLiabilities` in `core/db/demo_seed.dart`), ids as the engine gives them.
+  /// The engine's holdings and investment transactions are its own types and are not
+  /// carried before Phase 6 reads them.
   factory FakeDataset.fromDemoSeed(DemoSeed seed) {
     final GeneratedHousehold household = seed.household;
+    final List<RecurringStream> streams = demoRecurringStreams(seed);
+    final Liabilities liabilities = demoLiabilities(seed);
     return FakeDataset(
       items: [
         for (final Item item in household.items)
@@ -134,6 +138,32 @@ final class FakeDataset {
                 ))
                   t,
             ],
+            recurringStreams: [
+              for (final RecurringStream s in streams)
+                if (household.accounts.any(
+                  (a) => a.id == s.accountId && a.itemId == item.id,
+                ))
+                  s,
+            ],
+            liabilities: () {
+              bool ours(String accountId) => household.accounts.any(
+                (a) => a.id == accountId && a.itemId == item.id,
+              );
+              return Liabilities(
+                credit: [
+                  for (final CreditLiability c in liabilities.credit)
+                    if (ours(c.accountId)) c,
+                ],
+                mortgage: [
+                  for (final MortgageLiability m in liabilities.mortgage)
+                    if (ours(m.accountId)) m,
+                ],
+                student: [
+                  for (final StudentLoanLiability s in liabilities.student)
+                    if (ours(s.accountId)) s,
+                ],
+              );
+            }(),
           ),
       ],
     );

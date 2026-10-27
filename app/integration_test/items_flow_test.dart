@@ -4,11 +4,13 @@
 //   tools/emulator_tests.sh integration -- --dart-define=FT_FAKE_SERVER=true
 //
 // The first test starts the demo flavor as main_demo.dart does: Linked banks lists the
-// persona's banks, and Link a bank adds Houndstooth Bank, which no persona uses, with its
-// accounts and transactions. The second
+// persona's banks, the providers give the persona's recurring streams and liabilities,
+// and Link a bank adds Houndstooth Bank, which no persona uses, with its accounts,
+// transactions, stream and card liability. The second
 // starts the dev flavor, which FT_FAKE_SERVER puts on the fake server (skipped without
 // the define), over its encrypted database (removed before and after): register, link
-// First Platypus Bank and see its accounts, have the fake reset its login and repair it
+// First Platypus Bank and see its accounts, its recurring stream and its card's
+// liability through the providers, have the fake reset its login and repair it
 // with Fix connection, then unlink it deleting its history and see them go.
 import 'dart:io';
 
@@ -19,6 +21,9 @@ import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/features/items/application/link_controller.dart';
 import 'package:finance_tracker/features/items/domain/item_action.dart';
+import 'package:finance_tracker/features/liabilities/application/liabilities_providers.dart';
+import 'package:finance_tracker/features/recurring/application/recurring_providers.dart';
+import 'package:finance_tracker/features/recurring/domain/stream_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,6 +31,8 @@ import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:persona_engine/persona_engine.dart' show DemoSeed;
+import 'package:shared_models/shared_models.dart' hide Liability;
+import 'package:shared_models/shared_models.dart' as models show Liability;
 
 Finder _field(String label) => find.widgetWithText(TextFormField, label);
 
@@ -66,6 +73,25 @@ Future<void> _settleActions(WidgetTester tester) {
   });
 }
 
+/// The recurring streams and the liabilities as their providers give them now.
+Future<(List<StreamView>, List<models.Liability>)> _recurringData(
+  WidgetTester tester,
+) async {
+  final ProviderContainer container = ProviderScope.containerOf(
+    tester.element(find.byType(MaterialApp)),
+  );
+  final streams = container.listen(recurringStreamsProvider, (_, _) {});
+  final liabilities = container.listen(liabilitiesProvider, (_, _) {});
+  await tester.pump();
+  final result = (
+    await container.read(recurringStreamsProvider.future),
+    await container.read(liabilitiesProvider.future),
+  );
+  streams.close();
+  liabilities.close();
+  return result;
+}
+
 Future<void> _openLinkedBanks(WidgetTester tester) async {
   await _tap(tester, _tab('Accounts'));
   await _tap(tester, find.byTooltip('Linked banks'));
@@ -83,6 +109,20 @@ void main() {
       tester.element(find.byType(MaterialApp)),
     );
     final DemoSeed seed = container.read(demoSeedProvider);
+
+    final (List<StreamView> personaStreams, List<models.Liability> owed) =
+        await _recurringData(tester);
+    expect(personaStreams, hasLength(seed.household.recurring.length));
+    expect(
+      personaStreams.every((v) => v.stream.source == RecurringSource.demo),
+      isTrue,
+    );
+    expect(
+      personaStreams.any((v) => v.stream.transactionIds.isNotEmpty),
+      isTrue,
+    );
+    expect(owed, isNotEmpty);
+    expect(owed.every((l) => l.source == DataSource.demo), isTrue);
 
     await _openLinkedBanks(tester);
     for (final institution in seed.household.institutions) {
@@ -122,6 +162,16 @@ void main() {
         reason: account,
       );
     }
+    final (List<StreamView> linkedStreams, List<models.Liability> linkedOwed) =
+        await _recurringData(tester);
+    expect(
+      linkedStreams.map((v) => v.stream.id),
+      containsAll([
+        ...personaStreams.map((v) => v.stream.id),
+        'sample-stream-netflix',
+      ]),
+    );
+    expect(linkedOwed.map((l) => l.accountId), contains('sample-card'));
     // Tapping the current tab returns it to the account list.
     await _tap(tester, _tab('Accounts'));
     await tester.scrollUntilVisible(find.text('Houndstooth Checking'), 300);
@@ -159,6 +209,21 @@ void main() {
       expect(find.text('Platypus Checking'), findsOneWidget);
       expect(find.text('Platypus Savings'), findsOneWidget);
 
+      // The pull brought the bank's recurring stream and its card's liability.
+      final (List<StreamView> streams, List<models.Liability> owed) =
+          await _recurringData(tester);
+      final StreamView netflix = streams.single;
+      expect(netflix.stream.id, 'sample-stream-netflix');
+      expect(netflix.stream.source, RecurringSource.demo);
+      expect(netflix.stream.transactionIds, ['sample-txn-12', 'sample-txn-01']);
+      expect(netflix.isSubscription, isTrue);
+      final models.Liability card = owed.single;
+      expect(card.accountId, 'sample-card');
+      expect(card.kind, LiabilityKind.credit);
+      expect(card.source, DataSource.demo);
+      expect(card.aprs.single.percentageBasisPoints, 2499);
+      expect(card.minimumPaymentAmount, Money(2500, 'USD'));
+
       // The fake's sandbox route resets the login: the next sync says so, and Fix
       // connection repairs it through update-mode Link.
       final ProviderContainer container = ProviderScope.containerOf(
@@ -187,6 +252,10 @@ void main() {
 
       await _tap(tester, _tab('Accounts'));
       expect(find.text('Platypus Checking'), findsNothing);
+      final (List<StreamView> after, List<models.Liability> owedAfter) =
+          await _recurringData(tester);
+      expect(after, isEmpty);
+      expect(owedAfter, isEmpty);
     },
     skip: !fakeServerInDev,
   );

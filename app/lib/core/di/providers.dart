@@ -545,12 +545,17 @@ final List<Override> _demoOverrides = [
   }),
   recurringStreamRepositoryProvider.overrideWith((ref) {
     final DemoRecurringStreamRepository repository =
-        DemoRecurringStreamRepository(ref.watch(clockProvider));
+        DemoRecurringStreamRepository(
+          ref.watch(clockProvider),
+          initial: demoRecurringStreams(ref.watch(demoSeedProvider)),
+        );
     ref.onDispose(repository.close);
     return repository;
   }),
   liabilityRepositoryProvider.overrideWith((ref) {
-    final DemoLiabilityRepository repository = DemoLiabilityRepository();
+    final DemoLiabilityRepository repository = DemoLiabilityRepository(
+      initial: demoLiabilities(ref.watch(demoSeedProvider)).toEntities(),
+    );
     ref.onDispose(repository.close);
     return repository;
   }),
