@@ -8,7 +8,7 @@ import 'package:persona_engine/src/model/investments.dart';
 import 'package:persona_engine/src/model/liabilities.dart';
 import 'package:persona_engine/src/model/persona.dart';
 import 'package:persona_engine/src/model/recurring_expectation.dart';
-import 'package:shared_models/shared_models.dart';
+import 'package:shared_models/shared_models.dart' hide Liability;
 
 /// The id of the account [key] in [persona]'s household.
 String accountIdFor(PersonaId persona, String key) =>

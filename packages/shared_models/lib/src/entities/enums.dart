@@ -51,6 +51,10 @@ enum RecurringCadence {
   unknown,
 }
 
+/// The kind of a liability, as Plaid's Liabilities product groups them.
+@JsonEnum(fieldRename: FieldRename.snake)
+enum LiabilityKind { credit, mortgage, student }
+
 /// What a rule condition tests.
 @JsonEnum(fieldRename: FieldRename.snake)
 enum RuleConditionKind {

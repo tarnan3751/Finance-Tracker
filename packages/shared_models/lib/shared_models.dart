@@ -17,6 +17,7 @@ export 'src/entities/goal.dart';
 export 'src/entities/hlc.dart';
 export 'src/entities/institution.dart';
 export 'src/entities/item.dart';
+export 'src/entities/liability.dart';
 export 'src/entities/net_worth_snapshot.dart';
 export 'src/entities/recurring_stream.dart';
 export 'src/entities/rule.dart';

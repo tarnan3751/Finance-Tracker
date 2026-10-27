@@ -148,6 +148,12 @@ obvious from the field list:
 - `Item.errorCode` is Plaid's error code (`ITEM_LOGIN_REQUIRED`, ...) while the status is
   `loginRequired` or `error`, else null; `ItemStatus.removed` is an Item unlinked with its
   history kept, whose accounts and transactions stay.
+- `Liability` (`LiabilityKind` `credit`, `mortgage` or `student`) is one account's
+  liability detail of one kind, server-authoritative and never synced, so it has no JSON
+  form: the fields bills and payoff projections need, typed and nullable (amounts
+  positive, in the account's currency; rates as integer basis points, `aprs` a list of
+  `LiabilityApr`), the server's object whole in `payload`, and `source` `plaid` or
+  `demo` (`liabilities.md`).
 - Enums that mirror Plaid fall back instead of throwing on a new value: `ItemStatus` and
   `RecurringCadence` to `unknown`, `AccountType` to `other`. Account `subtype` is an open
   string.
