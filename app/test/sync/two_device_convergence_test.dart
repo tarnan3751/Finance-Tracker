@@ -1,7 +1,7 @@
 // Two (and three) devices, each the real app wiring over its own Drift database (the
 // Drift repositories, the recorder, the device clock, the sync controller), syncing
-// through one relay: scripted conflicts, rules and budgets among them, and seeded random
-// runs, after
+// through one relay: scripted conflicts, rules, budgets and recurring stream overrides
+// among them, and seeded random runs, after
 // which every device's entity tables and sync records are the same (sync-app.md,
 // **Testing**). The Plaid pull after each session goes to an in-app fake server with no
 // bank linked, so it brings nothing and never touches the network; a test that needs a
@@ -30,6 +30,8 @@ import 'package:finance_tracker/features/accounts/domain/account_not_found_excep
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
+import 'package:finance_tracker/features/recurring/domain/recurring_stream_repository.dart';
+import 'package:finance_tracker/features/recurring/domain/stream_override.dart';
 import 'package:finance_tracker/features/rules/application/rule_preview.dart';
 import 'package:finance_tracker/features/rules/application/rules_providers.dart';
 import 'package:finance_tracker/features/rules/domain/rule_repository.dart';
@@ -149,6 +151,8 @@ final class Device {
   SettingsRepository get settings => container.read(settingsRepositoryProvider);
   RuleRepository get rules => container.read(ruleRepositoryProvider);
   BudgetRepository get budgets => container.read(budgetRepositoryProvider);
+  RecurringStreamRepository get streams =>
+      container.read(recurringStreamRepositoryProvider);
   ArrivalProcessor get arrival => container.read(arrivalProcessorProvider);
 
   /// Applies [page] as a page of the Plaid pull does: the rows inserted, the overrides
@@ -214,6 +218,10 @@ final class Device {
       'budgets': await rows(
         'SELECT id, category_id, period, period_start_day, amount_minor, currency, '
         'rollover, start_date, deleted_at FROM budgets ORDER BY id',
+      ),
+      'stream_overrides': await rows(
+        'SELECT stream_id, muted, is_subscription, display_name, deleted_at '
+        'FROM stream_overrides ORDER BY stream_id',
       ),
       'app_settings': await rows('SELECT * FROM app_settings ORDER BY key'),
       'held_records': await rows(
@@ -988,6 +996,89 @@ void main() {
       },
       timeout: const Timeout.factor(3),
     );
+  });
+
+  group('stream overrides', () {
+    // A stream each device's detector found, with the same deterministic id (the
+    // pull after each session brings no bank stream: no bank is linked).
+    final RecurringStream netflix = RecurringStream(
+      id: 'detected-netflix',
+      accountId: 'acc-card',
+      merchantName: 'Netflix',
+      cadence: RecurringCadence.monthly,
+      averageAmount: Money(-1549, 'USD'),
+      status: RecurringStatus.active,
+      isSubscription: false,
+      source: RecurringSource.detected,
+    );
+
+    Future<StreamOverride?> chosen(Device d) async =>
+        (await d.streams.watchById(netflix.id).first)!.userOverride;
+
+    Future<(Device, Device)> twoWithTheStream() async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b');
+      for (final Device d in [a, b]) {
+        await d.streams.replaceDetected([netflix]);
+      }
+      return (a, b);
+    }
+
+    test(
+      'first choices on two devices, a mute and a name, both survive',
+      () async {
+        final (Device a, Device b) = await twoWithTheStream();
+        await a.streams.setOverride(netflix.id, (o) => o.withMuted(true));
+        await b.streams.setOverride(netflix.id, (o) => o.withDisplayName('TV'));
+        await expectConverged([a, b]);
+        for (final Device d in [a, b]) {
+          expect(
+            await chosen(d),
+            const StreamOverride(muted: true, displayName: 'TV'),
+            reason: d.name,
+          );
+        }
+      },
+    );
+
+    test('a clear wins over a concurrent edit; a later choice restores it from '
+        'the default', () async {
+      final (Device a, Device b) = await twoWithTheStream();
+      await a.streams.setOverride(
+        netflix.id,
+        (o) => o.withMuted(true).withSubscription(true),
+      );
+      await expectConverged([a, b]);
+
+      await a.streams.clearOverride(netflix.id);
+      await b.streams.setOverride(netflix.id, (o) => o.withDisplayName('TV'));
+      await expectConverged([a, b]);
+      for (final Device d in [a, b]) {
+        expect(await chosen(d), isNull, reason: d.name);
+      }
+
+      await b.streams.setOverride(netflix.id, (o) => o.withSubscription(false));
+      await expectConverged([a, b]);
+      for (final Device d in [a, b]) {
+        expect(
+          await chosen(d),
+          const StreamOverride(isSubscription: false),
+          reason: d.name,
+        );
+      }
+    });
+
+    test('an override reaches a device before its stream does', () async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b');
+      await a.streams.replaceDetected([netflix]);
+      await a.streams.setOverride(netflix.id, (o) => o.withMuted(true));
+      await expectConverged([a, b]);
+      expect(await b.streams.watchById(netflix.id).first, isNull);
+      await b.streams.replaceDetected([netflix]);
+      expect(await chosen(b), const StreamOverride(muted: true));
+      expect((await b.store.watchLedger().first).held, 0);
+    });
   });
 
   group('hidden', () {
