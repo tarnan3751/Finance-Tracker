@@ -8386,6 +8386,2615 @@ class SavedFiltersCompanion extends UpdateCompanion<SavedFilterRow> {
   }
 }
 
+class $RecurringStreamsTable extends RecurringStreams
+    with TableInfo<$RecurringStreamsTable, RecurringStreamRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RecurringStreamsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _accountIdMeta = const VerificationMeta(
+    'accountId',
+  );
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+    'account_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _merchantNameMeta = const VerificationMeta(
+    'merchantName',
+  );
+  @override
+  late final GeneratedColumn<String> merchantName = GeneratedColumn<String>(
+    'merchant_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<RecurringCadence, String>
+  cadence = GeneratedColumn<String>(
+    'cadence',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<RecurringCadence>($RecurringStreamsTable.$convertercadence);
+  static const VerificationMeta _averageAmountMinorMeta =
+      const VerificationMeta('averageAmountMinor');
+  @override
+  late final GeneratedColumn<int> averageAmountMinor = GeneratedColumn<int>(
+    'average_amount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _currencyMeta = const VerificationMeta(
+    'currency',
+  );
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate?, String> lastExpected =
+      GeneratedColumn<String>(
+        'last_expected',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<LocalDate?>(
+        $RecurringStreamsTable.$converterlastExpectedn,
+      );
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate?, String> nextExpected =
+      GeneratedColumn<String>(
+        'next_expected',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<LocalDate?>(
+        $RecurringStreamsTable.$converternextExpectedn,
+      );
+  @override
+  late final GeneratedColumnWithTypeConverter<RecurringStatus, String> status =
+      GeneratedColumn<String>(
+        'status',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<RecurringStatus>($RecurringStreamsTable.$converterstatus);
+  static const VerificationMeta _isSubscriptionMeta = const VerificationMeta(
+    'isSubscription',
+  );
+  @override
+  late final GeneratedColumn<bool> isSubscription = GeneratedColumn<bool>(
+    'is_subscription',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_subscription" IN (0, 1))',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<RecurringSource, String> source =
+      GeneratedColumn<String>(
+        'source',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<RecurringSource>($RecurringStreamsTable.$convertersource);
+  static const VerificationMeta _transactionIdsMeta = const VerificationMeta(
+    'transactionIds',
+  );
+  @override
+  late final GeneratedColumn<String> transactionIds = GeneratedColumn<String>(
+    'transaction_ids',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> pulledAt =
+      GeneratedColumn<int>(
+        'pulled_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($RecurringStreamsTable.$converterpulledAt);
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    accountId,
+    merchantName,
+    cadence,
+    averageAmountMinor,
+    currency,
+    lastExpected,
+    nextExpected,
+    status,
+    isSubscription,
+    source,
+    transactionIds,
+    pulledAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'recurring_streams';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<RecurringStreamRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('account_id')) {
+      context.handle(
+        _accountIdMeta,
+        accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_accountIdMeta);
+    }
+    if (data.containsKey('merchant_name')) {
+      context.handle(
+        _merchantNameMeta,
+        merchantName.isAcceptableOrUnknown(
+          data['merchant_name']!,
+          _merchantNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_merchantNameMeta);
+    }
+    if (data.containsKey('average_amount_minor')) {
+      context.handle(
+        _averageAmountMinorMeta,
+        averageAmountMinor.isAcceptableOrUnknown(
+          data['average_amount_minor']!,
+          _averageAmountMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_averageAmountMinorMeta);
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_currencyMeta);
+    }
+    if (data.containsKey('is_subscription')) {
+      context.handle(
+        _isSubscriptionMeta,
+        isSubscription.isAcceptableOrUnknown(
+          data['is_subscription']!,
+          _isSubscriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_isSubscriptionMeta);
+    }
+    if (data.containsKey('transaction_ids')) {
+      context.handle(
+        _transactionIdsMeta,
+        transactionIds.isAcceptableOrUnknown(
+          data['transaction_ids']!,
+          _transactionIdsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_transactionIdsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RecurringStreamRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RecurringStreamRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      accountId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}account_id'],
+      )!,
+      merchantName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}merchant_name'],
+      )!,
+      cadence: $RecurringStreamsTable.$convertercadence.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}cadence'],
+        )!,
+      ),
+      averageAmountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}average_amount_minor'],
+      )!,
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      )!,
+      lastExpected: $RecurringStreamsTable.$converterlastExpectedn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}last_expected'],
+        ),
+      ),
+      nextExpected: $RecurringStreamsTable.$converternextExpectedn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}next_expected'],
+        ),
+      ),
+      status: $RecurringStreamsTable.$converterstatus.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}status'],
+        )!,
+      ),
+      isSubscription: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_subscription'],
+      )!,
+      source: $RecurringStreamsTable.$convertersource.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}source'],
+        )!,
+      ),
+      transactionIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transaction_ids'],
+      )!,
+      pulledAt: $RecurringStreamsTable.$converterpulledAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}pulled_at'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $RecurringStreamsTable createAlias(String alias) {
+    return $RecurringStreamsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<RecurringCadence, String> $convertercadence =
+      const RecurringCadenceColumnConverter();
+  static TypeConverter<LocalDate, String> $converterlastExpected =
+      const LocalDateColumnConverter();
+  static TypeConverter<LocalDate?, String?> $converterlastExpectedn =
+      NullAwareTypeConverter.wrap($converterlastExpected);
+  static TypeConverter<LocalDate, String> $converternextExpected =
+      const LocalDateColumnConverter();
+  static TypeConverter<LocalDate?, String?> $converternextExpectedn =
+      NullAwareTypeConverter.wrap($converternextExpected);
+  static JsonTypeConverter2<RecurringStatus, String, String> $converterstatus =
+      const EnumNameConverter<RecurringStatus>(RecurringStatus.values);
+  static JsonTypeConverter2<RecurringSource, String, String> $convertersource =
+      const EnumNameConverter<RecurringSource>(RecurringSource.values);
+  static TypeConverter<DateTime, int> $converterpulledAt =
+      const UtcMillisColumnConverter();
+}
+
+class RecurringStreamRow extends DataClass
+    implements Insertable<RecurringStreamRow> {
+  final String id;
+  final String accountId;
+  final String merchantName;
+  final RecurringCadence cadence;
+  final int averageAmountMinor;
+  final String currency;
+  final LocalDate? lastExpected;
+  final LocalDate? nextExpected;
+  final RecurringStatus status;
+  final bool isSubscription;
+  final RecurringSource source;
+  final String transactionIds;
+  final DateTime pulledAt;
+  const RecurringStreamRow({
+    required this.id,
+    required this.accountId,
+    required this.merchantName,
+    required this.cadence,
+    required this.averageAmountMinor,
+    required this.currency,
+    this.lastExpected,
+    this.nextExpected,
+    required this.status,
+    required this.isSubscription,
+    required this.source,
+    required this.transactionIds,
+    required this.pulledAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['account_id'] = Variable<String>(accountId);
+    map['merchant_name'] = Variable<String>(merchantName);
+    {
+      map['cadence'] = Variable<String>(
+        $RecurringStreamsTable.$convertercadence.toSql(cadence),
+      );
+    }
+    map['average_amount_minor'] = Variable<int>(averageAmountMinor);
+    map['currency'] = Variable<String>(currency);
+    if (!nullToAbsent || lastExpected != null) {
+      map['last_expected'] = Variable<String>(
+        $RecurringStreamsTable.$converterlastExpectedn.toSql(lastExpected),
+      );
+    }
+    if (!nullToAbsent || nextExpected != null) {
+      map['next_expected'] = Variable<String>(
+        $RecurringStreamsTable.$converternextExpectedn.toSql(nextExpected),
+      );
+    }
+    {
+      map['status'] = Variable<String>(
+        $RecurringStreamsTable.$converterstatus.toSql(status),
+      );
+    }
+    map['is_subscription'] = Variable<bool>(isSubscription);
+    {
+      map['source'] = Variable<String>(
+        $RecurringStreamsTable.$convertersource.toSql(source),
+      );
+    }
+    map['transaction_ids'] = Variable<String>(transactionIds);
+    {
+      map['pulled_at'] = Variable<int>(
+        $RecurringStreamsTable.$converterpulledAt.toSql(pulledAt),
+      );
+    }
+    return map;
+  }
+
+  RecurringStreamsCompanion toCompanion(bool nullToAbsent) {
+    return RecurringStreamsCompanion(
+      id: Value(id),
+      accountId: Value(accountId),
+      merchantName: Value(merchantName),
+      cadence: Value(cadence),
+      averageAmountMinor: Value(averageAmountMinor),
+      currency: Value(currency),
+      lastExpected: lastExpected == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastExpected),
+      nextExpected: nextExpected == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextExpected),
+      status: Value(status),
+      isSubscription: Value(isSubscription),
+      source: Value(source),
+      transactionIds: Value(transactionIds),
+      pulledAt: Value(pulledAt),
+    );
+  }
+
+  factory RecurringStreamRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RecurringStreamRow(
+      id: serializer.fromJson<String>(json['id']),
+      accountId: serializer.fromJson<String>(json['accountId']),
+      merchantName: serializer.fromJson<String>(json['merchantName']),
+      cadence: serializer.fromJson<RecurringCadence>(json['cadence']),
+      averageAmountMinor: serializer.fromJson<int>(json['averageAmountMinor']),
+      currency: serializer.fromJson<String>(json['currency']),
+      lastExpected: serializer.fromJson<LocalDate?>(json['lastExpected']),
+      nextExpected: serializer.fromJson<LocalDate?>(json['nextExpected']),
+      status: $RecurringStreamsTable.$converterstatus.fromJson(
+        serializer.fromJson<String>(json['status']),
+      ),
+      isSubscription: serializer.fromJson<bool>(json['isSubscription']),
+      source: $RecurringStreamsTable.$convertersource.fromJson(
+        serializer.fromJson<String>(json['source']),
+      ),
+      transactionIds: serializer.fromJson<String>(json['transactionIds']),
+      pulledAt: serializer.fromJson<DateTime>(json['pulledAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'accountId': serializer.toJson<String>(accountId),
+      'merchantName': serializer.toJson<String>(merchantName),
+      'cadence': serializer.toJson<RecurringCadence>(cadence),
+      'averageAmountMinor': serializer.toJson<int>(averageAmountMinor),
+      'currency': serializer.toJson<String>(currency),
+      'lastExpected': serializer.toJson<LocalDate?>(lastExpected),
+      'nextExpected': serializer.toJson<LocalDate?>(nextExpected),
+      'status': serializer.toJson<String>(
+        $RecurringStreamsTable.$converterstatus.toJson(status),
+      ),
+      'isSubscription': serializer.toJson<bool>(isSubscription),
+      'source': serializer.toJson<String>(
+        $RecurringStreamsTable.$convertersource.toJson(source),
+      ),
+      'transactionIds': serializer.toJson<String>(transactionIds),
+      'pulledAt': serializer.toJson<DateTime>(pulledAt),
+    };
+  }
+
+  RecurringStreamRow copyWith({
+    String? id,
+    String? accountId,
+    String? merchantName,
+    RecurringCadence? cadence,
+    int? averageAmountMinor,
+    String? currency,
+    Value<LocalDate?> lastExpected = const Value.absent(),
+    Value<LocalDate?> nextExpected = const Value.absent(),
+    RecurringStatus? status,
+    bool? isSubscription,
+    RecurringSource? source,
+    String? transactionIds,
+    DateTime? pulledAt,
+  }) => RecurringStreamRow(
+    id: id ?? this.id,
+    accountId: accountId ?? this.accountId,
+    merchantName: merchantName ?? this.merchantName,
+    cadence: cadence ?? this.cadence,
+    averageAmountMinor: averageAmountMinor ?? this.averageAmountMinor,
+    currency: currency ?? this.currency,
+    lastExpected: lastExpected.present ? lastExpected.value : this.lastExpected,
+    nextExpected: nextExpected.present ? nextExpected.value : this.nextExpected,
+    status: status ?? this.status,
+    isSubscription: isSubscription ?? this.isSubscription,
+    source: source ?? this.source,
+    transactionIds: transactionIds ?? this.transactionIds,
+    pulledAt: pulledAt ?? this.pulledAt,
+  );
+  RecurringStreamRow copyWithCompanion(RecurringStreamsCompanion data) {
+    return RecurringStreamRow(
+      id: data.id.present ? data.id.value : this.id,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      merchantName: data.merchantName.present
+          ? data.merchantName.value
+          : this.merchantName,
+      cadence: data.cadence.present ? data.cadence.value : this.cadence,
+      averageAmountMinor: data.averageAmountMinor.present
+          ? data.averageAmountMinor.value
+          : this.averageAmountMinor,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      lastExpected: data.lastExpected.present
+          ? data.lastExpected.value
+          : this.lastExpected,
+      nextExpected: data.nextExpected.present
+          ? data.nextExpected.value
+          : this.nextExpected,
+      status: data.status.present ? data.status.value : this.status,
+      isSubscription: data.isSubscription.present
+          ? data.isSubscription.value
+          : this.isSubscription,
+      source: data.source.present ? data.source.value : this.source,
+      transactionIds: data.transactionIds.present
+          ? data.transactionIds.value
+          : this.transactionIds,
+      pulledAt: data.pulledAt.present ? data.pulledAt.value : this.pulledAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RecurringStreamRow(')
+          ..write('id: $id, ')
+          ..write('accountId: $accountId, ')
+          ..write('merchantName: $merchantName, ')
+          ..write('cadence: $cadence, ')
+          ..write('averageAmountMinor: $averageAmountMinor, ')
+          ..write('currency: $currency, ')
+          ..write('lastExpected: $lastExpected, ')
+          ..write('nextExpected: $nextExpected, ')
+          ..write('status: $status, ')
+          ..write('isSubscription: $isSubscription, ')
+          ..write('source: $source, ')
+          ..write('transactionIds: $transactionIds, ')
+          ..write('pulledAt: $pulledAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    accountId,
+    merchantName,
+    cadence,
+    averageAmountMinor,
+    currency,
+    lastExpected,
+    nextExpected,
+    status,
+    isSubscription,
+    source,
+    transactionIds,
+    pulledAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RecurringStreamRow &&
+          other.id == this.id &&
+          other.accountId == this.accountId &&
+          other.merchantName == this.merchantName &&
+          other.cadence == this.cadence &&
+          other.averageAmountMinor == this.averageAmountMinor &&
+          other.currency == this.currency &&
+          other.lastExpected == this.lastExpected &&
+          other.nextExpected == this.nextExpected &&
+          other.status == this.status &&
+          other.isSubscription == this.isSubscription &&
+          other.source == this.source &&
+          other.transactionIds == this.transactionIds &&
+          other.pulledAt == this.pulledAt);
+}
+
+class RecurringStreamsCompanion extends UpdateCompanion<RecurringStreamRow> {
+  final Value<String> id;
+  final Value<String> accountId;
+  final Value<String> merchantName;
+  final Value<RecurringCadence> cadence;
+  final Value<int> averageAmountMinor;
+  final Value<String> currency;
+  final Value<LocalDate?> lastExpected;
+  final Value<LocalDate?> nextExpected;
+  final Value<RecurringStatus> status;
+  final Value<bool> isSubscription;
+  final Value<RecurringSource> source;
+  final Value<String> transactionIds;
+  final Value<DateTime> pulledAt;
+  final Value<int> rowid;
+  const RecurringStreamsCompanion({
+    this.id = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.merchantName = const Value.absent(),
+    this.cadence = const Value.absent(),
+    this.averageAmountMinor = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.lastExpected = const Value.absent(),
+    this.nextExpected = const Value.absent(),
+    this.status = const Value.absent(),
+    this.isSubscription = const Value.absent(),
+    this.source = const Value.absent(),
+    this.transactionIds = const Value.absent(),
+    this.pulledAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RecurringStreamsCompanion.insert({
+    required String id,
+    required String accountId,
+    required String merchantName,
+    required RecurringCadence cadence,
+    required int averageAmountMinor,
+    required String currency,
+    this.lastExpected = const Value.absent(),
+    this.nextExpected = const Value.absent(),
+    required RecurringStatus status,
+    required bool isSubscription,
+    required RecurringSource source,
+    required String transactionIds,
+    required DateTime pulledAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       accountId = Value(accountId),
+       merchantName = Value(merchantName),
+       cadence = Value(cadence),
+       averageAmountMinor = Value(averageAmountMinor),
+       currency = Value(currency),
+       status = Value(status),
+       isSubscription = Value(isSubscription),
+       source = Value(source),
+       transactionIds = Value(transactionIds),
+       pulledAt = Value(pulledAt);
+  static Insertable<RecurringStreamRow> custom({
+    Expression<String>? id,
+    Expression<String>? accountId,
+    Expression<String>? merchantName,
+    Expression<String>? cadence,
+    Expression<int>? averageAmountMinor,
+    Expression<String>? currency,
+    Expression<String>? lastExpected,
+    Expression<String>? nextExpected,
+    Expression<String>? status,
+    Expression<bool>? isSubscription,
+    Expression<String>? source,
+    Expression<String>? transactionIds,
+    Expression<int>? pulledAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (accountId != null) 'account_id': accountId,
+      if (merchantName != null) 'merchant_name': merchantName,
+      if (cadence != null) 'cadence': cadence,
+      if (averageAmountMinor != null)
+        'average_amount_minor': averageAmountMinor,
+      if (currency != null) 'currency': currency,
+      if (lastExpected != null) 'last_expected': lastExpected,
+      if (nextExpected != null) 'next_expected': nextExpected,
+      if (status != null) 'status': status,
+      if (isSubscription != null) 'is_subscription': isSubscription,
+      if (source != null) 'source': source,
+      if (transactionIds != null) 'transaction_ids': transactionIds,
+      if (pulledAt != null) 'pulled_at': pulledAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RecurringStreamsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? accountId,
+    Value<String>? merchantName,
+    Value<RecurringCadence>? cadence,
+    Value<int>? averageAmountMinor,
+    Value<String>? currency,
+    Value<LocalDate?>? lastExpected,
+    Value<LocalDate?>? nextExpected,
+    Value<RecurringStatus>? status,
+    Value<bool>? isSubscription,
+    Value<RecurringSource>? source,
+    Value<String>? transactionIds,
+    Value<DateTime>? pulledAt,
+    Value<int>? rowid,
+  }) {
+    return RecurringStreamsCompanion(
+      id: id ?? this.id,
+      accountId: accountId ?? this.accountId,
+      merchantName: merchantName ?? this.merchantName,
+      cadence: cadence ?? this.cadence,
+      averageAmountMinor: averageAmountMinor ?? this.averageAmountMinor,
+      currency: currency ?? this.currency,
+      lastExpected: lastExpected ?? this.lastExpected,
+      nextExpected: nextExpected ?? this.nextExpected,
+      status: status ?? this.status,
+      isSubscription: isSubscription ?? this.isSubscription,
+      source: source ?? this.source,
+      transactionIds: transactionIds ?? this.transactionIds,
+      pulledAt: pulledAt ?? this.pulledAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (merchantName.present) {
+      map['merchant_name'] = Variable<String>(merchantName.value);
+    }
+    if (cadence.present) {
+      map['cadence'] = Variable<String>(
+        $RecurringStreamsTable.$convertercadence.toSql(cadence.value),
+      );
+    }
+    if (averageAmountMinor.present) {
+      map['average_amount_minor'] = Variable<int>(averageAmountMinor.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (lastExpected.present) {
+      map['last_expected'] = Variable<String>(
+        $RecurringStreamsTable.$converterlastExpectedn.toSql(
+          lastExpected.value,
+        ),
+      );
+    }
+    if (nextExpected.present) {
+      map['next_expected'] = Variable<String>(
+        $RecurringStreamsTable.$converternextExpectedn.toSql(
+          nextExpected.value,
+        ),
+      );
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(
+        $RecurringStreamsTable.$converterstatus.toSql(status.value),
+      );
+    }
+    if (isSubscription.present) {
+      map['is_subscription'] = Variable<bool>(isSubscription.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(
+        $RecurringStreamsTable.$convertersource.toSql(source.value),
+      );
+    }
+    if (transactionIds.present) {
+      map['transaction_ids'] = Variable<String>(transactionIds.value);
+    }
+    if (pulledAt.present) {
+      map['pulled_at'] = Variable<int>(
+        $RecurringStreamsTable.$converterpulledAt.toSql(pulledAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RecurringStreamsCompanion(')
+          ..write('id: $id, ')
+          ..write('accountId: $accountId, ')
+          ..write('merchantName: $merchantName, ')
+          ..write('cadence: $cadence, ')
+          ..write('averageAmountMinor: $averageAmountMinor, ')
+          ..write('currency: $currency, ')
+          ..write('lastExpected: $lastExpected, ')
+          ..write('nextExpected: $nextExpected, ')
+          ..write('status: $status, ')
+          ..write('isSubscription: $isSubscription, ')
+          ..write('source: $source, ')
+          ..write('transactionIds: $transactionIds, ')
+          ..write('pulledAt: $pulledAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $StreamOverridesTable extends StreamOverrides
+    with TableInfo<$StreamOverridesTable, StreamOverrideRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StreamOverridesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _streamIdMeta = const VerificationMeta(
+    'streamId',
+  );
+  @override
+  late final GeneratedColumn<String> streamId = GeneratedColumn<String>(
+    'stream_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _mutedMeta = const VerificationMeta('muted');
+  @override
+  late final GeneratedColumn<bool> muted = GeneratedColumn<bool>(
+    'muted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("muted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _isSubscriptionMeta = const VerificationMeta(
+    'isSubscription',
+  );
+  @override
+  late final GeneratedColumn<bool> isSubscription = GeneratedColumn<bool>(
+    'is_subscription',
+    aliasedName,
+    true,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_subscription" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _displayNameMeta = const VerificationMeta(
+    'displayName',
+  );
+  @override
+  late final GeneratedColumn<String> displayName = GeneratedColumn<String>(
+    'display_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> createdAt =
+      GeneratedColumn<int>(
+        'created_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($StreamOverridesTable.$convertercreatedAt);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> updatedAt =
+      GeneratedColumn<int>(
+        'updated_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($StreamOverridesTable.$converterupdatedAt);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime?, int> deletedAt =
+      GeneratedColumn<int>(
+        'deleted_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<DateTime?>($StreamOverridesTable.$converterdeletedAtn);
+  @override
+  List<GeneratedColumn> get $columns => [
+    streamId,
+    muted,
+    isSubscription,
+    displayName,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'stream_overrides';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StreamOverrideRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('stream_id')) {
+      context.handle(
+        _streamIdMeta,
+        streamId.isAcceptableOrUnknown(data['stream_id']!, _streamIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_streamIdMeta);
+    }
+    if (data.containsKey('muted')) {
+      context.handle(
+        _mutedMeta,
+        muted.isAcceptableOrUnknown(data['muted']!, _mutedMeta),
+      );
+    }
+    if (data.containsKey('is_subscription')) {
+      context.handle(
+        _isSubscriptionMeta,
+        isSubscription.isAcceptableOrUnknown(
+          data['is_subscription']!,
+          _isSubscriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('display_name')) {
+      context.handle(
+        _displayNameMeta,
+        displayName.isAcceptableOrUnknown(
+          data['display_name']!,
+          _displayNameMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {streamId};
+  @override
+  StreamOverrideRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StreamOverrideRow(
+      streamId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}stream_id'],
+      )!,
+      muted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}muted'],
+      )!,
+      isSubscription: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_subscription'],
+      ),
+      displayName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}display_name'],
+      ),
+      createdAt: $StreamOverridesTable.$convertercreatedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}created_at'],
+        )!,
+      ),
+      updatedAt: $StreamOverridesTable.$converterupdatedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}updated_at'],
+        )!,
+      ),
+      deletedAt: $StreamOverridesTable.$converterdeletedAtn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}deleted_at'],
+        ),
+      ),
+    );
+  }
+
+  @override
+  $StreamOverridesTable createAlias(String alias) {
+    return $StreamOverridesTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<DateTime, int> $convertercreatedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime, int> $converterupdatedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime, int> $converterdeletedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime?, int?> $converterdeletedAtn =
+      NullAwareTypeConverter.wrap($converterdeletedAt);
+}
+
+class StreamOverrideRow extends DataClass
+    implements Insertable<StreamOverrideRow> {
+  final String streamId;
+  final bool muted;
+  final bool? isSubscription;
+  final String? displayName;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const StreamOverrideRow({
+    required this.streamId,
+    required this.muted,
+    this.isSubscription,
+    this.displayName,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['stream_id'] = Variable<String>(streamId);
+    map['muted'] = Variable<bool>(muted);
+    if (!nullToAbsent || isSubscription != null) {
+      map['is_subscription'] = Variable<bool>(isSubscription);
+    }
+    if (!nullToAbsent || displayName != null) {
+      map['display_name'] = Variable<String>(displayName);
+    }
+    {
+      map['created_at'] = Variable<int>(
+        $StreamOverridesTable.$convertercreatedAt.toSql(createdAt),
+      );
+    }
+    {
+      map['updated_at'] = Variable<int>(
+        $StreamOverridesTable.$converterupdatedAt.toSql(updatedAt),
+      );
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(
+        $StreamOverridesTable.$converterdeletedAtn.toSql(deletedAt),
+      );
+    }
+    return map;
+  }
+
+  StreamOverridesCompanion toCompanion(bool nullToAbsent) {
+    return StreamOverridesCompanion(
+      streamId: Value(streamId),
+      muted: Value(muted),
+      isSubscription: isSubscription == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isSubscription),
+      displayName: displayName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(displayName),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory StreamOverrideRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StreamOverrideRow(
+      streamId: serializer.fromJson<String>(json['streamId']),
+      muted: serializer.fromJson<bool>(json['muted']),
+      isSubscription: serializer.fromJson<bool?>(json['isSubscription']),
+      displayName: serializer.fromJson<String?>(json['displayName']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'streamId': serializer.toJson<String>(streamId),
+      'muted': serializer.toJson<bool>(muted),
+      'isSubscription': serializer.toJson<bool?>(isSubscription),
+      'displayName': serializer.toJson<String?>(displayName),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  StreamOverrideRow copyWith({
+    String? streamId,
+    bool? muted,
+    Value<bool?> isSubscription = const Value.absent(),
+    Value<String?> displayName = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => StreamOverrideRow(
+    streamId: streamId ?? this.streamId,
+    muted: muted ?? this.muted,
+    isSubscription: isSubscription.present
+        ? isSubscription.value
+        : this.isSubscription,
+    displayName: displayName.present ? displayName.value : this.displayName,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  StreamOverrideRow copyWithCompanion(StreamOverridesCompanion data) {
+    return StreamOverrideRow(
+      streamId: data.streamId.present ? data.streamId.value : this.streamId,
+      muted: data.muted.present ? data.muted.value : this.muted,
+      isSubscription: data.isSubscription.present
+          ? data.isSubscription.value
+          : this.isSubscription,
+      displayName: data.displayName.present
+          ? data.displayName.value
+          : this.displayName,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StreamOverrideRow(')
+          ..write('streamId: $streamId, ')
+          ..write('muted: $muted, ')
+          ..write('isSubscription: $isSubscription, ')
+          ..write('displayName: $displayName, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    streamId,
+    muted,
+    isSubscription,
+    displayName,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StreamOverrideRow &&
+          other.streamId == this.streamId &&
+          other.muted == this.muted &&
+          other.isSubscription == this.isSubscription &&
+          other.displayName == this.displayName &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class StreamOverridesCompanion extends UpdateCompanion<StreamOverrideRow> {
+  final Value<String> streamId;
+  final Value<bool> muted;
+  final Value<bool?> isSubscription;
+  final Value<String?> displayName;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const StreamOverridesCompanion({
+    this.streamId = const Value.absent(),
+    this.muted = const Value.absent(),
+    this.isSubscription = const Value.absent(),
+    this.displayName = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  StreamOverridesCompanion.insert({
+    required String streamId,
+    this.muted = const Value.absent(),
+    this.isSubscription = const Value.absent(),
+    this.displayName = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : streamId = Value(streamId),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<StreamOverrideRow> custom({
+    Expression<String>? streamId,
+    Expression<bool>? muted,
+    Expression<bool>? isSubscription,
+    Expression<String>? displayName,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (streamId != null) 'stream_id': streamId,
+      if (muted != null) 'muted': muted,
+      if (isSubscription != null) 'is_subscription': isSubscription,
+      if (displayName != null) 'display_name': displayName,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  StreamOverridesCompanion copyWith({
+    Value<String>? streamId,
+    Value<bool>? muted,
+    Value<bool?>? isSubscription,
+    Value<String?>? displayName,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return StreamOverridesCompanion(
+      streamId: streamId ?? this.streamId,
+      muted: muted ?? this.muted,
+      isSubscription: isSubscription ?? this.isSubscription,
+      displayName: displayName ?? this.displayName,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (streamId.present) {
+      map['stream_id'] = Variable<String>(streamId.value);
+    }
+    if (muted.present) {
+      map['muted'] = Variable<bool>(muted.value);
+    }
+    if (isSubscription.present) {
+      map['is_subscription'] = Variable<bool>(isSubscription.value);
+    }
+    if (displayName.present) {
+      map['display_name'] = Variable<String>(displayName.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(
+        $StreamOverridesTable.$convertercreatedAt.toSql(createdAt.value),
+      );
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(
+        $StreamOverridesTable.$converterupdatedAt.toSql(updatedAt.value),
+      );
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(
+        $StreamOverridesTable.$converterdeletedAtn.toSql(deletedAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StreamOverridesCompanion(')
+          ..write('streamId: $streamId, ')
+          ..write('muted: $muted, ')
+          ..write('isSubscription: $isSubscription, ')
+          ..write('displayName: $displayName, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LiabilitiesTable extends Liabilities
+    with TableInfo<$LiabilitiesTable, LiabilityRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LiabilitiesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _accountIdMeta = const VerificationMeta(
+    'accountId',
+  );
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+    'account_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<LiabilityKind, String> kind =
+      GeneratedColumn<String>(
+        'kind',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<LiabilityKind>($LiabilitiesTable.$converterkind);
+  static const VerificationMeta _currencyMeta = const VerificationMeta(
+    'currency',
+  );
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate?, String>
+  nextPaymentDueDate = GeneratedColumn<String>(
+    'next_payment_due_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<LocalDate?>($LiabilitiesTable.$converternextPaymentDueDaten);
+  static const VerificationMeta _minimumPaymentMinorMeta =
+      const VerificationMeta('minimumPaymentMinor');
+  @override
+  late final GeneratedColumn<int> minimumPaymentMinor = GeneratedColumn<int>(
+    'minimum_payment_minor',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastStatementBalanceMinorMeta =
+      const VerificationMeta('lastStatementBalanceMinor');
+  @override
+  late final GeneratedColumn<int> lastStatementBalanceMinor =
+      GeneratedColumn<int>(
+        'last_statement_balance_minor',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate?, String>
+  lastStatementIssueDate =
+      GeneratedColumn<String>(
+        'last_statement_issue_date',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<LocalDate?>(
+        $LiabilitiesTable.$converterlastStatementIssueDaten,
+      );
+  static const VerificationMeta _lastPaymentMinorMeta = const VerificationMeta(
+    'lastPaymentMinor',
+  );
+  @override
+  late final GeneratedColumn<int> lastPaymentMinor = GeneratedColumn<int>(
+    'last_payment_minor',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate?, String>
+  lastPaymentDate = GeneratedColumn<String>(
+    'last_payment_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<LocalDate?>($LiabilitiesTable.$converterlastPaymentDaten);
+  static const VerificationMeta _isOverdueMeta = const VerificationMeta(
+    'isOverdue',
+  );
+  @override
+  late final GeneratedColumn<bool> isOverdue = GeneratedColumn<bool>(
+    'is_overdue',
+    aliasedName,
+    true,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_overdue" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _aprsMeta = const VerificationMeta('aprs');
+  @override
+  late final GeneratedColumn<String> aprs = GeneratedColumn<String>(
+    'aprs',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _interestRateBpMeta = const VerificationMeta(
+    'interestRateBp',
+  );
+  @override
+  late final GeneratedColumn<int> interestRateBp = GeneratedColumn<int>(
+    'interest_rate_bp',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate?, String>
+  originationDate = GeneratedColumn<String>(
+    'origination_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<LocalDate?>($LiabilitiesTable.$converteroriginationDaten);
+  static const VerificationMeta _originationPrincipalMinorMeta =
+      const VerificationMeta('originationPrincipalMinor');
+  @override
+  late final GeneratedColumn<int> originationPrincipalMinor =
+      GeneratedColumn<int>(
+        'origination_principal_minor',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _loanTermMeta = const VerificationMeta(
+    'loanTerm',
+  );
+  @override
+  late final GeneratedColumn<String> loanTerm = GeneratedColumn<String>(
+    'loan_term',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nextMonthlyPaymentMinorMeta =
+      const VerificationMeta('nextMonthlyPaymentMinor');
+  @override
+  late final GeneratedColumn<int> nextMonthlyPaymentMinor =
+      GeneratedColumn<int>(
+        'next_monthly_payment_minor',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _ytdInterestPaidMinorMeta =
+      const VerificationMeta('ytdInterestPaidMinor');
+  @override
+  late final GeneratedColumn<int> ytdInterestPaidMinor = GeneratedColumn<int>(
+    'ytd_interest_paid_minor',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _ytdPrincipalPaidMinorMeta =
+      const VerificationMeta('ytdPrincipalPaidMinor');
+  @override
+  late final GeneratedColumn<int> ytdPrincipalPaidMinor = GeneratedColumn<int>(
+    'ytd_principal_paid_minor',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _payloadMeta = const VerificationMeta(
+    'payload',
+  );
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+    'payload',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DataSource, String> source =
+      GeneratedColumn<String>(
+        'source',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<DataSource>($LiabilitiesTable.$convertersource);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> pulledAt =
+      GeneratedColumn<int>(
+        'pulled_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($LiabilitiesTable.$converterpulledAt);
+  @override
+  List<GeneratedColumn> get $columns => [
+    accountId,
+    kind,
+    currency,
+    nextPaymentDueDate,
+    minimumPaymentMinor,
+    lastStatementBalanceMinor,
+    lastStatementIssueDate,
+    lastPaymentMinor,
+    lastPaymentDate,
+    isOverdue,
+    aprs,
+    interestRateBp,
+    originationDate,
+    originationPrincipalMinor,
+    loanTerm,
+    nextMonthlyPaymentMinor,
+    ytdInterestPaidMinor,
+    ytdPrincipalPaidMinor,
+    payload,
+    source,
+    pulledAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'liabilities';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LiabilityRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('account_id')) {
+      context.handle(
+        _accountIdMeta,
+        accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_accountIdMeta);
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
+    }
+    if (data.containsKey('minimum_payment_minor')) {
+      context.handle(
+        _minimumPaymentMinorMeta,
+        minimumPaymentMinor.isAcceptableOrUnknown(
+          data['minimum_payment_minor']!,
+          _minimumPaymentMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_statement_balance_minor')) {
+      context.handle(
+        _lastStatementBalanceMinorMeta,
+        lastStatementBalanceMinor.isAcceptableOrUnknown(
+          data['last_statement_balance_minor']!,
+          _lastStatementBalanceMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_payment_minor')) {
+      context.handle(
+        _lastPaymentMinorMeta,
+        lastPaymentMinor.isAcceptableOrUnknown(
+          data['last_payment_minor']!,
+          _lastPaymentMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_overdue')) {
+      context.handle(
+        _isOverdueMeta,
+        isOverdue.isAcceptableOrUnknown(data['is_overdue']!, _isOverdueMeta),
+      );
+    }
+    if (data.containsKey('aprs')) {
+      context.handle(
+        _aprsMeta,
+        aprs.isAcceptableOrUnknown(data['aprs']!, _aprsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_aprsMeta);
+    }
+    if (data.containsKey('interest_rate_bp')) {
+      context.handle(
+        _interestRateBpMeta,
+        interestRateBp.isAcceptableOrUnknown(
+          data['interest_rate_bp']!,
+          _interestRateBpMeta,
+        ),
+      );
+    }
+    if (data.containsKey('origination_principal_minor')) {
+      context.handle(
+        _originationPrincipalMinorMeta,
+        originationPrincipalMinor.isAcceptableOrUnknown(
+          data['origination_principal_minor']!,
+          _originationPrincipalMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('loan_term')) {
+      context.handle(
+        _loanTermMeta,
+        loanTerm.isAcceptableOrUnknown(data['loan_term']!, _loanTermMeta),
+      );
+    }
+    if (data.containsKey('next_monthly_payment_minor')) {
+      context.handle(
+        _nextMonthlyPaymentMinorMeta,
+        nextMonthlyPaymentMinor.isAcceptableOrUnknown(
+          data['next_monthly_payment_minor']!,
+          _nextMonthlyPaymentMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('ytd_interest_paid_minor')) {
+      context.handle(
+        _ytdInterestPaidMinorMeta,
+        ytdInterestPaidMinor.isAcceptableOrUnknown(
+          data['ytd_interest_paid_minor']!,
+          _ytdInterestPaidMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('ytd_principal_paid_minor')) {
+      context.handle(
+        _ytdPrincipalPaidMinorMeta,
+        ytdPrincipalPaidMinor.isAcceptableOrUnknown(
+          data['ytd_principal_paid_minor']!,
+          _ytdPrincipalPaidMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('payload')) {
+      context.handle(
+        _payloadMeta,
+        payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {accountId, kind};
+  @override
+  LiabilityRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LiabilityRow(
+      accountId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}account_id'],
+      )!,
+      kind: $LiabilitiesTable.$converterkind.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}kind'],
+        )!,
+      ),
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      ),
+      nextPaymentDueDate: $LiabilitiesTable.$converternextPaymentDueDaten
+          .fromSql(
+            attachedDatabase.typeMapping.read(
+              DriftSqlType.string,
+              data['${effectivePrefix}next_payment_due_date'],
+            ),
+          ),
+      minimumPaymentMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}minimum_payment_minor'],
+      ),
+      lastStatementBalanceMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}last_statement_balance_minor'],
+      ),
+      lastStatementIssueDate: $LiabilitiesTable
+          .$converterlastStatementIssueDaten
+          .fromSql(
+            attachedDatabase.typeMapping.read(
+              DriftSqlType.string,
+              data['${effectivePrefix}last_statement_issue_date'],
+            ),
+          ),
+      lastPaymentMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}last_payment_minor'],
+      ),
+      lastPaymentDate: $LiabilitiesTable.$converterlastPaymentDaten.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}last_payment_date'],
+        ),
+      ),
+      isOverdue: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_overdue'],
+      ),
+      aprs: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}aprs'],
+      )!,
+      interestRateBp: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}interest_rate_bp'],
+      ),
+      originationDate: $LiabilitiesTable.$converteroriginationDaten.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}origination_date'],
+        ),
+      ),
+      originationPrincipalMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}origination_principal_minor'],
+      ),
+      loanTerm: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}loan_term'],
+      ),
+      nextMonthlyPaymentMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}next_monthly_payment_minor'],
+      ),
+      ytdInterestPaidMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ytd_interest_paid_minor'],
+      ),
+      ytdPrincipalPaidMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ytd_principal_paid_minor'],
+      ),
+      payload: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload'],
+      )!,
+      source: $LiabilitiesTable.$convertersource.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}source'],
+        )!,
+      ),
+      pulledAt: $LiabilitiesTable.$converterpulledAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}pulled_at'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $LiabilitiesTable createAlias(String alias) {
+    return $LiabilitiesTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<LiabilityKind, String, String> $converterkind =
+      const EnumNameConverter<LiabilityKind>(LiabilityKind.values);
+  static TypeConverter<LocalDate, String> $converternextPaymentDueDate =
+      const LocalDateColumnConverter();
+  static TypeConverter<LocalDate?, String?> $converternextPaymentDueDaten =
+      NullAwareTypeConverter.wrap($converternextPaymentDueDate);
+  static TypeConverter<LocalDate, String> $converterlastStatementIssueDate =
+      const LocalDateColumnConverter();
+  static TypeConverter<LocalDate?, String?> $converterlastStatementIssueDaten =
+      NullAwareTypeConverter.wrap($converterlastStatementIssueDate);
+  static TypeConverter<LocalDate, String> $converterlastPaymentDate =
+      const LocalDateColumnConverter();
+  static TypeConverter<LocalDate?, String?> $converterlastPaymentDaten =
+      NullAwareTypeConverter.wrap($converterlastPaymentDate);
+  static TypeConverter<LocalDate, String> $converteroriginationDate =
+      const LocalDateColumnConverter();
+  static TypeConverter<LocalDate?, String?> $converteroriginationDaten =
+      NullAwareTypeConverter.wrap($converteroriginationDate);
+  static JsonTypeConverter2<DataSource, String, String> $convertersource =
+      const EnumNameConverter<DataSource>(DataSource.values);
+  static TypeConverter<DateTime, int> $converterpulledAt =
+      const UtcMillisColumnConverter();
+}
+
+class LiabilityRow extends DataClass implements Insertable<LiabilityRow> {
+  final String accountId;
+  final LiabilityKind kind;
+  final String? currency;
+  final LocalDate? nextPaymentDueDate;
+  final int? minimumPaymentMinor;
+  final int? lastStatementBalanceMinor;
+  final LocalDate? lastStatementIssueDate;
+  final int? lastPaymentMinor;
+  final LocalDate? lastPaymentDate;
+  final bool? isOverdue;
+  final String aprs;
+  final int? interestRateBp;
+  final LocalDate? originationDate;
+  final int? originationPrincipalMinor;
+  final String? loanTerm;
+  final int? nextMonthlyPaymentMinor;
+  final int? ytdInterestPaidMinor;
+  final int? ytdPrincipalPaidMinor;
+  final String payload;
+  final DataSource source;
+  final DateTime pulledAt;
+  const LiabilityRow({
+    required this.accountId,
+    required this.kind,
+    this.currency,
+    this.nextPaymentDueDate,
+    this.minimumPaymentMinor,
+    this.lastStatementBalanceMinor,
+    this.lastStatementIssueDate,
+    this.lastPaymentMinor,
+    this.lastPaymentDate,
+    this.isOverdue,
+    required this.aprs,
+    this.interestRateBp,
+    this.originationDate,
+    this.originationPrincipalMinor,
+    this.loanTerm,
+    this.nextMonthlyPaymentMinor,
+    this.ytdInterestPaidMinor,
+    this.ytdPrincipalPaidMinor,
+    required this.payload,
+    required this.source,
+    required this.pulledAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['account_id'] = Variable<String>(accountId);
+    {
+      map['kind'] = Variable<String>(
+        $LiabilitiesTable.$converterkind.toSql(kind),
+      );
+    }
+    if (!nullToAbsent || currency != null) {
+      map['currency'] = Variable<String>(currency);
+    }
+    if (!nullToAbsent || nextPaymentDueDate != null) {
+      map['next_payment_due_date'] = Variable<String>(
+        $LiabilitiesTable.$converternextPaymentDueDaten.toSql(
+          nextPaymentDueDate,
+        ),
+      );
+    }
+    if (!nullToAbsent || minimumPaymentMinor != null) {
+      map['minimum_payment_minor'] = Variable<int>(minimumPaymentMinor);
+    }
+    if (!nullToAbsent || lastStatementBalanceMinor != null) {
+      map['last_statement_balance_minor'] = Variable<int>(
+        lastStatementBalanceMinor,
+      );
+    }
+    if (!nullToAbsent || lastStatementIssueDate != null) {
+      map['last_statement_issue_date'] = Variable<String>(
+        $LiabilitiesTable.$converterlastStatementIssueDaten.toSql(
+          lastStatementIssueDate,
+        ),
+      );
+    }
+    if (!nullToAbsent || lastPaymentMinor != null) {
+      map['last_payment_minor'] = Variable<int>(lastPaymentMinor);
+    }
+    if (!nullToAbsent || lastPaymentDate != null) {
+      map['last_payment_date'] = Variable<String>(
+        $LiabilitiesTable.$converterlastPaymentDaten.toSql(lastPaymentDate),
+      );
+    }
+    if (!nullToAbsent || isOverdue != null) {
+      map['is_overdue'] = Variable<bool>(isOverdue);
+    }
+    map['aprs'] = Variable<String>(aprs);
+    if (!nullToAbsent || interestRateBp != null) {
+      map['interest_rate_bp'] = Variable<int>(interestRateBp);
+    }
+    if (!nullToAbsent || originationDate != null) {
+      map['origination_date'] = Variable<String>(
+        $LiabilitiesTable.$converteroriginationDaten.toSql(originationDate),
+      );
+    }
+    if (!nullToAbsent || originationPrincipalMinor != null) {
+      map['origination_principal_minor'] = Variable<int>(
+        originationPrincipalMinor,
+      );
+    }
+    if (!nullToAbsent || loanTerm != null) {
+      map['loan_term'] = Variable<String>(loanTerm);
+    }
+    if (!nullToAbsent || nextMonthlyPaymentMinor != null) {
+      map['next_monthly_payment_minor'] = Variable<int>(
+        nextMonthlyPaymentMinor,
+      );
+    }
+    if (!nullToAbsent || ytdInterestPaidMinor != null) {
+      map['ytd_interest_paid_minor'] = Variable<int>(ytdInterestPaidMinor);
+    }
+    if (!nullToAbsent || ytdPrincipalPaidMinor != null) {
+      map['ytd_principal_paid_minor'] = Variable<int>(ytdPrincipalPaidMinor);
+    }
+    map['payload'] = Variable<String>(payload);
+    {
+      map['source'] = Variable<String>(
+        $LiabilitiesTable.$convertersource.toSql(source),
+      );
+    }
+    {
+      map['pulled_at'] = Variable<int>(
+        $LiabilitiesTable.$converterpulledAt.toSql(pulledAt),
+      );
+    }
+    return map;
+  }
+
+  LiabilitiesCompanion toCompanion(bool nullToAbsent) {
+    return LiabilitiesCompanion(
+      accountId: Value(accountId),
+      kind: Value(kind),
+      currency: currency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currency),
+      nextPaymentDueDate: nextPaymentDueDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextPaymentDueDate),
+      minimumPaymentMinor: minimumPaymentMinor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(minimumPaymentMinor),
+      lastStatementBalanceMinor:
+          lastStatementBalanceMinor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastStatementBalanceMinor),
+      lastStatementIssueDate: lastStatementIssueDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastStatementIssueDate),
+      lastPaymentMinor: lastPaymentMinor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastPaymentMinor),
+      lastPaymentDate: lastPaymentDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastPaymentDate),
+      isOverdue: isOverdue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isOverdue),
+      aprs: Value(aprs),
+      interestRateBp: interestRateBp == null && nullToAbsent
+          ? const Value.absent()
+          : Value(interestRateBp),
+      originationDate: originationDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originationDate),
+      originationPrincipalMinor:
+          originationPrincipalMinor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originationPrincipalMinor),
+      loanTerm: loanTerm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(loanTerm),
+      nextMonthlyPaymentMinor: nextMonthlyPaymentMinor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextMonthlyPaymentMinor),
+      ytdInterestPaidMinor: ytdInterestPaidMinor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ytdInterestPaidMinor),
+      ytdPrincipalPaidMinor: ytdPrincipalPaidMinor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ytdPrincipalPaidMinor),
+      payload: Value(payload),
+      source: Value(source),
+      pulledAt: Value(pulledAt),
+    );
+  }
+
+  factory LiabilityRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LiabilityRow(
+      accountId: serializer.fromJson<String>(json['accountId']),
+      kind: $LiabilitiesTable.$converterkind.fromJson(
+        serializer.fromJson<String>(json['kind']),
+      ),
+      currency: serializer.fromJson<String?>(json['currency']),
+      nextPaymentDueDate: serializer.fromJson<LocalDate?>(
+        json['nextPaymentDueDate'],
+      ),
+      minimumPaymentMinor: serializer.fromJson<int?>(
+        json['minimumPaymentMinor'],
+      ),
+      lastStatementBalanceMinor: serializer.fromJson<int?>(
+        json['lastStatementBalanceMinor'],
+      ),
+      lastStatementIssueDate: serializer.fromJson<LocalDate?>(
+        json['lastStatementIssueDate'],
+      ),
+      lastPaymentMinor: serializer.fromJson<int?>(json['lastPaymentMinor']),
+      lastPaymentDate: serializer.fromJson<LocalDate?>(json['lastPaymentDate']),
+      isOverdue: serializer.fromJson<bool?>(json['isOverdue']),
+      aprs: serializer.fromJson<String>(json['aprs']),
+      interestRateBp: serializer.fromJson<int?>(json['interestRateBp']),
+      originationDate: serializer.fromJson<LocalDate?>(json['originationDate']),
+      originationPrincipalMinor: serializer.fromJson<int?>(
+        json['originationPrincipalMinor'],
+      ),
+      loanTerm: serializer.fromJson<String?>(json['loanTerm']),
+      nextMonthlyPaymentMinor: serializer.fromJson<int?>(
+        json['nextMonthlyPaymentMinor'],
+      ),
+      ytdInterestPaidMinor: serializer.fromJson<int?>(
+        json['ytdInterestPaidMinor'],
+      ),
+      ytdPrincipalPaidMinor: serializer.fromJson<int?>(
+        json['ytdPrincipalPaidMinor'],
+      ),
+      payload: serializer.fromJson<String>(json['payload']),
+      source: $LiabilitiesTable.$convertersource.fromJson(
+        serializer.fromJson<String>(json['source']),
+      ),
+      pulledAt: serializer.fromJson<DateTime>(json['pulledAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'accountId': serializer.toJson<String>(accountId),
+      'kind': serializer.toJson<String>(
+        $LiabilitiesTable.$converterkind.toJson(kind),
+      ),
+      'currency': serializer.toJson<String?>(currency),
+      'nextPaymentDueDate': serializer.toJson<LocalDate?>(nextPaymentDueDate),
+      'minimumPaymentMinor': serializer.toJson<int?>(minimumPaymentMinor),
+      'lastStatementBalanceMinor': serializer.toJson<int?>(
+        lastStatementBalanceMinor,
+      ),
+      'lastStatementIssueDate': serializer.toJson<LocalDate?>(
+        lastStatementIssueDate,
+      ),
+      'lastPaymentMinor': serializer.toJson<int?>(lastPaymentMinor),
+      'lastPaymentDate': serializer.toJson<LocalDate?>(lastPaymentDate),
+      'isOverdue': serializer.toJson<bool?>(isOverdue),
+      'aprs': serializer.toJson<String>(aprs),
+      'interestRateBp': serializer.toJson<int?>(interestRateBp),
+      'originationDate': serializer.toJson<LocalDate?>(originationDate),
+      'originationPrincipalMinor': serializer.toJson<int?>(
+        originationPrincipalMinor,
+      ),
+      'loanTerm': serializer.toJson<String?>(loanTerm),
+      'nextMonthlyPaymentMinor': serializer.toJson<int?>(
+        nextMonthlyPaymentMinor,
+      ),
+      'ytdInterestPaidMinor': serializer.toJson<int?>(ytdInterestPaidMinor),
+      'ytdPrincipalPaidMinor': serializer.toJson<int?>(ytdPrincipalPaidMinor),
+      'payload': serializer.toJson<String>(payload),
+      'source': serializer.toJson<String>(
+        $LiabilitiesTable.$convertersource.toJson(source),
+      ),
+      'pulledAt': serializer.toJson<DateTime>(pulledAt),
+    };
+  }
+
+  LiabilityRow copyWith({
+    String? accountId,
+    LiabilityKind? kind,
+    Value<String?> currency = const Value.absent(),
+    Value<LocalDate?> nextPaymentDueDate = const Value.absent(),
+    Value<int?> minimumPaymentMinor = const Value.absent(),
+    Value<int?> lastStatementBalanceMinor = const Value.absent(),
+    Value<LocalDate?> lastStatementIssueDate = const Value.absent(),
+    Value<int?> lastPaymentMinor = const Value.absent(),
+    Value<LocalDate?> lastPaymentDate = const Value.absent(),
+    Value<bool?> isOverdue = const Value.absent(),
+    String? aprs,
+    Value<int?> interestRateBp = const Value.absent(),
+    Value<LocalDate?> originationDate = const Value.absent(),
+    Value<int?> originationPrincipalMinor = const Value.absent(),
+    Value<String?> loanTerm = const Value.absent(),
+    Value<int?> nextMonthlyPaymentMinor = const Value.absent(),
+    Value<int?> ytdInterestPaidMinor = const Value.absent(),
+    Value<int?> ytdPrincipalPaidMinor = const Value.absent(),
+    String? payload,
+    DataSource? source,
+    DateTime? pulledAt,
+  }) => LiabilityRow(
+    accountId: accountId ?? this.accountId,
+    kind: kind ?? this.kind,
+    currency: currency.present ? currency.value : this.currency,
+    nextPaymentDueDate: nextPaymentDueDate.present
+        ? nextPaymentDueDate.value
+        : this.nextPaymentDueDate,
+    minimumPaymentMinor: minimumPaymentMinor.present
+        ? minimumPaymentMinor.value
+        : this.minimumPaymentMinor,
+    lastStatementBalanceMinor: lastStatementBalanceMinor.present
+        ? lastStatementBalanceMinor.value
+        : this.lastStatementBalanceMinor,
+    lastStatementIssueDate: lastStatementIssueDate.present
+        ? lastStatementIssueDate.value
+        : this.lastStatementIssueDate,
+    lastPaymentMinor: lastPaymentMinor.present
+        ? lastPaymentMinor.value
+        : this.lastPaymentMinor,
+    lastPaymentDate: lastPaymentDate.present
+        ? lastPaymentDate.value
+        : this.lastPaymentDate,
+    isOverdue: isOverdue.present ? isOverdue.value : this.isOverdue,
+    aprs: aprs ?? this.aprs,
+    interestRateBp: interestRateBp.present
+        ? interestRateBp.value
+        : this.interestRateBp,
+    originationDate: originationDate.present
+        ? originationDate.value
+        : this.originationDate,
+    originationPrincipalMinor: originationPrincipalMinor.present
+        ? originationPrincipalMinor.value
+        : this.originationPrincipalMinor,
+    loanTerm: loanTerm.present ? loanTerm.value : this.loanTerm,
+    nextMonthlyPaymentMinor: nextMonthlyPaymentMinor.present
+        ? nextMonthlyPaymentMinor.value
+        : this.nextMonthlyPaymentMinor,
+    ytdInterestPaidMinor: ytdInterestPaidMinor.present
+        ? ytdInterestPaidMinor.value
+        : this.ytdInterestPaidMinor,
+    ytdPrincipalPaidMinor: ytdPrincipalPaidMinor.present
+        ? ytdPrincipalPaidMinor.value
+        : this.ytdPrincipalPaidMinor,
+    payload: payload ?? this.payload,
+    source: source ?? this.source,
+    pulledAt: pulledAt ?? this.pulledAt,
+  );
+  LiabilityRow copyWithCompanion(LiabilitiesCompanion data) {
+    return LiabilityRow(
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      nextPaymentDueDate: data.nextPaymentDueDate.present
+          ? data.nextPaymentDueDate.value
+          : this.nextPaymentDueDate,
+      minimumPaymentMinor: data.minimumPaymentMinor.present
+          ? data.minimumPaymentMinor.value
+          : this.minimumPaymentMinor,
+      lastStatementBalanceMinor: data.lastStatementBalanceMinor.present
+          ? data.lastStatementBalanceMinor.value
+          : this.lastStatementBalanceMinor,
+      lastStatementIssueDate: data.lastStatementIssueDate.present
+          ? data.lastStatementIssueDate.value
+          : this.lastStatementIssueDate,
+      lastPaymentMinor: data.lastPaymentMinor.present
+          ? data.lastPaymentMinor.value
+          : this.lastPaymentMinor,
+      lastPaymentDate: data.lastPaymentDate.present
+          ? data.lastPaymentDate.value
+          : this.lastPaymentDate,
+      isOverdue: data.isOverdue.present ? data.isOverdue.value : this.isOverdue,
+      aprs: data.aprs.present ? data.aprs.value : this.aprs,
+      interestRateBp: data.interestRateBp.present
+          ? data.interestRateBp.value
+          : this.interestRateBp,
+      originationDate: data.originationDate.present
+          ? data.originationDate.value
+          : this.originationDate,
+      originationPrincipalMinor: data.originationPrincipalMinor.present
+          ? data.originationPrincipalMinor.value
+          : this.originationPrincipalMinor,
+      loanTerm: data.loanTerm.present ? data.loanTerm.value : this.loanTerm,
+      nextMonthlyPaymentMinor: data.nextMonthlyPaymentMinor.present
+          ? data.nextMonthlyPaymentMinor.value
+          : this.nextMonthlyPaymentMinor,
+      ytdInterestPaidMinor: data.ytdInterestPaidMinor.present
+          ? data.ytdInterestPaidMinor.value
+          : this.ytdInterestPaidMinor,
+      ytdPrincipalPaidMinor: data.ytdPrincipalPaidMinor.present
+          ? data.ytdPrincipalPaidMinor.value
+          : this.ytdPrincipalPaidMinor,
+      payload: data.payload.present ? data.payload.value : this.payload,
+      source: data.source.present ? data.source.value : this.source,
+      pulledAt: data.pulledAt.present ? data.pulledAt.value : this.pulledAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LiabilityRow(')
+          ..write('accountId: $accountId, ')
+          ..write('kind: $kind, ')
+          ..write('currency: $currency, ')
+          ..write('nextPaymentDueDate: $nextPaymentDueDate, ')
+          ..write('minimumPaymentMinor: $minimumPaymentMinor, ')
+          ..write('lastStatementBalanceMinor: $lastStatementBalanceMinor, ')
+          ..write('lastStatementIssueDate: $lastStatementIssueDate, ')
+          ..write('lastPaymentMinor: $lastPaymentMinor, ')
+          ..write('lastPaymentDate: $lastPaymentDate, ')
+          ..write('isOverdue: $isOverdue, ')
+          ..write('aprs: $aprs, ')
+          ..write('interestRateBp: $interestRateBp, ')
+          ..write('originationDate: $originationDate, ')
+          ..write('originationPrincipalMinor: $originationPrincipalMinor, ')
+          ..write('loanTerm: $loanTerm, ')
+          ..write('nextMonthlyPaymentMinor: $nextMonthlyPaymentMinor, ')
+          ..write('ytdInterestPaidMinor: $ytdInterestPaidMinor, ')
+          ..write('ytdPrincipalPaidMinor: $ytdPrincipalPaidMinor, ')
+          ..write('payload: $payload, ')
+          ..write('source: $source, ')
+          ..write('pulledAt: $pulledAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    accountId,
+    kind,
+    currency,
+    nextPaymentDueDate,
+    minimumPaymentMinor,
+    lastStatementBalanceMinor,
+    lastStatementIssueDate,
+    lastPaymentMinor,
+    lastPaymentDate,
+    isOverdue,
+    aprs,
+    interestRateBp,
+    originationDate,
+    originationPrincipalMinor,
+    loanTerm,
+    nextMonthlyPaymentMinor,
+    ytdInterestPaidMinor,
+    ytdPrincipalPaidMinor,
+    payload,
+    source,
+    pulledAt,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LiabilityRow &&
+          other.accountId == this.accountId &&
+          other.kind == this.kind &&
+          other.currency == this.currency &&
+          other.nextPaymentDueDate == this.nextPaymentDueDate &&
+          other.minimumPaymentMinor == this.minimumPaymentMinor &&
+          other.lastStatementBalanceMinor == this.lastStatementBalanceMinor &&
+          other.lastStatementIssueDate == this.lastStatementIssueDate &&
+          other.lastPaymentMinor == this.lastPaymentMinor &&
+          other.lastPaymentDate == this.lastPaymentDate &&
+          other.isOverdue == this.isOverdue &&
+          other.aprs == this.aprs &&
+          other.interestRateBp == this.interestRateBp &&
+          other.originationDate == this.originationDate &&
+          other.originationPrincipalMinor == this.originationPrincipalMinor &&
+          other.loanTerm == this.loanTerm &&
+          other.nextMonthlyPaymentMinor == this.nextMonthlyPaymentMinor &&
+          other.ytdInterestPaidMinor == this.ytdInterestPaidMinor &&
+          other.ytdPrincipalPaidMinor == this.ytdPrincipalPaidMinor &&
+          other.payload == this.payload &&
+          other.source == this.source &&
+          other.pulledAt == this.pulledAt);
+}
+
+class LiabilitiesCompanion extends UpdateCompanion<LiabilityRow> {
+  final Value<String> accountId;
+  final Value<LiabilityKind> kind;
+  final Value<String?> currency;
+  final Value<LocalDate?> nextPaymentDueDate;
+  final Value<int?> minimumPaymentMinor;
+  final Value<int?> lastStatementBalanceMinor;
+  final Value<LocalDate?> lastStatementIssueDate;
+  final Value<int?> lastPaymentMinor;
+  final Value<LocalDate?> lastPaymentDate;
+  final Value<bool?> isOverdue;
+  final Value<String> aprs;
+  final Value<int?> interestRateBp;
+  final Value<LocalDate?> originationDate;
+  final Value<int?> originationPrincipalMinor;
+  final Value<String?> loanTerm;
+  final Value<int?> nextMonthlyPaymentMinor;
+  final Value<int?> ytdInterestPaidMinor;
+  final Value<int?> ytdPrincipalPaidMinor;
+  final Value<String> payload;
+  final Value<DataSource> source;
+  final Value<DateTime> pulledAt;
+  final Value<int> rowid;
+  const LiabilitiesCompanion({
+    this.accountId = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.nextPaymentDueDate = const Value.absent(),
+    this.minimumPaymentMinor = const Value.absent(),
+    this.lastStatementBalanceMinor = const Value.absent(),
+    this.lastStatementIssueDate = const Value.absent(),
+    this.lastPaymentMinor = const Value.absent(),
+    this.lastPaymentDate = const Value.absent(),
+    this.isOverdue = const Value.absent(),
+    this.aprs = const Value.absent(),
+    this.interestRateBp = const Value.absent(),
+    this.originationDate = const Value.absent(),
+    this.originationPrincipalMinor = const Value.absent(),
+    this.loanTerm = const Value.absent(),
+    this.nextMonthlyPaymentMinor = const Value.absent(),
+    this.ytdInterestPaidMinor = const Value.absent(),
+    this.ytdPrincipalPaidMinor = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.source = const Value.absent(),
+    this.pulledAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LiabilitiesCompanion.insert({
+    required String accountId,
+    required LiabilityKind kind,
+    this.currency = const Value.absent(),
+    this.nextPaymentDueDate = const Value.absent(),
+    this.minimumPaymentMinor = const Value.absent(),
+    this.lastStatementBalanceMinor = const Value.absent(),
+    this.lastStatementIssueDate = const Value.absent(),
+    this.lastPaymentMinor = const Value.absent(),
+    this.lastPaymentDate = const Value.absent(),
+    this.isOverdue = const Value.absent(),
+    required String aprs,
+    this.interestRateBp = const Value.absent(),
+    this.originationDate = const Value.absent(),
+    this.originationPrincipalMinor = const Value.absent(),
+    this.loanTerm = const Value.absent(),
+    this.nextMonthlyPaymentMinor = const Value.absent(),
+    this.ytdInterestPaidMinor = const Value.absent(),
+    this.ytdPrincipalPaidMinor = const Value.absent(),
+    required String payload,
+    required DataSource source,
+    required DateTime pulledAt,
+    this.rowid = const Value.absent(),
+  }) : accountId = Value(accountId),
+       kind = Value(kind),
+       aprs = Value(aprs),
+       payload = Value(payload),
+       source = Value(source),
+       pulledAt = Value(pulledAt);
+  static Insertable<LiabilityRow> custom({
+    Expression<String>? accountId,
+    Expression<String>? kind,
+    Expression<String>? currency,
+    Expression<String>? nextPaymentDueDate,
+    Expression<int>? minimumPaymentMinor,
+    Expression<int>? lastStatementBalanceMinor,
+    Expression<String>? lastStatementIssueDate,
+    Expression<int>? lastPaymentMinor,
+    Expression<String>? lastPaymentDate,
+    Expression<bool>? isOverdue,
+    Expression<String>? aprs,
+    Expression<int>? interestRateBp,
+    Expression<String>? originationDate,
+    Expression<int>? originationPrincipalMinor,
+    Expression<String>? loanTerm,
+    Expression<int>? nextMonthlyPaymentMinor,
+    Expression<int>? ytdInterestPaidMinor,
+    Expression<int>? ytdPrincipalPaidMinor,
+    Expression<String>? payload,
+    Expression<String>? source,
+    Expression<int>? pulledAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (accountId != null) 'account_id': accountId,
+      if (kind != null) 'kind': kind,
+      if (currency != null) 'currency': currency,
+      if (nextPaymentDueDate != null)
+        'next_payment_due_date': nextPaymentDueDate,
+      if (minimumPaymentMinor != null)
+        'minimum_payment_minor': minimumPaymentMinor,
+      if (lastStatementBalanceMinor != null)
+        'last_statement_balance_minor': lastStatementBalanceMinor,
+      if (lastStatementIssueDate != null)
+        'last_statement_issue_date': lastStatementIssueDate,
+      if (lastPaymentMinor != null) 'last_payment_minor': lastPaymentMinor,
+      if (lastPaymentDate != null) 'last_payment_date': lastPaymentDate,
+      if (isOverdue != null) 'is_overdue': isOverdue,
+      if (aprs != null) 'aprs': aprs,
+      if (interestRateBp != null) 'interest_rate_bp': interestRateBp,
+      if (originationDate != null) 'origination_date': originationDate,
+      if (originationPrincipalMinor != null)
+        'origination_principal_minor': originationPrincipalMinor,
+      if (loanTerm != null) 'loan_term': loanTerm,
+      if (nextMonthlyPaymentMinor != null)
+        'next_monthly_payment_minor': nextMonthlyPaymentMinor,
+      if (ytdInterestPaidMinor != null)
+        'ytd_interest_paid_minor': ytdInterestPaidMinor,
+      if (ytdPrincipalPaidMinor != null)
+        'ytd_principal_paid_minor': ytdPrincipalPaidMinor,
+      if (payload != null) 'payload': payload,
+      if (source != null) 'source': source,
+      if (pulledAt != null) 'pulled_at': pulledAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LiabilitiesCompanion copyWith({
+    Value<String>? accountId,
+    Value<LiabilityKind>? kind,
+    Value<String?>? currency,
+    Value<LocalDate?>? nextPaymentDueDate,
+    Value<int?>? minimumPaymentMinor,
+    Value<int?>? lastStatementBalanceMinor,
+    Value<LocalDate?>? lastStatementIssueDate,
+    Value<int?>? lastPaymentMinor,
+    Value<LocalDate?>? lastPaymentDate,
+    Value<bool?>? isOverdue,
+    Value<String>? aprs,
+    Value<int?>? interestRateBp,
+    Value<LocalDate?>? originationDate,
+    Value<int?>? originationPrincipalMinor,
+    Value<String?>? loanTerm,
+    Value<int?>? nextMonthlyPaymentMinor,
+    Value<int?>? ytdInterestPaidMinor,
+    Value<int?>? ytdPrincipalPaidMinor,
+    Value<String>? payload,
+    Value<DataSource>? source,
+    Value<DateTime>? pulledAt,
+    Value<int>? rowid,
+  }) {
+    return LiabilitiesCompanion(
+      accountId: accountId ?? this.accountId,
+      kind: kind ?? this.kind,
+      currency: currency ?? this.currency,
+      nextPaymentDueDate: nextPaymentDueDate ?? this.nextPaymentDueDate,
+      minimumPaymentMinor: minimumPaymentMinor ?? this.minimumPaymentMinor,
+      lastStatementBalanceMinor:
+          lastStatementBalanceMinor ?? this.lastStatementBalanceMinor,
+      lastStatementIssueDate:
+          lastStatementIssueDate ?? this.lastStatementIssueDate,
+      lastPaymentMinor: lastPaymentMinor ?? this.lastPaymentMinor,
+      lastPaymentDate: lastPaymentDate ?? this.lastPaymentDate,
+      isOverdue: isOverdue ?? this.isOverdue,
+      aprs: aprs ?? this.aprs,
+      interestRateBp: interestRateBp ?? this.interestRateBp,
+      originationDate: originationDate ?? this.originationDate,
+      originationPrincipalMinor:
+          originationPrincipalMinor ?? this.originationPrincipalMinor,
+      loanTerm: loanTerm ?? this.loanTerm,
+      nextMonthlyPaymentMinor:
+          nextMonthlyPaymentMinor ?? this.nextMonthlyPaymentMinor,
+      ytdInterestPaidMinor: ytdInterestPaidMinor ?? this.ytdInterestPaidMinor,
+      ytdPrincipalPaidMinor:
+          ytdPrincipalPaidMinor ?? this.ytdPrincipalPaidMinor,
+      payload: payload ?? this.payload,
+      source: source ?? this.source,
+      pulledAt: pulledAt ?? this.pulledAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(
+        $LiabilitiesTable.$converterkind.toSql(kind.value),
+      );
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (nextPaymentDueDate.present) {
+      map['next_payment_due_date'] = Variable<String>(
+        $LiabilitiesTable.$converternextPaymentDueDaten.toSql(
+          nextPaymentDueDate.value,
+        ),
+      );
+    }
+    if (minimumPaymentMinor.present) {
+      map['minimum_payment_minor'] = Variable<int>(minimumPaymentMinor.value);
+    }
+    if (lastStatementBalanceMinor.present) {
+      map['last_statement_balance_minor'] = Variable<int>(
+        lastStatementBalanceMinor.value,
+      );
+    }
+    if (lastStatementIssueDate.present) {
+      map['last_statement_issue_date'] = Variable<String>(
+        $LiabilitiesTable.$converterlastStatementIssueDaten.toSql(
+          lastStatementIssueDate.value,
+        ),
+      );
+    }
+    if (lastPaymentMinor.present) {
+      map['last_payment_minor'] = Variable<int>(lastPaymentMinor.value);
+    }
+    if (lastPaymentDate.present) {
+      map['last_payment_date'] = Variable<String>(
+        $LiabilitiesTable.$converterlastPaymentDaten.toSql(
+          lastPaymentDate.value,
+        ),
+      );
+    }
+    if (isOverdue.present) {
+      map['is_overdue'] = Variable<bool>(isOverdue.value);
+    }
+    if (aprs.present) {
+      map['aprs'] = Variable<String>(aprs.value);
+    }
+    if (interestRateBp.present) {
+      map['interest_rate_bp'] = Variable<int>(interestRateBp.value);
+    }
+    if (originationDate.present) {
+      map['origination_date'] = Variable<String>(
+        $LiabilitiesTable.$converteroriginationDaten.toSql(
+          originationDate.value,
+        ),
+      );
+    }
+    if (originationPrincipalMinor.present) {
+      map['origination_principal_minor'] = Variable<int>(
+        originationPrincipalMinor.value,
+      );
+    }
+    if (loanTerm.present) {
+      map['loan_term'] = Variable<String>(loanTerm.value);
+    }
+    if (nextMonthlyPaymentMinor.present) {
+      map['next_monthly_payment_minor'] = Variable<int>(
+        nextMonthlyPaymentMinor.value,
+      );
+    }
+    if (ytdInterestPaidMinor.present) {
+      map['ytd_interest_paid_minor'] = Variable<int>(
+        ytdInterestPaidMinor.value,
+      );
+    }
+    if (ytdPrincipalPaidMinor.present) {
+      map['ytd_principal_paid_minor'] = Variable<int>(
+        ytdPrincipalPaidMinor.value,
+      );
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(
+        $LiabilitiesTable.$convertersource.toSql(source.value),
+      );
+    }
+    if (pulledAt.present) {
+      map['pulled_at'] = Variable<int>(
+        $LiabilitiesTable.$converterpulledAt.toSql(pulledAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LiabilitiesCompanion(')
+          ..write('accountId: $accountId, ')
+          ..write('kind: $kind, ')
+          ..write('currency: $currency, ')
+          ..write('nextPaymentDueDate: $nextPaymentDueDate, ')
+          ..write('minimumPaymentMinor: $minimumPaymentMinor, ')
+          ..write('lastStatementBalanceMinor: $lastStatementBalanceMinor, ')
+          ..write('lastStatementIssueDate: $lastStatementIssueDate, ')
+          ..write('lastPaymentMinor: $lastPaymentMinor, ')
+          ..write('lastPaymentDate: $lastPaymentDate, ')
+          ..write('isOverdue: $isOverdue, ')
+          ..write('aprs: $aprs, ')
+          ..write('interestRateBp: $interestRateBp, ')
+          ..write('originationDate: $originationDate, ')
+          ..write('originationPrincipalMinor: $originationPrincipalMinor, ')
+          ..write('loanTerm: $loanTerm, ')
+          ..write('nextMonthlyPaymentMinor: $nextMonthlyPaymentMinor, ')
+          ..write('ytdInterestPaidMinor: $ytdInterestPaidMinor, ')
+          ..write('ytdPrincipalPaidMinor: $ytdPrincipalPaidMinor, ')
+          ..write('payload: $payload, ')
+          ..write('source: $source, ')
+          ..write('pulledAt: $pulledAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $AccountsTable accounts = $AccountsTable(this);
@@ -8408,6 +11017,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $BudgetAlertsTable budgetAlerts = $BudgetAlertsTable(this);
   late final $DismissedPairsTable dismissedPairs = $DismissedPairsTable(this);
   late final $SavedFiltersTable savedFilters = $SavedFiltersTable(this);
+  late final $RecurringStreamsTable recurringStreams = $RecurringStreamsTable(
+    this,
+  );
+  late final $StreamOverridesTable streamOverrides = $StreamOverridesTable(
+    this,
+  );
+  late final $LiabilitiesTable liabilities = $LiabilitiesTable(this);
   late final Index transactionsAccountDate = Index(
     'transactions_account_date',
     'CREATE INDEX transactions_account_date ON transactions (account_id, date)',
@@ -8448,6 +11064,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'saved_filters_position',
     'CREATE INDEX saved_filters_position ON saved_filters (position)',
   );
+  late final Index recurringStreamsAccount = Index(
+    'recurring_streams_account',
+    'CREATE INDEX recurring_streams_account ON recurring_streams (account_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -8470,6 +11090,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     budgetAlerts,
     dismissedPairs,
     savedFilters,
+    recurringStreams,
+    streamOverrides,
+    liabilities,
     transactionsAccountDate,
     transactionsUserCategory,
     transactionsPendingTransaction,
@@ -8480,6 +11103,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     rulesPosition,
     budgetsCategory,
     savedFiltersPosition,
+    recurringStreamsAccount,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

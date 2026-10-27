@@ -17,7 +17,11 @@
 /// the transaction records sync held for a field this version now stores. Schema 7 adds
 /// the duplicate pairs the user dismissed (`dismissed_pairs`), local to the device; its
 /// migration creates the empty table. Schema 8 adds the transaction list's saved filters
-/// (`saved_filters`, local to the device). The full-text index (`full_text_search.dart`)
+/// (`saved_filters`, local to the device). Schema 9 adds the recurring streams
+/// (`recurring_streams`, the server's and the detector's, never recorded), the user's
+/// choices about them (`stream_overrides`, synced as the `recurring_stream` record) and
+/// the liabilities (`liabilities`, server-authoritative); its migration materializes the
+/// `recurring_stream` records sync held. The full-text index (`full_text_search.dart`)
 /// is not part of a schema step: `beforeOpen` makes it match whether the bundled SQLite
 /// has FTS5, at every open, and records that in [AppDatabase.fullTextSearch]. Every
 /// schema change follows the procedure
@@ -48,9 +52,12 @@ import 'package:finance_tracker/core/db/tables/change_log.dart';
 import 'package:finance_tracker/core/db/tables/dismissed_pairs.dart';
 import 'package:finance_tracker/core/db/tables/held_records.dart';
 import 'package:finance_tracker/core/db/tables/items.dart';
+import 'package:finance_tracker/core/db/tables/liabilities.dart';
 import 'package:finance_tracker/core/db/tables/record_clocks.dart';
+import 'package:finance_tracker/core/db/tables/recurring_streams.dart';
 import 'package:finance_tracker/core/db/tables/rules.dart';
 import 'package:finance_tracker/core/db/tables/saved_filters.dart';
+import 'package:finance_tracker/core/db/tables/stream_overrides.dart';
 import 'package:finance_tracker/core/db/tables/sync_meta.dart';
 import 'package:finance_tracker/core/db/tables/transaction_splits.dart';
 import 'package:finance_tracker/core/db/tables/transaction_tags.dart';
@@ -89,6 +96,9 @@ final Logger _log = Logger('db');
     BudgetAlerts,
     DismissedPairs,
     SavedFilters,
+    RecurringStreams,
+    StreamOverrides,
+    Liabilities,
   ],
 )
 final class AppDatabase extends _$AppDatabase {
@@ -124,7 +134,7 @@ final class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -195,6 +205,20 @@ final class AppDatabase extends _$AppDatabase {
       if (from < 8) {
         await m.createTable(savedFilters);
         await _createIndex(m, savedFiltersPosition);
+      }
+      if (from < 9) {
+        // One transaction: the tables, and the overrides another device recorded before
+        // this version could store them (held as unsupported_type), land together.
+        await transaction(() async {
+          await m.createTable(recurringStreams);
+          await _createIndex(m, recurringStreamsAccount);
+          await m.createTable(streamOverrides);
+          await m.createTable(liabilities);
+          await releaseHeldRecords(
+            DriftSyncStore(this, _WallClock(wallMillis)),
+            EntityType.recurringStream,
+          );
+        });
       }
     },
     beforeOpen: (details) async {

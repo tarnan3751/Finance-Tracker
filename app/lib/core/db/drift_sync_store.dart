@@ -13,7 +13,10 @@
 ///   it depend on arrival order. A transaction's currency is its amount's, even when that
 ///   is no longer its account's; a transaction may be written before its account;
 /// - an incomplete record (only updates merged: a Plaid transaction's overrides, a system
-///   category's icon) whose row exists is laid over the row; settings always exist;
+///   category's icon) whose row exists is laid over the row; settings always exist, and
+///   so does a stream's override (`recurring_stream`), whose record is only ever
+///   updates: it is laid over the stored override, or over the defaults when there is
+///   none;
 /// - a record the table cannot hold exactly is also kept whole in `held_records`, and
 ///   reads come from there while it is: `unknown_fields` (fields this version does not
 ///   know; the known ones land in the row), `unrepresentable` (splits the table cannot
@@ -37,6 +40,8 @@ import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/data/drift_account_repository.dart';
 import 'package:finance_tracker/features/budgets/data/drift_budget_repository.dart';
 import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
+import 'package:finance_tracker/features/recurring/data/stream_override_rows.dart';
+import 'package:finance_tracker/features/recurring/domain/stream_override.dart';
 import 'package:finance_tracker/features/rules/data/drift_rule_repository.dart';
 import 'package:finance_tracker/features/settings/data/drift_settings_repository.dart';
 import 'package:finance_tracker/features/transactions/data/drift_transaction_repository.dart';
@@ -229,9 +234,15 @@ final class DriftSyncStore implements SyncStore {
         return row == null
             ? null
             : budgetRecordJson(budgetFromRow(row), deletedAt: row.deletedAt);
-      case EntityType.recurringStream ||
-          EntityType.billReminder ||
-          EntityType.goal:
+      case EntityType.recurringStream:
+        final StreamOverrideRow? row = await _overrideRow(id);
+        return row == null
+            ? null
+            : streamOverrideRecordJson(
+                streamOverrideFromRow(row),
+                deletedAt: row.deletedAt,
+              );
+      case EntityType.billReminder || EntityType.goal:
         return null;
     }
   }
@@ -247,6 +258,10 @@ final class DriftSyncStore implements SyncStore {
   Future<RuleRow?> _ruleRow(String id) => (_database.select(
     _database.rules,
   )..where((r) => r.id.equals(id))).getSingleOrNull();
+
+  Future<StreamOverrideRow?> _overrideRow(String id) => (_database.select(
+    _database.streamOverrides,
+  )..where((o) => o.streamId.equals(id))).getSingleOrNull();
 
   Future<BudgetRow?> _budgetRow(String id) => (_database.select(
     _database.budgets,
@@ -272,6 +287,36 @@ final class DriftSyncStore implements SyncStore {
               ),
         ]),
       );
+      return unknown;
+    }
+    if (type == EntityType.recurringStream) {
+      // Only ever updates: laid over the stored override, or over the defaults.
+      final StreamOverrideRow? row = await _overrideRow(record.id);
+      final Map<String, Object?> fields = {
+        ...row == null
+            ? streamOverrideRecordJson(const StreamOverride())
+            : streamOverrideRecordJson(
+                streamOverrideFromRow(row),
+                deletedAt: row.deletedAt,
+              ),
+        ...record.fields,
+      };
+      final StreamOverridesCompanion companion;
+      try {
+        companion = streamOverrideCompanion(
+          record.id,
+          streamOverrideOf(fields),
+          createdAt: row?.createdAt ?? _clock.nowUtc(),
+          now: _clock.nowUtc(),
+          deletedAt: Value(deletedAtOf(fields)),
+        );
+      } on Object {
+        // A field that does not decode: the row stays as it was.
+        return HeldReason.unrepresentable;
+      }
+      await _database
+          .into(_database.streamOverrides)
+          .insertOnConflictUpdate(companion);
       return unknown;
     }
     if (type != EntityType.account &&

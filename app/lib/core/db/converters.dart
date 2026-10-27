@@ -86,6 +86,26 @@ final class ItemStatusColumnConverter
   );
 }
 
+/// `RecurringCadence` ↔ TEXT, its snake_case JSON name (`semi_monthly`). The column has
+/// no CHECK, so a cadence a newer version writes reads as [RecurringCadence.unknown].
+final class RecurringCadenceColumnConverter
+    extends TypeConverter<RecurringCadence, String> {
+  /// The converter.
+  const RecurringCadenceColumnConverter();
+
+  @override
+  RecurringCadence fromSql(String fromDb) => RecurringCadence.values.firstWhere(
+    (c) => toSql(c) == fromDb,
+    orElse: () => RecurringCadence.unknown,
+  );
+
+  @override
+  String toSql(RecurringCadence value) => value.name.replaceAllMapped(
+    RegExp('[A-Z]'),
+    (m) => '_${m[0]!.toLowerCase()}',
+  );
+}
+
 /// The `Money` of [minorUnits] in the row's [currency], or null when the column is null.
 Money? moneyOrNull(int? minorUnits, String currency) =>
     minorUnits == null ? null : Money(minorUnits, currency);

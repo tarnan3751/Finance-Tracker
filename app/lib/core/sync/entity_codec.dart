@@ -4,7 +4,10 @@
 /// it: `deleted_at` for accounts, categories, rules and budgets (whose entities carry no
 /// tombstone), and `deleted_with_account` for transactions (the cascade flag, synced so a
 /// restore on any device brings back the same rows). Settings are the one record `settings/local`, with
-/// `theme_mode` and `use_dynamic_color`. Nested values (tags, splits, amounts) are whole
+/// `theme_mode` and `use_dynamic_color`. A `recurring_stream` record is the user's
+/// override of one stream (keyed by the stream's id): `muted`, `is_subscription`,
+/// `display_name` and `deleted_at`, never the stream itself, which is the server's or
+/// the detector's. Nested values (tags, splits, amounts) are whole
 /// field values.
 ///
 /// Pure Dart, no Flutter import: the database migration uses it.
@@ -12,6 +15,7 @@ library;
 
 import 'dart:convert';
 
+import 'package:finance_tracker/features/recurring/domain/stream_override.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
 import 'package:shared_models/shared_models.dart';
 
@@ -76,6 +80,38 @@ Map<String, Object?> settingsRecordJson(Settings settings) => {
   'use_dynamic_color': settings.useDynamicColor,
 };
 
+/// The record fields of the override of a stream, cleared at [deletedAt] (null while
+/// live).
+Map<String, Object?> streamOverrideRecordJson(
+  StreamOverride override, {
+  DateTime? deletedAt,
+}) => {
+  'muted': override.muted,
+  'is_subscription': override.isSubscription,
+  'display_name': override.displayName,
+  deletedAtField: _instant(deletedAt),
+};
+
+/// The override record [fields] hold; a missing field is its default. Throws
+/// [FormatException] on a value of the wrong type.
+StreamOverride streamOverrideOf(Map<String, Object?> fields) => StreamOverride(
+  muted: switch (fields['muted']) {
+    null => false,
+    final bool muted => muted,
+    final Object other => throw FormatException('muted', '$other'),
+  },
+  isSubscription: switch (fields['is_subscription']) {
+    null => null,
+    final bool value => value,
+    final Object other => throw FormatException('is_subscription', '$other'),
+  },
+  displayName: switch (fields['display_name']) {
+    null => null,
+    final String name => name,
+    final Object other => throw FormatException('display_name', '$other'),
+  },
+);
+
 /// The `deleted_at` of record [fields] (absent or null: live). Throws [FormatException]
 /// on a value that is not an instant.
 DateTime? deletedAtOf(Map<String, Object?> fields) =>
@@ -98,6 +134,12 @@ Set<String> knownRecordFields(EntityType type) => switch (type) {
   EntityType.rule => _ruleFields,
   EntityType.budget => _budgetFields,
   EntityType.settings => const {'theme_mode', 'use_dynamic_color'},
+  EntityType.recurringStream => const {
+    'muted',
+    'is_subscription',
+    'display_name',
+    deletedAtField,
+  },
   _ => const {},
 };
 

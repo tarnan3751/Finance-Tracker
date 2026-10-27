@@ -490,6 +490,91 @@ void main() {
       }
     });
 
+    // A record of only updates (an override is never created), [fields] at [hlc].
+    EntityRecord updates(
+      EntityType type,
+      String id,
+      Map<String, Object?> fields,
+      Hlc hlc,
+    ) => EntityRecord(
+      type: type,
+      id: id,
+      fields: fields,
+      fieldClocks: {for (final String f in fields.keys) f: hlc},
+    );
+
+    test('a stream override: updates only, laid over the defaults, live and cleared', () async {
+      await roundTrips(
+        updates(EntityType.recurringStream, 's1', {'muted': true}, at),
+      );
+      StreamOverrideRow row = await database
+          .select(database.streamOverrides)
+          .getSingle();
+      expect(row.streamId, 's1');
+      expect(row.muted, isTrue);
+      expect(row.isSubscription, isNull);
+      expect(row.displayName, isNull);
+      expect(row.deletedAt, isNull);
+
+      final Hlc later = Hlc(at.wallMillis + 1, 0, 'dev-b');
+      await roundTrips(
+        EntityRecord(
+          type: EntityType.recurringStream,
+          id: 's1',
+          fields: const {
+            'muted': true,
+            'is_subscription': false,
+            'display_name': 'Streaming',
+            deletedAtField: '2026-10-02T00:00:00.000Z',
+          },
+          fieldClocks: {
+            'muted': at,
+            'is_subscription': later,
+            'display_name': later,
+            deletedAtField: later,
+          },
+        ),
+      );
+      row = await database.select(database.streamOverrides).getSingle();
+      expect(row.isSubscription, isFalse);
+      expect(row.displayName, 'Streaming');
+      expect(row.deletedAt, DateTime.utc(2026, 10, 2));
+      expect(await database.select(database.heldRecords).get(), isEmpty);
+    });
+
+    test(
+      'a stream override that does not decode is held and leaves the row',
+      () async {
+        await store.write(
+          updates(EntityType.recurringStream, 's1', {'muted': true}, at),
+        );
+        int wall = at.wallMillis;
+        for (final Map<String, Object?> bad in [
+          {'muted': 'yes'},
+          {'display_name': 7},
+          {'is_subscription': 'no'},
+          {deletedAtField: 'yesterday'},
+        ]) {
+          await roundTrips(
+            updates(EntityType.recurringStream, 's1', {
+              'muted': true,
+              ...bad,
+            }, Hlc(++wall, 0, 'dev-b')),
+          );
+          expect(
+            (await database.select(database.heldRecords).getSingle()).reason,
+            'unrepresentable',
+          );
+          final StreamOverrideRow row = await database
+              .select(database.streamOverrides)
+              .getSingle();
+          expect(row.muted, isTrue);
+          expect(row.displayName, isNull);
+          expect(row.deletedAt, isNull);
+        }
+      },
+    );
+
     test('an entity with no clocks has no record, even with a row', () async {
       await database
           .into(database.categories)

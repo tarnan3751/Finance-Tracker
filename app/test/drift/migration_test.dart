@@ -82,6 +82,12 @@ void main() {
     await verifier.migrateAndValidate(database, 8);
   });
 
+  test('a new database matches the schema 9 dump', () async {
+    final AppDatabase database = AppDatabase(await verifier.startAt(9));
+    addTearDown(database.close);
+    await verifier.migrateAndValidate(database, 9);
+  });
+
   group('schema 1 to 2', () {
     // 2026-10-01 09:00 UTC, the v1 rows' audit instants; 2026-10-02, a v1 delete.
     const int created = 1759309200000;
@@ -952,7 +958,7 @@ void main() {
       });
     }
 
-    for (final int from in [1, 2, 3, 4, 5, 6]) {
+    for (final int from in [1, 2, 3, 4, 5, 6, 7, 8]) {
       test('from schema $from, after a whole run whose version was not '
           'written', () async {
         final schema = await verifier.schemaAt(from);
@@ -1091,6 +1097,130 @@ void main() {
       final AppDatabase database = await migrated(allowFullTextSearch: false);
       expect(await database.fullTextSearch, isFalse);
       expect(await fullTextObjects(database), isEmpty);
+    });
+  });
+  group('schema 8 to 9', () {
+    const int created = 1759309200000; // 2026-10-01 09:00 UTC
+    const int migratedAt = 1761318000000; // 2026-10-24 15:00 UTC
+    const String clock = '001759309200000-00000-dev-b';
+
+    String clocks(String id, List<String> fields) => [
+      for (final String f in fields)
+        "('recurring_stream', '$id', '$f', '$clock')",
+    ].join(', ');
+
+    // A schema 8 database with a manual and a Plaid row, an Item, sync state, and
+    // override records another device recorded before this version could store them.
+    Future<InitializedSchema> seeded() async {
+      final schema = await verifier.schemaAt(8);
+      schema.rawDatabase.execute('''
+        INSERT INTO accounts (id, item_id, type, subtype, name, official_name, mask,
+          currency, current_balance_minor, available_balance_minor, credit_limit_minor,
+          balances_as_of, is_hidden, display_order, created_at, updated_at, deleted_at,
+          sync_version)
+        VALUES ('acc', NULL, 'depository', NULL, 'Wallet', NULL, NULL, 'USD',
+          NULL, NULL, NULL, NULL, 0, 0, $created, $created, NULL, 0);
+        INSERT INTO transactions (id, account_id, amount_minor, currency, date,
+          authorized_date, pending, pending_transaction_id, name, merchant_name,
+          merchant_logo_url, plaid_primary_category, plaid_detailed_category,
+          user_category_id, notes, receipt_path, hidden, source, created_at, updated_at,
+          deleted_at, sync_version, deleted_with_account)
+        VALUES
+          ('t-manual', 'acc', -1250, 'USD', '2026-09-30', NULL, 0, NULL, 'Lunch',
+           NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'manual', $created, $created,
+           NULL, 0, 0),
+          ('t-netflix', 'acc', -1549, 'USD', '2026-09-29', NULL, 0, NULL,
+           'NETFLIX.COM', 'Netflix', NULL, NULL, NULL, NULL, NULL, NULL, 0, 'plaid',
+           $created, $created, NULL, 3, 0);
+        INSERT INTO items (id, institution_id, institution_name, institution_logo_url,
+          institution_logo, institution_color, status, error_code,
+          last_successful_sync_at, pulled_at)
+        VALUES ('item-1', 'ins_109508', 'First Platypus Bank', NULL, NULL, NULL,
+          'healthy', NULL, $created, $created);
+        INSERT INTO held_records (entity_type, entity_id, fields, reason)
+        VALUES
+          ('recurring_stream', 's-muted', '{"muted":true,"display_name":"TV"}',
+           'unsupported_type'),
+          ('recurring_stream', 's-bad', '{"muted":"yes"}', 'unsupported_type'),
+          ('recurring_stream', 's-newer', '{"muted":false,"pinned":true}',
+           'unsupported_type'),
+          ('goal', 'g1', '{"name":"Holiday"}', 'unsupported_type');
+        INSERT INTO record_clocks (entity_type, entity_id, field, hlc)
+        VALUES ${clocks('s-muted', ['muted', 'display_name'])},
+          ${clocks('s-bad', ['muted'])},
+          ${clocks('s-newer', ['muted', 'pinned'])},
+          ('goal', 'g1', 'name', '$clock');
+        INSERT INTO sync_meta (key, value)
+        VALUES ('pull_cursor', '12'), ('device_id', 'dev-a'),
+          ('plaid_transactions_since', '3');
+      ''');
+      return schema;
+    }
+
+    Future<Map<String, String>> held(AppDatabase database) async => {
+      for (final HeldRecordRow h
+          in await database.select(database.heldRecords).get())
+        '${h.entityType}/${h.entityId}': h.reason,
+    };
+
+    Future<void> checkMigrated(AppDatabase database) async {
+      expect(
+        (await database.select(database.transactions).get()).map((t) => t.id),
+        unorderedEquals(['t-manual', 't-netflix']),
+      );
+      expect(await database.select(database.items).get(), hasLength(1));
+      expect(await database.select(database.recurringStreams).get(), isEmpty);
+      expect(await database.select(database.liabilities).get(), isEmpty);
+      final List<StreamOverrideRow> overrides = await (database.select(
+        database.streamOverrides,
+      )..orderBy([(o) => OrderingTerm.asc(o.streamId)])).get();
+      expect(overrides.map((o) => o.streamId), ['s-muted', 's-newer']);
+      expect(overrides.first.muted, isTrue);
+      expect(overrides.first.displayName, 'TV');
+      expect(overrides.first.isSubscription, isNull);
+      expect(overrides.first.deletedAt, isNull);
+      expect(overrides.first.createdAt.millisecondsSinceEpoch, migratedAt);
+      expect(overrides.last.muted, isFalse);
+      expect(await held(database), {
+        'recurring_stream/s-bad': 'unrepresentable',
+        'recurring_stream/s-newer': 'unknown_fields',
+        'goal/g1': 'unsupported_type',
+      });
+      final DriftSyncStore store = DriftSyncStore(database, testClock);
+      expect(await store.pullCursor(), 12);
+      expect(
+        (await store.read(EntityType.recurringStream, 's-newer'))!.fields,
+        {'muted': false, 'pinned': true},
+      );
+    }
+
+    test('keeps every row, adds the three tables and materializes the held overrides', () async {
+      final AppDatabase database = AppDatabase(
+        (await seeded()).newConnection(),
+        wallMillis: () => migratedAt,
+      );
+      addTearDown(database.close);
+      await verifier.migrateAndValidate(database, 9);
+      await checkMigrated(database);
+    });
+
+    test('runs again after a run whose version was not written', () async {
+      final schema = await seeded();
+      final AppDatabase first = AppDatabase(
+        schema.newConnection(),
+        wallMillis: () => migratedAt,
+      );
+      await verifier.migrateAndValidate(first, 9);
+      await first.close();
+      schema.rawDatabase.execute('PRAGMA user_version = 8');
+
+      final AppDatabase again = AppDatabase(
+        schema.newConnection(),
+        wallMillis: () => migratedAt + 1000,
+      );
+      addTearDown(again.close);
+      await verifier.migrateAndValidate(again, 9);
+      await checkMigrated(again);
     });
   });
 }
