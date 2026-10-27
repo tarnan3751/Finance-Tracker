@@ -6,11 +6,14 @@
 /// over one shared [InMemoryStore] (what tests get), recording into an in-memory sync
 /// store, and the receipts are in memory; [overridesFor] gives dev and prod the Drift
 /// repositories over the encrypted database, recording into the Drift sync store, with
-/// the receipts as files in the app's support directory, and the demo flavor the demo
-/// ones, which record nothing, with the fake image source.
+/// the receipts as files in the app's support directory and the bill reminders through
+/// `flutter_local_notifications`, and the demo flavor the demo ones, which record
+/// nothing, with the fake image source (and, as by default, the fake reminder
+/// scheduler).
 library;
 
 import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
@@ -27,6 +30,8 @@ import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/plaid/plaid_pull.dart';
 import 'package:finance_tracker/core/platform/fake_image_source.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
+import 'package:finance_tracker/core/platform/local_notifications_scheduler.dart';
+import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/core/sync/device_clock.dart';
 import 'package:finance_tracker/core/sync/http_sync_relay.dart';
@@ -82,6 +87,9 @@ import 'package:finance_tracker/features/transactions/data/in_memory_saved_filte
 import 'package:finance_tracker/features/transactions/data/in_memory_transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/saved_filter_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
+import 'package:finance_tracker/l10n/app_localizations.dart';
+import 'package:flutter/widgets.dart' show basicLocaleListResolution;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:persona_engine/persona_engine.dart' show DemoSeed, PersonaId;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -483,6 +491,19 @@ final List<Override> _driftOverrides = [
   receiptStoreProvider.overrideWith(
     (ref) => FileReceiptStore(getApplicationSupportDirectory),
   ),
+  reminderSchedulerProvider.overrideWith((ref) {
+    final AppLocalizations l10n = lookupAppLocalizations(
+      basicLocaleListResolution(
+        PlatformDispatcher.instance.locales,
+        AppLocalizations.supportedLocales,
+      ),
+    );
+    return LocalNotificationsScheduler(
+      FlutterLocalNotificationsPlugin(),
+      channelName: l10n.billRemindersChannelName,
+      channelDescription: l10n.billRemindersChannelDescription,
+    );
+  }),
 ];
 
 /// The demo flavor: everything in memory, from the selected persona's demo seed dated to

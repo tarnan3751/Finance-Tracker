@@ -3563,6 +3563,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The transaction could not be hidden.'**
   String get duplicateHideFailed;
+
+  /// Name of the system notification channel the bill reminders are posted on, shown in the system's notification settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill reminders'**
+  String get billRemindersChannelName;
+
+  /// Description of the bill reminders' notification channel in the system's notification settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders before your bills are due'**
+  String get billRemindersChannelDescription;
 }
 
 class _AppLocalizationsDelegate

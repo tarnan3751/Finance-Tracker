@@ -2304,4 +2304,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get duplicateHideFailed => 'The transaction could not be hidden.';
+
+  @override
+  String get billRemindersChannelName => 'Bill reminders';
+
+  @override
+  String get billRemindersChannelDescription =>
+      'Reminders before your bills are due';
 }

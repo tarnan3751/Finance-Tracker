@@ -90,6 +90,25 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   the backup rules above exclude with everything else. `image_picker`'s transitive iOS
   implementation and macOS file selector are held in `app/pubspec.yaml` to releases at
   least two weeks old.
+- **Bill reminders.** `flutter_local_notifications` (BSD-3, pinned exactly at 22.3.2 in
+  `app/pubspec.yaml`, behind `core/platform/reminder_scheduler.dart`) schedules through
+  `java.time`, so `app/build.gradle.kts` enables core library desugaring
+  (`isCoreLibraryDesugaringEnabled = true` in `compileOptions`, and
+  `coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")`, the forms the
+  plugin's README gives, which AGP 9.1 with `android.newDsl=false` accepts). The main
+  manifest declares `RECEIVE_BOOT_COMPLETED` itself (WorkManager's merged manifest also
+  brings it, but the reminders do not lean on that) and, inside `<application>`, the
+  plugin's two receivers, both `exported="false"`: `ScheduledNotificationReceiver`, which
+  shows a reminder when its alarm fires, and `ScheduledNotificationBootReceiver`, on
+  `BOOT_COMPLETED`, `MY_PACKAGE_REPLACED` and the two `QUICKBOOT_POWERON` actions, which
+  schedules the pending reminders again from the plugin's own cache. The plugin's manifest
+  merges `POST_NOTIFICATIONS` and `VIBRATE`; there is no exact-alarm permission
+  (`SCHEDULE_EXACT_ALARM` is denied by default from Android 14, `USE_EXACT_ALARM` is for
+  alarm and calendar apps), so reminders are inexact and may come up to about an hour
+  late. The small icon is `res/drawable/ic_stat_bill.xml`, a one-colour vector, named
+  from Dart only, so `res/raw/keep.xml` keeps `@drawable/ic_stat_*` from the release
+  build's resource shrinking. The plugin's transitive Linux implementation brings `dbus`
+  (MPL-2.0), which is not part of the Android build.
 - **Network security.** `src/main/res/xml/network_security_config.xml` refuses cleartext
   and trusts system certificates; it applies to demo and prod.
   `src/dev/res/xml/network_security_config.xml` overrides it for dev only, adding cleartext
@@ -130,8 +149,10 @@ smoke run working on any machine. Keystores are gitignored (`*.jks`, `*.keystore
   not kept. `image_picker_android` needs no rule: its channel is Pigeon-generated code
   with no reflection, the registrant names its plugin class, and AAPT keeps the provider
   the manifest names. The encrypted database needs none: SQLite3 Multiple Ciphers is a native library
-  reached over FFI, and R8 only touches Java and Kotlin code. R8 accepts rules for absent
-  packages, so no `-dontwarn` is needed yet. R8's mapping lands in
+  reached over FFI, and R8 only touches Java and Kotlin code. `flutter_local_notifications` needs
+  none: its model classes are `@Keep` and Gson 2.12 ships its own rules (the plugin's
+  README, from v19); the notification icon is kept by `res/raw/keep.xml` (**Android**).
+  R8 accepts rules for absent packages, so no `-dontwarn` is needed yet. R8's mapping lands in
   `app/build/app/outputs/mapping/<flavor>Release/mapping.txt`.
 - Dart code is obfuscated by the Flutter tool: `--obfuscate --split-debug-info=build/symbols`
   writes `app.android-<abi>.symbols` to `app/build/symbols/` (gitignored); keep them to

@@ -3154,5 +3154,13 @@
   "duplicateHideFailed": "The transaction could not be hidden.",
   "@duplicateHideFailed": {
     "description": "Snack bar when hiding one transaction of a likely duplicate pair failed."
+  },
+  "billRemindersChannelName": "Bill reminders",
+  "@billRemindersChannelName": {
+    "description": "Name of the system notification channel the bill reminders are posted on, shown in the system's notification settings."
+  },
+  "billRemindersChannelDescription": "Reminders before your bills are due",
+  "@billRemindersChannelDescription": {
+    "description": "Description of the bill reminders' notification channel in the system's notification settings."
   }
 }
