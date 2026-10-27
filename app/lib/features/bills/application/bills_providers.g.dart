@@ -258,6 +258,58 @@ final class BillStatusesProvider
 
 String _$billStatusesHash() => r'e062141ed9527058145eeb8e3aedf0f5359c520b';
 
+/// The in-app keys (`bill/<id>/<due>`) of the bill occurrences paid now, by a mark or a
+/// payment, so the in-app list can hide a due notice a later pull has paid (the
+/// `bill_alerts` row stays, so it is not raised again).
+
+@ProviderFor(paidBillKeys)
+final paidBillKeysProvider = PaidBillKeysProvider._();
+
+/// The in-app keys (`bill/<id>/<due>`) of the bill occurrences paid now, by a mark or a
+/// payment, so the in-app list can hide a due notice a later pull has paid (the
+/// `bill_alerts` row stays, so it is not raised again).
+
+final class PaidBillKeysProvider
+    extends $FunctionalProvider<Set<String>, Set<String>, Set<String>>
+    with $Provider<Set<String>> {
+  /// The in-app keys (`bill/<id>/<due>`) of the bill occurrences paid now, by a mark or a
+  /// payment, so the in-app list can hide a due notice a later pull has paid (the
+  /// `bill_alerts` row stays, so it is not raised again).
+  PaidBillKeysProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'paidBillKeysProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$paidBillKeysHash();
+
+  @$internal
+  @override
+  $ProviderElement<Set<String>> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  Set<String> create(Ref ref) {
+    return paidBillKeys(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Set<String> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Set<String>>(value),
+    );
+  }
+}
+
+String _$paidBillKeysHash() => r'ed89baff3a84499cde8bafc1c26e45d274fe35ea';
+
 /// What bill suggestions are made from: the active, unmuted recurring streams under the
 /// names the app shows, and the liabilities, named by their accounts.
 
@@ -497,4 +549,4 @@ final class BillActionsProvider
   }
 }
 
-String _$billActionsHash() => r'48c2db984c5e863e3a4118a79db78461db526687';
+String _$billActionsHash() => r'9f5894a7736fe70cbe00f41a9f4dff382bc4ba8a';

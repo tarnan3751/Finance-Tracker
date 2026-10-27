@@ -101,6 +101,23 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
             ),
           ],
         ),
+        GoRouteData.$route(
+          path: '/bills',
+          hasOverriddenOnExit: false,
+          factory: $BillsRoute._fromState,
+          routes: [
+            GoRouteData.$route(
+              path: 'new',
+              hasOverriddenOnExit: false,
+              factory: $NewBillRoute._fromState,
+            ),
+            GoRouteData.$route(
+              path: ':id',
+              hasOverriddenOnExit: false,
+              factory: $EditBillRoute._fromState,
+            ),
+          ],
+        ),
       ],
     ),
     StatefulShellBranchData.$branch(
@@ -431,6 +448,70 @@ mixin $BudgetTransactionsRoute on GoRouteData {
   String get location => GoRouteData.$location(
     '/budgets/${Uri.encodeComponent(_self.id)}/transactions',
   );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $BillsRoute on GoRouteData {
+  static BillsRoute _fromState(GoRouterState state) => const BillsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/bills');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $NewBillRoute on GoRouteData {
+  static NewBillRoute _fromState(GoRouterState state) => const NewBillRoute();
+
+  @override
+  String get location => GoRouteData.$location('/bills/new');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $EditBillRoute on GoRouteData {
+  static EditBillRoute _fromState(GoRouterState state) =>
+      EditBillRoute(state.pathParameters['id']!);
+
+  EditBillRoute get _self => this as EditBillRoute;
+
+  @override
+  String get location =>
+      GoRouteData.$location('/bills/${Uri.encodeComponent(_self.id)}');
 
   @override
   void go(BuildContext context) => context.go(location);

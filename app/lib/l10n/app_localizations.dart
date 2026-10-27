@@ -3617,6 +3617,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} is due {date}'**
   String alertBillDue(String name, String date);
+
+  /// Title of the bills screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills'**
+  String get billsTitle;
+
+  /// The bills screen when there are no bills.
+  ///
+  /// In en, this message translates to:
+  /// **'No bills yet. Add one to be reminded before it is due.'**
+  String get billsEmpty;
+
+  /// Button that opens the editor of a new bill.
+  ///
+  /// In en, this message translates to:
+  /// **'New bill'**
+  String get billNew;
+
+  /// A bill's next due date in the bills list.
+  ///
+  /// In en, this message translates to:
+  /// **'Next due {date}'**
+  String billNextDue(String date);
+
+  /// A one-off bill whose due date has passed, in the bills list.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming due date'**
+  String get billNoNextDue;
+
+  /// A bill's status: its occurrence was paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get billStatePaid;
+
+  /// A bill's status: an occurrence is due within the week or just past.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get billStateDue;
+
+  /// A bill's status: its last occurrence passed unpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed'**
+  String get billStateMissed;
+
+  /// A bill's status: nothing is due yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get billStateUpcoming;
+
+  /// Shown when the bill being opened or saved was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'This bill no longer exists.'**
+  String get billNotFound;
+
+  /// Title of the editor of a new bill.
+  ///
+  /// In en, this message translates to:
+  /// **'New bill'**
+  String get billNewTitle;
+
+  /// Title of the editor of an existing bill.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit bill'**
+  String get billEditTitle;
+
+  /// Snack bar after deleting a bill, with an undo action.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill deleted'**
+  String get billDeleted;
+
+  /// Label of a bill's name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get billName;
+
+  /// Error under an empty bill name.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get billNameRequired;
+
+  /// Label of a bill's expected amount field.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected amount'**
+  String get billAmount;
+
+  /// Help under a bill's expected amount field.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. A payment within 10 % of it marks the bill paid.'**
+  String get billAmountHelper;
+
+  /// Label of a bill's first due date, from which it repeats.
+  ///
+  /// In en, this message translates to:
+  /// **'First due date'**
+  String get billDueDate;
+
+  /// A bill's due date field before one is chosen, and its error.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a due date'**
+  String get billChooseDueDate;
+
+  /// Label of how often a bill repeats.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeats'**
+  String get billRepeats;
+
+  /// A bill that does not repeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Once'**
+  String get billCadenceOnce;
+
+  /// A bill due every week.
+  ///
+  /// In en, this message translates to:
+  /// **'Every week'**
+  String get billCadenceWeekly;
+
+  /// A bill due every two weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'Every two weeks'**
+  String get billCadenceBiweekly;
+
+  /// A bill due twice a month, 15 days apart.
+  ///
+  /// In en, this message translates to:
+  /// **'Twice a month'**
+  String get billCadenceSemiMonthly;
+
+  /// A bill due every month.
+  ///
+  /// In en, this message translates to:
+  /// **'Every month'**
+  String get billCadenceMonthly;
+
+  /// A bill due every three months.
+  ///
+  /// In en, this message translates to:
+  /// **'Every three months'**
+  String get billCadenceQuarterly;
+
+  /// A bill due every year.
+  ///
+  /// In en, this message translates to:
+  /// **'Every year'**
+  String get billCadenceAnnually;
+
+  /// Label of the account a bill is paid from.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid from'**
+  String get billAccount;
+
+  /// A bill paid from no particular account: a payment from any account counts.
+  ///
+  /// In en, this message translates to:
+  /// **'Any account'**
+  String get billAnyAccount;
+
+  /// Heading of a bill's reminder choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me'**
+  String get billReminders;
+
+  /// A reminder choice: how many days before the due date.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{On the day} =1{1 day before} other{{days} days before}}'**
+  String billReminderOffset(int days);
+
+  /// Label of the time of day a bill's reminders go off.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder time'**
+  String get billReminderTime;
+
+  /// Switch: whether a bill is tracked and reminded.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get billActive;
+
+  /// Caption of a bill's Active switch.
+  ///
+  /// In en, this message translates to:
+  /// **'An inactive bill is kept but never reminded.'**
+  String get billActiveCaption;
+
+  /// Switch: whether a bill is on autopay.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid automatically'**
+  String get billAutopay;
+
+  /// Caption of a bill's autopay switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Never shown as missed when no payment is found.'**
+  String get billAutopayCaption;
+
+  /// Title of the sheet shown when the app may not post notifications and the user turned a reminder on.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off'**
+  String get billPermissionTitle;
+
+  /// Text of the notification permission sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill reminders need notifications. The bill is saved; to be reminded, allow notifications for the app in the system settings.'**
+  String get billPermissionBody;
+
+  /// Closes the notification permission sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get billPermissionNotNow;
+
+  /// Opens the system's notification settings for the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get billPermissionOpenSettings;
 }
 
 class _AppLocalizationsDelegate

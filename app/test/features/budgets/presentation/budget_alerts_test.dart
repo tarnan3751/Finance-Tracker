@@ -1,6 +1,8 @@
 // The budget alerts in the app: the bell's unread badge (on screen at text scale 2), the
 // sheet's rows newest first with the day in the device zone, over the navigation bar,
-// "Mark all read", and a row opening its budget in the period it was raised for.
+// "Mark all read", a row opening its budget in the period it was raised for, a due
+// bill's row opening the bill, and a due bill paid since left out.
+import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/in_app_notifications.dart';
 import 'package:finance_tracker/core/platform/notifier.dart';
 import 'package:finance_tracker/core/time/clock.dart';
@@ -181,5 +183,68 @@ void main() {
     final Rect sheet = tester.getRect(find.byType(BottomSheet));
     final Rect bar = tester.getRect(find.byType(NavigationBar));
     expect(sheet.bottom, greaterThanOrEqualTo(bar.bottom));
+  });
+
+  testWidgets('a bill that is due is listed, and its row opens the bill', (
+    tester,
+  ) async {
+    final InAppNotifications alerts = await open(tester);
+    await ProviderScope.containerOf(tester.element(find.byType(BudgetsScreen)))
+        .read(billRepositoryProvider)
+        .upsert(
+          BillReminder(
+            id: 'rent',
+            name: 'Rent',
+            dueDate: LocalDate(2026, 11, 1),
+          ),
+        );
+    alerts.add(
+      BillDueNotification(
+        billId: 'rent',
+        name: 'Rent',
+        dueDate: LocalDate(2026, 10, 25),
+        amount: Money(-150000, 'USD'),
+        raisedAt: DateTime.utc(2026, 10, 24, 15),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Alerts, 1 unread'));
+    await tester.pumpAndSettle();
+    expect(find.text('Rent is due Oct 25'), findsOneWidget);
+    await tester.tap(find.text('Rent is due Oct 25'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'Edit bill'), findsOneWidget);
+    expect(alerts.state.single.read, isTrue);
+  });
+
+  testWidgets('a due bill paid since is left out of the sheet and the count', (
+    tester,
+  ) async {
+    final InAppNotifications alerts = await open(tester);
+    await ProviderScope.containerOf(tester.element(find.byType(BudgetsScreen)))
+        .read(billRepositoryProvider)
+        .upsert(
+          BillReminder(
+            id: 'rent',
+            name: 'Rent',
+            dueDate: LocalDate(2026, 10, 25),
+            paidOccurrences: [LocalDate(2026, 10, 25)],
+          ),
+        );
+    alerts.add(
+      BillDueNotification(
+        billId: 'rent',
+        name: 'Rent',
+        dueDate: LocalDate(2026, 10, 25),
+        amount: null,
+        raisedAt: DateTime.utc(2026, 10, 24, 15),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Alerts'), findsOneWidget);
+    await tester.tap(find.byTooltip('Alerts'));
+    await tester.pumpAndSettle();
+    expect(find.text('Rent is due Oct 25'), findsNothing);
+    expect(find.textContaining('No alerts yet'), findsOneWidget);
   });
 }

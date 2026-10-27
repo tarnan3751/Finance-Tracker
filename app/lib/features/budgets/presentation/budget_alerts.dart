@@ -1,8 +1,9 @@
 /// The budget alerts in the app: the bell on the Budgets screen's app bar, badged with
 /// the unread count, and the sheet it opens over the whole app, listing `inAppNotificationsProvider`'s
 /// notifications newest first ("Groceries reached 80 % of $500.00 on Oct 20", the day in
-/// the device zone; "Rent is due Nov 1"), with "Mark all read". Tapping one marks it read
-/// and opens its budget's transactions in the period it was raised for.
+/// the device zone; "Rent is due Nov 1", hidden once that occurrence is paid), with "Mark
+/// all read". Tapping one marks it read
+/// and opens its budget's transactions in the period it was raised for, or its bill.
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
@@ -24,6 +25,16 @@ import 'package:intl/intl.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:timezone/timezone.dart' as tz;
 
+/// The in-app notifications as the bell and the sheet show them: a bill's due notice is
+/// left out once its occurrence is paid.
+List<InAppNotification> shownNotifications(WidgetRef ref) {
+  final Set<String> paid = ref.watch(paidBillKeysProvider);
+  return [
+    for (final InAppNotification n in ref.watch(inAppNotificationsProvider))
+      if (!paid.contains(n.notification.key)) n,
+  ];
+}
+
 /// The bell that opens the alerts, badged with how many are unread.
 class BudgetAlertsButton extends ConsumerWidget {
   const BudgetAlertsButton({super.key});
@@ -31,10 +42,7 @@ class BudgetAlertsButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final int unread = ref
-        .watch(inAppNotificationsProvider)
-        .where((n) => !n.read)
-        .length;
+    final int unread = shownNotifications(ref).where((n) => !n.read).length;
     return IconButton(
       tooltip: l10n.alertsTooltip(unread),
       icon: Badge(
@@ -98,12 +106,15 @@ class BudgetAlertsButton extends ConsumerWidget {
     BudgetTransactionsRoute(notification.budgetId).push<void>(context);
   }
 
-  // Marks [notification] read.
+  // Marks [notification] read and opens its bill.
   void _openBill(
     BuildContext context,
     WidgetRef ref,
     BillDueNotification notification,
-  ) => ref.read(inAppNotificationsProvider.notifier).markRead(notification.key);
+  ) {
+    ref.read(inAppNotificationsProvider.notifier).markRead(notification.key);
+    EditBillRoute(notification.billId).push<void>(context);
+  }
 }
 
 class _AlertsSheet extends ConsumerWidget {
@@ -116,9 +127,7 @@ class _AlertsSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
-    final List<InAppNotification> notifications = ref.watch(
-      inAppNotificationsProvider,
-    );
+    final List<InAppNotification> notifications = shownNotifications(ref);
     final CategoryLookup categories = ref.watch(
       transactionCategoryLookupProvider,
     );

@@ -5,7 +5,7 @@
 /// |---|---|
 /// | Accounts | `/accounts`, `/accounts/new`, `/accounts/linked-banks`, `/accounts/:id`, `/accounts/:id/edit` |
 /// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/duplicates`, `/transactions/:id` |
-/// | Budgets | `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions` |
+/// | Budgets | `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new`, `/bills/:id` |
 /// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
@@ -23,6 +23,8 @@ import 'package:finance_tracker/features/accounts/presentation/account_editor_sc
 import 'package:finance_tracker/features/accounts/presentation/accounts_screen.dart';
 import 'package:finance_tracker/features/auth/presentation/register_screen.dart';
 import 'package:finance_tracker/features/auth/presentation/sign_in_screen.dart';
+import 'package:finance_tracker/features/bills/presentation/bill_editor_screen.dart';
+import 'package:finance_tracker/features/bills/presentation/bills_screen.dart';
 import 'package:finance_tracker/features/budgets/presentation/budget_detail_screen.dart';
 import 'package:finance_tracker/features/budgets/presentation/budget_editor_screen.dart';
 import 'package:finance_tracker/features/budgets/presentation/budgets_screen.dart';
@@ -86,6 +88,15 @@ part 'routes.g.dart';
                 TypedGoRoute<BudgetTransactionsRoute>(path: 'transactions'),
               ],
             ),
+          ],
+        ),
+        // The branch's second root: 5e turns the branch into the Plan tab.
+        TypedGoRoute<BillsRoute>(
+          path: '/bills',
+          routes: <TypedRoute<RouteData>>[
+            // Before `:id`, so it is not read as a bill id.
+            TypedGoRoute<NewBillRoute>(path: 'new'),
+            TypedGoRoute<EditBillRoute>(path: ':id'),
           ],
         ),
       ],
@@ -283,6 +294,35 @@ class BudgetTransactionsRoute extends GoRouteData
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       BudgetDetailScreen(budgetId: id);
+}
+
+/// `/bills`: the bills with their status.
+class BillsRoute extends GoRouteData with $BillsRoute {
+  const BillsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const BillsScreen();
+}
+
+/// `/bills/new`: the editor of a new bill.
+class NewBillRoute extends GoRouteData with $NewBillRoute {
+  const NewBillRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const BillEditorScreen();
+}
+
+/// `/bills/:id`: the editor of an existing bill, where a reminder's tap opens it.
+class EditBillRoute extends GoRouteData with $EditBillRoute {
+  const EditBillRoute(this.id);
+
+  final String id;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      BillEditorScreen(billId: id);
 }
 
 /// `/settings`: the settings screen.

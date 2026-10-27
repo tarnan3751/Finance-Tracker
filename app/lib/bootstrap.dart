@@ -1,8 +1,8 @@
 /// Startup shared by the three entry points: checks the configuration, sets up logging,
 /// time zones and the locale, opens the local data (dev and prod), reads the stored
 /// session, starts sync and the budget alerts, then runs the app on its Riverpod
-/// container; after the first frame, the bill reminders are planned, and dev and prod
-/// sweep the receipt files no transaction references.
+/// container; after the first frame, the bill reminders are planned (a tapped one opens
+/// its bill), and dev and prod sweep the receipt files no transaction references.
 library;
 
 import 'dart:async';
@@ -16,6 +16,9 @@ import 'package:finance_tracker/core/db/legacy_import/import_summary.dart';
 import 'package:finance_tracker/core/db/legacy_import/legacy_importer.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/logging/app_log.dart';
+import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
+import 'package:finance_tracker/core/router/app_router.dart';
+import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/time/time_zone_setup.dart';
@@ -88,10 +91,21 @@ Future<void> bootstrap(AppConfig config) async {
     ),
   );
   // The bill reminders are planned from the first frame on, in every flavor, and again
-  // whenever their inputs, a sync or the device's zone change (reminder_planner.dart).
-  WidgetsBinding.instance.addPostFrameCallback(
-    (_) => container.listen(reminderWatcherProvider, (_, _) {}),
-  );
+  // whenever their inputs, a sync or the device's zone change (reminder_planner.dart);
+  // a tapped reminder opens its bill.
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    container.listen(reminderWatcherProvider, (_, _) {});
+    container
+        .read(reminderSchedulerProvider)
+        .openedBillIds
+        .listen(
+          (id) => unawaited(
+            container
+                .read(goRouterProvider)
+                .push<void>(EditBillRoute(id).location),
+          ),
+        );
+  });
   if (config.flavor != Flavor.demo) {
     // Once per launch, off the first frame: a delete that became final while the app
     // was not watching (`TransactionActions.sweepReceipts`) leaves its photo behind.

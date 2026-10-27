@@ -11,6 +11,7 @@ import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/util/stream_current.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/bills/application/reminder_planner.dart';
+import 'package:finance_tracker/features/bills/domain/bill_repository.dart';
 import 'package:finance_tracker/features/bills/domain/bill_schedule.dart';
 import 'package:finance_tracker/features/bills/domain/bill_status.dart';
 import 'package:finance_tracker/features/bills/domain/bill_suggestions.dart';
@@ -130,6 +131,22 @@ Future<List<BillStatus>> billStatuses(Ref ref) async {
   ];
 }
 
+/// The in-app keys (`bill/<id>/<due>`) of the bill occurrences paid now, by a mark or a
+/// payment, so the in-app list can hide a due notice a later pull has paid (the
+/// `bill_alerts` row stays, so it is not raised again).
+@riverpod
+Set<String> paidBillKeys(Ref ref) {
+  final BillPayments payments =
+      ref.watch(billPaymentsProvider).value ?? const {};
+  final List<BillReminder> bills = ref.watch(billsProvider).value ?? const [];
+  return {
+    for (final MapEntry<String, Map<LocalDate, String>> e in payments.entries)
+      for (final LocalDate due in e.value.keys) 'bill/${e.key}/$due',
+    for (final BillReminder b in bills)
+      for (final LocalDate due in b.paidOccurrences) 'bill/${b.id}/$due',
+  };
+}
+
 /// What bill suggestions are made from: the active, unmuted recurring streams under the
 /// names the app shows, and the liabilities, named by their accounts.
 @riverpod
@@ -227,25 +244,24 @@ String billName(String? name, AppLocalizations l10n) => switch (name?.trim()) {
 /// The bill actions: saving, deleting with undo, accepting a suggestion and marking an
 /// occurrence paid.
 @riverpod
-BillActions billActions(Ref ref) => BillActions(ref);
+BillActions billActions(Ref ref) =>
+    BillActions(ref.watch(billRepositoryProvider));
 
-/// Writes bills through `billRepositoryProvider`.
+/// Writes bills to a [BillRepository]; it holds the repository, not a ref, so an action
+/// begun on a screen finishes after the screen is gone (a delete navigates away first).
 final class BillActions {
-  BillActions(this._ref);
+  BillActions(this._bills);
 
-  final Ref _ref;
+  final BillRepository _bills;
 
   /// Saves [bill].
-  Future<void> save(BillReminder bill) =>
-      _ref.read(billRepositoryProvider).upsert(bill);
+  Future<void> save(BillReminder bill) => _bills.upsert(bill);
 
   /// Deletes bill [id]; [restore] undoes it.
-  Future<void> delete(String id) =>
-      _ref.read(billRepositoryProvider).delete(id);
+  Future<void> delete(String id) => _bills.delete(id);
 
   /// Restores deleted bill [id].
-  Future<void> restore(String id) =>
-      _ref.read(billRepositoryProvider).restore(id);
+  Future<void> restore(String id) => _bills.restore(id);
 
   /// Adds the bill [suggestion] makes, with id [id].
   Future<void> accept(BillSuggestion suggestion, String id) =>
@@ -253,9 +269,7 @@ final class BillActions {
 
   /// Marks bill [id]'s occurrence due [due] paid ([paid] true) or not.
   Future<void> setPaid(String id, LocalDate due, {required bool paid}) async {
-    final BillReminder? bill = await currentValue(
-      _ref.read(billRepositoryProvider).watchById(id),
-    );
+    final BillReminder? bill = await currentValue(_bills.watchById(id));
     if (bill == null) return;
     await save(paid ? bill.markPaid(due) : bill.unmarkPaid(due));
   }

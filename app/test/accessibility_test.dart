@@ -138,6 +138,8 @@ final Map<String, _Screen> _screens = {
   ),
   'Alerts sheet': (location: '/budgets', seeded: true, open: openTestAlerts),
   'New budget': (location: '/budgets/new', seeded: true, open: null),
+  'Bills': (location: '/bills', seeded: true, open: null),
+  'New bill': (location: '/bills/new', seeded: true, open: null),
   'Budget': (location: '/budgets/budget-food', seeded: true, open: null),
   'Budget transactions': (
     location: '/budgets/budget-food/transactions',

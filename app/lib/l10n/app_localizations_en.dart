@@ -2342,4 +2342,140 @@ class AppLocalizationsEn extends AppLocalizations {
   String alertBillDue(String name, String date) {
     return '$name is due $date';
   }
+
+  @override
+  String get billsTitle => 'Bills';
+
+  @override
+  String get billsEmpty =>
+      'No bills yet. Add one to be reminded before it is due.';
+
+  @override
+  String get billNew => 'New bill';
+
+  @override
+  String billNextDue(String date) {
+    return 'Next due $date';
+  }
+
+  @override
+  String get billNoNextDue => 'No upcoming due date';
+
+  @override
+  String get billStatePaid => 'Paid';
+
+  @override
+  String get billStateDue => 'Due';
+
+  @override
+  String get billStateMissed => 'Missed';
+
+  @override
+  String get billStateUpcoming => 'Upcoming';
+
+  @override
+  String get billNotFound => 'This bill no longer exists.';
+
+  @override
+  String get billNewTitle => 'New bill';
+
+  @override
+  String get billEditTitle => 'Edit bill';
+
+  @override
+  String get billDeleted => 'Bill deleted';
+
+  @override
+  String get billName => 'Name';
+
+  @override
+  String get billNameRequired => 'Enter a name';
+
+  @override
+  String get billAmount => 'Expected amount';
+
+  @override
+  String get billAmountHelper =>
+      'Optional. A payment within 10 % of it marks the bill paid.';
+
+  @override
+  String get billDueDate => 'First due date';
+
+  @override
+  String get billChooseDueDate => 'Choose a due date';
+
+  @override
+  String get billRepeats => 'Repeats';
+
+  @override
+  String get billCadenceOnce => 'Once';
+
+  @override
+  String get billCadenceWeekly => 'Every week';
+
+  @override
+  String get billCadenceBiweekly => 'Every two weeks';
+
+  @override
+  String get billCadenceSemiMonthly => 'Twice a month';
+
+  @override
+  String get billCadenceMonthly => 'Every month';
+
+  @override
+  String get billCadenceQuarterly => 'Every three months';
+
+  @override
+  String get billCadenceAnnually => 'Every year';
+
+  @override
+  String get billAccount => 'Paid from';
+
+  @override
+  String get billAnyAccount => 'Any account';
+
+  @override
+  String get billReminders => 'Remind me';
+
+  @override
+  String billReminderOffset(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days before',
+      one: '1 day before',
+      zero: 'On the day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get billReminderTime => 'Reminder time';
+
+  @override
+  String get billActive => 'Active';
+
+  @override
+  String get billActiveCaption =>
+      'An inactive bill is kept but never reminded.';
+
+  @override
+  String get billAutopay => 'Paid automatically';
+
+  @override
+  String get billAutopayCaption =>
+      'Never shown as missed when no payment is found.';
+
+  @override
+  String get billPermissionTitle => 'Notifications are off';
+
+  @override
+  String get billPermissionBody =>
+      'Bill reminders need notifications. The bill is saved; to be reminded, allow notifications for the app in the system settings.';
+
+  @override
+  String get billPermissionNotNow => 'Not now';
+
+  @override
+  String get billPermissionOpenSettings => 'Open settings';
 }

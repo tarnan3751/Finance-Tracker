@@ -3228,5 +3228,176 @@
         "example": "Nov 2"
       }
     }
+  },
+  "billsTitle": "Bills",
+  "@billsTitle": {
+    "description": "Title of the bills screen."
+  },
+  "billsEmpty": "No bills yet. Add one to be reminded before it is due.",
+  "@billsEmpty": {
+    "description": "The bills screen when there are no bills."
+  },
+  "billNew": "New bill",
+  "@billNew": {
+    "description": "Button that opens the editor of a new bill."
+  },
+  "billNextDue": "Next due {date}",
+  "@billNextDue": {
+    "description": "A bill's next due date in the bills list.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Nov 2"
+      }
+    }
+  },
+  "billNoNextDue": "No upcoming due date",
+  "@billNoNextDue": {
+    "description": "A one-off bill whose due date has passed, in the bills list."
+  },
+  "billStatePaid": "Paid",
+  "@billStatePaid": {
+    "description": "A bill's status: its occurrence was paid."
+  },
+  "billStateDue": "Due",
+  "@billStateDue": {
+    "description": "A bill's status: an occurrence is due within the week or just past."
+  },
+  "billStateMissed": "Missed",
+  "@billStateMissed": {
+    "description": "A bill's status: its last occurrence passed unpaid."
+  },
+  "billStateUpcoming": "Upcoming",
+  "@billStateUpcoming": {
+    "description": "A bill's status: nothing is due yet."
+  },
+  "billNotFound": "This bill no longer exists.",
+  "@billNotFound": {
+    "description": "Shown when the bill being opened or saved was deleted."
+  },
+  "billNewTitle": "New bill",
+  "@billNewTitle": {
+    "description": "Title of the editor of a new bill."
+  },
+  "billEditTitle": "Edit bill",
+  "@billEditTitle": {
+    "description": "Title of the editor of an existing bill."
+  },
+  "billDeleted": "Bill deleted",
+  "@billDeleted": {
+    "description": "Snack bar after deleting a bill, with an undo action."
+  },
+  "billName": "Name",
+  "@billName": {
+    "description": "Label of a bill's name field."
+  },
+  "billNameRequired": "Enter a name",
+  "@billNameRequired": {
+    "description": "Error under an empty bill name."
+  },
+  "billAmount": "Expected amount",
+  "@billAmount": {
+    "description": "Label of a bill's expected amount field."
+  },
+  "billAmountHelper": "Optional. A payment within 10 % of it marks the bill paid.",
+  "@billAmountHelper": {
+    "description": "Help under a bill's expected amount field."
+  },
+  "billDueDate": "First due date",
+  "@billDueDate": {
+    "description": "Label of a bill's first due date, from which it repeats."
+  },
+  "billChooseDueDate": "Choose a due date",
+  "@billChooseDueDate": {
+    "description": "A bill's due date field before one is chosen, and its error."
+  },
+  "billRepeats": "Repeats",
+  "@billRepeats": {
+    "description": "Label of how often a bill repeats."
+  },
+  "billCadenceOnce": "Once",
+  "@billCadenceOnce": {
+    "description": "A bill that does not repeat."
+  },
+  "billCadenceWeekly": "Every week",
+  "@billCadenceWeekly": {
+    "description": "A bill due every week."
+  },
+  "billCadenceBiweekly": "Every two weeks",
+  "@billCadenceBiweekly": {
+    "description": "A bill due every two weeks."
+  },
+  "billCadenceSemiMonthly": "Twice a month",
+  "@billCadenceSemiMonthly": {
+    "description": "A bill due twice a month, 15 days apart."
+  },
+  "billCadenceMonthly": "Every month",
+  "@billCadenceMonthly": {
+    "description": "A bill due every month."
+  },
+  "billCadenceQuarterly": "Every three months",
+  "@billCadenceQuarterly": {
+    "description": "A bill due every three months."
+  },
+  "billCadenceAnnually": "Every year",
+  "@billCadenceAnnually": {
+    "description": "A bill due every year."
+  },
+  "billAccount": "Paid from",
+  "@billAccount": {
+    "description": "Label of the account a bill is paid from."
+  },
+  "billAnyAccount": "Any account",
+  "@billAnyAccount": {
+    "description": "A bill paid from no particular account: a payment from any account counts."
+  },
+  "billReminders": "Remind me",
+  "@billReminders": {
+    "description": "Heading of a bill's reminder choices."
+  },
+  "billReminderOffset": "{days, plural, =0{On the day} =1{1 day before} other{{days} days before}}",
+  "@billReminderOffset": {
+    "description": "A reminder choice: how many days before the due date.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "billReminderTime": "Reminder time",
+  "@billReminderTime": {
+    "description": "Label of the time of day a bill's reminders go off."
+  },
+  "billActive": "Active",
+  "@billActive": {
+    "description": "Switch: whether a bill is tracked and reminded."
+  },
+  "billActiveCaption": "An inactive bill is kept but never reminded.",
+  "@billActiveCaption": {
+    "description": "Caption of a bill's Active switch."
+  },
+  "billAutopay": "Paid automatically",
+  "@billAutopay": {
+    "description": "Switch: whether a bill is on autopay."
+  },
+  "billAutopayCaption": "Never shown as missed when no payment is found.",
+  "@billAutopayCaption": {
+    "description": "Caption of a bill's autopay switch."
+  },
+  "billPermissionTitle": "Notifications are off",
+  "@billPermissionTitle": {
+    "description": "Title of the sheet shown when the app may not post notifications and the user turned a reminder on."
+  },
+  "billPermissionBody": "Bill reminders need notifications. The bill is saved; to be reminded, allow notifications for the app in the system settings.",
+  "@billPermissionBody": {
+    "description": "Text of the notification permission sheet."
+  },
+  "billPermissionNotNow": "Not now",
+  "@billPermissionNotNow": {
+    "description": "Closes the notification permission sheet."
+  },
+  "billPermissionOpenSettings": "Open settings",
+  "@billPermissionOpenSettings": {
+    "description": "Opens the system's notification settings for the app."
   }
 }
