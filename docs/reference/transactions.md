@@ -167,6 +167,9 @@ Netflix, `INTERAC PURCHASE - 67200 TARGET #052` Target, and `APPLEBEES` never Ap
 
 Nothing is written: like the effective category the fallback is display-side, so a
 fallback name never reaches the database, the change log, the server or a Plaid field.
+The recurring detector groups transactions by the same name, normalized
+(`recurringMerchantKey`, `recurring.md`), so a stream and its rows always agree on the
+merchant.
 `test/features/transactions/domain/enrichment_test.dart` runs it over the 316 raw names
 Plaid Sandbox returned (`test/fixtures/plaid_transaction_names.json`, names only, from the
 server's `transactions_sync_page1.json` fixture); `transaction_tile_test.dart` checks the
