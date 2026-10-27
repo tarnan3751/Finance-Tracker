@@ -2,3 +2,7 @@
 # run only them with `flutter test --tags golden`, or skip them with `--exclude-tags golden`.
 tags:
   golden:
+  # The recurring detector measured against the persona engine's expectations
+  # (test/features/recurring/domain/detector_harness_test.dart); the gate runs it, and
+  # `flutter test --tags detector_harness` runs it alone with its figures.
+  detector_harness:
