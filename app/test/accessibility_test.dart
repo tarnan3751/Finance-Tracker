@@ -168,6 +168,12 @@ final Map<String, _Screen> _screens = {
   'New bill': (location: '/bills/new', seeded: true, open: null),
   'Forecast': (location: '/forecast', seeded: true, open: null),
   'Insights placeholder': (location: '/goals', seeded: false, open: null),
+  'Reports': (location: '/reports', seeded: true, open: null),
+  'Reports, tables': (
+    location: '/reports',
+    seeded: true,
+    open: (tester) => _tapAndSettle(tester, find.text('Tables')),
+  ),
   'Subscriptions': (location: '/bills/subscriptions', seeded: true, open: null),
   'Subscriptions, folded sections open': (
     location: '/bills/subscriptions',

@@ -172,6 +172,280 @@ abstract class AppLocalizations {
   /// **'This part of Insights is on its way.'**
   String get insightsComingBody;
 
+  /// A whole percent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} %'**
+  String reportsPercent(int percent);
+
+  /// A whole percent increase, with its plus sign.
+  ///
+  /// In en, this message translates to:
+  /// **'+{percent} %'**
+  String reportsPercentUp(int percent);
+
+  /// A change in an amount with its percent, for example "+$12.00 (+15 %)".
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} ({percent})'**
+  String reportsChange(String amount, String percent);
+
+  /// A change in an amount that was zero before.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} (new)'**
+  String reportsChangeNew(String amount);
+
+  /// Button that shows the reports' charts as tables.
+  ///
+  /// In en, this message translates to:
+  /// **'Tables'**
+  String get reportsShowTables;
+
+  /// Button that shows the reports' tables as charts.
+  ///
+  /// In en, this message translates to:
+  /// **'Charts'**
+  String get reportsShowCharts;
+
+  /// Spending, as a choice of what the category breakdown shows and in chart legends.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending'**
+  String get reportsSpending;
+
+  /// Income, as a choice of what the category breakdown shows and in chart legends.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get reportsIncome;
+
+  /// How much was spent in a period.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent {amount}'**
+  String reportsSpendingAmount(String amount);
+
+  /// How much came in during a period.
+  ///
+  /// In en, this message translates to:
+  /// **'Income {amount}'**
+  String reportsIncomeAmount(String amount);
+
+  /// Income less spending in a period.
+  ///
+  /// In en, this message translates to:
+  /// **'Net {amount}'**
+  String reportsNetAmount(String amount);
+
+  /// Shown instead of the savings rate when a period has no income.
+  ///
+  /// In en, this message translates to:
+  /// **'No income in this period'**
+  String get reportsNoIncome;
+
+  /// The savings rate: the share of a period's income not spent.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept {percent} of income'**
+  String reportsSavingsRate(String percent);
+
+  /// Heading of the comparison with the previous period.
+  ///
+  /// In en, this message translates to:
+  /// **'Against the period before'**
+  String get reportsVsPrevious;
+
+  /// Heading of the comparison with the same period a year earlier.
+  ///
+  /// In en, this message translates to:
+  /// **'Against a year before'**
+  String get reportsVsYearAgo;
+
+  /// The change in spending in a comparison.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending {change}'**
+  String reportsSpendingChange(String change);
+
+  /// The change in income in a comparison.
+  ///
+  /// In en, this message translates to:
+  /// **'Income {change}'**
+  String reportsIncomeChange(String change);
+
+  /// Note under the comparisons while the period is still running.
+  ///
+  /// In en, this message translates to:
+  /// **'Compared over the first {days, plural, =1{day} other{{days} days}} of each period'**
+  String reportsSameElapsed(int days);
+
+  /// Heading of the category breakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'By category'**
+  String get reportsByCategory;
+
+  /// Button that returns from a category group to every category.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get reportsAllCategories;
+
+  /// The rows filed under a category group itself, not under one of its children.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} itself'**
+  String reportsGroupOwn(String name);
+
+  /// Shown in a report section with nothing to show.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this period.'**
+  String get reportsNothingInPeriod;
+
+  /// What a screen reader hears for the category chart.
+  ///
+  /// In en, this message translates to:
+  /// **'{scope} by category: {total} in all. The largest is {name}, {amount}.'**
+  String reportsDonutSummary(
+    String scope,
+    String total,
+    String name,
+    String amount,
+  );
+
+  /// A row of the category table, read by a screen reader.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {amount}, {share} of the total'**
+  String reportsCategoryRow(String name, String amount, String share);
+
+  /// Heading of the income and spending bars.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and spending'**
+  String get reportsIncomeAndSpending;
+
+  /// What a screen reader hears for the income and spending bars.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and spending over the last {count} periods. This period: income {income}, spending {spending}.'**
+  String reportsBarsSummary(int count, String income, String spending);
+
+  /// Heading of the trend chart.
+  ///
+  /// In en, this message translates to:
+  /// **'Trend over {count} periods'**
+  String reportsTrend(int count);
+
+  /// What a screen reader hears for the trend chart.
+  ///
+  /// In en, this message translates to:
+  /// **'Over the last {count} periods, spending went from {fromSpending} to {toSpending} and income from {fromIncome} to {toIncome}.'**
+  String reportsTrendSummary(
+    int count,
+    String fromSpending,
+    String toSpending,
+    String fromIncome,
+    String toIncome,
+  );
+
+  /// A row of the periods table, read by a screen reader.
+  ///
+  /// In en, this message translates to:
+  /// **'{period}: income {income}, spending {spending}, net {net}'**
+  String reportsPeriodRow(
+    String period,
+    String income,
+    String spending,
+    String net,
+  );
+
+  /// Heading of the merchants spent at most.
+  ///
+  /// In en, this message translates to:
+  /// **'Top merchants'**
+  String get reportsTopMerchants;
+
+  /// How many purchases at a merchant.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 purchase} other{{count} purchases}}'**
+  String reportsMerchantCount(int count);
+
+  /// Heading of the categories and merchants whose spending changed most.
+  ///
+  /// In en, this message translates to:
+  /// **'Top movers'**
+  String get reportsTopMovers;
+
+  /// Subheading of the categories among the top movers.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get reportsMoversCategories;
+
+  /// Subheading of the merchants among the top movers.
+  ///
+  /// In en, this message translates to:
+  /// **'Merchants'**
+  String get reportsMoversMerchants;
+
+  /// Shown when no spending changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing changed from the period before.'**
+  String get reportsNoMovers;
+
+  /// A mover's spending in the period before and in this one.
+  ///
+  /// In en, this message translates to:
+  /// **'{before} before, {now} now'**
+  String reportsMoverAmounts(String before, String now);
+
+  /// Heading of the transactions that stand out (a hint, not a verdict).
+  ///
+  /// In en, this message translates to:
+  /// **'Worth a look'**
+  String get anomaliesTitle;
+
+  /// Shown when no transaction stands out.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing stands out in this period.'**
+  String get anomaliesNone;
+
+  /// Why a transaction stands out: far more than usual at its merchant.
+  ///
+  /// In en, this message translates to:
+  /// **'Usually about {amount} here'**
+  String anomalyUsualMerchant(String amount);
+
+  /// Why a transaction stands out: far more than usual in its category.
+  ///
+  /// In en, this message translates to:
+  /// **'Usually about {amount} in this category'**
+  String anomalyUsualCategory(String amount);
+
+  /// Why a transaction stands out: a merchant not used for six months.
+  ///
+  /// In en, this message translates to:
+  /// **'New: not seen in the last six months'**
+  String get anomalyNewMerchant;
+
+  /// Snack bar after dismissing a flagged transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismissed. It won\'t be flagged again on this device.'**
+  String get anomalyDismissed;
+
+  /// Tooltip of the button that dismisses a flagged transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss {name}'**
+  String anomalyDismissTooltip(String name);
+
   /// Label of the Settings tab in the bottom navigation bar, and the title of the Settings screen.
   ///
   /// In en, this message translates to:

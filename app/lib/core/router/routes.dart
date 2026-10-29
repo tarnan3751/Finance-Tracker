@@ -44,6 +44,7 @@ import 'package:finance_tracker/features/duplicates/presentation/duplicate_revie
 import 'package:finance_tracker/features/forecast/presentation/forecast_view.dart';
 import 'package:finance_tracker/features/items/presentation/items_screen.dart';
 import 'package:finance_tracker/features/recurring/presentation/subscriptions_screen.dart';
+import 'package:finance_tracker/features/reports/presentation/reports_view.dart';
 import 'package:finance_tracker/features/rules/presentation/rule_editor_screen.dart';
 import 'package:finance_tracker/features/rules/presentation/rules_screen.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
@@ -411,7 +412,7 @@ class InsightsRoute extends GoRouteData with $InsightsRoute {
       const ReportsRoute().location;
 }
 
-/// `/reports`: the Insights tab's Reports segment.
+/// `/reports`: the Insights tab's Reports segment, the report of the period chosen.
 class ReportsRoute extends GoRouteData with $ReportsRoute {
   const ReportsRoute();
 
@@ -420,7 +421,7 @@ class ReportsRoute extends GoRouteData with $ReportsRoute {
       const NoTransitionPage(
         child: InsightsScaffold(
           segment: InsightsSegment.reports,
-          body: InsightsPlaceholder(),
+          body: ReportsView(),
         ),
       );
 }

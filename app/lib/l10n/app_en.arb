@@ -52,6 +52,341 @@
   "@insightsComingBody": {
     "description": "Body of an Insights segment whose content is not available yet."
   },
+  "reportsPercent": "{percent} %",
+  "@reportsPercent": {
+    "description": "A whole percent.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsPercentUp": "+{percent} %",
+  "@reportsPercentUp": {
+    "description": "A whole percent increase, with its plus sign.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsChange": "{amount} ({percent})",
+  "@reportsChange": {
+    "description": "A change in an amount with its percent, for example \"+$12.00 (+15 %)\".",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsChangeNew": "{amount} (new)",
+  "@reportsChangeNew": {
+    "description": "A change in an amount that was zero before.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsShowTables": "Tables",
+  "@reportsShowTables": {
+    "description": "Button that shows the reports' charts as tables."
+  },
+  "reportsShowCharts": "Charts",
+  "@reportsShowCharts": {
+    "description": "Button that shows the reports' tables as charts."
+  },
+  "reportsSpending": "Spending",
+  "@reportsSpending": {
+    "description": "Spending, as a choice of what the category breakdown shows and in chart legends."
+  },
+  "reportsIncome": "Income",
+  "@reportsIncome": {
+    "description": "Income, as a choice of what the category breakdown shows and in chart legends."
+  },
+  "reportsSpendingAmount": "Spent {amount}",
+  "@reportsSpendingAmount": {
+    "description": "How much was spent in a period.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsIncomeAmount": "Income {amount}",
+  "@reportsIncomeAmount": {
+    "description": "How much came in during a period.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsNetAmount": "Net {amount}",
+  "@reportsNetAmount": {
+    "description": "Income less spending in a period.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsNoIncome": "No income in this period",
+  "@reportsNoIncome": {
+    "description": "Shown instead of the savings rate when a period has no income."
+  },
+  "reportsSavingsRate": "Kept {percent} of income",
+  "@reportsSavingsRate": {
+    "description": "The savings rate: the share of a period's income not spent.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsVsPrevious": "Against the period before",
+  "@reportsVsPrevious": {
+    "description": "Heading of the comparison with the previous period."
+  },
+  "reportsVsYearAgo": "Against a year before",
+  "@reportsVsYearAgo": {
+    "description": "Heading of the comparison with the same period a year earlier."
+  },
+  "reportsSpendingChange": "Spending {change}",
+  "@reportsSpendingChange": {
+    "description": "The change in spending in a comparison.",
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsIncomeChange": "Income {change}",
+  "@reportsIncomeChange": {
+    "description": "The change in income in a comparison.",
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsSameElapsed": "Compared over the first {days, plural, =1{day} other{{days} days}} of each period",
+  "@reportsSameElapsed": {
+    "description": "Note under the comparisons while the period is still running.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsByCategory": "By category",
+  "@reportsByCategory": {
+    "description": "Heading of the category breakdown."
+  },
+  "reportsAllCategories": "All categories",
+  "@reportsAllCategories": {
+    "description": "Button that returns from a category group to every category."
+  },
+  "reportsGroupOwn": "{name} itself",
+  "@reportsGroupOwn": {
+    "description": "The rows filed under a category group itself, not under one of its children.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsNothingInPeriod": "Nothing in this period.",
+  "@reportsNothingInPeriod": {
+    "description": "Shown in a report section with nothing to show."
+  },
+  "reportsDonutSummary": "{scope} by category: {total} in all. The largest is {name}, {amount}.",
+  "@reportsDonutSummary": {
+    "description": "What a screen reader hears for the category chart.",
+    "placeholders": {
+      "scope": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsCategoryRow": "{name}: {amount}, {share} of the total",
+  "@reportsCategoryRow": {
+    "description": "A row of the category table, read by a screen reader.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "share": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsIncomeAndSpending": "Income and spending",
+  "@reportsIncomeAndSpending": {
+    "description": "Heading of the income and spending bars."
+  },
+  "reportsBarsSummary": "Income and spending over the last {count} periods. This period: income {income}, spending {spending}.",
+  "@reportsBarsSummary": {
+    "description": "What a screen reader hears for the income and spending bars.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "income": {
+        "type": "String"
+      },
+      "spending": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsTrend": "Trend over {count} periods",
+  "@reportsTrend": {
+    "description": "Heading of the trend chart.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsTrendSummary": "Over the last {count} periods, spending went from {fromSpending} to {toSpending} and income from {fromIncome} to {toIncome}.",
+  "@reportsTrendSummary": {
+    "description": "What a screen reader hears for the trend chart.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "fromSpending": {
+        "type": "String"
+      },
+      "toSpending": {
+        "type": "String"
+      },
+      "fromIncome": {
+        "type": "String"
+      },
+      "toIncome": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPeriodRow": "{period}: income {income}, spending {spending}, net {net}",
+  "@reportsPeriodRow": {
+    "description": "A row of the periods table, read by a screen reader.",
+    "placeholders": {
+      "period": {
+        "type": "String"
+      },
+      "income": {
+        "type": "String"
+      },
+      "spending": {
+        "type": "String"
+      },
+      "net": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsTopMerchants": "Top merchants",
+  "@reportsTopMerchants": {
+    "description": "Heading of the merchants spent at most."
+  },
+  "reportsMerchantCount": "{count, plural, =1{1 purchase} other{{count} purchases}}",
+  "@reportsMerchantCount": {
+    "description": "How many purchases at a merchant.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsTopMovers": "Top movers",
+  "@reportsTopMovers": {
+    "description": "Heading of the categories and merchants whose spending changed most."
+  },
+  "reportsMoversCategories": "Categories",
+  "@reportsMoversCategories": {
+    "description": "Subheading of the categories among the top movers."
+  },
+  "reportsMoversMerchants": "Merchants",
+  "@reportsMoversMerchants": {
+    "description": "Subheading of the merchants among the top movers."
+  },
+  "reportsNoMovers": "Nothing changed from the period before.",
+  "@reportsNoMovers": {
+    "description": "Shown when no spending changed."
+  },
+  "reportsMoverAmounts": "{before} before, {now} now",
+  "@reportsMoverAmounts": {
+    "description": "A mover's spending in the period before and in this one.",
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "now": {
+        "type": "String"
+      }
+    }
+  },
+  "anomaliesTitle": "Worth a look",
+  "@anomaliesTitle": {
+    "description": "Heading of the transactions that stand out (a hint, not a verdict)."
+  },
+  "anomaliesNone": "Nothing stands out in this period.",
+  "@anomaliesNone": {
+    "description": "Shown when no transaction stands out."
+  },
+  "anomalyUsualMerchant": "Usually about {amount} here",
+  "@anomalyUsualMerchant": {
+    "description": "Why a transaction stands out: far more than usual at its merchant.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "anomalyUsualCategory": "Usually about {amount} in this category",
+  "@anomalyUsualCategory": {
+    "description": "Why a transaction stands out: far more than usual in its category.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "anomalyNewMerchant": "New: not seen in the last six months",
+  "@anomalyNewMerchant": {
+    "description": "Why a transaction stands out: a merchant not used for six months."
+  },
+  "anomalyDismissed": "Dismissed. It won't be flagged again on this device.",
+  "@anomalyDismissed": {
+    "description": "Snack bar after dismissing a flagged transaction."
+  },
+  "anomalyDismissTooltip": "Dismiss {name}",
+  "@anomalyDismissTooltip": {
+    "description": "Tooltip of the button that dismisses a flagged transaction.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "navSettings": "Settings",
   "@navSettings": {
     "description": "Label of the Settings tab in the bottom navigation bar, and the title of the Settings screen."

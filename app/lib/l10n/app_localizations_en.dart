@@ -49,6 +49,210 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insightsComingBody => 'This part of Insights is on its way.';
 
   @override
+  String reportsPercent(int percent) {
+    return '$percent %';
+  }
+
+  @override
+  String reportsPercentUp(int percent) {
+    return '+$percent %';
+  }
+
+  @override
+  String reportsChange(String amount, String percent) {
+    return '$amount ($percent)';
+  }
+
+  @override
+  String reportsChangeNew(String amount) {
+    return '$amount (new)';
+  }
+
+  @override
+  String get reportsShowTables => 'Tables';
+
+  @override
+  String get reportsShowCharts => 'Charts';
+
+  @override
+  String get reportsSpending => 'Spending';
+
+  @override
+  String get reportsIncome => 'Income';
+
+  @override
+  String reportsSpendingAmount(String amount) {
+    return 'Spent $amount';
+  }
+
+  @override
+  String reportsIncomeAmount(String amount) {
+    return 'Income $amount';
+  }
+
+  @override
+  String reportsNetAmount(String amount) {
+    return 'Net $amount';
+  }
+
+  @override
+  String get reportsNoIncome => 'No income in this period';
+
+  @override
+  String reportsSavingsRate(String percent) {
+    return 'Kept $percent of income';
+  }
+
+  @override
+  String get reportsVsPrevious => 'Against the period before';
+
+  @override
+  String get reportsVsYearAgo => 'Against a year before';
+
+  @override
+  String reportsSpendingChange(String change) {
+    return 'Spending $change';
+  }
+
+  @override
+  String reportsIncomeChange(String change) {
+    return 'Income $change';
+  }
+
+  @override
+  String reportsSameElapsed(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: 'day',
+    );
+    return 'Compared over the first $_temp0 of each period';
+  }
+
+  @override
+  String get reportsByCategory => 'By category';
+
+  @override
+  String get reportsAllCategories => 'All categories';
+
+  @override
+  String reportsGroupOwn(String name) {
+    return '$name itself';
+  }
+
+  @override
+  String get reportsNothingInPeriod => 'Nothing in this period.';
+
+  @override
+  String reportsDonutSummary(
+    String scope,
+    String total,
+    String name,
+    String amount,
+  ) {
+    return '$scope by category: $total in all. The largest is $name, $amount.';
+  }
+
+  @override
+  String reportsCategoryRow(String name, String amount, String share) {
+    return '$name: $amount, $share of the total';
+  }
+
+  @override
+  String get reportsIncomeAndSpending => 'Income and spending';
+
+  @override
+  String reportsBarsSummary(int count, String income, String spending) {
+    return 'Income and spending over the last $count periods. This period: income $income, spending $spending.';
+  }
+
+  @override
+  String reportsTrend(int count) {
+    return 'Trend over $count periods';
+  }
+
+  @override
+  String reportsTrendSummary(
+    int count,
+    String fromSpending,
+    String toSpending,
+    String fromIncome,
+    String toIncome,
+  ) {
+    return 'Over the last $count periods, spending went from $fromSpending to $toSpending and income from $fromIncome to $toIncome.';
+  }
+
+  @override
+  String reportsPeriodRow(
+    String period,
+    String income,
+    String spending,
+    String net,
+  ) {
+    return '$period: income $income, spending $spending, net $net';
+  }
+
+  @override
+  String get reportsTopMerchants => 'Top merchants';
+
+  @override
+  String reportsMerchantCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count purchases',
+      one: '1 purchase',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reportsTopMovers => 'Top movers';
+
+  @override
+  String get reportsMoversCategories => 'Categories';
+
+  @override
+  String get reportsMoversMerchants => 'Merchants';
+
+  @override
+  String get reportsNoMovers => 'Nothing changed from the period before.';
+
+  @override
+  String reportsMoverAmounts(String before, String now) {
+    return '$before before, $now now';
+  }
+
+  @override
+  String get anomaliesTitle => 'Worth a look';
+
+  @override
+  String get anomaliesNone => 'Nothing stands out in this period.';
+
+  @override
+  String anomalyUsualMerchant(String amount) {
+    return 'Usually about $amount here';
+  }
+
+  @override
+  String anomalyUsualCategory(String amount) {
+    return 'Usually about $amount in this category';
+  }
+
+  @override
+  String get anomalyNewMerchant => 'New: not seen in the last six months';
+
+  @override
+  String get anomalyDismissed =>
+      'Dismissed. It won\'t be flagged again on this device.';
+
+  @override
+  String anomalyDismissTooltip(String name) {
+    return 'Dismiss $name';
+  }
+
+  @override
   String get navSettings => 'Settings';
 
   @override

@@ -23,18 +23,21 @@ String budgetPeriodLabel(AppLocalizations l10n, LocalDateRange period) {
 }
 
 /// The selector at [offset] periods from the current one, showing [dates] under the
-/// period's name when given; [onSelected] gets the offset chosen.
+/// period's name when given; [onSelected] gets the offset chosen. Without [showNext]
+/// there is no next button (a screen with nothing ahead of today).
 class BudgetPeriodSelector extends StatelessWidget {
   const BudgetPeriodSelector({
     super.key,
     required this.offset,
     required this.dates,
     required this.onSelected,
+    this.showNext = true,
   });
 
   final int offset;
   final String? dates;
   final ValueChanged<int> onSelected;
+  final bool showNext;
 
   @override
   Widget build(BuildContext context) {
@@ -85,11 +88,15 @@ class BudgetPeriodSelector extends StatelessWidget {
                   ),
                 ),
               ),
-              IconButton(
-                tooltip: l10n.budgetPeriodNext,
-                icon: const Icon(Icons.chevron_right),
-                onPressed: () => onSelected(offset + 1),
-              ),
+              if (showNext)
+                IconButton(
+                  tooltip: l10n.budgetPeriodNext,
+                  icon: const Icon(Icons.chevron_right),
+                  onPressed: () => onSelected(offset + 1),
+                )
+              else
+                // Keeps the name centred.
+                const SizedBox(width: 48),
             ],
           ),
           if (offset != 0)
