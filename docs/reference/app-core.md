@@ -63,9 +63,10 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `accountRepositoryProvider`, `transactionRepositoryProvider`, `categoryRepositoryProvider`, `itemRepositoryProvider`, `ruleRepositoryProvider`, `budgetRepositoryProvider`, `settingsRepositoryProvider` | `core/di/providers.dart` | In memory by default; Drift in dev and prod and demo in demo, through `overridesFor` |
 | `recurringStreamRepositoryProvider`, `liabilityRepositoryProvider` | `core/di/providers.dart` | The recurring streams with their overrides and the liabilities (`recurring.md`, `liabilities.md`): in memory by default, Drift in dev and prod, demo in demo (the persona's, rebuilt with it) |
 | `recurringStreamsProvider`, `subscriptionsProvider`, `streamActionsProvider`; `liabilitiesProvider` | `features/recurring/application/`; `features/liabilities/application/` | The streams with their overrides, the subscriptions with their annual cost, the actions on a stream; the liabilities |
+| `forecastSelectionControllerProvider`, `forecastPlanProvider`, `forecastProvider` | `features/forecast/application/forecast_providers.dart` | The forecast's account selection (kept in `app_meta`), the plan of the series shown, and the series for 30 or 90 days (`forecast.md`) |
 | `budgetAlertStoreProvider` | `core/di/providers.dart` | Which budget alerts this device raised (`budgets.md`): in memory by default and in demo, `budget_alerts` in dev and prod |
 | `billRepositoryProvider`, `billAlertStoreProvider` | `core/di/providers.dart` | The bills (in memory by default, Drift in dev and prod, the persona's two in demo) and which bill notifications this device raised (in memory, `bill_alerts` in dev and prod; `bills.md`) |
-| `appMetaStoreProvider` | `core/di/providers.dart` | Facts about the install (`app_meta`): in memory by default and in demo, the database's in dev and prod; the reminders' zone and time and the dismissed bill suggestions among them |
+| `appMetaStoreProvider` | `core/di/providers.dart` | Facts about the install (`app_meta`): in memory by default and in demo, the database's in dev and prod; the reminders' zone and time, the dismissed bill suggestions and the forecast's account selection among them |
 | `reminderSchedulerProvider` | `core/platform/reminder_scheduler_provider.dart` | The bill reminders' scheduler (**Reminders**): the fake by default and in demo, `flutter_local_notifications` in dev and prod |
 | `dismissedPairStoreProvider` | `core/di/providers.dart` | The duplicate pairs the user dismissed, on the device only: in memory by default and in demo (rebuilt with the in-memory store), `dismissed_pairs` in dev and prod (`duplicates.md`) |
 | `appNotifierProvider`, `inAppNotificationsProvider` | `core/platform/in_app_notifications.dart` | Where the app's notifications go (**Notifications**): the in-app list in every flavor |
@@ -450,7 +451,7 @@ The repository contract is `test/contract/settings_repository_contract.dart`,
 ## Tests
 
 - **`test/helpers/pump_app.dart`.** `pumpApp(tester, {overrides, config, initialLocation,
-  brightness, textScale, size, clock, signedIn})` pumps the real app at phone size (412 by 915) and settles.
+  brightness, textScale, size, clock, signedIn, router})` pumps the real app at phone size (412 by 915) and settles.
   `buildTestApp` is the same app as a widget, for goldens; `testOverrides` is its override
   list: the flavor (prod by default) as `appConfigProvider` only, not the flavor's
   `overridesFor` wiring, so every test runs on the in-memory repositories; the `clock`
@@ -458,7 +459,8 @@ The repository contract is `test/contract/settings_repository_contract.dart`,
   theme mode gives `brightness`; the API on the in-app fake server
   (`fakeApiOverrides`), with the demo user signed in unless `signedIn: false`, the device
   named "Pixel 6" and the app version pinned; and the flavor's router (`routerFor`, so dev
-  and prod go through the session gate) at `initialLocation`; then the test's own
+  and prod go through the session gate) at `initialLocation`, or `router` instead for a
+  screen with no route of its own (the forecast's); then the test's own
   overrides, which win. Riverpod's retry is off so a failing provider fails at once. A
   widget test reads the fake server with `ProviderScope.containerOf(...)` and
   `fakeServerProvider`; it must not `await` a client call itself (the client's Dio steps
