@@ -152,6 +152,14 @@ obvious from the field list:
   is rejected. Its `cadence` does not fall back: a value this version lacks is an error.
   `paidOccurrences` is ascending, distinct and the newest 24: JSON is normalized so when
   read, and `markPaid` and `unmarkPaid` keep it so.
+- `Goal` is a savings goal (`goals.md`): `target` `Money`, `kind` (`GoalKind.balance`: the
+  `linkedAccountIds`' balances are its progress; `contribution`: its contributions' sum),
+  `targetDate` (optional), `createdOn` (the start of its plan), `note`, and `archivedAt`
+  and `deletedAt` (UTC instants). Its contributions are not a field of it:
+  `GoalContribution` (`goalId`, `date`, `amount` positive to add and negative to
+  withdraw, `note`, `deletedAt`) is an entity of its own, synced as its own record
+  (`EntityType.goalContribution`), so contributions made on two devices both survive. An
+  unknown `kind` is an error, not a guess.
 - `Item.errorCode` is Plaid's error code (`ITEM_LOGIN_REQUIRED`, ...) while the status is
   `loginRequired` or `error`, else null; `ItemStatus.removed` is an Item unlinked with its
   history kept, whose accounts and transactions stay.

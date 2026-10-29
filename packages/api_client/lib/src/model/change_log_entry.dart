@@ -26,7 +26,7 @@ abstract class ChangeLogEntry
     implements Built<ChangeLogEntry, ChangeLogEntryBuilder> {
   @BuiltValueField(wireName: r'entity_type')
   EntityType get entityType;
-  // enum entityTypeEnum {  account,  transaction,  category,  rule,  budget,  recurring_stream,  bill_reminder,  goal,  settings,  };
+  // enum entityTypeEnum {  account,  transaction,  category,  rule,  budget,  recurring_stream,  bill_reminder,  goal,  goal_contribution,  settings,  };
 
   @BuiltValueField(wireName: r'entity_id')
   String get entityId;

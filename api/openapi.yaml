@@ -6,7 +6,7 @@
 openapi: 3.0.3
 info:
   title: Finance Tracker API
-  version: 0.5.0
+  version: 0.6.0
   description: >-
     The API between the Finance Tracker app and its server. All JSON, snake_case. Money is
     integer minor units plus an ISO 4217 code (`Money`), never a floating-point number;
@@ -1138,6 +1138,7 @@ components:
         - recurring_stream
         - bill_reminder
         - goal
+        - goal_contribution
         - settings
     ChangeOperation:
       type: string

@@ -286,23 +286,34 @@ _entities = [
       id: 'g1',
       name: 'Emergency fund',
       target: _usd(1000000),
+      kind: GoalKind.balance,
       linkedAccountIds: const ['acc1', 'acc2'],
       targetDate: LocalDate(2027, 12, 31),
-      contributions: [GoalContribution(date: _date, amount: _usd(25000))],
+      createdOn: _date,
+      note: 'Six months of rent',
+      archivedAt: DateTime.utc(2026, 10, 25, 8, 30, 0, 123),
+      deletedAt: DateTime.utc(2026, 10, 26),
     ),
     Goal(
       id: 'g2',
       name: 'Trip',
       target: _usd(300000),
-      linkedAccountIds: const [],
-      contributions: const [],
+      kind: GoalKind.contribution,
+      createdOn: _date,
     ),
     Goal.fromJson,
   ),
   (
     'GoalContribution',
-    GoalContribution(date: _date, amount: _usd(1)),
-    GoalContribution(date: _date, amount: _usd(-1)),
+    GoalContribution(
+      id: 'gc1',
+      goalId: 'g1',
+      date: _date,
+      amount: _usd(25000),
+      note: 'Bonus',
+      deletedAt: DateTime.utc(2026, 10, 26),
+    ),
+    GoalContribution(id: 'gc2', goalId: 'g2', date: _date, amount: _usd(-1)),
     GoalContribution.fromJson,
   ),
   (
@@ -612,6 +623,52 @@ void main() {
       );
       expect(
         () => Budget.fromJson(Map.of(json)..['start_date'] = '2026-02-30'),
+        throwsA(isA<CheckedFromJsonException>()),
+      );
+    });
+  });
+
+  group('goal', () {
+    Map<String, dynamic> goalJson() => _toJson(
+      Goal(
+        id: 'g',
+        name: 'Trip',
+        target: _usd(100),
+        kind: GoalKind.contribution,
+        createdOn: _date,
+      ),
+    );
+
+    test('the kind and the record type are snake_case', () {
+      expect(goalJson()['kind'], 'contribution');
+      expect(GoalKind.values.map((k) => k.name), ['balance', 'contribution']);
+      expect(
+        _toJson(
+          ChangeLogEntry(
+            entityType: EntityType.goalContribution,
+            entityId: 'gc',
+            operation: ChangeOperation.create,
+            payload: const {},
+            hlc: Hlc(1, 0, 'n'),
+            deviceId: 'n',
+            synced: false,
+          ),
+        )['entity_type'],
+        'goal_contribution',
+      );
+    });
+
+    test('the linked accounts default to none', () {
+      expect(
+        Goal.fromJson(goalJson()..remove('linked_account_ids'))
+            .linkedAccountIds,
+        isEmpty,
+      );
+    });
+
+    test('an unknown kind is an error, not a guess', () {
+      expect(
+        () => Goal.fromJson(goalJson()..['kind'] = 'stocks'),
         throwsA(isA<CheckedFromJsonException>()),
       );
     });

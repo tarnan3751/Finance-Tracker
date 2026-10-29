@@ -15,6 +15,7 @@ const _entityTypes = {
   'recurring_stream',
   'bill_reminder',
   'goal',
+  'goal_contribution',
   'settings',
 };
 

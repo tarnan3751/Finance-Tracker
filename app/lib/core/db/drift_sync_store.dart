@@ -249,6 +249,7 @@ final class DriftSyncStore implements SyncStore {
             ? null
             : billRecordJson(billFromRow(row), deletedAt: row.deletedAt);
       case EntityType.goal:
+      case EntityType.goalContribution:
         return null;
     }
   }

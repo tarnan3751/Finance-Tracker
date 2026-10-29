@@ -8,7 +8,7 @@ implement the contract; none of them defines a shape of its own (`PLAN.md` §6.5
 
 ## The contract
 
-OpenAPI **3.0.3**, `info.version` `0.5.0`, every path under `/v1`. The servers are the dev
+OpenAPI **3.0.3**, `info.version` `0.6.0`, every path under `/v1`. The servers are the dev
 server from the emulator (`http://10.0.2.2:8080/v1`) and from the machine
 (`http://localhost:8080/v1`). Operations are grouped by tag: `auth`, `me`, `devices`,
 `plaid`, `institutions`, `data`, `sync`, `webhooks`, `sandbox`, `health`; each has a camelCase `operationId`, which is
@@ -75,7 +75,8 @@ their JSON (like `Liability`, server-authoritative and never synced, so with no 
 of their own): the entities hold `Decimal`s where the schemas have strings, the
 `Holding` entity drops `currency_code` (its value's currency) and the app reads the
 schemas through its wire classes into them (`investments.md`). Entities that travel only
-inside change-log payloads (categories, budgets, rules, goals, bill reminders) have no
+inside change-log payloads (categories, budgets, rules, goals and their contributions, bill
+reminders) have no
 schema: the payload is a free-form object.
 
 **Paging by version.** `GET /transactions` and `GET /investments/transactions` take `since`

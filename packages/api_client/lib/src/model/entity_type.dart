@@ -26,6 +26,8 @@ class EntityType extends EnumClass {
   static const EntityType billReminder = _$billReminder;
   @BuiltValueEnumConst(wireName: r'goal')
   static const EntityType goal = _$goal;
+  @BuiltValueEnumConst(wireName: r'goal_contribution')
+  static const EntityType goalContribution = _$goalContribution;
   @BuiltValueEnumConst(wireName: r'settings')
   static const EntityType settings = _$settings;
 

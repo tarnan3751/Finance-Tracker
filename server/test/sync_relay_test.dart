@@ -26,8 +26,9 @@ void main() {
     String operation = 'create',
     Map<String, Object?> payload = const {'name': 'Food'},
     String? deviceId,
+    String type = 'category',
   }) => {
-    'entity_type': 'category',
+    'entity_type': type,
     'entity_id': id,
     'operation': operation,
     'payload': payload,
@@ -241,6 +242,32 @@ void main() {
       },
       {'entries[0].hlc', 'entries[0].entity_type'},
     );
+  });
+
+  test('every user-authored type is accepted and pulled, a goal '
+      'contribution among them', () async {
+    const types = [
+      'account',
+      'transaction',
+      'category',
+      'rule',
+      'budget',
+      'recurring_stream',
+      'bill_reminder',
+      'goal',
+      'goal_contribution',
+      'settings',
+    ];
+    final r = await push(a, [
+      for (final (i, t) in types.indexed)
+        entry(a, type: t, id: 'e$i', clock: hlc(a, 0, i)),
+    ]);
+    expect(r.json['rejected'], isEmpty);
+    expect(r.json['accepted'], hasLength(types.length));
+    expect([
+      for (final e in (await pull(b)).json['entries']! as List<Object?>)
+        (e! as Map<String, Object?>)['entity_type'],
+    ], types);
   });
 
   test('push and pull stamp the device last_sync_at', () async {

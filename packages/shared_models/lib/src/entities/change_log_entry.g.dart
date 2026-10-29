@@ -58,6 +58,7 @@ const _$EntityTypeEnumMap = {
   EntityType.recurringStream: 'recurring_stream',
   EntityType.billReminder: 'bill_reminder',
   EntityType.goal: 'goal',
+  EntityType.goalContribution: 'goal_contribution',
   EntityType.settings: 'settings',
 };
 

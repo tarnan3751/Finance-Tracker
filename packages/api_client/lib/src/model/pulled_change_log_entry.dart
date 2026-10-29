@@ -27,7 +27,7 @@ abstract class PulledChangeLogEntry
     implements Built<PulledChangeLogEntry, PulledChangeLogEntryBuilder> {
   @BuiltValueField(wireName: r'entity_type')
   EntityType get entityType;
-  // enum entityTypeEnum {  account,  transaction,  category,  rule,  budget,  recurring_stream,  bill_reminder,  goal,  settings,  };
+  // enum entityTypeEnum {  account,  transaction,  category,  rule,  budget,  recurring_stream,  bill_reminder,  goal,  goal_contribution,  settings,  };
 
   @BuiltValueField(wireName: r'entity_id')
   String get entityId;

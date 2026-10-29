@@ -470,7 +470,7 @@ void main() {
     });
 
     test('health reports the contract version', () async {
-      expect((await FakeClient(server).api.getHealth()).version, '0.5.0');
+      expect((await FakeClient(server).api.getHealth()).version, '0.6.0');
     });
   });
 

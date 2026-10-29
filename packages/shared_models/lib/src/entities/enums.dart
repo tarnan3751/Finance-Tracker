@@ -89,5 +89,16 @@ enum EntityType {
   recurringStream,
   billReminder,
   goal,
+  goalContribution,
   settings,
+}
+
+/// How a goal measures its progress (`docs/reference/goals.md`).
+@JsonEnum(fieldRename: FieldRename.snake)
+enum GoalKind {
+  /// The linked accounts' current balances.
+  balance,
+
+  /// The sum of the goal's contributions.
+  contribution,
 }

@@ -14,6 +14,7 @@ const EntityType _$budget = const EntityType._('budget');
 const EntityType _$recurringStream = const EntityType._('recurringStream');
 const EntityType _$billReminder = const EntityType._('billReminder');
 const EntityType _$goal = const EntityType._('goal');
+const EntityType _$goalContribution = const EntityType._('goalContribution');
 const EntityType _$settings = const EntityType._('settings');
 
 EntityType _$valueOf(String name) {
@@ -34,6 +35,8 @@ EntityType _$valueOf(String name) {
       return _$billReminder;
     case 'goal':
       return _$goal;
+    case 'goalContribution':
+      return _$goalContribution;
     case 'settings':
       return _$settings;
     default:
@@ -50,6 +53,7 @@ final BuiltSet<EntityType> _$values = BuiltSet<EntityType>(const <EntityType>[
   _$recurringStream,
   _$billReminder,
   _$goal,
+  _$goalContribution,
   _$settings,
 ]);
 
@@ -63,6 +67,7 @@ class _$EntityTypeMeta {
   EntityType get recurringStream => _$recurringStream;
   EntityType get billReminder => _$billReminder;
   EntityType get goal => _$goal;
+  EntityType get goalContribution => _$goalContribution;
   EntityType get settings => _$settings;
   EntityType valueOf(String name) => _$valueOf(name);
   BuiltSet<EntityType> get values => _$values;
@@ -85,6 +90,7 @@ class _$EntityTypeSerializer implements PrimitiveSerializer<EntityType> {
     'recurringStream': 'recurring_stream',
     'billReminder': 'bill_reminder',
     'goal': 'goal',
+    'goalContribution': 'goal_contribution',
     'settings': 'settings',
   };
   static const Map<Object, String> _fromWire = const <Object, String>{
@@ -96,6 +102,7 @@ class _$EntityTypeSerializer implements PrimitiveSerializer<EntityType> {
     'recurring_stream': 'recurringStream',
     'bill_reminder': 'billReminder',
     'goal': 'goal',
+    'goal_contribution': 'goalContribution',
     'settings': 'settings',
   };
 

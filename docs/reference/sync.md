@@ -6,7 +6,7 @@ pure Dart with no Flutter and no IO, used by the app and by the dev server. It d
 `UtcInstantConverter` (`docs/reference/core.md`).
 
 The engine covers **user-authored data only**: manual accounts and transactions,
-categories, rules, budgets, recurring streams, bill reminders, goals and settings, plus the
+categories, rules, budgets, recurring streams, bill reminders, goals, goal contributions and settings, plus the
 user's overrides. **Plaid-sourced data never goes through it.** Plaid-sourced data is
 server-authoritative, and the app pulls it by the server's version number. The engine
 never reads `source` and has no way of telling a Plaid row from a manual one. Keeping
