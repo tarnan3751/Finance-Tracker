@@ -8,10 +8,12 @@
 /// the first delete) is absent. Writing a record writes its clocks and then:
 ///
 /// - a complete record (its create merged) of an account, transaction, category, rule,
-///   budget or bill replaces the row, children included, as the record says, without the repositories' checks:
+///   budget, bill, goal or goal contribution replaces the row, children included, as the
+///   record says, without the repositories' checks:
 ///   those are preconditions of a local edit, and applying them to merged state would make
 ///   it depend on arrival order. A transaction's currency is its amount's, even when that
-///   is no longer its account's; a transaction may be written before its account;
+///   is no longer its account's; a transaction may be written before its account, and a
+///   contribution before its goal;
 /// - an incomplete record (only updates merged: a Plaid transaction's overrides, a system
 ///   category's icon) whose row exists is laid over the row; settings always exist, and
 ///   so does a stream's override (`recurring_stream`), whose record is only ever
@@ -44,6 +46,7 @@ import 'package:finance_tracker/features/accounts/data/drift_account_repository.
 import 'package:finance_tracker/features/bills/data/drift_bill_repository.dart';
 import 'package:finance_tracker/features/budgets/data/drift_budget_repository.dart';
 import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
+import 'package:finance_tracker/features/goals/data/goal_rows.dart';
 import 'package:finance_tracker/features/recurring/data/stream_override_rows.dart';
 import 'package:finance_tracker/features/recurring/domain/stream_override.dart';
 import 'package:finance_tracker/features/rules/data/drift_rule_repository.dart';
@@ -59,7 +62,8 @@ enum HeldReason { incomplete, unrepresentable, unknownFields, unsupportedType }
 typedef SyncLedger = ({int pending, int rejected, Hlc? lastRejected, int held});
 
 /// The [SyncStore] of the dev and prod flavors, over [AppDatabase]. Accounts, categories,
-/// rules, budgets and bills carry no audit fields in their records, so materializing one stamps its
+/// rules, budgets, bills, goals and contributions carry no audit fields in their records,
+/// so materializing one stamps its
 /// `updated_at` (and `created_at` on insert) from [_clock].
 final class DriftSyncStore implements SyncStore {
   /// The store over [_database], stamping from [_clock].
@@ -319,8 +323,13 @@ final class DriftSyncStore implements SyncStore {
             ? null
             : billRecordJson(billFromRow(row), deletedAt: row.deletedAt);
       case EntityType.goal:
+        final GoalRow? row = await _goalRow(id);
+        return row == null ? null : goalRecordJson(goalFromRow(row));
       case EntityType.goalContribution:
-        return null;
+        final GoalContributionRow? row = await _contributionRow(id);
+        return row == null
+            ? null
+            : goalContributionRecordJson(goalContributionFromRow(row));
     }
   }
 
@@ -347,6 +356,14 @@ final class DriftSyncStore implements SyncStore {
   Future<BillRow?> _billRow(String id) => (_database.select(
     _database.bills,
   )..where((b) => b.id.equals(id))).getSingleOrNull();
+
+  Future<GoalRow?> _goalRow(String id) => (_database.select(
+    _database.goals,
+  )..where((g) => g.id.equals(id))).getSingleOrNull();
+
+  Future<GoalContributionRow?> _contributionRow(String id) => (_database.select(
+    _database.goalContributions,
+  )..where((c) => c.id.equals(id))).getSingleOrNull();
 
   // Writes [record] into its entity's table, or returns why it is held.
   Future<HeldReason?> _materialize(EntityRecord record) async {
@@ -405,7 +422,9 @@ final class DriftSyncStore implements SyncStore {
         type != EntityType.category &&
         type != EntityType.rule &&
         type != EntityType.budget &&
-        type != EntityType.billReminder) {
+        type != EntityType.billReminder &&
+        type != EntityType.goal &&
+        type != EntityType.goalContribution) {
       return HeldReason.unsupportedType;
     }
     final Map<String, Object?> fields;
@@ -422,6 +441,10 @@ final class DriftSyncStore implements SyncStore {
       EntityType.rule => (await _ruleRow(record.id))?.createdAt,
       EntityType.budget => (await _budgetRow(record.id))?.createdAt,
       EntityType.billReminder => (await _billRow(record.id))?.createdAt,
+      EntityType.goal => (await _goalRow(record.id))?.createdAt,
+      EntityType.goalContribution => (await _contributionRow(
+        record.id,
+      ))?.createdAt,
       _ => null,
     };
     try {
@@ -547,6 +570,29 @@ final class DriftSyncStore implements SyncStore {
         );
         return () =>
             _database.into(_database.bills).insertOnConflictUpdate(row);
+      case EntityType.goal:
+        final Goal goal = Goal.fromJson(fields);
+        if (goal.id != id) throw FormatException('id mismatch', goal.id);
+        final GoalsCompanion row = goalCompanion(
+          goal,
+          createdAt: createdAt ?? now,
+          now: now,
+        );
+        return () =>
+            _database.into(_database.goals).insertOnConflictUpdate(row);
+      case EntityType.goalContribution:
+        final GoalContribution contribution = GoalContribution.fromJson(fields);
+        if (contribution.id != id) {
+          throw FormatException('id mismatch', contribution.id);
+        }
+        final GoalContributionsCompanion row = goalContributionCompanion(
+          contribution,
+          createdAt: createdAt ?? now,
+          now: now,
+        );
+        return () => _database
+            .into(_database.goalContributions)
+            .insertOnConflictUpdate(row);
       case _:
         throw ArgumentError.value(type, 'type', 'not materialized');
     }

@@ -7,8 +7,10 @@
 /// `theme_mode` and `use_dynamic_color`. A `recurring_stream` record is the user's
 /// override of one stream (keyed by the stream's id): `muted`, `is_subscription`,
 /// `display_name` and `deleted_at`, never the stream itself, which is the server's or
-/// the detector's. Nested values (tags, splits, amounts) are whole
-/// field values.
+/// the detector's. A `goal` and a `goal_contribution` are their entities' JSON, each
+/// with its own `deleted_at`; a goal's contributions are records of their own, never a
+/// field of it. Nested values (tags, splits, amounts, linked accounts) are whole field
+/// values.
 ///
 /// Pure Dart, no Flutter import: the database migration uses it.
 library;
@@ -79,6 +81,15 @@ Map<String, Object?> budgetRecordJson(Budget budget, {DateTime? deletedAt}) => {
 Map<String, Object?> billRecordJson(BillReminder bill, {DateTime? deletedAt}) =>
     {..._plain(bill.toJson()), deletedAtField: _instant(deletedAt)};
 
+/// The record fields of [goal] (its own `deletedAt` included). Its target and linked
+/// accounts are whole field values.
+Map<String, Object?> goalRecordJson(Goal goal) => _plain(goal.toJson());
+
+/// The record fields of [contribution] (its own `deletedAt` included).
+Map<String, Object?> goalContributionRecordJson(
+  GoalContribution contribution,
+) => _plain(contribution.toJson());
+
 /// The record fields of [settings].
 Map<String, Object?> settingsRecordJson(Settings settings) => {
   'theme_mode': settings.themeMode.name,
@@ -130,8 +141,7 @@ DateTime? deletedAtOf(Map<String, Object?> fields) =>
 bool deletedWithAccountOf(Map<String, Object?> fields) =>
     fields[deletedWithAccountField] == true;
 
-/// The record fields this version knows for [type]; empty for the types it does not
-/// store.
+/// The record fields this version knows for [type].
 Set<String> knownRecordFields(EntityType type) => switch (type) {
   EntityType.account => _accountFields,
   EntityType.transaction => _transactionFields,
@@ -139,6 +149,8 @@ Set<String> knownRecordFields(EntityType type) => switch (type) {
   EntityType.rule => _ruleFields,
   EntityType.budget => _budgetFields,
   EntityType.billReminder => _billFields,
+  EntityType.goal => _goalFields,
+  EntityType.goalContribution => _goalContributionFields,
   EntityType.settings => const {'theme_mode', 'use_dynamic_color'},
   EntityType.recurringStream => const {
     'muted',
@@ -146,7 +158,6 @@ Set<String> knownRecordFields(EntityType type) => switch (type) {
     'display_name',
     deletedAtField,
   },
-  _ => const {},
 };
 
 final Set<String> _accountFields = accountRecordJson(
@@ -197,6 +208,25 @@ final Set<String> _budgetFields = budgetRecordJson(
 
 final Set<String> _billFields = billRecordJson(
   BillReminder(id: '', dueDate: LocalDate(2026, 1, 1)),
+).keys.toSet();
+
+final Set<String> _goalFields = goalRecordJson(
+  Goal(
+    id: '',
+    name: '',
+    target: Money(0, 'USD'),
+    kind: GoalKind.balance,
+    createdOn: LocalDate(2026, 1, 1),
+  ),
+).keys.toSet();
+
+final Set<String> _goalContributionFields = goalContributionRecordJson(
+  GoalContribution(
+    id: '',
+    goalId: '',
+    date: LocalDate(2026, 1, 1),
+    amount: Money(0, 'USD'),
+  ),
 ).keys.toSet();
 
 /// The JSON name of [value]: its Dart name in snake case (`recurring_stream`,

@@ -607,6 +607,181 @@ void main() {
       },
     );
 
+    Goal fund() => Goal(
+      id: 'g1',
+      name: 'Emergency fund',
+      target: Money(500000, 'USD'),
+      kind: GoalKind.balance,
+      linkedAccountIds: const ['a1', 'a2'],
+      targetDate: LocalDate(2027, 10, 1),
+      createdOn: LocalDate(2026, 10, 1),
+      note: 'Six months',
+    );
+
+    GoalContribution payDay({String goalId = 'g1'}) => GoalContribution(
+      id: 'c1',
+      goalId: goalId,
+      date: LocalDate(2026, 10, 5),
+      amount: Money(-2500, 'USD'),
+      note: 'Withdrawn',
+    );
+
+    test(
+      'a goal, live, archived and deleted, round-trips through its row',
+      () async {
+        await roundTrips(
+          complete(EntityType.goal, 'g1', goalRecordJson(fund()), at),
+        );
+        GoalRow row = await database.select(database.goals).getSingle();
+        expect(row.linkedAccountIds, '["a1","a2"]');
+        expect(row.kind, GoalKind.balance);
+        expect(row.deletedAt, isNull);
+        final Goal ended = fund().copyWith(
+          archivedAt: DateTime.utc(2026, 10, 2),
+          deletedAt: DateTime.utc(2026, 10, 3),
+        );
+        await roundTrips(
+          complete(EntityType.goal, 'g1', goalRecordJson(ended), at),
+        );
+        row = await database.select(database.goals).getSingle();
+        expect(row.archivedAt, DateTime.utc(2026, 10, 2));
+        expect(row.deletedAt, DateTime.utc(2026, 10, 3));
+        expect(await database.select(database.heldRecords).get(), isEmpty);
+      },
+    );
+
+    test('a contribution, live and deleted, round-trips through its row, '
+        'before its goal exists', () async {
+      await roundTrips(
+        complete(
+          EntityType.goalContribution,
+          'c1',
+          goalContributionRecordJson(payDay(goalId: 'g-elsewhere')),
+          at,
+        ),
+      );
+      GoalContributionRow row = await database
+          .select(database.goalContributions)
+          .getSingle();
+      expect(row.goalId, 'g-elsewhere');
+      expect(row.amountMinor, -2500);
+      await roundTrips(
+        complete(
+          EntityType.goalContribution,
+          'c1',
+          goalContributionRecordJson(
+            payDay(goalId: 'g-elsewhere')
+                .copyWith(deletedAt: DateTime.utc(2026, 10, 6)),
+          ),
+          at,
+        ),
+      );
+      row = await database.select(database.goalContributions).getSingle();
+      expect(row.deletedAt, DateTime.utc(2026, 10, 6));
+      expect(await database.select(database.heldRecords).get(), isEmpty);
+    });
+
+    test('a goal edit of only updates is laid over its row, or held '
+        'incomplete without one', () async {
+      await roundTrips(
+        EntityRecord(
+          type: EntityType.goal,
+          id: 'g2',
+          fields: const {'name': 'Holiday'},
+          fieldClocks: {'name': at},
+        ),
+      );
+      expect(
+        (await database.select(database.heldRecords).getSingle()).reason,
+        'incomplete',
+      );
+      await store.write(
+        complete(EntityType.goal, 'g1', goalRecordJson(fund()), at),
+      );
+      final EntityRecord stored = (await store.read(EntityType.goal, 'g1'))!;
+      final Hlc later = Hlc(at.wallMillis + 1, 0, 'dev-b');
+      await roundTrips(
+        EntityRecord(
+          type: EntityType.goal,
+          id: 'g1',
+          fields: {...stored.fields, 'name': 'Rainy day'},
+          fieldClocks: {...stored.fieldClocks, 'name': later},
+        ),
+      );
+      expect(
+        (await (database.select(
+          database.goals,
+        )..where((g) => g.id.equals('g1'))).getSingle()).name,
+        'Rainy day',
+      );
+    });
+
+    test('a goal or contribution that does not decode is held and leaves '
+        'the row', () async {
+      await store.write(
+        complete(EntityType.goal, 'g1', goalRecordJson(fund()), at),
+      );
+      await store.write(
+        complete(
+          EntityType.goalContribution,
+          'c1',
+          goalContributionRecordJson(payDay()),
+          at,
+        ),
+      );
+      final Hlc later = Hlc(at.wallMillis + 1, 0, 'b');
+      await roundTrips(
+        complete(EntityType.goal, 'g1', {
+          ...goalRecordJson(fund()),
+          'kind': 'stocks',
+        }, later),
+      );
+      await roundTrips(
+        complete(EntityType.goalContribution, 'c1', {
+          ...goalContributionRecordJson(payDay()),
+          'amount': {'minor_units': 1.5, 'currency': 'USD'},
+        }, later),
+      );
+      expect(
+        (await database.select(database.heldRecords).get()).map(
+          (h) => (h.entityType, h.reason),
+        ),
+        unorderedEquals([
+          ('goal', 'unrepresentable'),
+          ('goal_contribution', 'unrepresentable'),
+        ]),
+      );
+      expect(
+        (await database.select(database.goals).getSingle()).kind,
+        GoalKind.balance,
+      );
+      expect(
+        (await database.select(database.goalContributions).getSingle())
+            .amountMinor,
+        -2500,
+      );
+    });
+
+    test(
+      'a goal field this version does not know is held, the rest lands',
+      () async {
+        await roundTrips(
+          complete(EntityType.goal, 'g1', {
+            ...goalRecordJson(fund()),
+            'icon': 'beach',
+          }, at),
+        );
+        expect(
+          (await database.select(database.heldRecords).getSingle()).reason,
+          'unknown_fields',
+        );
+        expect(
+          (await database.select(database.goals).getSingle()).name,
+          'Emergency fund',
+        );
+      },
+    );
+
     // A record of only updates (an override is never created), [fields] at [hlc].
     EntityRecord updates(
       EntityType type,
@@ -894,16 +1069,20 @@ void main() {
       expect(elsewhere.toCanonicalJson(), after.toCanonicalJson());
     });
 
-    test(
-      'an entity the app does not store yet is held as unsupported',
-      () async {
-        await roundTrips(goal('g1', 'Holiday'));
-        expect(
-          (await database.select(database.heldRecords).getSingle()).reason,
-          'unsupported_type',
-        );
-      },
-    );
+    test('a record the app has no place for is held as unsupported', () async {
+      await roundTrips(
+        EntityRecord(
+          type: EntityType.settings,
+          id: 'other',
+          fields: const {'theme_mode': 'dark'},
+          fieldClocks: {'theme_mode': Hlc(1, 0, 'a')},
+        ),
+      );
+      expect(
+        (await database.select(database.heldRecords).getSingle()).reason,
+        'unsupported_type',
+      );
+    });
 
     test('randomized transactions round-trip', () async {
       for (int seed = 0; seed < 50; seed++) {

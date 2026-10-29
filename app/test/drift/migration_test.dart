@@ -100,6 +100,12 @@ void main() {
     await verifier.migrateAndValidate(database, 11);
   });
 
+  test('a new database matches the schema 12 dump', () async {
+    final AppDatabase database = AppDatabase(await verifier.startAt(12));
+    addTearDown(database.close);
+    await verifier.migrateAndValidate(database, 12);
+  });
+
   group('schema 1 to 2', () {
     // 2026-10-01 09:00 UTC, the v1 rows' audit instants; 2026-10-02, a v1 delete.
     const int created = 1759309200000;
@@ -543,7 +549,7 @@ void main() {
           {
             'rule/r-updates': 'incomplete',
             'rule/r-newer': 'unknown_fields',
-            'goal/g1': 'unsupported_type',
+            'goal/g1': 'incomplete',
           },
         );
         // The records read back as they were, the unknown field included.
@@ -677,7 +683,7 @@ void main() {
           'budget/b-updates': 'incomplete',
           'budget/b-newer': 'unknown_fields',
           'budget/b-bad': 'unrepresentable',
-          'goal/g1': 'unsupported_type',
+          'goal/g1': 'incomplete',
         },
       );
       // The records read back as they were, the unknown field included.
@@ -970,7 +976,7 @@ void main() {
       });
     }
 
-    for (final int from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+    for (final int from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]) {
       test('from schema $from, after a whole run whose version was not '
           'written', () async {
         final schema = await verifier.schemaAt(from);
@@ -1196,7 +1202,7 @@ void main() {
       expect(await held(database), {
         'recurring_stream/s-bad': 'unrepresentable',
         'recurring_stream/s-newer': 'unknown_fields',
-        'goal/g1': 'unsupported_type',
+        'goal/g1': 'incomplete',
       });
       final DriftSyncStore store = DriftSyncStore(database, testClock);
       expect(await store.pullCursor(), 12);
@@ -1348,7 +1354,7 @@ void main() {
         'bill_reminder/b-updates': 'incomplete',
         'bill_reminder/b-newer': 'unknown_fields',
         'bill_reminder/b-bad': 'unrepresentable',
-        'goal/g1': 'unsupported_type',
+        'goal/g1': 'incomplete',
       });
       final DriftSyncStore store = DriftSyncStore(database, testClock);
       expect(await store.pullCursor(), 12);
@@ -1503,6 +1509,179 @@ void main() {
       await verifier.migrateAndValidate(again, 11);
       expect(await again.select(again.balanceSnapshots).get(), hasLength(1));
       await again.delete(again.balanceSnapshots).go();
+      await checkMigrated(again);
+    });
+  });
+
+  group('schema 11 to 12', () {
+    const int created = 1759309200000; // 2026-10-01 09:00 UTC
+    const int migratedAt = 1761318000000; // 2026-10-24 15:00 UTC
+    const String clock = '001759309200000-00000-dev-b';
+    const List<String> goalFields = [
+      'id',
+      'name',
+      'target',
+      'kind',
+      'linked_account_ids',
+      'target_date',
+      'created_on',
+      'note',
+      'archived_at',
+      'deleted_at',
+    ];
+    const List<String> contributionFields = [
+      'id',
+      'goal_id',
+      'date',
+      'amount',
+      'note',
+      'deleted_at',
+    ];
+
+    String clocks(String type, String id, List<String> fields) =>
+        [for (final String f in fields) "('$type', '$id', '$f', '$clock')"]
+            .join(', ');
+
+    String goal(String id, {String kind = 'balance', String extra = ''}) =>
+        '{"id":"$id","name":"Emergency fund",'
+        '"target":{"minor_units":500000,"currency":"USD"},"kind":"$kind",'
+        '"linked_account_ids":["acc"],"target_date":"2027-10-01",'
+        '"created_on":"2026-10-01","note":null,"archived_at":null,'
+        '"deleted_at":null$extra}';
+
+    String contribution(String id, String goalId) =>
+        '{"id":"$id","goal_id":"$goalId","date":"2026-10-05",'
+        '"amount":{"minor_units":12500,"currency":"USD"},"note":"Pay day",'
+        '"deleted_at":null}';
+
+    // A schema 11 database with a manual account, a bill, sync state, and goal and
+    // contribution records another device recorded before this version could store
+    // them: a complete goal, one of only updates, one from a newer version with an
+    // unknown field, one whose kind this version lacks; a complete contribution, one
+    // whose goal never arrived, and one of only updates.
+    Future<InitializedSchema> seeded() async {
+      final schema = await verifier.schemaAt(11);
+      schema.rawDatabase.execute('''
+        INSERT INTO accounts (id, item_id, type, subtype, name, official_name, mask,
+          currency, current_balance_minor, available_balance_minor, credit_limit_minor,
+          balances_as_of, is_hidden, display_order, created_at, updated_at, deleted_at,
+          sync_version)
+        VALUES ('acc', NULL, 'depository', 'savings', 'Savings', NULL, NULL, 'USD',
+          NULL, NULL, NULL, NULL, 0, 0, $created, $created, NULL, 0);
+        INSERT INTO bills (id, name, amount_minor, currency, due_date, cadence,
+          account_id, stream_id, liability_account_id, reminder_offset_days,
+          reminder_minutes, active, autopay, paid_occurrences, created_at, updated_at,
+          deleted_at)
+        VALUES ('b1', 'Rent', -150000, 'USD', '2026-11-01', 'monthly', 'acc', NULL,
+          NULL, '[2]', 540, 1, 0, '[]', $created, $created, NULL);
+        INSERT INTO held_records (entity_type, entity_id, fields, reason)
+        VALUES
+          ('goal', 'g-complete', '${goal('g-complete')}', 'unsupported_type'),
+          ('goal', 'g-updates', '{"name":"Holiday"}', 'unsupported_type'),
+          ('goal', 'g-newer',
+           '${goal('g-newer', extra: ',"icon":"beach"')}', 'unsupported_type'),
+          ('goal', 'g-bad', '${goal('g-bad', kind: 'stocks')}',
+           'unsupported_type'),
+          ('goal_contribution', 'c-complete',
+           '${contribution('c-complete', 'g-complete')}', 'unsupported_type'),
+          ('goal_contribution', 'c-orphan',
+           '${contribution('c-orphan', 'g-elsewhere')}', 'unsupported_type'),
+          ('goal_contribution', 'c-updates', '{"note":"Bonus"}',
+           'unsupported_type');
+        INSERT INTO record_clocks (entity_type, entity_id, field, hlc)
+        VALUES ${clocks('goal', 'g-complete', [...goalFields, '_create'])},
+          ${clocks('goal', 'g-updates', ['name'])},
+          ${clocks('goal', 'g-newer', [...goalFields, 'icon', '_create'])},
+          ${clocks('goal', 'g-bad', [...goalFields, '_create'])},
+          ${clocks('goal_contribution', 'c-complete', [...contributionFields, '_create'])},
+          ${clocks('goal_contribution', 'c-orphan', [...contributionFields, '_create'])},
+          ${clocks('goal_contribution', 'c-updates', ['note'])};
+        INSERT INTO sync_meta (key, value)
+        VALUES ('pull_cursor', '21'), ('device_id', 'dev-a');
+      ''');
+      return schema;
+    }
+
+    Future<Map<String, String>> held(AppDatabase database) async => {
+      for (final HeldRecordRow h
+          in await database.select(database.heldRecords).get())
+        '${h.entityType}/${h.entityId}': h.reason,
+    };
+
+    Future<void> checkMigrated(AppDatabase database) async {
+      expect((await database.select(database.bills).get()).map((b) => b.id), [
+        'b1',
+      ]);
+      final List<GoalRow> goals = await (database.select(
+        database.goals,
+      )..orderBy([(g) => OrderingTerm.asc(g.id)])).get();
+      expect(goals.map((g) => g.id), ['g-complete', 'g-newer']);
+      final GoalRow fund = goals.first;
+      expect(fund.name, 'Emergency fund');
+      expect(fund.targetMinor, 500000);
+      expect(fund.currency, 'USD');
+      expect(fund.kind, GoalKind.balance);
+      expect(fund.linkedAccountIds, '["acc"]');
+      expect(fund.targetDate, LocalDate(2027, 10, 1));
+      expect(fund.createdOn, LocalDate(2026, 10, 1));
+      expect(fund.archivedAt, isNull);
+      expect(fund.deletedAt, isNull);
+      expect(fund.createdAt.millisecondsSinceEpoch, migratedAt);
+      final List<GoalContributionRow> contributions = await (database.select(
+        database.goalContributions,
+      )..orderBy([(c) => OrderingTerm.asc(c.id)])).get();
+      expect(contributions.map((c) => (c.id, c.goalId)), [
+        ('c-complete', 'g-complete'),
+        // Its goal never arrived: no foreign key, the row waits for it.
+        ('c-orphan', 'g-elsewhere'),
+      ]);
+      expect(contributions.first.amountMinor, 12500);
+      expect(contributions.first.date, LocalDate(2026, 10, 5));
+      expect(contributions.first.note, 'Pay day');
+      expect(await held(database), {
+        'goal/g-updates': 'incomplete',
+        'goal/g-newer': 'unknown_fields',
+        'goal/g-bad': 'unrepresentable',
+        'goal_contribution/c-updates': 'incomplete',
+      });
+      final DriftSyncStore store = DriftSyncStore(database, testClock);
+      expect(await store.pullCursor(), 21);
+      expect(
+        (await store.read(EntityType.goal, 'g-newer'))!.fields['icon'],
+        'beach',
+      );
+    }
+
+    test(
+      'keeps every row, adds the two tables and materializes the held records',
+      () async {
+        final AppDatabase database = AppDatabase(
+          (await seeded()).newConnection(),
+          wallMillis: () => migratedAt,
+        );
+        addTearDown(database.close);
+        await verifier.migrateAndValidate(database, 12);
+        await checkMigrated(database);
+      },
+    );
+
+    test('runs again after a run whose version was not written', () async {
+      final schema = await seeded();
+      final AppDatabase first = AppDatabase(
+        schema.newConnection(),
+        wallMillis: () => migratedAt,
+      );
+      await verifier.migrateAndValidate(first, 12);
+      await first.close();
+      schema.rawDatabase.execute('PRAGMA user_version = 11');
+
+      final AppDatabase again = AppDatabase(
+        schema.newConnection(),
+        wallMillis: () => migratedAt + 1000,
+      );
+      addTearDown(again.close);
+      await verifier.migrateAndValidate(again, 12);
+      // The rows the first run wrote are kept as they were: created_at unchanged.
       await checkMigrated(again);
     });
   });

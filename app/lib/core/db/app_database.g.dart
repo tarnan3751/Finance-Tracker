@@ -15019,6 +15019,1343 @@ class BalanceSnapshotsCompanion extends UpdateCompanion<BalanceSnapshotRow> {
   }
 }
 
+class $GoalsTable extends Goals with TableInfo<$GoalsTable, GoalRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GoalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetMinorMeta = const VerificationMeta(
+    'targetMinor',
+  );
+  @override
+  late final GeneratedColumn<int> targetMinor = GeneratedColumn<int>(
+    'target_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _currencyMeta = const VerificationMeta(
+    'currency',
+  );
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<GoalKind, String> kind =
+      GeneratedColumn<String>(
+        'kind',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<GoalKind>($GoalsTable.$converterkind);
+  static const VerificationMeta _linkedAccountIdsMeta = const VerificationMeta(
+    'linkedAccountIds',
+  );
+  @override
+  late final GeneratedColumn<String> linkedAccountIds = GeneratedColumn<String>(
+    'linked_account_ids',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate?, String> targetDate =
+      GeneratedColumn<String>(
+        'target_date',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<LocalDate?>($GoalsTable.$convertertargetDaten);
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate, String> createdOn =
+      GeneratedColumn<String>(
+        'created_on',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<LocalDate>($GoalsTable.$convertercreatedOn);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime?, int> archivedAt =
+      GeneratedColumn<int>(
+        'archived_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<DateTime?>($GoalsTable.$converterarchivedAtn);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> createdAt =
+      GeneratedColumn<int>(
+        'created_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($GoalsTable.$convertercreatedAt);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> updatedAt =
+      GeneratedColumn<int>(
+        'updated_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($GoalsTable.$converterupdatedAt);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime?, int> deletedAt =
+      GeneratedColumn<int>(
+        'deleted_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<DateTime?>($GoalsTable.$converterdeletedAtn);
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    targetMinor,
+    currency,
+    kind,
+    linkedAccountIds,
+    targetDate,
+    createdOn,
+    note,
+    archivedAt,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'goals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GoalRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('target_minor')) {
+      context.handle(
+        _targetMinorMeta,
+        targetMinor.isAcceptableOrUnknown(
+          data['target_minor']!,
+          _targetMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_targetMinorMeta);
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_currencyMeta);
+    }
+    if (data.containsKey('linked_account_ids')) {
+      context.handle(
+        _linkedAccountIdsMeta,
+        linkedAccountIds.isAcceptableOrUnknown(
+          data['linked_account_ids']!,
+          _linkedAccountIdsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_linkedAccountIdsMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GoalRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GoalRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      targetMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}target_minor'],
+      )!,
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      )!,
+      kind: $GoalsTable.$converterkind.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}kind'],
+        )!,
+      ),
+      linkedAccountIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}linked_account_ids'],
+      )!,
+      targetDate: $GoalsTable.$convertertargetDaten.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}target_date'],
+        ),
+      ),
+      createdOn: $GoalsTable.$convertercreatedOn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}created_on'],
+        )!,
+      ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      archivedAt: $GoalsTable.$converterarchivedAtn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}archived_at'],
+        ),
+      ),
+      createdAt: $GoalsTable.$convertercreatedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}created_at'],
+        )!,
+      ),
+      updatedAt: $GoalsTable.$converterupdatedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}updated_at'],
+        )!,
+      ),
+      deletedAt: $GoalsTable.$converterdeletedAtn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}deleted_at'],
+        ),
+      ),
+    );
+  }
+
+  @override
+  $GoalsTable createAlias(String alias) {
+    return $GoalsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<GoalKind, String, String> $converterkind =
+      const EnumNameConverter<GoalKind>(GoalKind.values);
+  static TypeConverter<LocalDate, String> $convertertargetDate =
+      const LocalDateColumnConverter();
+  static TypeConverter<LocalDate?, String?> $convertertargetDaten =
+      NullAwareTypeConverter.wrap($convertertargetDate);
+  static TypeConverter<LocalDate, String> $convertercreatedOn =
+      const LocalDateColumnConverter();
+  static TypeConverter<DateTime, int> $converterarchivedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime?, int?> $converterarchivedAtn =
+      NullAwareTypeConverter.wrap($converterarchivedAt);
+  static TypeConverter<DateTime, int> $convertercreatedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime, int> $converterupdatedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime, int> $converterdeletedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime?, int?> $converterdeletedAtn =
+      NullAwareTypeConverter.wrap($converterdeletedAt);
+}
+
+class GoalRow extends DataClass implements Insertable<GoalRow> {
+  final String id;
+  final String name;
+  final int targetMinor;
+  final String currency;
+  final GoalKind kind;
+  final String linkedAccountIds;
+  final LocalDate? targetDate;
+  final LocalDate createdOn;
+  final String? note;
+  final DateTime? archivedAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const GoalRow({
+    required this.id,
+    required this.name,
+    required this.targetMinor,
+    required this.currency,
+    required this.kind,
+    required this.linkedAccountIds,
+    this.targetDate,
+    required this.createdOn,
+    this.note,
+    this.archivedAt,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['target_minor'] = Variable<int>(targetMinor);
+    map['currency'] = Variable<String>(currency);
+    {
+      map['kind'] = Variable<String>($GoalsTable.$converterkind.toSql(kind));
+    }
+    map['linked_account_ids'] = Variable<String>(linkedAccountIds);
+    if (!nullToAbsent || targetDate != null) {
+      map['target_date'] = Variable<String>(
+        $GoalsTable.$convertertargetDaten.toSql(targetDate),
+      );
+    }
+    {
+      map['created_on'] = Variable<String>(
+        $GoalsTable.$convertercreatedOn.toSql(createdOn),
+      );
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || archivedAt != null) {
+      map['archived_at'] = Variable<int>(
+        $GoalsTable.$converterarchivedAtn.toSql(archivedAt),
+      );
+    }
+    {
+      map['created_at'] = Variable<int>(
+        $GoalsTable.$convertercreatedAt.toSql(createdAt),
+      );
+    }
+    {
+      map['updated_at'] = Variable<int>(
+        $GoalsTable.$converterupdatedAt.toSql(updatedAt),
+      );
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(
+        $GoalsTable.$converterdeletedAtn.toSql(deletedAt),
+      );
+    }
+    return map;
+  }
+
+  GoalsCompanion toCompanion(bool nullToAbsent) {
+    return GoalsCompanion(
+      id: Value(id),
+      name: Value(name),
+      targetMinor: Value(targetMinor),
+      currency: Value(currency),
+      kind: Value(kind),
+      linkedAccountIds: Value(linkedAccountIds),
+      targetDate: targetDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetDate),
+      createdOn: Value(createdOn),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      archivedAt: archivedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(archivedAt),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory GoalRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GoalRow(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      targetMinor: serializer.fromJson<int>(json['targetMinor']),
+      currency: serializer.fromJson<String>(json['currency']),
+      kind: $GoalsTable.$converterkind.fromJson(
+        serializer.fromJson<String>(json['kind']),
+      ),
+      linkedAccountIds: serializer.fromJson<String>(json['linkedAccountIds']),
+      targetDate: serializer.fromJson<LocalDate?>(json['targetDate']),
+      createdOn: serializer.fromJson<LocalDate>(json['createdOn']),
+      note: serializer.fromJson<String?>(json['note']),
+      archivedAt: serializer.fromJson<DateTime?>(json['archivedAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'targetMinor': serializer.toJson<int>(targetMinor),
+      'currency': serializer.toJson<String>(currency),
+      'kind': serializer.toJson<String>(
+        $GoalsTable.$converterkind.toJson(kind),
+      ),
+      'linkedAccountIds': serializer.toJson<String>(linkedAccountIds),
+      'targetDate': serializer.toJson<LocalDate?>(targetDate),
+      'createdOn': serializer.toJson<LocalDate>(createdOn),
+      'note': serializer.toJson<String?>(note),
+      'archivedAt': serializer.toJson<DateTime?>(archivedAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  GoalRow copyWith({
+    String? id,
+    String? name,
+    int? targetMinor,
+    String? currency,
+    GoalKind? kind,
+    String? linkedAccountIds,
+    Value<LocalDate?> targetDate = const Value.absent(),
+    LocalDate? createdOn,
+    Value<String?> note = const Value.absent(),
+    Value<DateTime?> archivedAt = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => GoalRow(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    targetMinor: targetMinor ?? this.targetMinor,
+    currency: currency ?? this.currency,
+    kind: kind ?? this.kind,
+    linkedAccountIds: linkedAccountIds ?? this.linkedAccountIds,
+    targetDate: targetDate.present ? targetDate.value : this.targetDate,
+    createdOn: createdOn ?? this.createdOn,
+    note: note.present ? note.value : this.note,
+    archivedAt: archivedAt.present ? archivedAt.value : this.archivedAt,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  GoalRow copyWithCompanion(GoalsCompanion data) {
+    return GoalRow(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      targetMinor: data.targetMinor.present
+          ? data.targetMinor.value
+          : this.targetMinor,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      linkedAccountIds: data.linkedAccountIds.present
+          ? data.linkedAccountIds.value
+          : this.linkedAccountIds,
+      targetDate: data.targetDate.present
+          ? data.targetDate.value
+          : this.targetDate,
+      createdOn: data.createdOn.present ? data.createdOn.value : this.createdOn,
+      note: data.note.present ? data.note.value : this.note,
+      archivedAt: data.archivedAt.present
+          ? data.archivedAt.value
+          : this.archivedAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalRow(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('targetMinor: $targetMinor, ')
+          ..write('currency: $currency, ')
+          ..write('kind: $kind, ')
+          ..write('linkedAccountIds: $linkedAccountIds, ')
+          ..write('targetDate: $targetDate, ')
+          ..write('createdOn: $createdOn, ')
+          ..write('note: $note, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    targetMinor,
+    currency,
+    kind,
+    linkedAccountIds,
+    targetDate,
+    createdOn,
+    note,
+    archivedAt,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GoalRow &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.targetMinor == this.targetMinor &&
+          other.currency == this.currency &&
+          other.kind == this.kind &&
+          other.linkedAccountIds == this.linkedAccountIds &&
+          other.targetDate == this.targetDate &&
+          other.createdOn == this.createdOn &&
+          other.note == this.note &&
+          other.archivedAt == this.archivedAt &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class GoalsCompanion extends UpdateCompanion<GoalRow> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<int> targetMinor;
+  final Value<String> currency;
+  final Value<GoalKind> kind;
+  final Value<String> linkedAccountIds;
+  final Value<LocalDate?> targetDate;
+  final Value<LocalDate> createdOn;
+  final Value<String?> note;
+  final Value<DateTime?> archivedAt;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const GoalsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.targetMinor = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.linkedAccountIds = const Value.absent(),
+    this.targetDate = const Value.absent(),
+    this.createdOn = const Value.absent(),
+    this.note = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GoalsCompanion.insert({
+    required String id,
+    required String name,
+    required int targetMinor,
+    required String currency,
+    required GoalKind kind,
+    required String linkedAccountIds,
+    this.targetDate = const Value.absent(),
+    required LocalDate createdOn,
+    this.note = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       targetMinor = Value(targetMinor),
+       currency = Value(currency),
+       kind = Value(kind),
+       linkedAccountIds = Value(linkedAccountIds),
+       createdOn = Value(createdOn),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<GoalRow> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<int>? targetMinor,
+    Expression<String>? currency,
+    Expression<String>? kind,
+    Expression<String>? linkedAccountIds,
+    Expression<String>? targetDate,
+    Expression<String>? createdOn,
+    Expression<String>? note,
+    Expression<int>? archivedAt,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (targetMinor != null) 'target_minor': targetMinor,
+      if (currency != null) 'currency': currency,
+      if (kind != null) 'kind': kind,
+      if (linkedAccountIds != null) 'linked_account_ids': linkedAccountIds,
+      if (targetDate != null) 'target_date': targetDate,
+      if (createdOn != null) 'created_on': createdOn,
+      if (note != null) 'note': note,
+      if (archivedAt != null) 'archived_at': archivedAt,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GoalsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<int>? targetMinor,
+    Value<String>? currency,
+    Value<GoalKind>? kind,
+    Value<String>? linkedAccountIds,
+    Value<LocalDate?>? targetDate,
+    Value<LocalDate>? createdOn,
+    Value<String?>? note,
+    Value<DateTime?>? archivedAt,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return GoalsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      targetMinor: targetMinor ?? this.targetMinor,
+      currency: currency ?? this.currency,
+      kind: kind ?? this.kind,
+      linkedAccountIds: linkedAccountIds ?? this.linkedAccountIds,
+      targetDate: targetDate ?? this.targetDate,
+      createdOn: createdOn ?? this.createdOn,
+      note: note ?? this.note,
+      archivedAt: archivedAt ?? this.archivedAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (targetMinor.present) {
+      map['target_minor'] = Variable<int>(targetMinor.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(
+        $GoalsTable.$converterkind.toSql(kind.value),
+      );
+    }
+    if (linkedAccountIds.present) {
+      map['linked_account_ids'] = Variable<String>(linkedAccountIds.value);
+    }
+    if (targetDate.present) {
+      map['target_date'] = Variable<String>(
+        $GoalsTable.$convertertargetDaten.toSql(targetDate.value),
+      );
+    }
+    if (createdOn.present) {
+      map['created_on'] = Variable<String>(
+        $GoalsTable.$convertercreatedOn.toSql(createdOn.value),
+      );
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (archivedAt.present) {
+      map['archived_at'] = Variable<int>(
+        $GoalsTable.$converterarchivedAtn.toSql(archivedAt.value),
+      );
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(
+        $GoalsTable.$convertercreatedAt.toSql(createdAt.value),
+      );
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(
+        $GoalsTable.$converterupdatedAt.toSql(updatedAt.value),
+      );
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(
+        $GoalsTable.$converterdeletedAtn.toSql(deletedAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('targetMinor: $targetMinor, ')
+          ..write('currency: $currency, ')
+          ..write('kind: $kind, ')
+          ..write('linkedAccountIds: $linkedAccountIds, ')
+          ..write('targetDate: $targetDate, ')
+          ..write('createdOn: $createdOn, ')
+          ..write('note: $note, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GoalContributionsTable extends GoalContributions
+    with TableInfo<$GoalContributionsTable, GoalContributionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GoalContributionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _goalIdMeta = const VerificationMeta('goalId');
+  @override
+  late final GeneratedColumn<String> goalId = GeneratedColumn<String>(
+    'goal_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate, String> date =
+      GeneratedColumn<String>(
+        'date',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<LocalDate>($GoalContributionsTable.$converterdate);
+  static const VerificationMeta _amountMinorMeta = const VerificationMeta(
+    'amountMinor',
+  );
+  @override
+  late final GeneratedColumn<int> amountMinor = GeneratedColumn<int>(
+    'amount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _currencyMeta = const VerificationMeta(
+    'currency',
+  );
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> createdAt =
+      GeneratedColumn<int>(
+        'created_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($GoalContributionsTable.$convertercreatedAt);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> updatedAt =
+      GeneratedColumn<int>(
+        'updated_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($GoalContributionsTable.$converterupdatedAt);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime?, int> deletedAt =
+      GeneratedColumn<int>(
+        'deleted_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<DateTime?>($GoalContributionsTable.$converterdeletedAtn);
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    goalId,
+    date,
+    amountMinor,
+    currency,
+    note,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'goal_contributions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GoalContributionRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('goal_id')) {
+      context.handle(
+        _goalIdMeta,
+        goalId.isAcceptableOrUnknown(data['goal_id']!, _goalIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_goalIdMeta);
+    }
+    if (data.containsKey('amount_minor')) {
+      context.handle(
+        _amountMinorMeta,
+        amountMinor.isAcceptableOrUnknown(
+          data['amount_minor']!,
+          _amountMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMinorMeta);
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_currencyMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GoalContributionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GoalContributionRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      goalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}goal_id'],
+      )!,
+      date: $GoalContributionsTable.$converterdate.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}date'],
+        )!,
+      ),
+      amountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount_minor'],
+      )!,
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      )!,
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      createdAt: $GoalContributionsTable.$convertercreatedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}created_at'],
+        )!,
+      ),
+      updatedAt: $GoalContributionsTable.$converterupdatedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}updated_at'],
+        )!,
+      ),
+      deletedAt: $GoalContributionsTable.$converterdeletedAtn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}deleted_at'],
+        ),
+      ),
+    );
+  }
+
+  @override
+  $GoalContributionsTable createAlias(String alias) {
+    return $GoalContributionsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<LocalDate, String> $converterdate =
+      const LocalDateColumnConverter();
+  static TypeConverter<DateTime, int> $convertercreatedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime, int> $converterupdatedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime, int> $converterdeletedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime?, int?> $converterdeletedAtn =
+      NullAwareTypeConverter.wrap($converterdeletedAt);
+}
+
+class GoalContributionRow extends DataClass
+    implements Insertable<GoalContributionRow> {
+  final String id;
+  final String goalId;
+  final LocalDate date;
+  final int amountMinor;
+  final String currency;
+  final String? note;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const GoalContributionRow({
+    required this.id,
+    required this.goalId,
+    required this.date,
+    required this.amountMinor,
+    required this.currency,
+    this.note,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['goal_id'] = Variable<String>(goalId);
+    {
+      map['date'] = Variable<String>(
+        $GoalContributionsTable.$converterdate.toSql(date),
+      );
+    }
+    map['amount_minor'] = Variable<int>(amountMinor);
+    map['currency'] = Variable<String>(currency);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    {
+      map['created_at'] = Variable<int>(
+        $GoalContributionsTable.$convertercreatedAt.toSql(createdAt),
+      );
+    }
+    {
+      map['updated_at'] = Variable<int>(
+        $GoalContributionsTable.$converterupdatedAt.toSql(updatedAt),
+      );
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(
+        $GoalContributionsTable.$converterdeletedAtn.toSql(deletedAt),
+      );
+    }
+    return map;
+  }
+
+  GoalContributionsCompanion toCompanion(bool nullToAbsent) {
+    return GoalContributionsCompanion(
+      id: Value(id),
+      goalId: Value(goalId),
+      date: Value(date),
+      amountMinor: Value(amountMinor),
+      currency: Value(currency),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory GoalContributionRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GoalContributionRow(
+      id: serializer.fromJson<String>(json['id']),
+      goalId: serializer.fromJson<String>(json['goalId']),
+      date: serializer.fromJson<LocalDate>(json['date']),
+      amountMinor: serializer.fromJson<int>(json['amountMinor']),
+      currency: serializer.fromJson<String>(json['currency']),
+      note: serializer.fromJson<String?>(json['note']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'goalId': serializer.toJson<String>(goalId),
+      'date': serializer.toJson<LocalDate>(date),
+      'amountMinor': serializer.toJson<int>(amountMinor),
+      'currency': serializer.toJson<String>(currency),
+      'note': serializer.toJson<String?>(note),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  GoalContributionRow copyWith({
+    String? id,
+    String? goalId,
+    LocalDate? date,
+    int? amountMinor,
+    String? currency,
+    Value<String?> note = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => GoalContributionRow(
+    id: id ?? this.id,
+    goalId: goalId ?? this.goalId,
+    date: date ?? this.date,
+    amountMinor: amountMinor ?? this.amountMinor,
+    currency: currency ?? this.currency,
+    note: note.present ? note.value : this.note,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  GoalContributionRow copyWithCompanion(GoalContributionsCompanion data) {
+    return GoalContributionRow(
+      id: data.id.present ? data.id.value : this.id,
+      goalId: data.goalId.present ? data.goalId.value : this.goalId,
+      date: data.date.present ? data.date.value : this.date,
+      amountMinor: data.amountMinor.present
+          ? data.amountMinor.value
+          : this.amountMinor,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      note: data.note.present ? data.note.value : this.note,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalContributionRow(')
+          ..write('id: $id, ')
+          ..write('goalId: $goalId, ')
+          ..write('date: $date, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('currency: $currency, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    goalId,
+    date,
+    amountMinor,
+    currency,
+    note,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GoalContributionRow &&
+          other.id == this.id &&
+          other.goalId == this.goalId &&
+          other.date == this.date &&
+          other.amountMinor == this.amountMinor &&
+          other.currency == this.currency &&
+          other.note == this.note &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class GoalContributionsCompanion extends UpdateCompanion<GoalContributionRow> {
+  final Value<String> id;
+  final Value<String> goalId;
+  final Value<LocalDate> date;
+  final Value<int> amountMinor;
+  final Value<String> currency;
+  final Value<String?> note;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const GoalContributionsCompanion({
+    this.id = const Value.absent(),
+    this.goalId = const Value.absent(),
+    this.date = const Value.absent(),
+    this.amountMinor = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.note = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GoalContributionsCompanion.insert({
+    required String id,
+    required String goalId,
+    required LocalDate date,
+    required int amountMinor,
+    required String currency,
+    this.note = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       goalId = Value(goalId),
+       date = Value(date),
+       amountMinor = Value(amountMinor),
+       currency = Value(currency),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<GoalContributionRow> custom({
+    Expression<String>? id,
+    Expression<String>? goalId,
+    Expression<String>? date,
+    Expression<int>? amountMinor,
+    Expression<String>? currency,
+    Expression<String>? note,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (goalId != null) 'goal_id': goalId,
+      if (date != null) 'date': date,
+      if (amountMinor != null) 'amount_minor': amountMinor,
+      if (currency != null) 'currency': currency,
+      if (note != null) 'note': note,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GoalContributionsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? goalId,
+    Value<LocalDate>? date,
+    Value<int>? amountMinor,
+    Value<String>? currency,
+    Value<String?>? note,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return GoalContributionsCompanion(
+      id: id ?? this.id,
+      goalId: goalId ?? this.goalId,
+      date: date ?? this.date,
+      amountMinor: amountMinor ?? this.amountMinor,
+      currency: currency ?? this.currency,
+      note: note ?? this.note,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (goalId.present) {
+      map['goal_id'] = Variable<String>(goalId.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<String>(
+        $GoalContributionsTable.$converterdate.toSql(date.value),
+      );
+    }
+    if (amountMinor.present) {
+      map['amount_minor'] = Variable<int>(amountMinor.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(
+        $GoalContributionsTable.$convertercreatedAt.toSql(createdAt.value),
+      );
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(
+        $GoalContributionsTable.$converterupdatedAt.toSql(updatedAt.value),
+      );
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(
+        $GoalContributionsTable.$converterdeletedAtn.toSql(deletedAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalContributionsCompanion(')
+          ..write('id: $id, ')
+          ..write('goalId: $goalId, ')
+          ..write('date: $date, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('currency: $currency, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $AccountsTable accounts = $AccountsTable(this);
@@ -15057,6 +16394,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $BalanceSnapshotsTable balanceSnapshots = $BalanceSnapshotsTable(
     this,
   );
+  late final $GoalsTable goals = $GoalsTable(this);
+  late final $GoalContributionsTable goalContributions =
+      $GoalContributionsTable(this);
   late final Index transactionsAccountDate = Index(
     'transactions_account_date',
     'CREATE INDEX transactions_account_date ON transactions (account_id, date)',
@@ -15113,6 +16453,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'balance_snapshots_date',
     'CREATE INDEX balance_snapshots_date ON balance_snapshots (date)',
   );
+  late final Index goalContributionsGoal = Index(
+    'goal_contributions_goal',
+    'CREATE INDEX goal_contributions_goal ON goal_contributions (goal_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -15144,6 +16488,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     holdings,
     investmentTransactions,
     balanceSnapshots,
+    goals,
+    goalContributions,
     transactionsAccountDate,
     transactionsUserCategory,
     transactionsPendingTransaction,
@@ -15158,6 +16504,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     billsDueDate,
     investmentTransactionsAccountDate,
     balanceSnapshotsDate,
+    goalContributionsGoal,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

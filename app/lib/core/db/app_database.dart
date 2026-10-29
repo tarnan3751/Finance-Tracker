@@ -28,7 +28,10 @@
 /// investment accounts' securities, holdings and investment transactions (`securities`,
 /// `holdings`, `investment_transactions`, server-authoritative) and the daily balance
 /// snapshots this device observes (`balance_snapshots`, local only); its migration
-/// creates the empty tables. The full-text index (`full_text_search.dart`)
+/// creates the empty tables. Schema 12 adds the user's savings goals (`goals`, synced as the
+/// `goal` record) and their contributions (`goal_contributions`, each synced as a
+/// `goal_contribution` record of its own); its migration materializes the records of
+/// both that sync held. The full-text index (`full_text_search.dart`)
 /// is not part of a schema step: `beforeOpen` makes it match whether the bundled SQLite
 /// has FTS5, at every open, and records that in [AppDatabase.fullTextSearch]. Every
 /// schema change follows the procedure
@@ -60,6 +63,8 @@ import 'package:finance_tracker/core/db/tables/budgets.dart';
 import 'package:finance_tracker/core/db/tables/categories.dart';
 import 'package:finance_tracker/core/db/tables/change_log.dart';
 import 'package:finance_tracker/core/db/tables/dismissed_pairs.dart';
+import 'package:finance_tracker/core/db/tables/goal_contributions.dart';
+import 'package:finance_tracker/core/db/tables/goals.dart';
 import 'package:finance_tracker/core/db/tables/held_records.dart';
 import 'package:finance_tracker/core/db/tables/holdings.dart';
 import 'package:finance_tracker/core/db/tables/investment_transactions.dart';
@@ -118,6 +123,8 @@ final Logger _log = Logger('db');
     Holdings,
     InvestmentTransactions,
     BalanceSnapshots,
+    Goals,
+    GoalContributions,
   ],
 )
 final class AppDatabase extends _$AppDatabase {
@@ -153,7 +160,7 @@ final class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -260,6 +267,22 @@ final class AppDatabase extends _$AppDatabase {
           await _createIndex(m, investmentTransactionsAccountDate);
           await m.createTable(balanceSnapshots);
           await _createIndex(m, balanceSnapshotsDate);
+        });
+      }
+      if (from < 12) {
+        // One transaction: the tables, and the goals and contributions another device
+        // recorded before this version could store them (held as unsupported_type), land
+        // together.
+        await transaction(() async {
+          await m.createTable(goals);
+          await m.createTable(goalContributions);
+          await _createIndex(m, goalContributionsGoal);
+          final DriftSyncStore store = DriftSyncStore(
+            this,
+            _WallClock(wallMillis),
+          );
+          await releaseHeldRecords(store, EntityType.goal);
+          await releaseHeldRecords(store, EntityType.goalContribution);
         });
       }
     },
