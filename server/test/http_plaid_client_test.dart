@@ -925,6 +925,20 @@ void main() {
       );
       // 253.125 rounds half-even to 253.12.
       expect(holding!['institution_value_minor'], 25312);
+      // Plaid's buy of 200 (positive, money out) is stored and served in our sign.
+      final stored = await server.app.db.read(
+        (tx) => tx.first('SELECT amount_minor FROM investment_transactions'),
+      );
+      expect(stored!['amount_minor'], -20000);
+      final served = await server.call(
+        'get',
+        '/investments/transactions',
+        token: ada.access,
+      );
+      expect(
+        (served.json['investment_transactions']! as List<Object?>).single,
+        containsPair('amount', {'minor_units': -20000, 'currency': 'USD'}),
+      );
     });
 
     test('a full flow logs no key, secret or token', () async {

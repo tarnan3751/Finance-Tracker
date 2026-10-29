@@ -138,7 +138,7 @@ void main() {
     // Before any sync the Item has no accounts; the balance call brings them.
     final r = await post('/plaid/items/$itemId/balances');
     expect(r.status, 200, reason: '$r');
-    expect(r.list, hasLength(3));
+    expect(r.list, hasLength(4));
     server.clock.advance(const Duration(minutes: 10));
     final again = await post('/plaid/items/$itemId/balances');
     expect(again.status, 200, reason: '$again');

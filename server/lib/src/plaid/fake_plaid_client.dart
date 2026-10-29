@@ -18,8 +18,11 @@
 /// (`override_username: user_custom`) is built from its configuration instead of a
 /// fixture: its accounts (`starting_balance` as the current balance) and transactions,
 /// at any of the persona engine's institutions, with no liabilities, recurring streams or
-/// investments. Custom users and transactions created through Sandbox calls live only as
-/// long as the process. The test hooks ([failNext], [onCall], [lateHistoryAfter],
+/// investments. A fixture's `investments` (holdings, securities and investment
+/// transactions, amounts in Plaid's sign) are served by `investmentsHoldingsGet` and,
+/// within the requested dates, `investmentsTransactionsGet`. Custom users and
+/// transactions created through Sandbox calls live only as long as the process. The
+/// test hooks ([failNext], [onCall], [lateHistoryAfter],
 /// [modifyTransaction], [removeTransaction], [repairLogin], [addWebhookKey]) script what
 /// Sandbox would do. `institutionsGetById` answers a fixture's institution, with its logo
 /// and colour only when the fixture carries them.
@@ -344,8 +347,14 @@ final class FakePlaidClient implements PlaidClient {
   @override
   Future<PlaidHoldings> investmentsHoldingsGet(String accessToken) async {
     await _maybeFail('investmentsHoldingsGet');
-    _healthyItem(accessToken);
-    return (holdings: <PlaidHolding>[], securities: <PlaidSecurity>[]);
+    final investments = _healthyItem(accessToken).investments;
+    return (
+      holdings: [
+        for (final h in investments['holdings']! as List<Object?>)
+          PlaidHolding.fromPlaidJson(h! as Map<String, Object?>),
+      ],
+      securities: _securities(investments),
+    );
   }
 
   @override
@@ -355,12 +364,28 @@ final class FakePlaidClient implements PlaidClient {
     required LocalDate end,
   }) async {
     await _maybeFail('investmentsTransactionsGet');
-    _healthyItem(accessToken);
+    final investments = _healthyItem(accessToken).investments;
+    // As Plaid does, only the rows dated within the window.
     return (
-      transactions: <PlaidInvestmentTransaction>[],
-      securities: <PlaidSecurity>[],
+      transactions: [
+        for (final t
+            in investments['investment_transactions']! as List<Object?>)
+          if (PlaidInvestmentTransaction.fromPlaidJson(
+                t! as Map<String, Object?>,
+              )
+              case final transaction
+              when !transaction.date.isBefore(start) &&
+                  !transaction.date.isAfter(end))
+            transaction,
+      ],
+      securities: _securities(investments),
     );
   }
+
+  static List<PlaidSecurity> _securities(Map<String, Object?> investments) => [
+    for (final s in investments['securities']! as List<Object?>)
+      PlaidSecurity.fromPlaidJson(s! as Map<String, Object?>),
+  ];
 
   @override
   Future<PlaidRecurring> transactionsRecurringGet(
@@ -605,6 +630,19 @@ final class _FakeItem {
   int? visible;
   bool loginRequired = false;
   bool removed = false;
+
+  /// The fixture's holdings, securities and investment transactions in Plaid's shapes
+  /// (amounts in Plaid's sign), ids prefixed as the accounts' are; empty when it has
+  /// none.
+  late final Map<String, Object?> investments = _prefix(
+    fixture['investments'] as Map<String, Object?>? ??
+        const {
+          'holdings': <Object?>[],
+          'securities': <Object?>[],
+          'investment_transactions': <Object?>[],
+        },
+    const ['account_id', 'investment_transaction_id'],
+  );
 
   /// Plaid's ids are unique per Item; the fixture's short ids are prefixed with the
   /// Item's, at every depth.

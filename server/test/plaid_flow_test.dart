@@ -1,6 +1,7 @@
 // The Plaid proxy and the data endpoints with the fake client: link token, exchange, a
-// NOT_READY sync, a completed sync, then accounts, transactions, liabilities and recurring
-// streams visible with source demo and increasing versions; and the paths around them.
+// NOT_READY sync, a completed sync, then accounts, transactions, liabilities, recurring
+// streams and investments visible with source demo and increasing versions; and the paths
+// around them.
 import 'dart:convert';
 
 import 'package:finance_tracker_server/server.dart';
@@ -121,9 +122,9 @@ void main() {
     )).list.cast<Map<String, Object?>>();
     expect(
       [for (final a in accounts) a['name']],
-      ['Plaid Checking', 'Plaid Saving', 'Plaid Credit Card'],
+      ['Plaid Checking', 'Plaid Saving', 'Plaid Credit Card', 'Plaid 401k'],
     );
-    expect([for (final a in accounts) a['display_order']], [0, 1, 2]);
+    expect([for (final a in accounts) a['display_order']], [0, 1, 2, 3]);
     final credit = accounts[2];
     expect(credit['type'], 'credit');
     // Plaid reports the card owing 410.27; stored in the app's sign.
@@ -181,13 +182,69 @@ void main() {
       '/investments/holdings',
       token: ada.access,
     );
-    expect(holdings.json, {'holdings': <Object?>[], 'securities': <Object?>[]});
+    final retirement = accounts[3];
+    expect(retirement['type'], 'investment');
+    expect(retirement['current_balance'], {
+      'minor_units': 554763,
+      'currency': 'USD',
+    });
+    final held = (holdings.json['holdings']! as List<Object?>)
+        .cast<Map<String, Object?>>();
+    expect(
+      [for (final h in held) h['security_id']],
+      ['sec_bnd', 'sec_vti', 'sec_vxus'],
+    );
+    expect(held.first, {
+      'account_id': retirement['id'],
+      'security_id': 'sec_bnd',
+      'quantity': '7.5579',
+      'institution_price': '70.80',
+      'institution_price_as_of': '2026-10-23',
+      'institution_value': {'minor_units': 53510, 'currency': 'USD'},
+      'cost_basis': {'minor_units': 54000, 'currency': 'USD'},
+      'currency_code': 'USD',
+      'source': 'demo',
+    });
+    // The holdings' values are the account's reported balance: the 401k holds no cash.
+    expect(
+      held.fold<int>(
+        0,
+        (sum, h) =>
+            sum + ((h['institution_value']! as Map)['minor_units']! as int),
+      ),
+      554763,
+    );
+    final securities = (holdings.json['securities']! as List<Object?>)
+        .cast<Map<String, Object?>>();
+    expect(
+      [for (final s in securities) s['ticker_symbol']],
+      ['BND', 'VTI', 'VXUS'],
+    );
+    expect(securities.map((s) => s['source']).toSet(), {'demo'});
     final investments = await server.call(
       'get',
       '/investments/transactions',
       token: ada.access,
     );
-    expect(investments.json['investment_transactions'], isEmpty);
+    final rows = (investments.json['investment_transactions']! as List<Object?>)
+        .cast<Map<String, Object?>>();
+    expect(rows, hasLength(48));
+    expect(
+      [for (final t in rows) t['sync_version']],
+      [for (var v = 13; v <= 60; v++) v],
+    );
+    expect(rows.map((t) => t['source']).toSet(), {'demo'});
+    expect(rows.map((t) => t['account_id']).toSet(), {retirement['id']});
+    // In the app's sign: Plaid's contribution of -450 is money in, a buy money out.
+    final contribution = rows.firstWhere((t) => t['type'] == 'cash');
+    expect(contribution['amount'], {'minor_units': 45000, 'currency': 'USD'});
+    expect(contribution['security_id'], isNull);
+    final buy = rows.firstWhere((t) => t['name'] == 'BUY VTI');
+    expect(buy['amount'], {'minor_units': -27000, 'currency': 'USD'});
+    expect(buy['security_id'], 'sec_vti');
+    expect(buy['quantity'], '0.9643');
+    expect(buy['price'], '280.00');
+    expect(buy['fees'], {'minor_units': 0, 'currency': 'USD'});
 
     // Nothing the fake client produced is stored as plaid.
     await server.app.db.read((tx) {
@@ -244,8 +301,15 @@ void main() {
       await sync(itemId);
       await sync(itemId);
       final token = await accessTokenOf(itemId);
-      final before = await transactions();
-      final last = before.last['sync_version']! as int;
+      await transactions();
+      // The investment transactions took versions after the transactions'.
+      final last =
+          (await server.call(
+                'get',
+                '/investments/transactions',
+                token: ada.access,
+              )).json['next_since']!
+              as int;
 
       await server.plaid.sandboxTransactionsCreate(token, [
         (
@@ -323,7 +387,7 @@ void main() {
     for (final path in ['/transactions', '/investments/transactions']) {
       final beyond = await server.call(
         'get',
-        '$path?since=13',
+        '$path?since=61',
         token: ada.access,
       );
       expect(beyond.status, 409, reason: path);
@@ -532,7 +596,7 @@ void main() {
       '/accounts',
       token: ada.access,
     )).list;
-    expect(accounts, hasLength(3));
+    expect(accounts, hasLength(4));
     expect({for (final a in accounts) (a! as Map)['item_id']}, {kept});
     final txns = await transactions();
     expect(txns, hasLength(12));
@@ -551,8 +615,83 @@ void main() {
       '/investments/transactions',
       token: ada.access,
     );
-    expect(investments.json['investment_transactions'], isEmpty);
+    final rows = investments.json['investment_transactions']! as List<Object?>;
+    expect(rows, hasLength(48));
+    expect(
+      {for (final t in rows) (t! as Map)['account_id']},
+      {
+        for (final a in accounts.cast<Map<String, Object?>>())
+          if (a['type'] == 'investment') a['id'],
+      },
+    );
+    final holdings = await server.call(
+      'get',
+      '/investments/holdings',
+      token: ada.access,
+    );
+    expect(holdings.json['holdings'], hasLength(3));
+    expect(holdings.json['securities'], hasLength(3));
   });
+
+  test(
+    'investments: holdings replaced, a later window, versions on change only',
+    () async {
+      final itemId = await link();
+      await sync(itemId);
+      await sync(itemId);
+      Future<Map<String, Object?>> page() async => (await server.call(
+        'get',
+        '/investments/transactions',
+        token: ada.access,
+      )).json;
+      final first = await page();
+      final top = first['next_since']! as int;
+      // What a later fetch must put right, and what it must leave: a holding and two
+      // stored rows changed behind its back, one dated inside the next window (from
+      // the last fetch less 30 days, 2026-09-24) and one before it.
+      await server.app.db.transaction((tx) async {
+        tx.execute("UPDATE holdings SET quantity = '1' WHERE security_id = ?", [
+          'sec_vti',
+        ]);
+        tx.execute(
+          'UPDATE investment_transactions SET amount_minor = 1 '
+          "WHERE name = 'BUY VTI' AND date IN ('2026-10-07', '2026-09-07')",
+        );
+      });
+      await sync(itemId);
+      final holdings = await server.call(
+        'get',
+        '/investments/holdings',
+        token: ada.access,
+      );
+      final held = (holdings.json['holdings']! as List<Object?>)
+          .cast<Map<String, Object?>>();
+      expect(held, hasLength(3));
+      expect(
+        held.firstWhere((h) => h['security_id'] == 'sec_vti')['quantity'],
+        '11.2439',
+      );
+      final changed = await server.call(
+        'get',
+        '/investments/transactions?since=$top',
+        token: ada.access,
+      );
+      final rows = (changed.json['investment_transactions']! as List<Object?>)
+          .cast<Map<String, Object?>>();
+      // Only the row inside the window that differed from Plaid's takes a version.
+      expect(rows, hasLength(1));
+      expect(rows.single['date'], '2026-10-07');
+      expect(rows.single['amount'], {'minor_units': -27000, 'currency': 'USD'});
+      expect(rows.single['sync_version'], top + 1);
+      final before = await server.app.db.read(
+        (tx) => tx.first(
+          'SELECT amount_minor FROM investment_transactions '
+          "WHERE name = 'BUY VTI' AND date = '2026-09-07'",
+        ),
+      );
+      expect(before!['amount_minor'], 1);
+    },
+  );
 
   test('pages /transactions/sync by count', () async {
     final itemId = await link();
