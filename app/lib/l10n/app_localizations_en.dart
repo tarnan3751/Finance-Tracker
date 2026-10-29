@@ -28,6 +28,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planForecast => 'Forecast';
 
   @override
+  String get navInsights => 'Insights';
+
+  @override
+  String get insightsReports => 'Reports';
+
+  @override
+  String get insightsNetWorth => 'Net worth';
+
+  @override
+  String get insightsInvestments => 'Investments';
+
+  @override
+  String get insightsGoals => 'Goals';
+
+  @override
+  String get insightsComingHeadline => 'Coming soon';
+
+  @override
+  String get insightsComingBody => 'This part of Insights is on its way.';
+
+  @override
   String get navSettings => 'Settings';
 
   @override

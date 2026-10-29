@@ -130,6 +130,48 @@ abstract class AppLocalizations {
   /// **'Forecast'**
   String get planForecast;
 
+  /// Label of the Insights tab in the bottom navigation bar (reports, net worth, investments and goals), and the title of each of its screens.
+  ///
+  /// In en, this message translates to:
+  /// **'Insights'**
+  String get navInsights;
+
+  /// The Insights tab's segment that shows the spending and income reports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get insightsReports;
+
+  /// The Insights tab's segment that shows net worth over time.
+  ///
+  /// In en, this message translates to:
+  /// **'Net worth'**
+  String get insightsNetWorth;
+
+  /// The Insights tab's segment that shows the holdings.
+  ///
+  /// In en, this message translates to:
+  /// **'Investments'**
+  String get insightsInvestments;
+
+  /// The Insights tab's segment that shows the savings goals.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals'**
+  String get insightsGoals;
+
+  /// Headline of an Insights segment whose content is not available yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get insightsComingHeadline;
+
+  /// Body of an Insights segment whose content is not available yet.
+  ///
+  /// In en, this message translates to:
+  /// **'This part of Insights is on its way.'**
+  String get insightsComingBody;
+
   /// Label of the Settings tab in the bottom navigation bar, and the title of the Settings screen.
   ///
   /// In en, this message translates to:

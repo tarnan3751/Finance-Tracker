@@ -167,6 +167,7 @@ final Map<String, _Screen> _screens = {
   ),
   'New bill': (location: '/bills/new', seeded: true, open: null),
   'Forecast': (location: '/forecast', seeded: true, open: null),
+  'Insights placeholder': (location: '/goals', seeded: false, open: null),
   'Subscriptions': (location: '/bills/subscriptions', seeded: true, open: null),
   'Subscriptions, folded sections open': (
     location: '/bills/subscriptions',

@@ -138,6 +138,35 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
     StatefulShellBranchData.$branch(
       routes: [
         GoRouteData.$route(
+          path: '/insights',
+          hasOverriddenOnExit: false,
+          factory: $InsightsRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/reports',
+          hasOverriddenOnExit: false,
+          factory: $ReportsRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/net-worth',
+          hasOverriddenOnExit: false,
+          factory: $NetWorthRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/investments',
+          hasOverriddenOnExit: false,
+          factory: $InvestmentsRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/goals',
+          hasOverriddenOnExit: false,
+          factory: $GoalsRoute._fromState,
+        ),
+      ],
+    ),
+    StatefulShellBranchData.$branch(
+      routes: [
+        GoRouteData.$route(
           path: '/settings',
           hasOverriddenOnExit: false,
           factory: $SettingsRoute._fromState,
@@ -600,6 +629,107 @@ mixin $ForecastRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/forecast');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $InsightsRoute on GoRouteData {
+  static InsightsRoute _fromState(GoRouterState state) => const InsightsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/insights');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $ReportsRoute on GoRouteData {
+  static ReportsRoute _fromState(GoRouterState state) => const ReportsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/reports');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $NetWorthRoute on GoRouteData {
+  static NetWorthRoute _fromState(GoRouterState state) => const NetWorthRoute();
+
+  @override
+  String get location => GoRouteData.$location('/net-worth');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $InvestmentsRoute on GoRouteData {
+  static InvestmentsRoute _fromState(GoRouterState state) =>
+      const InvestmentsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/investments');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $GoalsRoute on GoRouteData {
+  static GoalsRoute _fromState(GoRouterState state) => const GoalsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/goals');
 
   @override
   void go(BuildContext context) => context.go(location);

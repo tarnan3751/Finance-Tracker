@@ -205,8 +205,8 @@ demo's alert store is in memory).
 
 ## Screens
 
-`presentation/`. The budgets are the Budgets segment of the Plan tab, the third of four,
-between Transactions and Settings (`app-core.md`, **The Plan tab**): each screen below is
+`presentation/`. The budgets are the Budgets segment of the Plan tab, the third of five,
+between Transactions and Insights (`app-core.md`, **The Plan tab**): each screen below is
 under the "Plan" app bar and the segment control.
 
 **The list** (`/budgets`, `budgets_screen.dart`). At the top is the period selector

@@ -263,7 +263,7 @@ relaunch under the define re-applies its rows over local edits of those `demo` r
 ## Routing and the shell
 
 Typed routes through `go_router_builder` (`core/router/routes.dart`, generated
-`routes.g.dart`): a `TypedStatefulShellRoute<AppShellRoute>` with four branches, each
+`routes.g.dart`): a `TypedStatefulShellRoute<AppShellRoute>` with five branches, each
 keeping its own navigation stack.
 
 | Tab | Route class | Path | Screen |
@@ -287,6 +287,11 @@ keeping its own navigation stack.
 | | `SubscriptionsRoute` | `/bills/subscriptions` | `features/recurring/presentation/subscriptions_screen.dart` (`recurring.md`) |
 | | `EditBillRoute` | `/bills/:id` | `bill_editor_screen.dart`, where a tapped reminder opens it |
 | | `ForecastRoute` | `/forecast` | the Forecast segment: `ForecastView` (`features/forecast/presentation/forecast_view.dart`, `forecast.md`) with its Choose accounts action |
+| Insights | `InsightsRoute` | `/insights` | redirects to `/reports` |
+| | `ReportsRoute` | `/reports` | the Reports segment |
+| | `NetWorthRoute` | `/net-worth` | the Net worth segment: a placeholder until net worth lands |
+| | `InvestmentsRoute` | `/investments` | the Investments segment: a placeholder until the holdings screen lands |
+| | `GoalsRoute` | `/goals` | the Goals segment: a placeholder until goals land |
 | Settings | `SettingsRoute` | `/settings` | `features/settings/presentation/settings_screen.dart` |
 | | `CategoriesRoute` | `/settings/categories` | `features/categories/presentation/categories_screen.dart` |
 | | `NewCategoryRoute` | `/settings/categories/new` | `category_editor_screen.dart` |
@@ -334,6 +339,16 @@ keeping its own navigation stack.
   `NoTransitionPage`s, so the switch reads as one screen changing its content. Every
   `/budgets...` and `/bills...` route opens inside the tab. The tab's icon carries a
   badge with the number of missed bills (`bills.md`, **Screens**).
+- **The Insights tab** (`PLAN.md` §12 "Insights tab"). The fourth tab's branch
+  (`InsightsBranch`) has four roots, one per segment: `/reports`, `/net-worth`,
+  `/investments` and `/goals`. Its first route, `/insights`, redirects to `/reports`.
+  Each segment's screen is an `InsightsScaffold` (`core/router/insights_scaffold.dart`),
+  laid out as `PlanScaffold` is: the "Insights" app bar with the segment's actions, then
+  the Reports | Net worth | Investments | Goals `SegmentedButton` at the top of the body.
+  Four labels do not fit a phone's width, so the control scrolls sideways and opens
+  scrolled to the segment shown. A segment whose feature has not landed shows
+  `InsightsPlaceholder` ("Coming soon"). The roots are `NoTransitionPage`s. Settings is
+  the fifth tab.
 - **Snack bars.** Each branch has its own `ScaffoldMessenger`, so a snack bar shown from a
   tab (`ScaffoldMessenger.of(context)` in any of its screens) appears in that tab's screen
   `Scaffold`: above the navigation bar, lifting the screen's floating button rather than

@@ -6,6 +6,7 @@
 /// | Accounts | `/accounts`, `/accounts/new`, `/accounts/linked-banks`, `/accounts/:id`, `/accounts/:id/edit` |
 /// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/duplicates`, `/transactions/:id` |
 /// | Plan | `/plan` (redirects to `/budgets`); `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new?stream-id=<id>`, `/bills/new?liability-account-id=<id>`, `/bills/subscriptions`, `/bills/:id`; `/forecast` |
+/// | Insights | `/insights` (redirects to `/reports`); `/reports`; `/net-worth`; `/investments`; `/goals` |
 /// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
@@ -19,10 +20,13 @@
 /// The Plan tab's branch has three roots, one per segment (`/budgets`, `/bills`,
 /// `/forecast`), each a `PlanScaffold` (`plan_scaffold.dart`) built without a page
 /// transition; `/plan` comes first, so the tab opens on Budgets and returns there when
-/// tapped again.
+/// tapped again. The Insights tab's branch is laid out the same way, with four roots
+/// (`/reports`, `/net-worth`, `/investments`, `/goals`), each an `InsightsScaffold`
+/// (`insights_scaffold.dart`), and `/insights` first.
 library;
 
 import 'package:finance_tracker/core/router/app_shell.dart';
+import 'package:finance_tracker/core/router/insights_scaffold.dart';
 import 'package:finance_tracker/core/router/plan_scaffold.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_detail_screen.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_editor_screen.dart';
@@ -51,7 +55,7 @@ import 'package:go_router/go_router.dart';
 
 part 'routes.g.dart';
 
-/// The shell around the four tabs.
+/// The shell around the five tabs.
 @TypedStatefulShellRoute<AppShellRoute>(
   branches: <TypedStatefulShellBranch<StatefulShellBranchData>>[
     TypedStatefulShellBranch<AccountsBranch>(
@@ -113,6 +117,16 @@ part 'routes.g.dart';
         TypedGoRoute<ForecastRoute>(path: '/forecast'),
       ],
     ),
+    TypedStatefulShellBranch<InsightsBranch>(
+      routes: <TypedRoute<RouteData>>[
+        // First, so it is the branch's first location: the tab opens on Reports.
+        TypedGoRoute<InsightsRoute>(path: '/insights'),
+        TypedGoRoute<ReportsRoute>(path: '/reports'),
+        TypedGoRoute<NetWorthRoute>(path: '/net-worth'),
+        TypedGoRoute<InvestmentsRoute>(path: '/investments'),
+        TypedGoRoute<GoalsRoute>(path: '/goals'),
+      ],
+    ),
     TypedStatefulShellBranch<SettingsBranch>(
       routes: <TypedRoute<RouteData>>[
         TypedGoRoute<SettingsRoute>(
@@ -169,6 +183,11 @@ class TransactionsBranch extends StatefulShellBranchData {
 /// The Plan tab's branch: budgets, bills and the forecast.
 class PlanBranch extends StatefulShellBranchData {
   const PlanBranch();
+}
+
+/// The Insights tab's branch: reports, net worth, investments and goals.
+class InsightsBranch extends StatefulShellBranchData {
+  const InsightsBranch();
 }
 
 /// The Settings tab's branch.
@@ -379,6 +398,73 @@ class ForecastRoute extends GoRouteData with $ForecastRoute {
             actions: forecastAppBarActions(context, ref),
             body: const ForecastView(),
           ),
+        ),
+      );
+}
+
+/// `/insights`: the Insights tab, which opens on its Reports segment.
+class InsightsRoute extends GoRouteData with $InsightsRoute {
+  const InsightsRoute();
+
+  @override
+  String? redirect(BuildContext context, GoRouterState state) =>
+      const ReportsRoute().location;
+}
+
+/// `/reports`: the Insights tab's Reports segment.
+class ReportsRoute extends GoRouteData with $ReportsRoute {
+  const ReportsRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      const NoTransitionPage(
+        child: InsightsScaffold(
+          segment: InsightsSegment.reports,
+          body: InsightsPlaceholder(),
+        ),
+      );
+}
+
+/// `/net-worth`: the Insights tab's Net worth segment (a placeholder until net worth
+/// lands).
+class NetWorthRoute extends GoRouteData with $NetWorthRoute {
+  const NetWorthRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      const NoTransitionPage(
+        child: InsightsScaffold(
+          segment: InsightsSegment.netWorth,
+          body: InsightsPlaceholder(),
+        ),
+      );
+}
+
+/// `/investments`: the Insights tab's Investments segment (a placeholder until the
+/// holdings screen lands).
+class InvestmentsRoute extends GoRouteData with $InvestmentsRoute {
+  const InvestmentsRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      const NoTransitionPage(
+        child: InsightsScaffold(
+          segment: InsightsSegment.investments,
+          body: InsightsPlaceholder(),
+        ),
+      );
+}
+
+/// `/goals`: the Insights tab's Goals segment (a placeholder until goals land).
+class GoalsRoute extends GoRouteData with $GoalsRoute {
+  const GoalsRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      const NoTransitionPage(
+        child: InsightsScaffold(
+          segment: InsightsSegment.goals,
+          body: InsightsPlaceholder(),
         ),
       );
 }

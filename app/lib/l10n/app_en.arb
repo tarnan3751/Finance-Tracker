@@ -24,6 +24,34 @@
   "@planForecast": {
     "description": "The Plan tab's segment that shows the cash-flow forecast."
   },
+  "navInsights": "Insights",
+  "@navInsights": {
+    "description": "Label of the Insights tab in the bottom navigation bar (reports, net worth, investments and goals), and the title of each of its screens."
+  },
+  "insightsReports": "Reports",
+  "@insightsReports": {
+    "description": "The Insights tab's segment that shows the spending and income reports."
+  },
+  "insightsNetWorth": "Net worth",
+  "@insightsNetWorth": {
+    "description": "The Insights tab's segment that shows net worth over time."
+  },
+  "insightsInvestments": "Investments",
+  "@insightsInvestments": {
+    "description": "The Insights tab's segment that shows the holdings."
+  },
+  "insightsGoals": "Goals",
+  "@insightsGoals": {
+    "description": "The Insights tab's segment that shows the savings goals."
+  },
+  "insightsComingHeadline": "Coming soon",
+  "@insightsComingHeadline": {
+    "description": "Headline of an Insights segment whose content is not available yet."
+  },
+  "insightsComingBody": "This part of Insights is on its way.",
+  "@insightsComingBody": {
+    "description": "Body of an Insights segment whose content is not available yet."
+  },
   "navSettings": "Settings",
   "@navSettings": {
     "description": "Label of the Settings tab in the bottom navigation bar, and the title of the Settings screen."

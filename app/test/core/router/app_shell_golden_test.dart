@@ -1,4 +1,4 @@
-// Goldens of the shell: each tab, and each segment of the Plan tab, in light and dark at
+// Goldens of the shell: each tab, and each segment of the Plan and Insights tabs, in light and dark at
 // phone size, the demo shell with its flavor strip below a status bar, and the settings
 // screen at tablet size. Tagged
 // `golden`; see test/flutter_test_config.dart for where the files go and how to update
@@ -31,6 +31,10 @@ const Map<String, String> _tabs = {
   'plan': '/plan',
   'plan_bills': '/bills',
   'plan_forecast': '/forecast',
+  'insights': '/insights',
+  'insights_net_worth': '/net-worth',
+  'insights_investments': '/investments',
+  'insights_goals': '/goals',
   'settings': '/settings',
 };
 
