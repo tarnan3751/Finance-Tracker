@@ -1578,6 +1578,52 @@ final class BillAlertStoreProvider
 
 String _$billAlertStoreHash() => r'150465590c05fac350f8dfe6fbb8e01512a7aadf';
 
+/// The savings goals and their contributions.
+
+@ProviderFor(goalRepository)
+final goalRepositoryProvider = GoalRepositoryProvider._();
+
+/// The savings goals and their contributions.
+
+final class GoalRepositoryProvider
+    extends $FunctionalProvider<GoalRepository, GoalRepository, GoalRepository>
+    with $Provider<GoalRepository> {
+  /// The savings goals and their contributions.
+  GoalRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'goalRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$goalRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<GoalRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  GoalRepository create(Ref ref) {
+    return goalRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GoalRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GoalRepository>(value),
+    );
+  }
+}
+
+String _$goalRepositoryHash() => r'd912513e2d496597d3ea180847b48d8686862c42';
+
 /// The transaction list's saved filters, on this device only.
 
 @ProviderFor(savedFilterRepository)

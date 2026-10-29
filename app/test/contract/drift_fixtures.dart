@@ -9,6 +9,7 @@ import 'package:finance_tracker/features/accounts/data/drift_account_repository.
 import 'package:finance_tracker/features/bills/data/drift_bill_repository.dart';
 import 'package:finance_tracker/features/budgets/data/drift_budget_repository.dart';
 import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
+import 'package:finance_tracker/features/goals/data/drift_goal_repository.dart';
 import 'package:finance_tracker/features/investments/data/drift_holding_repository.dart';
 import 'package:finance_tracker/features/investments/data/drift_investment_transaction_repository.dart';
 import 'package:finance_tracker/features/items/data/drift_item_repository.dart';
@@ -59,6 +60,7 @@ FixtureFactory driftFixtures({bool fullTextSearch = true}) {
         rules: DriftRuleRepository(database, clock, recorder: recorder),
         budgets: DriftBudgetRepository(database, clock, recorder: recorder),
         bills: DriftBillRepository(database, clock, recorder: recorder),
+        goals: DriftGoalRepository(database, clock, recorder: recorder),
         streams: DriftRecurringStreamRepository(
           database,
           clock,

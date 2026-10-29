@@ -67,6 +67,10 @@ import 'package:finance_tracker/features/categories/domain/category_repository.d
 import 'package:finance_tracker/features/duplicates/data/drift_dismissed_pair_store.dart';
 import 'package:finance_tracker/features/duplicates/data/in_memory_dismissed_pair_store.dart';
 import 'package:finance_tracker/features/duplicates/domain/dismissed_pair_store.dart';
+import 'package:finance_tracker/features/goals/data/demo_goal_repository.dart';
+import 'package:finance_tracker/features/goals/data/drift_goal_repository.dart';
+import 'package:finance_tracker/features/goals/data/in_memory_goal_repository.dart';
+import 'package:finance_tracker/features/goals/domain/goal_repository.dart';
 import 'package:finance_tracker/features/investments/data/demo_holding_repository.dart';
 import 'package:finance_tracker/features/investments/data/demo_investment_transaction_repository.dart';
 import 'package:finance_tracker/features/investments/data/drift_holding_repository.dart';
@@ -369,6 +373,17 @@ BillRepository billRepository(Ref ref) {
 @Riverpod(keepAlive: true)
 BillAlertStore billAlertStore(Ref ref) => InMemoryBillAlertStore();
 
+/// The savings goals and their contributions.
+@Riverpod(keepAlive: true)
+GoalRepository goalRepository(Ref ref) {
+  final InMemoryGoalRepository repository = InMemoryGoalRepository(
+    ref.watch(clockProvider),
+    recorder: ref.watch(changeRecorderProvider),
+  );
+  ref.onDispose(repository.close);
+  return repository;
+}
+
 /// The transaction list's saved filters, on this device only.
 @Riverpod(keepAlive: true)
 SavedFilterRepository savedFilterRepository(Ref ref) {
@@ -539,6 +554,13 @@ final List<Override> _driftOverrides = [
   billAlertStoreProvider.overrideWith(
     (ref) => DriftBillAlertStore(ref.watch(databaseProvider)),
   ),
+  goalRepositoryProvider.overrideWith(
+    (ref) => DriftGoalRepository(
+      ref.watch(databaseProvider),
+      ref.watch(clockProvider),
+      recorder: ref.watch(changeRecorderProvider),
+    ),
+  ),
   appMetaStoreProvider.overrideWith(
     (ref) => DriftAppMetaStore(ref.watch(databaseProvider)),
   ),
@@ -656,6 +678,13 @@ final List<Override> _demoOverrides = [
     final DemoRuleRepository repository = DemoRuleRepository(
       ref.watch(clockProvider),
       initial: demoRules(ref.watch(demoPersonaProvider)),
+    );
+    ref.onDispose(repository.close);
+    return repository;
+  }),
+  goalRepositoryProvider.overrideWith((ref) {
+    final DemoGoalRepository repository = DemoGoalRepository(
+      ref.watch(clockProvider),
     );
     ref.onDispose(repository.close);
     return repository;

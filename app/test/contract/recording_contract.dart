@@ -1,5 +1,5 @@
 // The recording contract: every user-authored write of the account, transaction,
-// category, rule, budget, settings and recurring stream repositories records exactly one change-log entry per entity it
+// category, rule, budget, bill, goal, settings and recurring stream repositories records exactly one change-log entry per entity it
 // changed, and nothing else is recorded (Plaid rows only through their six overrides;
 // derived and demo transactions, linked accounts, the seeding and the streams
 // themselves never; a stream's override only as updates). The Drift and
@@ -14,6 +14,7 @@ import 'package:sync_engine/sync_engine.dart';
 
 import 'bill_repository_contract.dart' show testBill;
 import 'budget_repository_contract.dart' show testBudget;
+import 'goal_repository_contract.dart' show testContribution, testGoal;
 import 'recurring_stream_repository_contract.dart' show testStream;
 import 'repository_fixture.dart';
 import 'rule_repository_contract.dart' show testRule;
@@ -380,6 +381,44 @@ void runRecordingContract(
         'minor_units': -150000,
         'currency': 'USD',
       });
+    });
+
+    test('goals and contributions: every write records what it changed, each '
+        'contribution a record of its own', () async {
+      await f.goals.create(testGoal('g1'));
+      expect(await recorded(), [
+        'goal/g1 create archived_at,created_on,id,kind,'
+            'linked_account_ids,name,note,target,target_date',
+      ]);
+      await f.goals.update(testGoal('g1', name: 'Rainy day'));
+      await f.goals.update(testGoal('g1', name: 'Rainy day'));
+      expect(await recorded(), ['goal/g1 update name']);
+      await f.goals.setArchived('g1', archived: true);
+      expect(await recorded(), ['goal/g1 update archived_at']);
+      await f.goals.addContribution(testContribution('c1'));
+      expect(await recorded(), [
+        'goal_contribution/c1 create amount,date,goal_id,id,note',
+      ]);
+      await f.goals.deleteContribution('c1');
+      expect(await recorded(), ['goal_contribution/c1 delete deleted_at']);
+      await f.goals.restoreContribution('c1');
+      expect(await recorded(), ['goal_contribution/c1 update deleted_at']);
+      await f.goals.delete('g1');
+      expect(await recorded(), ['goal/g1 delete deleted_at']);
+      await expectLater(
+        f.goals.addContribution(testContribution('c2')),
+        throwsA(isA<EntityDeletedException>()),
+      );
+      expect(await recorded(), isEmpty);
+      await f.goals.restore('g1');
+      expect(await recorded(), ['goal/g1 update deleted_at']);
+      final EntityRecord record = (await sync.read(EntityType.goal, 'g1'))!;
+      expect(record.isComplete, isTrue);
+      expect(record.fields['target'], {
+        'minor_units': 500000,
+        'currency': 'USD',
+      });
+      expect(record.fields['linked_account_ids'], ['savings', 'checking']);
     });
 
     test(
