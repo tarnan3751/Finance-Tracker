@@ -273,13 +273,15 @@ keeping its own navigation stack.
 | | `NewTransactionRoute` | `/transactions/new?account=<id>` | `transaction_editor_screen.dart` |
 | | `DuplicatesRoute` | `/transactions/duplicates` | `features/duplicates/presentation/duplicate_review_screen.dart` (`duplicates.md`) |
 | | `TransactionRoute` | `/transactions/:id` | `transaction_editor_screen.dart` |
-| Budgets | `BudgetsRoute` | `/budgets` | `features/budgets/presentation/budgets_screen.dart` (`budgets.md`) |
+| Plan | `PlanRoute` | `/plan` | redirects to `/budgets` |
+| | `BudgetsRoute` | `/budgets` | `features/budgets/presentation/budgets_screen.dart` (`budgets.md`), the Budgets segment |
 | | `NewBudgetRoute` | `/budgets/new` | `budget_editor_screen.dart` |
 | | `EditBudgetRoute` | `/budgets/:id` | `budget_editor_screen.dart` |
 | | `BudgetTransactionsRoute` | `/budgets/:id/transactions` | `budget_detail_screen.dart` |
-| | `BillsRoute` | `/bills` | `features/bills/presentation/bills_screen.dart` (`bills.md`), the branch's second root |
+| | `BillsRoute` | `/bills` | `features/bills/presentation/bills_screen.dart` (`bills.md`), the Bills segment |
 | | `NewBillRoute` | `/bills/new` | `bill_editor_screen.dart` |
 | | `EditBillRoute` | `/bills/:id` | `bill_editor_screen.dart`, where a tapped reminder opens it |
+| | `ForecastRoute` | `/forecast` | the Forecast segment |
 | Settings | `SettingsRoute` | `/settings` | `features/settings/presentation/settings_screen.dart` |
 | | `CategoriesRoute` | `/settings/categories` | `features/categories/presentation/categories_screen.dart` |
 | | `NewCategoryRoute` | `/settings/categories/new` | `category_editor_screen.dart` |
@@ -300,13 +302,22 @@ keeping its own navigation stack.
   routes are sub-routes of their branch, so each tab keeps its own stack. `/accounts/new`
   and `/accounts/linked-banks` are declared before `/accounts/:id`, and
   `/transactions/new` and `/transactions/duplicates` before `/transactions/:id`, and
-  `/bills/new` before `/bills/:id`, so none is read as an id. The Budgets branch has two
-  roots, `/budgets` and `/bills`; Phase 5's Plan tab takes the branch over.
+  `/bills/new` before `/bills/:id`, so none is read as an id.
 - Pushing a route of another branch (a transaction from an account's detail or a
   budget's, category management from the category picker) puts it on top of the current tab's stack: the
   selected tab does not change, and back returns where the user was.
 - `AppShell` (`core/router/app_shell.dart`) shows the selected branch above a Material 3
   `NavigationBar`; tapping the current tab again returns it to its first screen.
+- **The Plan tab** (`PLAN.md` §12 "Navigation: the Plan tab", "5e rulings"). The third
+  tab's branch (`PlanBranch`) has three roots, one per segment: `/budgets`, `/bills` and
+  `/forecast`. Its first route, `/plan`, redirects to `/budgets`, so the tab opens on
+  Budgets and tapping it again returns there. Each segment's screen is a `PlanScaffold`
+  (`core/router/plan_scaffold.dart`): the "Plan" app bar with that segment's actions (the
+  alerts bell on Budgets), then the Budgets | Bills | Forecast `SegmentedButton` at the top
+  of the body, where it grows with the text size (the selected check hidden to save
+  width), then the segment's body. Choosing a segment goes to its root; the roots are
+  `NoTransitionPage`s, so the switch reads as one screen changing its content. Every
+  `/budgets...` and `/bills...` route opens inside the tab.
 - **Snack bars.** Each branch has its own `ScaffoldMessenger`, so a snack bar shown from a
   tab (`ScaffoldMessenger.of(context)` in any of its screens) appears in that tab's screen
   `Scaffold`: above the navigation bar, lifting the screen's floating button rather than

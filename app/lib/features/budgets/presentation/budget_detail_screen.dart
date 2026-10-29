@@ -1,5 +1,5 @@
 /// A budget's detail, for `/budgets/:id/transactions`: the period selector (the same
-/// selection as the Budgets tab's), the budget's card for that period, and the
+/// selection as the Budgets segment's), the budget's card for that period, and the
 /// transactions it counts there, newest first; a split counts as its own row, with the
 /// split's amount and category. Edit from the app bar.
 library;

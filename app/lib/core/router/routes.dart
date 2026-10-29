@@ -5,7 +5,7 @@
 /// |---|---|
 /// | Accounts | `/accounts`, `/accounts/new`, `/accounts/linked-banks`, `/accounts/:id`, `/accounts/:id/edit` |
 /// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/duplicates`, `/transactions/:id` |
-/// | Budgets | `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new`, `/bills/:id` |
+/// | Plan | `/plan` (redirects to `/budgets`); `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new`, `/bills/:id`; `/forecast` |
 /// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
@@ -15,9 +15,15 @@
 /// picker) opens it on top of the current tab's stack, and back returns there. Navigate
 /// with the route classes, for example `const SettingsRoute().go(context)`, never with
 /// path strings.
+///
+/// The Plan tab's branch has three roots, one per segment (`/budgets`, `/bills`,
+/// `/forecast`), each a `PlanScaffold` (`plan_scaffold.dart`) built without a page
+/// transition; `/plan` comes first, so the tab opens on Budgets and returns there when
+/// tapped again.
 library;
 
 import 'package:finance_tracker/core/router/app_shell.dart';
+import 'package:finance_tracker/core/router/plan_scaffold.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_detail_screen.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_editor_screen.dart';
 import 'package:finance_tracker/features/accounts/presentation/accounts_screen.dart';
@@ -37,6 +43,7 @@ import 'package:finance_tracker/features/rules/presentation/rules_screen.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_editor_screen.dart';
 import 'package:finance_tracker/features/transactions/presentation/transactions_screen.dart';
+import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -76,8 +83,10 @@ part 'routes.g.dart';
         ),
       ],
     ),
-    TypedStatefulShellBranch<BudgetsBranch>(
+    TypedStatefulShellBranch<PlanBranch>(
       routes: <TypedRoute<RouteData>>[
+        // First, so it is the branch's first location: the tab opens on Budgets.
+        TypedGoRoute<PlanRoute>(path: '/plan'),
         TypedGoRoute<BudgetsRoute>(
           path: '/budgets',
           routes: <TypedRoute<RouteData>>[
@@ -90,7 +99,6 @@ part 'routes.g.dart';
             ),
           ],
         ),
-        // The branch's second root: 5e turns the branch into the Plan tab.
         TypedGoRoute<BillsRoute>(
           path: '/bills',
           routes: <TypedRoute<RouteData>>[
@@ -99,6 +107,7 @@ part 'routes.g.dart';
             TypedGoRoute<EditBillRoute>(path: ':id'),
           ],
         ),
+        TypedGoRoute<ForecastRoute>(path: '/forecast'),
       ],
     ),
     TypedStatefulShellBranch<SettingsBranch>(
@@ -154,9 +163,9 @@ class TransactionsBranch extends StatefulShellBranchData {
   const TransactionsBranch();
 }
 
-/// The Budgets tab's branch.
-class BudgetsBranch extends StatefulShellBranchData {
-  const BudgetsBranch();
+/// The Plan tab's branch: budgets, bills and the forecast.
+class PlanBranch extends StatefulShellBranchData {
+  const PlanBranch();
 }
 
 /// The Settings tab's branch.
@@ -255,13 +264,22 @@ class TransactionRoute extends GoRouteData with $TransactionRoute {
       TransactionEditorScreen(transactionId: id);
 }
 
-/// `/budgets`: the budgets of the selected period.
+/// `/plan`: the Plan tab, which opens on its Budgets segment.
+class PlanRoute extends GoRouteData with $PlanRoute {
+  const PlanRoute();
+
+  @override
+  String? redirect(BuildContext context, GoRouterState state) =>
+      const BudgetsRoute().location;
+}
+
+/// `/budgets`: the Plan tab's Budgets segment, the budgets of the selected period.
 class BudgetsRoute extends GoRouteData with $BudgetsRoute {
   const BudgetsRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const BudgetsScreen();
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      const NoTransitionPage(child: BudgetsScreen());
 }
 
 /// `/budgets/new`: the editor of a new budget.
@@ -296,13 +314,13 @@ class BudgetTransactionsRoute extends GoRouteData
       BudgetDetailScreen(budgetId: id);
 }
 
-/// `/bills`: the bills with their status.
+/// `/bills`: the Plan tab's Bills segment, the bills with their status.
 class BillsRoute extends GoRouteData with $BillsRoute {
   const BillsRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const BillsScreen();
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      const NoTransitionPage(child: BillsScreen());
 }
 
 /// `/bills/new`: the editor of a new bill.
@@ -323,6 +341,28 @@ class EditBillRoute extends GoRouteData with $EditBillRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       BillEditorScreen(billId: id);
+}
+
+/// `/forecast`: the Plan tab's Forecast segment.
+class ForecastRoute extends GoRouteData with $ForecastRoute {
+  const ForecastRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      NoTransitionPage(
+        child: PlanScaffold(
+          segment: PlanSegment.forecast,
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                AppLocalizations.of(context).planForecastPending,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      );
 }
 
 /// `/settings`: the settings screen.

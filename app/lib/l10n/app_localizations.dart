@@ -106,11 +106,35 @@ abstract class AppLocalizations {
   /// **'Transactions'**
   String get navTransactions;
 
-  /// Label of the Budgets tab in the bottom navigation bar, and the title of the Budgets screen.
+  /// Label of the Plan tab in the bottom navigation bar (budgets, bills and the forecast), and the title of each of its screens.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get navPlan;
+
+  /// The Plan tab's segment that shows the budgets.
   ///
   /// In en, this message translates to:
   /// **'Budgets'**
-  String get navBudgets;
+  String get planBudgets;
+
+  /// The Plan tab's segment that shows the bills.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills'**
+  String get planBills;
+
+  /// The Plan tab's segment that shows the cash-flow forecast.
+  ///
+  /// In en, this message translates to:
+  /// **'Forecast'**
+  String get planForecast;
+
+  /// Placeholder of the Plan tab's Forecast segment until the forecast screen is in place.
+  ///
+  /// In en, this message translates to:
+  /// **'The forecast will appear here.'**
+  String get planForecastPending;
 
   /// Label of the Settings tab in the bottom navigation bar, and the title of the Settings screen.
   ///
@@ -3617,12 +3641,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} is due {date}'**
   String alertBillDue(String name, String date);
-
-  /// Title of the bills screen.
-  ///
-  /// In en, this message translates to:
-  /// **'Bills'**
-  String get billsTitle;
 
   /// The bills screen when there are no bills.
   ///

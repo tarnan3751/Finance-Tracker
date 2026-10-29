@@ -71,7 +71,7 @@ void main() {
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(AppBar, 'Budgets'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Plan'), findsOneWidget);
     final Budget saved = (await live(tester))
         .singleWhere((b) => b.categoryId == 'plaid:FOOD_AND_DRINK_GROCERIES');
     expect(saved.amount, Money(25050, 'USD'));
@@ -117,7 +117,7 @@ void main() {
 
     await tester.tap(find.byTooltip('Delete'));
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'Budgets'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Plan'), findsOneWidget);
     expect(find.text('Budget deleted'), findsOneWidget);
     expect(find.text('Food and drink'), findsNothing);
 

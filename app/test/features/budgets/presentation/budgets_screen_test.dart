@@ -1,7 +1,8 @@
-// The Budgets tab over the test seed and its three budgets (budget_seed.dart): the empty
-// state, each card's state (on pace with carry, projected over, over, nothing
-// available), the period selector across a month boundary in America/New_York and with
-// budgets on different start days, past and future periods, and the drill into a card.
+// The Plan tab's Budgets segment over the test seed and its three budgets
+// (budget_seed.dart): the empty state, each card's state (on pace with carry, projected
+// over, over, nothing available), the period selector across a month boundary in
+// America/New_York and with budgets on different start days, past and future periods,
+// and the drill into a card.
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/budgets/presentation/budget_card.dart';
 import 'package:flutter/material.dart';

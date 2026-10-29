@@ -98,7 +98,7 @@ void main() {
     await tester.pumpAndSettle();
     await save(tester);
 
-    expect(find.widgetWithText(AppBar, 'Bills'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Plan'), findsOneWidget);
     final BillReminder saved = (await live(tester)).single;
     expect(saved.name, 'Electric');
     expect(saved.amount, Money(-8420, 'USD'));
@@ -167,7 +167,7 @@ void main() {
     await open(tester, '/bills/rent', initial: [rent]);
     await tester.tap(find.byTooltip('Delete'));
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'Bills'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Plan'), findsOneWidget);
     expect(await live(tester), isEmpty);
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();

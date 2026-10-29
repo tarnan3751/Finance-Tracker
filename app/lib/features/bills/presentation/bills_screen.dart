@@ -5,6 +5,7 @@
 /// empty one.
 library;
 
+import 'package:finance_tracker/core/router/plan_scaffold.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
 import 'package:finance_tracker/features/bills/domain/bill_status.dart';
@@ -23,8 +24,8 @@ class BillsScreen extends ConsumerWidget {
     final List<BillStatus>? statuses = ref.watch(billStatusesProvider).value;
     final Map<String, String> streamNames =
         ref.watch(streamNamesProvider).value ?? const {};
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.billsTitle)),
+    return PlanScaffold(
+      segment: PlanSegment.bills,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => const NewBillRoute().push<void>(context),
         icon: const Icon(Icons.add),

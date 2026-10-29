@@ -46,9 +46,9 @@ void main() {
       1,
     );
 
-    await tester.tap(find.widgetWithText(NavigationDestination, 'Budgets'));
+    await tester.tap(find.widgetWithText(NavigationDestination, 'Plan'));
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'Budgets'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Plan'), findsOneWidget);
     expect(find.text('No budgets yet'), findsOneWidget);
     expect(
       tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,

@@ -16,7 +16,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navTransactions => 'Transactions';
 
   @override
-  String get navBudgets => 'Budgets';
+  String get navPlan => 'Plan';
+
+  @override
+  String get planBudgets => 'Budgets';
+
+  @override
+  String get planBills => 'Bills';
+
+  @override
+  String get planForecast => 'Forecast';
+
+  @override
+  String get planForecastPending => 'The forecast will appear here.';
 
   @override
   String get navSettings => 'Settings';
@@ -2342,9 +2354,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String alertBillDue(String name, String date) {
     return '$name is due $date';
   }
-
-  @override
-  String get billsTitle => 'Bills';
 
   @override
   String get billsEmpty =>

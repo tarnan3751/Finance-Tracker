@@ -205,8 +205,9 @@ demo's alert store is in memory).
 
 ## Screens
 
-`presentation/`. The Budgets tab is the third of four, between Transactions and Settings
-(`app-core.md`, **Routing and the shell**).
+`presentation/`. The budgets are the Budgets segment of the Plan tab, the third of four,
+between Transactions and Settings (`app-core.md`, **The Plan tab**): each screen below is
+under the "Plan" app bar and the segment control.
 
 **The list** (`/budgets`, `budgets_screen.dart`). At the top is the period selector
 (`budget_period_selector.dart`): previous and next, the period's name ("This period",
@@ -254,7 +255,7 @@ Save validates inline: a category, a positive amount, and a day from 1 to 28. A 
 deleted budget is refused with "This budget no longer exists." Delete returns to the list
 with an Undo that restores the budget.
 
-**Alerts** (`budget_alerts.dart`). The Budgets app bar has a bell, badged with the unread
+**Alerts** (`budget_alerts.dart`). The Budgets segment's app bar has a bell, badged with the unread
 count of `inAppNotificationsProvider`. It opens a sheet over the whole app that lists the
 notifications newest first ("Groceries reached 80 % of $500.00 on Oct 20", the day in the
 device zone). Unread ones are bold, with a dot that reads "Unread". "Mark all read" clears

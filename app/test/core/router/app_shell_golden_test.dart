@@ -1,5 +1,6 @@
-// Goldens of the shell: each tab in light and dark at phone size, the demo shell with its
-// flavor strip below a status bar, and the settings screen at tablet size. Tagged
+// Goldens of the shell: each tab, and each segment of the Plan tab, in light and dark at
+// phone size, the demo shell with its flavor strip below a status bar, and the settings
+// screen at tablet size. Tagged
 // `golden`; see test/flutter_test_config.dart for where the files go and how to update
 // them.
 import 'package:alchemist/alchemist.dart';
@@ -27,7 +28,9 @@ Widget _device(
 const Map<String, String> _tabs = {
   'accounts': '/accounts',
   'transactions': '/transactions',
-  'budgets': '/budgets',
+  'plan': '/plan',
+  'plan_bills': '/bills',
+  'plan_forecast': '/forecast',
   'settings': '/settings',
 };
 

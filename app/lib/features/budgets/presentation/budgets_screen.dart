@@ -1,10 +1,11 @@
-/// The Budgets tab: the period selector, then one card per budget in the selected
-/// period, by category name (`budget_card.dart`); tap a card for what it counts. When
-/// every budget starts its periods on the same day the selector shows the period's
-/// dates, else each card shows its own. "Add budget" opens the editor; the bell opens
-/// the alerts (`budget_alerts.dart`).
+/// The Plan tab's Budgets segment (`PlanScaffold`): the period selector, then one card
+/// per budget in the selected period, by category name (`budget_card.dart`); tap a card
+/// for what it counts. When every budget starts its periods on the same day the selector
+/// shows the period's dates, else each card shows its own. "Add budget" opens the editor;
+/// the bell opens the alerts (`budget_alerts.dart`).
 library;
 
+import 'package:finance_tracker/core/router/plan_scaffold.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
@@ -30,13 +31,9 @@ class BudgetsScreen extends ConsumerWidget {
       budgetPeriodStatusesProvider(offset),
     );
     final List<BudgetStatus>? list = statuses.value;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.navBudgets),
-        actions: const [BudgetAlertsButton()],
-        // Room for the bell's badge, which extends past the button's end.
-        actionsPadding: const EdgeInsetsDirectional.only(end: 8),
-      ),
+    return PlanScaffold(
+      segment: PlanSegment.budgets,
+      actions: const [BudgetAlertsButton()],
       floatingActionButton: list == null || list.isEmpty
           ? null
           : FloatingActionButton.extended(

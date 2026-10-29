@@ -8,9 +8,25 @@
   "@navTransactions": {
     "description": "Label of the Transactions tab in the bottom navigation bar, and the title of the Transactions screen."
   },
-  "navBudgets": "Budgets",
-  "@navBudgets": {
-    "description": "Label of the Budgets tab in the bottom navigation bar, and the title of the Budgets screen."
+  "navPlan": "Plan",
+  "@navPlan": {
+    "description": "Label of the Plan tab in the bottom navigation bar (budgets, bills and the forecast), and the title of each of its screens."
+  },
+  "planBudgets": "Budgets",
+  "@planBudgets": {
+    "description": "The Plan tab's segment that shows the budgets."
+  },
+  "planBills": "Bills",
+  "@planBills": {
+    "description": "The Plan tab's segment that shows the bills."
+  },
+  "planForecast": "Forecast",
+  "@planForecast": {
+    "description": "The Plan tab's segment that shows the cash-flow forecast."
+  },
+  "planForecastPending": "The forecast will appear here.",
+  "@planForecastPending": {
+    "description": "Placeholder of the Plan tab's Forecast segment until the forecast screen is in place."
   },
   "navSettings": "Settings",
   "@navSettings": {
@@ -3228,10 +3244,6 @@
         "example": "Nov 2"
       }
     }
-  },
-  "billsTitle": "Bills",
-  "@billsTitle": {
-    "description": "Title of the bills screen."
   },
   "billsEmpty": "No bills yet. Add one to be reminded before it is due.",
   "@billsEmpty": {

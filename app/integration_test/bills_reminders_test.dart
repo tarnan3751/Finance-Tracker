@@ -56,7 +56,7 @@ void main() {
 
     container.read(goRouterProvider).go(const BillsRoute().location);
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'Bills'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Plan'), findsOneWidget);
     await _tap(tester, find.text('New bill'));
 
     final tz.Location zone = tz.local;
@@ -83,7 +83,7 @@ void main() {
     await _tap(tester, find.text('On the day'));
     await _tap(tester, find.text('2 days before'));
     await _tap(tester, find.text('Save'));
-    expect(find.widgetWithText(AppBar, 'Bills'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Plan'), findsOneWidget);
     expect(find.text('Water'), findsOneWidget);
 
     // The watcher plans a second after the change.

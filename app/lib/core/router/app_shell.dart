@@ -104,9 +104,9 @@ class _AppShellState extends ConsumerState<AppShell> {
             label: l10n.navTransactions,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.account_balance_wallet_outlined),
-            selectedIcon: const Icon(Icons.account_balance_wallet),
-            label: l10n.navBudgets,
+            icon: const Icon(Icons.event_note_outlined),
+            selectedIcon: const Icon(Icons.event_note),
+            label: l10n.navPlan,
           ),
           NavigationDestination(
             icon: const Icon(Icons.settings_outlined),

@@ -187,8 +187,8 @@ expectation's first nominal date two months back. `BillAlertStore` is Drift
 ## Screens
 
 `/bills` (`presentation/bills_screen.dart`) lists the bills with their next due date and
-state, with New bill; it is the second root of the Budgets branch, which 5e turns into
-the Plan tab. `/bills/new` and `/bills/:id` are the editor
+state, with New bill; it is the Plan tab's Bills segment (`app-core.md`, **The Plan
+tab**). `/bills/new` and `/bills/:id` are the editor
 (`presentation/bill_editor_screen.dart`): name, expected amount (in a currency of the
 accounts), first due date, how often, the account it is paid from, the reminder days
 (on the day, 1, 2, 3 or 7 days before) and time (the time picker), active, autopay, and

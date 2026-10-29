@@ -78,6 +78,11 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
     StatefulShellBranchData.$branch(
       routes: [
         GoRouteData.$route(
+          path: '/plan',
+          hasOverriddenOnExit: false,
+          factory: $PlanRoute._fromState,
+        ),
+        GoRouteData.$route(
           path: '/budgets',
           hasOverriddenOnExit: false,
           factory: $BudgetsRoute._fromState,
@@ -117,6 +122,11 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
               factory: $EditBillRoute._fromState,
             ),
           ],
+        ),
+        GoRouteData.$route(
+          path: '/forecast',
+          hasOverriddenOnExit: false,
+          factory: $ForecastRoute._fromState,
         ),
       ],
     ),
@@ -373,6 +383,26 @@ mixin $TransactionRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
+mixin $PlanRoute on GoRouteData {
+  static PlanRoute _fromState(GoRouterState state) => const PlanRoute();
+
+  @override
+  String get location => GoRouteData.$location('/plan');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
 mixin $BudgetsRoute on GoRouteData {
   static BudgetsRoute _fromState(GoRouterState state) => const BudgetsRoute();
 
@@ -512,6 +542,26 @@ mixin $EditBillRoute on GoRouteData {
   @override
   String get location =>
       GoRouteData.$location('/bills/${Uri.encodeComponent(_self.id)}');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $ForecastRoute on GoRouteData {
+  static ForecastRoute _fromState(GoRouterState state) => const ForecastRoute();
+
+  @override
+  String get location => GoRouteData.$location('/forecast');
 
   @override
   void go(BuildContext context) => context.go(location);
