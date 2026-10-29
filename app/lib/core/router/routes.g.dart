@@ -117,6 +117,11 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
               factory: $NewBillRoute._fromState,
             ),
             GoRouteData.$route(
+              path: 'subscriptions',
+              hasOverriddenOnExit: false,
+              factory: $SubscriptionsRoute._fromState,
+            ),
+            GoRouteData.$route(
               path: ':id',
               hasOverriddenOnExit: false,
               factory: $EditBillRoute._fromState,
@@ -514,10 +519,37 @@ mixin $BillsRoute on GoRouteData {
 }
 
 mixin $NewBillRoute on GoRouteData {
-  static NewBillRoute _fromState(GoRouterState state) => const NewBillRoute();
+  static NewBillRoute _fromState(GoRouterState state) =>
+      NewBillRoute(streamId: state.uri.queryParameters['stream-id']);
+
+  NewBillRoute get _self => this as NewBillRoute;
 
   @override
-  String get location => GoRouteData.$location('/bills/new');
+  String get location => GoRouteData.$location(
+    '/bills/new',
+    queryParams: {if (_self.streamId != null) 'stream-id': _self.streamId},
+  );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $SubscriptionsRoute on GoRouteData {
+  static SubscriptionsRoute _fromState(GoRouterState state) =>
+      const SubscriptionsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/bills/subscriptions');
 
   @override
   void go(BuildContext context) => context.go(location);

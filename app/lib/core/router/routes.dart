@@ -5,7 +5,7 @@
 /// |---|---|
 /// | Accounts | `/accounts`, `/accounts/new`, `/accounts/linked-banks`, `/accounts/:id`, `/accounts/:id/edit` |
 /// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/duplicates`, `/transactions/:id` |
-/// | Plan | `/plan` (redirects to `/budgets`); `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new`, `/bills/:id`; `/forecast` |
+/// | Plan | `/plan` (redirects to `/budgets`); `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new?stream-id=<id>`, `/bills/subscriptions`, `/bills/:id`; `/forecast` |
 /// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
@@ -38,6 +38,7 @@ import 'package:finance_tracker/features/categories/presentation/categories_scre
 import 'package:finance_tracker/features/categories/presentation/category_editor_screen.dart';
 import 'package:finance_tracker/features/duplicates/presentation/duplicate_review_screen.dart';
 import 'package:finance_tracker/features/items/presentation/items_screen.dart';
+import 'package:finance_tracker/features/recurring/presentation/subscriptions_screen.dart';
 import 'package:finance_tracker/features/rules/presentation/rule_editor_screen.dart';
 import 'package:finance_tracker/features/rules/presentation/rules_screen.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
@@ -102,8 +103,9 @@ part 'routes.g.dart';
         TypedGoRoute<BillsRoute>(
           path: '/bills',
           routes: <TypedRoute<RouteData>>[
-            // Before `:id`, so it is not read as a bill id.
+            // Before `:id`, so neither is read as a bill id.
             TypedGoRoute<NewBillRoute>(path: 'new'),
+            TypedGoRoute<SubscriptionsRoute>(path: 'subscriptions'),
             TypedGoRoute<EditBillRoute>(path: ':id'),
           ],
         ),
@@ -323,13 +325,27 @@ class BillsRoute extends GoRouteData with $BillsRoute {
       const NoTransitionPage(child: BillsScreen());
 }
 
-/// `/bills/new`: the editor of a new bill.
+/// `/bills/new`: the editor of a new bill, prefilled from recurring stream [streamId]
+/// when given.
 class NewBillRoute extends GoRouteData with $NewBillRoute {
-  const NewBillRoute();
+  const NewBillRoute({this.streamId});
+
+  /// The id of the stream the new bill is made from.
+  final String? streamId;
 
   @override
   Widget build(BuildContext context, GoRouterState state) =>
-      const BillEditorScreen();
+      BillEditorScreen(streamId: streamId);
+}
+
+/// `/bills/subscriptions`: the subscriptions with what each costs a year, opened from
+/// the Bills segment.
+class SubscriptionsRoute extends GoRouteData with $SubscriptionsRoute {
+  const SubscriptionsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const SubscriptionsScreen();
 }
 
 /// `/bills/:id`: the editor of an existing bill, where a reminder's tap opens it.

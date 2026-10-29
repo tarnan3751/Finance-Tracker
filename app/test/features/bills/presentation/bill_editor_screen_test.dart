@@ -1,7 +1,9 @@
 // The bill editor: what it refuses before saving, a new bill saved with its reminders,
 // the permission asked when reminders are on and the sheet when it is refused (Open
 // settings, the bill saved first), an edit that keeps the paid marks, and a delete with
-// undo, also from an editor pushed on another tab.
+// undo, also from an editor pushed on another tab, and a new bill for a stream with no
+// suggestion, or whose suggestions fail to load, starting empty (the prefill is in
+// subscriptions_screen_test.dart).
 import 'dart:async';
 
 import 'package:finance_tracker/core/di/providers.dart';
@@ -9,6 +11,7 @@ import 'package:finance_tracker/core/platform/fake_reminder_scheduler.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
+import 'package:finance_tracker/features/bills/application/bills_providers.dart';
 import 'package:finance_tracker/features/bills/data/in_memory_bill_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -197,5 +200,30 @@ void main() {
   testWidgets('a deleted bill says so', (tester) async {
     await open(tester, '/bills/missing');
     expect(find.text('This bill no longer exists.'), findsOneWidget);
+  });
+
+  testWidgets('a stream with no suggestion opens an empty editor', (
+    tester,
+  ) async {
+    await open(tester, '/bills/new?stream-id=missing');
+    expect(find.widgetWithText(AppBar, 'New bill'), findsOneWidget);
+    expect(find.text('Choose a due date'), findsOneWidget);
+  });
+
+  testWidgets('suggestions that fail to load leave the form empty', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      initialLocation: '/bills/new?stream-id=stream-netflix',
+      overrides: [
+        storeOverride(seededStore()),
+        suggestedBillsProvider.overrideWith(
+          (ref) async => throw StateError('no suggestions'),
+        ),
+      ],
+    );
+    expect(find.widgetWithText(AppBar, 'New bill'), findsOneWidget);
+    expect(find.text('Choose a due date'), findsOneWidget);
   });
 }

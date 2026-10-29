@@ -279,7 +279,8 @@ keeping its own navigation stack.
 | | `EditBudgetRoute` | `/budgets/:id` | `budget_editor_screen.dart` |
 | | `BudgetTransactionsRoute` | `/budgets/:id/transactions` | `budget_detail_screen.dart` |
 | | `BillsRoute` | `/bills` | `features/bills/presentation/bills_screen.dart` (`bills.md`), the Bills segment |
-| | `NewBillRoute` | `/bills/new` | `bill_editor_screen.dart` |
+| | `NewBillRoute` | `/bills/new?stream-id=<id>` | `bill_editor_screen.dart`, prefilled from the stream's suggestion when given |
+| | `SubscriptionsRoute` | `/bills/subscriptions` | `features/recurring/presentation/subscriptions_screen.dart` (`recurring.md`) |
 | | `EditBillRoute` | `/bills/:id` | `bill_editor_screen.dart`, where a tapped reminder opens it |
 | | `ForecastRoute` | `/forecast` | the Forecast segment |
 | Settings | `SettingsRoute` | `/settings` | `features/settings/presentation/settings_screen.dart` |
@@ -302,7 +303,7 @@ keeping its own navigation stack.
   routes are sub-routes of their branch, so each tab keeps its own stack. `/accounts/new`
   and `/accounts/linked-banks` are declared before `/accounts/:id`, and
   `/transactions/new` and `/transactions/duplicates` before `/transactions/:id`, and
-  `/bills/new` before `/bills/:id`, so none is read as an id.
+  `/bills/new` and `/bills/subscriptions` before `/bills/:id`, so none is read as an id.
 - Pushing a route of another branch (a transaction from an account's detail or a
   budget's, category management from the category picker) puts it on top of the current tab's stack: the
   selected tab does not change, and back returns where the user was.

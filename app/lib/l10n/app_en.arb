@@ -3411,5 +3411,176 @@
   "billPermissionOpenSettings": "Open settings",
   "@billPermissionOpenSettings": {
     "description": "Opens the system's notification settings for the app."
+  },
+  "subscriptionsTitle": "Subscriptions",
+  "@subscriptionsTitle": {
+    "description": "Title of the subscriptions screen, and the tooltip of the Bills segment's button that opens it."
+  },
+  "subscriptionsTotal": "{total} a year across {count, plural, =1{1 subscription} other{{count} subscriptions}}",
+  "@subscriptionsTotal": {
+    "description": "Top of the subscriptions screen: what the subscriptions with a known yearly cost cost a year together, in one currency.",
+    "placeholders": {
+      "total": {
+        "type": "String",
+        "example": "$625.75"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subscriptionsEmptyHeadline": "No subscriptions yet",
+  "@subscriptionsEmptyHeadline": {
+    "description": "Headline of the subscriptions screen when there are no recurring streams."
+  },
+  "subscriptionsEmptyBody": "Subscriptions found in your transactions or reported by your bank will appear here.",
+  "@subscriptionsEmptyBody": {
+    "description": "Supporting text of the subscriptions screen when there are no recurring streams."
+  },
+  "subscriptionsMuted": "Muted ({count})",
+  "@subscriptionsMuted": {
+    "description": "Folded section of the muted recurring streams.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subscriptionsOthers": "Other recurring ({count})",
+  "@subscriptionsOthers": {
+    "description": "Folded section of the recurring streams not counted as subscriptions.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streamCadence": "{cadence, select, weekly{Weekly} biweekly{Every two weeks} semiMonthly{Twice a month} monthly{Monthly} quarterly{Quarterly} annually{Yearly} other{Irregular}}",
+  "@streamCadence": {
+    "description": "How often a recurring stream recurs.",
+    "placeholders": {
+      "cadence": {
+        "type": "String"
+      }
+    }
+  },
+  "streamAmountEach": "{cadence}, {amount} each",
+  "@streamAmountEach": {
+    "description": "A recurring stream's cadence and its usual amount.",
+    "placeholders": {
+      "cadence": {
+        "type": "String",
+        "example": "Monthly"
+      },
+      "amount": {
+        "type": "String",
+        "example": "$15.49"
+      }
+    }
+  },
+  "streamYearly": "{amount} a year",
+  "@streamYearly": {
+    "description": "What a subscription costs a year.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$185.88"
+      }
+    }
+  },
+  "streamDetected": "Detected from your transactions",
+  "@streamDetected": {
+    "description": "Caption of a recurring stream the app found itself rather than the bank."
+  },
+  "streamActions": "Actions for {name}",
+  "@streamActions": {
+    "description": "Tooltip of a recurring stream's menu button.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "streamMute": "Mute",
+  "@streamMute": {
+    "description": "Menu item: stop counting and suggesting a recurring stream."
+  },
+  "streamUnmute": "Unmute",
+  "@streamUnmute": {
+    "description": "Menu item: count a muted recurring stream again."
+  },
+  "streamNotSubscription": "Not a subscription",
+  "@streamNotSubscription": {
+    "description": "Menu item: stop counting a recurring stream as a subscription."
+  },
+  "streamMarkSubscription": "Mark as subscription",
+  "@streamMarkSubscription": {
+    "description": "Menu item: count a recurring stream as a subscription."
+  },
+  "streamRename": "Rename",
+  "@streamRename": {
+    "description": "Menu item and dialog title: give a recurring stream another name."
+  },
+  "streamCreateBill": "Create a bill",
+  "@streamCreateBill": {
+    "description": "Menu item: open the bill editor prefilled from a recurring stream."
+  },
+  "streamMutedDone": "{name} muted",
+  "@streamMutedDone": {
+    "description": "Snack bar after muting a recurring stream.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "streamUnmutedDone": "{name} unmuted",
+  "@streamUnmutedDone": {
+    "description": "Snack bar after unmuting a recurring stream.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "streamNotSubscriptionDone": "{name} is no longer counted as a subscription",
+  "@streamNotSubscriptionDone": {
+    "description": "Snack bar after saying a recurring stream is not a subscription.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "streamMarkSubscriptionDone": "{name} is counted as a subscription",
+  "@streamMarkSubscriptionDone": {
+    "description": "Snack bar after marking a recurring stream as a subscription.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "streamRenamedDone": "Renamed to {name}",
+  "@streamRenamedDone": {
+    "description": "Snack bar after renaming a recurring stream.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "streamRenameLabel": "Name",
+  "@streamRenameLabel": {
+    "description": "Field of the rename dialog."
+  },
+  "streamRenameHelper": "Leave empty to use {merchant}",
+  "@streamRenameHelper": {
+    "description": "Helper text of the rename dialog's field.",
+    "placeholders": {
+      "merchant": {
+        "type": "String"
+      }
+    }
   }
 }

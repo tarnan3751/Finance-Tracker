@@ -2487,4 +2487,118 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get billPermissionOpenSettings => 'Open settings';
+
+  @override
+  String get subscriptionsTitle => 'Subscriptions';
+
+  @override
+  String subscriptionsTotal(String total, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count subscriptions',
+      one: '1 subscription',
+    );
+    return '$total a year across $_temp0';
+  }
+
+  @override
+  String get subscriptionsEmptyHeadline => 'No subscriptions yet';
+
+  @override
+  String get subscriptionsEmptyBody =>
+      'Subscriptions found in your transactions or reported by your bank will appear here.';
+
+  @override
+  String subscriptionsMuted(int count) {
+    return 'Muted ($count)';
+  }
+
+  @override
+  String subscriptionsOthers(int count) {
+    return 'Other recurring ($count)';
+  }
+
+  @override
+  String streamCadence(String cadence) {
+    String _temp0 = intl.Intl.selectLogic(cadence, {
+      'weekly': 'Weekly',
+      'biweekly': 'Every two weeks',
+      'semiMonthly': 'Twice a month',
+      'monthly': 'Monthly',
+      'quarterly': 'Quarterly',
+      'annually': 'Yearly',
+      'other': 'Irregular',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String streamAmountEach(String cadence, String amount) {
+    return '$cadence, $amount each';
+  }
+
+  @override
+  String streamYearly(String amount) {
+    return '$amount a year';
+  }
+
+  @override
+  String get streamDetected => 'Detected from your transactions';
+
+  @override
+  String streamActions(String name) {
+    return 'Actions for $name';
+  }
+
+  @override
+  String get streamMute => 'Mute';
+
+  @override
+  String get streamUnmute => 'Unmute';
+
+  @override
+  String get streamNotSubscription => 'Not a subscription';
+
+  @override
+  String get streamMarkSubscription => 'Mark as subscription';
+
+  @override
+  String get streamRename => 'Rename';
+
+  @override
+  String get streamCreateBill => 'Create a bill';
+
+  @override
+  String streamMutedDone(String name) {
+    return '$name muted';
+  }
+
+  @override
+  String streamUnmutedDone(String name) {
+    return '$name unmuted';
+  }
+
+  @override
+  String streamNotSubscriptionDone(String name) {
+    return '$name is no longer counted as a subscription';
+  }
+
+  @override
+  String streamMarkSubscriptionDone(String name) {
+    return '$name is counted as a subscription';
+  }
+
+  @override
+  String streamRenamedDone(String name) {
+    return 'Renamed to $name';
+  }
+
+  @override
+  String get streamRenameLabel => 'Name';
+
+  @override
+  String streamRenameHelper(String merchant) {
+    return 'Leave empty to use $merchant';
+  }
 }

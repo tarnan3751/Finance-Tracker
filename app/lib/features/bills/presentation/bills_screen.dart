@@ -1,6 +1,6 @@
 /// `/bills`: the bills with their status, a placeholder until the Plan tab's Bills
 /// segment (5e) replaces it with the list and the calendar (`docs/reference/bills.md`,
-/// **Screens**). Each row shows the bill's name, its next due date and whether it is
+/// **Screens**). The app bar opens the subscriptions. Each row shows the bill's name, its next due date and whether it is
 /// paid, due, missed or upcoming; tapping one opens its editor, and New bill opens an
 /// empty one.
 library;
@@ -26,6 +26,13 @@ class BillsScreen extends ConsumerWidget {
         ref.watch(streamNamesProvider).value ?? const {};
     return PlanScaffold(
       segment: PlanSegment.bills,
+      actions: [
+        IconButton(
+          tooltip: l10n.subscriptionsTitle,
+          icon: const Icon(Icons.subscriptions_outlined),
+          onPressed: () => const SubscriptionsRoute().push<void>(context),
+        ),
+      ],
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => const NewBillRoute().push<void>(context),
         icon: const Icon(Icons.add),

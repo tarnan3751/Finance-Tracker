@@ -3,15 +3,16 @@
 The streams of transactions that recur at a cadence (a salary, a bill, a subscription), the
 user's choices about each one, and the subscriptions with their yearly cost. This file
 covers the model, where streams come from, the overrides and how they sync, the
-repository, the providers, the app's own detector, the subscription classifier and the
-merge of the detected streams with the server's. The decisions are in `PLAN.md` §12,
+repository, the providers, the app's own detector, the subscription classifier, the
+merge of the detected streams with the server's, and the subscriptions screen. The decisions are in `PLAN.md` §12,
 "Recurring streams", "Phase 5 lanes" and "The detector".
 
 Code:
 - `app/lib/features/recurring/`: `domain/` (the repository interface, `StreamOverride`,
   `StreamView`, the subscriptions, the detector, the classifier, the merge), `data/`
   (Drift, in-memory and demo repositories, the override rows), `application/` (the
-  providers and `StreamActions`, the merged list, the detector runner);
+  providers and `StreamActions`, the merged list, the detector runner), `presentation/`
+  (the subscriptions screen);
 - the `recurring_streams` and `stream_overrides` tables (`data.md`), the
   `recurring_stream` sync record (`sync-app.md`), the pull's stream step
   (`core/plaid/plaid_pull.dart`), the demo mapping (`core/db/demo_seed.dart`).
@@ -23,7 +24,8 @@ recording contract's override case, `app/test/core/db/drift_sync_store_test.dart
 `app/test/core/plaid/plaid_pull_test.dart`, the "stream overrides" group of
 `app/test/sync/two_device_convergence_test.dart`, `app/test/core/api/fake_dataset_test.dart`, `app/test/features/recurring/domain/` (the
 detector, the classifier, the merge and the harness), `app/integration_test/items_flow_test.dart`,
-`app/integration_test/recurring_detector_test.dart`.
+`app/integration_test/recurring_detector_test.dart`, and the screen's
+`app/test/features/recurring/presentation/` (on `app/test/helpers/stream_seed.dart`).
 
 ## The model
 
@@ -224,3 +226,32 @@ over its members in the ledger (`recurringLedgerProvider`, every live transactio
 flag is set when its source flags it or the classifier says so, and `StreamView`'s
 `isSubscription` lets the user's override win over both. Detected streams are kept as the
 runner stored them, already classified.
+
+## Screens
+
+**Subscriptions** (`/bills/subscriptions`, `presentation/subscriptions_screen.dart`, opened
+from the Plan tab's Bills segment; `PLAN.md` §12 "5e rulings"). At the top, per currency,
+what the subscriptions with a known yearly cost cost a year ("$620.76 a year across 4
+subscriptions"); one at an unknown cadence counts in neither figure. Then one row per
+subscription (`subscriptionsProvider`), by yearly cost, highest first (by currency first
+when there are several), the irregular ones last: the name the app shows, the cadence and
+usual amount ("Monthly, $15.49 each"), the yearly cost ("$185.88 a year"), and "Detected
+from your transactions" when the stream's source is `detected`.
+
+Each row's menu (its tooltip names the stream) has:
+- **Mute**, **Not a subscription**: through `StreamActions`, each with an Undo that writes
+  the earlier value back (for Not a subscription that may be null, which lets the app's
+  classification stand again);
+- **Rename**: a dialog with the current name; blank, or the merchant's own name, clears
+  the override rather than storing a copy (saving it unchanged writes nothing); Undo
+  restores the earlier override, null included;
+- **Create a bill**, when the stream has a bill suggestion (`suggestedBillsProvider`;
+  not when a bill already links it): opens `/bills/new?stream-id=<id>`, the bill editor
+  prefilled from that suggestion (name, amount, cadence, next date, account, the link).
+  Nothing is saved until Save. Should the suggestions fail to load, the editor opens
+  empty (the error logged by type).
+
+Below, folded: **Muted (N)**, every muted stream from `mergedStreamsProvider` (Unmute,
+Rename), and **Other recurring (N)**, the active, unmuted outflow streams not counted as
+subscriptions (income never is; Mark as subscription, with Undo; Rename), so a misclassification can be
+undone. The empty state shows only when all three lists are empty.

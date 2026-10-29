@@ -2,10 +2,11 @@
 // enough and labelled, text has enough contrast, and nothing overflows at twice the text
 // size. The shell's tabs and the linked banks are checked empty; every screen is also
 // checked on the demo seed (two accounts, twelve transactions, the system categories, two
-// rules and the three test budgets) with the linked test data (the three test banks, two
-// linked accounts, Plaid transactions), and the filter sheet, the category picker, the
-// transaction list's menu and selection mode, the transaction editor's menu, the budget
-// alerts sheet, the rule editor's menu and the apply confirmation open over their
+// rules, the three test budgets and the test streams) with the linked test data (the
+// three test banks, two linked accounts, Plaid transactions), and the filter sheet, the
+// category picker, the transaction list's menu and selection mode, the transaction
+// editor's menu, the budget alerts sheet, the rule editor's menu and the apply
+// confirmation, the subscriptions' folded sections and a stream's menu open over their
 // screens, and the editor's receipt (a photo from the fake image source) and its
 // full-screen view. The sign-in and registration screens are
 // checked signed out; their text scale is checked with their errors showing, in
@@ -25,6 +26,7 @@ import 'helpers/budget_seed.dart';
 import 'helpers/pump_app.dart';
 import 'helpers/rule_seed.dart';
 import 'helpers/seed.dart';
+import 'helpers/stream_seed.dart';
 
 /// A screen to check: where it is, whether it runs on the seed, and what to do after it
 /// opens (open a sheet or a picker).
@@ -141,6 +143,32 @@ final Map<String, _Screen> _screens = {
   'Bills': (location: '/bills', seeded: true, open: null),
   'New bill': (location: '/bills/new', seeded: true, open: null),
   'Forecast': (location: '/forecast', seeded: true, open: null),
+  'Subscriptions': (location: '/bills/subscriptions', seeded: true, open: null),
+  'Subscriptions, folded sections open': (
+    location: '/bills/subscriptions',
+    seeded: true,
+    open: (tester) async {
+      for (final String section in ['Muted (1)', 'Other recurring (1)']) {
+        await tester.scrollUntilVisible(
+          find.text(section),
+          300,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await _tapAndSettle(tester, find.text(section));
+      }
+    },
+  ),
+  'Stream menu': (
+    location: '/bills/subscriptions',
+    seeded: true,
+    open: (tester) =>
+        _tapAndSettle(tester, find.byTooltip('Actions for Netflix')),
+  ),
+  'New bill from a stream': (
+    location: '/bills/new?stream-id=stream-netflix',
+    seeded: true,
+    open: null,
+  ),
   'Budget': (location: '/budgets/budget-food', seeded: true, open: null),
   'Budget transactions': (
     location: '/budgets/budget-food/transactions',
@@ -209,6 +237,7 @@ List<Override> _overrides(_Screen screen) => screen.seeded
         storeOverride(linkedStore(manual: true)),
         rulesOverride(seededRules()),
         budgetsOverride(seededBudgets()),
+        streamsOverride(seededStreams()),
         imageSourceProvider.overrideWithValue(
           FakeImageSource(
             () async => PickedImage(

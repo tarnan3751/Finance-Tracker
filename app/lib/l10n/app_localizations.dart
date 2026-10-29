@@ -3875,6 +3875,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open settings'**
   String get billPermissionOpenSettings;
+
+  /// Title of the subscriptions screen, and the tooltip of the Bills segment's button that opens it.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions'**
+  String get subscriptionsTitle;
+
+  /// Top of the subscriptions screen: what the subscriptions with a known yearly cost cost a year together, in one currency.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} a year across {count, plural, =1{1 subscription} other{{count} subscriptions}}'**
+  String subscriptionsTotal(String total, int count);
+
+  /// Headline of the subscriptions screen when there are no recurring streams.
+  ///
+  /// In en, this message translates to:
+  /// **'No subscriptions yet'**
+  String get subscriptionsEmptyHeadline;
+
+  /// Supporting text of the subscriptions screen when there are no recurring streams.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions found in your transactions or reported by your bank will appear here.'**
+  String get subscriptionsEmptyBody;
+
+  /// Folded section of the muted recurring streams.
+  ///
+  /// In en, this message translates to:
+  /// **'Muted ({count})'**
+  String subscriptionsMuted(int count);
+
+  /// Folded section of the recurring streams not counted as subscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Other recurring ({count})'**
+  String subscriptionsOthers(int count);
+
+  /// How often a recurring stream recurs.
+  ///
+  /// In en, this message translates to:
+  /// **'{cadence, select, weekly{Weekly} biweekly{Every two weeks} semiMonthly{Twice a month} monthly{Monthly} quarterly{Quarterly} annually{Yearly} other{Irregular}}'**
+  String streamCadence(String cadence);
+
+  /// A recurring stream's cadence and its usual amount.
+  ///
+  /// In en, this message translates to:
+  /// **'{cadence}, {amount} each'**
+  String streamAmountEach(String cadence, String amount);
+
+  /// What a subscription costs a year.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} a year'**
+  String streamYearly(String amount);
+
+  /// Caption of a recurring stream the app found itself rather than the bank.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected from your transactions'**
+  String get streamDetected;
+
+  /// Tooltip of a recurring stream's menu button.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions for {name}'**
+  String streamActions(String name);
+
+  /// Menu item: stop counting and suggesting a recurring stream.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get streamMute;
+
+  /// Menu item: count a muted recurring stream again.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute'**
+  String get streamUnmute;
+
+  /// Menu item: stop counting a recurring stream as a subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a subscription'**
+  String get streamNotSubscription;
+
+  /// Menu item: count a recurring stream as a subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as subscription'**
+  String get streamMarkSubscription;
+
+  /// Menu item and dialog title: give a recurring stream another name.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get streamRename;
+
+  /// Menu item: open the bill editor prefilled from a recurring stream.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a bill'**
+  String get streamCreateBill;
+
+  /// Snack bar after muting a recurring stream.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} muted'**
+  String streamMutedDone(String name);
+
+  /// Snack bar after unmuting a recurring stream.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} unmuted'**
+  String streamUnmutedDone(String name);
+
+  /// Snack bar after saying a recurring stream is not a subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is no longer counted as a subscription'**
+  String streamNotSubscriptionDone(String name);
+
+  /// Snack bar after marking a recurring stream as a subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is counted as a subscription'**
+  String streamMarkSubscriptionDone(String name);
+
+  /// Snack bar after renaming a recurring stream.
+  ///
+  /// In en, this message translates to:
+  /// **'Renamed to {name}'**
+  String streamRenamedDone(String name);
+
+  /// Field of the rename dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get streamRenameLabel;
+
+  /// Helper text of the rename dialog's field.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty to use {merchant}'**
+  String streamRenameHelper(String merchant);
 }
 
 class _AppLocalizationsDelegate

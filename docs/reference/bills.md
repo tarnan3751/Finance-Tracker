@@ -187,8 +187,9 @@ expectation's first nominal date two months back. `BillAlertStore` is Drift
 ## Screens
 
 `/bills` (`presentation/bills_screen.dart`) lists the bills with their next due date and
-state, with New bill; it is the Plan tab's Bills segment (`app-core.md`, **The Plan
-tab**). `/bills/new` and `/bills/:id` are the editor
+state, with New bill, and its app bar opens the subscriptions (`recurring.md`,
+**Screens**); it is the Plan tab's Bills segment (`app-core.md`, **The Plan tab**).
+`/bills/new` and `/bills/:id` are the editor
 (`presentation/bill_editor_screen.dart`): name, expected amount (in a currency of the
 accounts), first due date, how often, the account it is paid from, the reminder days
 (on the day, 1, 2, 3 or 7 days before) and time (the time picker), active, autopay, and
@@ -196,7 +197,8 @@ Delete with undo (the editor pops back where it was opened from, whose messenger
 screen, so the Undo shows even when a reminder's tap opened it on another tab). Saving
 saves first, then, with reminders on, asks for the permission when the app lacks it; a
 refusal shows `notification_permission_sheet.dart` (the bill is saved; why, and Open
-settings). The
+settings). `/bills/new?stream-id=<id>` starts from that stream's suggestion (an unknown
+stream, or one without a suggestion, starts empty). The
 in-app alerts sheet (`budgets.md`, **Alerts**) lists `BillDueNotification`s ("Rent is due
 Nov 1") and opens the bill; a notice whose occurrence is paid since (a pull brought the
 payment after the notice was raised) is left out of the sheet and the count, and the

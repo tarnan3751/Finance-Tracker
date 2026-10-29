@@ -3,8 +3,9 @@
 /// due date, how often it repeats, the account it is paid from, the reminders (the days
 /// before and the time of day), whether it is active and on autopay. Turning reminders on
 /// asks for the notification permission when the app lacks it, and explains a refusal
-/// (`notification_permission_sheet.dart`). Deleting from here offers an undo. The Plan
-/// tab's Bills segment (5e) reuses it.
+/// (`notification_permission_sheet.dart`). Deleting from here offers an undo. A new bill
+/// opened for a recurring stream starts from that stream's suggestion (name, amount,
+/// cadence, next due date, account and the link), and is saved only by Save.
 library;
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
@@ -15,6 +16,7 @@ import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/presentation/currency_picker.dart';
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
+import 'package:finance_tracker/features/bills/domain/bill_suggestions.dart';
 import 'package:finance_tracker/features/bills/presentation/notification_permission_sheet.dart';
 import 'package:finance_tracker/features/transactions/presentation/amount_input.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_dates.dart';
@@ -24,8 +26,11 @@ import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:uuid/uuid.dart';
+
+final Logger _log = Logger('bills');
 
 /// The reminder offsets the editor offers, in days before the due date.
 const List<int> reminderOffsetChoices = [0, 1, 2, 3, 7];
@@ -53,11 +58,15 @@ String cadenceLabel(AppLocalizations l10n, RecurringCadence? cadence) =>
       RecurringCadence.annually => l10n.billCadenceAnnually,
     };
 
-/// The editor of bill [billId], or of a new bill when it is null.
+/// The editor of bill [billId], or of a new bill when it is null: prefilled from
+/// stream [streamId]'s suggestion when there is one.
 class BillEditorScreen extends ConsumerWidget {
-  const BillEditorScreen({super.key, this.billId});
+  const BillEditorScreen({super.key, this.billId, this.streamId});
 
   final String? billId;
+
+  /// The recurring stream a new bill is made from.
+  final String? streamId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -71,7 +80,40 @@ class BillEditorScreen extends ConsumerWidget {
       );
     }
     final String? id = billId;
-    if (id == null) return _BillForm(initial: null, accounts: accounts);
+    if (id == null) {
+      final String? stream = streamId;
+      if (stream == null) return _BillForm(initial: null, accounts: accounts);
+      ref.listen(suggestedBillsProvider, (_, next) {
+        if (next case AsyncError(:final error)) {
+          _log.warning('bill suggestions not read: ${error.runtimeType}');
+        }
+      });
+      final AsyncValue<List<BillSuggestion>> suggested = ref.watch(
+        suggestedBillsProvider,
+      );
+      // An error leaves the form empty rather than waiting for ever.
+      final List<BillSuggestion>? suggestions = suggested.hasError
+          ? const []
+          : suggested.value;
+      if (suggestions == null) {
+        return Scaffold(
+          appBar: AppBar(),
+          body: const Center(child: CircularProgressIndicator()),
+        );
+      }
+      final StreamBillSuggestion? suggestion = suggestions
+          .whereType<StreamBillSuggestion>()
+          .where((s) => s.stream.id == stream)
+          .firstOrNull;
+      // Built once: the form keeps what the user changes after a suggestion changes.
+      return _BillForm(
+        key: ValueKey('stream/$stream'),
+        initial: null,
+        // Its id is not used: Save gives the new bill its own.
+        draft: suggestion?.accept(''),
+        accounts: accounts,
+      );
+    }
     final BillReminder? bill = bills.where((b) => b.id == id).firstOrNull;
     if (bill == null) {
       return Scaffold(
@@ -84,10 +126,19 @@ class BillEditorScreen extends ConsumerWidget {
 }
 
 class _BillForm extends ConsumerStatefulWidget {
-  const _BillForm({super.key, required this.initial, required this.accounts});
+  const _BillForm({
+    super.key,
+    required this.initial,
+    this.draft,
+    required this.accounts,
+  });
 
   /// The bill being edited, or null for a new one.
   final BillReminder? initial;
+
+  /// What a new bill starts from, or null for an empty one.
+  final BillReminder? draft;
+
   final List<Account> accounts;
 
   @override
@@ -96,11 +147,14 @@ class _BillForm extends ConsumerStatefulWidget {
 
 class _BillFormState extends ConsumerState<_BillForm> {
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
+
+  /// What the fields start from: the bill edited, else the draft.
+  late final BillReminder? _start = widget.initial ?? widget.draft;
   late final TextEditingController _name = TextEditingController(
-    text: widget.initial?.name,
+    text: _start?.name,
   );
   late final TextEditingController _amount = TextEditingController(
-    text: switch (widget.initial?.amount) {
+    text: switch (_start?.amount) {
       final Money m => Money(
         m.minorUnits.abs(),
         m.currencyCode,
@@ -108,19 +162,18 @@ class _BillFormState extends ConsumerState<_BillForm> {
       null => null,
     },
   );
-  late String _currency =
-      widget.initial?.amount?.currencyCode ?? _currencies.first;
-  late LocalDate? _dueDate = widget.initial?.dueDate;
-  late RecurringCadence? _cadence = widget.initial == null
+  late String _currency = _start?.amount?.currencyCode ?? _currencies.first;
+  late LocalDate? _dueDate = _start?.dueDate;
+  late RecurringCadence? _cadence = _start == null
       ? RecurringCadence.monthly
-      : widget.initial!.cadence;
-  late String? _accountId = widget.initial?.accountId;
+      : _start.cadence;
+  late String? _accountId = _start?.accountId;
   late final Set<int> _offsets = {
-    ...widget.initial?.reminderOffsetDays ?? const [2],
+    ..._start?.reminderOffsetDays ?? const [2],
   };
-  late int _minutes = widget.initial?.reminderMinutes ?? defaultReminderMinutes;
-  late bool _active = widget.initial?.active ?? true;
-  late bool _autopay = widget.initial?.autopay ?? false;
+  late int _minutes = _start?.reminderMinutes ?? defaultReminderMinutes;
+  late bool _active = _start?.active ?? true;
+  late bool _autopay = _start?.autopay ?? false;
   bool _saving = false;
 
   bool get _isNew => widget.initial == null;
@@ -133,7 +186,7 @@ class _BillFormState extends ConsumerState<_BillForm> {
   List<String> get _currencies {
     final List<String> codes = {
       for (final Account a in widget.accounts) a.currencyCode,
-      ?widget.initial?.amount?.currencyCode,
+      ?_start?.amount?.currencyCode,
     }.toList()..sort();
     return codes.isEmpty ? [defaultCurrencyCode()] : codes;
   }
@@ -187,8 +240,8 @@ class _BillFormState extends ConsumerState<_BillForm> {
       dueDate: _dueDate!,
       cadence: _cadence,
       accountId: _accountId,
-      streamId: initial?.streamId,
-      liabilityAccountId: initial?.liabilityAccountId,
+      streamId: _start?.streamId,
+      liabilityAccountId: _start?.liabilityAccountId,
       reminderOffsetDays: [..._offsets]..sort(),
       reminderMinutes: _minutes,
       active: _active,
