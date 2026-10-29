@@ -1,7 +1,7 @@
 // Two (and three) devices, each the real app wiring over its own Drift database (the
 // Drift repositories, the recorder, the device clock, the sync controller), syncing
-// through one relay: scripted conflicts, rules, budgets, recurring stream overrides and
-// bills among them, and seeded random runs, after
+// through one relay: scripted conflicts, rules, budgets, recurring stream overrides,
+// bills and goals among them, and seeded random runs, after
 // which every device's entity tables and sync records are the same (sync-app.md,
 // **Testing**). The Plaid pull after each session goes to an in-app fake server with no
 // bank linked, so it brings nothing and never touches the network; a test that needs a
@@ -31,6 +31,7 @@ import 'package:finance_tracker/features/accounts/domain/account_repository.dart
 import 'package:finance_tracker/features/bills/domain/bill_repository.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
+import 'package:finance_tracker/features/goals/domain/goal_repository.dart';
 import 'package:finance_tracker/features/recurring/domain/recurring_stream_repository.dart';
 import 'package:finance_tracker/features/recurring/domain/stream_override.dart';
 import 'package:finance_tracker/features/rules/application/rule_preview.dart';
@@ -155,6 +156,7 @@ final class Device {
   RecurringStreamRepository get streams =>
       container.read(recurringStreamRepositoryProvider);
   BillRepository get bills => container.read(billRepositoryProvider);
+  GoalRepository get goals => container.read(goalRepositoryProvider);
   ArrivalProcessor get arrival => container.read(arrivalProcessorProvider);
 
   /// Applies [page] as a page of the Plaid pull does: the rows inserted, the overrides
@@ -189,7 +191,8 @@ final class Device {
   }
 
   /// The entity tables, without the audit columns each device stamps for itself on
-  /// accounts, categories, rules, budgets and bills (they are not in the synced records).
+  /// accounts, categories, rules, budgets, bills, goals and contributions (they are not in
+  /// the synced records).
   Future<Map<String, List<Map<String, Object?>>>> dump() async {
     Future<List<Map<String, Object?>>> rows(String sql) async => [
       for (final QueryRow row in await database.customSelect(sql).get())
@@ -229,6 +232,15 @@ final class Device {
         'SELECT id, name, amount_minor, currency, due_date, cadence, account_id, '
         'stream_id, liability_account_id, reminder_offset_days, reminder_minutes, '
         'active, autopay, paid_occurrences, deleted_at FROM bills ORDER BY id',
+      ),
+      'goals': await rows(
+        'SELECT id, name, target_minor, currency, kind, linked_account_ids, '
+        'target_date, created_on, note, archived_at, deleted_at '
+        'FROM goals ORDER BY id',
+      ),
+      'goal_contributions': await rows(
+        'SELECT id, goal_id, date, amount_minor, currency, note, deleted_at '
+        'FROM goal_contributions ORDER BY id',
       ),
       'app_settings': await rows('SELECT * FROM app_settings ORDER BY key'),
       'held_records': await rows(
@@ -952,6 +964,108 @@ void main() {
         expect((await one(a, 'power'))!.name, 'Electric');
       },
     );
+  });
+
+  group('goals', () {
+    Goal goal(String id, {String name = 'Holiday'}) => Goal(
+      id: id,
+      name: name,
+      target: Money(180000, 'USD'),
+      kind: GoalKind.contribution,
+      targetDate: LocalDate(2027, 4, 24),
+      createdOn: LocalDate(2026, 4, 24),
+    );
+
+    GoalContribution contribution(String id, int minor) => GoalContribution(
+      id: id,
+      goalId: 'trip',
+      date: LocalDate(2026, 10, 1),
+      amount: Money(minor, 'USD'),
+    );
+
+    Future<GoalEntry?> one(Device d, String id) => d.goals.watchById(id).first;
+
+    List<String> contributions(GoalEntry? entry) => [
+      for (final GoalContribution c in entry!.contributions) c.id,
+    ];
+
+    test('contributions added on two devices at once both survive', () async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b');
+      await a.goals.create(goal('trip'));
+      await expectConverged([a, b]);
+
+      await a.goals.addContribution(contribution('from-a', 12500));
+      await b.goals.addContribution(contribution('from-b', -2000));
+      await expectConverged([a, b]);
+      for (final Device d in [a, b]) {
+        expect(contributions(await one(d, 'trip')), ['from-a', 'from-b']);
+      }
+    });
+
+    test(
+      'a rename on one device and an archive on the other both survive',
+      () async {
+        final Device a = device('dev-a');
+        final Device b = device('dev-b');
+        await a.goals.create(goal('trip'));
+        await expectConverged([a, b]);
+
+        await a.goals.update(goal('trip', name: 'Lisbon'));
+        await b.goals.setArchived('trip', archived: true);
+        await expectConverged([a, b]);
+        for (final Device d in [a, b]) {
+          final Goal merged = (await one(d, 'trip'))!.goal;
+          expect(merged.name, 'Lisbon');
+          expect(merged.archivedAt, isNotNull);
+        }
+      },
+    );
+
+    test('a delete wins over a concurrent edit; a restore shows the edit and '
+        'the contributions', () async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b');
+      await a.goals.create(goal('trip'));
+      await a.goals.addContribution(contribution('c1', 12500));
+      await expectConverged([a, b]);
+
+      await a.goals.delete('trip');
+      await b.goals.update(goal('trip', name: 'Lisbon'));
+      await expectConverged([a, b]);
+      expect(await b.goals.watchAll().first, isEmpty);
+
+      await b.goals.restore('trip');
+      await expectConverged([a, b]);
+      final GoalEntry restored = (await one(a, 'trip'))!;
+      expect(restored.goal.name, 'Lisbon');
+      expect(contributions(restored), ['c1']);
+    });
+
+    test('a contribution that reaches a device before its goal lands, and '
+        'shows once the goal arrives', () async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b');
+      await a.goals.create(goal('trip'));
+      await a.goals.addContribution(contribution('c1', 12500));
+      await a.sync();
+      // B merges the contribution's record alone, as a pull that has not yet reached
+      // the goal's entry would.
+      await b.store.write(
+        (await a.store.read(EntityType.goalContribution, 'c1'))!,
+      );
+      expect(
+        (await b.database.select(b.database.goalContributions).get()).map(
+          (c) => c.goalId,
+        ),
+        ['trip'],
+      );
+      expect(await b.database.select(b.database.heldRecords).get(), isEmpty);
+      expect(await b.goals.watchAll().first, isEmpty);
+
+      await expectConverged([a, b]);
+      expect(contributions(await one(b, 'trip')), ['c1']);
+    });
   });
 
   group('budgets', () {
