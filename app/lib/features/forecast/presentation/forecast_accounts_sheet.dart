@@ -1,7 +1,9 @@
 /// The sheet choosing what the forecast covers: a switch per depository account (hidden
 /// ones listed, off unless turned on), and, when the covered accounts hold more than one
 /// currency, a chip per currency choosing the series shown. Each change is applied at
-/// once (`ForecastSelectionController`).
+/// once (`ForecastSelectionController`); a change that cannot be kept goes back, and a
+/// line under the switches says so (in the sheet, since the app's messenger is under it)
+/// until the next change is kept.
 library;
 
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
@@ -24,11 +26,31 @@ Future<void> showForecastAccountsSheet(BuildContext context) =>
     );
 
 /// The account switches and the currency chips.
-class ForecastAccountsSheet extends ConsumerWidget {
+class ForecastAccountsSheet extends ConsumerStatefulWidget {
   const ForecastAccountsSheet({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ForecastAccountsSheet> createState() =>
+      _ForecastAccountsSheetState();
+}
+
+class _ForecastAccountsSheetState extends ConsumerState<ForecastAccountsSheet> {
+  // Whether the last change could not be kept.
+  bool _failed = false;
+
+  // Runs [change], and shows or clears the failure line by whether it was kept.
+  Future<void> _keep(Future<void> Function() change) async {
+    bool failed = false;
+    try {
+      await change();
+    } on Exception {
+      failed = true;
+    }
+    if (mounted) setState(() => _failed = failed);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
     final List<Account> accounts = [
@@ -76,7 +98,20 @@ class ForecastAccountsSheet extends ConsumerWidget {
                     : a.currencyCode,
               ),
               value: selection.covers(a),
-              onChanged: (_) => controller.toggle(a),
+              onChanged: (_) => _keep(() => controller.toggle(a)),
+            ),
+          if (_failed)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+              child: Semantics(
+                liveRegion: true,
+                child: Text(
+                  l10n.forecastSelectionFailed,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+              ),
             ),
           if (currencies.length > 1) ...[
             Padding(
@@ -96,7 +131,8 @@ class ForecastAccountsSheet extends ConsumerWidget {
                     ChoiceChip(
                       label: Text(code),
                       selected: code == shown,
-                      onSelected: (_) => controller.showCurrency(code),
+                      onSelected: (_) =>
+                          _keep(() => controller.showCurrency(code)),
                     ),
                 ],
               ),

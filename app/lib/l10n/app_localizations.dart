@@ -4277,6 +4277,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Currency'**
   String get forecastCurrency;
+
+  /// Shown when a change to the forecast's accounts or currency could not be kept.
+  ///
+  /// In en, this message translates to:
+  /// **'The forecast\'s accounts could not be saved. Try again.'**
+  String get forecastSelectionFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -9,22 +9,28 @@ part of 'forecast_providers.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// Which accounts the forecast covers and which currency it shows, as the user's changes
-/// from the default (`ForecastSelection`). The changes are applied one at a time, in the
-/// order they are made: the state is updated, then kept.
+/// from the default (`ForecastSelection`), kept on this device only under
+/// `AppMetaKeys.forecastSelection` (never synced). The changes are applied one at a time,
+/// in the order they are made: the state is updated, then written; when the write fails
+/// the state goes back and the change's Future fails.
 
 @ProviderFor(ForecastSelectionController)
 final forecastSelectionControllerProvider =
     ForecastSelectionControllerProvider._();
 
 /// Which accounts the forecast covers and which currency it shows, as the user's changes
-/// from the default (`ForecastSelection`). The changes are applied one at a time, in the
-/// order they are made: the state is updated, then kept.
+/// from the default (`ForecastSelection`), kept on this device only under
+/// `AppMetaKeys.forecastSelection` (never synced). The changes are applied one at a time,
+/// in the order they are made: the state is updated, then written; when the write fails
+/// the state goes back and the change's Future fails.
 final class ForecastSelectionControllerProvider
     extends
         $AsyncNotifierProvider<ForecastSelectionController, ForecastSelection> {
   /// Which accounts the forecast covers and which currency it shows, as the user's changes
-  /// from the default (`ForecastSelection`). The changes are applied one at a time, in the
-  /// order they are made: the state is updated, then kept.
+  /// from the default (`ForecastSelection`), kept on this device only under
+  /// `AppMetaKeys.forecastSelection` (never synced). The changes are applied one at a time,
+  /// in the order they are made: the state is updated, then written; when the write fails
+  /// the state goes back and the change's Future fails.
   ForecastSelectionControllerProvider._()
     : super(
         from: null,
@@ -45,11 +51,13 @@ final class ForecastSelectionControllerProvider
 }
 
 String _$forecastSelectionControllerHash() =>
-    r'4b5a09f4049769cb02f778c6b02a7cee4d646d06';
+    r'10b9ebeea2666720bd36045b8ff240b3d8579931';
 
 /// Which accounts the forecast covers and which currency it shows, as the user's changes
-/// from the default (`ForecastSelection`). The changes are applied one at a time, in the
-/// order they are made: the state is updated, then kept.
+/// from the default (`ForecastSelection`), kept on this device only under
+/// `AppMetaKeys.forecastSelection` (never synced). The changes are applied one at a time,
+/// in the order they are made: the state is updated, then written; when the write fails
+/// the state goes back and the change's Future fails.
 
 abstract class _$ForecastSelectionController
     extends $AsyncNotifier<ForecastSelection> {
@@ -73,16 +81,16 @@ abstract class _$ForecastSelectionController
 
 /// What the series shown is projected from: the covered accounts in the currency shown,
 /// their balance as each is shown (reported, else derived: `shownBalance`), their active,
-/// unmuted streams with their live members, and the allowance; null when no account is
-/// covered.
+/// unmuted streams with their live members, the bills (`forecastBills`) over the longest
+/// horizon, and the allowance; null when no account is covered.
 
 @ProviderFor(forecastPlan)
 final forecastPlanProvider = ForecastPlanProvider._();
 
 /// What the series shown is projected from: the covered accounts in the currency shown,
 /// their balance as each is shown (reported, else derived: `shownBalance`), their active,
-/// unmuted streams with their live members, and the allowance; null when no account is
-/// covered.
+/// unmuted streams with their live members, the bills (`forecastBills`) over the longest
+/// horizon, and the allowance; null when no account is covered.
 
 final class ForecastPlanProvider
     extends
@@ -94,8 +102,8 @@ final class ForecastPlanProvider
     with $FutureModifier<ForecastPlan?>, $FutureProvider<ForecastPlan?> {
   /// What the series shown is projected from: the covered accounts in the currency shown,
   /// their balance as each is shown (reported, else derived: `shownBalance`), their active,
-  /// unmuted streams with their live members, and the allowance; null when no account is
-  /// covered.
+  /// unmuted streams with their live members, the bills (`forecastBills`) over the longest
+  /// horizon, and the allowance; null when no account is covered.
   ForecastPlanProvider._()
     : super(
         from: null,
@@ -122,7 +130,7 @@ final class ForecastPlanProvider
   }
 }
 
-String _$forecastPlanHash() => r'd7587312452db61c5fef2715c708f37fdc50d7b3';
+String _$forecastPlanHash() => r'f5a1f56ab6b401bf9a3b6f234f32365f147779e6';
 
 /// The forecast for [horizonDays] days (30 or 90, `forecastHorizons`), or null when no
 /// account is covered.

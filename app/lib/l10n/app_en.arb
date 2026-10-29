@@ -3914,5 +3914,9 @@
   "forecastCurrency": "Currency",
   "@forecastCurrency": {
     "description": "Label of the currency chips in the forecast's account sheet."
+  },
+  "forecastSelectionFailed": "The forecast's accounts could not be saved. Try again.",
+  "@forecastSelectionFailed": {
+    "description": "Shown when a change to the forecast's accounts or currency could not be kept."
   }
 }

@@ -1,9 +1,11 @@
 // The forecast's providers over the in-memory repositories, as of 24 October 2026: the
 // start balance as each account is shown (reported, else derived), the streams counted
 // (active, unmuted, on a covered account, in the currency) with their members' band, the
-// allowance leaving the members out, the selection and the currency, and the series
-// following a new transaction.
+// allowance leaving the members and the bill payments out, the bills (a bill following a
+// projected stream not counted twice), the selection and the currency kept in app_meta,
+// and the series following a new transaction.
 import 'package:finance_tracker/core/config/app_config.dart';
+import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/clock.dart';
@@ -106,12 +108,16 @@ final List<RecurringStream> streams = [
   ).copyWith(accountId: 'card'),
 ];
 
-Future<ProviderContainer> container({InMemoryStore? on}) async {
+Future<ProviderContainer> container({
+  InMemoryStore? on,
+  AppMetaStore? meta,
+}) async {
   final ProviderContainer c = ProviderContainer(
     overrides: [
       appConfigProvider.overrideWithValue(AppConfig.demo()),
       clockProvider.overrideWithValue(clock),
       inMemoryStoreProvider.overrideWithValue(on ?? store()),
+      if (meta != null) appMetaStoreProvider.overrideWithValue(meta),
     ],
   );
   addTearDown(c.dispose);
@@ -199,5 +205,80 @@ void main() {
       ..seedSystemCategories()
       ..upsertAccount(depository('stash', hidden: true));
     expect(await planOf(await container(on: s)), isNull);
+  });
+
+  test(
+    'the selection is kept on the device as changes from the default',
+    () async {
+      final InMemoryAppMetaStore meta = InMemoryAppMetaStore();
+      final ProviderContainer first = await container(meta: meta);
+      await planOf(first);
+      final Account savings =
+          (await first.read(accountRepositoryProvider).watchAll().first)
+              .singleWhere((a) => a.id == 'savings');
+      await first
+          .read(forecastSelectionControllerProvider.notifier)
+          .toggle(savings);
+      expect(
+        await meta.read(AppMetaKeys.forecastSelection),
+        '{"include":[],"exclude":["savings"]}',
+      );
+
+      final ProviderContainer second = await container(meta: meta);
+      expect((await planOf(second))!.start, usd(891000));
+    },
+  );
+
+  test('an unreadable stored selection is the default', () async {
+    final InMemoryAppMetaStore meta = InMemoryAppMetaStore();
+    await meta.write(AppMetaKeys.forecastSelection, '{not json');
+    expect((await planOf(await container(meta: meta)))!.start, usd(5891000));
+  });
+
+  test('bills count unless paid or following a projected stream', () async {
+    final ProviderContainer c = await container();
+    await planOf(c);
+    await c
+        .read(transactionRepositoryProvider)
+        .upsert(txn('water-paid', -4500, LocalDate(2026, 10, 20)));
+    for (final BillReminder b in [
+      // Its October occurrence is paid by water-paid.
+      BillReminder(
+        id: 'water',
+        name: 'Water',
+        amount: usd(-4500),
+        dueDate: LocalDate(2026, 9, 20),
+        cadence: RecurringCadence.monthly,
+        accountId: 'checking',
+      ),
+      // The rent stream is projected, so its bill is not counted again.
+      BillReminder(
+        id: 'rent-bill',
+        name: 'Rent',
+        amount: usd(-150000),
+        dueDate: LocalDate(2026, 9, 1),
+        cadence: RecurringCadence.monthly,
+        accountId: 'checking',
+        streamId: 'rent',
+      ),
+      // The gym stream is muted, so its bill counts.
+      BillReminder(
+        id: 'gym-bill',
+        amount: usd(-5000),
+        dueDate: LocalDate(2026, 11, 3),
+        cadence: RecurringCadence.monthly,
+        streamId: 'gym',
+      ),
+    ]) {
+      await c.read(billRepositoryProvider).upsert(b);
+    }
+    final ForecastPlan plan = (await c.read(forecastPlanProvider.future))!;
+    expect(plan.bills.map((b) => (b.id, b.name)), [
+      ('water', 'Water'),
+      ('gym-bill', 'gym'),
+    ]);
+    expect(plan.bills.first.dates.first, LocalDate(2026, 11, 20));
+    // The coffee alone: the water payment is the bill's, not everyday spending.
+    expect(plan.allowance, usd(100));
   });
 }

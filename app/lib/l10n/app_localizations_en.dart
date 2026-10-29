@@ -2810,4 +2810,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forecastCurrency => 'Currency';
+
+  @override
+  String get forecastSelectionFailed =>
+      'The forecast\'s accounts could not be saved. Try again.';
 }

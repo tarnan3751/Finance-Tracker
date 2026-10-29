@@ -1,8 +1,10 @@
 // The forecast screen on the test household (forecast_seed.dart), as of 24 October 2026:
 // the headline and the chart's summary for each horizon, the table and its rows'
-// semantics, the headline below zero, the empty state, and the account sheet's switches
-// and currency chips.
+// semantics, the headline below zero, the empty state, the account sheet's switches and
+// currency chips, and a switch that cannot be kept.
+import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
+import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/features/forecast/presentation/forecast_accounts_sheet.dart';
 import 'package:finance_tracker/features/forecast/presentation/forecast_chart.dart';
 import 'package:finance_tracker/features/forecast/presentation/forecast_table.dart';
@@ -27,6 +29,16 @@ Transaction _spend(String id, int cents) => Transaction(
   updatedAt: testClock.nowUtc(),
   syncVersion: 0,
 );
+
+/// An app_meta store whose writes fail.
+final class _FailingMetaStore implements AppMetaStore {
+  @override
+  Future<String?> read(String key) async => null;
+
+  @override
+  Future<void> write(String key, String value) async =>
+      throw Exception('the write failed');
+}
 
 void main() {
   testWidgets('the chart for 30 days, then 90', (tester) async {
@@ -178,5 +190,43 @@ void main() {
       find.bySemanticsLabel(RegExp(r'^30-day forecast: \$11,703\.51 today')),
       findsOneWidget,
     );
+  });
+
+  testWidgets('a switch that cannot be kept goes back, with a message', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      overrides: [
+        ...forecastOverrides(),
+        appMetaStoreProvider.overrideWithValue(_FailingMetaStore()),
+      ],
+      router: forecastRouter,
+    );
+    await tester.tap(find.byTooltip('Choose accounts'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Rainy Day'));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<SwitchListTile>(
+            find.widgetWithText(SwitchListTile, 'Rainy Day'),
+          )
+          .value,
+      isFalse,
+    );
+    // In the sheet, where it can be seen, not under it.
+    expect(
+      find
+          .descendant(
+            of: find.byType(ForecastAccountsSheet),
+            matching: find.text(
+              "The forecast's accounts could not be saved. Try again.",
+            ),
+          )
+          .hitTestable(),
+      findsOneWidget,
+    );
+    expect(find.byType(SnackBar), findsNothing);
   });
 }
