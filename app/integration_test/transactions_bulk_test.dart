@@ -10,11 +10,14 @@ import 'package:finance_tracker/bootstrap.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
+import 'package:finance_tracker/features/transactions/presentation/transaction_editor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_models/shared_models.dart';
+
+import 'support/editor.dart';
 
 Finder _tab(String name) =>
     find.descendant(of: find.byType(NavigationBar), matching: find.text(name));
@@ -54,7 +57,7 @@ void main() {
     await _tap(tester, first);
     await _tap(tester, find.byTooltip('More options'));
     await _tap(tester, find.byType(CheckedPopupMenuItem<void>));
-    await _tap(tester, find.text('Save'));
+    await saveEditor(tester, TransactionEditorScreen);
     expect((await stored(newest[0].id)).hidden, isTrue);
     expect(first, findsNothing);
 

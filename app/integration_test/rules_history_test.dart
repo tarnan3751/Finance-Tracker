@@ -34,6 +34,8 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_models/shared_models.dart';
 
+import 'support/editor.dart';
+
 Finder _field(String label) => find.widgetWithText(TextFormField, label);
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
@@ -75,14 +77,6 @@ Future<void> _previewReads(WidgetTester tester, String text) async {
   await tester.drag(find.byType(ListView).first, const Offset(0, -3000));
   await tester.pumpAndSettle();
   await _pumpUntil(tester, () => find.text(text).evaluate().isNotEmpty);
-}
-
-/// Taps Save on the [editor] screen and pumps until it has closed. The editor writes the
-/// database off the UI isolate and then pops whatever page is on top, so a navigation made
-/// before that pop is the page it closes.
-Future<void> _save(WidgetTester tester, Type editor) async {
-  await _tap(tester, find.text('Save'));
-  await _pumpUntil(tester, () => find.byType(editor).evaluate().isEmpty);
 }
 
 Future<void> _addFromMenu(WidgetTester tester, String menu, String item) async {
@@ -150,7 +144,7 @@ void main() {
       await tester.enterText(_field('Tag'), 'history');
       final String preview = 'Would change $count of $count transactions';
       await _previewReads(tester, preview);
-      await _save(tester, RuleEditorScreen);
+      await saveEditor(tester, RuleEditorScreen);
 
       // The saved rule, opened again once the database has it.
       List<Rule> rules = const [];

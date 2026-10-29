@@ -13,12 +13,15 @@ import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/presentation/receipt_view.dart';
+import 'package:finance_tracker/features/transactions/presentation/transaction_editor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_models/shared_models.dart';
+
+import 'support/editor.dart';
 
 Finder _tab(String name) =>
     find.descendant(of: find.byType(NavigationBar), matching: find.text(name));
@@ -90,7 +93,7 @@ void main() {
     expect(find.byType(ReceiptViewScreen), findsOneWidget);
     await _tap(tester, find.byType(CloseButton));
 
-    await _tap(tester, find.text('Save'));
+    await saveEditor(tester, TransactionEditorScreen);
     final Transaction saved = await stored(newest.id);
     expect(saved.splits, hasLength(2));
     expect(Money.sum(saved.splits.map((s) => s.amount)), saved.amount);
@@ -122,7 +125,7 @@ void main() {
     await _tap(tester, find.byKey(ValueKey(newest.id)));
     await _scrollTo(tester, find.text('Remove receipt'));
     await _tap(tester, find.text('Remove receipt'));
-    await _tap(tester, find.text('Save'));
+    await saveEditor(tester, TransactionEditorScreen);
     expect((await stored(newest.id)).receiptPath, isNull);
     expect(
       await container

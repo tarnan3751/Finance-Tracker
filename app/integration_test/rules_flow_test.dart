@@ -35,6 +35,8 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_models/shared_models.dart';
 
+import 'support/editor.dart';
+
 Finder _field(String label) => find.widgetWithText(TextFormField, label);
 
 Finder _tab(String name) =>
@@ -63,14 +65,6 @@ Future<void> _pumpUntil(WidgetTester tester, bool Function() done) async {
   }
   if (done()) return;
   fail('the app never got there in ${_patience.inSeconds} s');
-}
-
-/// Taps Save on the [editor] screen and pumps until it has closed. The editor writes the
-/// database off the UI isolate and then pops whatever page is on top, so a navigation made
-/// before that pop is the page it closes.
-Future<void> _save(WidgetTester tester, Type editor) async {
-  await _tap(tester, find.text('Save'));
-  await _pumpUntil(tester, () => find.byType(editor).evaluate().isEmpty);
 }
 
 /// Pumps until no Item action runs: the link, its sync and its pull have finished, as the
@@ -131,7 +125,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     await _tap(tester, find.text('Coffee').last);
-    await _save(tester, RuleEditorScreen);
+    await saveEditor(tester, RuleEditorScreen);
     expect(find.text('Trader Joe\'s as coffee'), findsOneWidget);
 
     final Transaction groceries =
@@ -152,7 +146,7 @@ void main() {
       find.text('Applied the rule “Trader Joe\'s as coffee”. Save to keep it.'),
       findsOneWidget,
     );
-    await _save(tester, TransactionEditorScreen);
+    await saveEditor(tester, TransactionEditorScreen);
     final Transaction filed = (await container
         .read(transactionRepositoryProvider)
         .watchById(groceries.id)
@@ -189,7 +183,7 @@ void main() {
       await tester.enterText(_field('At least'), '0');
       await _addFromMenu(tester, 'Add action', 'Add a tag');
       await tester.enterText(_field('Tag'), 'ruled');
-      await _save(tester, RuleEditorScreen);
+      await saveEditor(tester, RuleEditorScreen);
       expect(find.text('Tag everything'), findsOneWidget);
 
       final ProviderContainer container = _container(tester);
@@ -228,7 +222,7 @@ void main() {
         find.text('Applied the rule “Tag everything”. Save to keep it.'),
         findsOneWidget,
       );
-      await _save(tester, TransactionEditorScreen);
+      await saveEditor(tester, TransactionEditorScreen);
 
       final Transaction manual =
           (await container

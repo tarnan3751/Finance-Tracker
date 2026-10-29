@@ -21,6 +21,7 @@ import 'package:finance_tracker/core/platform/reminder_scheduler.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:finance_tracker/core/router/app_router.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/features/bills/presentation/bill_editor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,6 +30,8 @@ import 'package:integration_test/integration_test.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:timezone/timezone.dart' as tz;
+
+import 'support/editor.dart';
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
@@ -82,7 +85,7 @@ void main() {
     await _tap(tester, find.text('OK'));
     await _tap(tester, find.text('On the day'));
     await _tap(tester, find.text('2 days before'));
-    await _tap(tester, find.text('Save'));
+    await saveEditor(tester, BillEditorScreen);
     expect(find.widgetWithText(AppBar, 'Plan'), findsOneWidget);
     // Under the persona's suggestions, in Due soon.
     await tester.scrollUntilVisible(
