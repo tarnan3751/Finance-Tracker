@@ -70,7 +70,8 @@ import 'package:finance_tracker/core/api/fake/fake_validation.dart';
 import 'package:finance_tracker/core/api/token_store.dart';
 import 'package:persona_engine/persona_engine.dart'
     show PersonaId, generateDemoSeed;
-import 'package:shared_models/shared_models.dart';
+import 'package:shared_models/shared_models.dart'
+    hide Holding, InvestmentTransaction, Security;
 import 'package:sync_engine/sync_engine.dart';
 
 /// One contract operation the fake serves.

@@ -20,7 +20,8 @@ import 'package:persona_engine/src/model/persona.dart';
 import 'package:persona_engine/src/model/recurring_expectation.dart';
 import 'package:persona_engine/src/model/schedule.dart';
 import 'package:persona_engine/src/random/pcg32.dart';
-import 'package:shared_models/shared_models.dart' hide Liability;
+import 'package:shared_models/shared_models.dart'
+    hide Holding, InvestmentTransaction, Liability, Security;
 
 /// The longest window: Plaid accepts injected dates up to 730 days back (`PLAN.md` §4).
 const int maxWindowDays = 730;

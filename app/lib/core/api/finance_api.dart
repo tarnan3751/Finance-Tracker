@@ -12,7 +12,8 @@ library;
 import 'dart:typed_data';
 
 import 'package:finance_tracker/core/api/api_models.dart';
-import 'package:shared_models/shared_models.dart';
+import 'package:shared_models/shared_models.dart'
+    hide Holding, InvestmentTransaction, Security;
 import 'package:sync_engine/sync_engine.dart';
 
 /// The API.

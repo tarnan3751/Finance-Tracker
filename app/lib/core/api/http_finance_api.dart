@@ -30,7 +30,8 @@ import 'package:finance_tracker/core/api/problems.dart';
 import 'package:finance_tracker/core/api/token_store.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:logging/logging.dart';
-import 'package:shared_models/shared_models.dart';
+import 'package:shared_models/shared_models.dart'
+    hide Holding, InvestmentTransaction, Security;
 import 'package:sync_engine/sync_engine.dart';
 
 final Logger _log = Logger('api');

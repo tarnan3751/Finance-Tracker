@@ -1,7 +1,8 @@
 // Invariants every household must hold, shared by the per-persona tests and the property
 // tests over many seeds. Each returns a list of violations, empty when the household holds.
 import 'package:persona_engine/persona_engine.dart';
-import 'package:shared_models/shared_models.dart';
+import 'package:shared_models/shared_models.dart'
+    hide Holding, InvestmentTransaction, Security;
 
 /// Opening plus transactions is each non-investment account's balance; an investment
 /// account's balance is its holdings plus its cash.

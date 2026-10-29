@@ -8,7 +8,8 @@ library;
 import 'package:persona_engine/src/model/investments.dart';
 import 'package:persona_engine/src/model/persona.dart';
 import 'package:persona_engine/src/random/pcg32.dart';
-import 'package:shared_models/shared_models.dart';
+import 'package:shared_models/shared_models.dart'
+    hide Holding, InvestmentTransaction, Security;
 
 /// The account's state through its life.
 final class BrokerageBook {

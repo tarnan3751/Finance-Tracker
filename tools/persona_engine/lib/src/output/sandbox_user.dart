@@ -36,7 +36,8 @@ import 'package:persona_engine/src/model/liabilities.dart';
 import 'package:persona_engine/src/model/persona.dart';
 import 'package:persona_engine/src/output/json_writer.dart';
 import 'package:persona_engine/src/output/sandbox_split.dart';
-import 'package:shared_models/shared_models.dart' hide Liability;
+import 'package:shared_models/shared_models.dart'
+    hide Holding, InvestmentTransaction, Liability, Security;
 
 /// [money] in Plaid's number form.
 JsonDecimal plaidNumber(Money money) => JsonDecimal(money.toDecimalString());

@@ -16,7 +16,8 @@ import 'package:finance_tracker/core/api/api_models.dart';
 import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:persona_engine/persona_engine.dart'
     show DemoSeed, GeneratedHousehold;
-import 'package:shared_models/shared_models.dart';
+import 'package:shared_models/shared_models.dart'
+    hide Holding, InvestmentTransaction, Security;
 
 /// One Item's data.
 final class FakeItemData {
