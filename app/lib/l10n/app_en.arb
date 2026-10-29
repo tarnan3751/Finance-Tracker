@@ -4392,5 +4392,257 @@
   "forecastSelectionFailed": "The forecast's accounts could not be saved. Try again.",
   "@forecastSelectionFailed": {
     "description": "Shown when a change to the forecast's accounts or currency could not be kept."
+  },
+  "goalsNew": "New goal",
+  "@goalsNew": {
+    "description": "Action that opens the editor of a new savings goal."
+  },
+  "goalsEmptyTitle": "No savings goals yet",
+  "@goalsEmptyTitle": {
+    "description": "Shown on the goals screen when there are none."
+  },
+  "goalsEmptyBody": "Set a target and a date, and see how much to set aside each month.",
+  "@goalsEmptyBody": {
+    "description": "Explains what a savings goal does, on the empty goals screen."
+  },
+  "goalsArchived": "Archived ({count})",
+  "@goalsArchived": {
+    "description": "Heading of the folded section of archived goals, with how many there are.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "goalProgressOf": "{progress} of {target}",
+  "@goalProgressOf": {
+    "description": "How far a goal has come: the progress amount and the target amount.",
+    "placeholders": {
+      "progress": {
+        "type": "String",
+        "example": "$3,680.00"
+      },
+      "target": {
+        "type": "String",
+        "example": "$10,000.00"
+      }
+    }
+  },
+  "goalProgressPercent": "{percent} percent of the target",
+  "@goalProgressPercent": {
+    "description": "What a screen reader says for a goal's progress bar, read with the goal's name and amounts beside it.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "goalOnTrack": "On track",
+  "@goalOnTrack": {
+    "description": "Status of a goal whose progress is at least what its plan expects by today."
+  },
+  "goalBehind": "Behind by {amount}",
+  "@goalBehind": {
+    "description": "Status of a goal whose progress is below what its plan expects by today, by how much.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$150.00"
+      }
+    }
+  },
+  "goalDone": "Done",
+  "@goalDone": {
+    "description": "Status of a goal that reached its target."
+  },
+  "goalSuggestion": "Set aside {amount} a month",
+  "@goalSuggestion": {
+    "description": "The monthly amount that reaches a goal's target by its date.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$175.00"
+      }
+    }
+  },
+  "goalTargetDateCaption": "By {date}",
+  "@goalTargetDateCaption": {
+    "description": "A goal's target date, under its name.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Oct 24, 2027"
+      }
+    }
+  },
+  "goalNotFound": "This goal no longer exists.",
+  "@goalNotFound": {
+    "description": "Shown when the goal being opened or saved was deleted."
+  },
+  "goalNewTitle": "New goal",
+  "@goalNewTitle": {
+    "description": "Title of the editor of a new goal."
+  },
+  "goalEditTitle": "Edit goal",
+  "@goalEditTitle": {
+    "description": "Title of the editor of an existing goal, and the tooltip of the action that opens it."
+  },
+  "goalName": "Name",
+  "@goalName": {
+    "description": "Label of a goal's name field."
+  },
+  "goalNameRequired": "Enter a name",
+  "@goalNameRequired": {
+    "description": "Error under an empty goal name."
+  },
+  "goalTarget": "Target amount",
+  "@goalTarget": {
+    "description": "Label of a goal's target amount field."
+  },
+  "goalKind": "Progress from",
+  "@goalKind": {
+    "description": "Label of the choice of how a goal measures its progress."
+  },
+  "goalKindBalance": "Account balances",
+  "@goalKindBalance": {
+    "description": "A goal whose progress is the balance of the accounts chosen for it."
+  },
+  "goalKindContribution": "Contributions",
+  "@goalKindContribution": {
+    "description": "A goal whose progress is the sum of the contributions added to it."
+  },
+  "goalKindBalanceCaption": "Progress is the balance of the accounts you choose.",
+  "@goalKindBalanceCaption": {
+    "description": "Explains a balance goal, under the choice."
+  },
+  "goalKindContributionCaption": "Progress is what you add to the goal yourself.",
+  "@goalKindContributionCaption": {
+    "description": "Explains a contribution goal, under the choice."
+  },
+  "goalAccounts": "Accounts",
+  "@goalAccounts": {
+    "description": "Heading of the accounts a balance goal counts."
+  },
+  "goalAccountsRequired": "Choose at least one account",
+  "@goalAccountsRequired": {
+    "description": "Error when a balance goal has no account chosen."
+  },
+  "goalAccountOtherCurrency": "In {currency}, not counted",
+  "@goalAccountOtherCurrency": {
+    "description": "Subtitle of an account in another currency than the goal's target: it does not count toward it.",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "EUR"
+      }
+    }
+  },
+  "goalTargetDate": "Target date",
+  "@goalTargetDate": {
+    "description": "Label of a goal's optional target date."
+  },
+  "goalNoTargetDate": "No date",
+  "@goalNoTargetDate": {
+    "description": "Shown in the target date field when the goal has none."
+  },
+  "goalClearTargetDate": "Clear date",
+  "@goalClearTargetDate": {
+    "description": "Action that removes a goal's target date."
+  },
+  "goalNote": "Note",
+  "@goalNote": {
+    "description": "Label of a goal's note field."
+  },
+  "goalArchive": "Archive",
+  "@goalArchive": {
+    "description": "Action that archives a goal: it is kept, folded away."
+  },
+  "goalUnarchive": "Unarchive",
+  "@goalUnarchive": {
+    "description": "Action that brings an archived goal back."
+  },
+  "goalArchivedMessage": "Goal archived",
+  "@goalArchivedMessage": {
+    "description": "Snack bar after archiving a goal, with an undo action."
+  },
+  "goalDeleted": "Goal deleted",
+  "@goalDeleted": {
+    "description": "Snack bar after deleting a goal, with an undo action."
+  },
+  "goalCountedAccounts": "Counted accounts",
+  "@goalCountedAccounts": {
+    "description": "Heading of the accounts whose balances make a balance goal's progress, on its detail."
+  },
+  "goalNotCounted": "Not counted, another currency: {names}",
+  "@goalNotCounted": {
+    "description": "The accounts linked to a goal that are in another currency than its target, which do not count.",
+    "placeholders": {
+      "names": {
+        "type": "String",
+        "example": "Euro savings"
+      }
+    }
+  },
+  "goalContributions": "Contributions",
+  "@goalContributions": {
+    "description": "Heading of a goal's contribution list."
+  },
+  "goalNoContributions": "No contributions yet.",
+  "@goalNoContributions": {
+    "description": "Shown when a contribution goal has none."
+  },
+  "goalAddContribution": "Add contribution",
+  "@goalAddContribution": {
+    "description": "Action that adds a contribution to a goal, and the title of its editor."
+  },
+  "contributionDate": "Date",
+  "@contributionDate": {
+    "description": "Label of a contribution's date."
+  },
+  "contributionAmount": "Amount",
+  "@contributionAmount": {
+    "description": "Label of a contribution's amount."
+  },
+  "contributionNote": "Note",
+  "@contributionNote": {
+    "description": "Label of a contribution's note."
+  },
+  "contributionWithdrawal": "Withdrawal",
+  "@contributionWithdrawal": {
+    "description": "Switch that makes a contribution take money out of the goal."
+  },
+  "contributionWithdrawalCaption": "Takes the amount out of the goal.",
+  "@contributionWithdrawalCaption": {
+    "description": "Explains the withdrawal switch."
+  },
+  "contributionDelete": "Delete contribution",
+  "@contributionDelete": {
+    "description": "Tooltip of the action deleting a contribution."
+  },
+  "contributionDeleted": "Contribution deleted",
+  "@contributionDeleted": {
+    "description": "Snack bar after deleting a contribution, with an undo action."
+  },
+  "goalTargetDatePast": "Choose today or a later date",
+  "@goalTargetDatePast": {
+    "description": "Error under a goal's target date when it is before today."
+  },
+  "goalCurrencyLocked": "The currency stays as it is once the goal has contributions or accounts.",
+  "@goalCurrencyLocked": {
+    "description": "Caption under a goal's currency choice when it can no longer change."
+  },
+  "contributionNotCounted": "Not counted, in {currency}",
+  "@contributionNotCounted": {
+    "description": "Shown on a contribution in another currency than its goal's target: it does not count toward it.",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "EUR"
+      }
+    }
+  },
+  "contributionDateFuture": "Choose today or an earlier date",
+  "@contributionDateFuture": {
+    "description": "Error under a contribution's date when it is after today."
   }
 }

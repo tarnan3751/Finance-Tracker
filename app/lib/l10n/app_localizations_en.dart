@@ -3096,4 +3096,174 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get forecastSelectionFailed =>
       'The forecast\'s accounts could not be saved. Try again.';
+
+  @override
+  String get goalsNew => 'New goal';
+
+  @override
+  String get goalsEmptyTitle => 'No savings goals yet';
+
+  @override
+  String get goalsEmptyBody =>
+      'Set a target and a date, and see how much to set aside each month.';
+
+  @override
+  String goalsArchived(int count) {
+    return 'Archived ($count)';
+  }
+
+  @override
+  String goalProgressOf(String progress, String target) {
+    return '$progress of $target';
+  }
+
+  @override
+  String goalProgressPercent(int percent) {
+    return '$percent percent of the target';
+  }
+
+  @override
+  String get goalOnTrack => 'On track';
+
+  @override
+  String goalBehind(String amount) {
+    return 'Behind by $amount';
+  }
+
+  @override
+  String get goalDone => 'Done';
+
+  @override
+  String goalSuggestion(String amount) {
+    return 'Set aside $amount a month';
+  }
+
+  @override
+  String goalTargetDateCaption(String date) {
+    return 'By $date';
+  }
+
+  @override
+  String get goalNotFound => 'This goal no longer exists.';
+
+  @override
+  String get goalNewTitle => 'New goal';
+
+  @override
+  String get goalEditTitle => 'Edit goal';
+
+  @override
+  String get goalName => 'Name';
+
+  @override
+  String get goalNameRequired => 'Enter a name';
+
+  @override
+  String get goalTarget => 'Target amount';
+
+  @override
+  String get goalKind => 'Progress from';
+
+  @override
+  String get goalKindBalance => 'Account balances';
+
+  @override
+  String get goalKindContribution => 'Contributions';
+
+  @override
+  String get goalKindBalanceCaption =>
+      'Progress is the balance of the accounts you choose.';
+
+  @override
+  String get goalKindContributionCaption =>
+      'Progress is what you add to the goal yourself.';
+
+  @override
+  String get goalAccounts => 'Accounts';
+
+  @override
+  String get goalAccountsRequired => 'Choose at least one account';
+
+  @override
+  String goalAccountOtherCurrency(String currency) {
+    return 'In $currency, not counted';
+  }
+
+  @override
+  String get goalTargetDate => 'Target date';
+
+  @override
+  String get goalNoTargetDate => 'No date';
+
+  @override
+  String get goalClearTargetDate => 'Clear date';
+
+  @override
+  String get goalNote => 'Note';
+
+  @override
+  String get goalArchive => 'Archive';
+
+  @override
+  String get goalUnarchive => 'Unarchive';
+
+  @override
+  String get goalArchivedMessage => 'Goal archived';
+
+  @override
+  String get goalDeleted => 'Goal deleted';
+
+  @override
+  String get goalCountedAccounts => 'Counted accounts';
+
+  @override
+  String goalNotCounted(String names) {
+    return 'Not counted, another currency: $names';
+  }
+
+  @override
+  String get goalContributions => 'Contributions';
+
+  @override
+  String get goalNoContributions => 'No contributions yet.';
+
+  @override
+  String get goalAddContribution => 'Add contribution';
+
+  @override
+  String get contributionDate => 'Date';
+
+  @override
+  String get contributionAmount => 'Amount';
+
+  @override
+  String get contributionNote => 'Note';
+
+  @override
+  String get contributionWithdrawal => 'Withdrawal';
+
+  @override
+  String get contributionWithdrawalCaption =>
+      'Takes the amount out of the goal.';
+
+  @override
+  String get contributionDelete => 'Delete contribution';
+
+  @override
+  String get contributionDeleted => 'Contribution deleted';
+
+  @override
+  String get goalTargetDatePast => 'Choose today or a later date';
+
+  @override
+  String get goalCurrencyLocked =>
+      'The currency stays as it is once the goal has contributions or accounts.';
+
+  @override
+  String contributionNotCounted(String currency) {
+    return 'Not counted, in $currency';
+  }
+
+  @override
+  String get contributionDateFuture => 'Choose today or an earlier date';
 }

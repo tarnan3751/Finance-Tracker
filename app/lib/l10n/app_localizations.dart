@@ -4689,6 +4689,300 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The forecast\'s accounts could not be saved. Try again.'**
   String get forecastSelectionFailed;
+
+  /// Action that opens the editor of a new savings goal.
+  ///
+  /// In en, this message translates to:
+  /// **'New goal'**
+  String get goalsNew;
+
+  /// Shown on the goals screen when there are none.
+  ///
+  /// In en, this message translates to:
+  /// **'No savings goals yet'**
+  String get goalsEmptyTitle;
+
+  /// Explains what a savings goal does, on the empty goals screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a target and a date, and see how much to set aside each month.'**
+  String get goalsEmptyBody;
+
+  /// Heading of the folded section of archived goals, with how many there are.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived ({count})'**
+  String goalsArchived(int count);
+
+  /// How far a goal has come: the progress amount and the target amount.
+  ///
+  /// In en, this message translates to:
+  /// **'{progress} of {target}'**
+  String goalProgressOf(String progress, String target);
+
+  /// What a screen reader says for a goal's progress bar, read with the goal's name and amounts beside it.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} percent of the target'**
+  String goalProgressPercent(int percent);
+
+  /// Status of a goal whose progress is at least what its plan expects by today.
+  ///
+  /// In en, this message translates to:
+  /// **'On track'**
+  String get goalOnTrack;
+
+  /// Status of a goal whose progress is below what its plan expects by today, by how much.
+  ///
+  /// In en, this message translates to:
+  /// **'Behind by {amount}'**
+  String goalBehind(String amount);
+
+  /// Status of a goal that reached its target.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get goalDone;
+
+  /// The monthly amount that reaches a goal's target by its date.
+  ///
+  /// In en, this message translates to:
+  /// **'Set aside {amount} a month'**
+  String goalSuggestion(String amount);
+
+  /// A goal's target date, under its name.
+  ///
+  /// In en, this message translates to:
+  /// **'By {date}'**
+  String goalTargetDateCaption(String date);
+
+  /// Shown when the goal being opened or saved was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'This goal no longer exists.'**
+  String get goalNotFound;
+
+  /// Title of the editor of a new goal.
+  ///
+  /// In en, this message translates to:
+  /// **'New goal'**
+  String get goalNewTitle;
+
+  /// Title of the editor of an existing goal, and the tooltip of the action that opens it.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit goal'**
+  String get goalEditTitle;
+
+  /// Label of a goal's name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get goalName;
+
+  /// Error under an empty goal name.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get goalNameRequired;
+
+  /// Label of a goal's target amount field.
+  ///
+  /// In en, this message translates to:
+  /// **'Target amount'**
+  String get goalTarget;
+
+  /// Label of the choice of how a goal measures its progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress from'**
+  String get goalKind;
+
+  /// A goal whose progress is the balance of the accounts chosen for it.
+  ///
+  /// In en, this message translates to:
+  /// **'Account balances'**
+  String get goalKindBalance;
+
+  /// A goal whose progress is the sum of the contributions added to it.
+  ///
+  /// In en, this message translates to:
+  /// **'Contributions'**
+  String get goalKindContribution;
+
+  /// Explains a balance goal, under the choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress is the balance of the accounts you choose.'**
+  String get goalKindBalanceCaption;
+
+  /// Explains a contribution goal, under the choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress is what you add to the goal yourself.'**
+  String get goalKindContributionCaption;
+
+  /// Heading of the accounts a balance goal counts.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts'**
+  String get goalAccounts;
+
+  /// Error when a balance goal has no account chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least one account'**
+  String get goalAccountsRequired;
+
+  /// Subtitle of an account in another currency than the goal's target: it does not count toward it.
+  ///
+  /// In en, this message translates to:
+  /// **'In {currency}, not counted'**
+  String goalAccountOtherCurrency(String currency);
+
+  /// Label of a goal's optional target date.
+  ///
+  /// In en, this message translates to:
+  /// **'Target date'**
+  String get goalTargetDate;
+
+  /// Shown in the target date field when the goal has none.
+  ///
+  /// In en, this message translates to:
+  /// **'No date'**
+  String get goalNoTargetDate;
+
+  /// Action that removes a goal's target date.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear date'**
+  String get goalClearTargetDate;
+
+  /// Label of a goal's note field.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get goalNote;
+
+  /// Action that archives a goal: it is kept, folded away.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get goalArchive;
+
+  /// Action that brings an archived goal back.
+  ///
+  /// In en, this message translates to:
+  /// **'Unarchive'**
+  String get goalUnarchive;
+
+  /// Snack bar after archiving a goal, with an undo action.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal archived'**
+  String get goalArchivedMessage;
+
+  /// Snack bar after deleting a goal, with an undo action.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal deleted'**
+  String get goalDeleted;
+
+  /// Heading of the accounts whose balances make a balance goal's progress, on its detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Counted accounts'**
+  String get goalCountedAccounts;
+
+  /// The accounts linked to a goal that are in another currency than its target, which do not count.
+  ///
+  /// In en, this message translates to:
+  /// **'Not counted, another currency: {names}'**
+  String goalNotCounted(String names);
+
+  /// Heading of a goal's contribution list.
+  ///
+  /// In en, this message translates to:
+  /// **'Contributions'**
+  String get goalContributions;
+
+  /// Shown when a contribution goal has none.
+  ///
+  /// In en, this message translates to:
+  /// **'No contributions yet.'**
+  String get goalNoContributions;
+
+  /// Action that adds a contribution to a goal, and the title of its editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Add contribution'**
+  String get goalAddContribution;
+
+  /// Label of a contribution's date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get contributionDate;
+
+  /// Label of a contribution's amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get contributionAmount;
+
+  /// Label of a contribution's note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get contributionNote;
+
+  /// Switch that makes a contribution take money out of the goal.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal'**
+  String get contributionWithdrawal;
+
+  /// Explains the withdrawal switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Takes the amount out of the goal.'**
+  String get contributionWithdrawalCaption;
+
+  /// Tooltip of the action deleting a contribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete contribution'**
+  String get contributionDelete;
+
+  /// Snack bar after deleting a contribution, with an undo action.
+  ///
+  /// In en, this message translates to:
+  /// **'Contribution deleted'**
+  String get contributionDeleted;
+
+  /// Error under a goal's target date when it is before today.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose today or a later date'**
+  String get goalTargetDatePast;
+
+  /// Caption under a goal's currency choice when it can no longer change.
+  ///
+  /// In en, this message translates to:
+  /// **'The currency stays as it is once the goal has contributions or accounts.'**
+  String get goalCurrencyLocked;
+
+  /// Shown on a contribution in another currency than its goal's target: it does not count toward it.
+  ///
+  /// In en, this message translates to:
+  /// **'Not counted, in {currency}'**
+  String contributionNotCounted(String currency);
+
+  /// Error under a contribution's date when it is after today.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose today or an earlier date'**
+  String get contributionDateFuture;
 }
 
 class _AppLocalizationsDelegate

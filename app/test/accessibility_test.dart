@@ -2,12 +2,12 @@
 // enough and labelled, text has enough contrast, and nothing overflows at twice the text
 // size. The shell's tabs and the linked banks are checked empty; every screen is also
 // checked on the demo seed (two accounts, twelve transactions, the system categories, two
-// rules, the three test budgets, the test streams and the test bills) with the linked
+// rules, the three test budgets, the test streams, the test bills and the test goals) with the linked
 // test data (the three test banks, two linked accounts, Plaid transactions), and the
 // filter sheet, the category picker, the transaction list's menu and selection mode, the
 // transaction editor's menu, the budget alerts sheet, the rule editor's menu and the
 // apply confirmation, the subscriptions' folded sections, a stream's menu, the paused
-// bills and the bill calendar open over their screens, and the editor's receipt (a photo
+// bills and the bill calendar open over their screens, the archived goals unfolded, and the editor's receipt (a photo
 // from the fake image source) and its full-screen view. The forecast's chart, table and
 // account sheet are checked on the forecast household through ForecastScreen. The sign-in
 // and registration screens are checked signed out; their text scale is checked with their
@@ -29,6 +29,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'helpers/bill_seed.dart';
 import 'helpers/budget_seed.dart';
 import 'helpers/forecast_seed.dart';
+import 'helpers/goal_seed.dart';
 import 'helpers/pump_app.dart';
 import 'helpers/rule_seed.dart';
 import 'helpers/seed.dart';
@@ -167,7 +168,7 @@ final Map<String, _Screen> _screens = {
   ),
   'New bill': (location: '/bills/new', seeded: true, open: null),
   'Forecast': (location: '/forecast', seeded: true, open: null),
-  'Insights placeholder': (location: '/goals', seeded: false, open: null),
+  'Insights placeholder': (location: '/net-worth', seeded: false, open: null),
   'Reports': (location: '/reports', seeded: true, open: null),
   'Weekly summary': (location: '/reports/weekly', seeded: true, open: null),
   'Reports, tables': (
@@ -226,6 +227,33 @@ final Map<String, _Screen> _screens = {
       );
     },
   ),
+  'Goals (empty)': (location: '/goals', seeded: false, open: null),
+  'Goals': (location: '/goals', seeded: true, open: null),
+  'Goals archived': (
+    location: '/goals',
+    seeded: true,
+    open: (tester) async {
+      await tester.scrollUntilVisible(
+        find.text('Archived (1)'),
+        300,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await _tapAndSettle(tester, find.text('Archived (1)'));
+    },
+  ),
+  'Goal (balance)': (location: '/goals/goal-fund', seeded: true, open: null),
+  'Goal (contributions)': (
+    location: '/goals/goal-trip',
+    seeded: true,
+    open: null,
+  ),
+  'New goal': (location: '/goals/new', seeded: true, open: null),
+  'Edit goal': (location: '/goals/goal-trip/edit', seeded: true, open: null),
+  'Add contribution': (
+    location: '/goals/goal-trip/contribute',
+    seeded: true,
+    open: null,
+  ),
   'Categories': (location: '/settings/categories', seeded: true, open: null),
   'Rules (empty)': (location: '/settings/rules', seeded: false, open: null),
   'Rules': (location: '/settings/rules', seeded: true, open: null),
@@ -277,6 +305,7 @@ List<Override> _overrides(_Screen screen) => screen.seeded
             initial: testBills(),
           ),
         ),
+        goalsOverride(),
         imageSourceProvider.overrideWithValue(
           FakeImageSource(
             () async => PickedImage(

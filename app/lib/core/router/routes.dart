@@ -6,7 +6,7 @@
 /// | Accounts | `/accounts`, `/accounts/new`, `/accounts/linked-banks`, `/accounts/:id`, `/accounts/:id/edit` |
 /// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/duplicates`, `/transactions/:id` |
 /// | Plan | `/plan` (redirects to `/budgets`); `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new?stream-id=<id>`, `/bills/new?liability-account-id=<id>`, `/bills/subscriptions`, `/bills/:id`; `/forecast` |
-/// | Insights | `/insights` (redirects to `/reports`); `/reports`, `/reports/weekly`; `/net-worth`; `/investments`; `/goals` |
+/// | Insights | `/insights` (redirects to `/reports`); `/reports`, `/reports/weekly`; `/net-worth`; `/investments`; `/goals`, `/goals/new`, `/goals/:id`, `/goals/:id/edit`, `/goals/:id/contribute` |
 /// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
@@ -43,6 +43,10 @@ import 'package:finance_tracker/features/categories/presentation/categories_scre
 import 'package:finance_tracker/features/categories/presentation/category_editor_screen.dart';
 import 'package:finance_tracker/features/duplicates/presentation/duplicate_review_screen.dart';
 import 'package:finance_tracker/features/forecast/presentation/forecast_view.dart';
+import 'package:finance_tracker/features/goals/presentation/contribution_editor_screen.dart';
+import 'package:finance_tracker/features/goals/presentation/goal_detail_screen.dart';
+import 'package:finance_tracker/features/goals/presentation/goal_editor_screen.dart';
+import 'package:finance_tracker/features/goals/presentation/goals_screen.dart';
 import 'package:finance_tracker/features/items/presentation/items_screen.dart';
 import 'package:finance_tracker/features/recurring/presentation/subscriptions_screen.dart';
 import 'package:finance_tracker/features/reports/presentation/reports_view.dart';
@@ -132,7 +136,20 @@ part 'routes.g.dart';
         ),
         TypedGoRoute<NetWorthRoute>(path: '/net-worth'),
         TypedGoRoute<InvestmentsRoute>(path: '/investments'),
-        TypedGoRoute<GoalsRoute>(path: '/goals'),
+        TypedGoRoute<GoalsRoute>(
+          path: '/goals',
+          routes: <TypedRoute<RouteData>>[
+            // Before `:id`, so it is not read as a goal id.
+            TypedGoRoute<NewGoalRoute>(path: 'new'),
+            TypedGoRoute<GoalDetailRoute>(
+              path: ':id',
+              routes: <TypedRoute<RouteData>>[
+                TypedGoRoute<EditGoalRoute>(path: 'edit'),
+                TypedGoRoute<NewContributionRoute>(path: 'contribute'),
+              ],
+            ),
+          ],
+        ),
       ],
     ),
     TypedStatefulShellBranch<SettingsBranch>(
@@ -475,20 +492,6 @@ class InvestmentsRoute extends GoRouteData with $InvestmentsRoute {
       );
 }
 
-/// `/goals`: the Insights tab's Goals segment (a placeholder until goals land).
-class GoalsRoute extends GoRouteData with $GoalsRoute {
-  const GoalsRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      const NoTransitionPage(
-        child: InsightsScaffold(
-          segment: InsightsSegment.goals,
-          body: InsightsPlaceholder(),
-        ),
-      );
-}
-
 /// `/settings`: the settings screen.
 class SettingsRoute extends GoRouteData with $SettingsRoute {
   const SettingsRoute();
@@ -574,4 +577,55 @@ class RegisterRoute extends GoRouteData with $RegisterRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const RegisterScreen();
+}
+
+/// `/goals`: the Insights tab's Goals segment, the savings goals.
+class GoalsRoute extends GoRouteData with $GoalsRoute {
+  const GoalsRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      const NoTransitionPage(child: GoalsScreen());
+}
+
+/// `/goals/new`: the editor of a new goal.
+class NewGoalRoute extends GoRouteData with $NewGoalRoute {
+  const NewGoalRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const GoalEditorScreen();
+}
+
+/// `/goals/:id`: a goal's detail, with its accounts or contributions.
+class GoalDetailRoute extends GoRouteData with $GoalDetailRoute {
+  const GoalDetailRoute(this.id);
+
+  final String id;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      GoalDetailScreen(goalId: id);
+}
+
+/// `/goals/:id/edit`: the editor of an existing goal.
+class EditGoalRoute extends GoRouteData with $EditGoalRoute {
+  const EditGoalRoute(this.id);
+
+  final String id;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      GoalEditorScreen(goalId: id);
+}
+
+/// `/goals/:id/contribute`: a new contribution to a goal.
+class NewContributionRoute extends GoRouteData with $NewContributionRoute {
+  const NewContributionRoute(this.id);
+
+  final String id;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      ContributionEditorScreen(goalId: id);
 }

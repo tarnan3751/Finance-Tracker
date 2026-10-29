@@ -168,6 +168,30 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
           path: '/goals',
           hasOverriddenOnExit: false,
           factory: $GoalsRoute._fromState,
+          routes: [
+            GoRouteData.$route(
+              path: 'new',
+              hasOverriddenOnExit: false,
+              factory: $NewGoalRoute._fromState,
+            ),
+            GoRouteData.$route(
+              path: ':id',
+              hasOverriddenOnExit: false,
+              factory: $GoalDetailRoute._fromState,
+              routes: [
+                GoRouteData.$route(
+                  path: 'edit',
+                  hasOverriddenOnExit: false,
+                  factory: $EditGoalRoute._fromState,
+                ),
+                GoRouteData.$route(
+                  path: 'contribute',
+                  hasOverriddenOnExit: false,
+                  factory: $NewContributionRoute._fromState,
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     ),
@@ -758,6 +782,99 @@ mixin $GoalsRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/goals');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $NewGoalRoute on GoRouteData {
+  static NewGoalRoute _fromState(GoRouterState state) => const NewGoalRoute();
+
+  @override
+  String get location => GoRouteData.$location('/goals/new');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $GoalDetailRoute on GoRouteData {
+  static GoalDetailRoute _fromState(GoRouterState state) =>
+      GoalDetailRoute(state.pathParameters['id']!);
+
+  GoalDetailRoute get _self => this as GoalDetailRoute;
+
+  @override
+  String get location =>
+      GoRouteData.$location('/goals/${Uri.encodeComponent(_self.id)}');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $EditGoalRoute on GoRouteData {
+  static EditGoalRoute _fromState(GoRouterState state) =>
+      EditGoalRoute(state.pathParameters['id']!);
+
+  EditGoalRoute get _self => this as EditGoalRoute;
+
+  @override
+  String get location =>
+      GoRouteData.$location('/goals/${Uri.encodeComponent(_self.id)}/edit');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $NewContributionRoute on GoRouteData {
+  static NewContributionRoute _fromState(GoRouterState state) =>
+      NewContributionRoute(state.pathParameters['id']!);
+
+  NewContributionRoute get _self => this as NewContributionRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/goals/${Uri.encodeComponent(_self.id)}/contribute',
+  );
 
   @override
   void go(BuildContext context) => context.go(location);

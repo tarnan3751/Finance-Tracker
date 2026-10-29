@@ -63,15 +63,15 @@ void main() {
     _expectInsights(tester, InsightsSegment.reports);
   });
 
-  for (final (String location, InsightsSegment segment) in [
-    ('/net-worth', InsightsSegment.netWorth),
-    ('/investments', InsightsSegment.investments),
-    ('/goals', InsightsSegment.goals),
+  for (final (String location, InsightsSegment segment, String shown) in [
+    ('/net-worth', InsightsSegment.netWorth, 'Coming soon'),
+    ('/investments', InsightsSegment.investments, 'Coming soon'),
+    ('/goals', InsightsSegment.goals, 'No savings goals yet'),
   ]) {
     testWidgets('$location opens inside the tab', (tester) async {
       await pumpApp(tester, initialLocation: location);
       _expectInsights(tester, segment);
-      expect(find.text('Coming soon'), findsOneWidget);
+      expect(find.text(shown), findsOneWidget);
     });
   }
 
