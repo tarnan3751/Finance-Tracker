@@ -66,6 +66,14 @@ import 'package:finance_tracker/features/categories/domain/category_repository.d
 import 'package:finance_tracker/features/duplicates/data/drift_dismissed_pair_store.dart';
 import 'package:finance_tracker/features/duplicates/data/in_memory_dismissed_pair_store.dart';
 import 'package:finance_tracker/features/duplicates/domain/dismissed_pair_store.dart';
+import 'package:finance_tracker/features/investments/data/demo_holding_repository.dart';
+import 'package:finance_tracker/features/investments/data/demo_investment_transaction_repository.dart';
+import 'package:finance_tracker/features/investments/data/drift_holding_repository.dart';
+import 'package:finance_tracker/features/investments/data/drift_investment_transaction_repository.dart';
+import 'package:finance_tracker/features/investments/data/in_memory_holding_repository.dart';
+import 'package:finance_tracker/features/investments/data/in_memory_investment_transaction_repository.dart';
+import 'package:finance_tracker/features/investments/domain/holding_repository.dart';
+import 'package:finance_tracker/features/investments/domain/investment_transaction_repository.dart';
 import 'package:finance_tracker/features/items/data/demo_item_repository.dart';
 import 'package:finance_tracker/features/items/data/drift_item_repository.dart';
 import 'package:finance_tracker/features/items/data/in_memory_item_repository.dart';
@@ -303,6 +311,23 @@ LiabilityRepository liabilityRepository(Ref ref) {
   return repository;
 }
 
+/// The holdings of the linked investment accounts and their securities.
+@Riverpod(keepAlive: true)
+HoldingRepository holdingRepository(Ref ref) {
+  final InMemoryHoldingRepository repository = InMemoryHoldingRepository();
+  ref.onDispose(repository.close);
+  return repository;
+}
+
+/// The investment transactions of the linked investment accounts.
+@Riverpod(keepAlive: true)
+InvestmentTransactionRepository investmentTransactionRepository(Ref ref) {
+  final InMemoryInvestmentTransactionRepository repository =
+      InMemoryInvestmentTransactionRepository();
+  ref.onDispose(repository.close);
+  return repository;
+}
+
 /// Which budget alerts this device has raised: in memory by default and in the demo
 /// flavor, `budget_alerts` in dev and prod.
 @Riverpod(keepAlive: true)
@@ -393,6 +418,8 @@ PlaidPull plaidPull(Ref ref) => PlaidPull(
   transactions: ref.watch(transactionRepositoryProvider),
   streams: ref.watch(recurringStreamRepositoryProvider),
   liabilities: ref.watch(liabilityRepositoryProvider),
+  holdings: ref.watch(holdingRepositoryProvider),
+  investmentTransactions: ref.watch(investmentTransactionRepositoryProvider),
   clock: ref.watch(clockProvider),
   arrival: ref.watch(arrivalProcessorProvider),
 );
@@ -513,6 +540,18 @@ final List<Override> _driftOverrides = [
       ref.watch(clockProvider),
     ),
   ),
+  holdingRepositoryProvider.overrideWith(
+    (ref) => DriftHoldingRepository(
+      ref.watch(databaseProvider),
+      ref.watch(clockProvider),
+    ),
+  ),
+  investmentTransactionRepositoryProvider.overrideWith(
+    (ref) => DriftInvestmentTransactionRepository(
+      ref.watch(databaseProvider),
+      ref.watch(clockProvider),
+    ),
+  ),
   savedFilterRepositoryProvider.overrideWith(
     (ref) => DriftSavedFilterRepository(
       ref.watch(databaseProvider),
@@ -583,10 +622,12 @@ final List<Override> _demoOverrides = [
   // is built), and brings only what a Link action adds.
   plaidPullStoreProvider.overrideWith((ref) {
     ref.watch(inMemoryStoreProvider);
+    final int seeded = ref
+        .watch(fakeServerProvider)
+        .seededSyncVersionOf(demoEmail);
     return InMemoryPlaidPullStore(
-      transactionsSince: ref
-          .watch(fakeServerProvider)
-          .seededSyncVersionOf(demoEmail),
+      transactionsSince: seeded,
+      investmentTransactionsSince: seeded,
     );
   }),
   recordingSyncStoreProvider.overrideWithValue(null),
@@ -629,6 +670,17 @@ final List<Override> _demoOverrides = [
     final DemoLiabilityRepository repository = DemoLiabilityRepository(
       initial: demoLiabilities(ref.watch(demoSeedProvider)).toEntities(),
     );
+    ref.onDispose(repository.close);
+    return repository;
+  }),
+  holdingRepositoryProvider.overrideWith((ref) {
+    final DemoHoldingRepository repository = DemoHoldingRepository();
+    ref.onDispose(repository.close);
+    return repository;
+  }),
+  investmentTransactionRepositoryProvider.overrideWith((ref) {
+    final DemoInvestmentTransactionRepository repository =
+        DemoInvestmentTransactionRepository();
     ref.onDispose(repository.close);
     return repository;
   }),

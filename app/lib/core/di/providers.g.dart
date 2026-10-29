@@ -1216,6 +1216,114 @@ final class LiabilityRepositoryProvider
 String _$liabilityRepositoryHash() =>
     r'd8781db8290d2dabe868a06e7d6ebc612a119c3c';
 
+/// The holdings of the linked investment accounts and their securities.
+
+@ProviderFor(holdingRepository)
+final holdingRepositoryProvider = HoldingRepositoryProvider._();
+
+/// The holdings of the linked investment accounts and their securities.
+
+final class HoldingRepositoryProvider
+    extends
+        $FunctionalProvider<
+          HoldingRepository,
+          HoldingRepository,
+          HoldingRepository
+        >
+    with $Provider<HoldingRepository> {
+  /// The holdings of the linked investment accounts and their securities.
+  HoldingRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'holdingRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$holdingRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<HoldingRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  HoldingRepository create(Ref ref) {
+    return holdingRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(HoldingRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<HoldingRepository>(value),
+    );
+  }
+}
+
+String _$holdingRepositoryHash() => r'e854830ece44b4d0bf962c756b24b6ccaaf5d234';
+
+/// The investment transactions of the linked investment accounts.
+
+@ProviderFor(investmentTransactionRepository)
+final investmentTransactionRepositoryProvider =
+    InvestmentTransactionRepositoryProvider._();
+
+/// The investment transactions of the linked investment accounts.
+
+final class InvestmentTransactionRepositoryProvider
+    extends
+        $FunctionalProvider<
+          InvestmentTransactionRepository,
+          InvestmentTransactionRepository,
+          InvestmentTransactionRepository
+        >
+    with $Provider<InvestmentTransactionRepository> {
+  /// The investment transactions of the linked investment accounts.
+  InvestmentTransactionRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'investmentTransactionRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$investmentTransactionRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<InvestmentTransactionRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  InvestmentTransactionRepository create(Ref ref) {
+    return investmentTransactionRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(InvestmentTransactionRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<InvestmentTransactionRepository>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$investmentTransactionRepositoryHash() =>
+    r'6e2a8f664e865ec27065430794ec7a1fca5c1e42';
+
 /// Which budget alerts this device has raised: in memory by default and in the demo
 /// flavor, `budget_alerts` in dev and prod.
 
@@ -1778,7 +1886,7 @@ final class PlaidPullProvider
   }
 }
 
-String _$plaidPullHash() => r'5ee0d25423b29a235e1115fd63fe9e4e44561cd6';
+String _$plaidPullHash() => r'05e9d50a6f26cd1b6144b5da3d6fc6b7724fbe30';
 
 /// What the legacy importer did at this launch (`bootstrap`), or null when it did nothing;
 /// Phase 1d shows it once.

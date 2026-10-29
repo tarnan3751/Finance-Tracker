@@ -36,6 +36,18 @@ final class DriftPlaidPullStore implements PlaidPullStore {
       _syncStore.saveMeta(SyncMetaKeys.plaidTransactionsSince, '$since');
 
   @override
+  Future<int?> investmentTransactionsSince() async {
+    final String? value = await _syncStore.meta(
+      SyncMetaKeys.plaidInvestmentTransactionsSince,
+    );
+    return value == null ? null : int.parse(value);
+  }
+
+  @override
+  Future<void> saveInvestmentTransactionsSince(int since) => _syncStore
+      .saveMeta(SyncMetaKeys.plaidInvestmentTransactionsSince, '$since');
+
+  @override
   Future<void> savePulledListsAt(DateTime at) async {
     await _syncStore.saveMeta(
       SyncMetaKeys.plaidAccountsPulledAt,

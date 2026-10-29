@@ -1,15 +1,19 @@
 /// The values the API returns in the contract's own shapes: the liability schemas (read
 /// into `shared_models`' `Liability` by [Liabilities.toEntities]), the holding, security
-/// and investment-transaction schemas, which exist only in the contract until Phase 6
-/// adds their entities (`docs/reference/api.md`), and the small results of the auth,
-/// Plaid and health operations.
+/// and investment-transaction schemas (read into `shared_models`' entities of the same
+/// names by [Holdings.toEntities] and [InvestmentTransaction.toEntity];
+/// `docs/reference/api.md`), and the small results of the auth, Plaid and health
+/// operations.
 ///
 /// Amounts are `Money`, dates `LocalDate`, instants UTC; per-unit prices, quantities and
-/// rates are the contract's `Decimal` strings, kept as text, and a liability's rates
-/// become basis points only in its entity. `fromJson` and `toJson` read and write the
+/// rates are the contract's `Decimal` strings, kept as text, and become `Decimal`s or a
+/// liability's basis points only in the entities. `fromJson` and `toJson` read and write the
 /// contract's JSON exactly, so the client and the fake share one shape.
 library;
 
+import 'package:shared_models/shared_models.dart'
+    as entity
+    show Holding, InvestmentTransaction, Security;
 import 'package:shared_models/shared_models.dart';
 
 Money? _money(Object? json) =>
@@ -533,6 +537,18 @@ final class Holding {
   final String currencyCode;
   final DataSource source;
 
+  /// The entity. Throws [FormatException] when a `Decimal` is not one.
+  entity.Holding toEntity() => entity.Holding(
+    accountId: accountId,
+    securityId: securityId,
+    quantity: Decimal.parse(quantity),
+    institutionPrice: Decimal.parse(institutionPrice),
+    institutionPriceAsOf: institutionPriceAsOf,
+    institutionValue: institutionValue,
+    costBasis: costBasis,
+    source: source,
+  );
+
   Map<String, dynamic> toJson() => {
     'account_id': accountId,
     'security_id': securityId,
@@ -584,6 +600,19 @@ final class Security {
   final String currencyCode;
   final DataSource source;
 
+  /// The entity. Throws [FormatException] when the close price is not a `Decimal`.
+  entity.Security toEntity() => entity.Security(
+    id: id,
+    name: name,
+    tickerSymbol: tickerSymbol,
+    type: type,
+    isCashEquivalent: isCashEquivalent,
+    closePrice: closePrice == null ? null : Decimal.parse(closePrice!),
+    closePriceAsOf: closePriceAsOf,
+    currencyCode: currencyCode,
+    source: source,
+  );
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
@@ -614,6 +643,13 @@ final class Holdings {
 
   final List<Holding> holdings;
   final List<Security> securities;
+
+  /// The holdings and the securities as the entities, in the server's order.
+  ({List<entity.Holding> holdings, List<entity.Security> securities})
+  toEntities() => (
+    holdings: [for (final Holding h in holdings) h.toEntity()],
+    securities: [for (final Security s in securities) s.toEntity()],
+  );
 
   Map<String, dynamic> toJson() => {
     'holdings': [for (final Holding h in holdings) h.toJson()],
@@ -679,6 +715,24 @@ final class InvestmentTransaction {
   final DateTime? deletedAt;
   final int syncVersion;
   final DataSource source;
+
+  /// The entity. Throws [FormatException] when a `Decimal` is not one.
+  entity.InvestmentTransaction toEntity() => entity.InvestmentTransaction(
+    id: id,
+    accountId: accountId,
+    securityId: securityId,
+    date: date,
+    name: name,
+    type: type,
+    subtype: subtype,
+    quantity: Decimal.parse(quantity),
+    price: Decimal.parse(price),
+    amount: amount,
+    fees: fees,
+    deletedAt: deletedAt,
+    syncVersion: syncVersion,
+    source: source,
+  );
 
   /// This transaction at [syncVersion], deleted at [deletedAt] when given.
   InvestmentTransaction copyWith({int? syncVersion, DateTime? deletedAt}) =>

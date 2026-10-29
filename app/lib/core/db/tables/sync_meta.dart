@@ -5,7 +5,8 @@ import 'package:drift/drift.dart';
 
 /// One fact: `pull_cursor`, `last_clock`, `device_id`, `last_sync_at`, `last_report`, and
 /// the Plaid pull's `plaid_transactions_since`, `plaid_accounts_pulled_at`,
-/// `plaid_items_pulled_at`, `plaid_pulled_at` (schema 3).
+/// `plaid_items_pulled_at`, `plaid_pulled_at` (schema 3) and
+/// `plaid_investment_transactions_since` (schema 11).
 @DataClassName('SyncMetaRow')
 class SyncMeta extends Table {
   TextColumn get key => text()();
@@ -35,6 +36,11 @@ abstract final class SyncMetaKeys {
 
   /// The Plaid pull's transactions cursor: the server's `sync_version` pulled up to.
   static const String plaidTransactionsSince = 'plaid_transactions_since';
+
+  /// The Plaid pull's investment transactions cursor: the server's `sync_version` pulled
+  /// up to.
+  static const String plaidInvestmentTransactionsSince =
+      'plaid_investment_transactions_since';
 
   /// When the Plaid pull last applied the linked accounts, epoch milliseconds UTC.
   static const String plaidAccountsPulledAt = 'plaid_accounts_pulled_at';

@@ -4,12 +4,15 @@
 // page, a failed page leaving the cursor, a cursor past the server restarting from 0, an
 // unlinked Item's data going, an override pulled before its row landing on it, single
 // flight, the arrival seam, nothing recorded, the rules applied on arrival, and the
-// recurring streams and the liabilities replaced, a failure of either list leaving the
-// run and the other list whole.
+// recurring streams, the liabilities and the holdings replaced and the investment
+// transactions paged from their cursor, a failure of any list leaving the run and the
+// other lists whole, and each whole run announced.
 import 'dart:typed_data';
 
 import 'package:drift/native.dart';
-import 'package:finance_tracker/core/api/api_models.dart';
+import 'package:finance_tracker/core/api/api_models.dart'
+    hide Holding, InvestmentTransaction, Security;
+import 'package:finance_tracker/core/api/api_models.dart' as wire;
 import 'package:finance_tracker/core/api/fake/fake_dataset.dart';
 import 'package:finance_tracker/core/api/fake/fake_server.dart';
 import 'package:finance_tracker/core/api/finance_api.dart';
@@ -22,6 +25,11 @@ import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/accounts/data/drift_account_repository.dart';
 import 'package:finance_tracker/features/accounts/data/in_memory_account_repository.dart';
 import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
+import 'package:finance_tracker/features/investments/data/drift_holding_repository.dart';
+import 'package:finance_tracker/features/investments/data/drift_investment_transaction_repository.dart';
+import 'package:finance_tracker/features/investments/data/in_memory_holding_repository.dart';
+import 'package:finance_tracker/features/investments/data/in_memory_investment_transaction_repository.dart';
+import 'package:finance_tracker/features/investments/domain/holding_repository.dart';
 import 'package:finance_tracker/features/items/data/drift_item_repository.dart';
 import 'package:finance_tracker/features/items/data/in_memory_item_repository.dart';
 import 'package:finance_tracker/features/items/domain/linked_bank.dart';
@@ -104,6 +112,11 @@ void main() {
       recorder: recorder(),
     ),
     liabilities: DriftLiabilityRepository(database, clock),
+    holdings: DriftHoldingRepository(database, clock),
+    investmentTransactions: DriftInvestmentTransactionRepository(
+      database,
+      clock,
+    ),
     clock: clock,
     arrival: arrivals,
     pageSize: pageSize,
@@ -249,6 +262,11 @@ void main() {
           recorder: recorder(),
         ),
         liabilities: DriftLiabilityRepository(database, clock),
+        holdings: DriftHoldingRepository(database, clock),
+        investmentTransactions: DriftInvestmentTransactionRepository(
+          database,
+          clock,
+        ),
         clock: clock,
         arrival: seen,
       ).run();
@@ -443,6 +461,12 @@ void main() {
     final InMemoryLiabilityRepository memoryLiabilities =
         InMemoryLiabilityRepository();
     addTearDown(memoryLiabilities.close);
+    final InMemoryHoldingRepository memoryHoldings =
+        InMemoryHoldingRepository();
+    addTearDown(memoryHoldings.close);
+    final InMemoryInvestmentTransactionRepository memoryInvestments =
+        InMemoryInvestmentTransactionRepository();
+    addTearDown(memoryInvestments.close);
     await PlaidPull(
       api: client.api,
       store: memoryStore,
@@ -451,6 +475,8 @@ void main() {
       transactions: InMemoryTransactionRepository(memory, recorder: recording),
       streams: memoryStreams,
       liabilities: memoryLiabilities,
+      holdings: memoryHoldings,
+      investmentTransactions: memoryInvestments,
       clock: clock,
     ).run();
     expect(memory.items(), hasLength(1));
@@ -464,8 +490,212 @@ void main() {
       server.dataset.items.single.liabilities.toEntities(),
     );
     expect(await memoryStore.transactionsSince(), 12);
+    expect(await memoryStore.investmentTransactionsSince(), 0);
+    expect(await memoryHoldings.watchAll().first, isEmpty);
     expect(await outbox.unsynced(), isEmpty);
   });
+
+  group('investments', () {
+    // The sample Item with a 401k: two holdings (one of a security the server does not
+    // list), one security, and three investment transactions.
+    FakeDataset withInvestments() {
+      final FakeItemData sample = newFakeServer().dataset.items.single;
+      final Account ira = sample.accounts.first.copyWith(
+        id: 'sample-ira',
+        type: AccountType.investment,
+        subtype: '401k',
+        name: 'Plaid 401k',
+        currentBalance: Money(554763, 'USD'),
+        availableBalance: null,
+        displayOrder: 3,
+      );
+      wire.InvestmentTransaction row(String id, String date, int amount) =>
+          wire.InvestmentTransaction(
+            id: id,
+            accountId: ira.id,
+            securityId: amount < 0 ? 'sec_vti' : null,
+            date: LocalDate.parse(date),
+            name: amount < 0 ? 'BUY VTI' : 'PAYROLL CONTRIBUTION',
+            type: amount < 0 ? 'buy' : 'cash',
+            subtype: amount < 0 ? 'buy' : 'contribution',
+            quantity: amount < 0 ? '0.9643' : '0',
+            price: amount < 0 ? '280.00' : '0',
+            amount: Money(amount, 'USD'),
+            syncVersion: 0,
+            source: DataSource.demo,
+          );
+      return FakeDataset(
+        items: [
+          FakeItemData(
+            id: sample.id,
+            institution: sample.institution,
+            accounts: [...sample.accounts, ira],
+            transactions: sample.transactions,
+            recurringStreams: sample.recurringStreams,
+            liabilities: sample.liabilities,
+            holdings: [
+              wire.Holding(
+                accountId: ira.id,
+                securityId: 'sec_vti',
+                quantity: '11.2439',
+                institutionPrice: '298.00',
+                institutionPriceAsOf: LocalDate(2026, 10, 23),
+                institutionValue: Money(335068, 'USD'),
+                costBasis: Money(324000, 'USD'),
+                currencyCode: 'USD',
+                source: DataSource.demo,
+              ),
+              wire.Holding(
+                accountId: ira.id,
+                securityId: 'sec_unlisted',
+                quantity: '1',
+                institutionPrice: '219695',
+                institutionValue: Money(21969500, 'USD'),
+                currencyCode: 'USD',
+                source: DataSource.demo,
+              ),
+            ],
+            securities: [
+              wire.Security(
+                id: 'sec_vti',
+                name: 'Vanguard Total Stock Market ETF',
+                tickerSymbol: 'VTI',
+                type: 'etf',
+                isCashEquivalent: false,
+                closePrice: '298.00',
+                closePriceAsOf: LocalDate(2026, 10, 23),
+                currencyCode: 'USD',
+                source: DataSource.demo,
+              ),
+            ],
+            investmentTransactions: [
+              row('inv-1', '2026-09-07', 45000),
+              row('inv-2', '2026-09-07', -27000),
+              row('inv-3', '2026-10-07', 45000),
+            ],
+          ),
+        ],
+      );
+    }
+
+    late DriftHoldingRepository holdings;
+    late DriftInvestmentTransactionRepository investments;
+
+    setUp(() {
+      server = newFakeServer(dataset: withInvestments());
+      client = FakeClient.signedIn(server);
+      holdings = DriftHoldingRepository(database, clock);
+      investments = DriftInvestmentTransactionRepository(database, clock);
+    });
+
+    Future<List<InvestmentTransaction>> ira() =>
+        investments.watchByAccount('sample-ira').first;
+
+    test(
+      'the holdings and securities are replaced by the server\'s, the '
+      'investment transactions paged from their cursor, nothing recorded',
+      () async {
+        await holdings.applyPlaid([
+          Holding(
+            accountId: 'gone',
+            securityId: 'sec_old',
+            quantity: Decimal.parse('1'),
+            institutionPrice: Decimal.parse('1'),
+            institutionValue: Money(100, 'USD'),
+            source: DataSource.demo,
+          ),
+        ], const []);
+        await link();
+        await pull(pageSize: 2).run();
+        final wire.Holdings sent = wire.Holdings(
+          holdings: server.dataset.items.single.holdings,
+          securities: server.dataset.items.single.securities,
+        );
+        final List<HoldingView> stored = await holdings.watchAll().first;
+        expect(
+          [for (final HoldingView v in stored) v.holding],
+          [sent.toEntities().holdings.last, sent.toEntities().holdings.first],
+        );
+        expect(stored.last.security, sent.toEntities().securities.single);
+        expect(stored.first.security, isNull);
+        expect(stored.last.holding.quantity.toString(), '11.2439');
+        expect(stored.last.holding.source, DataSource.demo);
+        final List<InvestmentTransaction> rows = await ira();
+        expect(
+          [for (final InvestmentTransaction t in rows) t.id],
+          ['inv-3', 'inv-2', 'inv-1'],
+        );
+        expect(rows[1].amount, Money(-27000, 'USD'));
+        expect(rows[1].price, Decimal.parse('280.00'));
+        expect(rows[1].source, DataSource.demo);
+        // The transactions took versions 1 to 12, the investment transactions 13 to 15.
+        expect(
+          [for (final InvestmentTransaction t in rows) t.syncVersion],
+          [15, 14, 13],
+        );
+        expect(await store.investmentTransactionsSince(), 15);
+        expect(await syncStore.unsynced(), isEmpty);
+      },
+    );
+
+    test('an unlinked Item\'s rows come back as tombstones and its holdings '
+        'go', () async {
+      await link();
+      await pull().run();
+      await client.api.deleteItem('sample-item-1');
+      await pull().run();
+      expect(await ira(), isEmpty);
+      expect(await holdings.watchAll().first, isEmpty);
+      final List<InvestmentTransactionRow> kept = await database
+          .select(database.investmentTransactions)
+          .get();
+      expect(kept, hasLength(3));
+      expect(kept.every((r) => r.deletedAt != null), isTrue);
+      expect(await store.investmentTransactionsSince(), 30);
+    });
+
+    test('a failed list leaves the run and the other lists whole', () async {
+      await link();
+      server.failNextNetwork('listHoldings');
+      await pull().run();
+      expect(await live(), hasLength(12));
+      expect(await holdings.watchAll().first, isEmpty);
+      expect(await ira(), hasLength(3));
+      expect(await store.pulledAt(), isNotNull);
+
+      await store.saveInvestmentTransactionsSince(13);
+      server.failNextNetwork('listInvestmentTransactions');
+      await pull().run();
+      expect(await holdings.watchAll().first, hasLength(2));
+      expect(await store.investmentTransactionsSince(), 13);
+    });
+
+    test('a cursor past the server restarts from 0 once', () async {
+      await link();
+      await store.saveInvestmentTransactionsSince(99);
+      await pull().run();
+      expect(await ira(), hasLength(3));
+      expect(await store.investmentTransactionsSince(), 15);
+    });
+  });
+
+  test(
+    'each whole run is announced once it is saved; a failed one is not',
+    () async {
+      final PlaidPull plaid = pull();
+      final List<DateTime> runs = [];
+      final sub = plaid.completed.listen(runs.add);
+      addTearDown(sub.cancel);
+      await link();
+      await plaid.run();
+      await pumpEventQueue();
+      expect(runs, [await store.pulledAt()]);
+      server.failNextNetwork('listItems');
+      await expectLater(plaid.run(), throwsA(anything));
+      await pumpEventQueue();
+      expect(runs, hasLength(1));
+    },
+  );
 
   group('the rules on arrival', () {
     // Every pulled transaction is in USD; this rule matches them all.
@@ -508,6 +738,11 @@ void main() {
           recorder: recorder(),
         ),
         liabilities: DriftLiabilityRepository(database, clock),
+        holdings: DriftHoldingRepository(database, clock),
+        investmentTransactions: DriftInvestmentTransactionRepository(
+          database,
+          clock,
+        ),
         clock: clock,
         arrival: RuleRunner(
           rules: DriftRuleRepository(database, clock, recorder: recorder()),
@@ -555,6 +790,11 @@ void main() {
           recorder: recorder(),
         ),
         liabilities: DriftLiabilityRepository(database, clock),
+        holdings: DriftHoldingRepository(database, clock),
+        investmentTransactions: DriftInvestmentTransactionRepository(
+          database,
+          clock,
+        ),
         clock: clock,
         arrival: RuleRunner(
           rules: DriftRuleRepository(database, clock, recorder: recorder()),
@@ -673,6 +913,15 @@ final class _PlaidSourced implements FinanceApi {
 
   @override
   Future<Liabilities> getLiabilities() => _inner.getLiabilities();
+
+  @override
+  Future<wire.Holdings> listHoldings() => _inner.listHoldings();
+
+  @override
+  Future<VersionPage<wire.InvestmentTransaction>> listInvestmentTransactions({
+    int since = 0,
+    int limit = 500,
+  }) => _inner.listInvestmentTransactions(since: since, limit: limit);
 
   @override
   Future<VersionPage<Transaction>> listTransactions({

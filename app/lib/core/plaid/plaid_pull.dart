@@ -1,5 +1,5 @@
 /// The Plaid pull: the server's Items, linked accounts, Plaid-sourced transactions,
-/// recurring streams and liabilities brought into the local store (`docs/reference/sync-app.md`, **The Plaid pull**;
+/// recurring streams, liabilities and investments brought into the local store (`docs/reference/sync-app.md`, **The Plaid pull**;
 /// `PLAN.md` §6.4: Plaid data is server-authoritative and only pulled, never pushed).
 ///
 /// One run:
@@ -19,16 +19,22 @@
 /// 3. `GET /recurring`, the server's whole list, applied in one store transaction
 ///    (`RecurringStreamRepository.applyPlaid`: every server-supplied stream replaced, the
 ///    detector's and the user's overrides left alone), then `GET /liabilities`, likewise
-///    (`LiabilityRepository.applyPlaid`: every liability replaced). A failure of either
-///    list is logged by its type and does not fail the run, nor the other list: the
-///    transactions matter more;
+///    (`LiabilityRepository.applyPlaid`: every liability replaced), then `GET
+///    /investments/holdings`, likewise (`HoldingRepository.applyPlaid`: every holding and
+///    security replaced), then `GET /investments/transactions` from the stored
+///    `plaid_investment_transactions_since`, page by page as the transactions are, each
+///    page and its cursor one store transaction (`InvestmentTransactionRepository
+///    .applyPage`: rows replaced by id, tombstones kept), restarting from 0 once on
+///    `SyncCursorInvalid`. A failure of any of these lists is logged by its type and does
+///    not fail the run, nor the other lists: the transactions matter more;
 /// 4. the institution logos: for each Item whose institution has a `logo_url` and whose
 ///    bytes are missing (never fetched, or the URL changed), `GET
 ///    /institutions/{id}/logo` (bearer-secured, so the screen cannot load the URL
 ///    itself); a failure is logged and the logo fetched again on the next run;
 /// 5. `plaid_pulled_at`, when the run succeeded (a failed list does not stop it).
 ///
-/// Nothing is recorded, and every row keeps the `source` the server sent. [PlaidPull.run]
+/// Nothing is recorded, and every row keeps the `source` the server sent. A whole run
+/// is announced on [PlaidPull.completed]. [PlaidPull.run]
 /// is single-flight: a call during a run gets one more run that starts after it, shared
 /// by every caller during that run, so data a caller has just caused the server to hold
 /// (a completed Item sync) is always pulled. A failure is thrown to the caller. Counts
@@ -44,13 +50,19 @@ import 'package:finance_tracker/core/api/finance_api.dart';
 import 'package:finance_tracker/core/api/problems.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
+import 'package:finance_tracker/features/investments/domain/holding_repository.dart';
+import 'package:finance_tracker/features/investments/domain/investment_transaction_repository.dart';
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
 import 'package:finance_tracker/features/items/domain/linked_bank.dart';
 import 'package:finance_tracker/features/liabilities/domain/liability_repository.dart';
 import 'package:finance_tracker/features/recurring/domain/recurring_stream_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:logging/logging.dart';
-import 'package:shared_models/shared_models.dart';
+import 'package:shared_models/shared_models.dart'
+    as entity
+    show Holding, InvestmentTransaction, Security;
+import 'package:shared_models/shared_models.dart'
+    hide Holding, InvestmentTransaction, Security;
 
 final Logger _log = Logger('plaid');
 
@@ -65,6 +77,13 @@ abstract interface class PlaidPullStore {
 
   /// Saves the transactions cursor.
   Future<void> saveTransactionsSince(int since);
+
+  /// The `sync_version` the investment transactions were pulled up to, or null before
+  /// the first.
+  Future<int?> investmentTransactionsSince();
+
+  /// Saves the investment transactions cursor.
+  Future<void> saveInvestmentTransactionsSince(int since);
 
   /// Saves when the accounts and the Items were last applied.
   Future<void> savePulledListsAt(DateTime at);
@@ -113,6 +132,8 @@ final class PlaidPull {
     required this.transactions,
     required this.streams,
     required this.liabilities,
+    required this.holdings,
+    required this.investmentTransactions,
     required this.clock,
     this.arrival = const NoArrivalProcessor(),
     this.pageSize = 500,
@@ -125,6 +146,8 @@ final class PlaidPull {
   final TransactionRepository transactions;
   final RecurringStreamRepository streams;
   final LiabilityRepository liabilities;
+  final HoldingRepository holdings;
+  final InvestmentTransactionRepository investmentTransactions;
   final Clock clock;
   final ArrivalProcessor arrival;
 
@@ -133,6 +156,12 @@ final class PlaidPull {
 
   Future<void>? _running;
   Future<void>? _next;
+  final StreamController<DateTime> _completed =
+      StreamController<DateTime>.broadcast();
+
+  /// When each whole run finishes (UTC, as saved as `plaid_pulled_at`), whoever started
+  /// it: what the balance snapshots follow. A failed run emits nothing.
+  Stream<DateTime> get completed => _completed.stream;
 
   /// Runs the pull, or, during a run, one more after it. Completes when the run it
   /// started or joined has finished; throws what that run threw.
@@ -200,14 +229,63 @@ final class PlaidPull {
       await store.transaction(() => liabilities.applyPlaid(pulled));
       return pulled.length;
     });
+    final int? holdingCount = await _pullList('holdings', () async {
+      final ({List<entity.Holding> holdings, List<entity.Security> securities})
+      pulled = (await api.listHoldings()).toEntities();
+      await store.transaction(
+        () => holdings.applyPlaid(pulled.holdings, pulled.securities),
+      );
+      return pulled.holdings.length;
+    });
+    final int? investmentCount = await _pullList(
+      'investment transactions',
+      _pullInvestmentTransactions,
+    );
     await _fetchLogos(banks);
-    await store.savePulledAt(clock.nowUtc());
+    final DateTime pulledAt = clock.nowUtc();
+    await store.savePulledAt(pulledAt);
     _log.info(
       'pulled ${listed.length} items, ${linked.length} accounts, '
       '$pages transaction pages ($added new), '
       '${streamCount ?? 'no'} recurring streams, '
-      '${liabilityCount ?? 'no'} liabilities',
+      '${liabilityCount ?? 'no'} liabilities, '
+      '${holdingCount ?? 'no'} holdings, '
+      '${investmentCount ?? 'no'} investment transactions',
     );
+    _completed.add(pulledAt);
+  }
+
+  // Pages the investment transactions from the stored cursor, each page and its cursor
+  // in one store transaction; returns how many rows were applied.
+  Future<int> _pullInvestmentTransactions() async {
+    int since = await store.investmentTransactionsSince() ?? 0;
+    bool restarted = false;
+    int applied = 0;
+    while (true) {
+      final VersionPage<InvestmentTransaction> page;
+      try {
+        page = await api.listInvestmentTransactions(
+          since: since,
+          limit: pageSize,
+        );
+      } on SyncCursorInvalid {
+        if (restarted) rethrow;
+        _log.warning('the investments cursor is past the server; from 0');
+        restarted = true;
+        since = 0;
+        continue;
+      }
+      final List<entity.InvestmentTransaction> rows = [
+        for (final InvestmentTransaction t in page.items) t.toEntity(),
+      ];
+      await store.transaction(() async {
+        await investmentTransactions.applyPage(rows);
+        await store.saveInvestmentTransactionsSince(page.nextSince);
+      });
+      applied += rows.length;
+      since = page.nextSince;
+      if (!page.hasMore) return applied;
+    }
   }
 }
 
@@ -245,12 +323,18 @@ extension on PlaidPull {
 /// The [PlaidPullStore] of the tests and the demo flavor, in memory: it lives as long as
 /// the in-memory store it serves, so the demo's persona switch starts it afresh.
 final class InMemoryPlaidPullStore implements PlaidPullStore {
-  /// A store whose transactions cursor starts at [transactionsSince] (null: from 0): the
-  /// demo's starts where its store's seed already is, so its first pull does not apply
-  /// the seeded rows again over the demo's own edits.
-  InMemoryPlaidPullStore({int? transactionsSince}) : _since = transactionsSince;
+  /// A store whose transactions and investment transactions cursors start at
+  /// [transactionsSince] and [investmentTransactionsSince] (null: from 0): the demo's
+  /// start where its store's seed already is, so its first pull does not apply the
+  /// seeded rows again over the demo's own edits.
+  InMemoryPlaidPullStore({
+    int? transactionsSince,
+    int? investmentTransactionsSince,
+  }) : _since = transactionsSince,
+       _investmentsSince = investmentTransactionsSince;
 
   int? _since;
+  int? _investmentsSince;
   DateTime? _pulledAt;
 
   /// When the accounts and Items were last applied.
@@ -264,6 +348,13 @@ final class InMemoryPlaidPullStore implements PlaidPullStore {
 
   @override
   Future<void> saveTransactionsSince(int since) async => _since = since;
+
+  @override
+  Future<int?> investmentTransactionsSince() async => _investmentsSince;
+
+  @override
+  Future<void> saveInvestmentTransactionsSince(int since) async =>
+      _investmentsSince = since;
 
   @override
   Future<void> savePulledListsAt(DateTime at) async => listsPulledAt = at;
