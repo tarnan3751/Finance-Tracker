@@ -6,3 +6,7 @@ tags:
   # (test/features/recurring/domain/detector_harness_test.dart); the gate runs it, and
   # `flutter test --tags detector_harness` runs it alone with its figures.
   detector_harness:
+  # The anomaly flags measured against the persona engine's planted anomalies
+  # (test/features/reports/domain/anomaly_harness_test.dart); the gate runs it, and
+  # `flutter test --tags anomaly_harness` runs it alone with its figures.
+  anomaly_harness:
