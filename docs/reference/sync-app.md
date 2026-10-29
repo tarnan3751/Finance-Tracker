@@ -15,7 +15,8 @@ schema 2 tables under `app/lib/core/db/tables/`, the repositories' writes
 `app/integration_test/sync_two_devices_test.dart`, `app/test/core/plaid/plaid_pull_test.dart`.
 
 Sync covers the user-authored data the app stores now: accounts, transactions,
-categories, rules, budgets, the overrides of recurring streams and the settings. Other entity types arrive with their phases; a record of one
+categories, rules, budgets, the overrides of recurring streams, bills, goals and their
+contributions, and the settings. Other entity types arrive with their phases; a record of one
 pulled before then is kept (**The store**, held records), and so is a record of a type
 this build does not know at all, a newer version's (**Unknown types**).
 
@@ -33,10 +34,12 @@ plus what the app keeps beside it:
 | `budget` | `Budget.toJson()` and `deleted_at`; the amount is one whole field value (`{minor_units, currency}`) and `start_date` an ISO date (`budgets.md`) |
 | `recurring_stream` | the user's override of one stream, keyed by the stream's id: `muted`, `is_subscription`, `display_name` and `deleted_at`; never the stream itself, which is the server's or the detector's (`recurring.md`) |
 | `bill_reminder` | `BillReminder.toJson()` and `deleted_at`; the amount, the reminder offsets and the paid occurrences are whole field values, so two devices marking different occurrences at once keep one device's list (`bills.md`) |
+| `goal` | `Goal.toJson()` (its own `deleted_at` and `archived_at`); the target and the linked accounts are whole field values (`goals.md`) |
+| `goal_contribution` | `GoalContribution.toJson()` (its own `deleted_at`): one record per contribution, never a field of its goal, so contributions added on two devices both survive |
 | `settings` | the one record `settings/local`: `theme_mode`, `use_dynamic_color` |
 
 Tags, splits and amounts are whole field values. The audit fields of accounts, categories,
-rules, budgets and bills (`created_at`, `updated_at`) are not in their JSON, so each device stamps its
+rules, budgets, bills, goals and contributions (`created_at`, `updated_at`) are not in their JSON, so each device stamps its
 own; a transaction's are in its record and sync.
 
 ## The store
@@ -61,11 +64,12 @@ keep.
 **Writing** a record saves its clocks and materializes it:
 
 - a **complete** record (its create merged) of an account, transaction, category, rule,
-  budget or bill replaces the row, tags and splits included, as the record says. The repositories' write
+  budget, bill, goal or contribution replaces the row, tags and splits included, as the record says. The repositories' write
   checks are not applied: they are preconditions of a local edit, and applying them to
   merged state would make the result depend on arrival order. A transaction keeps its own
   amount's currency even when its account's differs (derived balances leave such a row
-  out), and may arrive before its account (there is no foreign key). `deleted_at` and
+  out), and may arrive before its account (there is no foreign key), as a contribution may before its
+  goal (it lands, and shows once the goal arrives). `deleted_at` and
   `deleted_with_account` come from the record; a deleted record's other fields still land,
   so a later restore shows them;
 - an **incomplete** record (only updates merged) whose row exists is laid over the row: a
@@ -79,10 +83,12 @@ keep.
   - `unrepresentable`: splits the table cannot store (in another currency than the
     amount, or not decoding). Every other field lands and the row has no splits, so
     devices holding the same record show the same row and balances; a record that does
-    not decode at all leaves the row as it was;
+    not decode at all leaves the row as it was; a goal or contribution that does not decode
+    (a kind this version lacks) is held so too, its row as it was;
   - `incomplete`: only updates merged, and no row yet;
-  - `unsupported_type`: an entity the app does not store yet, or of a type this build
-    does not know at all (**Unknown types**), kept under its raw type name.
+  - `unsupported_type`: an entity the app does not store (since schema 12, only a
+    settings record other than `settings/local`), or of a type this build does not know
+    at all (**Unknown types**), kept under its raw type name.
 
   A later merge the table can hold exactly writes the row and deletes the held one.
   `materializeHeld(type, ids)` writes the held records of those entities again: the
@@ -128,7 +134,7 @@ The filter by `source` is `userAuthoredChange`, shared by every implementation:
 | a `plaid` transaction | only `user_category_id`, `notes`, `tags`, `splits`, `receipt_path`, `hidden`, as updates; nothing at creation |
 | a `derived` or `demo` transaction | nothing |
 | an account with an `item_id` | nothing, until Phase 3 rules on linked-account overrides |
-| categories, rules, budgets, settings | all of it; the seeding of the system categories is not recorded |
+| categories, rules, budgets, bills, goals, contributions, settings | all of it; the seeding of the system categories is not recorded |
 | a stream's override | as updates against the stored override, or the defaults when there is none (as settings are), so first choices on two devices merge field by field; a clear is a delete |
 | recurring streams, liabilities | nothing: the server's, or the detector's on each device |
 
@@ -282,8 +288,8 @@ never re-reads rows; `arrivalProcessorProvider` is the rules' `RuleRunner` (`rul
 
 | Suite | What it proves |
 |---|---|
-| `test/drift/migration_test.dart` | A schema 10 database keeps its rows and gains the four empty investment and snapshot tables, and the step runs again at version 10; a schema 1 database with data migrates: rows kept, one create per user-authored row and a delete per deleted one, clocks increasing on one node, the stored records equal to the fold of the entries; a schema 3 database's held rule records become rows, or stay held for the reason that now applies; a schema 5 database's held transaction records carrying `hidden` land in their rows; a schema 8 database's held `recurring_stream` records become overrides, or stay held; a schema 9 database's held `bill_reminder` records become bills (a complete one), or stay held `incomplete` (updates only), `unknown_fields` (a newer field, the rest landing) or `unrepresentable` (a cadence this version lacks), and the step runs again at version 9 |
-| `test/core/db/drift_sync_store_test.dart` | The engine's store contract cases; records round-tripping through the tables (randomized transactions and rules included, a stream override of updates only, live and cleared; a bill, live and deleted, and one recorded before its new fields landing with their defaults); the held reasons (a bill that does not decode held with its row left as it was, a bill field this version does not know held with the rest landing), the row each leaves and their release; unknown fields surviving a local edit; a type this build does not know held under its raw name, folded in any order, and released whole by a version that knows the type; the node substitution; the ledger |
+| `test/drift/migration_test.dart` | A schema 10 database keeps its rows and gains the four empty investment and snapshot tables, and the step runs again at version 10; a schema 1 database with data migrates: rows kept, one create per user-authored row and a delete per deleted one, clocks increasing on one node, the stored records equal to the fold of the entries; a schema 3 database's held rule records become rows, or stay held for the reason that now applies; a schema 5 database's held transaction records carrying `hidden` land in their rows; a schema 8 database's held `recurring_stream` records become overrides, or stay held; a schema 9 database's held `bill_reminder` records become bills (a complete one), or stay held `incomplete` (updates only), `unknown_fields` (a newer field, the rest landing) or `unrepresentable` (a cadence this version lacks), and the step runs again at version 9; a schema 11 database's held `goal` and `goal_contribution` records become rows (a contribution whose goal never arrived among them), or stay held for the reason that applies, and the step runs again at version 11 |
+| `test/core/db/drift_sync_store_test.dart` | The engine's store contract cases; records round-tripping through the tables (randomized transactions and rules included, a stream override of updates only, live and cleared; a bill, live and deleted, and one recorded before its new fields landing with their defaults; a goal live, archived and deleted; a contribution live and deleted, before its goal exists; a goal's updates laid over its row or held `incomplete`); the held reasons (a bill that does not decode held with its row left as it was, a bill field this version does not know held with the rest landing, a goal kind or contribution amount that does not decode held with the row as it was, a goal field this version does not know held with the rest landing), the row each leaves and their release; unknown fields surviving a local edit; a type this build does not know held under its raw name, folded in any order, and released whole by a version that knows the type; the node substitution; the ledger |
 | `test/core/api/pull_unknown_types_test.dart`, `test/core/sync/unknown_types_session_test.dart` | A pulled page read by the client: an unknown `entity_type` kept apart with its raw name, the rest as before, a malformed page still a server error; a session over the Drift store applying the rest of such a page, advancing the cursor and holding the entry |
 | `test/contract/recording_contract.dart` | Exactly the entries each write records, in the Drift and in-memory implementations; a refused write records nothing; a Drift write and its entry roll back together |
 | `test/core/sync/sync_controller_test.dart` | The triggers, the debounce (none on top of the start), single flight with one coalesced rerun, a sign-out and sign-in during a held push (one push at a time, each entry once on the relay), the cursor reset, failures in the status, persistence, demo, in-memory data and signed-out, the Plaid pull after a session and its failure kept apart |
@@ -292,4 +298,4 @@ never re-reads rows; `arrivalProcessorProvider` is the rules' `RuleRunner` (`rul
 | `test/core/api/fake_dataset_test.dart` | Every persona's household served by the fake server as the engine gave it; the demo flavor's fake on the persona the demo shows |
 | `test/features/transactions/presentation/orphan_transaction_test.dart` | A live transaction on an account this device does not show: labelled by its category, and the editor says the account is gone |
 | `integration_test/sync_two_devices_test.dart` | On a device: two app instances, encrypted databases and the real client, sync through the fake server, one driven through its screens |
-| `test/sync/two_device_convergence_test.dart` | Devices, each the app's wiring over its own database, converge through one relay: offline edits, delete against edit and against restore, the cascade, settings, a system category, an amount moved to another currency against splits in the old one, clock skew, a wiped relay, changes before sign-in, a seeded random run on three devices; rules: concurrent edits, a reorder against an edit, concurrent reorders, delete against edit, two devices filing one bank transaction by a synced rule, and a seeded random run of rule edits; hidden: a hide against a notes edit and a batch hide, hide against unhide by clock, a hidden bank row kept through the bank's update and a hide pulled before its row; stream overrides: first choices on two devices merging, a clear winning over an edit and restored by a later choice, an override reaching a device before its stream; bills: a paid mark and a rename on two devices both surviving, two concurrent marks keeping the later device's list whole, a delete winning over an edit and a restore showing it |
+| `test/sync/two_device_convergence_test.dart` | Devices, each the app's wiring over its own database, converge through one relay: offline edits, delete against edit and against restore, the cascade, settings, a system category, an amount moved to another currency against splits in the old one, clock skew, a wiped relay, changes before sign-in, a seeded random run on three devices; rules: concurrent edits, a reorder against an edit, concurrent reorders, delete against edit, two devices filing one bank transaction by a synced rule, and a seeded random run of rule edits; hidden: a hide against a notes edit and a batch hide, hide against unhide by clock, a hidden bank row kept through the bank's update and a hide pulled before its row; stream overrides: first choices on two devices merging, a clear winning over an edit and restored by a later choice, an override reaching a device before its stream; bills: a paid mark and a rename on two devices both surviving, two concurrent marks keeping the later device's list whole, a delete winning over an edit and a restore showing it; goals: contributions added on two devices at once both surviving, a rename and an archive on two devices both surviving, a delete winning over an edit and a restore showing the edit and the contributions, a contribution reaching a device before its goal landing and showing once the goal arrives |

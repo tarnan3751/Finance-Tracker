@@ -62,6 +62,8 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `inMemoryStoreProvider` | `core/di/providers.dart` | The `InMemoryStore` behind the in-memory and demo repositories; the demo flavor's holds the system categories and the demo seed |
 | `accountRepositoryProvider`, `transactionRepositoryProvider`, `categoryRepositoryProvider`, `itemRepositoryProvider`, `ruleRepositoryProvider`, `budgetRepositoryProvider`, `settingsRepositoryProvider` | `core/di/providers.dart` | In memory by default; Drift in dev and prod and demo in demo, through `overridesFor` |
 | `recurringStreamRepositoryProvider`, `liabilityRepositoryProvider` | `core/di/providers.dart` | The recurring streams with their overrides and the liabilities (`recurring.md`, `liabilities.md`): in memory by default, Drift in dev and prod, demo in demo (the persona's, rebuilt with it) |
+| `goalRepositoryProvider` | `core/di/providers.dart` | The goals and their contributions (`goals.md`): in memory by default, Drift in dev and prod, demo in demo (the persona's two goals, rebuilt with it) |
+| `goalEntriesProvider`, `goalViewsProvider`, `goalViewByIdProvider`, `goalActionsProvider` | `features/goals/application/goals_providers.dart` | The goals with their contributions; each as the screens show it today (progress, suggestion, status); one of them; the writes (`goals.md`) |
 | `recurringStreamsProvider`, `subscriptionsProvider`, `streamActionsProvider`; `liabilitiesProvider` | `features/recurring/application/`; `features/liabilities/application/` | The streams with their overrides, the subscriptions with their annual cost, the actions on a stream; the liabilities |
 | `holdingRepositoryProvider`, `investmentTransactionRepositoryProvider` | `core/di/providers.dart` | The holdings with their securities and the investment transactions (`investments.md`): in memory by default, Drift in dev and prod, demo in demo (the persona's brokerage, rebuilt with it) |
 | `holdingsProvider`, `investmentTransactionsProvider(accountId)` | `features/investments/application/investments_providers.dart` | Every holding with its security; one account's live investment transactions, newest first |
@@ -292,7 +294,11 @@ keeping its own navigation stack.
 | | `WeeklySummaryRoute` | `/reports/weekly` | `weekly_summary_screen.dart` (`reports.md`, **The weekly summary**), opened from the Reports segment and from its in-app notice |
 | | `NetWorthRoute` | `/net-worth` | the Net worth segment: a placeholder until net worth lands |
 | | `InvestmentsRoute` | `/investments` | the Investments segment: a placeholder until the holdings screen lands |
-| | `GoalsRoute` | `/goals` | the Goals segment: a placeholder until goals land |
+| | `GoalsRoute` | `/goals` | the Goals segment: `GoalsScreen` (`features/goals/presentation/goals_screen.dart`, `goals.md`) with its New goal action |
+| | `NewGoalRoute` | `/goals/new` | `goal_editor_screen.dart` |
+| | `GoalDetailRoute` | `/goals/:id` | `goal_detail_screen.dart` |
+| | `EditGoalRoute` | `/goals/:id/edit` | `goal_editor_screen.dart` |
+| | `NewContributionRoute` | `/goals/:id/contribute` | `contribution_editor_screen.dart` |
 | Settings | `SettingsRoute` | `/settings` | `features/settings/presentation/settings_screen.dart` |
 | | `CategoriesRoute` | `/settings/categories` | `features/categories/presentation/categories_screen.dart` |
 | | `NewCategoryRoute` | `/settings/categories/new` | `category_editor_screen.dart` |
@@ -313,12 +319,13 @@ keeping its own navigation stack.
   routes are sub-routes of their branch, so each tab keeps its own stack. `/accounts/new`
   and `/accounts/linked-banks` are declared before `/accounts/:id`, and
   `/transactions/new` and `/transactions/duplicates` before `/transactions/:id`, and
-  `/bills/new` and `/bills/subscriptions` before `/bills/:id`, so none is read as an id.
+  `/bills/new` and `/bills/subscriptions` before `/bills/:id`, and `/goals/new` before
+  `/goals/:id`, so none is read as an id.
 - Pushing a route of another branch (a transaction from an account's detail or a
   budget's, category management from the category picker) puts it on top of the current tab's stack: the
   selected tab does not change, and back returns where the user was.
 - **Editors close their own page.** A screen that closes after an await (the account,
-  transaction, budget, bill, category and rule editors' Save, the category editor's and
+  transaction, budget, bill, goal, contribution, category and rule editors' Save, the category editor's and
   the account detail's Delete) takes its page with `OwnPage.of` (`core/router/own_page.dart`)
   before the await: `close()` pops only while that page is still the router's top page
   (`isTop`), and otherwise does nothing, so a page opened meanwhile (on another tab, or
@@ -349,7 +356,8 @@ keeping its own navigation stack.
   Four labels do not fit a phone's width, so the control scrolls sideways and opens
   scrolled to the segment shown. Reports shows the reports (`reports.md`), with the
   alerts bell (`BudgetAlertsButton`) in its app bar, since the weekly summary's notice is
-  reached through it; a segment whose feature has not landed shows
+  reached through it; Goals shows the goals (`goals.md`) with New goal in its app bar, and
+  every `/goals...` route opens inside the tab; a segment whose feature has not landed shows
   `InsightsPlaceholder` ("Coming soon"). The roots are `NoTransitionPage`s. Settings is
   the fifth tab.
 - **Snack bars.** Each branch has its own `ScaffoldMessenger`, so a snack bar shown from a

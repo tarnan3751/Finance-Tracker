@@ -13,7 +13,7 @@ The entities and `Money` are `shared_models` (`core.md`); the providers and star
 
 ## The database
 
-Drift on SQLite, at schema version 11 (`core/db/app_database.dart`; one file per table under
+Drift on SQLite, at schema version 12 (`core/db/app_database.dart`; one file per table under
 `core/db/tables/`). `app_database.dart` and the tables import no Flutter, so `drift_dev`
 can run them in the Dart VM to dump the schema.
 
@@ -37,6 +37,8 @@ can run them in the Dart VM to dump the schema.
 | `dismissed_pairs` | The duplicate pairs the user marked as not duplicates (schema 7, `duplicates.md`): `id_a` and `id_b`, two transaction ids in `BINARY` order (a CHECK), the primary key, and `dismissed_at`; local to the device, never recorded or synced, no foreign key |
 | `bills` | The user's bills (schema 10, `bills.md`): `name`, `amount_minor` and `currency` (both or neither), `due_date` (the first), `cadence` (the JSON name, no CHECK), `account_id`, `stream_id`, `liability_account_id`, `reminder_offset_days` (a JSON array), `reminder_minutes` (a CHECK, 0 to 1439), `active`, `autopay`, `paid_occurrences` (a JSON array of ISO dates), the three audit columns |
 | `bill_alerts` | The bill notifications this device raised, never synced (schema 10, `bills.md`): `(bill_id, due_date)` primary key, `raised_at` |
+| `goals` | The user's savings goals (schema 12, `goals.md`): `name`, `target_minor` in `currency`, `kind` (`balance` or `contribution`, no CHECK), `linked_account_ids` (a JSON array), `target_date`, `created_on`, `note`, `archived_at`, the three audit columns; synced as the `goal` record |
+| `goal_contributions` | What the user put toward each goal (schema 12, `goals.md`): `goal_id` (no foreign key: a contribution may arrive before its goal), `date`, `amount_minor` in `currency` (negative withdraws), `note`, the three audit columns; each synced as a `goal_contribution` record of its own |
 | `saved_filters` | The transaction list's saved filters (schema 8, `transactions.md`): `name`, `query_json` (`TransactionFilters.toJson`), `position`, `created_at`, `updated_at`; on this device only, never synced or recorded |
 | `recurring_streams` | The recurring streams (schema 9, `recurring.md`): the server's (`plaid`, `demo`) and the detector's (`detected`), each replaced whole, never recorded: `account_id`, `merchant_name`, `cadence` (its JSON name, no CHECK), `average_amount_minor` in `currency`, `last_expected`, `next_expected`, `status`, `is_subscription`, `source`, `transaction_ids` (a JSON array), `pulled_at` |
 | `stream_overrides` | The user's choices per stream (schema 9, `recurring.md`): `stream_id` primary key (no foreign key), `muted`, `is_subscription` and `display_name` (null: the stream's own), the three audit columns; synced as the `recurring_stream` record |
@@ -85,7 +87,7 @@ the account exists. Indexes: `transactions(account_id, date)`,
 `transactions(user_category_id)`, `transactions(pending_transaction_id)`,
 `transaction_tags(tag)`, `categories(parent_id)`, `rules(position)`,
 `budgets(category_id)`, `saved_filters(position)`, `recurring_streams(account_id)`,
-`bills(due_date)`.
+`bills(due_date)`, `goal_contributions(goal_id)`.
 
 ## Full-text search
 
@@ -236,6 +238,7 @@ and exposes streams that start with the current value and emit again only when i
 | `InvestmentTransactionRepository` | `watchByAccount` (live rows, newest date first, then id descending), `applyPage(page)` (`investments.md`) |
 | `BalanceSnapshotRepository` | `watchAll()` (by date, then account), `watchByAccount`, `latestDate()`, `writeDay(date, snapshots)` (`net-worth.md`) |
 | `BillRepository` | `watchAll()` (by first due date, then id), `watchById`, `upsert`, `delete`, `restore` (`bills.md`) |
+| `GoalRepository` | `watchAll()` (each live goal, archived ones included, with its live contributions as a `GoalEntry`, by creation day, then id), `watchById`, `create`, `update` (the archive state kept), `setArchived(id, archived:)`, `delete`, `restore`, `addContribution`, `deleteContribution`, `restoreContribution` (`goals.md`) |
 | `SavedFilterRepository` | `watchAll()` (by `position`, then id), `save(name, filters)` (appended), `rename`, `delete` (final: the table is local, nothing is recorded); a blank name is an `ArgumentError` (`transactions.md`) |
 | `SettingsRepository` | `watch()`, `read()`, `save()` |
 
@@ -399,7 +402,7 @@ field; a missing or unreadable value reads as that field's default.
 
 The in-memory account, transaction, category and item repositories share one `InMemoryStore`,
 because balances, currency checks and the cascade cross repositories (the rule,
-budget, recurring stream, liability, holding, investment transaction, balance snapshot and settings ones keep their own state: nothing crosses into them); its operations are
+budget, recurring stream, liability, holding, investment transaction, balance snapshot, bill, goal and settings ones keep their own state: nothing crosses into them); its operations are
 synchronous so the demo seed loads in a provider. Rules both implementations need
 (the category edit rule, the audit-instant rule, the transaction order, SQLite's text
 comparisons, list and map equality) are in `core/db/repository_support.dart`; the `BINARY`
@@ -411,8 +414,9 @@ The contract suites are in `app/test/contract/`, one file per repository:
 `runCategoryRepositoryContract`, `runItemRepositoryContract`,
 `runRuleRepositoryContract`, `runBudgetRepositoryContract`,
 `runRecurringStreamRepositoryContract`, `runLiabilityRepositoryContract`,
-`runHoldingRepositoryContract`, `runInvestmentTransactionRepositoryContract` and
-`runBalanceSnapshotRepositoryContract` take a factory of a
+`runHoldingRepositoryContract`, `runInvestmentTransactionRepositoryContract`,
+`runBalanceSnapshotRepositoryContract`, `runBillRepositoryContract` and
+`runGoalRepositoryContract` take a factory of a
 `RepositoryFixture` (the repositories of one implementation over one store) and a dispose
 (the account and transaction suites' `applyPlaid` groups check the kept fields, the
 tombstones, the order of new accounts, the server's `source` and that nothing is
@@ -495,7 +499,8 @@ The demo's balance snapshots start empty and the snapshot writer fills the launc
 (`net-worth.md`). Choosing another persona
 rebuilds the store and the repositories over it, so the demo's own edits are lost. The demo's
 rule repository holds two rules written for the persona it shows (`demo_rules.dart`,
-`rules.md`), and its budget repository two budgets (`demo_budgets.dart`, `budgets.md`). The
+`rules.md`), and its budget repository two budgets (`demo_budgets.dart`, `budgets.md`), and its goal
+repository two goals with their contributions (`demo_goals.dart`, `goals.md`). The
 demo flavor's in-app fake server serves the same seed (`FakeDataset.fromDemoSeed`,
 `app-core.md`).
 
@@ -540,6 +545,18 @@ app's data directory.
 
 ## Changing the schema
 
+**Schema 12** adds `goals` and `goal_contributions`. Its step, in one transaction,
+creates both tables and the `goal_contributions(goal_id)` index (only when `sqlite_master`
+lacks it) and writes again every `goal` and `goal_contribution` record held in
+`held_records` (held `unsupported_type` before this version, or under the raw type name by a build
+that did not know the type, `sync-app.md`, **Unknown types**): a complete record becomes a
+row (a contribution whose goal has not arrived too), one of only updates stays
+`incomplete`, one with a field this version does not know lands and stays held
+`unknown_fields`, and one that does not decode (a kind this version lacks) stays
+`unrepresentable`. `migration_test.dart` opens a schema 11 database with a bill, sync state
+and each kind of held goal and contribution record, and runs the step again at version 11.
+The **every step runs again at the old version** group covers every version from 1 to 11.
+
 **Schema 11** adds `securities`, `holdings`, `investment_transactions` and
 `balance_snapshots`. Its step, in one transaction, creates the four tables
 (`IF NOT EXISTS`) and the `investment_transactions(account_id, date)` and
@@ -550,7 +567,7 @@ transaction and the Plaid pull's cursor, checks the rows stay and the four table
 empty, that a snapshot source outside the provenances is refused, and runs the step again
 at version 10 after a run whose version was not written, with a snapshot already in the
 new table. The **every step runs again at the old version** group covers every version
-from 1 to 10.
+from 1 to 10 (from 1 to 11 since schema 12).
 
 **Schema 10** adds `bills` and `bill_alerts`. Its step creates both tables and the
 `bills(due_date)` index (only when `sqlite_master` lacks it) and, in the same
