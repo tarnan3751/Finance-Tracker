@@ -68,6 +68,7 @@ import 'package:finance_tracker/features/duplicates/data/drift_dismissed_pair_st
 import 'package:finance_tracker/features/duplicates/data/in_memory_dismissed_pair_store.dart';
 import 'package:finance_tracker/features/duplicates/domain/dismissed_pair_store.dart';
 import 'package:finance_tracker/features/goals/data/demo_goal_repository.dart';
+import 'package:finance_tracker/features/goals/data/demo_goals.dart';
 import 'package:finance_tracker/features/goals/data/drift_goal_repository.dart';
 import 'package:finance_tracker/features/goals/data/in_memory_goal_repository.dart';
 import 'package:finance_tracker/features/goals/domain/goal_repository.dart';
@@ -683,8 +684,12 @@ final List<Override> _demoOverrides = [
     return repository;
   }),
   goalRepositoryProvider.overrideWith((ref) {
+    final Clock clock = ref.watch(clockProvider);
+    final demo = demoGoals(ref.watch(demoSeedProvider), clock.today());
     final DemoGoalRepository repository = DemoGoalRepository(
-      ref.watch(clockProvider),
+      clock,
+      goals: demo.goals,
+      contributions: demo.contributions,
     );
     ref.onDispose(repository.close);
     return repository;
