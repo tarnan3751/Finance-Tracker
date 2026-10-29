@@ -7,12 +7,12 @@
 /// flipped at ingestion); balances, limits, liability amounts and holding values are the
 /// institution's reported figures. The user-authored fields of a Plaid transaction
 /// (category, notes, tags, splits, receipt) travel through the change log and are always
-/// empty here. Liabilities carry the `source` they were stored with; accounts, holdings,
-/// securities and investment transactions store theirs but do not expose it until a later
-/// contract change does. A recurring stream's members are Plaid's transaction ids, served
-/// as the server's own ids of the live transactions it holds for them, in Plaid's order. Rows of
-/// an Item marked `plaid_removed_at` are hidden from every endpoint, unless the Item was
-/// unlinked with its history kept (status `removed`).
+/// empty here. Liabilities, holdings, securities and investment transactions carry the
+/// `source` they were stored with; accounts store theirs but do not expose it. A
+/// recurring stream's members are Plaid's transaction ids, served as the server's own ids
+/// of the live transactions it holds for them, in Plaid's order. Rows of an Item marked
+/// `plaid_removed_at` are hidden from every endpoint, unless the Item was unlinked with
+/// its history kept (status `removed`).
 library;
 
 import 'dart:convert';
@@ -145,6 +145,7 @@ List<ApiRoute> dataRoutes(AppDatabase db) => [
               h['currency_code'] as String,
             )?.toJson(),
             'currency_code': h['currency_code'],
+            'source': h['source'],
           },
       ],
       'securities': [
@@ -161,6 +162,7 @@ List<ApiRoute> dataRoutes(AppDatabase db) => [
               'close_price': s['close_price'],
               'close_price_as_of': s['close_price_as_of'],
               'currency_code': s['currency_code'],
+              'source': s['source'],
             },
       ],
     });
@@ -189,6 +191,7 @@ List<ApiRoute> dataRoutes(AppDatabase db) => [
             'fees': _money(t['fees_minor'], t['currency'] as String)?.toJson(),
             'deleted_at': optionalInstantJson(t['deleted_at'] as int?),
             'sync_version': t['sync_version'],
+            'source': t['source'],
           },
       ],
       'next_since': page.nextSince,

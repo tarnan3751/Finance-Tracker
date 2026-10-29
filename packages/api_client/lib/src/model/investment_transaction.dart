@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:api_client/src/model/data_source.dart';
 import 'package:api_client/src/model/money.dart';
 import 'package:api_client/src/model/date.dart';
 import 'package:built_value/built_value.dart';
@@ -26,6 +27,7 @@ part 'investment_transaction.g.dart';
 /// * [fees]
 /// * [deletedAt]
 /// * [syncVersion]
+/// * [source_]
 @BuiltValue()
 abstract class InvestmentTransaction
     implements Built<InvestmentTransaction, InvestmentTransactionBuilder> {
@@ -70,6 +72,10 @@ abstract class InvestmentTransaction
 
   @BuiltValueField(wireName: r'sync_version')
   int get syncVersion;
+
+  @BuiltValueField(wireName: r'source')
+  DataSource get source_;
+  // enum source_Enum {  plaid,  manual,  import,  derived,  demo,  };
 
   InvestmentTransaction._();
 
@@ -173,6 +179,11 @@ class _$InvestmentTransactionSerializer
     yield serializers.serialize(
       object.syncVersion,
       specifiedType: const FullType(int),
+    );
+    yield r'source';
+    yield serializers.serialize(
+      object.source_,
+      specifiedType: const FullType(DataSource),
     );
   }
 
@@ -295,6 +306,13 @@ class _$InvestmentTransactionSerializer
             specifiedType: const FullType(int),
           ) as int;
           result.syncVersion = valueDes;
+          break;
+        case r'source':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(DataSource),
+          ) as DataSource;
+          result.source_ = valueDes;
           break;
         default:
           unhandled.add(key);

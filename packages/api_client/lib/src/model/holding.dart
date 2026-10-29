@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:api_client/src/model/data_source.dart';
 import 'package:api_client/src/model/money.dart';
 import 'package:api_client/src/model/date.dart';
 import 'package:built_value/built_value.dart';
@@ -21,6 +22,7 @@ part 'holding.g.dart';
 /// * [institutionValue]
 /// * [costBasis]
 /// * [currencyCode]
+/// * [source_]
 @BuiltValue()
 abstract class Holding implements Built<Holding, HoldingBuilder> {
   @BuiltValueField(wireName: r'account_id')
@@ -48,6 +50,10 @@ abstract class Holding implements Built<Holding, HoldingBuilder> {
 
   @BuiltValueField(wireName: r'currency_code')
   String get currencyCode;
+
+  @BuiltValueField(wireName: r'source')
+  DataSource get source_;
+  // enum source_Enum {  plaid,  manual,  import,  derived,  demo,  };
 
   Holding._();
 
@@ -115,6 +121,11 @@ class _$HoldingSerializer implements PrimitiveSerializer<Holding> {
     yield serializers.serialize(
       object.currencyCode,
       specifiedType: const FullType(String),
+    );
+    yield r'source';
+    yield serializers.serialize(
+      object.source_,
+      specifiedType: const FullType(DataSource),
     );
   }
 
@@ -200,6 +211,13 @@ class _$HoldingSerializer implements PrimitiveSerializer<Holding> {
             specifiedType: const FullType(String),
           ) as String;
           result.currencyCode = valueDes;
+          break;
+        case r'source':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(DataSource),
+          ) as DataSource;
+          result.source_ = valueDes;
           break;
         default:
           unhandled.add(key);

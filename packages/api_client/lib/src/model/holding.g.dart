@@ -23,6 +23,8 @@ class _$Holding extends Holding {
   final Money? costBasis;
   @override
   final String currencyCode;
+  @override
+  final DataSource source_;
 
   factory _$Holding([void Function(HoldingBuilder)? updates]) =>
       (HoldingBuilder()..update(updates))._build();
@@ -36,6 +38,7 @@ class _$Holding extends Holding {
     required this.institutionValue,
     this.costBasis,
     required this.currencyCode,
+    required this.source_,
   }) : super._();
   @override
   Holding rebuild(void Function(HoldingBuilder) updates) =>
@@ -55,7 +58,8 @@ class _$Holding extends Holding {
         institutionPriceAsOf == other.institutionPriceAsOf &&
         institutionValue == other.institutionValue &&
         costBasis == other.costBasis &&
-        currencyCode == other.currencyCode;
+        currencyCode == other.currencyCode &&
+        source_ == other.source_;
   }
 
   @override
@@ -69,6 +73,7 @@ class _$Holding extends Holding {
     _$hash = $jc(_$hash, institutionValue.hashCode);
     _$hash = $jc(_$hash, costBasis.hashCode);
     _$hash = $jc(_$hash, currencyCode.hashCode);
+    _$hash = $jc(_$hash, source_.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -83,7 +88,8 @@ class _$Holding extends Holding {
           ..add('institutionPriceAsOf', institutionPriceAsOf)
           ..add('institutionValue', institutionValue)
           ..add('costBasis', costBasis)
-          ..add('currencyCode', currencyCode))
+          ..add('currencyCode', currencyCode)
+          ..add('source_', source_))
         .toString();
   }
 }
@@ -127,6 +133,10 @@ class HoldingBuilder implements Builder<Holding, HoldingBuilder> {
   String? get currencyCode => _$this._currencyCode;
   set currencyCode(String? currencyCode) => _$this._currencyCode = currencyCode;
 
+  DataSource? _source_;
+  DataSource? get source_ => _$this._source_;
+  set source_(DataSource? source_) => _$this._source_ = source_;
+
   HoldingBuilder() {
     Holding._defaults(this);
   }
@@ -142,6 +152,7 @@ class HoldingBuilder implements Builder<Holding, HoldingBuilder> {
       _institutionValue = $v.institutionValue.toBuilder();
       _costBasis = $v.costBasis?.toBuilder();
       _currencyCode = $v.currencyCode;
+      _source_ = $v.source_;
       _$v = null;
     }
     return this;
@@ -193,6 +204,11 @@ class HoldingBuilder implements Builder<Holding, HoldingBuilder> {
               currencyCode,
               r'Holding',
               'currencyCode',
+            ),
+            source_: BuiltValueNullFieldError.checkNotNull(
+              source_,
+              r'Holding',
+              'source_',
             ),
           );
     } catch (_) {

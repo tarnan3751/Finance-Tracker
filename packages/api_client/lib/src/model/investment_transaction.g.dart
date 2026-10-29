@@ -33,6 +33,8 @@ class _$InvestmentTransaction extends InvestmentTransaction {
   final DateTime? deletedAt;
   @override
   final int syncVersion;
+  @override
+  final DataSource source_;
 
   factory _$InvestmentTransaction([
     void Function(InvestmentTransactionBuilder)? updates,
@@ -52,6 +54,7 @@ class _$InvestmentTransaction extends InvestmentTransaction {
     this.fees,
     this.deletedAt,
     required this.syncVersion,
+    required this.source_,
   }) : super._();
   @override
   InvestmentTransaction rebuild(
@@ -78,7 +81,8 @@ class _$InvestmentTransaction extends InvestmentTransaction {
         amount == other.amount &&
         fees == other.fees &&
         deletedAt == other.deletedAt &&
-        syncVersion == other.syncVersion;
+        syncVersion == other.syncVersion &&
+        source_ == other.source_;
   }
 
   @override
@@ -97,6 +101,7 @@ class _$InvestmentTransaction extends InvestmentTransaction {
     _$hash = $jc(_$hash, fees.hashCode);
     _$hash = $jc(_$hash, deletedAt.hashCode);
     _$hash = $jc(_$hash, syncVersion.hashCode);
+    _$hash = $jc(_$hash, source_.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -116,7 +121,8 @@ class _$InvestmentTransaction extends InvestmentTransaction {
           ..add('amount', amount)
           ..add('fees', fees)
           ..add('deletedAt', deletedAt)
-          ..add('syncVersion', syncVersion))
+          ..add('syncVersion', syncVersion)
+          ..add('source_', source_))
         .toString();
   }
 }
@@ -177,6 +183,10 @@ class InvestmentTransactionBuilder
   int? get syncVersion => _$this._syncVersion;
   set syncVersion(int? syncVersion) => _$this._syncVersion = syncVersion;
 
+  DataSource? _source_;
+  DataSource? get source_ => _$this._source_;
+  set source_(DataSource? source_) => _$this._source_ = source_;
+
   InvestmentTransactionBuilder() {
     InvestmentTransaction._defaults(this);
   }
@@ -197,6 +207,7 @@ class InvestmentTransactionBuilder
       _fees = $v.fees?.toBuilder();
       _deletedAt = $v.deletedAt;
       _syncVersion = $v.syncVersion;
+      _source_ = $v.source_;
       _$v = null;
     }
     return this;
@@ -265,6 +276,11 @@ class InvestmentTransactionBuilder
               syncVersion,
               r'InvestmentTransaction',
               'syncVersion',
+            ),
+            source_: BuiltValueNullFieldError.checkNotNull(
+              source_,
+              r'InvestmentTransaction',
+              'source_',
             ),
           );
     } catch (_) {

@@ -2,7 +2,8 @@
 /// accounts, transactions, recurring streams, liabilities and investments.
 ///
 /// This is demo data (`PLAN.md` §7.1: synthesis lives in the demo flavor), so every
-/// transaction, recurring stream and liability must say `source: demo`; the constructor
+/// transaction, recurring stream, liability, holding, security and investment
+/// transaction must say `source: demo`; the constructor
 /// refuses any other. The fake keeps every id as given and assigns only `sync_version`, per user, when
 /// an Item's first completed sync applies it (`fake_server.dart`). [FakeDataset.sample] is
 /// a small hand-written dataset (the tests and the dev flavor's fake);
@@ -20,8 +21,8 @@ import 'package:shared_models/shared_models.dart';
 /// One Item's data.
 final class FakeItemData {
   /// The Item [id] at [institution]. Each transaction, stream, liability, holding and
-  /// investment transaction must belong to one of [accounts]; transactions, streams and
-  /// liabilities must be `demo`.
+  /// investment transaction must belong to one of [accounts]; every one of them, and
+  /// every security, must be `demo`.
   FakeItemData({
     required this.id,
     required this.institution,
@@ -75,9 +76,14 @@ final class FakeItemData {
     }
     for (final Holding h in holdings) {
       owned(h.accountId, 'a holding');
+      demo(h.source, 'the holding of ${h.securityId} on ${h.accountId}');
+    }
+    for (final Security s in securities) {
+      demo(s.source, 'security ${s.id}');
     }
     for (final InvestmentTransaction t in investmentTransactions) {
       owned(t.accountId, 'investment transaction ${t.id}');
+      demo(t.source, 'investment transaction ${t.id}');
     }
   }
 

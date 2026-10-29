@@ -6,7 +6,7 @@
 openapi: 3.0.3
 info:
   title: Finance Tracker API
-  version: 0.4.0
+  version: 0.5.0
   description: >-
     The API between the Finance Tracker app and its server. All JSON, snake_case. Money is
     integer minor units plus an ISO 4217 code (`Money`), never a floating-point number;
@@ -2136,6 +2136,8 @@ components:
           nullable: true
 
     # Investments ----------------------------------------------------------------------------
+    # Holdings, securities and investment transactions carry the `source` the server stored:
+    # `plaid` from Plaid, `demo` from the fake Plaid client (PLAN.md §7.1).
     HoldingsResponse:
       type: object
       required: [holdings, securities]
@@ -2162,6 +2164,7 @@ components:
         - institution_value
         - cost_basis
         - currency_code
+        - source
       properties:
         account_id:
           type: string
@@ -2184,6 +2187,8 @@ components:
         currency_code:
           type: string
           pattern: '^[A-Z]{3}$'
+        source:
+          $ref: '#/components/schemas/DataSource'
       example:
         account_id: acc-5
         security_id: sec-1
@@ -2197,6 +2202,7 @@ components:
           minor_units: 40000
           currency: USD
         currency_code: USD
+        source: plaid
     Security:
       type: object
       required:
@@ -2208,6 +2214,7 @@ components:
         - close_price
         - close_price_as_of
         - currency_code
+        - source
       properties:
         id:
           type: string
@@ -2235,6 +2242,8 @@ components:
         currency_code:
           type: string
           pattern: '^[A-Z]{3}$'
+        source:
+          $ref: '#/components/schemas/DataSource'
       example:
         id: sec-1
         name: Vanguard Total Stock Market ETF
@@ -2244,6 +2253,7 @@ components:
         close_price: '42.1234'
         close_price_as_of: '2026-10-23'
         currency_code: USD
+        source: plaid
     InvestmentTransaction:
       type: object
       description: >-
@@ -2264,6 +2274,7 @@ components:
         - fees
         - deleted_at
         - sync_version
+        - source
       properties:
         id:
           type: string
@@ -2304,6 +2315,8 @@ components:
           format: int64
           minimum: 0
           readOnly: true
+        source:
+          $ref: '#/components/schemas/DataSource'
       example:
         id: inv-txn-1
         account_id: acc-5
@@ -2320,6 +2333,7 @@ components:
         fees: null
         deleted_at: null
         sync_version: 43
+        source: plaid
     InvestmentTransactionPage:
       type: object
       required: [investment_transactions, next_since, has_more]

@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:api_client/src/model/data_source.dart';
 import 'package:api_client/src/model/date.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
@@ -20,6 +21,7 @@ part 'security.g.dart';
 /// * [closePrice] - An exact decimal number as a string, for per-unit prices, share quantities and rates, which need more precision than minor units. Never an amount of money: totals are `Money`.
 /// * [closePriceAsOf]
 /// * [currencyCode]
+/// * [source_]
 @BuiltValue()
 abstract class Security implements Built<Security, SecurityBuilder> {
   @BuiltValueField(wireName: r'id')
@@ -47,6 +49,10 @@ abstract class Security implements Built<Security, SecurityBuilder> {
 
   @BuiltValueField(wireName: r'currency_code')
   String get currencyCode;
+
+  @BuiltValueField(wireName: r'source')
+  DataSource get source_;
+  // enum source_Enum {  plaid,  manual,  import,  derived,  demo,  };
 
   Security._();
 
@@ -122,6 +128,11 @@ class _$SecuritySerializer implements PrimitiveSerializer<Security> {
     yield serializers.serialize(
       object.currencyCode,
       specifiedType: const FullType(String),
+    );
+    yield r'source';
+    yield serializers.serialize(
+      object.source_,
+      specifiedType: const FullType(DataSource),
     );
   }
 
@@ -211,6 +222,13 @@ class _$SecuritySerializer implements PrimitiveSerializer<Security> {
             specifiedType: const FullType(String),
           ) as String;
           result.currencyCode = valueDes;
+          break;
+        case r'source':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(DataSource),
+          ) as DataSource;
+          result.source_ = valueDes;
           break;
         default:
           unhandled.add(key);

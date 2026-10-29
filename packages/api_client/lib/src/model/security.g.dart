@@ -23,6 +23,8 @@ class _$Security extends Security {
   final Date? closePriceAsOf;
   @override
   final String currencyCode;
+  @override
+  final DataSource source_;
 
   factory _$Security([void Function(SecurityBuilder)? updates]) =>
       (SecurityBuilder()..update(updates))._build();
@@ -36,6 +38,7 @@ class _$Security extends Security {
     this.closePrice,
     this.closePriceAsOf,
     required this.currencyCode,
+    required this.source_,
   }) : super._();
   @override
   Security rebuild(void Function(SecurityBuilder) updates) =>
@@ -55,7 +58,8 @@ class _$Security extends Security {
         isCashEquivalent == other.isCashEquivalent &&
         closePrice == other.closePrice &&
         closePriceAsOf == other.closePriceAsOf &&
-        currencyCode == other.currencyCode;
+        currencyCode == other.currencyCode &&
+        source_ == other.source_;
   }
 
   @override
@@ -69,6 +73,7 @@ class _$Security extends Security {
     _$hash = $jc(_$hash, closePrice.hashCode);
     _$hash = $jc(_$hash, closePriceAsOf.hashCode);
     _$hash = $jc(_$hash, currencyCode.hashCode);
+    _$hash = $jc(_$hash, source_.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -83,7 +88,8 @@ class _$Security extends Security {
           ..add('isCashEquivalent', isCashEquivalent)
           ..add('closePrice', closePrice)
           ..add('closePriceAsOf', closePriceAsOf)
-          ..add('currencyCode', currencyCode))
+          ..add('currencyCode', currencyCode)
+          ..add('source_', source_))
         .toString();
   }
 }
@@ -125,6 +131,10 @@ class SecurityBuilder implements Builder<Security, SecurityBuilder> {
   String? get currencyCode => _$this._currencyCode;
   set currencyCode(String? currencyCode) => _$this._currencyCode = currencyCode;
 
+  DataSource? _source_;
+  DataSource? get source_ => _$this._source_;
+  set source_(DataSource? source_) => _$this._source_ = source_;
+
   SecurityBuilder() {
     Security._defaults(this);
   }
@@ -140,6 +150,7 @@ class SecurityBuilder implements Builder<Security, SecurityBuilder> {
       _closePrice = $v.closePrice;
       _closePriceAsOf = $v.closePriceAsOf;
       _currencyCode = $v.currencyCode;
+      _source_ = $v.source_;
       _$v = null;
     }
     return this;
@@ -173,6 +184,11 @@ class SecurityBuilder implements Builder<Security, SecurityBuilder> {
             currencyCode,
             r'Security',
             'currencyCode',
+          ),
+          source_: BuiltValueNullFieldError.checkNotNull(
+            source_,
+            r'Security',
+            'source_',
           ),
         );
     replace(_$result);

@@ -504,6 +504,7 @@ final class Holding {
     required this.institutionValue,
     this.costBasis,
     required this.currencyCode,
+    required this.source,
   });
 
   factory Holding.fromJson(Map<String, dynamic> json) => Holding(
@@ -515,6 +516,7 @@ final class Holding {
     institutionValue: _money(json['institution_value'])!,
     costBasis: _money(json['cost_basis']),
     currencyCode: json['currency_code'] as String,
+    source: _source(json['source']),
   );
 
   final String accountId;
@@ -529,6 +531,7 @@ final class Holding {
   final Money institutionValue;
   final Money? costBasis;
   final String currencyCode;
+  final DataSource source;
 
   Map<String, dynamic> toJson() => {
     'account_id': accountId,
@@ -539,6 +542,7 @@ final class Holding {
     'institution_value': institutionValue.toJson(),
     'cost_basis': costBasis?.toJson(),
     'currency_code': currencyCode,
+    'source': source.name,
   };
 }
 
@@ -553,6 +557,7 @@ final class Security {
     this.closePrice,
     this.closePriceAsOf,
     required this.currencyCode,
+    required this.source,
   });
 
   factory Security.fromJson(Map<String, dynamic> json) => Security(
@@ -564,6 +569,7 @@ final class Security {
     closePrice: json['close_price'] as String?,
     closePriceAsOf: _date(json['close_price_as_of']),
     currencyCode: json['currency_code'] as String,
+    source: _source(json['source']),
   );
 
   final String id;
@@ -576,6 +582,7 @@ final class Security {
   final String? closePrice;
   final LocalDate? closePriceAsOf;
   final String currencyCode;
+  final DataSource source;
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -586,6 +593,7 @@ final class Security {
     'close_price': closePrice,
     'close_price_as_of': closePriceAsOf?.toJson(),
     'currency_code': currencyCode,
+    'source': source.name,
   };
 }
 
@@ -630,6 +638,7 @@ final class InvestmentTransaction {
     this.fees,
     this.deletedAt,
     required this.syncVersion,
+    required this.source,
   });
 
   factory InvestmentTransaction.fromJson(Map<String, dynamic> json) =>
@@ -647,6 +656,7 @@ final class InvestmentTransaction {
         fees: _money(json['fees']),
         deletedAt: _instant(json['deleted_at']),
         syncVersion: json['sync_version'] as int,
+        source: _source(json['source']),
       );
 
   final String id;
@@ -668,6 +678,7 @@ final class InvestmentTransaction {
   /// The tombstone, UTC.
   final DateTime? deletedAt;
   final int syncVersion;
+  final DataSource source;
 
   /// This transaction at [syncVersion], deleted at [deletedAt] when given.
   InvestmentTransaction copyWith({int? syncVersion, DateTime? deletedAt}) =>
@@ -685,6 +696,7 @@ final class InvestmentTransaction {
         fees: fees,
         deletedAt: deletedAt ?? this.deletedAt,
         syncVersion: syncVersion ?? this.syncVersion,
+        source: source,
       );
 
   Map<String, dynamic> toJson() => {
@@ -703,6 +715,7 @@ final class InvestmentTransaction {
         ? null
         : const UtcInstantConverter().toJson(deletedAt!),
     'sync_version': syncVersion,
+    'source': source.name,
   };
 }
 

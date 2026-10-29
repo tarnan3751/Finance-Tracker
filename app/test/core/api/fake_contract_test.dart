@@ -16,6 +16,7 @@ import 'package:built_value/serializer.dart';
 import 'package:contract_test/contract_test.dart';
 import 'package:dio/dio.dart';
 import 'package:finance_tracker/core/api/api_config.dart';
+import 'package:finance_tracker/core/api/api_models.dart' as wire;
 import 'package:finance_tracker/core/api/fake/fake_dataset.dart';
 import 'package:finance_tracker/core/api/fake/fake_server.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -882,5 +883,83 @@ void main() {
     final Response<dynamic> response = await h.raw.get<dynamic>('/nothing');
     expect(response.statusCode, 404);
     expect(response.data, conformsToSchema(_contract, 'Problem'));
+  });
+
+  test('the investment objects the fake serves are the contract\'s', () {
+    Object? wired(Map<String, dynamic> json) => jsonDecode(jsonEncode(json));
+    final wire.Holding holding = wire.Holding(
+      accountId: 'a1',
+      securityId: 's1',
+      quantity: '10.125',
+      institutionPrice: '42.1234',
+      institutionPriceAsOf: LocalDate(2026, 10, 23),
+      institutionValue: Money(42650, 'USD'),
+      costBasis: Money(40000, 'USD'),
+      currencyCode: 'USD',
+      source: DataSource.demo,
+    );
+    final wire.Holding bare = wire.Holding(
+      accountId: 'a1',
+      securityId: 's1',
+      quantity: '1',
+      institutionPrice: '1',
+      institutionValue: Money(100, 'USD'),
+      currencyCode: 'USD',
+      source: DataSource.demo,
+    );
+    expect(wired(holding.toJson()), conformsToSchema(_contract, 'Holding'));
+    expect(wired(bare.toJson()), conformsToSchema(_contract, 'Holding'));
+    final wire.Security security = wire.Security(
+      id: 's1',
+      name: 'Index ETF',
+      tickerSymbol: 'IDX',
+      type: 'etf',
+      isCashEquivalent: false,
+      closePrice: '42.1234',
+      closePriceAsOf: LocalDate(2026, 10, 23),
+      currencyCode: 'USD',
+      source: DataSource.demo,
+    );
+    const wire.Security unnamed = wire.Security(
+      id: 's2',
+      currencyCode: 'USD',
+      source: DataSource.demo,
+    );
+    expect(wired(security.toJson()), conformsToSchema(_contract, 'Security'));
+    expect(wired(unnamed.toJson()), conformsToSchema(_contract, 'Security'));
+    final wire.InvestmentTransaction buy = wire.InvestmentTransaction(
+      id: 'it1',
+      accountId: 'a1',
+      securityId: 's1',
+      date: LocalDate(2026, 10, 20),
+      name: 'BUY IDX',
+      type: 'buy',
+      subtype: 'buy',
+      quantity: '2',
+      price: '41.50',
+      amount: Money(-8300, 'USD'),
+      fees: Money(0, 'USD'),
+      deletedAt: DateTime.utc(2026, 10, 24, 9, 30),
+      syncVersion: 3,
+      source: DataSource.demo,
+    );
+    final wire.InvestmentTransaction cash = wire.InvestmentTransaction(
+      id: 'it2',
+      accountId: 'a1',
+      date: LocalDate(2026, 10, 20),
+      name: 'CONTRIBUTION',
+      type: 'cash',
+      quantity: '0',
+      price: '0',
+      amount: Money(45000, 'USD'),
+      syncVersion: 4,
+      source: DataSource.demo,
+    );
+    for (final wire.InvestmentTransaction t in [buy, cash]) {
+      expect(
+        wired(t.toJson()),
+        conformsToSchema(_contract, 'InvestmentTransaction'),
+      );
+    }
   });
 }
