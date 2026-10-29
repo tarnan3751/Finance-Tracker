@@ -3758,5 +3758,161 @@
         "type": "int"
       }
     }
+  },
+  "forecastTitle": "Forecast",
+  "@forecastTitle": {
+    "description": "Title of the forecast screen."
+  },
+  "forecastHorizon": "{days} days",
+  "@forecastHorizon": {
+    "description": "A segment of the forecast's horizon control.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "30"
+      }
+    }
+  },
+  "forecastShowTable": "Table",
+  "@forecastShowTable": {
+    "description": "Switches the forecast from its chart to its table."
+  },
+  "forecastShowChart": "Chart",
+  "@forecastShowChart": {
+    "description": "Switches the forecast from its table to its chart."
+  },
+  "forecastLowest": "Lowest point {amount} on {date}",
+  "@forecastLowest": {
+    "description": "The forecast's headline: its lowest projected balance and the day of it.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$412.00"
+      },
+      "date": {
+        "type": "String",
+        "example": "Nov 18"
+      }
+    }
+  },
+  "forecastBelowZero": "Below zero on {date}",
+  "@forecastBelowZero": {
+    "description": "The forecast's headline when the projected balance goes below zero: the first day it does.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Nov 3"
+      }
+    }
+  },
+  "forecastChooseAccounts": "Choose accounts",
+  "@forecastChooseAccounts": {
+    "description": "Opens the sheet choosing the accounts the forecast covers."
+  },
+  "forecastEmptyHeadline": "No accounts to forecast",
+  "@forecastEmptyHeadline": {
+    "description": "Headline of the forecast when it covers no account."
+  },
+  "forecastEmptyBody": "Choose a checking or savings account to see where its balance is heading.",
+  "@forecastEmptyBody": {
+    "description": "Text of the forecast when it covers no account."
+  },
+  "forecastChartSummary": "{days}-day forecast: {start} today, {end} on {endDate}. Lowest point {lowest} on {lowestDate}.",
+  "@forecastChartSummary": {
+    "description": "What a screen reader says for the forecast chart.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "30"
+      },
+      "start": {
+        "type": "String",
+        "example": "$1,200.00"
+      },
+      "end": {
+        "type": "String",
+        "example": "$980.00"
+      },
+      "endDate": {
+        "type": "String",
+        "example": "Nov 23"
+      },
+      "lowest": {
+        "type": "String",
+        "example": "$412.00"
+      },
+      "lowestDate": {
+        "type": "String",
+        "example": "Nov 18"
+      }
+    }
+  },
+  "forecastRange": "Low {low} · High {high}",
+  "@forecastRange": {
+    "description": "The confidence band of a forecast day, in its table row and the chart's tooltip.",
+    "placeholders": {
+      "low": {
+        "type": "String",
+        "example": "$380.00"
+      },
+      "high": {
+        "type": "String",
+        "example": "$450.00"
+      }
+    }
+  },
+  "forecastDaySemantics": "{date}: balance {balance}, low {low}, high {high}.",
+  "@forecastDaySemantics": {
+    "description": "What a screen reader says for a day of the forecast's table, before its events.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Tue, Nov 3"
+      },
+      "balance": {
+        "type": "String",
+        "example": "$412.00"
+      },
+      "low": {
+        "type": "String",
+        "example": "$380.00"
+      },
+      "high": {
+        "type": "String",
+        "example": "$450.00"
+      }
+    }
+  },
+  "forecastOverdue": "{name}, due {date}",
+  "@forecastOverdue": {
+    "description": "An event of the forecast that was due earlier and is not paid yet, landing on tomorrow.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Rent"
+      },
+      "date": {
+        "type": "String",
+        "example": "Oct 22"
+      }
+    }
+  },
+  "forecastAccountsTitle": "Accounts in the forecast",
+  "@forecastAccountsTitle": {
+    "description": "Title of the sheet choosing the forecast's accounts."
+  },
+  "forecastAccountsHidden": "{currency} · hidden account",
+  "@forecastAccountsHidden": {
+    "description": "Subtitle of a hidden account in the forecast's account sheet: its currency, and that it is hidden.",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "USD"
+      }
+    }
+  },
+  "forecastCurrency": "Currency",
+  "@forecastCurrency": {
+    "description": "Label of the currency chips in the forecast's account sheet."
   }
 }

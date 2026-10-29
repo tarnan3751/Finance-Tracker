@@ -8,9 +8,10 @@
 // transaction editor's menu, the budget alerts sheet, the rule editor's menu and the
 // apply confirmation, the subscriptions' folded sections, a stream's menu, the paused
 // bills and the bill calendar open over their screens, and the editor's receipt (a photo
-// from the fake image source) and its full-screen view. The sign-in and registration
-// screens are checked signed out; their text scale is checked with their errors showing, in
-// test/features/auth/auth_screens_test.dart.
+// from the fake image source) and its full-screen view. The forecast's chart, table and
+// account sheet are checked on the forecast household through ForecastScreen. The sign-in
+// and registration screens are checked signed out; their text scale is checked with their
+// errors showing, in test/features/auth/auth_screens_test.dart.
 import 'dart:io';
 
 import 'package:finance_tracker/core/di/providers.dart';
@@ -27,6 +28,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/bill_seed.dart';
 import 'helpers/budget_seed.dart';
+import 'helpers/forecast_seed.dart';
 import 'helpers/pump_app.dart';
 import 'helpers/rule_seed.dart';
 import 'helpers/seed.dart';
@@ -277,6 +279,14 @@ List<Override> _overrides(_Screen screen) => screen.seeded
       ]
     : const [];
 
+/// The forecast's views, opened from its chart.
+final Map<String, Future<void> Function(WidgetTester)?> _forecastViews = {
+  'Forecast chart': null,
+  'Forecast table': (tester) => _tapAndSettle(tester, find.text('Table')),
+  'Forecast accounts': (tester) =>
+      _tapAndSettle(tester, find.byTooltip('Choose accounts')),
+};
+
 /// The auth screens, which only a signed-out user sees.
 const Map<String, String> _authScreens = {
   'Sign in': '/sign-in',
@@ -305,6 +315,45 @@ void main() {
         }
       });
     }
+  }
+
+  for (final MapEntry(key: String name, value: open)
+      in _forecastViews.entries) {
+    for (final Brightness brightness in Brightness.values) {
+      testWidgets('$name (${brightness.name}) meets the Android and contrast '
+          'guidelines', (tester) async {
+        final SemanticsHandle semantics = tester.ensureSemantics();
+        try {
+          await pumpApp(
+            tester,
+            brightness: brightness,
+            overrides: forecastOverrides(),
+            router: forecastRouter,
+          );
+          await open?.call(tester);
+
+          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+          await expectLater(tester, meetsGuideline(textContrastGuideline));
+        } finally {
+          semantics.dispose();
+        }
+      });
+    }
+
+    testWidgets('$name lays out at text scale 2.0 without overflow', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        textScale: 2,
+        overrides: forecastOverrides(),
+        router: forecastRouter,
+      );
+      await open?.call(tester);
+
+      expect(tester.takeException(), isNull);
+    });
   }
 
   for (final MapEntry(key: String name, value: _Screen screen)

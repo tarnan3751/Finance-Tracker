@@ -4169,6 +4169,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 missed bill} other{{count} missed bills}}'**
   String billsMissedCount(int count);
+
+  /// Title of the forecast screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Forecast'**
+  String get forecastTitle;
+
+  /// A segment of the forecast's horizon control.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days'**
+  String forecastHorizon(int days);
+
+  /// Switches the forecast from its chart to its table.
+  ///
+  /// In en, this message translates to:
+  /// **'Table'**
+  String get forecastShowTable;
+
+  /// Switches the forecast from its table to its chart.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart'**
+  String get forecastShowChart;
+
+  /// The forecast's headline: its lowest projected balance and the day of it.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest point {amount} on {date}'**
+  String forecastLowest(String amount, String date);
+
+  /// The forecast's headline when the projected balance goes below zero: the first day it does.
+  ///
+  /// In en, this message translates to:
+  /// **'Below zero on {date}'**
+  String forecastBelowZero(String date);
+
+  /// Opens the sheet choosing the accounts the forecast covers.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose accounts'**
+  String get forecastChooseAccounts;
+
+  /// Headline of the forecast when it covers no account.
+  ///
+  /// In en, this message translates to:
+  /// **'No accounts to forecast'**
+  String get forecastEmptyHeadline;
+
+  /// Text of the forecast when it covers no account.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a checking or savings account to see where its balance is heading.'**
+  String get forecastEmptyBody;
+
+  /// What a screen reader says for the forecast chart.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}-day forecast: {start} today, {end} on {endDate}. Lowest point {lowest} on {lowestDate}.'**
+  String forecastChartSummary(
+    int days,
+    String start,
+    String end,
+    String endDate,
+    String lowest,
+    String lowestDate,
+  );
+
+  /// The confidence band of a forecast day, in its table row and the chart's tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Low {low} · High {high}'**
+  String forecastRange(String low, String high);
+
+  /// What a screen reader says for a day of the forecast's table, before its events.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: balance {balance}, low {low}, high {high}.'**
+  String forecastDaySemantics(
+    String date,
+    String balance,
+    String low,
+    String high,
+  );
+
+  /// An event of the forecast that was due earlier and is not paid yet, landing on tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, due {date}'**
+  String forecastOverdue(String name, String date);
+
+  /// Title of the sheet choosing the forecast's accounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts in the forecast'**
+  String get forecastAccountsTitle;
+
+  /// Subtitle of a hidden account in the forecast's account sheet: its currency, and that it is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'{currency} · hidden account'**
+  String forecastAccountsHidden(String currency);
+
+  /// Label of the currency chips in the forecast's account sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get forecastCurrency;
 }
 
 class _AppLocalizationsDelegate

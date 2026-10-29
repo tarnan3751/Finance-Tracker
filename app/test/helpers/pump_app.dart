@@ -9,8 +9,9 @@
 //
 //   await pumpApp(tester, initialLocation: '/settings', brightness: Brightness.dark);
 //
-// A test's own `overrides` come after the defaults, so they win. Riverpod's automatic
-// retry is off, so a failing provider fails the test at once.
+// A test's own `overrides` come after the defaults, so they win; a screen with no route
+// of its own (the forecast) is given its own `router`. Riverpod's automatic retry is off,
+// so a failing provider fails the test at once.
 import 'package:finance_tracker/app.dart';
 import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
@@ -26,6 +27,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -55,6 +57,7 @@ Widget buildTestApp({
   Brightness brightness = Brightness.light,
   Clock? clock,
   bool signedIn = true,
+  GoRouter Function(Ref ref)? router,
 }) {
   return ProviderScope(
     retry: (_, _) => null,
@@ -65,6 +68,7 @@ Widget buildTestApp({
       brightness: brightness,
       clock: clock,
       signedIn: signedIn,
+      router: router,
     ),
     child: const FinanceTrackerApp(),
   );
@@ -74,8 +78,8 @@ Widget buildTestApp({
 /// default) as `appConfigProvider` only, [clock] ([testClock] by default),
 /// [testPackageInfo], settings whose theme mode gives
 /// [brightness], the fake server with the demo user signed in when [signedIn] (the
-/// device named "Pixel 6"), and the flavor's router opening at [initialLocation]; then
-/// [overrides], which win.
+/// device named "Pixel 6"), and the flavor's router opening at [initialLocation] ([router]
+/// instead when given); then [overrides], which win.
 /// A test that overrides `settingsRepositoryProvider` itself sets the theme mode there.
 List<Override> testOverrides({
   List<Override> overrides = const [],
@@ -84,6 +88,7 @@ List<Override> testOverrides({
   Brightness brightness = Brightness.light,
   Clock? clock,
   bool signedIn = true,
+  GoRouter Function(Ref ref)? router,
 }) => [
   appConfigProvider.overrideWithValue(config ?? AppConfig.prod()),
   clockProvider.overrideWithValue(clock ?? testClock),
@@ -104,7 +109,8 @@ List<Override> testOverrides({
   deviceNameProvider.overrideWith((ref) async => 'Pixel 6'),
   appVersionProvider.overrideWith((ref) async => testPackageInfo.version),
   goRouterProvider.overrideWith(
-    (ref) => routerFor(ref, initialLocation: initialLocation),
+    (ref) =>
+        router?.call(ref) ?? routerFor(ref, initialLocation: initialLocation),
   ),
   ...overrides,
 ];
@@ -120,6 +126,7 @@ Future<void> pumpApp(
   Size size = phoneSize,
   Clock? clock,
   bool signedIn = true,
+  GoRouter Function(Ref ref)? router,
 }) async {
   tester.view.physicalSize = size * tester.view.devicePixelRatio;
   addTearDown(tester.view.resetPhysicalSize);
@@ -134,6 +141,7 @@ Future<void> pumpApp(
       brightness: brightness,
       clock: clock,
       signedIn: signedIn,
+      router: router,
     ),
   );
   await tester.pumpAndSettle();

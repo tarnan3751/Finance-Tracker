@@ -2733,4 +2733,81 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get forecastTitle => 'Forecast';
+
+  @override
+  String forecastHorizon(int days) {
+    return '$days days';
+  }
+
+  @override
+  String get forecastShowTable => 'Table';
+
+  @override
+  String get forecastShowChart => 'Chart';
+
+  @override
+  String forecastLowest(String amount, String date) {
+    return 'Lowest point $amount on $date';
+  }
+
+  @override
+  String forecastBelowZero(String date) {
+    return 'Below zero on $date';
+  }
+
+  @override
+  String get forecastChooseAccounts => 'Choose accounts';
+
+  @override
+  String get forecastEmptyHeadline => 'No accounts to forecast';
+
+  @override
+  String get forecastEmptyBody =>
+      'Choose a checking or savings account to see where its balance is heading.';
+
+  @override
+  String forecastChartSummary(
+    int days,
+    String start,
+    String end,
+    String endDate,
+    String lowest,
+    String lowestDate,
+  ) {
+    return '$days-day forecast: $start today, $end on $endDate. Lowest point $lowest on $lowestDate.';
+  }
+
+  @override
+  String forecastRange(String low, String high) {
+    return 'Low $low · High $high';
+  }
+
+  @override
+  String forecastDaySemantics(
+    String date,
+    String balance,
+    String low,
+    String high,
+  ) {
+    return '$date: balance $balance, low $low, high $high.';
+  }
+
+  @override
+  String forecastOverdue(String name, String date) {
+    return '$name, due $date';
+  }
+
+  @override
+  String get forecastAccountsTitle => 'Accounts in the forecast';
+
+  @override
+  String forecastAccountsHidden(String currency) {
+    return '$currency · hidden account';
+  }
+
+  @override
+  String get forecastCurrency => 'Currency';
 }
