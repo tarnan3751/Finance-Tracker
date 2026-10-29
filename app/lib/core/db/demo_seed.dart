@@ -7,20 +7,24 @@
 /// each non-zero opening balance (the balance the day before the window, which the
 /// engine keeps apart from the transactions) is loaded as an "Opening balance"
 /// transaction, `source: demo`, dated that day, as a manual account's opening balance is.
-/// Investment accounts have no transaction history in the engine, so they derive to their
-/// uninvested cash only (holdings arrive with Phase 6). The engine's Items are loaded
-/// with their institutions, as the demo's fake server lists them. Its recurring
-/// expectations become `demo` recurring streams ([demoRecurringStreams]) and its card,
-/// mortgage and student-loan liabilities the contract's liability objects, `demo`
-/// ([demoLiabilities]), which the demo repositories and the in-app fake both start
-/// from; its holdings and anomalies are not loaded: the app has no repositories for
-/// them yet.
+/// An investment account reports its total value, holdings and cash, as Plaid's
+/// `balances.current` does, and is shown with it; its transactions (only the opening
+/// cash: the engine's contributions and buys are investment transactions) derive to that
+/// cash alone. The engine's Items are loaded with their institutions, as the demo's fake
+/// server lists them. Its recurring expectations become `demo` recurring streams
+/// ([demoRecurringStreams]), its card, mortgage and student-loan liabilities the
+/// contract's liability objects ([demoLiabilities]), and its brokerage (the family's)
+/// the contract's holdings, securities ([demoHoldings]) and investment transactions
+/// ([demoInvestmentTransactions]), all `demo`, which the demo repositories and the
+/// in-app fake both start from; its opening holdings (quantity history is later scope)
+/// and anomalies are not loaded.
 library;
 
 import 'package:finance_tracker/core/api/api_models.dart' as wire;
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:persona_engine/persona_engine.dart';
-import 'package:shared_models/shared_models.dart' hide Liability;
+import 'package:shared_models/shared_models.dart'
+    hide Holding, InvestmentTransaction, Liability, Security;
 
 /// The persona the demo flavor starts with: the `FT_DEMO_PERSONA` dart-define's slug
 /// ([PersonaId.slug]), or the renter when it is unset or names no persona.
@@ -188,3 +192,87 @@ wire.Liabilities demoLiabilities(DemoSeed seed) {
     ],
   );
 }
+
+/// The id of the demo security with [ticker].
+String demoSecurityId(String ticker) => 'demo-security-$ticker';
+
+/// The demo's holdings and securities as the contract's objects, `demo`: each of the
+/// engine's positions on the as-of date (its quantity in thousandths of a share, its
+/// price, value and cost), and each security they hold, once however many positions hold
+/// it, an `etf` (the engine's are all exchange-traded funds and carry no type) closing at
+/// its first position's price on that date.
+wire.Holdings demoHoldings(DemoSeed seed) {
+  final List<Holding> engine = seed.household.holdings;
+  // Each security's first position, by id.
+  final Map<String, Holding> first = {};
+  for (final Holding h in engine) {
+    first.putIfAbsent(demoSecurityId(h.security.ticker), () => h);
+  }
+  return wire.Holdings(
+    holdings: [
+      for (final Holding h in engine)
+        wire.Holding(
+          accountId: h.accountId,
+          securityId: demoSecurityId(h.security.ticker),
+          quantity: Decimal(BigInt.from(h.quantityMilli), 3).toString(),
+          institutionPrice: h.price.toDecimalString(),
+          institutionPriceAsOf: h.priceAsOf,
+          institutionValue: h.value,
+          costBasis: h.costBasis,
+          currencyCode: h.price.currencyCode,
+          source: DataSource.demo,
+        ),
+    ],
+    securities: [
+      for (final MapEntry(key: String id, value: Holding h) in first.entries)
+        wire.Security(
+          id: id,
+          name: h.security.name,
+          tickerSymbol: h.security.ticker,
+          type: 'etf',
+          isCashEquivalent: false,
+          closePrice: h.price.toDecimalString(),
+          closePriceAsOf: h.priceAsOf,
+          currencyCode: h.security.currencyCode,
+          source: DataSource.demo,
+        ),
+    ],
+  );
+}
+
+/// The demo's investment transactions as the contract's objects, `demo`, in the app's
+/// sign: a `cash` contribution is money in (subtype `contribution`, no security, no
+/// quantity or price), a `buy` money out of the account's cash (its security, quantity
+/// and price). The engine charges no fees.
+List<wire.InvestmentTransaction> demoInvestmentTransactions(DemoSeed seed) => [
+  for (final InvestmentTransaction t in seed.household.investmentTransactions)
+    switch (t.type) {
+      InvestmentTransactionType.cash => wire.InvestmentTransaction(
+        id: t.id,
+        accountId: t.accountId,
+        date: t.date,
+        name: t.name,
+        type: 'cash',
+        subtype: 'contribution',
+        quantity: '0',
+        price: '0',
+        amount: t.amount,
+        syncVersion: 0,
+        source: DataSource.demo,
+      ),
+      InvestmentTransactionType.buy => wire.InvestmentTransaction(
+        id: t.id,
+        accountId: t.accountId,
+        securityId: demoSecurityId(t.security!.ticker),
+        date: t.date,
+        name: t.name,
+        type: 'buy',
+        subtype: 'buy',
+        quantity: Decimal(BigInt.from(t.quantityMilli), 3).toString(),
+        price: t.price!.toDecimalString(),
+        amount: -t.amount,
+        syncVersion: 0,
+        source: DataSource.demo,
+      ),
+    },
+];

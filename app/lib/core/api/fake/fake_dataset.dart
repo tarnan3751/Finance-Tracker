@@ -117,15 +117,19 @@ final class FakeDataset {
   FakeDataset.empty() : items = const [];
 
   /// The persona engine's household [seed]: one Item per demo Item, at its institution,
-  /// with its accounts, their transactions, their recurring streams and their
-  /// liabilities, all `demo`, as the demo repositories hold them (`demoRecurringStreams`
-  /// and `demoLiabilities` in `core/db/demo_seed.dart`), ids as the engine gives them.
-  /// The engine's holdings and investment transactions are its own types and are not
-  /// carried before Phase 6 reads them.
+  /// with its accounts, their transactions, their recurring streams, their liabilities,
+  /// their holdings with the securities they hold, and their investment transactions,
+  /// all `demo`, as the demo repositories hold them (`demoRecurringStreams`,
+  /// `demoLiabilities`, `demoHoldings` and `demoInvestmentTransactions` in
+  /// `core/db/demo_seed.dart`), ids as the engine gives them.
   factory FakeDataset.fromDemoSeed(DemoSeed seed) {
     final GeneratedHousehold household = seed.household;
     final List<RecurringStream> streams = demoRecurringStreams(seed);
     final Liabilities liabilities = demoLiabilities(seed);
+    final Holdings holdings = demoHoldings(seed);
+    final List<InvestmentTransaction> investments = demoInvestmentTransactions(
+      seed,
+    );
     return FakeDataset(
       items: [
         for (final Item item in household.items)
@@ -171,6 +175,31 @@ final class FakeDataset {
                 ],
               );
             }(),
+            holdings: [
+              for (final Holding h in holdings.holdings)
+                if (household.accounts.any(
+                  (a) => a.id == h.accountId && a.itemId == item.id,
+                ))
+                  h,
+            ],
+            securities: [
+              for (final Security s in holdings.securities)
+                if (holdings.holdings.any(
+                  (h) =>
+                      h.securityId == s.id &&
+                      household.accounts.any(
+                        (a) => a.id == h.accountId && a.itemId == item.id,
+                      ),
+                ))
+                  s,
+            ],
+            investmentTransactions: [
+              for (final InvestmentTransaction t in investments)
+                if (household.accounts.any(
+                  (a) => a.id == t.accountId && a.itemId == item.id,
+                ))
+                  t,
+            ],
           ),
       ],
     );

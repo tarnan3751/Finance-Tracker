@@ -15,6 +15,7 @@ library;
 import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 
+import 'package:finance_tracker/core/api/api_models.dart' as wire;
 import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
@@ -694,13 +695,24 @@ final List<Override> _demoOverrides = [
     return repository;
   }),
   holdingRepositoryProvider.overrideWith((ref) {
-    final DemoHoldingRepository repository = DemoHoldingRepository();
+    final ({List<Holding> holdings, List<Security> securities}) seed =
+        demoHoldings(ref.watch(demoSeedProvider)).toEntities();
+    final DemoHoldingRepository repository = DemoHoldingRepository(
+      holdings: seed.holdings,
+      securities: seed.securities,
+    );
     ref.onDispose(repository.close);
     return repository;
   }),
   investmentTransactionRepositoryProvider.overrideWith((ref) {
     final DemoInvestmentTransactionRepository repository =
-        DemoInvestmentTransactionRepository();
+        DemoInvestmentTransactionRepository(
+          initial: [
+            for (final wire.InvestmentTransaction t
+                in demoInvestmentTransactions(ref.watch(demoSeedProvider)))
+              t.toEntity(),
+          ],
+        );
     ref.onDispose(repository.close);
     return repository;
   }),
