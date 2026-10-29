@@ -2,26 +2,30 @@
 // enough and labelled, text has enough contrast, and nothing overflows at twice the text
 // size. The shell's tabs and the linked banks are checked empty; every screen is also
 // checked on the demo seed (two accounts, twelve transactions, the system categories, two
-// rules, the three test budgets and the test streams) with the linked test data (the
-// three test banks, two linked accounts, Plaid transactions), and the filter sheet, the
-// category picker, the transaction list's menu and selection mode, the transaction
-// editor's menu, the budget alerts sheet, the rule editor's menu and the apply
-// confirmation, the subscriptions' folded sections and a stream's menu open over their
-// screens, and the editor's receipt (a photo from the fake image source) and its
-// full-screen view. The sign-in and registration screens are
-// checked signed out; their text scale is checked with their errors showing, in
+// rules, the three test budgets, the test streams and the test bills) with the linked
+// test data (the three test banks, two linked accounts, Plaid transactions), and the
+// filter sheet, the category picker, the transaction list's menu and selection mode, the
+// transaction editor's menu, the budget alerts sheet, the rule editor's menu and the
+// apply confirmation, the subscriptions' folded sections, a stream's menu, the paused
+// bills and the bill calendar open over their screens, and the editor's receipt (a photo
+// from the fake image source) and its full-screen view. The sign-in and registration
+// screens are checked signed out; their text scale is checked with their errors showing, in
 // test/features/auth/auth_screens_test.dart.
 import 'dart:io';
 
+import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/fake_image_source.dart';
 import 'package:finance_tracker/core/platform/image_source.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
+import 'package:finance_tracker/core/sync/change_recorder.dart';
+import 'package:finance_tracker/features/bills/data/in_memory_bill_repository.dart';
 import 'package:finance_tracker/features/transactions/presentation/receipt_view.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'helpers/bill_seed.dart';
 import 'helpers/budget_seed.dart';
 import 'helpers/pump_app.dart';
 import 'helpers/rule_seed.dart';
@@ -140,7 +144,25 @@ final Map<String, _Screen> _screens = {
   ),
   'Alerts sheet': (location: '/budgets', seeded: true, open: openTestAlerts),
   'New budget': (location: '/budgets/new', seeded: true, open: null),
+  'Bills (empty)': (location: '/bills', seeded: false, open: null),
   'Bills': (location: '/bills', seeded: true, open: null),
+  'Bills, paused open': (
+    location: '/bills',
+    seeded: true,
+    open: (tester) async {
+      await tester.scrollUntilVisible(
+        find.text('Paused (1)'),
+        300,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await _tapAndSettle(tester, find.text('Paused (1)'));
+    },
+  ),
+  'Bills calendar': (
+    location: '/bills',
+    seeded: true,
+    open: (tester) => _tapAndSettle(tester, find.byTooltip('Calendar')),
+  ),
   'New bill': (location: '/bills/new', seeded: true, open: null),
   'Forecast': (location: '/forecast', seeded: true, open: null),
   'Subscriptions': (location: '/bills/subscriptions', seeded: true, open: null),
@@ -238,6 +260,13 @@ List<Override> _overrides(_Screen screen) => screen.seeded
         rulesOverride(seededRules()),
         budgetsOverride(seededBudgets()),
         streamsOverride(seededStreams()),
+        billRepositoryProvider.overrideWithValue(
+          InMemoryBillRepository(
+            testClock,
+            recorder: const NoChangeRecorder(),
+            initial: testBills(),
+          ),
+        ),
         imageSourceProvider.overrideWithValue(
           FakeImageSource(
             () async => PickedImage(

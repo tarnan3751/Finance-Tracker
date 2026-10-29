@@ -6,16 +6,22 @@
 /// navigation bar, lifting the screen's floating button instead of covering it, and
 /// carried over to the screen below when the one that showed it is popped.
 ///
+/// The Plan tab's icon carries a badge with the number of active bills whose last
+/// occurrence was missed (`billStatusesProvider`), read by screen readers in words.
+///
 /// On its first frame the shell tells the user, once, what the legacy importer brought
 /// in at this launch (`legacyImportResultProvider`), then clears it.
 library;
 
 import 'package:finance_tracker/core/db/legacy_import/import_summary.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/features/bills/application/bills_providers.dart';
+import 'package:finance_tracker/features/bills/domain/bill_status.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 /// The tab shell built by `AppShellRoute`.
 class AppShell extends ConsumerStatefulWidget {
@@ -71,6 +77,22 @@ class _AppShellState extends ConsumerState<AppShell> {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final StatefulNavigationShell navigationShell = widget.navigationShell;
     final int current = navigationShell.currentIndex;
+    final int missed = [
+      for (final BillStatus s in ref.watch(billStatusesProvider).value ?? [])
+        if (s.bill.active && s.state == BillState.missed) s,
+    ].length;
+    // The destination's tooltip is left out of semantics, so the count is read from
+    // here, in words; the badge's digits would read as a bare number.
+    Widget badged(IconData icon) => Semantics(
+      label: missed > 0 ? l10n.billsMissedCount(missed) : null,
+      child: Badge(
+        isLabelVisible: missed > 0,
+        label: ExcludeSemantics(
+          child: Text(NumberFormat.decimalPattern().format(missed)),
+        ),
+        child: Icon(icon),
+      ),
+    );
     return Scaffold(
       body: IndexedStack(
         index: current,
@@ -104,9 +126,10 @@ class _AppShellState extends ConsumerState<AppShell> {
             label: l10n.navTransactions,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.event_note_outlined),
-            selectedIcon: const Icon(Icons.event_note),
+            icon: badged(Icons.event_note_outlined),
+            selectedIcon: badged(Icons.event_note),
             label: l10n.navPlan,
+            tooltip: missed > 0 ? l10n.navPlanMissed(missed) : null,
           ),
           NavigationDestination(
             icon: const Icon(Icons.settings_outlined),

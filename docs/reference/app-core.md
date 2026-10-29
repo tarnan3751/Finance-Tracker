@@ -65,7 +65,7 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `recurringStreamsProvider`, `subscriptionsProvider`, `streamActionsProvider`; `liabilitiesProvider` | `features/recurring/application/`; `features/liabilities/application/` | The streams with their overrides, the subscriptions with their annual cost, the actions on a stream; the liabilities |
 | `budgetAlertStoreProvider` | `core/di/providers.dart` | Which budget alerts this device raised (`budgets.md`): in memory by default and in demo, `budget_alerts` in dev and prod |
 | `billRepositoryProvider`, `billAlertStoreProvider` | `core/di/providers.dart` | The bills (in memory by default, Drift in dev and prod, the persona's two in demo) and which bill notifications this device raised (in memory, `bill_alerts` in dev and prod; `bills.md`) |
-| `appMetaStoreProvider` | `core/di/providers.dart` | Facts about the install (`app_meta`): in memory by default and in demo, the database's in dev and prod; the reminders' zone and time among them |
+| `appMetaStoreProvider` | `core/di/providers.dart` | Facts about the install (`app_meta`): in memory by default and in demo, the database's in dev and prod; the reminders' zone and time and the dismissed bill suggestions among them |
 | `reminderSchedulerProvider` | `core/platform/reminder_scheduler_provider.dart` | The bill reminders' scheduler (**Reminders**): the fake by default and in demo, `flutter_local_notifications` in dev and prod |
 | `dismissedPairStoreProvider` | `core/di/providers.dart` | The duplicate pairs the user dismissed, on the device only: in memory by default and in demo (rebuilt with the in-memory store), `dismissed_pairs` in dev and prod (`duplicates.md`) |
 | `appNotifierProvider`, `inAppNotificationsProvider` | `core/platform/in_app_notifications.dart` | Where the app's notifications go (**Notifications**): the in-app list in every flavor |
@@ -279,7 +279,7 @@ keeping its own navigation stack.
 | | `EditBudgetRoute` | `/budgets/:id` | `budget_editor_screen.dart` |
 | | `BudgetTransactionsRoute` | `/budgets/:id/transactions` | `budget_detail_screen.dart` |
 | | `BillsRoute` | `/bills` | `features/bills/presentation/bills_screen.dart` (`bills.md`), the Bills segment |
-| | `NewBillRoute` | `/bills/new?stream-id=<id>` | `bill_editor_screen.dart`, prefilled from the stream's suggestion when given |
+| | `NewBillRoute` | `/bills/new?stream-id=<id>`, `/bills/new?liability-account-id=<id>` | `bill_editor_screen.dart`, prefilled from the stream's or the liability's suggestion when given |
 | | `SubscriptionsRoute` | `/bills/subscriptions` | `features/recurring/presentation/subscriptions_screen.dart` (`recurring.md`) |
 | | `EditBillRoute` | `/bills/:id` | `bill_editor_screen.dart`, where a tapped reminder opens it |
 | | `ForecastRoute` | `/forecast` | the Forecast segment |
@@ -318,7 +318,8 @@ keeping its own navigation stack.
   of the body, where it grows with the text size (the selected check hidden to save
   width), then the segment's body. Choosing a segment goes to its root; the roots are
   `NoTransitionPage`s, so the switch reads as one screen changing its content. Every
-  `/budgets...` and `/bills...` route opens inside the tab.
+  `/budgets...` and `/bills...` route opens inside the tab. The tab's icon carries a
+  badge with the number of missed bills (`bills.md`, **Screens**).
 - **Snack bars.** Each branch has its own `ScaffoldMessenger`, so a snack bar shown from a
   tab (`ScaffoldMessenger.of(context)` in any of its screens) appears in that tab's screen
   `Scaffold`: above the navigation bar, lifting the screen's floating button rather than

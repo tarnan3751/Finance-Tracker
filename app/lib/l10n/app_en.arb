@@ -3245,23 +3245,9 @@
       }
     }
   },
-  "billsEmpty": "No bills yet. Add one to be reminded before it is due.",
-  "@billsEmpty": {
-    "description": "The bills screen when there are no bills."
-  },
   "billNew": "New bill",
   "@billNew": {
     "description": "Button that opens the editor of a new bill."
-  },
-  "billNextDue": "Next due {date}",
-  "@billNextDue": {
-    "description": "A bill's next due date in the bills list.",
-    "placeholders": {
-      "date": {
-        "type": "String",
-        "example": "Nov 2"
-      }
-    }
   },
   "billNoNextDue": "No upcoming due date",
   "@billNoNextDue": {
@@ -3271,17 +3257,9 @@
   "@billStatePaid": {
     "description": "A bill's status: its occurrence was paid."
   },
-  "billStateDue": "Due",
-  "@billStateDue": {
-    "description": "A bill's status: an occurrence is due within the week or just past."
-  },
   "billStateMissed": "Missed",
   "@billStateMissed": {
     "description": "A bill's status: its last occurrence passed unpaid."
-  },
-  "billStateUpcoming": "Upcoming",
-  "@billStateUpcoming": {
-    "description": "A bill's status: nothing is due yet."
   },
   "billNotFound": "This bill no longer exists.",
   "@billNotFound": {
@@ -3580,6 +3558,204 @@
     "placeholders": {
       "merchant": {
         "type": "String"
+      }
+    }
+  },
+  "navPlanMissed": "Plan, {count, plural, =1{1 missed bill} other{{count} missed bills}}",
+  "@navPlanMissed": {
+    "description": "Tooltip of the Plan tab when bills were missed; the tab's badge shows the count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "billsEmptyHeadline": "No bills yet",
+  "@billsEmptyHeadline": {
+    "description": "Headline of the Bills segment when there are no bills and no suggestions."
+  },
+  "billsEmptyBody": "Add a bill to be reminded before it is due.",
+  "@billsEmptyBody": {
+    "description": "Supporting text of the Bills segment when there are no bills."
+  },
+  "billsGroupOverdue": "Overdue",
+  "@billsGroupOverdue": {
+    "description": "Heading of the bills whose last due date was missed."
+  },
+  "billsGroupDueSoon": "Due soon",
+  "@billsGroupDueSoon": {
+    "description": "Heading of the bills due in the next 7 days (or due in the last few days)."
+  },
+  "billsGroupLater": "Later",
+  "@billsGroupLater": {
+    "description": "Heading of the bills due after the next 7 days."
+  },
+  "billsGroupPaused": "Paused ({count})",
+  "@billsGroupPaused": {
+    "description": "Folded section of the inactive bills.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "billsSuggested": "Suggested",
+  "@billsSuggested": {
+    "description": "Heading of the bills the app suggests from recurring payments and loans."
+  },
+  "billSuggestionDetail": "{cadence}, next due {date}",
+  "@billSuggestionDetail": {
+    "description": "A suggested bill's cadence and next due date.",
+    "placeholders": {
+      "cadence": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billSuggestionAdd": "Add",
+  "@billSuggestionAdd": {
+    "description": "Button: open the bill editor prefilled from a suggestion."
+  },
+  "billSuggestionAddLabel": "Add {name} as a bill",
+  "@billSuggestionAddLabel": {
+    "description": "Accessibility label of a suggestion's Add button.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "billSuggestionDismiss": "Dismiss",
+  "@billSuggestionDismiss": {
+    "description": "Button: stop suggesting a bill on this device."
+  },
+  "billSuggestionDismissLabel": "Dismiss the suggestion {name}",
+  "@billSuggestionDismissLabel": {
+    "description": "Accessibility label of a suggestion's Dismiss button.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "billStateAutopay": "Autopay",
+  "@billStateAutopay": {
+    "description": "Label of a bill paid automatically."
+  },
+  "billMarkPaid": "Mark paid",
+  "@billMarkPaid": {
+    "description": "Button: mark a bill's due or missed occurrence paid."
+  },
+  "billMarkPaidLabel": "Mark {name} paid for {date}",
+  "@billMarkPaidLabel": {
+    "description": "Accessibility label of a bill's Mark paid button.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billMarkedPaid": "{name} marked paid",
+  "@billMarkedPaid": {
+    "description": "Snack bar after marking a bill paid.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "billDueIn": "{days, plural, =0{Due today} =1{Due tomorrow} other{Due in {days} days}}",
+  "@billDueIn": {
+    "description": "A bill's due date within the next week.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "billDueAgo": "{days, plural, =1{Due yesterday} other{Due {days} days ago}}",
+  "@billDueAgo": {
+    "description": "A bill's due date within the last week.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "billDueOn": "Due {date}",
+  "@billDueOn": {
+    "description": "A bill's due date more than a week away.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billPaused": "Paused",
+  "@billPaused": {
+    "description": "Subtitle of an inactive bill."
+  },
+  "billsListView": "List",
+  "@billsListView": {
+    "description": "Tooltip of the Bills segment's list view button."
+  },
+  "billsCalendarView": "Calendar",
+  "@billsCalendarView": {
+    "description": "Tooltip of the Bills segment's calendar view button."
+  },
+  "billsPreviousMonth": "Previous month",
+  "@billsPreviousMonth": {
+    "description": "Tooltip of the calendar's previous month button."
+  },
+  "billsNextMonth": "Next month",
+  "@billsNextMonth": {
+    "description": "Tooltip of the calendar's next month button."
+  },
+  "billsCalendarDay": "{date}, {count, plural, =0{no bills due} =1{1 bill due: {names}} other{{count} bills due: {names}}}",
+  "@billsCalendarDay": {
+    "description": "Accessibility label of a calendar day.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "billsCalendarNone": "No bills due {date}",
+  "@billsCalendarNone": {
+    "description": "Under the calendar when the chosen day has no bills.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billsSuggestedShowAll": "Show all ({count})",
+  "@billsSuggestedShowAll": {
+    "description": "Button under the first three bill suggestions that shows them all.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "billsMissedCount": "{count, plural, =1{1 missed bill} other{{count} missed bills}}",
+  "@billsMissedCount": {
+    "description": "Read by screen readers on the Plan tab's badge: how many bills were missed.",
+    "placeholders": {
+      "count": {
+        "type": "int"
       }
     }
   }

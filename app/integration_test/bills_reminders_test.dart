@@ -57,7 +57,7 @@ void main() {
     container.read(goRouterProvider).go(const BillsRoute().location);
     await tester.pumpAndSettle();
     expect(find.widgetWithText(AppBar, 'Plan'), findsOneWidget);
-    await _tap(tester, find.text('New bill'));
+    await _tap(tester, find.byTooltip('New bill'));
 
     final tz.Location zone = tz.local;
     final tz.TZDateTime now = tz.TZDateTime.now(zone);
@@ -84,6 +84,12 @@ void main() {
     await _tap(tester, find.text('2 days before'));
     await _tap(tester, find.text('Save'));
     expect(find.widgetWithText(AppBar, 'Plan'), findsOneWidget);
+    // Under the persona's suggestions, in Due soon.
+    await tester.scrollUntilVisible(
+      find.text('Water'),
+      300,
+      scrollable: find.byType(Scrollable).last,
+    );
     expect(find.text('Water'), findsOneWidget);
 
     // The watcher plans a second after the change.

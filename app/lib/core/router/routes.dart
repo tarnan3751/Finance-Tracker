@@ -5,7 +5,7 @@
 /// |---|---|
 /// | Accounts | `/accounts`, `/accounts/new`, `/accounts/linked-banks`, `/accounts/:id`, `/accounts/:id/edit` |
 /// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/duplicates`, `/transactions/:id` |
-/// | Plan | `/plan` (redirects to `/budgets`); `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new?stream-id=<id>`, `/bills/subscriptions`, `/bills/:id`; `/forecast` |
+/// | Plan | `/plan` (redirects to `/budgets`); `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new?stream-id=<id>`, `/bills/new?liability-account-id=<id>`, `/bills/subscriptions`, `/bills/:id`; `/forecast` |
 /// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
@@ -325,17 +325,22 @@ class BillsRoute extends GoRouteData with $BillsRoute {
       const NoTransitionPage(child: BillsScreen());
 }
 
-/// `/bills/new`: the editor of a new bill, prefilled from recurring stream [streamId]
-/// when given.
+/// `/bills/new`: the editor of a new bill, prefilled from the suggestion of recurring
+/// stream [streamId] or of the liability on [liabilityAccountId] when given.
 class NewBillRoute extends GoRouteData with $NewBillRoute {
-  const NewBillRoute({this.streamId});
+  const NewBillRoute({this.streamId, this.liabilityAccountId});
 
   /// The id of the stream the new bill is made from.
   final String? streamId;
 
+  /// The account of the liability the new bill is made from.
+  final String? liabilityAccountId;
+
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      BillEditorScreen(streamId: streamId);
+  Widget build(BuildContext context, GoRouterState state) => BillEditorScreen(
+    streamId: streamId,
+    liabilityAccountId: liabilityAccountId,
+  );
 }
 
 /// `/bills/subscriptions`: the subscriptions with what each costs a year, opened from

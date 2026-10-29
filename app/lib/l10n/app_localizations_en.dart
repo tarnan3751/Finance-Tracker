@@ -2356,16 +2356,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get billsEmpty =>
-      'No bills yet. Add one to be reminded before it is due.';
-
-  @override
   String get billNew => 'New bill';
-
-  @override
-  String billNextDue(String date) {
-    return 'Next due $date';
-  }
 
   @override
   String get billNoNextDue => 'No upcoming due date';
@@ -2374,13 +2365,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get billStatePaid => 'Paid';
 
   @override
-  String get billStateDue => 'Due';
-
-  @override
   String get billStateMissed => 'Missed';
-
-  @override
-  String get billStateUpcoming => 'Upcoming';
 
   @override
   String get billNotFound => 'This bill no longer exists.';
@@ -2600,5 +2585,152 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String streamRenameHelper(String merchant) {
     return 'Leave empty to use $merchant';
+  }
+
+  @override
+  String navPlanMissed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count missed bills',
+      one: '1 missed bill',
+    );
+    return 'Plan, $_temp0';
+  }
+
+  @override
+  String get billsEmptyHeadline => 'No bills yet';
+
+  @override
+  String get billsEmptyBody => 'Add a bill to be reminded before it is due.';
+
+  @override
+  String get billsGroupOverdue => 'Overdue';
+
+  @override
+  String get billsGroupDueSoon => 'Due soon';
+
+  @override
+  String get billsGroupLater => 'Later';
+
+  @override
+  String billsGroupPaused(int count) {
+    return 'Paused ($count)';
+  }
+
+  @override
+  String get billsSuggested => 'Suggested';
+
+  @override
+  String billSuggestionDetail(String cadence, String date) {
+    return '$cadence, next due $date';
+  }
+
+  @override
+  String get billSuggestionAdd => 'Add';
+
+  @override
+  String billSuggestionAddLabel(String name) {
+    return 'Add $name as a bill';
+  }
+
+  @override
+  String get billSuggestionDismiss => 'Dismiss';
+
+  @override
+  String billSuggestionDismissLabel(String name) {
+    return 'Dismiss the suggestion $name';
+  }
+
+  @override
+  String get billStateAutopay => 'Autopay';
+
+  @override
+  String get billMarkPaid => 'Mark paid';
+
+  @override
+  String billMarkPaidLabel(String name, String date) {
+    return 'Mark $name paid for $date';
+  }
+
+  @override
+  String billMarkedPaid(String name) {
+    return '$name marked paid';
+  }
+
+  @override
+  String billDueIn(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Due in $days days',
+      one: 'Due tomorrow',
+      zero: 'Due today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String billDueAgo(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Due $days days ago',
+      one: 'Due yesterday',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String billDueOn(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String get billPaused => 'Paused';
+
+  @override
+  String get billsListView => 'List';
+
+  @override
+  String get billsCalendarView => 'Calendar';
+
+  @override
+  String get billsPreviousMonth => 'Previous month';
+
+  @override
+  String get billsNextMonth => 'Next month';
+
+  @override
+  String billsCalendarDay(String date, int count, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bills due: $names',
+      one: '1 bill due: $names',
+      zero: 'no bills due',
+    );
+    return '$date, $_temp0';
+  }
+
+  @override
+  String billsCalendarNone(String date) {
+    return 'No bills due $date';
+  }
+
+  @override
+  String billsSuggestedShowAll(int count) {
+    return 'Show all ($count)';
+  }
+
+  @override
+  String billsMissedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count missed bills',
+      one: '1 missed bill',
+    );
+    return '$_temp0';
   }
 }

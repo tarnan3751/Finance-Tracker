@@ -25,7 +25,7 @@ can run them in the Dart VM to dump the schema.
 | `transaction_splits` | A transaction's splits, `(transaction_id, position)` primary key, in list order |
 | `categories` | The system categories and the user's |
 | `app_settings` | The app preferences: `key` is the field name, `value` its JSON |
-| `app_meta` | Facts about the install: `legacy_import_done`, `install_date`, `fts_definition` (**Full-text search**), `reminders_zone` and `reminders_scheduled_at` (the zone and time the bill reminders were last planned in, `bills.md`) |
+| `app_meta` | Facts about the install: `legacy_import_done`, `install_date`, `fts_definition` (**Full-text search**), `reminders_zone` and `reminders_scheduled_at` (the zone and time the bill reminders were last planned in, `bills.md`), `bill_suggestions_dismissed` (the bill suggestions dismissed on this device, `bills.md`, **Screens**) |
 | `change_log` | The sync outbox (schema 2): one row per local change-log entry (`sync-app.md`) |
 | `record_clocks` | The sync clock of each field of each synced entity, `_create` holding its create's (schema 2) |
 | `sync_meta` | The device's sync state: `pull_cursor`, `last_clock`, `device_id`, `last_sync_at`, `last_report` (schema 2); the Plaid pull's `plaid_transactions_since`, `plaid_accounts_pulled_at`, `plaid_items_pulled_at`, `plaid_pulled_at` (`sync-app.md`) |

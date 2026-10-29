@@ -3642,23 +3642,11 @@ abstract class AppLocalizations {
   /// **'{name} is due {date}'**
   String alertBillDue(String name, String date);
 
-  /// The bills screen when there are no bills.
-  ///
-  /// In en, this message translates to:
-  /// **'No bills yet. Add one to be reminded before it is due.'**
-  String get billsEmpty;
-
   /// Button that opens the editor of a new bill.
   ///
   /// In en, this message translates to:
   /// **'New bill'**
   String get billNew;
-
-  /// A bill's next due date in the bills list.
-  ///
-  /// In en, this message translates to:
-  /// **'Next due {date}'**
-  String billNextDue(String date);
 
   /// A one-off bill whose due date has passed, in the bills list.
   ///
@@ -3672,23 +3660,11 @@ abstract class AppLocalizations {
   /// **'Paid'**
   String get billStatePaid;
 
-  /// A bill's status: an occurrence is due within the week or just past.
-  ///
-  /// In en, this message translates to:
-  /// **'Due'**
-  String get billStateDue;
-
   /// A bill's status: its last occurrence passed unpaid.
   ///
   /// In en, this message translates to:
   /// **'Missed'**
   String get billStateMissed;
-
-  /// A bill's status: nothing is due yet.
-  ///
-  /// In en, this message translates to:
-  /// **'Upcoming'**
-  String get billStateUpcoming;
 
   /// Shown when the bill being opened or saved was deleted.
   ///
@@ -4019,6 +3995,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Leave empty to use {merchant}'**
   String streamRenameHelper(String merchant);
+
+  /// Tooltip of the Plan tab when bills were missed; the tab's badge shows the count.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan, {count, plural, =1{1 missed bill} other{{count} missed bills}}'**
+  String navPlanMissed(int count);
+
+  /// Headline of the Bills segment when there are no bills and no suggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'No bills yet'**
+  String get billsEmptyHeadline;
+
+  /// Supporting text of the Bills segment when there are no bills.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a bill to be reminded before it is due.'**
+  String get billsEmptyBody;
+
+  /// Heading of the bills whose last due date was missed.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get billsGroupOverdue;
+
+  /// Heading of the bills due in the next 7 days (or due in the last few days).
+  ///
+  /// In en, this message translates to:
+  /// **'Due soon'**
+  String get billsGroupDueSoon;
+
+  /// Heading of the bills due after the next 7 days.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get billsGroupLater;
+
+  /// Folded section of the inactive bills.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused ({count})'**
+  String billsGroupPaused(int count);
+
+  /// Heading of the bills the app suggests from recurring payments and loans.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested'**
+  String get billsSuggested;
+
+  /// A suggested bill's cadence and next due date.
+  ///
+  /// In en, this message translates to:
+  /// **'{cadence}, next due {date}'**
+  String billSuggestionDetail(String cadence, String date);
+
+  /// Button: open the bill editor prefilled from a suggestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get billSuggestionAdd;
+
+  /// Accessibility label of a suggestion's Add button.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {name} as a bill'**
+  String billSuggestionAddLabel(String name);
+
+  /// Button: stop suggesting a bill on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get billSuggestionDismiss;
+
+  /// Accessibility label of a suggestion's Dismiss button.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss the suggestion {name}'**
+  String billSuggestionDismissLabel(String name);
+
+  /// Label of a bill paid automatically.
+  ///
+  /// In en, this message translates to:
+  /// **'Autopay'**
+  String get billStateAutopay;
+
+  /// Button: mark a bill's due or missed occurrence paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark paid'**
+  String get billMarkPaid;
+
+  /// Accessibility label of a bill's Mark paid button.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {name} paid for {date}'**
+  String billMarkPaidLabel(String name, String date);
+
+  /// Snack bar after marking a bill paid.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} marked paid'**
+  String billMarkedPaid(String name);
+
+  /// A bill's due date within the next week.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{Due today} =1{Due tomorrow} other{Due in {days} days}}'**
+  String billDueIn(int days);
+
+  /// A bill's due date within the last week.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Due yesterday} other{Due {days} days ago}}'**
+  String billDueAgo(int days);
+
+  /// A bill's due date more than a week away.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String billDueOn(String date);
+
+  /// Subtitle of an inactive bill.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get billPaused;
+
+  /// Tooltip of the Bills segment's list view button.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get billsListView;
+
+  /// Tooltip of the Bills segment's calendar view button.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get billsCalendarView;
+
+  /// Tooltip of the calendar's previous month button.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get billsPreviousMonth;
+
+  /// Tooltip of the calendar's next month button.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get billsNextMonth;
+
+  /// Accessibility label of a calendar day.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}, {count, plural, =0{no bills due} =1{1 bill due: {names}} other{{count} bills due: {names}}}'**
+  String billsCalendarDay(String date, int count, String names);
+
+  /// Under the calendar when the chosen day has no bills.
+  ///
+  /// In en, this message translates to:
+  /// **'No bills due {date}'**
+  String billsCalendarNone(String date);
+
+  /// Button under the first three bill suggestions that shows them all.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all ({count})'**
+  String billsSuggestedShowAll(int count);
+
+  /// Read by screen readers on the Plan tab's badge: how many bills were missed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 missed bill} other{{count} missed bills}}'**
+  String billsMissedCount(int count);
 }
 
 class _AppLocalizationsDelegate

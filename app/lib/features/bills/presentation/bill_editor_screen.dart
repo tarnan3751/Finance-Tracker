@@ -4,7 +4,7 @@
 /// before and the time of day), whether it is active and on autopay. Turning reminders on
 /// asks for the notification permission when the app lacks it, and explains a refusal
 /// (`notification_permission_sheet.dart`). Deleting from here offers an undo. A new bill
-/// opened for a recurring stream starts from that stream's suggestion (name, amount,
+/// opened for a recurring stream or a liability starts from its suggestion (name, amount,
 /// cadence, next due date, account and the link), and is saved only by Save.
 library;
 
@@ -58,15 +58,24 @@ String cadenceLabel(AppLocalizations l10n, RecurringCadence? cadence) =>
       RecurringCadence.annually => l10n.billCadenceAnnually,
     };
 
-/// The editor of bill [billId], or of a new bill when it is null: prefilled from
-/// stream [streamId]'s suggestion when there is one.
+/// The editor of bill [billId], or of a new bill when it is null: prefilled from the
+/// suggestion of stream [streamId] or of the liability on [liabilityAccountId] when there
+/// is one.
 class BillEditorScreen extends ConsumerWidget {
-  const BillEditorScreen({super.key, this.billId, this.streamId});
+  const BillEditorScreen({
+    super.key,
+    this.billId,
+    this.streamId,
+    this.liabilityAccountId,
+  });
 
   final String? billId;
 
   /// The recurring stream a new bill is made from.
   final String? streamId;
+
+  /// The account of the liability a new bill is made from.
+  final String? liabilityAccountId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -82,7 +91,10 @@ class BillEditorScreen extends ConsumerWidget {
     final String? id = billId;
     if (id == null) {
       final String? stream = streamId;
-      if (stream == null) return _BillForm(initial: null, accounts: accounts);
+      final String? liabilityAccount = liabilityAccountId;
+      if (stream == null && liabilityAccount == null) {
+        return _BillForm(initial: null, accounts: accounts);
+      }
       ref.listen(suggestedBillsProvider, (_, next) {
         if (next case AsyncError(:final error)) {
           _log.warning('bill suggestions not read: ${error.runtimeType}');
@@ -101,13 +113,19 @@ class BillEditorScreen extends ConsumerWidget {
           body: const Center(child: CircularProgressIndicator()),
         );
       }
-      final StreamBillSuggestion? suggestion = suggestions
-          .whereType<StreamBillSuggestion>()
-          .where((s) => s.stream.id == stream)
+      final BillSuggestion? suggestion = suggestions
+          .where(
+            (s) => switch (s) {
+              StreamBillSuggestion(stream: SourceStream(:final id)) =>
+                id == stream,
+              LiabilityBillSuggestion(:final liability) =>
+                liability.accountId == liabilityAccount,
+            },
+          )
           .firstOrNull;
       // Built once: the form keeps what the user changes after a suggestion changes.
       return _BillForm(
-        key: ValueKey('stream/$stream'),
+        key: ValueKey('$stream/$liabilityAccount'),
         initial: null,
         // Its id is not used: Save gives the new bill its own.
         draft: suggestion?.accept(''),

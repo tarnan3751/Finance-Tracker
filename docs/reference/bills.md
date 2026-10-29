@@ -3,8 +3,8 @@
 The user's bills, when each is due, whether it was paid or missed, and the reminders
 before each due date (`PLAN.md` §12 "Bills" and "Reminders", §6.8). The feature is
 `app/lib/features/bills/`; the platform boundary is `app/lib/core/platform/
-reminder_scheduler.dart`. The Plan tab's Bills segment and calendar (5e) build on what
-is here; until then `/bills` is a plain list.
+reminder_scheduler.dart`. The bills are the Plan tab's Bills segment, a list and a
+calendar (**Screens**).
 
 ## The model
 
@@ -186,9 +186,49 @@ expectation's first nominal date two months back. `BillAlertStore` is Drift
 
 ## Screens
 
-`/bills` (`presentation/bills_screen.dart`) lists the bills with their next due date and
-state, with New bill, and its app bar opens the subscriptions (`recurring.md`,
-**Screens**); it is the Plan tab's Bills segment (`app-core.md`, **The Plan tab**).
+**The Bills segment** (`/bills`, `presentation/bills_screen.dart`), the Plan tab's second
+segment (`app-core.md`, **The Plan tab**; `PLAN.md` §12 "5e rulings"). Its app bar opens
+the subscriptions (`recurring.md`, **Screens**) and a new bill. A list and a calendar
+view, switched by the control at the top of the body.
+
+The list:
+- **Suggested**, first, when `suggestedBillsProvider` has suggestions this device has not
+  dismissed: the first three, then "Show all (N)", which reveals the rest, so the bills
+  stay near the top; each with its name, cadence, next due date and amount; Add opens the editor
+  prefilled from it (`/bills/new?stream-id=<id>` or `?liability-account-id=<id>`; nothing
+  is saved until Save), Dismiss hides it on this device only: the keys (`stream/<id>`,
+  `liability/<account id>`) are kept in `app_meta` under `bill_suggestions_dismissed`
+  (`dismissedBillSuggestionsProvider`), never synced. A dismissed stream can still be made
+  a bill from the subscriptions screen.
+- The active bills in three groups, each row showing one occurrence (`billFocus`): the
+  missed one, else the one due (the last, while in its grace days, before the next), else
+  the next. **Overdue**: the last occurrence missed. **Due soon**: the occurrence shown is
+  due within 7 days, or is in its grace days. **Later**: the rest, by date, the bills due
+  past the 60 days and those with no next due date at the end (so every bill can be
+  reached). Each row: the name, the due date (relative from 6 days back to 7 days ahead:
+  "Due yesterday", "Due today", "Due in 3 days", "Due in 7 days"; else "Due Nov 10,
+  2026"), the expected amount,
+  a chip (Missed in the error colour; Paid; Autopay for an autopay bill not yet paid), and
+  **Mark paid** when the occurrence shown is due or missed: `setPaid(id, due, paid:
+  true)` for that occurrence, with an Undo. Tapping a row opens the editor.
+- **Paused (N)**, folded: the inactive bills ("5c review rulings" item 8), with no chip,
+  no Mark paid and no date; tapping one opens the editor, where the Active switch is.
+
+The calendar: a month grid (previous and next month; the week starts on the locale's
+first day; today ringed, the chosen day filled; the numbers stop growing at 1.5 times the
+text size so a week fits) with a dot per active bill due that day from its
+`BillSchedule` (in the error colour when that occurrence was missed; at most three), and
+the chosen day's bills under it, as list rows for that occurrence. It opens on today's
+month with today chosen. Each day reads "Nov 3, 2 bills due: Netflix, Rent". Paused bills
+have no dot.
+
+With no bills and no suggestions the segment shows an empty state with New bill.
+
+The Plan tab's icon carries a badge with the number of active bills whose status is
+missed (`AppShell`). Screen readers hear the count in words with the tab ("1 missed
+bill", then "Plan"), since the destination's tooltip ("Plan, 1 missed bill") is left out
+of semantics.
+
 `/bills/new` and `/bills/:id` are the editor
 (`presentation/bill_editor_screen.dart`): name, expected amount (in a currency of the
 accounts), first due date, how often, the account it is paid from, the reminder days
@@ -197,8 +237,8 @@ Delete with undo (the editor pops back where it was opened from, whose messenger
 screen, so the Undo shows even when a reminder's tap opened it on another tab). Saving
 saves first, then, with reminders on, asks for the permission when the app lacks it; a
 refusal shows `notification_permission_sheet.dart` (the bill is saved; why, and Open
-settings). `/bills/new?stream-id=<id>` starts from that stream's suggestion (an unknown
-stream, or one without a suggestion, starts empty). The
+settings). `/bills/new?stream-id=<id>` and `?liability-account-id=<id>` start from that
+stream's or liability's suggestion (one without a suggestion starts empty). The
 in-app alerts sheet (`budgets.md`, **Alerts**) lists `BillDueNotification`s ("Rent is due
 Nov 1") and opens the bill; a notice whose occurrence is paid since (a pull brought the
 payment after the notice was raised) is left out of the sheet and the count, and the
@@ -213,6 +253,9 @@ between two runs among them: `test/features/bills/application/`. The scheduler o
 plugin's mocked channel: `test/core/platform/local_notifications_scheduler_test.dart`.
 The record: `test/core/db/drift_sync_store_test.dart`; the schema step:
 `test/drift/migration_test.dart`; convergence: `test/sync/two_device_convergence_test.dart`.
+The screens: `test/features/bills/presentation/` (the groups, Mark paid, the badge, the
+calendar across a month end in New York, the suggestions, goldens of the list, the
+calendar and a suggestion), on `test/helpers/bill_seed.dart`.
 On the harness: `app/integration_test/bills_reminders_test.dart` (a bill due tomorrow in
 the demo, and the real plugin's pending set; firing is not awaited, since an inexact
 alarm may come late).

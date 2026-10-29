@@ -1,7 +1,8 @@
 /// Facts about this install, kept in the `app_meta` table: whether the original app's data
 /// was imported (`legacy_import_done`), the install date (`install_date`), and the zone
 /// and time the bill reminders were last planned in (`reminders_zone`,
-/// `reminders_scheduled_at`).
+/// `reminders_scheduled_at`), and the bill suggestions dismissed on this device
+/// (`bill_suggestions_dismissed`).
 library;
 
 import 'package:finance_tracker/core/db/app_database.dart';
@@ -28,6 +29,10 @@ abstract final class AppMetaKeys {
 
   /// When the bill reminders were last planned, a UTC instant.
   static const String remindersScheduledAt = 'reminders_scheduled_at';
+
+  /// The keys of the bill suggestions dismissed on this device, a JSON array of strings
+  /// (`features/bills/`).
+  static const String dismissedBillSuggestions = 'bill_suggestions_dismissed';
 }
 
 /// The store over the database's `app_meta` table.

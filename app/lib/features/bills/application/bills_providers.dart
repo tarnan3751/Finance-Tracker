@@ -4,8 +4,10 @@
 /// due dates the recurring streams and the liabilities.
 library;
 
+import 'dart:convert';
 import 'dart:ui' show PlatformDispatcher;
 
+import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/util/stream_current.dart';
@@ -193,6 +195,40 @@ Future<List<BillSuggestion>> suggestedBills(Ref ref) async => billSuggestions(
   await ref.watch(billSourceDataProvider.future),
   await ref.watch(billsProvider.future),
 );
+
+/// The key [suggestion]'s dismissal is remembered under: its stream or its liability.
+String billSuggestionKey(BillSuggestion suggestion) => switch (suggestion) {
+  StreamBillSuggestion(:final stream) => 'stream/${stream.id}',
+  LiabilityBillSuggestion(:final liability) =>
+    'liability/${liability.accountId}',
+};
+
+/// The suggestions dismissed on this device ([billSuggestionKey]s), kept in `app_meta`,
+/// never synced: another device keeps suggesting them.
+@riverpod
+class DismissedBillSuggestions extends _$DismissedBillSuggestions {
+  @override
+  Future<Set<String>> build() async {
+    final String? stored = await ref
+        .watch(appMetaStoreProvider)
+        .read(AppMetaKeys.dismissedBillSuggestions);
+    return stored == null
+        ? const {}
+        : {...(jsonDecode(stored) as List<dynamic>).cast<String>()};
+  }
+
+  /// Stops suggesting [suggestion] on this device.
+  Future<void> dismiss(BillSuggestion suggestion) async {
+    final Set<String> next = {...await future, billSuggestionKey(suggestion)};
+    state = AsyncData(next);
+    await ref
+        .read(appMetaStoreProvider)
+        .write(
+          AppMetaKeys.dismissedBillSuggestions,
+          jsonEncode(next.toList()..sort()),
+        );
+  }
+}
 
 /// What the reminders are planned from: the live bills, the followed liabilities' due
 /// dates, the streams' names, and [billPayments]; recomputed when any of them changes.

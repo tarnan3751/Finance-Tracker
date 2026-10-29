@@ -519,15 +519,21 @@ mixin $BillsRoute on GoRouteData {
 }
 
 mixin $NewBillRoute on GoRouteData {
-  static NewBillRoute _fromState(GoRouterState state) =>
-      NewBillRoute(streamId: state.uri.queryParameters['stream-id']);
+  static NewBillRoute _fromState(GoRouterState state) => NewBillRoute(
+    streamId: state.uri.queryParameters['stream-id'],
+    liabilityAccountId: state.uri.queryParameters['liability-account-id'],
+  );
 
   NewBillRoute get _self => this as NewBillRoute;
 
   @override
   String get location => GoRouteData.$location(
     '/bills/new',
-    queryParams: {if (_self.streamId != null) 'stream-id': _self.streamId},
+    queryParams: {
+      if (_self.streamId != null) 'stream-id': _self.streamId,
+      if (_self.liabilityAccountId != null)
+        'liability-account-id': _self.liabilityAccountId,
+    },
   );
 
   @override

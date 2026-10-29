@@ -406,6 +406,61 @@ final class SuggestedBillsProvider
 
 String _$suggestedBillsHash() => r'1efc91b6d7a71015121b8b0b6882e779a8259fcb';
 
+/// The suggestions dismissed on this device ([billSuggestionKey]s), kept in `app_meta`,
+/// never synced: another device keeps suggesting them.
+
+@ProviderFor(DismissedBillSuggestions)
+final dismissedBillSuggestionsProvider = DismissedBillSuggestionsProvider._();
+
+/// The suggestions dismissed on this device ([billSuggestionKey]s), kept in `app_meta`,
+/// never synced: another device keeps suggesting them.
+final class DismissedBillSuggestionsProvider
+    extends $AsyncNotifierProvider<DismissedBillSuggestions, Set<String>> {
+  /// The suggestions dismissed on this device ([billSuggestionKey]s), kept in `app_meta`,
+  /// never synced: another device keeps suggesting them.
+  DismissedBillSuggestionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'dismissedBillSuggestionsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$dismissedBillSuggestionsHash();
+
+  @$internal
+  @override
+  DismissedBillSuggestions create() => DismissedBillSuggestions();
+}
+
+String _$dismissedBillSuggestionsHash() =>
+    r'bcb45d62a4243bf179c9d97b789746977a1f1ee1';
+
+/// The suggestions dismissed on this device ([billSuggestionKey]s), kept in `app_meta`,
+/// never synced: another device keeps suggesting them.
+
+abstract class _$DismissedBillSuggestions extends $AsyncNotifier<Set<String>> {
+  FutureOr<Set<String>> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<Set<String>>, Set<String>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<Set<String>>, Set<String>>,
+              AsyncValue<Set<String>>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 /// What the reminders are planned from: the live bills, the followed liabilities' due
 /// dates, the streams' names, and [billPayments]; recomputed when any of them changes.
 
