@@ -28,9 +28,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planForecast => 'Forecast';
 
   @override
-  String get planForecastPending => 'The forecast will appear here.';
-
-  @override
   String get navSettings => 'Settings';
 
   @override

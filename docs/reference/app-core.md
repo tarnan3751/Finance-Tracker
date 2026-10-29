@@ -283,7 +283,7 @@ keeping its own navigation stack.
 | | `NewBillRoute` | `/bills/new?stream-id=<id>`, `/bills/new?liability-account-id=<id>` | `bill_editor_screen.dart`, prefilled from the stream's or the liability's suggestion when given |
 | | `SubscriptionsRoute` | `/bills/subscriptions` | `features/recurring/presentation/subscriptions_screen.dart` (`recurring.md`) |
 | | `EditBillRoute` | `/bills/:id` | `bill_editor_screen.dart`, where a tapped reminder opens it |
-| | `ForecastRoute` | `/forecast` | the Forecast segment |
+| | `ForecastRoute` | `/forecast` | the Forecast segment: `ForecastView` (`features/forecast/presentation/forecast_view.dart`, `forecast.md`) with its Choose accounts action |
 | Settings | `SettingsRoute` | `/settings` | `features/settings/presentation/settings_screen.dart` |
 | | `CategoriesRoute` | `/settings/categories` | `features/categories/presentation/categories_screen.dart` |
 | | `NewCategoryRoute` | `/settings/categories/new` | `category_editor_screen.dart` |
@@ -324,7 +324,8 @@ keeping its own navigation stack.
   `/forecast`. Its first route, `/plan`, redirects to `/budgets`, so the tab opens on
   Budgets and tapping it again returns there. Each segment's screen is a `PlanScaffold`
   (`core/router/plan_scaffold.dart`): the "Plan" app bar with that segment's actions (the
-  alerts bell on Budgets), then the Budgets | Bills | Forecast `SegmentedButton` at the top
+  alerts bell on Budgets, Subscriptions and Add bill on Bills, Choose accounts on
+  Forecast), then the Budgets | Bills | Forecast `SegmentedButton` at the top
   of the body, where it grows with the text size (the selected check hidden to save
   width), then the segment's body. Choosing a segment goes to its root; the roots are
   `NoTransitionPage`s, so the switch reads as one screen changing its content. Every

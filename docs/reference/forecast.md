@@ -3,8 +3,8 @@
 The cash-flow forecast: the projected balance of the chosen accounts for each day of the
 next 30 or 90 days, with a confidence band, from the recurring streams, the bills and an
 allowance for everyday spending (`PLAN.md` §12 "The forecast", "5d plan rulings", "5e
-rulings"). The feature is `app/lib/features/forecast/`; its view is for the Plan tab's
-Forecast segment, `/forecast`, which shows a placeholder until the view is mounted there.
+rulings"). The feature is `app/lib/features/forecast/`; its view is the Plan tab's
+Forecast segment, `/forecast` (`ForecastRoute` in `core/router/routes.dart`).
 
 Code:
 - `domain/` (pure Dart, integer `Money` only): `cash_flow_forecast.dart` (the projection,

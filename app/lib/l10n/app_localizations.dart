@@ -130,12 +130,6 @@ abstract class AppLocalizations {
   /// **'Forecast'**
   String get planForecast;
 
-  /// Placeholder of the Plan tab's Forecast segment until the forecast screen is in place.
-  ///
-  /// In en, this message translates to:
-  /// **'The forecast will appear here.'**
-  String get planForecastPending;
-
   /// Label of the Settings tab in the bottom navigation bar, and the title of the Settings screen.
   ///
   /// In en, this message translates to:

@@ -1,8 +1,9 @@
 // The Plan tab: it opens on Budgets, `/plan` redirects there, the segment control
 // switches between Budgets, Bills and Forecast under the same "Plan" app bar, `/bills`
-// and `/forecast` open inside the tab, and tapping the tab again after a budget deep
-// link returns to the Budgets segment.
+// and `/forecast` open inside the tab (the forecast with its accounts action), and
+// tapping the tab again after a budget deep link returns to the Budgets segment.
 import 'package:finance_tracker/core/router/plan_scaffold.dart';
+import 'package:finance_tracker/features/forecast/presentation/forecast_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -53,6 +54,7 @@ void main() {
     await tester.tap(_segment('Forecast'));
     await tester.pumpAndSettle();
     _expectPlan(tester, PlanSegment.forecast);
+    expect(find.byType(ForecastView), findsOneWidget);
 
     await tester.tap(_segment('Budgets'));
     await tester.pumpAndSettle();
@@ -67,9 +69,13 @@ void main() {
     _expectPlan(tester, PlanSegment.bills);
   });
 
-  testWidgets('/forecast opens inside the tab', (tester) async {
+  testWidgets('/forecast opens the forecast inside the tab', (tester) async {
     await pumpApp(tester, initialLocation: '/forecast');
     _expectPlan(tester, PlanSegment.forecast);
+    // The forecast's body and its accounts action, under the one Plan app bar.
+    expect(find.byType(ForecastView), findsOneWidget);
+    expect(find.byTooltip('Choose accounts'), findsOneWidget);
+    expect(find.byType(AppBar), findsOneWidget);
   });
 
   testWidgets('tapping the tab after a budget deep link returns to Budgets', (

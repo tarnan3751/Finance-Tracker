@@ -24,10 +24,6 @@
   "@planForecast": {
     "description": "The Plan tab's segment that shows the cash-flow forecast."
   },
-  "planForecastPending": "The forecast will appear here.",
-  "@planForecastPending": {
-    "description": "Placeholder of the Plan tab's Forecast segment until the forecast screen is in place."
-  },
   "navSettings": "Settings",
   "@navSettings": {
     "description": "Label of the Settings tab in the bottom navigation bar, and the title of the Settings screen."

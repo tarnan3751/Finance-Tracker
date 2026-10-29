@@ -37,6 +37,7 @@ import 'package:finance_tracker/features/budgets/presentation/budgets_screen.dar
 import 'package:finance_tracker/features/categories/presentation/categories_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/category_editor_screen.dart';
 import 'package:finance_tracker/features/duplicates/presentation/duplicate_review_screen.dart';
+import 'package:finance_tracker/features/forecast/presentation/forecast_view.dart';
 import 'package:finance_tracker/features/items/presentation/items_screen.dart';
 import 'package:finance_tracker/features/recurring/presentation/subscriptions_screen.dart';
 import 'package:finance_tracker/features/rules/presentation/rule_editor_screen.dart';
@@ -44,8 +45,8 @@ import 'package:finance_tracker/features/rules/presentation/rules_screen.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_editor_screen.dart';
 import 'package:finance_tracker/features/transactions/presentation/transactions_screen.dart';
-import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 part 'routes.g.dart';
@@ -364,23 +365,19 @@ class EditBillRoute extends GoRouteData with $EditBillRoute {
       BillEditorScreen(billId: id);
 }
 
-/// `/forecast`: the Plan tab's Forecast segment.
+/// `/forecast`: the Plan tab's Forecast segment, the cash-flow forecast with its
+/// "Choose accounts" action.
 class ForecastRoute extends GoRouteData with $ForecastRoute {
   const ForecastRoute();
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) =>
       NoTransitionPage(
-        child: PlanScaffold(
-          segment: PlanSegment.forecast,
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(
-                AppLocalizations.of(context).planForecastPending,
-                textAlign: TextAlign.center,
-              ),
-            ),
+        child: Consumer(
+          builder: (context, ref, _) => PlanScaffold(
+            segment: PlanSegment.forecast,
+            actions: forecastAppBarActions(context, ref),
+            body: const ForecastView(),
           ),
         ),
       );
