@@ -283,9 +283,12 @@ void main() {
     expect(s.spent, Money(3000, 'USD'));
   });
 
-  test(
+  // The debounce in fake time, which only tester.pump moves, so a loaded machine cannot
+  // run it out before the first check or after the last; the writes run in real time
+  // (runAsync), since the repositories were made outside the fake zone.
+  testWidgets(
     'the watcher tells each new alert once, after the statuses settle',
-    () async {
+    (tester) async {
       final ProviderSubscription<void> sub = container.listen(
         budgetAlertWatcherProvider,
         (_, _) {},
@@ -297,15 +300,16 @@ void main() {
         ))
           n.notification.key,
       ];
-      await container
-          .read(budgetRepositoryProvider)
-          .upsert(budget.copyWith(rollover: false));
-      await spend('t1', 5000, LocalDate(2026, 10, 5));
-      await spend('t2', 3500, LocalDate(2026, 10, 6));
-      await pumpEventQueue();
+      await tester.runAsync(() async {
+        await container
+            .read(budgetRepositoryProvider)
+            .upsert(budget.copyWith(rollover: false));
+        await spend('t1', 5000, LocalDate(2026, 10, 5));
+        await spend('t2', 3500, LocalDate(2026, 10, 6));
+      });
+      await tester.pump(const Duration(milliseconds: 19));
       expect(told(), isEmpty, reason: 'not before the debounce');
-      await Future<void>.delayed(const Duration(milliseconds: 60));
-      await pumpEventQueue();
+      await tester.pump(const Duration(milliseconds: 1));
       expect(told(), ['budget/b1/2026-10-01/8000']);
       final AppNotification n = container
           .read(inAppNotificationsProvider)
@@ -313,18 +317,18 @@ void main() {
           .notification;
       expect((n as BudgetThresholdNotification).spent, Money(8500, 'USD'));
 
-      await spend('t3', 100, LocalDate(2026, 10, 7));
-      await Future<void>.delayed(const Duration(milliseconds: 60));
-      await pumpEventQueue();
+      await tester.runAsync(() => spend('t3', 100, LocalDate(2026, 10, 7)));
+      await tester.pump(const Duration(milliseconds: 20));
       expect(told(), hasLength(1));
 
-      await spend('t4', 2000, LocalDate(2026, 10, 8));
-      await Future<void>.delayed(const Duration(milliseconds: 60));
-      await pumpEventQueue();
+      await tester.runAsync(() => spend('t4', 2000, LocalDate(2026, 10, 8)));
+      await tester.pump(const Duration(milliseconds: 20));
       expect(told(), [
         'budget/b1/2026-10-01/10000',
         'budget/b1/2026-10-01/8000',
       ]);
+      // Today's midnight timer is a fake one too: gone before the test's end.
+      container.dispose();
     },
   );
 }

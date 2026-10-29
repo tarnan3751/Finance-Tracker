@@ -1347,9 +1347,9 @@ void main() {
         devices.remove(d);
       }
     }
-    // Twenty-five runs of sessions that each end with a Plaid pull: past the default
-    // 30 s on a loaded machine.
-  }, timeout: const Timeout.factor(3));
+    // Twenty-five runs of sessions that each end with a Plaid pull: about 15 s alone, and
+    // close to a minute beside the rest of the gate's tests, so six times the default 30 s.
+  }, timeout: const Timeout.factor(6));
 }
 
 /// Names the seed in a failure.
