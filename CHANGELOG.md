@@ -3,6 +3,76 @@
 Each release section is generated from the Conventional Commit log since the previous tag
 (`PLAN.md` §10). Tags are `vX.Y.Z`; a phase ends with a `vX.Y.Z-phaseN` pre-release.
 
+## v0.6.0-phase5 — 2026-10-29
+
+Phase 5 lands recurring streams, subscriptions, bills with reminders and a cash-flow forecast,
+under a Plan tab that holds Budgets, Bills and Forecast. The app pulls Plaid's recurring streams
+and liabilities (contract 0.4.0, with each stream's member transactions mapped to the server's
+own ids), detects recurring streams in every transaction source with a measured detector
+(precision and recall at or above 0.94 on every persona, run by the gate), merges the two with
+the user's mutes, renames and reclassifications synced as a per-field record, and classifies
+subscriptions with annual totals. Bills follow a schedule of any cadence, re-anchor on a
+liability's due date, are matched to payments by one assignment across every bill, show as due,
+paid or missed, and raise local reminders scheduled at the right wall-clock time across DST
+through inexact alarms that survive a reboot. The forecast projects 30 and 90 days of balance
+from streams, bills and an everyday-spending allowance with a confidence band from each stream's
+price range, as integer money throughout, with a per-day table beside the chart. The local
+schema moves from v8 to v10, every editor now closes only its own page after a save, and the
+integration suite reports each file's duration.
+
+### Features
+
+- models: Add the liability entity (bea2d5b)
+- api: Serve stream transaction ids and liability sources (f9f45f2)
+- app: Add schema v9 with recurring streams and liabilities (b4e5329)
+- recurring: Pull and store recurring streams with their overrides (17c4bd2)
+- liabilities: Pull and store liabilities (24f9a00)
+- app: Serve the persona's streams and liabilities in demo (7747f7e)
+- recurring: Detect recurring streams from transactions (630a0d0)
+- recurring: Classify subscriptions and merge streams (299296d)
+- recurring: Recompute detected streams when transactions change (d04f3db)
+- models: Extend the bill reminder entity (126e13a)
+- bills: Compute occurrences, status and suggestions (82dd96d)
+- app: Schedule reminders behind a platform boundary (82ed175)
+- app: Add schema v10 with bills and bill alerts (6ba3d69)
+- bills: Plan and reschedule reminders (da1bbfb)
+- bills: Add the bill editor (2a36b7c)
+- app: Make the third tab Plan with three segments (e60ca9c)
+- recurring: Add the subscriptions screen (d036c77)
+- bills: Add the bills list and calendar (2d5c5c0)
+- tools: Print each integration test file's duration (6da4b25)
+- forecast: Project cash flow with confidence bands (da68169)
+- forecast: Provide the forecast from streams and balances (f15e59c)
+- forecast: Add the forecast screen and its table (073b01e)
+- forecast: Count bills and keep the account selection (3d6ce8f)
+- app: Mount the forecast in the Plan tab (23a821e)
+
+### Fixes
+
+- app: Pop only the editor's own route after a save (54894b7)
+
+### Tests
+
+- app: Converge stream overrides across devices (63a391b)
+- recurring: Measure the detector against the persona expectations (397b9ec)
+- app: Converge bills across devices (787f4c7)
+- app: Wait for the rule editor to close before navigating (109189a)
+- app: Give the slow and the debounced tests room under load (dc59292)
+- app: Wait for editors to close in the remaining integration flows (3c682f4)
+- app: Show the demo forecast on a device (460e63a)
+
+### Build and tooling
+
+- app: Add local notifications with desugaring and the receivers (f4cc89e)
+- app: Add fl_chart for the forecast chart (058f7cf)
+
+### Documentation
+
+- Describe recurring streams and liabilities (6bd440f)
+- recurring: Describe the detector, subscriptions and merging (4fb2443)
+- Describe bills, reminders and schema 10 (3addfc2)
+- forecast: Describe the cash-flow forecast (7436cb0)
+
 ## v0.5.0-phase4 — 2026-10-25
 
 Phase 4 lands budgets and rounds out working with transactions. Budgets have monthly periods

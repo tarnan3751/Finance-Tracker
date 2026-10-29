@@ -15,8 +15,11 @@ between devices. Budgets follow a category for a monthly period with optional ro
 show progress and a projection, and raise alerts at 80 % and 100 %. Transactions can be
 searched by the first letters of any word, filtered and saved as named filters, hidden,
 edited in bulk, split across categories, tagged automatically by rules, checked for
-duplicates, and given a receipt photo. Recurring transactions, bills, reports and net worth
-are not built yet.
+duplicates, and given a receipt photo. Recurring streams come from the bank and from a detector
+that runs over every transaction, subscriptions are listed with what they cost a year, bills
+have a calendar and local reminders that fire at the right local time across daylight-saving
+changes, and a forecast projects the next 30 or 90 days of balance with a confidence band.
+Reports and net worth are not built yet.
 
 ## Layout
 

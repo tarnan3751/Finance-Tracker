@@ -18,19 +18,25 @@ heading of this file or of a doc.
 
 ## Status
 
-**Phases 0 to 4 have landed and passed their gates; Phase 5 (recurring and bills) is next:** the
-app runs on its Riverpod and go_router core with manual accounts, transactions and categories on
-the encrypted Drift database (schema v8 with the change log, field clocks, Items, rules, budgets
-and their alerts, dismissed duplicate pairs, saved filters and a full-text index); it signs in
-against the development server through the API client, syncs user data between devices through
-the sync engine, links banks through Plaid Link (real Sandbox Items through the server, which
-polls Plaid and verifies its webhooks), pulls their accounts and transactions with reported
+**Phases 0 to 5 have landed and passed their gates; Phase 6 (reports, net worth, investments,
+goals) is next:** the app runs on its Riverpod and go_router core with manual accounts,
+transactions and categories on the encrypted Drift database (schema v10 with the change log, field
+clocks, Items, rules, budgets and their alerts, dismissed duplicate pairs, saved filters, a
+full-text index, recurring streams and their overrides, liabilities, bills and bill alerts); it
+signs in against the development server through the API client, syncs user data between devices
+through the sync engine, links banks through Plaid Link (real Sandbox Items through the server,
+which polls Plaid and verifies its webhooks), pulls their accounts and transactions with reported
 balances and institution logos, applies the user's rules on arrival and, on request, to the
 existing transactions; it budgets by category with periods, rollover, projection and in-app
 alerts, hides and bulk-edits transactions, reviews likely duplicates, searches by word prefixes,
-saves filters, splits transactions and attaches receipt photos; and it runs the demo flavor on
-the persona engine's seed against an in-process fake server with no network; the dev flavor
-carries a developer menu for the Sandbox controls.
+saves filters, splits transactions and attaches receipt photos; it pulls Plaid's recurring streams
+and liabilities, detects recurring streams in every transaction source with a measured detector
+and merges the two, classifies subscriptions and lists them with annual totals, tracks bills with
+local reminders scheduled at the right wall-clock time across DST and flags missed payments, and
+projects 30 and 90 days of cash flow with a confidence band, all under a Plan tab with Budgets,
+Bills and Forecast segments; and it runs the demo flavor on the persona engine's seed against an
+in-process fake server with no network; the dev flavor carries a developer menu for the Sandbox
+controls.
 The repository is the pub workspace of **Folder layout**, Android only. The app runs in
 three flavors (`dev`, `demo`, `prod`) through `app/lib/bootstrap.dart`; `server/` is the
 development server implementing the contract with a fake Plaid client
@@ -108,9 +114,14 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | Linked banks: Items, Plaid Link, repair, unlink, the Plaid pull and the arrival seam | `app/lib/features/items/`, `app/lib/core/plaid/` | `docs/reference/items.md` |
 | Rules: the engine, the runner on arrival and on demand, the rules screens | `app/lib/features/rules/` | `docs/reference/rules.md` |
 | Developer menu (dev flavor only): the Sandbox controls, provisioning, diagnostics | `app/lib/features/developer/` | `docs/reference/developer.md` |
-| Budgets: periods, spending, rollover, projection, alerts, the Budgets tab | `app/lib/features/budgets/`, `app/lib/core/platform/notifier.dart` | `docs/reference/budgets.md` |
+| Budgets: periods, spending, rollover, projection, alerts, the Budgets segment of the Plan tab | `app/lib/features/budgets/`, `app/lib/core/platform/notifier.dart` | `docs/reference/budgets.md` |
 | Duplicates: the detector, dismissed pairs, the review | `app/lib/features/duplicates/` | `docs/reference/duplicates.md` |
 | Transactions: hidden, bulk edit, search and saved filters, splits, receipts | `app/lib/features/transactions/`, `app/lib/core/db/full_text_search.dart`, `app/lib/core/db/receipt_store.dart`, `app/lib/core/platform/image_source.dart` | `docs/reference/transactions.md`, `docs/reference/data.md` |
+| Recurring: the pull of Plaid streams, the detector and its harness, subscriptions, the merge, the user's overrides, the Subscriptions screen | `app/lib/features/recurring/` | `docs/reference/recurring.md` |
+| Liabilities: the pull and the repository | `app/lib/features/liabilities/` | `docs/reference/liabilities.md` |
+| Bills: schedule, status and the payment assignment, reminders behind the scheduler boundary, the list, calendar and editor | `app/lib/features/bills/`, `app/lib/core/platform/reminder_scheduler.dart`, `app/lib/core/time/` | `docs/reference/bills.md` |
+| Forecast: the projection, its band and allowance, the screen and table | `app/lib/features/forecast/` | `docs/reference/forecast.md` |
+| The Plan tab: the shell, `PlanScaffold`, the editors' `OwnPage` closer | `app/lib/core/router/` | `docs/reference/app-core.md` |
 | API client, in-app fake server, session and auth | `app/lib/core/api/`, `app/lib/features/auth/` | `docs/reference/app-core.md` (the API client), `docs/reference/auth.md` |
 | The generated API client | `packages/api_client/` | `docs/reference/api.md` (Phase 2) |
 | The API contract | `api/openapi.yaml` | same |
@@ -219,6 +230,20 @@ PLAN.md          the plan: gitignored, read from the main tree
   runs the wrong configuration silently.
 - `const` constructors wherever possible; a rebuild of a large transaction list that is not
   `const`-friendly shows up as dropped frames on a mid-range phone.
+- A `NavigationDestination`'s tooltip is excluded from semantics: a count the user must hear goes
+  in a `Semantics(label:)` around the icon, not in the tooltip.
+- An editor that awaits a write before closing takes `OwnPage.of(context)` before the await and
+  calls its `close()`: `context.pop()` after an await pops whatever page is on top at that moment.
+- `flutter_local_notifications` schedules inexact alarms (`inexactAllowWhileIdle`) and needs
+  core-library desugaring; a reminder is a wall clock built with `tz.TZDateTime(loc, y, m, d, h,
+  min)`, a time in a DST gap moves later by the gap, an ambiguous time takes its first occurrence.
+- The detector's precision and recall harness runs under the `detector_harness` tag in the gate;
+  a change to the detector or to the persona engine's recurring expectations must keep every
+  persona at or above 0.9 both ways.
+- A detected stream's id hashes its stable anchor (`L` for any day of the month of 28 or more),
+  currency and direction; the user's overrides and bill links are keyed by it.
+- `app_meta` holds device-local state (`reminders_zone`, `reminders_scheduled_at`,
+  `forecast_selection`, `bill_suggestions_dismissed`) and never syncs; `app_settings` syncs.
 
 ## Seeing the app
 
@@ -298,7 +323,8 @@ brief and one review.
 **Lanes.** Every Flutter run writes files in the tree it runs in (`build/`, `.dart_tool/`), and
 a run or install writes onto the attached device, so the main working tree is the coordinator's
 and stays at `HEAD`: no agent writes to it or its index. A developer or a reviewer works in a
-`git clone` of its own under its scratch directory; the first `tools/gates.sh` run fetches
+`git clone` of its own under `~/.claude-finance-tracker/scratch/finance-tracker/lanes/` (never
+the session scratchpad under `/private/tmp`, which a reboot empties); the first `tools/gates.sh` run fetches
 packages and generates code. Two developers may run at once on disjoint areas, under three
 rules: only one **emulator** run happens on the machine at a time, which `tools/emulator_tests.sh`
 enforces with a machine-wide lock and its own AVD, so a lane just runs it and waits (the gate,
@@ -327,7 +353,8 @@ gate's tail per commit. Once the review's findings are folded and the fold's dif
 coordinator lands it with `tools/land_series.sh <patch-dir> <base-commit> <tree-hash>` (clean
 tree and HEAD at the base required; `git am`; the messages checked; the tree checked, with a
 rollback on mismatch; the gate run; the commits left in place). The coordinator pushes `main` to
-`origin` after each landing. The owner reviews at phase gates and whenever they choose.
+`origin` after each landing. A series that passes its review lands promptly; delivered patches
+are never held back for a companion series. The owner reviews at phase gates and whenever they choose.
 
 Constraints:
 
