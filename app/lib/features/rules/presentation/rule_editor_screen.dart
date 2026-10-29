@@ -13,6 +13,7 @@ library;
 import 'dart:async';
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
+import 'package:finance_tracker/core/router/own_page.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/presentation/currency_picker.dart';
 import 'package:finance_tracker/features/categories/presentation/category_picker.dart';
@@ -176,12 +177,16 @@ class _RuleForm extends ConsumerStatefulWidget {
 }
 
 class _RuleFormState extends ConsumerState<_RuleForm> {
+  /// What the form edits: the screen's entity, or once a save has landed, the saved
+  /// one, so a later Save rewrites it rather than creating another.
+  late Rule? _initial = widget.initial;
+
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   late final TextEditingController _name = TextEditingController(
-    text: widget.initial?.name,
+    text: _initial?.name,
   );
   late final List<_ConditionDraft> _conditions = [
-    for (final RuleCondition c in widget.initial?.conditions ?? const [])
+    for (final RuleCondition c in _initial?.conditions ?? const [])
       _ConditionDraft(
         c.kind,
         from: c,
@@ -192,7 +197,7 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
       ),
   ];
   late final List<_ActionDraft> _actions = [
-    for (final RuleAction a in widget.initial?.actions ?? const [])
+    for (final RuleAction a in _initial?.actions ?? const [])
       _ActionDraft(a.kind, from: a),
   ];
   bool _submitted = false;
@@ -204,7 +209,7 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
 
   static const Duration _previewDelay = Duration(milliseconds: 300);
 
-  bool get _isNew => widget.initial == null;
+  bool get _isNew => _initial == null;
 
   /// The accounts' currencies, the device's default when there is no account.
   List<String> get _currencies {
@@ -234,7 +239,7 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
     if (!_conditions.every((c) => c.isComplete)) return null;
     if (!_actions.every((a) => a.isComplete)) return null;
     return Rule(
-      id: widget.initial?.id ?? '',
+      id: _initial?.id ?? '',
       name: '',
       position: 0,
       conditions: [
@@ -246,7 +251,7 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
 
   // Whether the form holds the saved rule as it was saved.
   bool get _unchanged {
-    final Rule? initial = widget.initial;
+    final Rule? initial = _initial;
     final Rule? draft = _draft();
     return initial != null &&
         draft != null &&
@@ -288,6 +293,7 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final RuleActions actions = ref.read(ruleActionsProvider);
+    final OwnPage page = OwnPage.of(context);
     final String name = _name.text.trim();
     final List<RuleCondition> conditions = [
       for (final _ConditionDraft c in _conditions) c.toCondition(),
@@ -297,24 +303,25 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
     ];
     setState(() => _saving = true);
     try {
-      final Rule? initial = widget.initial;
+      final Rule? initial = _initial;
+      final Rule saved;
       if (initial == null) {
-        await actions.create(
+        saved = await actions.create(
           live: ref.read(rulesProvider).value ?? const [],
           name: name,
           conditions: conditions,
           actions: ruleActions,
         );
       } else {
-        await actions.update(
-          initial.copyWith(
-            name: name,
-            conditions: conditions,
-            actions: ruleActions,
-          ),
+        saved = initial.copyWith(
+          name: name,
+          conditions: conditions,
+          actions: ruleActions,
         );
+        await actions.update(saved);
       }
-      if (mounted) context.pop();
+      if (mounted) setState(() => _initial = saved);
+      page.close();
     } on EntityDeletedException {
       messenger.showSnackBar(SnackBar(content: Text(l10n.ruleNotFound)));
     } finally {
@@ -326,7 +333,7 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final RuleActions actions = ref.read(ruleActionsProvider);
-    final String id = widget.initial!.id;
+    final String id = _initial!.id;
     context.pop();
     await actions.delete(id);
     messenger.showSnackBar(
@@ -730,8 +737,7 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
                 return [
                   PopupMenuItem<void>(
                     enabled: enabled,
-                    onTap: () =>
-                        confirmAndApplyRule(context, ref, widget.initial!),
+                    onTap: () => confirmAndApplyRule(context, ref, _initial!),
                     child: ListTile(
                       contentPadding: EdgeInsets.zero,
                       enabled: enabled,

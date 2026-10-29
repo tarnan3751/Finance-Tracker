@@ -307,6 +307,15 @@ keeping its own navigation stack.
 - Pushing a route of another branch (a transaction from an account's detail or a
   budget's, category management from the category picker) puts it on top of the current tab's stack: the
   selected tab does not change, and back returns where the user was.
+- **Editors close their own page.** A screen that closes after an await (the account,
+  transaction, budget, bill, category and rule editors' Save, the category editor's and
+  the account detail's Delete) takes its page with `OwnPage.of` (`core/router/own_page.dart`)
+  before the await: `close()` pops only while that page is still the router's top page
+  (`isTop`), and otherwise does nothing, so a page opened meanwhile (on another tab, or
+  pushed over the editor) is never the one closed. An editor left open that way stays
+  where it was with its write done, and edits what it saved from then on (a new entity
+  keeps its id, its title and menu become the edit ones), so a second Save rewrites it
+  rather than creating another.
 - `AppShell` (`core/router/app_shell.dart`) shows the selected branch above a Material 3
   `NavigationBar`; tapping the current tab again returns it to its first screen.
 - **The Plan tab** (`PLAN.md` §12 "Navigation: the Plan tab", "5e rulings"). The third

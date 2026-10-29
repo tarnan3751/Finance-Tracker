@@ -163,12 +163,12 @@ final class AccountActions {
 
   static const Uuid _uuid = Uuid();
 
-  /// Creates a manual account after [existing] (the live accounts) and returns its id.
+  /// Creates a manual account after [existing] (the live accounts) and returns it.
   /// A nonzero [openingBalance] becomes a `manual` transaction named [openingBalanceName]
   /// dated [openingDate], written with the account in one repository write
   /// (`AccountRepository.create`): the opening balance is itself a transaction, so the
   /// balance stays derived, and a failure leaves neither behind.
-  Future<String> create({
+  Future<Account> create({
     required List<Account> existing,
     required String name,
     required AccountType type,
@@ -179,20 +179,21 @@ final class AccountActions {
   }) async {
     final String id = _uuid.v4();
     final DateTime now = _clock.nowUtc();
+    final Account account = Account(
+      id: id,
+      type: type,
+      name: name,
+      currencyCode: currencyCode,
+      isHidden: false,
+      displayOrder: existing.isEmpty
+          ? 0
+          : existing
+                    .map((a) => a.displayOrder)
+                    .reduce((a, b) => a > b ? a : b) +
+                1,
+    );
     await _accounts.create(
-      Account(
-        id: id,
-        type: type,
-        name: name,
-        currencyCode: currencyCode,
-        isHidden: false,
-        displayOrder: existing.isEmpty
-            ? 0
-            : existing
-                      .map((a) => a.displayOrder)
-                      .reduce((a, b) => a > b ? a : b) +
-                  1,
-      ),
+      account,
       openingBalance: openingBalance == null || openingBalance.isZero
           ? null
           : Transaction(
@@ -208,7 +209,7 @@ final class AccountActions {
               syncVersion: 0,
             ),
     );
-    return id;
+    return account;
   }
 
   /// Saves an edited [account].

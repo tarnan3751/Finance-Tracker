@@ -104,24 +104,22 @@ final class RuleActions {
 
   static const Uuid _uuid = Uuid();
 
-  /// Creates a rule after [live] (the live rules, in order) and returns its id.
-  Future<String> create({
+  /// Creates a rule after [live] (the live rules, in order) and returns it.
+  Future<Rule> create({
     required List<Rule> live,
     required String name,
     required List<RuleCondition> conditions,
     required List<RuleAction> actions,
   }) async {
-    final String id = _uuid.v4();
-    await _rules.upsert(
-      Rule(
-        id: id,
-        name: name,
-        position: live.isEmpty ? 0 : live.last.position + 1,
-        conditions: conditions,
-        actions: actions,
-      ),
+    final Rule rule = Rule(
+      id: _uuid.v4(),
+      name: name,
+      position: live.isEmpty ? 0 : live.last.position + 1,
+      conditions: conditions,
+      actions: actions,
     );
-    return id;
+    await _rules.upsert(rule);
+    return rule;
   }
 
   /// Saves [rule] as edited.

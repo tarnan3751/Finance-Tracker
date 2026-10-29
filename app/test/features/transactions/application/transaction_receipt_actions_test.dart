@@ -58,7 +58,7 @@ void main() {
   setUp(() => setUpWith(seededStore()));
 
   test('a new transaction with a photo has it as its receipt', () async {
-    final String id = await actions.create((
+    final String id = (await actions.create((
       accountId: checkingId,
       amount: Money(-500, 'USD'),
       date: testClock.today(),
@@ -69,7 +69,7 @@ void main() {
       splits: const [],
       hidden: false,
       receipt: AttachReceipt(_photo),
-    ));
+    ))).id;
 
     expect(store.transaction(id)!.receiptPath, 'receipts/$id.jpg');
     expect(await receipts.read('receipts/$id.jpg'), _photo);

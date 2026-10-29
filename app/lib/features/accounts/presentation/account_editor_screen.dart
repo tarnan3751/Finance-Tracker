@@ -4,6 +4,7 @@
 /// transaction named "Opening balance" on the date picked (today by default).
 library;
 
+import 'package:finance_tracker/core/router/own_page.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_errors.dart';
@@ -14,7 +15,6 @@ import 'package:finance_tracker/features/transactions/presentation/transaction_d
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:shared_models/shared_models.dart';
 
 /// The editor of account [accountId], or of a new account when it is null.
@@ -75,17 +75,21 @@ class _AccountForm extends ConsumerStatefulWidget {
 }
 
 class _AccountFormState extends ConsumerState<_AccountForm> {
+  /// What the form edits: the screen's entity, or once a save has landed, the saved
+  /// one, so a later Save rewrites it rather than creating another.
+  late Account? _initial = widget.initial;
+
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   late final TextEditingController _name = TextEditingController(
-    text: widget.initial?.name,
+    text: _initial?.name,
   );
   final TextEditingController _opening = TextEditingController();
-  late AccountType _type = widget.initial?.type ?? AccountType.depository;
-  late String _currency = widget.initial?.currencyCode ?? defaultCurrencyCode();
+  late AccountType _type = _initial?.type ?? AccountType.depository;
+  late String _currency = _initial?.currencyCode ?? defaultCurrencyCode();
   late LocalDate _openingDate = ref.read(todayProvider);
   bool _saving = false;
 
-  bool get _isNew => widget.initial == null;
+  bool get _isNew => _initial == null;
 
   @override
   void dispose() {
@@ -117,33 +121,38 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final AccountActions actions = ref.read(accountActionsProvider);
+    final OwnPage page = OwnPage.of(context);
     final String name = _name.text.trim();
-    final Account? initial = widget.initial;
+    final Account? initial = _initial;
     setState(() => _saving = true);
-    final bool saved = await runAccountWrite(
-      messenger,
-      l10n,
-      () => initial == null
-          ? actions.create(
-              existing: ref.read(accountsProvider).value ?? const [],
-              name: name,
-              type: _type,
-              currencyCode: _currency,
-              openingBalance: parseAmountInput(_opening.text, _currency),
-              openingDate: _openingDate,
-              openingBalanceName: l10n.openingBalanceName,
-            )
-          : actions.update(
-              initial.copyWith(
-                name: name,
-                type: _type,
-                currencyCode: _currency,
-              ),
-            ),
-    );
+    Account? stored;
+    final bool saved = await runAccountWrite(messenger, l10n, () async {
+      if (initial == null) {
+        stored = await actions.create(
+          existing: ref.read(accountsProvider).value ?? const [],
+          name: name,
+          type: _type,
+          currencyCode: _currency,
+          openingBalance: parseAmountInput(_opening.text, _currency),
+          openingDate: _openingDate,
+          openingBalanceName: l10n.openingBalanceName,
+        );
+      } else {
+        final Account edited = initial.copyWith(
+          name: name,
+          type: _type,
+          currencyCode: _currency,
+        );
+        await actions.update(edited);
+        stored = edited;
+      }
+    });
     if (!mounted) return;
-    setState(() => _saving = false);
-    if (saved) context.pop();
+    setState(() {
+      _saving = false;
+      if (saved) _initial = stored;
+    });
+    if (saved) page.close();
   }
 
   @override

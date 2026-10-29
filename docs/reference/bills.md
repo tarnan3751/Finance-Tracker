@@ -237,7 +237,9 @@ Delete with undo (the editor pops back where it was opened from, whose messenger
 screen, so the Undo shows even when a reminder's tap opened it on another tab). Saving
 saves first, then, with reminders on, asks for the permission when the app lacks it; a
 refusal shows `notification_permission_sheet.dart` (the bill is saved; why, and Open
-settings). `/bills/new?stream-id=<id>` and `?liability-account-id=<id>` start from that
+settings). Both happen only while the editor is the page on screen: a save that lands
+after the user went elsewhere asks nothing, and the next save with reminders on asks.
+`/bills/new?stream-id=<id>` and `?liability-account-id=<id>` start from that
 stream's or liability's suggestion (one without a suggestion starts empty). The
 in-app alerts sheet (`budgets.md`, **Alerts**) lists `BillDueNotification`s ("Rent is due
 Nov 1") and opens the bill; a notice whose occurrence is paid since (a pull brought the

@@ -6,13 +6,13 @@
 library;
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
+import 'package:finance_tracker/core/router/own_page.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
 import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:shared_models/shared_models.dart';
 
 /// The palette a category's color comes from: ARGB values and their names.
@@ -84,16 +84,20 @@ class _CategoryForm extends ConsumerStatefulWidget {
 }
 
 class _CategoryFormState extends ConsumerState<_CategoryForm> {
+  /// What the form edits: the screen's entity, or once a save has landed, the saved
+  /// one, so a later Save rewrites it rather than creating another.
+  late Category? _initial = widget.initial;
+
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   late final TextEditingController _name = TextEditingController(
-    text: widget.initial?.name,
+    text: _initial?.name,
   );
-  late String? _parentId = widget.initial?.parentId;
-  late String _icon = widget.initial?.icon ?? categoryIcons.first.key;
-  late int _color = widget.initial?.color ?? categoryPalette.first.color;
+  late String? _parentId = _initial?.parentId;
+  late String _icon = _initial?.icon ?? categoryIcons.first.key;
+  late int _color = _initial?.color ?? categoryPalette.first.color;
   bool _saving = false;
 
-  bool get _isSystem => widget.initial?.isSystem ?? false;
+  bool get _isSystem => _initial?.isSystem ?? false;
 
   @override
   void dispose() {
@@ -106,29 +110,31 @@ class _CategoryFormState extends ConsumerState<_CategoryForm> {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final CategoryActions actions = ref.read(categoryActionsProvider);
+    final OwnPage page = OwnPage.of(context);
     setState(() => _saving = true);
     try {
-      final Category? initial = widget.initial;
+      final Category? initial = _initial;
+      final Category saved;
       if (initial == null) {
-        await actions.create(
+        saved = await actions.create(
           name: _name.text.trim(),
           parentId: _parentId,
           icon: _icon,
           color: _color,
         );
       } else {
-        await actions.update(
-          _isSystem
-              ? initial.copyWith(icon: _icon, color: _color)
-              : initial.copyWith(
-                  name: _name.text.trim(),
-                  parentId: _parentId,
-                  icon: _icon,
-                  color: _color,
-                ),
-        );
+        saved = _isSystem
+            ? initial.copyWith(icon: _icon, color: _color)
+            : initial.copyWith(
+                name: _name.text.trim(),
+                parentId: _parentId,
+                icon: _icon,
+                color: _color,
+              );
+        await actions.update(saved);
       }
-      if (mounted) context.pop();
+      if (mounted) setState(() => _initial = saved);
+      page.close();
     } on CategoryNotEditableException {
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.categorySystemReadOnly)),
@@ -144,7 +150,8 @@ class _CategoryFormState extends ConsumerState<_CategoryForm> {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final CategoryActions actions = ref.read(categoryActionsProvider);
-    final Category category = widget.initial!;
+    final Category category = _initial!;
+    final OwnPage page = OwnPage.of(context);
     final int count = await actions.transactionCount({
       category.id,
       for (final Category c in children) c.id,
@@ -172,7 +179,7 @@ class _CategoryFormState extends ConsumerState<_CategoryForm> {
       ),
     );
     if (confirmed != true || !mounted) return;
-    context.pop();
+    page.close();
     try {
       await actions.delete(category.id);
     } on CategoryNotDeletableException {
@@ -186,7 +193,7 @@ class _CategoryFormState extends ConsumerState<_CategoryForm> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
-    final Category? initial = widget.initial;
+    final Category? initial = _initial;
     final List<CategoryGroup> tree = ref.watch(categoryTreeProvider);
     final List<Category> children = [
       for (final CategoryGroup group in tree)

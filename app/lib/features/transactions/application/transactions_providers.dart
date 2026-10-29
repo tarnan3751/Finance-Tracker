@@ -307,68 +307,65 @@ final class TransactionActions {
 
   static const Uuid _uuid = Uuid();
 
-  /// Creates a `manual` transaction from [draft] and returns its id.
-  Future<String> create(TransactionDraft draft) async {
+  /// Creates a `manual` transaction from [draft] and returns it.
+  Future<Transaction> create(TransactionDraft draft) async {
     final DateTime now = _clock.nowUtc();
     final String id = _uuid.v4();
-    await _withReceipt(
-      id,
-      draft.receipt,
-      () => _transactions.upsert(
-        Transaction(
-          id: id,
-          accountId: draft.accountId,
-          amount: draft.amount,
-          date: draft.date,
-          pending: false,
-          name: draft.name,
-          userCategoryId: draft.categoryId,
-          notes: draft.notes,
-          tags: draft.tags,
-          splits: draft.splits,
-          receiptPath: draft.receipt is AttachReceipt
-              ? receiptPathFor(id)
-              : null,
-          hidden: draft.hidden,
-          source: DataSource.manual,
-          createdAt: now,
-          updatedAt: now,
-          syncVersion: 0,
-        ),
-      ),
+    final Transaction created = Transaction(
+      id: id,
+      accountId: draft.accountId,
+      amount: draft.amount,
+      date: draft.date,
+      pending: false,
+      name: draft.name,
+      userCategoryId: draft.categoryId,
+      notes: draft.notes,
+      tags: draft.tags,
+      splits: draft.splits,
+      receiptPath: draft.receipt is AttachReceipt ? receiptPathFor(id) : null,
+      hidden: draft.hidden,
+      source: DataSource.manual,
+      createdAt: now,
+      updatedAt: now,
+      syncVersion: 0,
     );
-    return id;
+    await _withReceipt(id, draft.receipt, () => _transactions.upsert(created));
+    return created;
   }
 
-  /// Saves [draft] over [existing]. Everything the editor does not show (the source, the
-  /// merchant name, the Plaid fields, `createdAt`) is kept as it was.
-  Future<void> update(Transaction existing, TransactionDraft draft) async {
+  /// Saves [draft] over [existing] and returns the saved transaction. Everything the
+  /// editor does not show (the source, the merchant name, the Plaid fields, `createdAt`)
+  /// is kept as it was.
+  Future<Transaction> update(
+    Transaction existing,
+    TransactionDraft draft,
+  ) async {
     final ReceiptChange receipt = draft.receipt;
+    final Transaction updated = existing.copyWith(
+      accountId: draft.accountId,
+      amount: draft.amount,
+      date: draft.date,
+      name: draft.name,
+      userCategoryId: draft.categoryId,
+      notes: draft.notes,
+      tags: draft.tags,
+      splits: draft.splits,
+      receiptPath: switch (receipt) {
+        KeepReceipt() => existing.receiptPath,
+        AttachReceipt() => receiptPathFor(existing.id),
+        RemoveReceipt() => null,
+      },
+      hidden: draft.hidden,
+      updatedAt: _clock.nowUtc(),
+    );
     await _withReceipt(
       existing.id,
       receipt,
-      () => _transactions.upsert(
-        existing.copyWith(
-          accountId: draft.accountId,
-          amount: draft.amount,
-          date: draft.date,
-          name: draft.name,
-          userCategoryId: draft.categoryId,
-          notes: draft.notes,
-          tags: draft.tags,
-          splits: draft.splits,
-          receiptPath: switch (receipt) {
-            KeepReceipt() => existing.receiptPath,
-            AttachReceipt() => receiptPathFor(existing.id),
-            RemoveReceipt() => null,
-          },
-          hidden: draft.hidden,
-          updatedAt: _clock.nowUtc(),
-        ),
-      ),
+      () => _transactions.upsert(updated),
     );
     final String? removed = existing.receiptPath;
     if (receipt is RemoveReceipt && removed != null) await _deleteFile(removed);
+    return updated;
   }
 
   // Runs [write], the transaction [id]'s write, with [receipt]'s photo staged before it

@@ -28,6 +28,7 @@ import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/image_source.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
+import 'package:finance_tracker/core/router/own_page.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
@@ -163,24 +164,28 @@ class _TransactionForm extends ConsumerStatefulWidget {
 }
 
 class _TransactionFormState extends ConsumerState<_TransactionForm> {
+  /// What the form edits: the screen's entity, or once a save has landed, the saved
+  /// one, so a later Save rewrites it rather than creating another.
+  late Transaction? _initial = widget.initial;
+
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
-  late bool _income = widget.initial?.amount.isPositive ?? false;
+  late bool _income = _initial?.amount.isPositive ?? false;
   late final TextEditingController _amount = TextEditingController(
-    text: widget.initial?.amount.abs().format(symbol: false),
+    text: _initial?.amount.abs().format(symbol: false),
   );
   late String _accountId = widget.accountId;
-  late LocalDate _date = widget.initial?.date ?? ref.read(todayProvider);
+  late LocalDate _date = _initial?.date ?? ref.read(todayProvider);
   late final TextEditingController _name = TextEditingController(
-    text: widget.initial?.name,
+    text: _initial?.name,
   );
-  late String? _categoryId = widget.initial?.userCategoryId;
+  late String? _categoryId = _initial?.userCategoryId;
   late final TextEditingController _notes = TextEditingController(
-    text: widget.initial?.notes,
+    text: _initial?.notes,
   );
-  late List<String> _tags = [...?widget.initial?.tags];
+  late List<String> _tags = [...?_initial?.tags];
   late final List<_SplitRow> _splits = [
     for (final TransactionSplit split
-        in widget.initial?.splits ?? const <TransactionSplit>[])
+        in _initial?.splits ?? const <TransactionSplit>[])
       _SplitRow(
         categoryId: split.categoryId,
         amount: split.amount.abs().format(symbol: false),
@@ -191,12 +196,12 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
       GlobalKey<FormFieldState<void>>();
   // Whether a split row was edited, added or removed.
   bool _splitsEdited = false;
-  late bool _hidden = widget.initial?.hidden ?? false;
+  late bool _hidden = _initial?.hidden ?? false;
   ReceiptChange _receipt = const KeepReceipt();
   final TextEditingController _tagInput = TextEditingController();
   bool _saving = false;
 
-  bool get _isNew => widget.initial == null;
+  bool get _isNew => _initial == null;
 
   String get _currency => widget.accounts
       .firstWhere(
@@ -263,7 +268,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
   // not held to the sum rule, so splits of mixed signs (synced or imported) or a gap
   // the bank's amount change left never block an unrelated edit.
   bool get _keepsStoredSplits {
-    final Transaction? initial = widget.initial;
+    final Transaction? initial = _initial;
     return !_splitsEdited &&
         initial != null &&
         initial.splits.isNotEmpty &&
@@ -375,7 +380,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     final Money magnitude = parseAmountInput(_amount.text, _currency)!;
     final String notes = _notes.text.trim();
     final List<TransactionSplit> splits = _keepsStoredSplits
-        ? widget.initial!.splits
+        ? _initial!.splits
         : [
             for (final _SplitRow row in _splits)
               TransactionSplit(
@@ -410,7 +415,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     final TransactionDraft draft = _draft();
     final DateTime now = ref.read(clockProvider).nowUtc();
     final Transaction form =
-        (widget.initial ??
+        (_initial ??
                 Transaction(
                   id: '',
                   accountId: draft.accountId,
@@ -468,23 +473,22 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final TransactionActions actions = ref.read(transactionActionsProvider);
+    final OwnPage page = OwnPage.of(context);
     final TransactionDraft draft = _draft();
     setState(() => _saving = true);
     try {
-      final Transaction? initial = widget.initial;
-      final String id;
-      if (initial == null) {
-        id = await actions.create(draft);
-      } else {
-        await actions.update(initial, draft);
-        id = initial.id;
-      }
+      final Transaction? initial = _initial;
+      final Transaction stored = initial == null
+          ? await actions.create(draft)
+          : await actions.update(initial, draft);
+      final String id = stored.id;
       if (mounted) {
+        setState(() => _initial = stored);
         // A replaced photo keeps its path: the next read must not be the old one.
         if (draft.receipt is! KeepReceipt) {
           ref.invalidate(receiptProvider(receiptPathFor(id)));
         }
-        context.pop();
+        page.close();
       }
     } on FileSystemException {
       messenger.showSnackBar(SnackBar(content: Text(l10n.receiptSaveFailed)));
@@ -505,8 +509,8 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final TransactionActions actions = ref.read(transactionActionsProvider);
-    final String id = widget.initial!.id;
-    final bool hasReceipt = widget.initial!.receiptPath != null;
+    final String id = _initial!.id;
+    final bool hasReceipt = _initial!.receiptPath != null;
     context.pop();
     await actions.delete(id);
     final ScaffoldFeatureController<SnackBar, SnackBarClosedReason> undo =
@@ -561,7 +565,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
         return Align(alignment: AlignmentDirectional.centerStart, child: add);
       }
       final Money? total = _magnitude;
-      final Transaction? initial = widget.initial;
+      final Transaction? initial = _initial;
       final Money? left = _keepsStoredSplits
           // The stored splits as signed: what they leave of the amount, positive when
           // they fall short of it.
@@ -626,7 +630,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
   // it is on another device), else the buttons to add one.
   Widget _buildReceipt() {
     final ReceiptChange change = _receipt;
-    final String? stored = widget.initial?.receiptPath;
+    final String? stored = _initial?.receiptPath;
     final AsyncValue<Uint8List?>? read = change is KeepReceipt && stored != null
         ? ref.watch(receiptProvider(stored))
         : null;
@@ -660,7 +664,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     );
     // Kept loaded for "Run rules on this transaction".
     ref.watch(rulesProvider);
-    final Transaction? initial = widget.initial;
+    final Transaction? initial = _initial;
     // The user's choice, else what the bank's category resolves to (shown, not chosen).
     final Category? chosen = categories.byId[_categoryId];
     final Category? fromBank = chosen != null || initial == null

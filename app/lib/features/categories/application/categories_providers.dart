@@ -76,25 +76,23 @@ final class CategoryActions {
 
   static const Uuid _uuid = Uuid();
 
-  /// Creates a user category and returns its id.
-  Future<String> create({
+  /// Creates a user category and returns it.
+  Future<Category> create({
     required String name,
     String? parentId,
     required String icon,
     required int color,
   }) async {
-    final String id = _uuid.v4();
-    await _categories.upsert(
-      Category(
-        id: id,
-        name: name,
-        parentId: parentId,
-        isSystem: false,
-        icon: icon,
-        color: color,
-      ),
+    final Category category = Category(
+      id: _uuid.v4(),
+      name: name,
+      parentId: parentId,
+      isSystem: false,
+      icon: icon,
+      color: color,
     );
-    return id;
+    await _categories.upsert(category);
+    return category;
   }
 
   /// Saves an edited [category]; a system category may change only its icon and color.

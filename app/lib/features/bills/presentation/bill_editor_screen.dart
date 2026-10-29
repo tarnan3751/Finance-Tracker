@@ -11,6 +11,7 @@ library;
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
+import 'package:finance_tracker/core/router/own_page.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
@@ -164,6 +165,10 @@ class _BillForm extends ConsumerStatefulWidget {
 }
 
 class _BillFormState extends ConsumerState<_BillForm> {
+  /// What the form edits: the screen's entity, or once a save has landed, the saved
+  /// one, so a later Save rewrites it rather than creating another.
+  late BillReminder? _initial = widget.initial;
+
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
   /// What the fields start from: the bill edited, else the draft.
@@ -194,7 +199,10 @@ class _BillFormState extends ConsumerState<_BillForm> {
   late bool _autopay = _start?.autopay ?? false;
   bool _saving = false;
 
-  bool get _isNew => widget.initial == null;
+  bool get _isNew => _initial == null;
+
+  /// The bill's id: the edited one's, else one made once for the new bill.
+  late final String _id = widget.initial?.id ?? const Uuid().v4();
 
   /// Whether the bill as edited would remind the user.
   bool get _reminds => _active && _offsets.isNotEmpty;
@@ -245,12 +253,12 @@ class _BillFormState extends ConsumerState<_BillForm> {
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final BillActions actions = ref.read(billActionsProvider);
     final ReminderScheduler scheduler = ref.read(reminderSchedulerProvider);
-    final BillReminder? initial = widget.initial;
+    final BillReminder? initial = _initial;
     final Money? amount = _amount.text.trim().isEmpty
         ? null
         : parseAmountInput(_amount.text, _currency);
     final BillReminder bill = BillReminder(
-      id: initial?.id ?? const Uuid().v4(),
+      id: _id,
       name: _name.text.trim(),
       amount: amount == null
           ? null
@@ -266,18 +274,23 @@ class _BillFormState extends ConsumerState<_BillForm> {
       autopay: _autopay,
       paidOccurrences: initial?.paidOccurrences ?? const [],
     );
+    final OwnPage page = OwnPage.of(context);
     setState(() => _saving = true);
     try {
       // Saved first, so the sheet's "the bill is saved" is true and leaving the screen
       // while the permission is asked keeps the bill. Turning reminders on is the
       // user's action that asks for the permission.
       await actions.save(bill);
+      if (mounted) setState(() => _initial = bill);
+      // Asked only while the editor is what the user sees; else the next save asks.
       if (_reminds &&
+          page.isTop &&
           !await scheduler.ensurePermission(request: true) &&
-          mounted) {
+          mounted &&
+          page.isTop) {
         await showNotificationPermissionSheet(context, scheduler);
       }
-      if (mounted) context.pop();
+      page.close();
     } on EntityDeletedException {
       messenger.showSnackBar(SnackBar(content: Text(l10n.billNotFound)));
     } finally {
@@ -289,7 +302,7 @@ class _BillFormState extends ConsumerState<_BillForm> {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final BillActions actions = ref.read(billActionsProvider);
-    final String id = widget.initial!.id;
+    final String id = _initial!.id;
     // Back where the editor was opened from (the bills, or the screen a reminder's tap
     // left), whose messenger is the one on screen, so the Undo shows; a pushed editor
     // can sit on another tab's stack, whose messenger `go` would leave offstage.

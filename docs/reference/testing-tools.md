@@ -310,6 +310,6 @@ token expired and signs out (`auth.md`). CI does not run them yet. The flows tha
 waits 5 s between sync requests) pump until a condition holds for up to 120 s of wall-clock
 time, never a fixed count of pumps, and settle a link by waiting until no Item action runs,
 since on an emulator loaded by several lanes a link has taken longer than 30 s. A flow that
-saves an editor waits until the editor has closed before it navigates: the editor pops
-whatever page is on top once its write lands, so a page pushed before that is the one it
-closes.
+saves an editor waits until the editor has closed before it navigates: the editor closes
+only once its write lands, and only while it is still the top page, so a page pushed
+before that would leave it open.

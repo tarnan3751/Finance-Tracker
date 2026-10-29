@@ -11,6 +11,7 @@
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/router/own_page.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
@@ -29,7 +30,6 @@ import 'package:finance_tracker/features/transactions/presentation/transaction_t
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -80,13 +80,14 @@ class _Detail extends ConsumerWidget {
       case _MenuAction.linkedBanks:
         await const ItemsRoute().push<void>(context);
       case _MenuAction.delete:
+        final OwnPage page = OwnPage.of(context);
         final int count = await ref
             .read(transactionRepositoryProvider)
             .count(TransactionQuery(accountIds: {account.id}));
         if (!context.mounted) return;
         final bool confirmed = await _confirmDelete(context, count);
         if (!confirmed || !context.mounted) return;
-        context.pop();
+        page.close();
         await actions.delete(account.id);
     }
   }

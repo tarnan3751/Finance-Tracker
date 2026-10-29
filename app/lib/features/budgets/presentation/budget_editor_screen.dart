@@ -8,6 +8,7 @@ library;
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/router/own_page.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
@@ -26,7 +27,6 @@ import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:uuid/uuid.dart';
 
@@ -72,31 +72,37 @@ class _BudgetForm extends ConsumerStatefulWidget {
 }
 
 class _BudgetFormState extends ConsumerState<_BudgetForm> {
+  /// What the form edits: the screen's entity, or once a save has landed, the saved
+  /// one, so a later Save rewrites it rather than creating another.
+  late Budget? _initial = widget.initial;
+
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   late final TextEditingController _amount = TextEditingController(
-    text: widget.initial?.amount.format(symbol: false),
+    text: _initial?.amount.format(symbol: false),
   );
   late final TextEditingController _startDay = TextEditingController(
-    text: '${widget.initial?.periodStartDay ?? 1}',
+    text: '${_initial?.periodStartDay ?? 1}',
   );
-  late String? _categoryId = widget.initial?.categoryId;
-  late bool _rollover = widget.initial?.rollover ?? false;
-  late String _currency =
-      widget.initial?.amount.currencyCode ?? _currencies.first;
+  late String? _categoryId = _initial?.categoryId;
+  late bool _rollover = _initial?.rollover ?? false;
+  late String _currency = _initial?.amount.currencyCode ?? _currencies.first;
 
   /// The first period the user picked, or null for the budget's own (the current
   /// period's for a new budget).
   LocalDate? _startDate;
   bool _saving = false;
 
-  bool get _isNew => widget.initial == null;
+  bool get _isNew => _initial == null;
+
+  /// The budget's id: the edited one's, else one made once for the new budget.
+  late final String _id = widget.initial?.id ?? const Uuid().v4();
 
   /// The accounts' currencies and the budget's own, the device's default when there is
   /// neither.
   List<String> get _currencies {
     final List<String> codes = {
       for (final Account a in widget.accounts) a.currencyCode,
-      ?widget.initial?.amount.currencyCode,
+      ?_initial?.amount.currencyCode,
     }.toList()..sort();
     return codes.isEmpty ? [defaultCurrencyCode()] : codes;
   }
@@ -110,9 +116,9 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
   /// The first day of the first period: the one containing the date picked (or the
   /// budget's own), no later than the current period's.
   LocalDate _firstPeriodStart(LocalDate today) {
-    final int day = _day ?? widget.initial?.periodStartDay ?? 1;
+    final int day = _day ?? _initial?.periodStartDay ?? 1;
     final LocalDate latest = periodContaining(today, day).start;
-    final LocalDate chosen = _startDate ?? widget.initial?.startDate ?? latest;
+    final LocalDate chosen = _startDate ?? _initial?.startDate ?? latest;
     final LocalDate start = periodContaining(chosen, day).start;
     return start.isAfter(latest) ? latest : start;
   }
@@ -127,7 +133,7 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
   Future<void> _pickStartDate(LocalDate today) async {
     final LocalDate latest = periodContaining(
       today,
-      _day ?? widget.initial?.periodStartDay ?? 1,
+      _day ?? _initial?.periodStartDay ?? 1,
     ).start;
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -145,8 +151,9 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final BudgetRepository repository = ref.read(budgetRepositoryProvider);
+    final OwnPage page = OwnPage.of(context);
     final Budget budget = Budget(
-      id: widget.initial?.id ?? const Uuid().v4(),
+      id: _id,
       categoryId: _categoryId!,
       period: BudgetPeriodKind.monthly,
       periodStartDay: _day!,
@@ -157,7 +164,8 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
     setState(() => _saving = true);
     try {
       await repository.upsert(budget);
-      if (mounted) context.pop();
+      if (mounted) setState(() => _initial = budget);
+      page.close();
     } on EntityDeletedException {
       messenger.showSnackBar(SnackBar(content: Text(l10n.budgetNotFound)));
     } finally {
@@ -169,7 +177,7 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final BudgetRepository repository = ref.read(budgetRepositoryProvider);
-    final String id = widget.initial!.id;
+    final String id = _initial!.id;
     // Back to the list: the budget's detail would show it missing.
     const BudgetsRoute().go(context);
     await repository.delete(id);
