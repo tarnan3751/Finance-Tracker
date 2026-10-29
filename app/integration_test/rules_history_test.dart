@@ -22,6 +22,7 @@ import 'package:finance_tracker/core/router/app_router.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/features/items/application/link_controller.dart';
 import 'package:finance_tracker/features/items/domain/item_action.dart';
+import 'package:finance_tracker/features/rules/presentation/rule_editor_screen.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -74,6 +75,14 @@ Future<void> _previewReads(WidgetTester tester, String text) async {
   await tester.drag(find.byType(ListView).first, const Offset(0, -3000));
   await tester.pumpAndSettle();
   await _pumpUntil(tester, () => find.text(text).evaluate().isNotEmpty);
+}
+
+/// Taps Save on the [editor] screen and pumps until it has closed. The editor writes the
+/// database off the UI isolate and then pops whatever page is on top, so a navigation made
+/// before that pop is the page it closes.
+Future<void> _save(WidgetTester tester, Type editor) async {
+  await _tap(tester, find.text('Save'));
+  await _pumpUntil(tester, () => find.byType(editor).evaluate().isEmpty);
 }
 
 Future<void> _addFromMenu(WidgetTester tester, String menu, String item) async {
@@ -141,7 +150,7 @@ void main() {
       await tester.enterText(_field('Tag'), 'history');
       final String preview = 'Would change $count of $count transactions';
       await _previewReads(tester, preview);
-      await _tap(tester, find.text('Save'));
+      await _save(tester, RuleEditorScreen);
 
       // The saved rule, opened again once the database has it.
       List<Rule> rules = const [];
