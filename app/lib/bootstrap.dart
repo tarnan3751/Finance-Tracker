@@ -25,6 +25,7 @@ import 'package:finance_tracker/core/time/time_zone_setup.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
 import 'package:finance_tracker/features/bills/application/reminder_planner.dart';
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
+import 'package:finance_tracker/features/net_worth/application/snapshot_writer.dart';
 import 'package:finance_tracker/features/recurring/application/detector_runner.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -95,6 +96,9 @@ Future<void> bootstrap(AppConfig config) async {
   // a tapped reminder opens its bill.
   WidgetsBinding.instance.addPostFrameCallback((_) {
     container.listen(reminderWatcherProvider, (_, _) {});
+    // Today's balance snapshots, from the first frame on and after every pull and sync
+    // session, in every flavor (snapshot_writer.dart).
+    container.listen(snapshotWriterRunnerProvider, (_, _) {});
     container
         .read(reminderSchedulerProvider)
         .openedBillIds

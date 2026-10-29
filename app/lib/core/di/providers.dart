@@ -82,6 +82,10 @@ import 'package:finance_tracker/features/liabilities/data/demo_liability_reposit
 import 'package:finance_tracker/features/liabilities/data/drift_liability_repository.dart';
 import 'package:finance_tracker/features/liabilities/data/in_memory_liability_repository.dart';
 import 'package:finance_tracker/features/liabilities/domain/liability_repository.dart';
+import 'package:finance_tracker/features/net_worth/data/demo_balance_snapshot_repository.dart';
+import 'package:finance_tracker/features/net_worth/data/drift_balance_snapshot_repository.dart';
+import 'package:finance_tracker/features/net_worth/data/in_memory_balance_snapshot_repository.dart';
+import 'package:finance_tracker/features/net_worth/domain/balance_snapshot_repository.dart';
 import 'package:finance_tracker/features/recurring/data/demo_recurring_stream_repository.dart';
 import 'package:finance_tracker/features/recurring/data/drift_recurring_stream_repository.dart';
 import 'package:finance_tracker/features/recurring/data/in_memory_recurring_stream_repository.dart';
@@ -328,6 +332,16 @@ InvestmentTransactionRepository investmentTransactionRepository(Ref ref) {
   return repository;
 }
 
+/// The balance snapshots this device has observed: in memory by default, empty at launch
+/// in the demo flavor, `balance_snapshots` in dev and prod.
+@Riverpod(keepAlive: true)
+BalanceSnapshotRepository balanceSnapshotRepository(Ref ref) {
+  final InMemoryBalanceSnapshotRepository repository =
+      InMemoryBalanceSnapshotRepository();
+  ref.onDispose(repository.close);
+  return repository;
+}
+
 /// Which budget alerts this device has raised: in memory by default and in the demo
 /// flavor, `budget_alerts` in dev and prod.
 @Riverpod(keepAlive: true)
@@ -552,6 +566,12 @@ final List<Override> _driftOverrides = [
       ref.watch(clockProvider),
     ),
   ),
+  balanceSnapshotRepositoryProvider.overrideWith(
+    (ref) => DriftBalanceSnapshotRepository(
+      ref.watch(databaseProvider),
+      ref.watch(clockProvider),
+    ),
+  ),
   savedFilterRepositoryProvider.overrideWith(
     (ref) => DriftSavedFilterRepository(
       ref.watch(databaseProvider),
@@ -681,6 +701,13 @@ final List<Override> _demoOverrides = [
   investmentTransactionRepositoryProvider.overrideWith((ref) {
     final DemoInvestmentTransactionRepository repository =
         DemoInvestmentTransactionRepository();
+    ref.onDispose(repository.close);
+    return repository;
+  }),
+  balanceSnapshotRepositoryProvider.overrideWith((ref) {
+    ref.watch(inMemoryStoreProvider);
+    final DemoBalanceSnapshotRepository repository =
+        DemoBalanceSnapshotRepository();
     ref.onDispose(repository.close);
     return repository;
   }),

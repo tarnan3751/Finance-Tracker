@@ -1324,6 +1324,62 @@ final class InvestmentTransactionRepositoryProvider
 String _$investmentTransactionRepositoryHash() =>
     r'6e2a8f664e865ec27065430794ec7a1fca5c1e42';
 
+/// The balance snapshots this device has observed: in memory by default, empty at launch
+/// in the demo flavor, `balance_snapshots` in dev and prod.
+
+@ProviderFor(balanceSnapshotRepository)
+final balanceSnapshotRepositoryProvider = BalanceSnapshotRepositoryProvider._();
+
+/// The balance snapshots this device has observed: in memory by default, empty at launch
+/// in the demo flavor, `balance_snapshots` in dev and prod.
+
+final class BalanceSnapshotRepositoryProvider
+    extends
+        $FunctionalProvider<
+          BalanceSnapshotRepository,
+          BalanceSnapshotRepository,
+          BalanceSnapshotRepository
+        >
+    with $Provider<BalanceSnapshotRepository> {
+  /// The balance snapshots this device has observed: in memory by default, empty at launch
+  /// in the demo flavor, `balance_snapshots` in dev and prod.
+  BalanceSnapshotRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'balanceSnapshotRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$balanceSnapshotRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<BalanceSnapshotRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  BalanceSnapshotRepository create(Ref ref) {
+    return balanceSnapshotRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(BalanceSnapshotRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<BalanceSnapshotRepository>(value),
+    );
+  }
+}
+
+String _$balanceSnapshotRepositoryHash() =>
+    r'2ca10704610e618988d06750a94bc67d99ec2676';
+
 /// Which budget alerts this device has raised: in memory by default and in the demo
 /// flavor, `budget_alerts` in dev and prod.
 

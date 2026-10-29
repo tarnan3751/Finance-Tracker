@@ -2,8 +2,9 @@
 /// was imported (`legacy_import_done`), the install date (`install_date`), the zone and
 /// time the bill reminders were last planned in (`reminders_zone`,
 /// `reminders_scheduled_at`), the bill suggestions dismissed on this device
-/// (`bill_suggestions_dismissed`), and the forecast's account selection
-/// (`forecast_selection`).
+/// (`bill_suggestions_dismissed`), the forecast's account selection
+/// (`forecast_selection`), and the last day the balance snapshots were written
+/// (`snapshots_written_on`).
 library;
 
 import 'package:finance_tracker/core/db/app_database.dart';
@@ -38,6 +39,10 @@ abstract final class AppMetaKeys {
   /// The forecast's account selection on this device, as the JSON of its changes from
   /// the default (`features/forecast/`).
   static const String forecastSelection = 'forecast_selection';
+
+  /// The last local date the balance snapshots were written, `yyyy-MM-dd`
+  /// (`features/net_worth/`).
+  static const String snapshotsWrittenOn = 'snapshots_written_on';
 }
 
 /// The store over the database's `app_meta` table.

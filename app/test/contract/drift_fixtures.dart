@@ -13,6 +13,7 @@ import 'package:finance_tracker/features/investments/data/drift_holding_reposito
 import 'package:finance_tracker/features/investments/data/drift_investment_transaction_repository.dart';
 import 'package:finance_tracker/features/items/data/drift_item_repository.dart';
 import 'package:finance_tracker/features/liabilities/data/drift_liability_repository.dart';
+import 'package:finance_tracker/features/net_worth/data/drift_balance_snapshot_repository.dart';
 import 'package:finance_tracker/features/recurring/data/drift_recurring_stream_repository.dart';
 import 'package:finance_tracker/features/rules/data/drift_rule_repository.dart';
 import 'package:finance_tracker/features/settings/data/drift_settings_repository.dart';
@@ -69,6 +70,7 @@ FixtureFactory driftFixtures({bool fullTextSearch = true}) {
           database,
           clock,
         ),
+        snapshots: DriftBalanceSnapshotRepository(database, clock),
       );
     },
     dispose: () => database.close(),

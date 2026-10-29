@@ -19,6 +19,8 @@ import 'package:finance_tracker/features/items/data/demo_item_repository.dart';
 import 'package:finance_tracker/features/items/data/in_memory_item_repository.dart';
 import 'package:finance_tracker/features/liabilities/data/demo_liability_repository.dart';
 import 'package:finance_tracker/features/liabilities/data/in_memory_liability_repository.dart';
+import 'package:finance_tracker/features/net_worth/data/demo_balance_snapshot_repository.dart';
+import 'package:finance_tracker/features/net_worth/data/in_memory_balance_snapshot_repository.dart';
 import 'package:finance_tracker/features/recurring/data/demo_recurring_stream_repository.dart';
 import 'package:finance_tracker/features/recurring/data/in_memory_recurring_stream_repository.dart';
 import 'package:finance_tracker/features/rules/data/demo_rule_repository.dart';
@@ -67,6 +69,7 @@ FixtureFactory inMemoryFixtures() {
         liabilities: InMemoryLiabilityRepository(),
         holdings: InMemoryHoldingRepository(),
         investmentTransactions: InMemoryInvestmentTransactionRepository(),
+        snapshots: InMemoryBalanceSnapshotRepository(),
       );
     },
     dispose: () => store.close(),
@@ -95,6 +98,7 @@ FixtureFactory demoFixtures() {
         liabilities: DemoLiabilityRepository(),
         holdings: DemoHoldingRepository(),
         investmentTransactions: DemoInvestmentTransactionRepository(),
+        snapshots: DemoBalanceSnapshotRepository(),
       );
     },
     dispose: () => store.close(),

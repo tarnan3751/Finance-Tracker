@@ -1,5 +1,6 @@
 // What the account, transaction, category, item, rule, budget, recurring stream,
-// liability, holding and investment transaction contract suites run against:
+// liability, holding, investment transaction and balance snapshot contract suites run
+// against:
 // the repositories of one implementation over one backing store (an in-memory store, or
 // one Drift database), and the clock their deletes are stamped with. Each implementation's
 // test file builds a fixture per test; the suites never see which implementation it is.
@@ -12,6 +13,7 @@ import 'package:finance_tracker/features/investments/domain/holding_repository.d
 import 'package:finance_tracker/features/investments/domain/investment_transaction_repository.dart';
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
 import 'package:finance_tracker/features/liabilities/domain/liability_repository.dart';
+import 'package:finance_tracker/features/net_worth/domain/balance_snapshot_repository.dart';
 import 'package:finance_tracker/features/recurring/domain/recurring_stream_repository.dart';
 import 'package:finance_tracker/features/rules/domain/rule_repository.dart';
 import 'package:finance_tracker/features/settings/domain/settings_repository.dart';
@@ -35,6 +37,7 @@ final class RepositoryFixture {
     required this.liabilities,
     required this.holdings,
     required this.investmentTransactions,
+    required this.snapshots,
     required this.bills,
     required this.clock,
     this.syncStore,
@@ -51,6 +54,7 @@ final class RepositoryFixture {
   final LiabilityRepository liabilities;
   final HoldingRepository holdings;
   final InvestmentTransactionRepository investmentTransactions;
+  final BalanceSnapshotRepository snapshots;
   final BillRepository bills;
 
   /// Where the writes are recorded.
