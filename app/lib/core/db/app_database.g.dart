@@ -12252,6 +12252,2773 @@ class BillAlertsCompanion extends UpdateCompanion<BillAlertRow> {
   }
 }
 
+class $SecuritiesTable extends Securities
+    with TableInfo<$SecuritiesTable, SecurityRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SecuritiesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _tickerSymbolMeta = const VerificationMeta(
+    'tickerSymbol',
+  );
+  @override
+  late final GeneratedColumn<String> tickerSymbol = GeneratedColumn<String>(
+    'ticker_symbol',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isCashEquivalentMeta = const VerificationMeta(
+    'isCashEquivalent',
+  );
+  @override
+  late final GeneratedColumn<bool> isCashEquivalent = GeneratedColumn<bool>(
+    'is_cash_equivalent',
+    aliasedName,
+    true,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_cash_equivalent" IN (0, 1))',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<Decimal?, String> closePrice =
+      GeneratedColumn<String>(
+        'close_price',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<Decimal?>($SecuritiesTable.$converterclosePricen);
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate?, String>
+  closePriceAsOf = GeneratedColumn<String>(
+    'close_price_as_of',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<LocalDate?>($SecuritiesTable.$converterclosePriceAsOfn);
+  static const VerificationMeta _currencyCodeMeta = const VerificationMeta(
+    'currencyCode',
+  );
+  @override
+  late final GeneratedColumn<String> currencyCode = GeneratedColumn<String>(
+    'currency_code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DataSource, String> source =
+      GeneratedColumn<String>(
+        'source',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<DataSource>($SecuritiesTable.$convertersource);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> pulledAt =
+      GeneratedColumn<int>(
+        'pulled_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($SecuritiesTable.$converterpulledAt);
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    tickerSymbol,
+    type,
+    isCashEquivalent,
+    closePrice,
+    closePriceAsOf,
+    currencyCode,
+    source,
+    pulledAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'securities';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SecurityRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    }
+    if (data.containsKey('ticker_symbol')) {
+      context.handle(
+        _tickerSymbolMeta,
+        tickerSymbol.isAcceptableOrUnknown(
+          data['ticker_symbol']!,
+          _tickerSymbolMeta,
+        ),
+      );
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    }
+    if (data.containsKey('is_cash_equivalent')) {
+      context.handle(
+        _isCashEquivalentMeta,
+        isCashEquivalent.isAcceptableOrUnknown(
+          data['is_cash_equivalent']!,
+          _isCashEquivalentMeta,
+        ),
+      );
+    }
+    if (data.containsKey('currency_code')) {
+      context.handle(
+        _currencyCodeMeta,
+        currencyCode.isAcceptableOrUnknown(
+          data['currency_code']!,
+          _currencyCodeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_currencyCodeMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SecurityRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SecurityRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      ),
+      tickerSymbol: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ticker_symbol'],
+      ),
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      ),
+      isCashEquivalent: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_cash_equivalent'],
+      ),
+      closePrice: $SecuritiesTable.$converterclosePricen.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}close_price'],
+        ),
+      ),
+      closePriceAsOf: $SecuritiesTable.$converterclosePriceAsOfn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}close_price_as_of'],
+        ),
+      ),
+      currencyCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency_code'],
+      )!,
+      source: $SecuritiesTable.$convertersource.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}source'],
+        )!,
+      ),
+      pulledAt: $SecuritiesTable.$converterpulledAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}pulled_at'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $SecuritiesTable createAlias(String alias) {
+    return $SecuritiesTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<Decimal, String> $converterclosePrice =
+      const DecimalColumnConverter();
+  static TypeConverter<Decimal?, String?> $converterclosePricen =
+      NullAwareTypeConverter.wrap($converterclosePrice);
+  static TypeConverter<LocalDate, String> $converterclosePriceAsOf =
+      const LocalDateColumnConverter();
+  static TypeConverter<LocalDate?, String?> $converterclosePriceAsOfn =
+      NullAwareTypeConverter.wrap($converterclosePriceAsOf);
+  static JsonTypeConverter2<DataSource, String, String> $convertersource =
+      const EnumNameConverter<DataSource>(DataSource.values);
+  static TypeConverter<DateTime, int> $converterpulledAt =
+      const UtcMillisColumnConverter();
+}
+
+class SecurityRow extends DataClass implements Insertable<SecurityRow> {
+  final String id;
+  final String? name;
+  final String? tickerSymbol;
+  final String? type;
+  final bool? isCashEquivalent;
+  final Decimal? closePrice;
+  final LocalDate? closePriceAsOf;
+  final String currencyCode;
+  final DataSource source;
+  final DateTime pulledAt;
+  const SecurityRow({
+    required this.id,
+    this.name,
+    this.tickerSymbol,
+    this.type,
+    this.isCashEquivalent,
+    this.closePrice,
+    this.closePriceAsOf,
+    required this.currencyCode,
+    required this.source,
+    required this.pulledAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    if (!nullToAbsent || tickerSymbol != null) {
+      map['ticker_symbol'] = Variable<String>(tickerSymbol);
+    }
+    if (!nullToAbsent || type != null) {
+      map['type'] = Variable<String>(type);
+    }
+    if (!nullToAbsent || isCashEquivalent != null) {
+      map['is_cash_equivalent'] = Variable<bool>(isCashEquivalent);
+    }
+    if (!nullToAbsent || closePrice != null) {
+      map['close_price'] = Variable<String>(
+        $SecuritiesTable.$converterclosePricen.toSql(closePrice),
+      );
+    }
+    if (!nullToAbsent || closePriceAsOf != null) {
+      map['close_price_as_of'] = Variable<String>(
+        $SecuritiesTable.$converterclosePriceAsOfn.toSql(closePriceAsOf),
+      );
+    }
+    map['currency_code'] = Variable<String>(currencyCode);
+    {
+      map['source'] = Variable<String>(
+        $SecuritiesTable.$convertersource.toSql(source),
+      );
+    }
+    {
+      map['pulled_at'] = Variable<int>(
+        $SecuritiesTable.$converterpulledAt.toSql(pulledAt),
+      );
+    }
+    return map;
+  }
+
+  SecuritiesCompanion toCompanion(bool nullToAbsent) {
+    return SecuritiesCompanion(
+      id: Value(id),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      tickerSymbol: tickerSymbol == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tickerSymbol),
+      type: type == null && nullToAbsent ? const Value.absent() : Value(type),
+      isCashEquivalent: isCashEquivalent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isCashEquivalent),
+      closePrice: closePrice == null && nullToAbsent
+          ? const Value.absent()
+          : Value(closePrice),
+      closePriceAsOf: closePriceAsOf == null && nullToAbsent
+          ? const Value.absent()
+          : Value(closePriceAsOf),
+      currencyCode: Value(currencyCode),
+      source: Value(source),
+      pulledAt: Value(pulledAt),
+    );
+  }
+
+  factory SecurityRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SecurityRow(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String?>(json['name']),
+      tickerSymbol: serializer.fromJson<String?>(json['tickerSymbol']),
+      type: serializer.fromJson<String?>(json['type']),
+      isCashEquivalent: serializer.fromJson<bool?>(json['isCashEquivalent']),
+      closePrice: serializer.fromJson<Decimal?>(json['closePrice']),
+      closePriceAsOf: serializer.fromJson<LocalDate?>(json['closePriceAsOf']),
+      currencyCode: serializer.fromJson<String>(json['currencyCode']),
+      source: $SecuritiesTable.$convertersource.fromJson(
+        serializer.fromJson<String>(json['source']),
+      ),
+      pulledAt: serializer.fromJson<DateTime>(json['pulledAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String?>(name),
+      'tickerSymbol': serializer.toJson<String?>(tickerSymbol),
+      'type': serializer.toJson<String?>(type),
+      'isCashEquivalent': serializer.toJson<bool?>(isCashEquivalent),
+      'closePrice': serializer.toJson<Decimal?>(closePrice),
+      'closePriceAsOf': serializer.toJson<LocalDate?>(closePriceAsOf),
+      'currencyCode': serializer.toJson<String>(currencyCode),
+      'source': serializer.toJson<String>(
+        $SecuritiesTable.$convertersource.toJson(source),
+      ),
+      'pulledAt': serializer.toJson<DateTime>(pulledAt),
+    };
+  }
+
+  SecurityRow copyWith({
+    String? id,
+    Value<String?> name = const Value.absent(),
+    Value<String?> tickerSymbol = const Value.absent(),
+    Value<String?> type = const Value.absent(),
+    Value<bool?> isCashEquivalent = const Value.absent(),
+    Value<Decimal?> closePrice = const Value.absent(),
+    Value<LocalDate?> closePriceAsOf = const Value.absent(),
+    String? currencyCode,
+    DataSource? source,
+    DateTime? pulledAt,
+  }) => SecurityRow(
+    id: id ?? this.id,
+    name: name.present ? name.value : this.name,
+    tickerSymbol: tickerSymbol.present ? tickerSymbol.value : this.tickerSymbol,
+    type: type.present ? type.value : this.type,
+    isCashEquivalent: isCashEquivalent.present
+        ? isCashEquivalent.value
+        : this.isCashEquivalent,
+    closePrice: closePrice.present ? closePrice.value : this.closePrice,
+    closePriceAsOf: closePriceAsOf.present
+        ? closePriceAsOf.value
+        : this.closePriceAsOf,
+    currencyCode: currencyCode ?? this.currencyCode,
+    source: source ?? this.source,
+    pulledAt: pulledAt ?? this.pulledAt,
+  );
+  SecurityRow copyWithCompanion(SecuritiesCompanion data) {
+    return SecurityRow(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      tickerSymbol: data.tickerSymbol.present
+          ? data.tickerSymbol.value
+          : this.tickerSymbol,
+      type: data.type.present ? data.type.value : this.type,
+      isCashEquivalent: data.isCashEquivalent.present
+          ? data.isCashEquivalent.value
+          : this.isCashEquivalent,
+      closePrice: data.closePrice.present
+          ? data.closePrice.value
+          : this.closePrice,
+      closePriceAsOf: data.closePriceAsOf.present
+          ? data.closePriceAsOf.value
+          : this.closePriceAsOf,
+      currencyCode: data.currencyCode.present
+          ? data.currencyCode.value
+          : this.currencyCode,
+      source: data.source.present ? data.source.value : this.source,
+      pulledAt: data.pulledAt.present ? data.pulledAt.value : this.pulledAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SecurityRow(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('tickerSymbol: $tickerSymbol, ')
+          ..write('type: $type, ')
+          ..write('isCashEquivalent: $isCashEquivalent, ')
+          ..write('closePrice: $closePrice, ')
+          ..write('closePriceAsOf: $closePriceAsOf, ')
+          ..write('currencyCode: $currencyCode, ')
+          ..write('source: $source, ')
+          ..write('pulledAt: $pulledAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    tickerSymbol,
+    type,
+    isCashEquivalent,
+    closePrice,
+    closePriceAsOf,
+    currencyCode,
+    source,
+    pulledAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SecurityRow &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.tickerSymbol == this.tickerSymbol &&
+          other.type == this.type &&
+          other.isCashEquivalent == this.isCashEquivalent &&
+          other.closePrice == this.closePrice &&
+          other.closePriceAsOf == this.closePriceAsOf &&
+          other.currencyCode == this.currencyCode &&
+          other.source == this.source &&
+          other.pulledAt == this.pulledAt);
+}
+
+class SecuritiesCompanion extends UpdateCompanion<SecurityRow> {
+  final Value<String> id;
+  final Value<String?> name;
+  final Value<String?> tickerSymbol;
+  final Value<String?> type;
+  final Value<bool?> isCashEquivalent;
+  final Value<Decimal?> closePrice;
+  final Value<LocalDate?> closePriceAsOf;
+  final Value<String> currencyCode;
+  final Value<DataSource> source;
+  final Value<DateTime> pulledAt;
+  final Value<int> rowid;
+  const SecuritiesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.tickerSymbol = const Value.absent(),
+    this.type = const Value.absent(),
+    this.isCashEquivalent = const Value.absent(),
+    this.closePrice = const Value.absent(),
+    this.closePriceAsOf = const Value.absent(),
+    this.currencyCode = const Value.absent(),
+    this.source = const Value.absent(),
+    this.pulledAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SecuritiesCompanion.insert({
+    required String id,
+    this.name = const Value.absent(),
+    this.tickerSymbol = const Value.absent(),
+    this.type = const Value.absent(),
+    this.isCashEquivalent = const Value.absent(),
+    this.closePrice = const Value.absent(),
+    this.closePriceAsOf = const Value.absent(),
+    required String currencyCode,
+    required DataSource source,
+    required DateTime pulledAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       currencyCode = Value(currencyCode),
+       source = Value(source),
+       pulledAt = Value(pulledAt);
+  static Insertable<SecurityRow> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? tickerSymbol,
+    Expression<String>? type,
+    Expression<bool>? isCashEquivalent,
+    Expression<String>? closePrice,
+    Expression<String>? closePriceAsOf,
+    Expression<String>? currencyCode,
+    Expression<String>? source,
+    Expression<int>? pulledAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (tickerSymbol != null) 'ticker_symbol': tickerSymbol,
+      if (type != null) 'type': type,
+      if (isCashEquivalent != null) 'is_cash_equivalent': isCashEquivalent,
+      if (closePrice != null) 'close_price': closePrice,
+      if (closePriceAsOf != null) 'close_price_as_of': closePriceAsOf,
+      if (currencyCode != null) 'currency_code': currencyCode,
+      if (source != null) 'source': source,
+      if (pulledAt != null) 'pulled_at': pulledAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SecuritiesCompanion copyWith({
+    Value<String>? id,
+    Value<String?>? name,
+    Value<String?>? tickerSymbol,
+    Value<String?>? type,
+    Value<bool?>? isCashEquivalent,
+    Value<Decimal?>? closePrice,
+    Value<LocalDate?>? closePriceAsOf,
+    Value<String>? currencyCode,
+    Value<DataSource>? source,
+    Value<DateTime>? pulledAt,
+    Value<int>? rowid,
+  }) {
+    return SecuritiesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      tickerSymbol: tickerSymbol ?? this.tickerSymbol,
+      type: type ?? this.type,
+      isCashEquivalent: isCashEquivalent ?? this.isCashEquivalent,
+      closePrice: closePrice ?? this.closePrice,
+      closePriceAsOf: closePriceAsOf ?? this.closePriceAsOf,
+      currencyCode: currencyCode ?? this.currencyCode,
+      source: source ?? this.source,
+      pulledAt: pulledAt ?? this.pulledAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (tickerSymbol.present) {
+      map['ticker_symbol'] = Variable<String>(tickerSymbol.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (isCashEquivalent.present) {
+      map['is_cash_equivalent'] = Variable<bool>(isCashEquivalent.value);
+    }
+    if (closePrice.present) {
+      map['close_price'] = Variable<String>(
+        $SecuritiesTable.$converterclosePricen.toSql(closePrice.value),
+      );
+    }
+    if (closePriceAsOf.present) {
+      map['close_price_as_of'] = Variable<String>(
+        $SecuritiesTable.$converterclosePriceAsOfn.toSql(closePriceAsOf.value),
+      );
+    }
+    if (currencyCode.present) {
+      map['currency_code'] = Variable<String>(currencyCode.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(
+        $SecuritiesTable.$convertersource.toSql(source.value),
+      );
+    }
+    if (pulledAt.present) {
+      map['pulled_at'] = Variable<int>(
+        $SecuritiesTable.$converterpulledAt.toSql(pulledAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SecuritiesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('tickerSymbol: $tickerSymbol, ')
+          ..write('type: $type, ')
+          ..write('isCashEquivalent: $isCashEquivalent, ')
+          ..write('closePrice: $closePrice, ')
+          ..write('closePriceAsOf: $closePriceAsOf, ')
+          ..write('currencyCode: $currencyCode, ')
+          ..write('source: $source, ')
+          ..write('pulledAt: $pulledAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $HoldingsTable extends Holdings
+    with TableInfo<$HoldingsTable, HoldingRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $HoldingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _accountIdMeta = const VerificationMeta(
+    'accountId',
+  );
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+    'account_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _securityIdMeta = const VerificationMeta(
+    'securityId',
+  );
+  @override
+  late final GeneratedColumn<String> securityId = GeneratedColumn<String>(
+    'security_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<Decimal, String> quantity =
+      GeneratedColumn<String>(
+        'quantity',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<Decimal>($HoldingsTable.$converterquantity);
+  @override
+  late final GeneratedColumnWithTypeConverter<Decimal, String>
+  institutionPrice = GeneratedColumn<String>(
+    'institution_price',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<Decimal>($HoldingsTable.$converterinstitutionPrice);
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate?, String>
+  institutionPriceAsOf = GeneratedColumn<String>(
+    'institution_price_as_of',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<LocalDate?>($HoldingsTable.$converterinstitutionPriceAsOfn);
+  static const VerificationMeta _institutionValueMinorMeta =
+      const VerificationMeta('institutionValueMinor');
+  @override
+  late final GeneratedColumn<int> institutionValueMinor = GeneratedColumn<int>(
+    'institution_value_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _costBasisMinorMeta = const VerificationMeta(
+    'costBasisMinor',
+  );
+  @override
+  late final GeneratedColumn<int> costBasisMinor = GeneratedColumn<int>(
+    'cost_basis_minor',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _currencyMeta = const VerificationMeta(
+    'currency',
+  );
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DataSource, String> source =
+      GeneratedColumn<String>(
+        'source',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<DataSource>($HoldingsTable.$convertersource);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> pulledAt =
+      GeneratedColumn<int>(
+        'pulled_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($HoldingsTable.$converterpulledAt);
+  @override
+  List<GeneratedColumn> get $columns => [
+    accountId,
+    securityId,
+    quantity,
+    institutionPrice,
+    institutionPriceAsOf,
+    institutionValueMinor,
+    costBasisMinor,
+    currency,
+    source,
+    pulledAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'holdings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<HoldingRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('account_id')) {
+      context.handle(
+        _accountIdMeta,
+        accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_accountIdMeta);
+    }
+    if (data.containsKey('security_id')) {
+      context.handle(
+        _securityIdMeta,
+        securityId.isAcceptableOrUnknown(data['security_id']!, _securityIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_securityIdMeta);
+    }
+    if (data.containsKey('institution_value_minor')) {
+      context.handle(
+        _institutionValueMinorMeta,
+        institutionValueMinor.isAcceptableOrUnknown(
+          data['institution_value_minor']!,
+          _institutionValueMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_institutionValueMinorMeta);
+    }
+    if (data.containsKey('cost_basis_minor')) {
+      context.handle(
+        _costBasisMinorMeta,
+        costBasisMinor.isAcceptableOrUnknown(
+          data['cost_basis_minor']!,
+          _costBasisMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_currencyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {accountId, securityId};
+  @override
+  HoldingRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return HoldingRow(
+      accountId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}account_id'],
+      )!,
+      securityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}security_id'],
+      )!,
+      quantity: $HoldingsTable.$converterquantity.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}quantity'],
+        )!,
+      ),
+      institutionPrice: $HoldingsTable.$converterinstitutionPrice.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}institution_price'],
+        )!,
+      ),
+      institutionPriceAsOf: $HoldingsTable.$converterinstitutionPriceAsOfn
+          .fromSql(
+            attachedDatabase.typeMapping.read(
+              DriftSqlType.string,
+              data['${effectivePrefix}institution_price_as_of'],
+            ),
+          ),
+      institutionValueMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}institution_value_minor'],
+      )!,
+      costBasisMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}cost_basis_minor'],
+      ),
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      )!,
+      source: $HoldingsTable.$convertersource.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}source'],
+        )!,
+      ),
+      pulledAt: $HoldingsTable.$converterpulledAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}pulled_at'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $HoldingsTable createAlias(String alias) {
+    return $HoldingsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<Decimal, String> $converterquantity =
+      const DecimalColumnConverter();
+  static TypeConverter<Decimal, String> $converterinstitutionPrice =
+      const DecimalColumnConverter();
+  static TypeConverter<LocalDate, String> $converterinstitutionPriceAsOf =
+      const LocalDateColumnConverter();
+  static TypeConverter<LocalDate?, String?> $converterinstitutionPriceAsOfn =
+      NullAwareTypeConverter.wrap($converterinstitutionPriceAsOf);
+  static JsonTypeConverter2<DataSource, String, String> $convertersource =
+      const EnumNameConverter<DataSource>(DataSource.values);
+  static TypeConverter<DateTime, int> $converterpulledAt =
+      const UtcMillisColumnConverter();
+}
+
+class HoldingRow extends DataClass implements Insertable<HoldingRow> {
+  final String accountId;
+  final String securityId;
+  final Decimal quantity;
+  final Decimal institutionPrice;
+  final LocalDate? institutionPriceAsOf;
+  final int institutionValueMinor;
+  final int? costBasisMinor;
+  final String currency;
+  final DataSource source;
+  final DateTime pulledAt;
+  const HoldingRow({
+    required this.accountId,
+    required this.securityId,
+    required this.quantity,
+    required this.institutionPrice,
+    this.institutionPriceAsOf,
+    required this.institutionValueMinor,
+    this.costBasisMinor,
+    required this.currency,
+    required this.source,
+    required this.pulledAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['account_id'] = Variable<String>(accountId);
+    map['security_id'] = Variable<String>(securityId);
+    {
+      map['quantity'] = Variable<String>(
+        $HoldingsTable.$converterquantity.toSql(quantity),
+      );
+    }
+    {
+      map['institution_price'] = Variable<String>(
+        $HoldingsTable.$converterinstitutionPrice.toSql(institutionPrice),
+      );
+    }
+    if (!nullToAbsent || institutionPriceAsOf != null) {
+      map['institution_price_as_of'] = Variable<String>(
+        $HoldingsTable.$converterinstitutionPriceAsOfn.toSql(
+          institutionPriceAsOf,
+        ),
+      );
+    }
+    map['institution_value_minor'] = Variable<int>(institutionValueMinor);
+    if (!nullToAbsent || costBasisMinor != null) {
+      map['cost_basis_minor'] = Variable<int>(costBasisMinor);
+    }
+    map['currency'] = Variable<String>(currency);
+    {
+      map['source'] = Variable<String>(
+        $HoldingsTable.$convertersource.toSql(source),
+      );
+    }
+    {
+      map['pulled_at'] = Variable<int>(
+        $HoldingsTable.$converterpulledAt.toSql(pulledAt),
+      );
+    }
+    return map;
+  }
+
+  HoldingsCompanion toCompanion(bool nullToAbsent) {
+    return HoldingsCompanion(
+      accountId: Value(accountId),
+      securityId: Value(securityId),
+      quantity: Value(quantity),
+      institutionPrice: Value(institutionPrice),
+      institutionPriceAsOf: institutionPriceAsOf == null && nullToAbsent
+          ? const Value.absent()
+          : Value(institutionPriceAsOf),
+      institutionValueMinor: Value(institutionValueMinor),
+      costBasisMinor: costBasisMinor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(costBasisMinor),
+      currency: Value(currency),
+      source: Value(source),
+      pulledAt: Value(pulledAt),
+    );
+  }
+
+  factory HoldingRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return HoldingRow(
+      accountId: serializer.fromJson<String>(json['accountId']),
+      securityId: serializer.fromJson<String>(json['securityId']),
+      quantity: serializer.fromJson<Decimal>(json['quantity']),
+      institutionPrice: serializer.fromJson<Decimal>(json['institutionPrice']),
+      institutionPriceAsOf: serializer.fromJson<LocalDate?>(
+        json['institutionPriceAsOf'],
+      ),
+      institutionValueMinor: serializer.fromJson<int>(
+        json['institutionValueMinor'],
+      ),
+      costBasisMinor: serializer.fromJson<int?>(json['costBasisMinor']),
+      currency: serializer.fromJson<String>(json['currency']),
+      source: $HoldingsTable.$convertersource.fromJson(
+        serializer.fromJson<String>(json['source']),
+      ),
+      pulledAt: serializer.fromJson<DateTime>(json['pulledAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'accountId': serializer.toJson<String>(accountId),
+      'securityId': serializer.toJson<String>(securityId),
+      'quantity': serializer.toJson<Decimal>(quantity),
+      'institutionPrice': serializer.toJson<Decimal>(institutionPrice),
+      'institutionPriceAsOf': serializer.toJson<LocalDate?>(
+        institutionPriceAsOf,
+      ),
+      'institutionValueMinor': serializer.toJson<int>(institutionValueMinor),
+      'costBasisMinor': serializer.toJson<int?>(costBasisMinor),
+      'currency': serializer.toJson<String>(currency),
+      'source': serializer.toJson<String>(
+        $HoldingsTable.$convertersource.toJson(source),
+      ),
+      'pulledAt': serializer.toJson<DateTime>(pulledAt),
+    };
+  }
+
+  HoldingRow copyWith({
+    String? accountId,
+    String? securityId,
+    Decimal? quantity,
+    Decimal? institutionPrice,
+    Value<LocalDate?> institutionPriceAsOf = const Value.absent(),
+    int? institutionValueMinor,
+    Value<int?> costBasisMinor = const Value.absent(),
+    String? currency,
+    DataSource? source,
+    DateTime? pulledAt,
+  }) => HoldingRow(
+    accountId: accountId ?? this.accountId,
+    securityId: securityId ?? this.securityId,
+    quantity: quantity ?? this.quantity,
+    institutionPrice: institutionPrice ?? this.institutionPrice,
+    institutionPriceAsOf: institutionPriceAsOf.present
+        ? institutionPriceAsOf.value
+        : this.institutionPriceAsOf,
+    institutionValueMinor: institutionValueMinor ?? this.institutionValueMinor,
+    costBasisMinor: costBasisMinor.present
+        ? costBasisMinor.value
+        : this.costBasisMinor,
+    currency: currency ?? this.currency,
+    source: source ?? this.source,
+    pulledAt: pulledAt ?? this.pulledAt,
+  );
+  HoldingRow copyWithCompanion(HoldingsCompanion data) {
+    return HoldingRow(
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      securityId: data.securityId.present
+          ? data.securityId.value
+          : this.securityId,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      institutionPrice: data.institutionPrice.present
+          ? data.institutionPrice.value
+          : this.institutionPrice,
+      institutionPriceAsOf: data.institutionPriceAsOf.present
+          ? data.institutionPriceAsOf.value
+          : this.institutionPriceAsOf,
+      institutionValueMinor: data.institutionValueMinor.present
+          ? data.institutionValueMinor.value
+          : this.institutionValueMinor,
+      costBasisMinor: data.costBasisMinor.present
+          ? data.costBasisMinor.value
+          : this.costBasisMinor,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      source: data.source.present ? data.source.value : this.source,
+      pulledAt: data.pulledAt.present ? data.pulledAt.value : this.pulledAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HoldingRow(')
+          ..write('accountId: $accountId, ')
+          ..write('securityId: $securityId, ')
+          ..write('quantity: $quantity, ')
+          ..write('institutionPrice: $institutionPrice, ')
+          ..write('institutionPriceAsOf: $institutionPriceAsOf, ')
+          ..write('institutionValueMinor: $institutionValueMinor, ')
+          ..write('costBasisMinor: $costBasisMinor, ')
+          ..write('currency: $currency, ')
+          ..write('source: $source, ')
+          ..write('pulledAt: $pulledAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    accountId,
+    securityId,
+    quantity,
+    institutionPrice,
+    institutionPriceAsOf,
+    institutionValueMinor,
+    costBasisMinor,
+    currency,
+    source,
+    pulledAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is HoldingRow &&
+          other.accountId == this.accountId &&
+          other.securityId == this.securityId &&
+          other.quantity == this.quantity &&
+          other.institutionPrice == this.institutionPrice &&
+          other.institutionPriceAsOf == this.institutionPriceAsOf &&
+          other.institutionValueMinor == this.institutionValueMinor &&
+          other.costBasisMinor == this.costBasisMinor &&
+          other.currency == this.currency &&
+          other.source == this.source &&
+          other.pulledAt == this.pulledAt);
+}
+
+class HoldingsCompanion extends UpdateCompanion<HoldingRow> {
+  final Value<String> accountId;
+  final Value<String> securityId;
+  final Value<Decimal> quantity;
+  final Value<Decimal> institutionPrice;
+  final Value<LocalDate?> institutionPriceAsOf;
+  final Value<int> institutionValueMinor;
+  final Value<int?> costBasisMinor;
+  final Value<String> currency;
+  final Value<DataSource> source;
+  final Value<DateTime> pulledAt;
+  final Value<int> rowid;
+  const HoldingsCompanion({
+    this.accountId = const Value.absent(),
+    this.securityId = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.institutionPrice = const Value.absent(),
+    this.institutionPriceAsOf = const Value.absent(),
+    this.institutionValueMinor = const Value.absent(),
+    this.costBasisMinor = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.source = const Value.absent(),
+    this.pulledAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  HoldingsCompanion.insert({
+    required String accountId,
+    required String securityId,
+    required Decimal quantity,
+    required Decimal institutionPrice,
+    this.institutionPriceAsOf = const Value.absent(),
+    required int institutionValueMinor,
+    this.costBasisMinor = const Value.absent(),
+    required String currency,
+    required DataSource source,
+    required DateTime pulledAt,
+    this.rowid = const Value.absent(),
+  }) : accountId = Value(accountId),
+       securityId = Value(securityId),
+       quantity = Value(quantity),
+       institutionPrice = Value(institutionPrice),
+       institutionValueMinor = Value(institutionValueMinor),
+       currency = Value(currency),
+       source = Value(source),
+       pulledAt = Value(pulledAt);
+  static Insertable<HoldingRow> custom({
+    Expression<String>? accountId,
+    Expression<String>? securityId,
+    Expression<String>? quantity,
+    Expression<String>? institutionPrice,
+    Expression<String>? institutionPriceAsOf,
+    Expression<int>? institutionValueMinor,
+    Expression<int>? costBasisMinor,
+    Expression<String>? currency,
+    Expression<String>? source,
+    Expression<int>? pulledAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (accountId != null) 'account_id': accountId,
+      if (securityId != null) 'security_id': securityId,
+      if (quantity != null) 'quantity': quantity,
+      if (institutionPrice != null) 'institution_price': institutionPrice,
+      if (institutionPriceAsOf != null)
+        'institution_price_as_of': institutionPriceAsOf,
+      if (institutionValueMinor != null)
+        'institution_value_minor': institutionValueMinor,
+      if (costBasisMinor != null) 'cost_basis_minor': costBasisMinor,
+      if (currency != null) 'currency': currency,
+      if (source != null) 'source': source,
+      if (pulledAt != null) 'pulled_at': pulledAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  HoldingsCompanion copyWith({
+    Value<String>? accountId,
+    Value<String>? securityId,
+    Value<Decimal>? quantity,
+    Value<Decimal>? institutionPrice,
+    Value<LocalDate?>? institutionPriceAsOf,
+    Value<int>? institutionValueMinor,
+    Value<int?>? costBasisMinor,
+    Value<String>? currency,
+    Value<DataSource>? source,
+    Value<DateTime>? pulledAt,
+    Value<int>? rowid,
+  }) {
+    return HoldingsCompanion(
+      accountId: accountId ?? this.accountId,
+      securityId: securityId ?? this.securityId,
+      quantity: quantity ?? this.quantity,
+      institutionPrice: institutionPrice ?? this.institutionPrice,
+      institutionPriceAsOf: institutionPriceAsOf ?? this.institutionPriceAsOf,
+      institutionValueMinor:
+          institutionValueMinor ?? this.institutionValueMinor,
+      costBasisMinor: costBasisMinor ?? this.costBasisMinor,
+      currency: currency ?? this.currency,
+      source: source ?? this.source,
+      pulledAt: pulledAt ?? this.pulledAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (securityId.present) {
+      map['security_id'] = Variable<String>(securityId.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<String>(
+        $HoldingsTable.$converterquantity.toSql(quantity.value),
+      );
+    }
+    if (institutionPrice.present) {
+      map['institution_price'] = Variable<String>(
+        $HoldingsTable.$converterinstitutionPrice.toSql(institutionPrice.value),
+      );
+    }
+    if (institutionPriceAsOf.present) {
+      map['institution_price_as_of'] = Variable<String>(
+        $HoldingsTable.$converterinstitutionPriceAsOfn.toSql(
+          institutionPriceAsOf.value,
+        ),
+      );
+    }
+    if (institutionValueMinor.present) {
+      map['institution_value_minor'] = Variable<int>(
+        institutionValueMinor.value,
+      );
+    }
+    if (costBasisMinor.present) {
+      map['cost_basis_minor'] = Variable<int>(costBasisMinor.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(
+        $HoldingsTable.$convertersource.toSql(source.value),
+      );
+    }
+    if (pulledAt.present) {
+      map['pulled_at'] = Variable<int>(
+        $HoldingsTable.$converterpulledAt.toSql(pulledAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HoldingsCompanion(')
+          ..write('accountId: $accountId, ')
+          ..write('securityId: $securityId, ')
+          ..write('quantity: $quantity, ')
+          ..write('institutionPrice: $institutionPrice, ')
+          ..write('institutionPriceAsOf: $institutionPriceAsOf, ')
+          ..write('institutionValueMinor: $institutionValueMinor, ')
+          ..write('costBasisMinor: $costBasisMinor, ')
+          ..write('currency: $currency, ')
+          ..write('source: $source, ')
+          ..write('pulledAt: $pulledAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $InvestmentTransactionsTable extends InvestmentTransactions
+    with TableInfo<$InvestmentTransactionsTable, InvestmentTransactionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $InvestmentTransactionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _accountIdMeta = const VerificationMeta(
+    'accountId',
+  );
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+    'account_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _securityIdMeta = const VerificationMeta(
+    'securityId',
+  );
+  @override
+  late final GeneratedColumn<String> securityId = GeneratedColumn<String>(
+    'security_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate, String> date =
+      GeneratedColumn<String>(
+        'date',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<LocalDate>($InvestmentTransactionsTable.$converterdate);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _subtypeMeta = const VerificationMeta(
+    'subtype',
+  );
+  @override
+  late final GeneratedColumn<String> subtype = GeneratedColumn<String>(
+    'subtype',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<Decimal, String> quantity =
+      GeneratedColumn<String>(
+        'quantity',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<Decimal>($InvestmentTransactionsTable.$converterquantity);
+  @override
+  late final GeneratedColumnWithTypeConverter<Decimal, String> price =
+      GeneratedColumn<String>(
+        'price',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<Decimal>($InvestmentTransactionsTable.$converterprice);
+  static const VerificationMeta _amountMinorMeta = const VerificationMeta(
+    'amountMinor',
+  );
+  @override
+  late final GeneratedColumn<int> amountMinor = GeneratedColumn<int>(
+    'amount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _feesMinorMeta = const VerificationMeta(
+    'feesMinor',
+  );
+  @override
+  late final GeneratedColumn<int> feesMinor = GeneratedColumn<int>(
+    'fees_minor',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _currencyMeta = const VerificationMeta(
+    'currency',
+  );
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime?, int> deletedAt =
+      GeneratedColumn<int>(
+        'deleted_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<DateTime?>(
+        $InvestmentTransactionsTable.$converterdeletedAtn,
+      );
+  static const VerificationMeta _syncVersionMeta = const VerificationMeta(
+    'syncVersion',
+  );
+  @override
+  late final GeneratedColumn<int> syncVersion = GeneratedColumn<int>(
+    'sync_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DataSource, String> source =
+      GeneratedColumn<String>(
+        'source',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<DataSource>(
+        $InvestmentTransactionsTable.$convertersource,
+      );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> pulledAt =
+      GeneratedColumn<int>(
+        'pulled_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>(
+        $InvestmentTransactionsTable.$converterpulledAt,
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    accountId,
+    securityId,
+    date,
+    name,
+    type,
+    subtype,
+    quantity,
+    price,
+    amountMinor,
+    feesMinor,
+    currency,
+    deletedAt,
+    syncVersion,
+    source,
+    pulledAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'investment_transactions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<InvestmentTransactionRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('account_id')) {
+      context.handle(
+        _accountIdMeta,
+        accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_accountIdMeta);
+    }
+    if (data.containsKey('security_id')) {
+      context.handle(
+        _securityIdMeta,
+        securityId.isAcceptableOrUnknown(data['security_id']!, _securityIdMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('subtype')) {
+      context.handle(
+        _subtypeMeta,
+        subtype.isAcceptableOrUnknown(data['subtype']!, _subtypeMeta),
+      );
+    }
+    if (data.containsKey('amount_minor')) {
+      context.handle(
+        _amountMinorMeta,
+        amountMinor.isAcceptableOrUnknown(
+          data['amount_minor']!,
+          _amountMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMinorMeta);
+    }
+    if (data.containsKey('fees_minor')) {
+      context.handle(
+        _feesMinorMeta,
+        feesMinor.isAcceptableOrUnknown(data['fees_minor']!, _feesMinorMeta),
+      );
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_currencyMeta);
+    }
+    if (data.containsKey('sync_version')) {
+      context.handle(
+        _syncVersionMeta,
+        syncVersion.isAcceptableOrUnknown(
+          data['sync_version']!,
+          _syncVersionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_syncVersionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  InvestmentTransactionRow map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return InvestmentTransactionRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      accountId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}account_id'],
+      )!,
+      securityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}security_id'],
+      ),
+      date: $InvestmentTransactionsTable.$converterdate.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}date'],
+        )!,
+      ),
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      subtype: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}subtype'],
+      ),
+      quantity: $InvestmentTransactionsTable.$converterquantity.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}quantity'],
+        )!,
+      ),
+      price: $InvestmentTransactionsTable.$converterprice.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}price'],
+        )!,
+      ),
+      amountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount_minor'],
+      )!,
+      feesMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}fees_minor'],
+      ),
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      )!,
+      deletedAt: $InvestmentTransactionsTable.$converterdeletedAtn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}deleted_at'],
+        ),
+      ),
+      syncVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_version'],
+      )!,
+      source: $InvestmentTransactionsTable.$convertersource.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}source'],
+        )!,
+      ),
+      pulledAt: $InvestmentTransactionsTable.$converterpulledAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}pulled_at'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $InvestmentTransactionsTable createAlias(String alias) {
+    return $InvestmentTransactionsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<LocalDate, String> $converterdate =
+      const LocalDateColumnConverter();
+  static TypeConverter<Decimal, String> $converterquantity =
+      const DecimalColumnConverter();
+  static TypeConverter<Decimal, String> $converterprice =
+      const DecimalColumnConverter();
+  static TypeConverter<DateTime, int> $converterdeletedAt =
+      const UtcMillisColumnConverter();
+  static TypeConverter<DateTime?, int?> $converterdeletedAtn =
+      NullAwareTypeConverter.wrap($converterdeletedAt);
+  static JsonTypeConverter2<DataSource, String, String> $convertersource =
+      const EnumNameConverter<DataSource>(DataSource.values);
+  static TypeConverter<DateTime, int> $converterpulledAt =
+      const UtcMillisColumnConverter();
+}
+
+class InvestmentTransactionRow extends DataClass
+    implements Insertable<InvestmentTransactionRow> {
+  final String id;
+  final String accountId;
+  final String? securityId;
+  final LocalDate date;
+  final String name;
+  final String type;
+  final String? subtype;
+  final Decimal quantity;
+  final Decimal price;
+  final int amountMinor;
+  final int? feesMinor;
+  final String currency;
+  final DateTime? deletedAt;
+  final int syncVersion;
+  final DataSource source;
+  final DateTime pulledAt;
+  const InvestmentTransactionRow({
+    required this.id,
+    required this.accountId,
+    this.securityId,
+    required this.date,
+    required this.name,
+    required this.type,
+    this.subtype,
+    required this.quantity,
+    required this.price,
+    required this.amountMinor,
+    this.feesMinor,
+    required this.currency,
+    this.deletedAt,
+    required this.syncVersion,
+    required this.source,
+    required this.pulledAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['account_id'] = Variable<String>(accountId);
+    if (!nullToAbsent || securityId != null) {
+      map['security_id'] = Variable<String>(securityId);
+    }
+    {
+      map['date'] = Variable<String>(
+        $InvestmentTransactionsTable.$converterdate.toSql(date),
+      );
+    }
+    map['name'] = Variable<String>(name);
+    map['type'] = Variable<String>(type);
+    if (!nullToAbsent || subtype != null) {
+      map['subtype'] = Variable<String>(subtype);
+    }
+    {
+      map['quantity'] = Variable<String>(
+        $InvestmentTransactionsTable.$converterquantity.toSql(quantity),
+      );
+    }
+    {
+      map['price'] = Variable<String>(
+        $InvestmentTransactionsTable.$converterprice.toSql(price),
+      );
+    }
+    map['amount_minor'] = Variable<int>(amountMinor);
+    if (!nullToAbsent || feesMinor != null) {
+      map['fees_minor'] = Variable<int>(feesMinor);
+    }
+    map['currency'] = Variable<String>(currency);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(
+        $InvestmentTransactionsTable.$converterdeletedAtn.toSql(deletedAt),
+      );
+    }
+    map['sync_version'] = Variable<int>(syncVersion);
+    {
+      map['source'] = Variable<String>(
+        $InvestmentTransactionsTable.$convertersource.toSql(source),
+      );
+    }
+    {
+      map['pulled_at'] = Variable<int>(
+        $InvestmentTransactionsTable.$converterpulledAt.toSql(pulledAt),
+      );
+    }
+    return map;
+  }
+
+  InvestmentTransactionsCompanion toCompanion(bool nullToAbsent) {
+    return InvestmentTransactionsCompanion(
+      id: Value(id),
+      accountId: Value(accountId),
+      securityId: securityId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(securityId),
+      date: Value(date),
+      name: Value(name),
+      type: Value(type),
+      subtype: subtype == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subtype),
+      quantity: Value(quantity),
+      price: Value(price),
+      amountMinor: Value(amountMinor),
+      feesMinor: feesMinor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(feesMinor),
+      currency: Value(currency),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      syncVersion: Value(syncVersion),
+      source: Value(source),
+      pulledAt: Value(pulledAt),
+    );
+  }
+
+  factory InvestmentTransactionRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return InvestmentTransactionRow(
+      id: serializer.fromJson<String>(json['id']),
+      accountId: serializer.fromJson<String>(json['accountId']),
+      securityId: serializer.fromJson<String?>(json['securityId']),
+      date: serializer.fromJson<LocalDate>(json['date']),
+      name: serializer.fromJson<String>(json['name']),
+      type: serializer.fromJson<String>(json['type']),
+      subtype: serializer.fromJson<String?>(json['subtype']),
+      quantity: serializer.fromJson<Decimal>(json['quantity']),
+      price: serializer.fromJson<Decimal>(json['price']),
+      amountMinor: serializer.fromJson<int>(json['amountMinor']),
+      feesMinor: serializer.fromJson<int?>(json['feesMinor']),
+      currency: serializer.fromJson<String>(json['currency']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      syncVersion: serializer.fromJson<int>(json['syncVersion']),
+      source: $InvestmentTransactionsTable.$convertersource.fromJson(
+        serializer.fromJson<String>(json['source']),
+      ),
+      pulledAt: serializer.fromJson<DateTime>(json['pulledAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'accountId': serializer.toJson<String>(accountId),
+      'securityId': serializer.toJson<String?>(securityId),
+      'date': serializer.toJson<LocalDate>(date),
+      'name': serializer.toJson<String>(name),
+      'type': serializer.toJson<String>(type),
+      'subtype': serializer.toJson<String?>(subtype),
+      'quantity': serializer.toJson<Decimal>(quantity),
+      'price': serializer.toJson<Decimal>(price),
+      'amountMinor': serializer.toJson<int>(amountMinor),
+      'feesMinor': serializer.toJson<int?>(feesMinor),
+      'currency': serializer.toJson<String>(currency),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'syncVersion': serializer.toJson<int>(syncVersion),
+      'source': serializer.toJson<String>(
+        $InvestmentTransactionsTable.$convertersource.toJson(source),
+      ),
+      'pulledAt': serializer.toJson<DateTime>(pulledAt),
+    };
+  }
+
+  InvestmentTransactionRow copyWith({
+    String? id,
+    String? accountId,
+    Value<String?> securityId = const Value.absent(),
+    LocalDate? date,
+    String? name,
+    String? type,
+    Value<String?> subtype = const Value.absent(),
+    Decimal? quantity,
+    Decimal? price,
+    int? amountMinor,
+    Value<int?> feesMinor = const Value.absent(),
+    String? currency,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    int? syncVersion,
+    DataSource? source,
+    DateTime? pulledAt,
+  }) => InvestmentTransactionRow(
+    id: id ?? this.id,
+    accountId: accountId ?? this.accountId,
+    securityId: securityId.present ? securityId.value : this.securityId,
+    date: date ?? this.date,
+    name: name ?? this.name,
+    type: type ?? this.type,
+    subtype: subtype.present ? subtype.value : this.subtype,
+    quantity: quantity ?? this.quantity,
+    price: price ?? this.price,
+    amountMinor: amountMinor ?? this.amountMinor,
+    feesMinor: feesMinor.present ? feesMinor.value : this.feesMinor,
+    currency: currency ?? this.currency,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    syncVersion: syncVersion ?? this.syncVersion,
+    source: source ?? this.source,
+    pulledAt: pulledAt ?? this.pulledAt,
+  );
+  InvestmentTransactionRow copyWithCompanion(
+    InvestmentTransactionsCompanion data,
+  ) {
+    return InvestmentTransactionRow(
+      id: data.id.present ? data.id.value : this.id,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      securityId: data.securityId.present
+          ? data.securityId.value
+          : this.securityId,
+      date: data.date.present ? data.date.value : this.date,
+      name: data.name.present ? data.name.value : this.name,
+      type: data.type.present ? data.type.value : this.type,
+      subtype: data.subtype.present ? data.subtype.value : this.subtype,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      price: data.price.present ? data.price.value : this.price,
+      amountMinor: data.amountMinor.present
+          ? data.amountMinor.value
+          : this.amountMinor,
+      feesMinor: data.feesMinor.present ? data.feesMinor.value : this.feesMinor,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      syncVersion: data.syncVersion.present
+          ? data.syncVersion.value
+          : this.syncVersion,
+      source: data.source.present ? data.source.value : this.source,
+      pulledAt: data.pulledAt.present ? data.pulledAt.value : this.pulledAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('InvestmentTransactionRow(')
+          ..write('id: $id, ')
+          ..write('accountId: $accountId, ')
+          ..write('securityId: $securityId, ')
+          ..write('date: $date, ')
+          ..write('name: $name, ')
+          ..write('type: $type, ')
+          ..write('subtype: $subtype, ')
+          ..write('quantity: $quantity, ')
+          ..write('price: $price, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('feesMinor: $feesMinor, ')
+          ..write('currency: $currency, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('source: $source, ')
+          ..write('pulledAt: $pulledAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    accountId,
+    securityId,
+    date,
+    name,
+    type,
+    subtype,
+    quantity,
+    price,
+    amountMinor,
+    feesMinor,
+    currency,
+    deletedAt,
+    syncVersion,
+    source,
+    pulledAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is InvestmentTransactionRow &&
+          other.id == this.id &&
+          other.accountId == this.accountId &&
+          other.securityId == this.securityId &&
+          other.date == this.date &&
+          other.name == this.name &&
+          other.type == this.type &&
+          other.subtype == this.subtype &&
+          other.quantity == this.quantity &&
+          other.price == this.price &&
+          other.amountMinor == this.amountMinor &&
+          other.feesMinor == this.feesMinor &&
+          other.currency == this.currency &&
+          other.deletedAt == this.deletedAt &&
+          other.syncVersion == this.syncVersion &&
+          other.source == this.source &&
+          other.pulledAt == this.pulledAt);
+}
+
+class InvestmentTransactionsCompanion
+    extends UpdateCompanion<InvestmentTransactionRow> {
+  final Value<String> id;
+  final Value<String> accountId;
+  final Value<String?> securityId;
+  final Value<LocalDate> date;
+  final Value<String> name;
+  final Value<String> type;
+  final Value<String?> subtype;
+  final Value<Decimal> quantity;
+  final Value<Decimal> price;
+  final Value<int> amountMinor;
+  final Value<int?> feesMinor;
+  final Value<String> currency;
+  final Value<DateTime?> deletedAt;
+  final Value<int> syncVersion;
+  final Value<DataSource> source;
+  final Value<DateTime> pulledAt;
+  final Value<int> rowid;
+  const InvestmentTransactionsCompanion({
+    this.id = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.securityId = const Value.absent(),
+    this.date = const Value.absent(),
+    this.name = const Value.absent(),
+    this.type = const Value.absent(),
+    this.subtype = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.price = const Value.absent(),
+    this.amountMinor = const Value.absent(),
+    this.feesMinor = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.source = const Value.absent(),
+    this.pulledAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  InvestmentTransactionsCompanion.insert({
+    required String id,
+    required String accountId,
+    this.securityId = const Value.absent(),
+    required LocalDate date,
+    required String name,
+    required String type,
+    this.subtype = const Value.absent(),
+    required Decimal quantity,
+    required Decimal price,
+    required int amountMinor,
+    this.feesMinor = const Value.absent(),
+    required String currency,
+    this.deletedAt = const Value.absent(),
+    required int syncVersion,
+    required DataSource source,
+    required DateTime pulledAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       accountId = Value(accountId),
+       date = Value(date),
+       name = Value(name),
+       type = Value(type),
+       quantity = Value(quantity),
+       price = Value(price),
+       amountMinor = Value(amountMinor),
+       currency = Value(currency),
+       syncVersion = Value(syncVersion),
+       source = Value(source),
+       pulledAt = Value(pulledAt);
+  static Insertable<InvestmentTransactionRow> custom({
+    Expression<String>? id,
+    Expression<String>? accountId,
+    Expression<String>? securityId,
+    Expression<String>? date,
+    Expression<String>? name,
+    Expression<String>? type,
+    Expression<String>? subtype,
+    Expression<String>? quantity,
+    Expression<String>? price,
+    Expression<int>? amountMinor,
+    Expression<int>? feesMinor,
+    Expression<String>? currency,
+    Expression<int>? deletedAt,
+    Expression<int>? syncVersion,
+    Expression<String>? source,
+    Expression<int>? pulledAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (accountId != null) 'account_id': accountId,
+      if (securityId != null) 'security_id': securityId,
+      if (date != null) 'date': date,
+      if (name != null) 'name': name,
+      if (type != null) 'type': type,
+      if (subtype != null) 'subtype': subtype,
+      if (quantity != null) 'quantity': quantity,
+      if (price != null) 'price': price,
+      if (amountMinor != null) 'amount_minor': amountMinor,
+      if (feesMinor != null) 'fees_minor': feesMinor,
+      if (currency != null) 'currency': currency,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (syncVersion != null) 'sync_version': syncVersion,
+      if (source != null) 'source': source,
+      if (pulledAt != null) 'pulled_at': pulledAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  InvestmentTransactionsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? accountId,
+    Value<String?>? securityId,
+    Value<LocalDate>? date,
+    Value<String>? name,
+    Value<String>? type,
+    Value<String?>? subtype,
+    Value<Decimal>? quantity,
+    Value<Decimal>? price,
+    Value<int>? amountMinor,
+    Value<int?>? feesMinor,
+    Value<String>? currency,
+    Value<DateTime?>? deletedAt,
+    Value<int>? syncVersion,
+    Value<DataSource>? source,
+    Value<DateTime>? pulledAt,
+    Value<int>? rowid,
+  }) {
+    return InvestmentTransactionsCompanion(
+      id: id ?? this.id,
+      accountId: accountId ?? this.accountId,
+      securityId: securityId ?? this.securityId,
+      date: date ?? this.date,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      subtype: subtype ?? this.subtype,
+      quantity: quantity ?? this.quantity,
+      price: price ?? this.price,
+      amountMinor: amountMinor ?? this.amountMinor,
+      feesMinor: feesMinor ?? this.feesMinor,
+      currency: currency ?? this.currency,
+      deletedAt: deletedAt ?? this.deletedAt,
+      syncVersion: syncVersion ?? this.syncVersion,
+      source: source ?? this.source,
+      pulledAt: pulledAt ?? this.pulledAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (securityId.present) {
+      map['security_id'] = Variable<String>(securityId.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<String>(
+        $InvestmentTransactionsTable.$converterdate.toSql(date.value),
+      );
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (subtype.present) {
+      map['subtype'] = Variable<String>(subtype.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<String>(
+        $InvestmentTransactionsTable.$converterquantity.toSql(quantity.value),
+      );
+    }
+    if (price.present) {
+      map['price'] = Variable<String>(
+        $InvestmentTransactionsTable.$converterprice.toSql(price.value),
+      );
+    }
+    if (amountMinor.present) {
+      map['amount_minor'] = Variable<int>(amountMinor.value);
+    }
+    if (feesMinor.present) {
+      map['fees_minor'] = Variable<int>(feesMinor.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(
+        $InvestmentTransactionsTable.$converterdeletedAtn.toSql(
+          deletedAt.value,
+        ),
+      );
+    }
+    if (syncVersion.present) {
+      map['sync_version'] = Variable<int>(syncVersion.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(
+        $InvestmentTransactionsTable.$convertersource.toSql(source.value),
+      );
+    }
+    if (pulledAt.present) {
+      map['pulled_at'] = Variable<int>(
+        $InvestmentTransactionsTable.$converterpulledAt.toSql(pulledAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('InvestmentTransactionsCompanion(')
+          ..write('id: $id, ')
+          ..write('accountId: $accountId, ')
+          ..write('securityId: $securityId, ')
+          ..write('date: $date, ')
+          ..write('name: $name, ')
+          ..write('type: $type, ')
+          ..write('subtype: $subtype, ')
+          ..write('quantity: $quantity, ')
+          ..write('price: $price, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('feesMinor: $feesMinor, ')
+          ..write('currency: $currency, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('source: $source, ')
+          ..write('pulledAt: $pulledAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BalanceSnapshotsTable extends BalanceSnapshots
+    with TableInfo<$BalanceSnapshotsTable, BalanceSnapshotRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BalanceSnapshotsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _accountIdMeta = const VerificationMeta(
+    'accountId',
+  );
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+    'account_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<LocalDate, String> date =
+      GeneratedColumn<String>(
+        'date',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<LocalDate>($BalanceSnapshotsTable.$converterdate);
+  static const VerificationMeta _currentMinorMeta = const VerificationMeta(
+    'currentMinor',
+  );
+  @override
+  late final GeneratedColumn<int> currentMinor = GeneratedColumn<int>(
+    'current_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _availableMinorMeta = const VerificationMeta(
+    'availableMinor',
+  );
+  @override
+  late final GeneratedColumn<int> availableMinor = GeneratedColumn<int>(
+    'available_minor',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _limitMinorMeta = const VerificationMeta(
+    'limitMinor',
+  );
+  @override
+  late final GeneratedColumn<int> limitMinor = GeneratedColumn<int>(
+    'limit_minor',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _currencyMeta = const VerificationMeta(
+    'currency',
+  );
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DataSource, String> source =
+      GeneratedColumn<String>(
+        'source',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<DataSource>($BalanceSnapshotsTable.$convertersource);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> writtenAt =
+      GeneratedColumn<int>(
+        'written_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($BalanceSnapshotsTable.$converterwrittenAt);
+  @override
+  List<GeneratedColumn> get $columns => [
+    accountId,
+    date,
+    currentMinor,
+    availableMinor,
+    limitMinor,
+    currency,
+    source,
+    writtenAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'balance_snapshots';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BalanceSnapshotRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('account_id')) {
+      context.handle(
+        _accountIdMeta,
+        accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_accountIdMeta);
+    }
+    if (data.containsKey('current_minor')) {
+      context.handle(
+        _currentMinorMeta,
+        currentMinor.isAcceptableOrUnknown(
+          data['current_minor']!,
+          _currentMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_currentMinorMeta);
+    }
+    if (data.containsKey('available_minor')) {
+      context.handle(
+        _availableMinorMeta,
+        availableMinor.isAcceptableOrUnknown(
+          data['available_minor']!,
+          _availableMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('limit_minor')) {
+      context.handle(
+        _limitMinorMeta,
+        limitMinor.isAcceptableOrUnknown(data['limit_minor']!, _limitMinorMeta),
+      );
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_currencyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {accountId, date};
+  @override
+  BalanceSnapshotRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BalanceSnapshotRow(
+      accountId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}account_id'],
+      )!,
+      date: $BalanceSnapshotsTable.$converterdate.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}date'],
+        )!,
+      ),
+      currentMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}current_minor'],
+      )!,
+      availableMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}available_minor'],
+      ),
+      limitMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}limit_minor'],
+      ),
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      )!,
+      source: $BalanceSnapshotsTable.$convertersource.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}source'],
+        )!,
+      ),
+      writtenAt: $BalanceSnapshotsTable.$converterwrittenAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}written_at'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $BalanceSnapshotsTable createAlias(String alias) {
+    return $BalanceSnapshotsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<LocalDate, String> $converterdate =
+      const LocalDateColumnConverter();
+  static JsonTypeConverter2<DataSource, String, String> $convertersource =
+      const EnumNameConverter<DataSource>(DataSource.values);
+  static TypeConverter<DateTime, int> $converterwrittenAt =
+      const UtcMillisColumnConverter();
+}
+
+class BalanceSnapshotRow extends DataClass
+    implements Insertable<BalanceSnapshotRow> {
+  final String accountId;
+  final LocalDate date;
+  final int currentMinor;
+  final int? availableMinor;
+  final int? limitMinor;
+  final String currency;
+  final DataSource source;
+  final DateTime writtenAt;
+  const BalanceSnapshotRow({
+    required this.accountId,
+    required this.date,
+    required this.currentMinor,
+    this.availableMinor,
+    this.limitMinor,
+    required this.currency,
+    required this.source,
+    required this.writtenAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['account_id'] = Variable<String>(accountId);
+    {
+      map['date'] = Variable<String>(
+        $BalanceSnapshotsTable.$converterdate.toSql(date),
+      );
+    }
+    map['current_minor'] = Variable<int>(currentMinor);
+    if (!nullToAbsent || availableMinor != null) {
+      map['available_minor'] = Variable<int>(availableMinor);
+    }
+    if (!nullToAbsent || limitMinor != null) {
+      map['limit_minor'] = Variable<int>(limitMinor);
+    }
+    map['currency'] = Variable<String>(currency);
+    {
+      map['source'] = Variable<String>(
+        $BalanceSnapshotsTable.$convertersource.toSql(source),
+      );
+    }
+    {
+      map['written_at'] = Variable<int>(
+        $BalanceSnapshotsTable.$converterwrittenAt.toSql(writtenAt),
+      );
+    }
+    return map;
+  }
+
+  BalanceSnapshotsCompanion toCompanion(bool nullToAbsent) {
+    return BalanceSnapshotsCompanion(
+      accountId: Value(accountId),
+      date: Value(date),
+      currentMinor: Value(currentMinor),
+      availableMinor: availableMinor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(availableMinor),
+      limitMinor: limitMinor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(limitMinor),
+      currency: Value(currency),
+      source: Value(source),
+      writtenAt: Value(writtenAt),
+    );
+  }
+
+  factory BalanceSnapshotRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BalanceSnapshotRow(
+      accountId: serializer.fromJson<String>(json['accountId']),
+      date: serializer.fromJson<LocalDate>(json['date']),
+      currentMinor: serializer.fromJson<int>(json['currentMinor']),
+      availableMinor: serializer.fromJson<int?>(json['availableMinor']),
+      limitMinor: serializer.fromJson<int?>(json['limitMinor']),
+      currency: serializer.fromJson<String>(json['currency']),
+      source: $BalanceSnapshotsTable.$convertersource.fromJson(
+        serializer.fromJson<String>(json['source']),
+      ),
+      writtenAt: serializer.fromJson<DateTime>(json['writtenAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'accountId': serializer.toJson<String>(accountId),
+      'date': serializer.toJson<LocalDate>(date),
+      'currentMinor': serializer.toJson<int>(currentMinor),
+      'availableMinor': serializer.toJson<int?>(availableMinor),
+      'limitMinor': serializer.toJson<int?>(limitMinor),
+      'currency': serializer.toJson<String>(currency),
+      'source': serializer.toJson<String>(
+        $BalanceSnapshotsTable.$convertersource.toJson(source),
+      ),
+      'writtenAt': serializer.toJson<DateTime>(writtenAt),
+    };
+  }
+
+  BalanceSnapshotRow copyWith({
+    String? accountId,
+    LocalDate? date,
+    int? currentMinor,
+    Value<int?> availableMinor = const Value.absent(),
+    Value<int?> limitMinor = const Value.absent(),
+    String? currency,
+    DataSource? source,
+    DateTime? writtenAt,
+  }) => BalanceSnapshotRow(
+    accountId: accountId ?? this.accountId,
+    date: date ?? this.date,
+    currentMinor: currentMinor ?? this.currentMinor,
+    availableMinor: availableMinor.present
+        ? availableMinor.value
+        : this.availableMinor,
+    limitMinor: limitMinor.present ? limitMinor.value : this.limitMinor,
+    currency: currency ?? this.currency,
+    source: source ?? this.source,
+    writtenAt: writtenAt ?? this.writtenAt,
+  );
+  BalanceSnapshotRow copyWithCompanion(BalanceSnapshotsCompanion data) {
+    return BalanceSnapshotRow(
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      date: data.date.present ? data.date.value : this.date,
+      currentMinor: data.currentMinor.present
+          ? data.currentMinor.value
+          : this.currentMinor,
+      availableMinor: data.availableMinor.present
+          ? data.availableMinor.value
+          : this.availableMinor,
+      limitMinor: data.limitMinor.present
+          ? data.limitMinor.value
+          : this.limitMinor,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      source: data.source.present ? data.source.value : this.source,
+      writtenAt: data.writtenAt.present ? data.writtenAt.value : this.writtenAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BalanceSnapshotRow(')
+          ..write('accountId: $accountId, ')
+          ..write('date: $date, ')
+          ..write('currentMinor: $currentMinor, ')
+          ..write('availableMinor: $availableMinor, ')
+          ..write('limitMinor: $limitMinor, ')
+          ..write('currency: $currency, ')
+          ..write('source: $source, ')
+          ..write('writtenAt: $writtenAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    accountId,
+    date,
+    currentMinor,
+    availableMinor,
+    limitMinor,
+    currency,
+    source,
+    writtenAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BalanceSnapshotRow &&
+          other.accountId == this.accountId &&
+          other.date == this.date &&
+          other.currentMinor == this.currentMinor &&
+          other.availableMinor == this.availableMinor &&
+          other.limitMinor == this.limitMinor &&
+          other.currency == this.currency &&
+          other.source == this.source &&
+          other.writtenAt == this.writtenAt);
+}
+
+class BalanceSnapshotsCompanion extends UpdateCompanion<BalanceSnapshotRow> {
+  final Value<String> accountId;
+  final Value<LocalDate> date;
+  final Value<int> currentMinor;
+  final Value<int?> availableMinor;
+  final Value<int?> limitMinor;
+  final Value<String> currency;
+  final Value<DataSource> source;
+  final Value<DateTime> writtenAt;
+  final Value<int> rowid;
+  const BalanceSnapshotsCompanion({
+    this.accountId = const Value.absent(),
+    this.date = const Value.absent(),
+    this.currentMinor = const Value.absent(),
+    this.availableMinor = const Value.absent(),
+    this.limitMinor = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.source = const Value.absent(),
+    this.writtenAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BalanceSnapshotsCompanion.insert({
+    required String accountId,
+    required LocalDate date,
+    required int currentMinor,
+    this.availableMinor = const Value.absent(),
+    this.limitMinor = const Value.absent(),
+    required String currency,
+    required DataSource source,
+    required DateTime writtenAt,
+    this.rowid = const Value.absent(),
+  }) : accountId = Value(accountId),
+       date = Value(date),
+       currentMinor = Value(currentMinor),
+       currency = Value(currency),
+       source = Value(source),
+       writtenAt = Value(writtenAt);
+  static Insertable<BalanceSnapshotRow> custom({
+    Expression<String>? accountId,
+    Expression<String>? date,
+    Expression<int>? currentMinor,
+    Expression<int>? availableMinor,
+    Expression<int>? limitMinor,
+    Expression<String>? currency,
+    Expression<String>? source,
+    Expression<int>? writtenAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (accountId != null) 'account_id': accountId,
+      if (date != null) 'date': date,
+      if (currentMinor != null) 'current_minor': currentMinor,
+      if (availableMinor != null) 'available_minor': availableMinor,
+      if (limitMinor != null) 'limit_minor': limitMinor,
+      if (currency != null) 'currency': currency,
+      if (source != null) 'source': source,
+      if (writtenAt != null) 'written_at': writtenAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BalanceSnapshotsCompanion copyWith({
+    Value<String>? accountId,
+    Value<LocalDate>? date,
+    Value<int>? currentMinor,
+    Value<int?>? availableMinor,
+    Value<int?>? limitMinor,
+    Value<String>? currency,
+    Value<DataSource>? source,
+    Value<DateTime>? writtenAt,
+    Value<int>? rowid,
+  }) {
+    return BalanceSnapshotsCompanion(
+      accountId: accountId ?? this.accountId,
+      date: date ?? this.date,
+      currentMinor: currentMinor ?? this.currentMinor,
+      availableMinor: availableMinor ?? this.availableMinor,
+      limitMinor: limitMinor ?? this.limitMinor,
+      currency: currency ?? this.currency,
+      source: source ?? this.source,
+      writtenAt: writtenAt ?? this.writtenAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<String>(
+        $BalanceSnapshotsTable.$converterdate.toSql(date.value),
+      );
+    }
+    if (currentMinor.present) {
+      map['current_minor'] = Variable<int>(currentMinor.value);
+    }
+    if (availableMinor.present) {
+      map['available_minor'] = Variable<int>(availableMinor.value);
+    }
+    if (limitMinor.present) {
+      map['limit_minor'] = Variable<int>(limitMinor.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(
+        $BalanceSnapshotsTable.$convertersource.toSql(source.value),
+      );
+    }
+    if (writtenAt.present) {
+      map['written_at'] = Variable<int>(
+        $BalanceSnapshotsTable.$converterwrittenAt.toSql(writtenAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BalanceSnapshotsCompanion(')
+          ..write('accountId: $accountId, ')
+          ..write('date: $date, ')
+          ..write('currentMinor: $currentMinor, ')
+          ..write('availableMinor: $availableMinor, ')
+          ..write('limitMinor: $limitMinor, ')
+          ..write('currency: $currency, ')
+          ..write('source: $source, ')
+          ..write('writtenAt: $writtenAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $AccountsTable accounts = $AccountsTable(this);
@@ -12283,6 +15050,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $LiabilitiesTable liabilities = $LiabilitiesTable(this);
   late final $BillsTable bills = $BillsTable(this);
   late final $BillAlertsTable billAlerts = $BillAlertsTable(this);
+  late final $SecuritiesTable securities = $SecuritiesTable(this);
+  late final $HoldingsTable holdings = $HoldingsTable(this);
+  late final $InvestmentTransactionsTable investmentTransactions =
+      $InvestmentTransactionsTable(this);
+  late final $BalanceSnapshotsTable balanceSnapshots = $BalanceSnapshotsTable(
+    this,
+  );
   late final Index transactionsAccountDate = Index(
     'transactions_account_date',
     'CREATE INDEX transactions_account_date ON transactions (account_id, date)',
@@ -12331,6 +15105,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'bills_due_date',
     'CREATE INDEX bills_due_date ON bills (due_date)',
   );
+  late final Index investmentTransactionsAccountDate = Index(
+    'investment_transactions_account_date',
+    'CREATE INDEX investment_transactions_account_date ON investment_transactions (account_id, date)',
+  );
+  late final Index balanceSnapshotsDate = Index(
+    'balance_snapshots_date',
+    'CREATE INDEX balance_snapshots_date ON balance_snapshots (date)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -12358,6 +15140,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     liabilities,
     bills,
     billAlerts,
+    securities,
+    holdings,
+    investmentTransactions,
+    balanceSnapshots,
     transactionsAccountDate,
     transactionsUserCategory,
     transactionsPendingTransaction,
@@ -12370,6 +15156,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     savedFiltersPosition,
     recurringStreamsAccount,
     billsDueDate,
+    investmentTransactionsAccountDate,
+    balanceSnapshotsDate,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

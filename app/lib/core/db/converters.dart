@@ -3,6 +3,8 @@
 /// - A `LocalDate` is TEXT `yyyy-MM-dd` ([LocalDateColumnConverter]).
 /// - An audit instant is INTEGER epoch milliseconds UTC ([UtcMillisColumnConverter]).
 /// - A `Uri` is its TEXT form ([UriColumnConverter]).
+/// - A `Decimal` (a price, a quantity) is TEXT in the contract's form, its scale kept
+///   ([DecimalColumnConverter]).
 /// - An enum is TEXT by name, through Drift's `textEnum`; every enum stored in schema 1 has
 ///   one-word values, so the Dart name is also its JSON name. `ItemStatus` (schema 3) has
 ///   multi-word values and is TEXT by its snake_case JSON name
@@ -27,6 +29,18 @@ final class LocalDateColumnConverter extends TypeConverter<LocalDate, String> {
 
   @override
   String toSql(LocalDate value) => value.toIso();
+}
+
+/// `Decimal` ↔ TEXT in the contract's form (`41.50`), its scale kept.
+final class DecimalColumnConverter extends TypeConverter<Decimal, String> {
+  /// The converter.
+  const DecimalColumnConverter();
+
+  @override
+  Decimal fromSql(String fromDb) => Decimal.parse(fromDb);
+
+  @override
+  String toSql(Decimal value) => value.toString();
 }
 
 /// A UTC `DateTime` with millisecond precision ↔ INTEGER epoch milliseconds.

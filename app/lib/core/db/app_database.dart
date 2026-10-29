@@ -24,7 +24,11 @@
 /// `recurring_stream` records sync held. Schema 10 adds the user's bills (`bills`, synced
 /// as the `bill_reminder` record, the paid occurrences a field of it) and the bill
 /// notifications this device raised (`bill_alerts`, local only); its migration
-/// materializes the `bill_reminder` records sync held. The full-text index (`full_text_search.dart`)
+/// materializes the `bill_reminder` records sync held. Schema 11 adds the linked
+/// investment accounts' securities, holdings and investment transactions (`securities`,
+/// `holdings`, `investment_transactions`, server-authoritative) and the daily balance
+/// snapshots this device observes (`balance_snapshots`, local only); its migration
+/// creates the empty tables. The full-text index (`full_text_search.dart`)
 /// is not part of a schema step: `beforeOpen` makes it match whether the bundled SQLite
 /// has FTS5, at every open, and records that in [AppDatabase.fullTextSearch]. Every
 /// schema change follows the procedure
@@ -48,6 +52,7 @@ import 'package:finance_tracker/core/db/sync_backfill.dart';
 import 'package:finance_tracker/core/db/tables/accounts.dart';
 import 'package:finance_tracker/core/db/tables/app_meta.dart';
 import 'package:finance_tracker/core/db/tables/app_settings.dart';
+import 'package:finance_tracker/core/db/tables/balance_snapshots.dart';
 import 'package:finance_tracker/core/db/tables/bill_alerts.dart';
 import 'package:finance_tracker/core/db/tables/bills.dart';
 import 'package:finance_tracker/core/db/tables/budget_alerts.dart';
@@ -56,12 +61,15 @@ import 'package:finance_tracker/core/db/tables/categories.dart';
 import 'package:finance_tracker/core/db/tables/change_log.dart';
 import 'package:finance_tracker/core/db/tables/dismissed_pairs.dart';
 import 'package:finance_tracker/core/db/tables/held_records.dart';
+import 'package:finance_tracker/core/db/tables/holdings.dart';
+import 'package:finance_tracker/core/db/tables/investment_transactions.dart';
 import 'package:finance_tracker/core/db/tables/items.dart';
 import 'package:finance_tracker/core/db/tables/liabilities.dart';
 import 'package:finance_tracker/core/db/tables/record_clocks.dart';
 import 'package:finance_tracker/core/db/tables/recurring_streams.dart';
 import 'package:finance_tracker/core/db/tables/rules.dart';
 import 'package:finance_tracker/core/db/tables/saved_filters.dart';
+import 'package:finance_tracker/core/db/tables/securities.dart';
 import 'package:finance_tracker/core/db/tables/stream_overrides.dart';
 import 'package:finance_tracker/core/db/tables/sync_meta.dart';
 import 'package:finance_tracker/core/db/tables/transaction_splits.dart';
@@ -106,6 +114,10 @@ final Logger _log = Logger('db');
     Liabilities,
     Bills,
     BillAlerts,
+    Securities,
+    Holdings,
+    InvestmentTransactions,
+    BalanceSnapshots,
   ],
 )
 final class AppDatabase extends _$AppDatabase {
@@ -141,7 +153,7 @@ final class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -238,6 +250,16 @@ final class AppDatabase extends _$AppDatabase {
             DriftSyncStore(this, _WallClock(wallMillis)),
             EntityType.billReminder,
           );
+        });
+      }
+      if (from < 11) {
+        await transaction(() async {
+          await m.createTable(securities);
+          await m.createTable(holdings);
+          await m.createTable(investmentTransactions);
+          await _createIndex(m, investmentTransactionsAccountDate);
+          await m.createTable(balanceSnapshots);
+          await _createIndex(m, balanceSnapshotsDate);
         });
       }
     },

@@ -94,6 +94,12 @@ void main() {
     await verifier.migrateAndValidate(database, 10);
   });
 
+  test('a new database matches the schema 11 dump', () async {
+    final AppDatabase database = AppDatabase(await verifier.startAt(11));
+    addTearDown(database.close);
+    await verifier.migrateAndValidate(database, 11);
+  });
+
   group('schema 1 to 2', () {
     // 2026-10-01 09:00 UTC, the v1 rows' audit instants; 2026-10-02, a v1 delete.
     const int created = 1759309200000;
@@ -964,7 +970,7 @@ void main() {
       });
     }
 
-    for (final int from in [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+    for (final int from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
       test('from schema $from, after a whole run whose version was not '
           'written', () async {
         final schema = await verifier.schemaAt(from);
@@ -1363,7 +1369,7 @@ void main() {
           wallMillis: () => migratedAt,
         );
         addTearDown(database.close);
-        await verifier.migrateAndValidate(database, 10);
+        await verifier.migrateAndValidate(database, database.schemaVersion);
         await checkMigrated(database);
       },
     );
@@ -1374,7 +1380,7 @@ void main() {
         schema.newConnection(),
         wallMillis: () => migratedAt,
       );
-      await verifier.migrateAndValidate(first, 10);
+      await verifier.migrateAndValidate(first, first.schemaVersion);
       await first.close();
       schema.rawDatabase.execute('PRAGMA user_version = 9');
       schema.rawDatabase.execute('''
@@ -1387,9 +1393,116 @@ void main() {
         wallMillis: () => migratedAt + 1000,
       );
       addTearDown(again.close);
-      await verifier.migrateAndValidate(again, 10);
+      await verifier.migrateAndValidate(again, again.schemaVersion);
       expect(await again.select(again.billAlerts).get(), hasLength(1));
       await again.delete(again.billAlerts).go();
+      await checkMigrated(again);
+    });
+  });
+
+  group('schema 10 to 11', () {
+    const int created = 1759309200000; // 2026-10-01 09:00 UTC
+
+    // A schema 10 database with a linked account and its transaction, a manual account,
+    // a liability, a bill and the Plaid pull's cursor.
+    Future<InitializedSchema> seeded() async {
+      final schema = await verifier.schemaAt(10);
+      schema.rawDatabase.execute('''
+        INSERT INTO items (id, institution_id, institution_name, institution_logo_url,
+          institution_logo, institution_color, status, error_code,
+          last_successful_sync_at, pulled_at)
+        VALUES ('item', 'ins_109508', 'First Platypus Bank', NULL, NULL, NULL,
+          'healthy', NULL, $created, $created);
+        INSERT INTO accounts (id, item_id, type, subtype, name, official_name, mask,
+          currency, current_balance_minor, available_balance_minor, credit_limit_minor,
+          balances_as_of, is_hidden, display_order, created_at, updated_at, deleted_at,
+          sync_version)
+        VALUES
+          ('acc', NULL, 'depository', NULL, 'Wallet', NULL, NULL, 'USD',
+           NULL, NULL, NULL, NULL, 0, 0, $created, $created, NULL, 0),
+          ('ira', 'item', 'investment', '401k', 'Plaid 401k', NULL, '4444', 'USD',
+           554763, NULL, NULL, $created, 0, 1, $created, $created, NULL, 3);
+        INSERT INTO transactions (id, account_id, amount_minor, currency, date,
+          authorized_date, pending, pending_transaction_id, name, merchant_name,
+          merchant_logo_url, plaid_primary_category, plaid_detailed_category,
+          user_category_id, notes, receipt_path, hidden, source, created_at, updated_at,
+          deleted_at, sync_version, deleted_with_account)
+        VALUES ('t1', 'acc', -1250, 'USD', '2026-09-30', NULL, 0, NULL, 'Lunch', NULL,
+          NULL, NULL, NULL, NULL, NULL, NULL, 0, 'manual', $created, $created, NULL, 0,
+          0);
+        INSERT INTO sync_meta (key, value)
+        VALUES ('plaid_transactions_since', '12');
+      ''');
+      return schema;
+    }
+
+    Future<void> checkMigrated(AppDatabase database) async {
+      expect(
+        (await database.select(database.accounts).get()).map((a) => a.id),
+        unorderedEquals(['acc', 'ira']),
+      );
+      expect(
+        (await database.select(database.transactions).get()).map((t) => t.id),
+        ['t1'],
+      );
+      expect(await database.select(database.securities).get(), isEmpty);
+      expect(await database.select(database.holdings).get(), isEmpty);
+      expect(
+        await database.select(database.investmentTransactions).get(),
+        isEmpty,
+      );
+      expect(await database.select(database.balanceSnapshots).get(), isEmpty);
+      final QueryRow cursor = await database
+          .customSelect(
+            "SELECT value FROM sync_meta WHERE key = 'plaid_transactions_since'",
+          )
+          .getSingle();
+      expect(cursor.read<String>('value'), '12');
+    }
+
+    test('keeps every row and adds the four empty tables', () async {
+      final AppDatabase database = AppDatabase(
+        (await seeded()).newConnection(),
+      );
+      addTearDown(database.close);
+      await verifier.migrateAndValidate(database, 11);
+      await checkMigrated(database);
+    });
+
+    test('a snapshot source outside the provenances is refused', () async {
+      final AppDatabase database = AppDatabase(
+        (await seeded()).newConnection(),
+      );
+      addTearDown(database.close);
+      await verifier.migrateAndValidate(database, 11);
+      await expectLater(
+        database.customStatement(
+          'INSERT INTO balance_snapshots (account_id, date, current_minor, '
+          'available_minor, limit_minor, currency, source, written_at) VALUES '
+          "('acc', '2026-10-24', 100, NULL, NULL, 'USD', 'guessed', $created)",
+        ),
+        throwsA(isA<SqliteException>()),
+      );
+    });
+
+    test('runs again after a run whose version was not written', () async {
+      final schema = await seeded();
+      final AppDatabase first = AppDatabase(schema.newConnection());
+      await verifier.migrateAndValidate(first, 11);
+      await first.close();
+      schema.rawDatabase.execute('PRAGMA user_version = 10');
+      // What the first run's tables already hold when the step runs again.
+      schema.rawDatabase.execute('''
+        INSERT INTO balance_snapshots (account_id, date, current_minor,
+          available_minor, limit_minor, currency, source, written_at)
+        VALUES ('acc', '2026-10-24', -1250, NULL, NULL, 'USD', 'manual', $created);
+      ''');
+
+      final AppDatabase again = AppDatabase(schema.newConnection());
+      addTearDown(again.close);
+      await verifier.migrateAndValidate(again, 11);
+      expect(await again.select(again.balanceSnapshots).get(), hasLength(1));
+      await again.delete(again.balanceSnapshots).go();
       await checkMigrated(again);
     });
   });
