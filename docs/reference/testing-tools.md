@@ -208,7 +208,7 @@ loudly otherwise.
 
 | Command | What it does |
 |---|---|
-| `integration [-- <args>]` | The default. Boots `ft-lane`, uninstalls the demo app a previous run left (below), then runs `flutter test integration_test --flavor demo -d <serial>` from `app/`, passing any extra arguments through; the tests run against the in-app fakes. |
+| `integration [-- <args>]` | The default. Boots `ft-lane`, uninstalls the demo app a previous run left (below), then runs `flutter test integration_test --flavor demo -d <serial>` from `app/`, passing any extra arguments through; the tests run against the in-app fakes. Then it prints one line per test file from Flutter's JSON report (`--file-reporter`, kept at `app/build/emulator/integration.json`): its result, its tests and how many were skipped, and its duration from the start of its loading (the build and the install) to the end of its last test, so the slow file is named; a file the run never started (an interrupted run) is listed as "no events"; without `jq` it says so and prints none. |
 | `demo [<screenshot>]` | Boots, builds the demo debug APK, installs it with `adb install -r`, launches the launcher activity of `dev.tarnan.financetracker.demo`, waits (up to 60 s) for it to take window focus plus a short settle for the first frame, and saves a screenshot, by default `app/build/emulator/demo.png`; prints the path. |
 | `run <command...>` | Boots, then runs the command with `FT_EMULATOR_SERIAL` set to the emulator's serial: anything else against the AVD goes through this. |
 | `stop [--force]` | Shuts down the `ft-lane` emulator and removes a stale lock. Refuses while a live run holds the lock, unless `--force`: then it prints the holder, kills the emulator and removes the lock whoever holds it. |
@@ -287,7 +287,7 @@ else `ANDROID_SDK_ROOT`, else `~/Library/Android/sdk`; a missing `adb`, `emulato
 **What it writes.** The AVD in `~/.android/avd/ft-lane.avd` (and its `.ini`), the system
 image under the SDK on first use, the lock directory (with its short-lived `.new.*` and
 `.stale.*` siblings), and `app/build/`: the APKs, the emulator, `sdkmanager` and
-`avdmanager` logs and the screenshot under `app/build/emulator/`. Installs go onto `ft-lane`
+`avdmanager` logs, the integration run's JSON report and the screenshot under `app/build/emulator/`. Installs go onto `ft-lane`
 only.
 
 **The uninstall before the tests.** `integration` removes `dev.tarnan.financetracker.demo`

@@ -5,7 +5,8 @@
 #   integration [-- <flutter test args>]   (the default) boot, uninstall the demo app a
 #                         previous run left, then `flutter test integration_test --flavor demo
 #                         -d <serial>` from app/; the in-app fakes only, never the dev server
-#                         or Plaid Sandbox
+#                         or Plaid Sandbox; then prints each test file's result and duration
+#                         from flutter's JSON report (app/build/emulator/integration.json)
 #   demo [<screenshot>]   boot, build and install the demo flavor's debug APK, launch it, wait
 #                         for its activity to take focus, and save a screenshot (default
 #                         app/build/emulator/demo.png); prints the path
@@ -465,14 +466,47 @@ uninstall_demo() {
   say "uninstalling $DEMO_PACKAGE failed again ($result); going on: the install replaces the package"
 }
 
+# Prints one line per integration test file from flutter's JSON report: its result, its
+# tests, and its duration from the start of its loading (the build and the install) to the
+# end of its last test, so the slow file is named. A file the run never started (an
+# interrupted run) is listed with "no events".
+report_files() {
+  local report="$1"
+  [ -s "$report" ] || { say "no test report at $report: no per-file durations"; return 0; }
+  command -v jq >/dev/null 2>&1 || { say "jq is missing: no per-file durations (brew install jq)"; return 0; }
+  jq -rs --arg app "$root/app/" '
+    (map(select(.type == "testStart") | {key: (.test.id | tostring), value: .test.suiteID})
+      | from_entries) as $suite_of
+    | . as $events
+    | $events[] | select(.type == "suite") | .suite as $suite
+    | [$events[] | select(
+        (.type == "testStart" and .test.suiteID == $suite.id)
+        or ((.type == "testDone" or .type == "error")
+          and $suite_of[.testID | tostring] == $suite.id))] as $mine
+    | [$mine[] | select(.type == "testDone" and (.hidden | not))] as $tests
+    | (if any($mine[]; .type == "error" or (.type == "testDone" and .result != "success"))
+        then "FAILED" else "passed" end) as $result
+    | if ($mine | length) == 0 then
+        "no events  \($suite.path | ltrimstr($app))  (the run ended before it started)"
+      else
+        "\($result)  \(($mine | map(.time) | max - min) / 1000 | round)s  \($suite.path | ltrimstr($app))  (\($tests | length) test(s), \(
+        [$tests[] | select(.skipped)] | length) skipped)"
+      end
+  ' "$report" | while IFS= read -r line; do say "$line"; done
+}
+
 cmd_integration() {
   [ "${1:-}" = "--" ] && shift
   boot
   assert_ours "$SERIAL"
   uninstall_demo
+  local report="$OUT_DIR/integration.json"
+  rm -f "$report"
   say "running the integration tests on $SERIAL"
-  run_child flutter_in_app test integration_test --flavor demo -d "$SERIAL" "$@"
+  run_child flutter_in_app test integration_test --flavor demo -d "$SERIAL" \
+    --file-reporter "json:$report" "$@"
   local status=$?
+  report_files "$report"
   if [ $status -eq 0 ]; then say "integration: passed"; else say "integration: FAILED"; fi
   return $status
 }
