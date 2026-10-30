@@ -1,8 +1,10 @@
-/// Startup shared by the three entry points: checks the configuration, sets up logging,
-/// time zones and the locale, opens the local data (dev and prod), reads the stored
-/// session, starts sync and the budget alerts, then runs the app on its Riverpod
-/// container; after the first frame, the bill reminders are planned (a tapped one opens
-/// its bill), and dev and prod sweep the receipt files no transaction references.
+/// Startup shared by the three entry points: [bootstrap] checks the configuration and
+/// sets up logging, time zones and the locale once, then [startApp] opens the local data
+/// (dev and prod), reads the stored session, starts sync and the budget alerts, and runs
+/// the app on a new Riverpod container; after the first frame, the bill reminders are
+/// planned (a tapped one opens its bill), and dev and prod sweep the receipt files no
+/// transaction references. [startApp] can run again in the same process, on a new
+/// container.
 library;
 
 import 'dart:async';
@@ -33,16 +35,16 @@ import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final Logger _log = Logger('app');
 
-/// Starts the app for [config]. Throws a [StateError] before anything runs when the prod
-/// flavor is given a server URL that is not HTTPS. When the local data cannot be opened,
-/// for whatever reason, logs the failure's type and shows [DatabaseErrorApp] instead of
-/// the app.
+/// Starts the app for [config] ([startApp]) after the process's one-time setup. Throws a
+/// [StateError] before anything runs when the prod flavor is given a server URL that is
+/// not HTTPS.
 Future<void> bootstrap(AppConfig config) async {
   final Uri? serverBaseUrl = config.serverBaseUrl;
   if (config.flavor == Flavor.prod &&
@@ -58,9 +60,16 @@ Future<void> bootstrap(AppConfig config) async {
   await setUpTimeZones();
   // intl's default locale is en_US until set; Money.format and Money.parse use it.
   Intl.defaultLocale = deviceLocale();
+  await startApp(config);
+}
 
+/// Runs the app for [config] on a new container over [overrides] (the flavor's,
+/// [overridesFor], unless a test supplies its own), after [bootstrap]'s one-time setup.
+/// When the local data cannot be opened, for whatever reason, logs the failure's type
+/// and shows [DatabaseErrorApp] instead of the app.
+Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
   final ProviderContainer container = ProviderContainer(
-    overrides: overridesFor(config),
+    overrides: overrides ?? overridesFor(config),
   );
   if (config.flavor != Flavor.demo) {
     try {

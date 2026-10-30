@@ -20,7 +20,8 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
    canonicalized, or `en_US` when intl has no data for it), so `Money.format` and
    `Money.parse` without a locale follow the device; a locale change while the app runs is
    not followed yet;
-6. a `ProviderContainer` with `overridesFor(config)`;
+6. `startApp(config)`, the rest, which can run again in the same process: a
+   `ProviderContainer` with `overridesFor(config)` (or the overrides a test gives);
 7. in dev and prod, `openLocalData(container)`: the database opens (`data.md`,
    **Encryption and the key**), the held records of every type this build knows are
    released (`sync-app.md`, **Unknown types**; a failure is logged by type and leaves
