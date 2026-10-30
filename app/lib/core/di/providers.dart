@@ -38,6 +38,7 @@ import 'package:finance_tracker/core/platform/app_shortcuts_provider.dart';
 import 'package:finance_tracker/core/platform/backup_picker_provider.dart';
 import 'package:finance_tracker/core/platform/channel_monotonic_clock.dart';
 import 'package:finance_tracker/core/platform/channel_screen_security.dart';
+import 'package:finance_tracker/core/platform/connectivity_provider.dart';
 import 'package:finance_tracker/core/platform/fake_image_source.dart';
 import 'package:finance_tracker/core/platform/file_exporter_provider.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
@@ -46,6 +47,7 @@ import 'package:finance_tracker/core/platform/local_notifications_provider.dart'
 import 'package:finance_tracker/core/platform/local_notifications_scheduler.dart';
 import 'package:finance_tracker/core/platform/monotonic_clock_provider.dart';
 import 'package:finance_tracker/core/platform/platform_backup_picker.dart';
+import 'package:finance_tracker/core/platform/platform_connectivity.dart';
 import 'package:finance_tracker/core/platform/platform_file_exporter.dart';
 import 'package:finance_tracker/core/platform/platform_launch_intent.dart';
 import 'package:finance_tracker/core/platform/quick_actions_app_shortcuts.dart';
@@ -727,6 +729,7 @@ final List<Override> _driftOverrides = [
       reminders: ref.watch(reminderSchedulerProvider),
     ),
   ),
+  connectivityProvider.overrideWith((ref) => PlatformConnectivity()),
   reminderSchedulerProvider.overrideWith((ref) {
     final AppLocalizations l10n = lookupAppLocalizations(
       basicLocaleListResolution(
