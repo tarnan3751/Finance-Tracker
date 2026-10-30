@@ -101,7 +101,7 @@ final class ServerApp {
     limiter = RateLimiter(now: this.now);
     routes = [
       ...authRoutes(auth),
-      ...userRoutes(db: db, auth: auth, items: items),
+      ...userRoutes(db: db, auth: auth, items: items, receipts: receipts),
       ...plaidRoutes(
         items,
         WebhookService(

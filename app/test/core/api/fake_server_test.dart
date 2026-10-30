@@ -298,6 +298,14 @@ void main() {
       expect(await bob.api.getReceipt(hash), jpeg);
     });
 
+    test("an account's deletion drops its photos", () async {
+      final FakeClient ada = FakeClient.signedIn(server);
+      await ada.api.putReceipt(hash, jpeg);
+      await ada.api.deleteMe();
+      final FakeClient again = FakeClient.signedIn(server);
+      await expectLater(again.api.getReceipt(hash), throwsA(isA<NotFound>()));
+    });
+
     test(
       'bytes that do not hash to the path, none, or too many, are refused',
       () async {

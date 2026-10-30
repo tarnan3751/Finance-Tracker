@@ -123,6 +123,40 @@ final class ReceiptService {
     },
   );
 
+  /// The hashes [userId] has stored, inside [tx]: read before the user's rows go, so
+  /// [removeUnowned] can remove the files no one else owns once the deletion commits.
+  List<String> hashesOf(Tx tx, String userId) => [
+    for (final row in tx.select(
+      'SELECT sha256 FROM receipts WHERE user_id = ?',
+      [userId],
+    ))
+      row['sha256'] as String,
+  ];
+
+  /// Deletes the files of [hashes] that no user owns any more. A file that cannot be
+  /// deleted is logged and left: with no owner, no request can reach it.
+  /// Each hash's check and removal run under its lock, so a store of the same hash
+  /// (another user's) never finds the file present and then loses it before its row.
+  Future<void> removeUnowned(Iterable<String> hashes) async {
+    for (final hash in hashes) {
+      await locked(hash, () async {
+        final owned = await db.read(
+          (tx) => tx.first('SELECT 1 FROM receipts WHERE sha256 = ?', [hash]),
+        );
+        if (owned != null) return;
+        try {
+          await fileOf(hash).delete();
+        } on PathNotFoundException {
+          // Already gone.
+        } on FileSystemException catch (e) {
+          _log.warning(
+            LogEvent('receipt_file_not_deleted', {'error': '${e.runtimeType}'}),
+          );
+        }
+      });
+    }
+  }
+
   /// The bytes [userId] stored under [hash], or null when they stored none (or the file
   /// is gone).
   Future<Uint8List?> read(String userId, String hash) async {

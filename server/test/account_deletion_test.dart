@@ -1,7 +1,9 @@
 // DELETE /me: every Item removed at Plaid first, with retries; nothing deleted unless all
-// removals succeed; then every row of the user gone and every session ended.
+// removals succeed; then every row of the user gone and every session ended, and their
+// receipt files with them unless another user stored the same bytes.
 import 'dart:async';
 
+import 'package:cryptography/dart.dart' show DartSha256;
 import 'package:finance_tracker_server/server.dart';
 import 'package:test/test.dart';
 
@@ -244,4 +246,96 @@ void main() {
       expect((await census(ada.userId)).values.toSet(), {0});
     },
   );
+
+  group('receipts', () {
+    String sha(List<int> bytes) => [
+      for (final b in const DartSha256().hashSync(bytes).bytes)
+        b.toRadixString(16).padLeft(2, '0'),
+    ].join();
+    final mine = [0xff, 0xd8, 0xff, 1];
+    final shared = [0xff, 0xd8, 0xff, 2];
+
+    Future<void> put(Session s, List<int> bytes) async {
+      final r = await server.call(
+        'put',
+        '/receipts/${sha(bytes)}',
+        bytes: bytes,
+        contentType: 'image/jpeg',
+        token: s.access,
+      );
+      expect(r.status, 200);
+    }
+
+    test(
+      "the user's files go, and one another user also stored stays",
+      () async {
+        await put(ada, mine);
+        await put(ada, shared);
+        await put(eve, shared);
+        expect(await census(ada.userId), containsPair('receipts', 2));
+        final r = await server.call('delete', '/me', token: ada.access);
+        expect(r.status, 204);
+        expect(await census(ada.userId), containsPair('receipts', 0));
+        expect(server.app.receipts.fileOf(sha(mine)).existsSync(), isFalse);
+        expect(server.app.receipts.fileOf(sha(shared)).existsSync(), isTrue);
+        final back = await server.call(
+          'get',
+          '/receipts/${sha(shared)}',
+          token: eve.access,
+        );
+        expect(back.body, shared);
+      },
+    );
+
+    test('a store racing the deletion of the only other owner keeps the file '
+        'and its row', () async {
+      // ada is the only owner; eve stores the same bytes while ada is deleted. eve's
+      // store finds the file and pauses before its row, which is where a removal that
+      // did not wait for it would take the file.
+      await put(ada, mine);
+      final checked = Completer<void>();
+      server.app.receipts.afterFileCheck = () async {
+        checked.complete();
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+      };
+      final store = server.call(
+        'put',
+        '/receipts/${sha(mine)}',
+        bytes: mine,
+        contentType: 'image/jpeg',
+        token: eve.access,
+      );
+      await checked.future;
+      server.app.receipts.afterFileCheck = null;
+      final deletion = server.call('delete', '/me', token: ada.access);
+      expect((await store).status, 200);
+      expect((await deletion).status, 204);
+      expect(server.app.receipts.fileOf(sha(mine)).existsSync(), isTrue);
+      expect(await census(eve.userId), containsPair('receipts', 1));
+      final back = await server.call(
+        'get',
+        '/receipts/${sha(mine)}',
+        token: eve.access,
+      );
+      expect(back.body, mine);
+    });
+
+    test('a deletion that fails keeps the files', () async {
+      await put(ada, mine);
+      server.plaid.failNext(
+        'removeItem',
+        const PlaidException('API_ERROR', 'INTERNAL_SERVER_ERROR'),
+        times: 6,
+      );
+      final r = await server.call('delete', '/me', token: ada.access);
+      expect(r.status, 502);
+      expect(server.app.receipts.fileOf(sha(mine)).existsSync(), isTrue);
+      final back = await server.call(
+        'get',
+        '/receipts/${sha(mine)}',
+        token: ada.access,
+      );
+      expect(back.body, mine);
+    });
+  });
 }

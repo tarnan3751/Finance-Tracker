@@ -8,7 +8,10 @@
 /// exchange during the retries) and deletes the user; the cascade takes every row the
 /// user owns, devices and refresh tokens included, which ends every session. An Item
 /// that appeared sends the deletion round again, at most [deletionRounds] times; one
-/// still there after that is 502 and nothing is deleted.
+/// still there after that is 502 and nothing is deleted. The user's receipt files go
+/// after the deletion commits, each one no other user also stored (`ReceiptService`), so
+/// a deletion that fails keeps them, and a file whose removal fails has no owner left to
+/// reach it.
 library;
 
 import 'package:finance_tracker_server/src/auth/auth_service.dart';
@@ -18,6 +21,7 @@ import 'package:finance_tracker_server/src/http/problem.dart';
 import 'package:finance_tracker_server/src/http/wire.dart';
 import 'package:finance_tracker_server/src/logging.dart';
 import 'package:finance_tracker_server/src/plaid/item_service.dart';
+import 'package:finance_tracker_server/src/receipts/receipt_routes.dart';
 import 'package:logging/logging.dart';
 
 final _log = Logger('users');
@@ -31,6 +35,7 @@ List<ApiRoute> userRoutes({
   required AppDatabase db,
   required AuthService auth,
   required ItemService items,
+  required ReceiptService receipts,
 }) => [
   ApiRoute('getMe', 'get', '/me', (r) async {
     final row = await db.read(
@@ -47,6 +52,7 @@ List<ApiRoute> userRoutes({
     });
   }),
   ApiRoute('deleteMe', 'delete', '/me', (r) async {
+    var hashes = const <String>[];
     for (var round = 1; ; round++) {
       for (final item in await items.itemsToRemove(r.userId)) {
         await items.removeAtPlaid(item.id, item.accessToken);
@@ -57,6 +63,7 @@ List<ApiRoute> userRoutes({
           [r.userId],
         );
         if (linked != null) return false;
+        hashes = receipts.hashesOf(tx, r.userId);
         tx.execute('DELETE FROM users WHERE id = ?', [r.userId]);
         return true;
       });
@@ -69,6 +76,7 @@ List<ApiRoute> userRoutes({
         );
       }
     }
+    await receipts.removeUnowned(hashes);
     _log.info(LogEvent('user_deleted', {'user_id': r.userId}));
     return noContent();
   }),

@@ -186,8 +186,9 @@ paths:
       tags: [me]
       summary: Deletes the user and everything they own
       description: >-
-        Removes every Plaid Item at Plaid, deletes every row the user owns and revokes every
-        session, and answers `204` only when all of that has succeeded. An Item whose removal
+        Removes every Plaid Item at Plaid, deletes every row the user owns (their receipt
+        photos with them) and revokes every session, and answers `204` only when all of
+        that has succeeded. An Item whose removal
         still fails after retries makes the answer `502` `plaid_error`, and nothing is
         deleted (PLAN.md §6.5). Items already removed at Plaid before that failure stay
         marked as removed on the server: they are hidden from every endpoint and are not
