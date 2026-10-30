@@ -206,6 +206,9 @@ emulator only after `adb -s <serial> emu avd name` has answered `ft-lane`, so th
 `Pixel_*` and `Nexus_*` emulators and any physical device are never touched, and it fails
 loudly otherwise.
 
+A caller waits on a run with one bounded wait under its own timeout, never a second wait while
+one is running, and kills any polling shell once the run it watched has finished.
+
 | Command | What it does |
 |---|---|
 | `integration [-- <args>]` | The default. Boots `ft-lane`, uninstalls the demo app a previous run left (below), then runs `flutter test integration_test --flavor demo -d <serial>` from `app/`, passing any extra arguments through; the tests run against the in-app fakes. Then it prints one line per test file from Flutter's JSON report (`--file-reporter`, kept at `app/build/emulator/integration.json`): its result, its tests and how many were skipped, and its duration from the start of its loading (the build and the install) to the end of its last test, so the slow file is named; a file the run never started (an interrupted run) is listed as "no events"; without `jq` it says so and prints none. |

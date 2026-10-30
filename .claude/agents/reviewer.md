@@ -55,6 +55,11 @@ once; no hard-case probes unless the diff gives you a reason.
    ```
    tools/gates.sh
    ```
+   Wait on a gate, a build or the harness with one bounded loop under the tool's timeout (a
+   foreground command with a timeout, or one background run you are notified of), never a
+   second wait while one is running. When the work a polling shell watched has finished, kill
+   that shell. Run one gate at a time: two gates in one clone overwrite each other's `build/`
+   and `.dart_tool/`, and two on the machine slow every test past its timeout.
 4. **Verify behaviour when it matters.** For domain, data, sync and server work, write the probe
    as a test (a repository contract case, a sync simulation with a nasty interleaving, a
    migration from the previous schema, a server test with a forged webhook) and run

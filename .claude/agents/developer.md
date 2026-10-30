@@ -100,6 +100,12 @@ fresh clone with `git am` of the patches so far is the clean way) and paste its 
 into your report. "It analyzes" is the floor, not proof. The gate writes `build/` and
 `.dart_tool/` in the tree it runs in, which is why it runs only in your clone.
 
+Wait on a gate, a build or the harness with one bounded loop under the tool's timeout (a
+foreground command with a timeout, or one background run you are notified of), never a second
+wait while one is running. When the work a polling shell watched has finished, kill that shell.
+Run one gate at a time: two gates in one clone overwrite each other's `build/` and
+`.dart_tool/`, and two on the machine slow every test past its timeout.
+
 ## Verifying behaviour
 
 When the change affects anything a user can observe, verify it on a running app, not by reading
