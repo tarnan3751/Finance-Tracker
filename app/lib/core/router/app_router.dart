@@ -11,10 +11,15 @@
 ///   empty database, the offer never answered), a signed-in user is held at `/restore`;
 ///   once it is answered, `/restore` is sent to `/accounts`.
 /// - The demo flavor has no gate: it is always signed in as the demo user.
+/// - A cold start at a launch link (a home screen widget's tap, `launch_links.dart`)
+///   opens at its location ([LaunchLocation], set by `bootstrap` before the router is
+///   built), behind the session gate and the lock like any other location; a link that
+///   reaches the running app goes there ([openLaunchLink]).
 library;
 
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/router/launch_links.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
 import 'package:finance_tracker/features/auth/domain/session_state.dart';
@@ -25,9 +30,32 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_router.g.dart';
 
-/// The router the app runs on, created once and disposed with the container.
+/// The router the app runs on, created once and disposed with the container, opening
+/// at [LaunchLocation]'s location when the app was started at a launch link.
 @Riverpod(keepAlive: true)
-GoRouter goRouter(Ref ref) => routerFor(ref);
+GoRouter goRouter(Ref ref) =>
+    routerFor(ref, initialLocation: ref.read(launchLocationProvider));
+
+/// The location of the launch link the app was started at, or null; read once, when the
+/// router is built.
+@Riverpod(keepAlive: true)
+class LaunchLocation extends _$LaunchLocation {
+  @override
+  String? build() => null;
+
+  /// Opens the router at [link]'s location, when it is a launch link the app knows.
+  void startAt(Uri? link) =>
+      state = link == null ? null : launchTargetOf(link)?.location;
+}
+
+/// Goes to [link]'s location in [router], when it is a launch link the app knows;
+/// returns whether it did.
+bool openLaunchLink(GoRouter router, Uri link) {
+  final LaunchTarget? target = launchTargetOf(link);
+  if (target == null) return false;
+  router.go(target.location);
+  return true;
+}
 
 /// The router for [ref]'s flavor, opening at [initialLocation]: gated on
 /// `sessionControllerProvider` and `restoreOfferProvider` in dev and prod, ungated in

@@ -1,6 +1,6 @@
 // The local wipe on real files: an encrypted database with its side files, the plain
-// debug database, receipts, the legacy keys and the three secure-storage values, all
-// gone, the reminders and notifications cleared, the pending record set from the first
+// debug database, receipts, the home screen widgets' snapshot, the legacy keys and the
+// three secure-storage values, all gone, the reminders and notifications cleared, the pending record set from the first
 // step to the last, a second run harmless, a cut at each step leaving exactly the later
 // steps' data and the wipe pending, a run after the cut finishing it, and the next open a
 // fresh database under a new key. The in-memory wipe clears the same stores.
@@ -16,6 +16,9 @@ import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/platform/fake_reminder_scheduler.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler.dart';
+import 'package:finance_tracker/features/widgets/data/fake_widget_writer.dart';
+import 'package:finance_tracker/features/widgets/domain/widget_data.dart';
+import 'package:finance_tracker/features/widgets/domain/widget_writer.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
@@ -48,6 +51,11 @@ final class _ReceiptsCut extends Fake implements ReceiptStore {
   Future<void> deleteAll() async => throw _cut;
 }
 
+final class _WidgetsCut extends Fake implements WidgetWriter {
+  @override
+  Future<void> clear() async => throw _cut;
+}
+
 final class _KeyCut extends Fake implements DatabaseKeyStore {
   @override
   Future<void> delete() async => throw _cut;
@@ -78,6 +86,7 @@ const List<String> _steps = [
   'legacy',
   'files',
   'receipts',
+  'widgets',
   'key',
   'session',
   'marker',
@@ -88,6 +97,7 @@ void main() {
   late Directory directory;
   late Map<String, String> secure;
   late FakeReminderScheduler reminders;
+  late FakeWidgetWriter widgets;
 
   setUpAll(tzdata.initializeTimeZones);
 
@@ -102,6 +112,7 @@ void main() {
       'unrelated': 'kept',
     });
     reminders = FakeReminderScheduler();
+    widgets = FakeWidgetWriter();
   });
   tearDown(() => directory.deleteSync(recursive: true));
 
@@ -113,6 +124,7 @@ void main() {
     receipts: cut == 'receipts'
         ? _ReceiptsCut()
         : FileReceiptStore(() async => directory),
+    widgets: cut == 'widgets' ? _WidgetsCut() : widgets,
     preferences: cut == 'legacy'
         ? () async => _LegacyCut(await SharedPreferences.getInstance())
         : SharedPreferences.getInstance,
@@ -143,6 +155,9 @@ void main() {
     await receipts.commit(await receipts.stage('t1', Uint8List(4)));
     await receipts.stage('t2', Uint8List(4));
     file('other.bin').writeAsStringSync('kept');
+    await widgets.write(
+      WidgetData.signedOut(updatedAt: DateTime.utc(2026), updatedText: ''),
+    );
     await SecureTokenStore().writeInstallUserId('user-1');
     secure[SecureTokenStore.sessionKey] = '{}';
     await reminders.replaceAll([
@@ -167,6 +182,7 @@ void main() {
         'files',
       if (Directory('${directory.path}/$receiptFolder').existsSync())
         'receipts',
+      if (widgets.holdsSnapshot) 'widgets',
       if (secure.containsKey(SecureDatabaseKeyStore.keyName)) 'key',
       if (secure.containsKey(SecureTokenStore.sessionKey)) 'session',
       if (secure.containsKey(SecureTokenStore.installUserKey)) 'marker',
@@ -258,8 +274,12 @@ void main() {
     final InMemoryTokenStore tokens = InMemoryTokenStore(
       installUserId: 'user-1',
     );
+    await widgets.write(
+      WidgetData.signedOut(updatedAt: DateTime.utc(2026), updatedText: ''),
+    );
     final InMemoryLocalWipe wipe = InMemoryLocalWipe(
       receipts: receipts,
+      widgets: widgets,
       keys: keys,
       tokens: tokens,
       reminders: reminders,
@@ -269,6 +289,7 @@ void main() {
 
     expect(receipts.paths, isEmpty);
     expect(receipts.stagedCount, 0);
+    expect(widgets.holdsSnapshot, isFalse);
     expect(keys.key, isNull);
     expect(await tokens.read(), isNull);
     expect(tokens.installUserId, isNull);

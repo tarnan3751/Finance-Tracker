@@ -16,11 +16,14 @@
 /// 2. the database files (`finance_tracker.db`, and the dev flavor's
 ///    `finance_tracker.plain.db`, each with its `-wal`, `-shm` and `-journal`);
 /// 3. the receipts;
-/// 4. the database key (`db_key_v1`), then the session (`session_v1`), then the install's
+/// 4. the home screen widgets' snapshot (`features/widgets/`), removed and every placed
+///    widget redrawn, so no name or balance of the erased account stays on the home
+///    screen however soon the process is killed;
+/// 5. the database key (`db_key_v1`), then the session (`session_v1`), then the install's
 ///    user (`install_user_v1`): the marker goes last, so even outside a pending wipe the
 ///    account's data is never left on the device without the rule that keeps another
 ///    account from syncing it;
-/// 5. every pending reminder and every notification the app has shown;
+/// 6. every pending reminder and every notification the app has shown;
 ///
 /// then the pending record goes. No path, key or value is logged.
 library;
@@ -33,6 +36,7 @@ import 'package:finance_tracker/core/db/legacy_import/legacy_importer.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler.dart';
+import 'package:finance_tracker/features/widgets/domain/widget_writer.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -69,6 +73,7 @@ final class DriftLocalWipe implements LocalWipe {
   DriftLocalWipe({
     required this.directory,
     required this.receipts,
+    required this.widgets,
     required this.preferences,
     required this.keys,
     required this.tokens,
@@ -81,6 +86,7 @@ final class DriftLocalWipe implements LocalWipe {
   /// Where the database files are.
   final Future<Directory> Function() directory;
   final ReceiptStore receipts;
+  final WidgetWriter widgets;
   final Future<SharedPreferences> Function() preferences;
   final DatabaseKeyStore keys;
   final TokenStore tokens;
@@ -116,7 +122,7 @@ final class DriftLocalWipe implements LocalWipe {
         if (file.existsSync()) await file.delete();
       }
     }
-    await _wipeStores(receipts, keys, tokens, reminders);
+    await _wipeStores(receipts, widgets, keys, tokens, reminders);
     await prefs.remove(pendingKey);
   }
 }
@@ -127,12 +133,14 @@ final class InMemoryLocalWipe implements LocalWipe {
   /// A wipe of the given stores.
   InMemoryLocalWipe({
     required this.receipts,
+    required this.widgets,
     required this.keys,
     required this.tokens,
     required this.reminders,
   });
 
   final ReceiptStore receipts;
+  final WidgetWriter widgets;
   final DatabaseKeyStore keys;
   final TokenStore tokens;
   final ReminderScheduler reminders;
@@ -149,7 +157,7 @@ final class InMemoryLocalWipe implements LocalWipe {
   @override
   Future<void> wipe(WipeReason reason) async {
     pendingReason = reason;
-    await _wipeStores(receipts, keys, tokens, reminders);
+    await _wipeStores(receipts, widgets, keys, tokens, reminders);
     pendingReason = null;
     wipes++;
   }
@@ -157,11 +165,13 @@ final class InMemoryLocalWipe implements LocalWipe {
 
 Future<void> _wipeStores(
   ReceiptStore receipts,
+  WidgetWriter widgets,
   DatabaseKeyStore keys,
   TokenStore tokens,
   ReminderScheduler reminders,
 ) async {
   await receipts.deleteAll();
+  await widgets.clear();
   await keys.delete();
   await tokens.clear();
   await tokens.clearInstallUserId();

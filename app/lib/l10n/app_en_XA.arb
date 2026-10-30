@@ -1092,5 +1092,16 @@
   "receiptRetry": "[Ţŕý åĝåîñ ~~~~]",
   "conflictPhotoHere": "[Þĥöţö, öñ ţĥîš ðéṽîçé ~~~~~ ~~]",
   "conflictPhotoNotHere": "[Þĥöţö, ñöţ öñ ţĥîš ðéṽîçé ~~~~~ ~~~]",
-  "conflictPhotoGone": "[Ţĥîš þĥöţö îš ñö ļöñĝéŕ öñ ţĥîš ðéṽîçé ~~~~~ ~~~~~ ~~~]"
+  "conflictPhotoGone": "[Ţĥîš þĥöţö îš ñö ļöñĝéŕ öñ ţĥîš ðéṽîçé ~~~~~ ~~~~~ ~~~]",
+  "widgetUpdated": "[Ûþðåţéð {time} ~~~]",
+  "widgetNetWorthObserved": "[Ƒŕöɱ åççöûñţ ƀåļåñçéš ~~~~~ ~~~]",
+  "widgetNetWorthSpoken": "[Ñéţ ŵöŕţĥ {amount}, {basis} ~~~~]",
+  "widgetAccountSpoken": "[{name}, {balance}, {basis}]",
+  "widgetBillMissed": "[Ṁîššéð, {due} ~~~]",
+  "widgetBillSpoken": "[{name}, {due}, {amount}]",
+  "widgetBillSpokenNoAmount": "[{name}, {due}]",
+  "widgetNetWorthSpokenHidden": "[Ñéţ ŵöŕţĥ, ĥîððéñ ŵĥîļé ţĥé åþþ îš ļöçķéð ~~~~~ ~~~~~ ~~~~]",
+  "widgetAccountSpokenHidden": "[{name}, ƀåļåñçé ĥîððéñ ŵĥîļé ţĥé åþþ îš ļöçķéð ~~~~~ ~~~~~ ~~~]",
+  "widgetBudgetSpokenHidden": "[{name}, šþéñðîñĝ ĥîððéñ ŵĥîļé ţĥé åþþ îš ļöçķéð ~~~~~ ~~~~~ ~~~~]",
+  "widgetBillSpokenHidden": "[{name}, {due}, åɱöûñţ ĥîððéñ ŵĥîļé ţĥé åþþ îš ļöçķéð ~~~~~ ~~~~~ ~~~]"
 }

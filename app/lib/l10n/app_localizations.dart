@@ -6735,6 +6735,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This photo is no longer on this device'**
   String get conflictPhotoGone;
+
+  /// The footer of a home screen widget: when the app last wrote what it shows, as a time of day in the device's zone.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {time}'**
+  String widgetUpdated(String time);
+
+  /// Caption under the net worth on the Balances home screen widget: the sum of the accounts' balances recorded today (not estimated).
+  ///
+  /// In en, this message translates to:
+  /// **'From account balances'**
+  String get widgetNetWorthObserved;
+
+  /// What a screen reader says for the net worth on the Balances home screen widget.
+  ///
+  /// In en, this message translates to:
+  /// **'Net worth {amount}, {basis}'**
+  String widgetNetWorthSpoken(String amount, String basis);
+
+  /// What a screen reader says for an account on the Balances home screen widget: its name, its balance and whether the bank reported it or it comes from transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {balance}, {basis}'**
+  String widgetAccountSpoken(String name, String balance, String basis);
+
+  /// A missed bill's due date on the Upcoming bills home screen widget.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed, {due}'**
+  String widgetBillMissed(String due);
+
+  /// What a screen reader says for a bill on the Upcoming bills home screen widget.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {due}, {amount}'**
+  String widgetBillSpoken(String name, String due, String amount);
+
+  /// What a screen reader says for a bill with no expected amount on the Upcoming bills home screen widget.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {due}'**
+  String widgetBillSpokenNoAmount(String name, String due);
+
+  /// What a screen reader says for the net worth on the Balances home screen widget while the app lock is on and amounts are hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Net worth, hidden while the app is locked'**
+  String get widgetNetWorthSpokenHidden;
+
+  /// What a screen reader says for an account on the Balances home screen widget while the app lock is on.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, balance hidden while the app is locked'**
+  String widgetAccountSpokenHidden(String name);
+
+  /// What a screen reader says for a budget on the Budgets home screen widget while the app lock is on.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, spending hidden while the app is locked'**
+  String widgetBudgetSpokenHidden(String name);
+
+  /// What a screen reader says for a bill on the Upcoming bills home screen widget while the app lock is on.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {due}, amount hidden while the app is locked'**
+  String widgetBillSpokenHidden(String name, String due);
 }
 
 class _AppLocalizationsDelegate

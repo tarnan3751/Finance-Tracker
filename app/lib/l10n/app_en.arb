@@ -6335,5 +6335,131 @@
   "conflictPhotoGone": "This photo is no longer on this device",
   "@conflictPhotoGone": {
     "description": "Why Keep this device's value is unavailable on a receipt photo conflict: its photo was replaced here."
+  },
+  "widgetUpdated": "Updated {time}",
+  "@widgetUpdated": {
+    "description": "The footer of a home screen widget: when the app last wrote what it shows, as a time of day in the device's zone.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "2:41 PM"
+      }
+    }
+  },
+  "widgetNetWorthObserved": "From account balances",
+  "@widgetNetWorthObserved": {
+    "description": "Caption under the net worth on the Balances home screen widget: the sum of the accounts' balances recorded today (not estimated)."
+  },
+  "widgetNetWorthSpoken": "Net worth {amount}, {basis}",
+  "@widgetNetWorthSpoken": {
+    "description": "What a screen reader says for the net worth on the Balances home screen widget.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$12,345.67"
+      },
+      "basis": {
+        "type": "String",
+        "example": "From account balances"
+      }
+    }
+  },
+  "widgetAccountSpoken": "{name}, {balance}, {basis}",
+  "@widgetAccountSpoken": {
+    "description": "What a screen reader says for an account on the Balances home screen widget: its name, its balance and whether the bank reported it or it comes from transactions.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Checking"
+      },
+      "balance": {
+        "type": "String",
+        "example": "$1,234.56"
+      },
+      "basis": {
+        "type": "String",
+        "example": "reported"
+      }
+    }
+  },
+  "widgetBillMissed": "Missed, {due}",
+  "@widgetBillMissed": {
+    "description": "A missed bill's due date on the Upcoming bills home screen widget.",
+    "placeholders": {
+      "due": {
+        "type": "String",
+        "example": "Due 5 days ago"
+      }
+    }
+  },
+  "widgetBillSpoken": "{name}, {due}, {amount}",
+  "@widgetBillSpoken": {
+    "description": "What a screen reader says for a bill on the Upcoming bills home screen widget.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Rent"
+      },
+      "due": {
+        "type": "String",
+        "example": "Due tomorrow"
+      },
+      "amount": {
+        "type": "String",
+        "example": "$1,500.00"
+      }
+    }
+  },
+  "widgetBillSpokenNoAmount": "{name}, {due}",
+  "@widgetBillSpokenNoAmount": {
+    "description": "What a screen reader says for a bill with no expected amount on the Upcoming bills home screen widget.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Rent"
+      },
+      "due": {
+        "type": "String",
+        "example": "Due tomorrow"
+      }
+    }
+  },
+  "widgetNetWorthSpokenHidden": "Net worth, hidden while the app is locked",
+  "@widgetNetWorthSpokenHidden": {
+    "description": "What a screen reader says for the net worth on the Balances home screen widget while the app lock is on and amounts are hidden."
+  },
+  "widgetAccountSpokenHidden": "{name}, balance hidden while the app is locked",
+  "@widgetAccountSpokenHidden": {
+    "description": "What a screen reader says for an account on the Balances home screen widget while the app lock is on.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Checking"
+      }
+    }
+  },
+  "widgetBudgetSpokenHidden": "{name}, spending hidden while the app is locked",
+  "@widgetBudgetSpokenHidden": {
+    "description": "What a screen reader says for a budget on the Budgets home screen widget while the app lock is on.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Groceries"
+      }
+    }
+  },
+  "widgetBillSpokenHidden": "{name}, {due}, amount hidden while the app is locked",
+  "@widgetBillSpokenHidden": {
+    "description": "What a screen reader says for a bill on the Upcoming bills home screen widget while the app lock is on.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Rent"
+      },
+      "due": {
+        "type": "String",
+        "example": "Due tomorrow"
+      }
+    }
   }
 }

@@ -3,8 +3,10 @@
 /// (dev and prod), reads the stored session and the lock's settings (locking the app and
 /// securing its window before the first frame when they say so), starts sync and the
 /// budget alerts, and runs the app on a new Riverpod container; after the first frame,
-/// the bill reminders are planned (a tapped one opens its bill), and dev and prod sweep
-/// the receipt files no transaction references. [startApp] can run again in the same
+/// the bill reminders are planned (a tapped one opens its bill), the home screen widgets
+/// are kept current, a launch link that reaches the running app opens its location (a
+/// cold start at one opens there), and dev and prod sweep the receipt files no
+/// transaction references. [startApp] can run again in the same
 /// process, on a new container: a restore (`features/backup/`) stops the app, replaces
 /// its database on a plain screen showing its progress, and starts it again through the
 /// app restart [startApp] supplies (`appRestartProvider`); the local wipe
@@ -25,6 +27,7 @@ import 'package:finance_tracker/core/db/legacy_import/legacy_importer.dart';
 import 'package:finance_tracker/core/db/local_wipe.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/logging/app_log.dart';
+import 'package:finance_tracker/core/platform/launch_intent_provider.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:finance_tracker/core/router/app_router.dart';
 import 'package:finance_tracker/core/router/routes.dart';
@@ -45,6 +48,7 @@ import 'package:finance_tracker/features/net_worth/application/snapshot_writer.d
 import 'package:finance_tracker/features/recurring/application/detector_runner.dart';
 import 'package:finance_tracker/features/reports/application/weekly_summary_providers.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
+import 'package:finance_tracker/features/widgets/application/widget_providers.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -57,9 +61,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final Logger _log = Logger('app');
 
-// The running app's container and its reminder taps, which a restart stops.
+// The running app's container, its reminder taps and its launch links, which a restart
+// stops.
 ProviderContainer? _running;
 StreamSubscription<String>? _reminderTaps;
+StreamSubscription<Uri>? _launchLinks;
 
 /// Starts the app for [config] ([startApp]) after the process's one-time setup. Throws a
 /// [StateError] before anything runs when the prod flavor is given a server URL that is
@@ -133,6 +139,11 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
   // The lock's settings, read before the first frame: a locked app never shows its content,
   // and a secure window is secure before anything is drawn in it.
   await container.read(lockControllerProvider.notifier).restored();
+  // A start at a launch link (a home screen widget's tap) opens the router there, behind
+  // the session gate and the lock.
+  container
+      .read(launchLocationProvider.notifier)
+      .startAt(await _initialLaunchLink(container));
   // Sync starts with the app: it runs a session when someone is signed in (never in demo).
   container.read(syncControllerProvider);
   // The budget alerts are evaluated whenever the statuses change, in every flavor.
@@ -155,6 +166,15 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
     // Today's balance snapshots, from the first frame on and after every pull and sync
     // session, in every flavor (snapshot_writer.dart).
     container.listen(snapshotWriterRunnerProvider, (_, _) {});
+    // The home screen widgets follow what they show, in every flavor
+    // (features/widgets/).
+    container.listen(widgetRefreshRunnerProvider, (_, _) {});
+    // A launch link that reaches the running app opens its location.
+    _launchLinks = container.read(launchIntentProvider).opened.listen((link) {
+      if (!openLaunchLink(container.read(goRouterProvider), link)) {
+        _log.info('an unknown launch link was ignored');
+      }
+    });
     _reminderTaps = container
         .read(reminderSchedulerProvider)
         .openedBillIds
@@ -253,6 +273,17 @@ Future<void> _wipe(
   await startApp(config, overrides: overrides);
 }
 
+// The launch link the app was started at, or null; a platform failure is logged by type
+// and taken as a plain start.
+Future<Uri?> _initialLaunchLink(ProviderContainer container) async {
+  try {
+    return await container.read(launchIntentProvider).initial();
+  } on Object catch (e) {
+    _log.warning('the launch link could not be read: ${e.runtimeType}');
+    return null;
+  }
+}
+
 // A second tap lands before the state moves on: only the first counts.
 void _completeOnce(Completer<void> completer) {
   if (!completer.isCompleted) completer.complete();
@@ -269,7 +300,7 @@ Future<WipeReason?> _pendingWipe(LocalWipe wipe) async {
   }
 }
 
-/// Stops the running app: its reminder taps, its container (sync, the watchers), and its
+/// Stops the running app: its reminder taps and launch links, its container (sync, the watchers), and its
 /// database, closed before this completes. Nothing happens when no app runs.
 @visibleForTesting
 Future<void> stopApp() async {
@@ -277,6 +308,8 @@ Future<void> stopApp() async {
   _running = null;
   await _reminderTaps?.cancel();
   _reminderTaps = null;
+  await _launchLinks?.cancel();
+  _launchLinks = null;
   if (container == null) return;
   final AppDatabase? database =
       container.read(appConfigProvider).flavor == Flavor.demo

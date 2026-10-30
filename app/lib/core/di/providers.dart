@@ -40,10 +40,12 @@ import 'package:finance_tracker/core/platform/channel_screen_security.dart';
 import 'package:finance_tracker/core/platform/fake_image_source.dart';
 import 'package:finance_tracker/core/platform/file_exporter_provider.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
+import 'package:finance_tracker/core/platform/launch_intent_provider.dart';
 import 'package:finance_tracker/core/platform/local_notifications_scheduler.dart';
 import 'package:finance_tracker/core/platform/monotonic_clock_provider.dart';
 import 'package:finance_tracker/core/platform/platform_backup_picker.dart';
 import 'package:finance_tracker/core/platform/platform_file_exporter.dart';
+import 'package:finance_tracker/core/platform/platform_launch_intent.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:finance_tracker/core/platform/screen_security_provider.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
@@ -131,6 +133,8 @@ import 'package:finance_tracker/features/transactions/data/in_memory_saved_filte
 import 'package:finance_tracker/features/transactions/data/in_memory_transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/saved_filter_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
+import 'package:finance_tracker/features/widgets/application/widget_providers.dart';
+import 'package:finance_tracker/features/widgets/data/home_widget_writer.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart' show basicLocaleListResolution;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -443,6 +447,7 @@ ReceiptStore receiptStore(Ref ref) => MemoryReceiptStore();
 @Riverpod(keepAlive: true)
 LocalWipe localWipe(Ref ref) => InMemoryLocalWipe(
   receipts: ref.watch(receiptStoreProvider),
+  widgets: ref.watch(widgetWriterProvider),
   keys: ref.watch(databaseKeyStoreProvider),
   tokens: ref.watch(tokenStoreProvider),
   reminders: ref.watch(reminderSchedulerProvider),
@@ -530,12 +535,18 @@ List<Override> overridesFor(AppConfig config) => [
 ];
 
 /// Every flavor: the platform seams that behave the same in all three, through the app's
-/// own channels to `MainActivity` and through `local_auth`.
+/// own channels to `MainActivity`, through `local_auth`, and through `home_widget` (the
+/// home screen widgets, rendered from the demo seed in demo and from the database in dev
+/// and prod, and the launch links of their taps, one process-wide instance).
 final List<Override> _platformOverrides = [
   screenSecurityProvider.overrideWithValue(const ChannelScreenSecurity()),
   monotonicClockProvider.overrideWithValue(const ChannelMonotonicClock()),
   deviceAuthProvider.overrideWith((ref) => LocalAuthDeviceAuth()),
+  widgetWriterProvider.overrideWithValue(const HomeWidgetWriter()),
+  launchIntentProvider.overrideWithValue(_platformLaunchIntent),
 ];
+
+final PlatformLaunchIntent _platformLaunchIntent = PlatformLaunchIntent();
 
 /// The system's file dialogs in dev and prod (`flutter_file_dialog` and `share_plus`):
 /// the file exporter and the backup picker; the fakes elsewhere. Apart from
@@ -705,6 +716,7 @@ final List<Override> _driftOverrides = [
     (ref) => DriftLocalWipe(
       directory: getApplicationSupportDirectory,
       receipts: ref.watch(receiptStoreProvider),
+      widgets: ref.watch(widgetWriterProvider),
       preferences: SharedPreferences.getInstance,
       keys: ref.watch(databaseKeyStoreProvider),
       tokens: ref.watch(tokenStoreProvider),

@@ -38,6 +38,14 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <!-- The embedding's own deep linking is off: it would push an intent's data
+                 (a home screen widget's financetracker:// link) to the router as a route.
+                 Launch links reach go_router through the app's LaunchIntent seam instead
+                 (core/platform/launch_intent.dart). -->
+            <meta-data
+              android:name="flutter_deeplinking_enabled"
+              android:value="false"
+              />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

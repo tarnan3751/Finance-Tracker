@@ -1826,7 +1826,7 @@ final class LocalWipeProvider
   }
 }
 
-String _$localWipeHash() => r'b151b32adfb9294e0b3c6dbd9f6b99ca53b8685d';
+String _$localWipeHash() => r'036e070ea46d410094a539cba8af7b747def5620';
 
 /// Stops the app, wipes its local data, confirms and starts it again: `bootstrap`
 /// supplies it; anywhere else (the tests) it is unavailable unless overridden.

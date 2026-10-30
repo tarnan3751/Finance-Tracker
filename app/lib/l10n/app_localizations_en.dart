@@ -4440,6 +4440,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get conflictPhotoGone => 'This photo is no longer on this device';
+
+  @override
+  String widgetUpdated(String time) {
+    return 'Updated $time';
+  }
+
+  @override
+  String get widgetNetWorthObserved => 'From account balances';
+
+  @override
+  String widgetNetWorthSpoken(String amount, String basis) {
+    return 'Net worth $amount, $basis';
+  }
+
+  @override
+  String widgetAccountSpoken(String name, String balance, String basis) {
+    return '$name, $balance, $basis';
+  }
+
+  @override
+  String widgetBillMissed(String due) {
+    return 'Missed, $due';
+  }
+
+  @override
+  String widgetBillSpoken(String name, String due, String amount) {
+    return '$name, $due, $amount';
+  }
+
+  @override
+  String widgetBillSpokenNoAmount(String name, String due) {
+    return '$name, $due';
+  }
+
+  @override
+  String get widgetNetWorthSpokenHidden =>
+      'Net worth, hidden while the app is locked';
+
+  @override
+  String widgetAccountSpokenHidden(String name) {
+    return '$name, balance hidden while the app is locked';
+  }
+
+  @override
+  String widgetBudgetSpokenHidden(String name) {
+    return '$name, spending hidden while the app is locked';
+  }
+
+  @override
+  String widgetBillSpokenHidden(String name, String due) {
+    return '$name, $due, amount hidden while the app is locked';
+  }
 }
 
 /// The translations for English (`en_XA`).
@@ -8970,4 +9022,56 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
   @override
   String get conflictPhotoGone =>
       '[Ţĥîš þĥöţö îš ñö ļöñĝéŕ öñ ţĥîš ðéṽîçé ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String widgetUpdated(String time) {
+    return '[Ûþðåţéð $time ~~~]';
+  }
+
+  @override
+  String get widgetNetWorthObserved => '[Ƒŕöɱ åççöûñţ ƀåļåñçéš ~~~~~ ~~~]';
+
+  @override
+  String widgetNetWorthSpoken(String amount, String basis) {
+    return '[Ñéţ ŵöŕţĥ $amount, $basis ~~~~]';
+  }
+
+  @override
+  String widgetAccountSpoken(String name, String balance, String basis) {
+    return '[$name, $balance, $basis]';
+  }
+
+  @override
+  String widgetBillMissed(String due) {
+    return '[Ṁîššéð, $due ~~~]';
+  }
+
+  @override
+  String widgetBillSpoken(String name, String due, String amount) {
+    return '[$name, $due, $amount]';
+  }
+
+  @override
+  String widgetBillSpokenNoAmount(String name, String due) {
+    return '[$name, $due]';
+  }
+
+  @override
+  String get widgetNetWorthSpokenHidden =>
+      '[Ñéţ ŵöŕţĥ, ĥîððéñ ŵĥîļé ţĥé åþþ îš ļöçķéð ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String widgetAccountSpokenHidden(String name) {
+    return '[$name, ƀåļåñçé ĥîððéñ ŵĥîļé ţĥé åþþ îš ļöçķéð ~~~~~ ~~~~~ ~~~]';
+  }
+
+  @override
+  String widgetBudgetSpokenHidden(String name) {
+    return '[$name, šþéñðîñĝ ĥîððéñ ŵĥîļé ţĥé åþþ îš ļöçķéð ~~~~~ ~~~~~ ~~~~]';
+  }
+
+  @override
+  String widgetBillSpokenHidden(String name, String due) {
+    return '[$name, $due, åɱöûñţ ĥîððéñ ŵĥîļé ţĥé åþþ îš ļöçķéð ~~~~~ ~~~~~ ~~~]';
+  }
 }
