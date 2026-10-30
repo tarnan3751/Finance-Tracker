@@ -55,6 +55,8 @@ every device that carries this release; the local schema moves to v12.
 - sync: Hold pulled entries of types this build does not know (25f4144)
 - server: Tamper a middle byte in the password hash test (6231bc4)
 - sync: Release held records of every known type at each open (1403616)
+- reports: Count a paired credit card payment as a transfer (21b48de)
+- reports: Bound the anomaly dismissal snackbar's lifetime (1aef46d)
 
 ### Tests
 
@@ -78,6 +80,8 @@ every device that carries this release; the local schema moves to v12.
 - Tell developers and reviewers to wait with one bounded loop (73acb43)
 - net_worth: Describe the net worth series and payoff (23d0dac)
 - export: Describe the export (abef10b)
+- map: Record Phase 6 in the map, the README and the changelog (346675c)
+- tools: Note that an integration run overwrites the demo APK (32a6cf2)
 
 ## v0.6.0-phase5 — 2026-10-29
 
