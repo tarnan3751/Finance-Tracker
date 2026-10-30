@@ -17,8 +17,11 @@
 #                 (drift_dev schema dump, schema generate); then git diff --exit-code on the
 #                 package, and no untracked file in it (git status --porcelain), so a newly
 #                 generated file is caught too
-#   6. tests      flutter test (Flutter packages) or dart test (pure Dart packages); the
-#                 summary line gives each package's duration
+#   6. tests      flutter test (Flutter packages) or dart test (pure Dart packages), each
+#                 package under a ceiling of FT_TEST_TIMEOUT seconds (default 1500, through
+#                 tools/with_ceiling.sh): past it, the package's test processes are killed
+#                 and the package fails as timed out; the summary line gives each package's
+#                 duration
 #   7. contract   tools/check_contract.sh, once it exists (Phase 2): the OpenAPI document
 #                 passes the structural check and the generated client is current (the
 #                 fakes and the server are checked against it by their own tests)
@@ -45,6 +48,12 @@ if ! command -v "${FLUTTER%% *}" >/dev/null 2>&1; then
   exit 2
 fi
 
+TEST_TIMEOUT="${FT_TEST_TIMEOUT:-1500}"
+if ! [[ "$TEST_TIMEOUT" =~ ^[0-9]+$ ]]; then
+  echo "gates: FT_TEST_TIMEOUT must be a whole number of seconds, not '$TEST_TIMEOUT'" >&2
+  exit 2
+fi
+CEILING="$(pwd)/tools/with_ceiling.sh"
 scratch="$(mktemp -d "${TMPDIR:-/tmp}/finance-tracker-gates.XXXXXX")"
 trap 'rm -rf "$scratch"' EXIT
 failed=0
@@ -163,22 +172,28 @@ fi
 # ones that failed last, each failed one led by its failing tests ("[E]" lines and the
 # "Failing tests:" block), so a failure is never cut off by a later package's output.
 # The summary line gives each package's duration, so a timeout under load is attributable.
+# A package past FT_TEST_TIMEOUT has its test processes killed and fails as timed out.
 : >"$scratch/tests-ok.txt"; : >"$scratch/tests-bad.txt"; bad=0; ran=0; durations=""
 for p in "${packages[@]}"; do
   [ -d "$p/test" ] || continue
-  ran=$((ran + 1)); one_ok=1; one_started=$SECONDS
+  ran=$((ran + 1)); one_status=0; one_started=$SECONDS
   if is_flutter "$p"; then
-    (cd "$p" && $FLUTTER test --no-pub) >"$scratch/tests-one.txt" 2>&1 || one_ok=0
+    (cd "$p" && "$CEILING" "$TEST_TIMEOUT" $FLUTTER test --no-pub) >"$scratch/tests-one.txt" 2>&1 || one_status=$?
   else
-    (cd "$p" && $DART test) >"$scratch/tests-one.txt" 2>&1 || one_ok=0
+    (cd "$p" && "$CEILING" "$TEST_TIMEOUT" $DART test) >"$scratch/tests-one.txt" 2>&1 || one_status=$?
   fi
   durations="${durations:+$durations, }$p $((SECONDS - one_started))s"
-  if [ $one_ok -eq 1 ]; then
+  [ $one_status -eq 124 ] && durations="$durations (timed out)"
+  if [ $one_status -eq 0 ]; then
     { echo "== $p"; tail -40 "$scratch/tests-one.txt"; } >>"$scratch/tests-ok.txt"
   else
     bad=$((bad + 1))
     {
-      echo "== $p FAILED"
+      if [ $one_status -eq 124 ]; then
+        echo "== $p FAILED: timed out after ${TEST_TIMEOUT}s (FT_TEST_TIMEOUT); its test processes were killed"
+      else
+        echo "== $p FAILED"
+      fi
       # The compact reporter marks a failure "[E]"; the GitHub reporter CI gets with
       # GITHUB_ACTIONS set marks it with a cross and "::error" lines.
       { grep -E '\[E\]|^Failing tests:|^  /|Expected:|Actual:|TimeoutException|❌|::error' \

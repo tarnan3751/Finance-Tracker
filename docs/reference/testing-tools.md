@@ -36,7 +36,12 @@ The definition of green. Run after every change, at every commit of a series, by
    summary line gives each package's duration in seconds (`gate tests ok (<n> package(s):
    app <s>s, server <s>s, ...)`), so a timeout under load can be put down to the package
    that ran long (the convergence random run and the exhaustive tokenizer test are the
-   slow ones).
+   slow ones). Each package's run has a ceiling of `FT_TEST_TIMEOUT` seconds (default
+   1500, through `tools/with_ceiling.sh`, below), so a hung test cannot hold a lane for
+   hours (a gate sat idle for 9 h 37 min on 2026-10-30): past it, the package's test
+   processes are killed, the step fails with `== <package> FAILED: timed out after <n>s`
+   and the last 40 lines of its output, the summary line marks the package `(timed out)`,
+   and the gate goes on to the next step.
 7. **contract**: `tools/check_contract.sh` (below): the contract's structural check and
    the generated client's source hash.
 8. **commits**: `tools/check_commits.sh origin/main` (below), the commit-message lint, on
@@ -53,7 +58,22 @@ runs it only in its own clone.
 
 `tools/run_tests.sh` runs every package's tests; `tools/run_tests.sh app` runs one package
 (`app`, `server`, `packages/<name>`); `tools/run_tests.sh app "Money"` runs that package's
-tests whose name contains the text. It writes the same build output as the gate.
+tests whose name contains the text. It writes the same build output as the gate. Each
+package runs under the gate's `FT_TEST_TIMEOUT` ceiling; past it, its test processes are
+killed and the runner says which package timed out (its output is already above) and fails.
+
+## `tools/with_ceiling.sh`: a run with a ceiling
+
+`tools/with_ceiling.sh <seconds> <command...>` is `timeout(1)`, which macOS lacks. It runs
+the command directly (never through a shell, even as one argument) in a process group of its
+own, with standard input from `/dev/null`, and when the command is still running after
+`<seconds>` it sends the whole group TERM, then KILL once the command has exited or 10 s have
+passed, so no `flutter_tester` or other descendant is left behind, and exits 124. INT, TERM
+and HUP sent to it stop the group the same way and exit 130, 143 or 129; its handlers are in
+place before it forks, so a signal at any moment stops the group. A command that cannot be
+run exits 127; otherwise it returns the command's own status. The gate and the test runner
+use it for each package's tests, and refuse an `FT_TEST_TIMEOUT` that is not a whole number
+of seconds (exit 2); it writes nothing.
 
 ## Test tags and seeds
 

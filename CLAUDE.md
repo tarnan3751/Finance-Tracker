@@ -219,7 +219,8 @@ server/          the Dart development server: bin/, lib/, test/, .env.example (.
 packages/        shared_models, api_client (generated), contract_test, sync_engine
 api/             openapi.yaml, the contract
 tools/           gates.sh, run_tests.sh, land_series.sh, gen_api_client.sh,
-                 check_contract.sh, check_commits.sh, emulator_tests.sh, persona_engine/, scripts/
+                 check_contract.sh, check_commits.sh, emulator_tests.sh, with_ceiling.sh,
+                 persona_engine/, scripts/
 docs/            reference/ (one file per area, written as it lands)
 notes/           gitignored: plaid-sandbox.env and private notes
 .claude/agents/  scout, researcher, developer, reviewer
