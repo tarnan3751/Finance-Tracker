@@ -293,6 +293,12 @@ image under the SDK on first use, the lock directory (with its short-lived `.new
 `avdmanager` logs, the integration run's JSON report and the screenshot under `app/build/emulator/`. Installs go onto `ft-lane`
 only.
 
+**The demo APK's path is shared.** An `integration` run (any `flutter test integration_test
+--flavor demo`) writes its test app to `app/build/app/outputs/flutter-apk/app-demo-debug.apk`,
+the path `flutter build apk --debug --flavor demo` uses. Started standalone, that test app
+waits for its test host and never draws a frame. A standalone demo install comes from a fresh
+`flutter build apk` or from the harness's `demo` command, which builds before it installs.
+
 **The uninstall before the tests.** `integration` removes `dev.tarnan.financetracker.demo`
 when it is installed, so Flutter's install starts clean. The emulator has answered `adb
 uninstall` with `DELETE_FAILED_INTERNAL_ERROR` before the tests; then the harness clears the
