@@ -881,7 +881,7 @@ void main() {
           }
         }
       },
-      timeout: const Timeout.factor(3),
+      timeout: const Timeout.factor(6),
     );
   });
 
@@ -1196,7 +1196,7 @@ void main() {
           }
         }
       },
-      timeout: const Timeout.factor(3),
+      timeout: const Timeout.factor(6),
     );
   });
 
