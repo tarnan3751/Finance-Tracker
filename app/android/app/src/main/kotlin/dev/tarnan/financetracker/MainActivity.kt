@@ -1,5 +1,7 @@
 package dev.tarnan.financetracker
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 
-class MainActivity : FlutterActivity()
+// A FlutterFragmentActivity, not a FlutterActivity: local_auth shows the biometric prompt as
+// a fragment (features/lock/), and fails with NOT_FRAGMENT_ACTIVITY otherwise.
+class MainActivity : FlutterFragmentActivity()
