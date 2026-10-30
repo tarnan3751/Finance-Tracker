@@ -44,7 +44,9 @@ The definition of green. Run after every change, at every commit of a series, by
    and the gate goes on to the next step.
 7. **contract**: `tools/check_contract.sh` (below): the contract's structural check and
    the generated client's source hash.
-8. **commits**: `tools/check_commits.sh origin/main` (below), the commit-message lint, on
+8. **strings**: `dart run tools/check_strings.dart` (below): the strings check; its line
+   gives each translated locale's untranslated count.
+9. **commits**: `tools/check_commits.sh origin/main` (below), the commit-message lint, on
    the commits beyond `origin/main`, so a lane meets a bad message at its own gate. It is
    skipped on a detached `HEAD` (CI's pull-request checkout), when there is no
    `origin/main` (CI's branch checkout fetches only its own branch) or outside a git
@@ -124,6 +126,46 @@ check of `docs/reference/api.md`, and compares the SHA-256 of `api/openapi.yaml`
 stale: run tools/gen_api_client.sh". Each failure is printed and the script exits 1; on
 success its last line, which the gate shows, counts the operations and schemas. Bodies are
 validated against the contract by the server's and the fakes' tests, not here.
+
+## `tools/check_strings.dart`: the strings step
+
+The gate's strings step, pure Dart, run from the repository root. It fails, a line per
+problem, on:
+
+- a string literal in the app's presentation code (each feature's `presentation/`, and
+  `core/router/`, `core/layout/`, `core/widgets/`, `core/l10n/`) that reads as prose (two letters or
+  more, and a space or a leading capital) and is not an import, a comment, a key or an
+  identifier, a log or an assertion message, or listed in
+  `tools/check_strings_allowlist.txt` as `path|literal` under a comment saying why (an
+  entry that matches nothing is a failure too);
+- a literal that joins pieces in code: a ` · `, `, ` or ` ` separator passed to `join`,
+  or interpolations separated only by ` · `, `, ` or spaces (`'$name ${amount}'`); the
+  ARB's templates do that (`app-core.md`, **Localization**), and a join that is not
+  text for a reader (the words of an identifier) goes on the allowlist, its literal
+  JSON-quoted when it is or ends in a space (`path|" "`). An entry allows every
+  occurrence of its literal in its file, so such a join lives in a file of its own
+  (`core/l10n/title_case.dart`). It reads literals, so a string
+  built with `+` gets past it;
+- a key of `app/lib/l10n/app_en.arb` without an `@key` description, or a placeholder a
+  message uses without a typed declaration;
+- a key in another locale's ARB that the template lacks, or a translated message whose
+  placeholders differ from the template's;
+- the pseudo-locale, `app_en_XA.arb`, not exactly what `tools/pseudo_locale.dart` makes
+  of the template (keys missing, extra or stale), with `dart run tools/pseudo_locale.dart`
+  named as the fix.
+
+It prints each translated locale's untranslated count (shown in English), which never
+fails it.
+
+## `tools/pseudo_locale.dart`: the pseudo-locale
+
+`dart run tools/pseudo_locale.dart` writes `app/lib/l10n/app_en_XA.arb` from the template:
+every message's text accented, lengthened by 40 percent (tildes in groups of five, so it
+still wraps) and bracketed, its placeholders and its `plural` and `select` syntax intact.
+Run it, then `flutter gen-l10n` in `app/`, after changing `app_en.arb`; the strings step
+fails until it is current. The pseudo-locale is offered in dev and demo under
+Settings → Appearance → Language (`app-core.md`, **Localization**), to find layouts that
+would cut a longer translation off.
 
 ## `tools/check_commits.sh`: the commit-message lint
 

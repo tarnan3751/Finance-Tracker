@@ -18,8 +18,9 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
 4. `setUpTimeZones()` (**Time**);
 5. `Intl.defaultLocale` set to the device locale (`deviceLocale()`: the platform locale,
    canonicalized, or `en_US` when intl has no data for it), so `Money.format` and
-   `Money.parse` without a locale follow the device; a locale change while the app runs is
-   not followed yet;
+   `Money.parse` without a locale follow the device, and the date symbols of every locale
+   loaded (`initializeDateFormatting`); a locale change while the app runs is not followed
+   yet, except the language chosen in Settings (**Localization**);
 6. `startApp(config)`, the rest, which can run again in the same process: a
    `ProviderContainer` with `overridesFor(config)` (or the overrides a test gives);
 7. in dev and prod, `openLocalData(container)`: the database opens (`data.md`,
@@ -63,7 +64,8 @@ wipe was cut short, finishes it the same way first (`data.md`, **The local wipe*
 
 `FinanceTrackerApp` (`app.dart`) is a `ConsumerWidget` returning `MaterialApp.router` with
 the router, both themes inside a `DynamicColorBuilder`, the theme mode from settings, the
-localization delegates and supported locales, the title from `AppConfig.appName`, and a
+localization delegates, the supported locales and the language chosen on this device
+(**Localization**), the title from `AppConfig.appName`, and a
 `builder` that puts the lock's gate (`LockGate`, `lock.md`, **The gate**) above
 everything, around the flavor banner in dev and demo and the router, so the lock screen
 covers every route and dialog.
@@ -439,8 +441,10 @@ keeping its own navigation stack.
   where it was with its write done, and edits what it saved from then on (a new entity
   keeps its id, its title and menu become the edit ones), so a second Save rewrites it
   rather than creating another.
-- `AppShell` (`core/router/app_shell.dart`) shows the selected branch above a Material 3
-  `NavigationBar`; tapping the current tab again returns it to its first screen.
+- `AppShell` (`core/router/app_shell.dart`) shows the selected branch with the navigation
+  of the window's size class (**Large screens and foldables**): a Material 3
+  `NavigationBar` under it on a compact window, a `NavigationRail` beside it on a medium
+  or expanded one; tapping the current tab again returns it to its first screen.
 - **The Plan tab** (`PLAN.md` §12 "Navigation: the Plan tab", "5e rulings"). The third
   tab's branch (`PlanBranch`) has three roots, one per segment: `/budgets`, `/bills` and
   `/forecast`. Its first route, `/plan`, redirects to `/budgets`, so the tab opens on
@@ -472,7 +476,8 @@ keeping its own navigation stack.
   tab (`ScaffoldMessenger.of(context)` in any of its screens) appears in that tab's screen
   `Scaffold`: above the navigation bar, lifting the screen's floating button rather than
   covering it, and still shown by the screen below when the one that showed it is popped
-  (the transaction editor's Undo).
+  (the transaction editor's Undo). Beside a detail the list has a messenger of its own
+  (`TwoPane`), so a snack bar shows once, in the pane whose screen showed it.
 - **The legacy import.** On its first frame `AppShell` reads `legacyImportResultProvider`:
   when the legacy importer brought anything in at this launch, a snack bar in the current
   tab says how many entries went into "Imported" and their total (and how many could not
@@ -487,6 +492,72 @@ keeping its own navigation stack.
   `semanticsLabel`. Its colors come from the enrichment fallback (`transactions.md`,
   **Merchants**).
 
+## Large screens and foldables
+
+`PLAN.md` §8, Phase 8. Code: `core/layout/`, `core/router/app_shell.dart`.
+
+- **Window size classes** (`core/layout/window_size_class.dart`), by width as the Material
+  3 and Android guidance draws them: compact below 600 dp, medium from 600 to 839 dp,
+  expanded from 840 dp. The shell computes the class once, from its own width (a
+  `LayoutBuilder`; the shell fills the window, so on a device that is the window's), and
+  nothing else reads the window's size to choose a layout. Not from
+  `MediaQuery.sizeOf`: many goldens pump a phone-sized box inside the larger default
+  test window, where the window's width would put a rail in every one of them. Compact: the
+  `NavigationBar`. Medium: a `NavigationRail` with labels. Expanded: the extended rail,
+  its destinations padded to 48 dp. The rail scrolls when five labels at a large text
+  size outgrow the window's height. The five destinations, the Plan badge and the
+  branches are the same in all three, and each branch's navigator keeps its state when
+  the window changes class (a `GlobalKey` per navigator). `PlanScaffold` and
+  `InsightsScaffold` keep their segment controls in every class.
+- **Reading order.** The rail is first on the screen but last in the reading order, as
+  the bar is: the body and the rail are semantics containers sorted with
+  `OrdinalSortKey`, so a screen reader goes through the screen before the destinations.
+- **Two panes** (`core/layout/two_pane.dart`). On an expanded window the Accounts,
+  Transactions and Settings tabs, and the Plan tab while its stack starts at `/bills`,
+  show `TwoPane`: the tab's list (`AccountsScreen`, `TransactionsScreen`, `BillsScreen`,
+  `SettingsScreen`) in the start pane, outside the tab's navigator, and the navigator in
+  the end pane. The shell chooses by the first location of the branch's stack, so a
+  page pushed from another tab (a transaction from an account) opens beside the list of
+  the tab it was pushed in. The list's own route (`/accounts`, `/transactions`,
+  `/bills`, `/settings`) builds `ListPane`: the list on a compact or medium window, a
+  `DetailPlaceholder` ("Choose an account to see it here") in the end pane. The URL stays
+  the source of truth: `/accounts/:id` is the list and the account side by side on an
+  expanded window and the account pushed over the list on a smaller one; Back pops the
+  end pane's navigator, closing the detail. A list opens every page it opens (a detail,
+  a new one, the linked banks, duplicates, subscriptions, each settings screen) with
+  `openDetail(context, location)`: from a start pane `go`, so the page replaces the one
+  beside the list rather than stacking, and for another tab's page (the linked banks
+  from Settings) `go` back to the list and then `push`, so Back returns to the list in
+  this tab; `push` otherwise. Editors and sub-screens pushed from a detail open in the
+  end pane too. The list is one element wherever it is shown: the shell's start pane and
+  `ListPane` key it with the same `GlobalKey` (`ListKeys`, one per list type, owned by
+  the shell), so a tablet turned or a foldable folded keeps its scroll, its search field
+  and its selection. With a list and a detail each showing a floating button on an
+  expanded window, both stay, each its own pane's action. The start pane is two fifths of the
+  room, within 320 and 440 dp; the shell shows one pane when the room beside the rail is
+  under `TwoPane.minWidth` (560 dp: the extended rail's labels grow with the text size).
+  Each pane is its own semantics container (the end pane's navigator would otherwise
+  hide the list from a screen reader), and the start pane's heroes are off (its floating
+  button would share the detail's hero tag).
+- **Folds.** `verticalFold(context)` is the window's vertical fold or hinge
+  (`MediaQuery.displayFeatures`, type fold or hinge, state `postureFlat` or
+  `postureHalfOpened`). `TwoPane` splits on it, the start pane ending where the fold
+  starts and the end pane starting where it ends, in either text direction, when each
+  pane keeps at least 240 dp; it places the fold in its own coordinates by sitting flush
+  with the window's end edge, as the shell's body does. The shell shows the narrow rail
+  (labels, not extended) on such a window, so the list has the room before the fold. A
+  horizontal fold, a fold outside the panes or one of unknown posture leaves the usual
+  split; a folded foldable shows its outer display, compact, with one pane. An account
+  card narrower than a phone's puts its balance under the name. On the harness's Pixel
+  Fold AVD (`ft-fold`) the engine reports the fold: unfolded (841 by 701 dp) a `fold` at
+  x 420.6, `postureFlat`, or `postureHalfOpened` at `posture half`; folded, the outer
+  display (411 by 797 dp) reports only its camera cutout.
+- **Tests.** `test/core/router/app_shell_layout_test.dart` (the classes, the bar and the
+  rails, the reading order, a window changing class), `test/core/layout/two_pane_test.dart`
+  (each list and its detail, `openDetail`, Back, deep links, another tab's page, the
+  compact and medium windows), `test/core/layout/two_pane_fold_test.dart` (the fold
+  split with injected display features). Goldens and their device sizes: **Tests**.
+
 ## Theme
 
 `AppTheme` (`core/theme/app_theme.dart`): Material 3 light and dark `ThemeData` from
@@ -495,7 +566,12 @@ supplies dynamic color schemes (Android 12 and later) and `Settings.useDynamicCo
 those schemes are used instead. Both themes carry `FinanceColors`
 (`core/theme/finance_colors.dart`), a `ThemeExtension` with `outflow` (red) and `inflow`
 (green), each meeting text contrast on the light or dark surfaces; read it with
-`FinanceColors.of(context)`. `AmountText` (`core/widgets/amount_text.dart`) draws a `Money`
+`FinanceColors.of(context)`. With a dynamic scheme both are harmonized with the scheme's
+primary (`FinanceColors.harmonized`, dynamic_color's `harmonizeWith`: the hue moves
+toward the primary's by at most 15 degrees, the tone stays, so the contrast holds), and a
+color the user chose that a chart draws (a category's slice in the Reports donut) goes
+through `FinanceColors.custom`, harmonized the same way; every other chart color comes
+from the `ColorScheme`. With the baseline scheme nothing is harmonized. `AmountText` (`core/widgets/amount_text.dart`) draws a `Money`
 through `Money.format()` in the device locale, colored by direction when asked, with a
 semantics label that reads a negative amount as "minus" and its absolute value. The theme
 mode is `Settings.themeMode`. Text scale is never clamped. Everything imports
@@ -588,8 +664,46 @@ Every user-visible string is in `app/lib/l10n/app_en.arb` with a description;
 `app/l10n.yaml` generates `AppLocalizations` (`nullable-getter: false`) into `app/lib/l10n/`,
 committed. Read strings with `AppLocalizations.of(context)`. `flutter pub get`, `run`,
 `test` and `build` regenerate it (`generate: true`); after editing the ARB run
-`flutter gen-l10n` and commit the output, which the gate's codegen step checks. English is
-the only locale.
+`flutter gen-l10n` and commit the output, which the gate's codegen step checks.
+
+- **Locales.** English (`app_en.arb`, the template: every key with an `@key`
+  description, every placeholder typed, `plural` or `select` wherever a count or a kind
+  changes the wording); Spanish (`app_es.arb`, a skeleton of the most visible strings: the
+  tabs and segments, the common actions, the empty states, Settings, the account and
+  transaction basics, the two-pane placeholders; the rest falls back to English); and the
+  pseudo-locale `en_XA` (`app_en_XA.arb`, Android's own name for one: gen-l10n accepts
+  no made-up language code), generated by `tools/pseudo_locale.dart`
+  (`testing-tools.md`) with every string accented, lengthened by 40 percent and
+  bracketed. After changing `app_en.arb`, run `dart run tools/pseudo_locale.dart` and
+  `flutter gen-l10n`: the gate's strings step fails while the pseudo-locale is out of
+  step with the template, and prints how far Spanish is behind.
+  Resolution is gen-l10n's: the device's exact locale, then its language, then English.
+- **The language choice.** In dev and demo, Settings → Appearance → Language offers
+  System, English and Pseudo (`features/settings/domain/app_language.dart`,
+  `application/app_language_controller.dart`), kept in `app_meta` under `app_language`
+  and never synced; `FinanceTrackerApp` passes it as `MaterialApp.locale`. Prod offers no
+  choice and leaves `en_XA` out of `supportedLocales`.
+- **Formatting.** Amounts (`Money.format`, `Money.parse`) and dates (`DateFormat`)
+  format in intl's default locale, which `bootstrap` sets to the device's locale (en_US
+  when intl has no data for it), with the date symbols of every locale loaded
+  (`initializeDateFormatting`); choosing English or Pseudo sets it to en_US (intl has no
+  data for `en_XA`), choosing System sets the device's again. What the user reads passes
+  no locale of its own; the legacy importer reads the original app's amounts in en_US,
+  and the PDF report formats in the locale it is given (`export.md`).
+- **Joins.** Text shown as one line from several pieces goes through a template, never
+  a separator in code: `captionLine` (`captionPair`, "{first} · {second}"), `listLine`
+  (`listPair`, "{first}, {second}") and `sentenceLine` (`sentencePair`, "{first}
+  {second}", for sentences and semantics summaries) in `core/l10n/joins.dart`, or a
+  message of its own with placeholders (`forecastEventAmount`).
+- **The check.** `tools/check_strings.dart`, run by the gate (`testing-tools.md`): no
+  string literal that reads as prose in the presentation code outside the ARB and
+  `tools/check_strings_allowlist.txt`, no ` · `, `, ` or ` ` separator passed to `join` and no
+  interpolations joined only by a separator or spaces; and the pseudo-locale current
+  with the template. A string built with `+` gets past it; review catches those.
+- **Tests.** `test/l10n/localization_test.dart` (the Spanish skeleton on a Spanish device,
+  Spanish amounts, dates and plurals, the language choice and its absence in prod, a
+  two-pane screen laid out right to left); `test/accessibility_test.dart` lays every
+  screen that opens without a tap out in the pseudo-locale.
 
 ## Settings
 
@@ -600,7 +714,8 @@ the only locale.
 | data | `data/drift_settings_repository.dart` | The Drift implementation (dev and prod): one `app_settings` row per field |
 | data | `data/in_memory_settings_repository.dart`, `data/demo_settings_repository.dart` | The in-memory implementation (tests) and the demo one (the demo flavor) |
 | application | `application/settings_controller.dart` | `SettingsController`, following `watch()`; each change reads, changes and saves, and changes run one after another so two issued together both land |
-| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Security (`features/lock/presentation/security_section.dart`: Require unlock, Lock after and Block screenshots, kept in `app_meta`, `lock.md`), Data (Categories, opening category management, `categories.md`; Rules, `rules.md`; Export, `export.md`; Backup, `backup.md`, which in the demo flavor only says that the demo's data is not kept or backed up), About (app name, version and build, flavor, time zone), Demo data (demo only, `demo_data_section.dart`: the persona the demo shows) and Developer (dev only, `features/developer/presentation/developer_section.dart`: diagnostics, Pull now and the Sandbox controls, `developer.md`); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
+| domain, application | `domain/app_language.dart`, `application/app_language_controller.dart` | `AppLanguage` (`system`, `english`, `pseudo`) and `AppLanguageController`, kept in `app_meta` (`app_language`), device-local (**Localization**) |
+| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color, and in dev and demo a `SegmentedButton` for the language), Security (`features/lock/presentation/security_section.dart`: Require unlock, Lock after and Block screenshots, kept in `app_meta`, `lock.md`), Data (Categories, opening category management, `categories.md`; Rules, `rules.md`; Export, `export.md`; Backup, `backup.md`, which in the demo flavor only says that the demo's data is not kept or backed up), About (app name, version and build, flavor, time zone), Demo data (demo only, `demo_data_section.dart`: the persona the demo shows) and Developer (dev only, `features/developer/presentation/developer_section.dart`: diagnostics, Pull now and the Sandbox controls, `developer.md`); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
 
 The repository contract is `test/contract/settings_repository_contract.dart`,
 `runSettingsRepositoryContract(create, {dispose})`; the three implementations each run it
@@ -610,6 +725,10 @@ The repository contract is `test/contract/settings_repository_contract.dart`,
 
 - **`test/helpers/pump_app.dart`.** `pumpApp(tester, {overrides, config, initialLocation,
   brightness, textScale, size, clock, signedIn, router})` pumps the real app at phone size (412 by 915) and settles.
+  The other sizes it names: `tabletSize` (1024 by 768, expanded), `mediumSize` (701 by
+  841, a Pixel Fold's inner display upright), `expandedSize` (1280 by 800, a Pixel Tablet
+  on its side) and `foldSize` (841 by 701, the Pixel Fold's inner display on its side,
+  with `foldBounds` down its middle at 420.5).
   `buildTestApp` is the same app as a widget, for goldens; `testOverrides` is its override
   list: the flavor (prod by default) as `appConfigProvider` only, not the flavor's
   `overridesFor` wiring, so every test runs on the in-memory repositories; the `clock`
@@ -635,7 +754,11 @@ The repository contract is `test/contract/settings_repository_contract.dart`,
   Golden tests are tagged `golden` (`app/dart_test.yaml`). Update them with
   `flutter test --update-goldens --tags golden` and look at the platform images before
   committing the CI ones. The shell's goldens (`test/core/router/app_shell_golden_test.dart`)
-  hide Flutter's DEBUG banner, which is not part of the app.
+  hide Flutter's DEBUG banner, which is not part of the app; they include the Accounts
+  tab in each size class (`shell_accounts_{compact,medium,expanded}_light` at
+  `phoneSize`, `mediumSize`, `expandedSize`), a transaction beside the transactions
+  (`shell_transactions_two_pane_expanded_light`), an account beside the accounts split on
+  a fold (`shell_accounts_fold_light` at `foldSize`) and Settings at `tabletSize`.
 - **Test data.** `test/helpers/seed.dart`: `seededStore()` is an `InMemoryStore` on the test
   clock (or the `clock` passed) with the system categories and the test seed (`test/helpers/test_seed.dart`, the Phase 1 demo seed) dated to that
   clock's today (or a seed the test passes), and `storeOverride(store)` puts the in-memory repositories on it;
@@ -644,7 +767,12 @@ The repository contract is `test/contract/settings_repository_contract.dart`,
   out pump a taller `size`: the test font draws every character as a square, so rows are
   taller than on a device.
 - **Accessibility.** `test/accessibility_test.dart` checks every screen, light and dark,
-  against `androidTapTargetGuideline`, `labeledTapTargetGuideline` and
-  `textContrastGuideline`, and lays each out at text scale 2.0 expecting no exception: the
-  shell's tabs empty, and every screen, the filter sheet and the category picker on the demo
-  seed. A new screen joins the list. Focus order follows reading order; nothing custom.
+  at text scales 1 and 2, against `androidTapTargetGuideline`, `labeledTapTargetGuideline`
+  and `textContrastGuideline`, and lays each out at text scale 2.0 and, when it opens
+  without a tap, in the pseudo-locale, expecting no exception: the shell's tabs empty, and
+  every screen, the filter sheet and the category picker on the demo seed; the
+  large-screen layouts (a list beside its detail on an expanded window, the rail on a
+  medium one, the panes split on a fold) are checked the same way. A new screen joins the
+  list. Focus order follows reading order, except the shell's rail, which reads after the
+  screen (**Large screens and foldables**). A value that changes under the user is a live
+  region (the sync status in Settings, the backup's progress, the lock's message).
