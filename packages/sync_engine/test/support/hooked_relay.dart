@@ -1,6 +1,7 @@
-// A relay wrapper for tests and the simulation: hooks before and after each call (to
-// inject failures, lost responses and event-loop yields), call counts, and an option to
-// stop filtering the caller's own entries, as a relay that does not filter would.
+// A relay wrapper for tests and the simulations: hooks before and after each call (to
+// inject failures, lost responses and event-loop yields), a hook that rewrites each pulled
+// page (to deliver entries reordered, twice or early), call counts, and an option to stop
+// filtering the caller's own entries, as a relay that does not filter would.
 import 'dart:async';
 
 import 'package:shared_models/shared_models.dart';
@@ -16,6 +17,9 @@ class HookedRelay implements SyncRelay {
 
   /// Runs after the inner call; a throw is a response that was lost.
   FutureOr<void> Function(String op)? after;
+
+  /// Rewrites each page the inner relay served before the caller sees it.
+  PullPage Function(PullPage page)? deliver;
 
   /// When false, pulls return every device's entries, the caller's own included.
   bool filterOwn = true;
@@ -46,6 +50,6 @@ class HookedRelay implements SyncRelay {
       deviceId: filterOwn ? deviceId : '\u0000none',
     );
     await after?.call('pull');
-    return page;
+    return deliver?.call(page) ?? page;
   }
 }

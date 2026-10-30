@@ -1,0 +1,5 @@
+# Test tags. `chaos` marks the chaos simulation (test/simulation/chaos_test.dart); the gate
+# runs it at its budget, and `dart test --tags chaos` runs it alone with its figures
+# (SYNC_CHAOS_SCENARIOS, SYNC_CHAOS_SEED and SYNC_CHAOS_SCENARIO as its header says).
+tags:
+  chaos:
