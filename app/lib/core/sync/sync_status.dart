@@ -43,7 +43,7 @@ final class SyncSummary {
     required this.applied,
     required this.rejectedForGood,
     required this.clockDrift,
-    required this.pullBlocked,
+    required this.clamped,
   });
 
   /// The summary of [report].
@@ -57,17 +57,18 @@ final class SyncSummary {
     clockDrift: report.rejected
         .where((r) => r.reason == PushRejectionReason.clockDrift)
         .length,
-    pullBlocked: report.pullBlockedBy != null,
+    clamped: report.clamped,
   );
 
-  /// Reads [toJson]'s form.
+  /// Reads [toJson]'s form; a summary kept before `clamped` existed (with the retired
+  /// `pull_blocked`) reads as no clamp.
   factory SyncSummary.fromJson(Map<String, Object?> json) => SyncSummary(
     pushed: json['pushed']! as int,
     pulled: json['pulled']! as int,
     applied: json['applied']! as int,
     rejectedForGood: json['rejected_for_good']! as int,
     clockDrift: json['clock_drift']! as int,
-    pullBlocked: json['pull_blocked']! as bool,
+    clamped: json['clamped'] as int? ?? 0,
   );
 
   /// Entries the relay accepted.
@@ -82,14 +83,19 @@ final class SyncSummary {
   /// Entries the relay refused for good (`invalid`, `conflicting_duplicate`).
   final int rejectedForGood;
 
-  /// Entries refused because this device's clock is too far ahead; retried later.
+  /// Entries refused because this device's clock is more than the bound ahead of the
+  /// server's; they stay queued and are retried.
   final int clockDrift;
 
-  /// Whether a pulled entry from a device whose clock is too far ahead held the pull back.
-  final bool pullBlocked;
+  /// Pulled entries more than the bound ahead of this device's clock, whose time the
+  /// clock did not adopt (`SyncReport.clamped`): this device's clock is behind.
+  final int clamped;
 
-  /// Whether a clock too far ahead, here or on another device, held changes back.
-  bool get heldByClockDrift => clockDrift > 0 || pullBlocked;
+  /// Whether this device's clock is ahead, so some of its changes wait to sync.
+  bool get clockAhead => clockDrift > 0;
+
+  /// Whether this device's clock is behind, so changes made here may be overridden.
+  bool get clockBehind => clamped > 0;
 
   /// The JSON form.
   Map<String, Object?> toJson() => {
@@ -98,7 +104,7 @@ final class SyncSummary {
     'applied': applied,
     'rejected_for_good': rejectedForGood,
     'clock_drift': clockDrift,
-    'pull_blocked': pullBlocked,
+    'clamped': clamped,
   };
 
   @override
@@ -109,7 +115,7 @@ final class SyncSummary {
       other.applied == applied &&
       other.rejectedForGood == rejectedForGood &&
       other.clockDrift == clockDrift &&
-      other.pullBlocked == pullBlocked;
+      other.clamped == clamped;
 
   @override
   int get hashCode => Object.hash(
@@ -118,7 +124,7 @@ final class SyncSummary {
     applied,
     rejectedForGood,
     clockDrift,
-    pullBlocked,
+    clamped,
   );
 }
 

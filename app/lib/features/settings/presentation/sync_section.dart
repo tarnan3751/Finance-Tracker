@@ -1,8 +1,8 @@
 /// The settings screen's Sync section (dev and prod): the status of the last session, the
-/// outbox, changes held back by a clock far ahead, changes the server refused for good,
-/// records this version cannot show, when the bank data was last pulled (or why it
-/// failed), and "Sync now", which runs both. Counts and times only, never a
-/// change's content.
+/// outbox, a clock ahead (changes held back) or behind (changes that may be overridden),
+/// changes the server refused for good, records this version cannot show, when the bank
+/// data was last pulled (or why it failed), and "Sync now", which runs both. Counts and
+/// times only, never a change's content.
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
@@ -72,10 +72,15 @@ class SyncSection extends ConsumerWidget {
             leading: const Icon(Icons.outbox_outlined),
             title: Text(l10n.syncPending(ledger.pending)),
           ),
-          if (status.lastSummary?.heldByClockDrift ?? false)
+          if (status.lastSummary?.clockAhead ?? false)
             ListTile(
               leading: const Icon(Icons.schedule),
               title: Text(l10n.syncClockDrift),
+            ),
+          if (status.lastSummary?.clockBehind ?? false)
+            ListTile(
+              leading: const Icon(Icons.schedule),
+              title: Text(l10n.syncClockBehind),
             ),
           if (ledger.lastRejected case final Hlc last when ledger.rejected > 0)
             ListTile(

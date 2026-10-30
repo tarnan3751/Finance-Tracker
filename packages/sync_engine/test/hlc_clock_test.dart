@@ -1,6 +1,6 @@
 // The hybrid logical clock: every branch of the paper's Figure 5 with hand-computed values,
 // the Figure 4 loop, Theorems 1 and 2 on random message traces, and the engine's edge cases
-// (a backwards wall clock, counter overflow, drift). The random traces draw from
+// (a backwards wall clock, counter overflow, the clock bound). The random traces draw from
 // `Random(seed)` with the default seed 20261024; set SYNC_ENGINE_SEED to explore.
 import 'dart:io';
 import 'dart:math';
@@ -144,35 +144,124 @@ void main() {
     });
   });
 
-  group('drift', () {
-    test('a remote wall more than an hour ahead is rejected', () {
+  group('the clock bound', () {
+    const hour = 3600 * 1000;
+
+    test('the bound is one hour, the one the relays use', () {
+      expect(Hlc.maxDrift, const Duration(hours: 1));
+      expect(HlcClock('a').maxDrift, Hlc.maxDrift);
+      expect(InMemorySyncRelay(nowWallMillis: () => 0).maxDrift, Hlc.maxDrift);
+    });
+
+    test('a remote wall up to an hour ahead is adopted', () {
       final clock = HlcClock('a', last: Hlc(100, 1, 'a'));
-      const hour = 3600 * 1000;
+      expect(clock.beyondBound(Hlc(1000 + hour, 0, 'b'), 1000), isFalse);
       expect(
-        () => clock.receive(Hlc(1000 + hour + 1, 0, 'b'), 1000),
-        throwsA(isA<ClockDriftException>()),
-      );
-      expect(clock.last, Hlc(100, 1, 'a'), reason: 'state unchanged');
-      expect(
-        clock.receive(Hlc(1000 + hour, 0, 'b'), 1000),
-        Hlc(1000 + hour, 1, 'a'),
-        reason: 'exactly the bound is accepted',
+        clock.receive(Hlc(1000 + hour, 4, 'b'), 1000),
+        Hlc(1000 + hour, 5, 'a'),
+        reason: 'exactly the bound is adopted',
       );
     });
 
-    test('maxDrift is configurable and checkDrift changes nothing', () {
-      final clock = HlcClock('a', maxDrift: const Duration(seconds: 1));
+    test('a remote wall beyond the bound clamps to the physical clock', () {
+      final clock = HlcClock('a', last: Hlc(100, 1, 'a'));
+      final remote = Hlc(1000 + hour + 1, 9, 'b');
+      expect(clock.beyondBound(remote, 1000), isTrue);
       expect(
-        () => clock.checkDrift(Hlc(2001, 0, 'b'), 1000),
-        throwsA(isA<ClockDriftException>()),
+        clock.last,
+        Hlc(100, 1, 'a'),
+        reason: 'beyondBound changes nothing',
       );
-      clock.checkDrift(Hlc(2000, 0, 'b'), 1000);
-      expect(clock.last, Hlc(0, 0, 'a'));
+      expect(clock.receive(remote, 1000), Hlc(1000, 0, 'a'));
+      expect(clock.last.compareTo(remote), lessThan(0));
     });
 
-    test('a remote clock behind is never rejected', () {
+    test(
+      'a clamp with the physical clock behind the clock bumps the counter',
+      () {
+        final clock = HlcClock('a', last: Hlc(5000, 3, 'a'));
+        expect(
+          clock.receive(Hlc(1000 + 5 * hour, 0, 'b'), 1000),
+          Hlc(5000, 4, 'a'),
+        );
+        expect(
+          clock.receive(Hlc(1000 + 5 * hour, 0, 'b'), 5000),
+          Hlc(5000, 5, 'a'),
+        );
+      },
+    );
+
+    test(
+      'a clamp at the counter limit advances the wall by one millisecond',
+      () {
+        final clock = HlcClock('a', last: Hlc(5000, Hlc.maxCounter, 'a'));
+        expect(clock.receive(Hlc(10 * hour, 0, 'b'), 1000), Hlc(5001, 0, 'a'));
+      },
+    );
+
+    test('sendAfter stamps past a clock beyond the bound, unlike receive', () {
+      final clock = HlcClock('a', last: Hlc(1000, 2, 'a'));
+      final seen = Hlc(1000 + 5 * hour, 7, 'b');
+      expect(clock.sendAfter(seen, 1000), Hlc(1000 + 5 * hour, 8, 'a'));
+      expect(clock.sendAfter(seen, 1000), Hlc(1000 + 5 * hour, 9, 'a'));
+      expect(
+        clock.sendAfter(Hlc(5, 0, 'b'), 1000 + 6 * hour),
+        Hlc(1000 + 6 * hour, 0, 'a'),
+        reason: 'a seen clock behind is a plain send',
+      );
+    });
+
+    test('sendAfter at the counter limit advances the wall', () {
       final clock = HlcClock('a');
+      expect(
+        clock.sendAfter(Hlc(5000, Hlc.maxCounter, 'b'), 1000),
+        Hlc(5001, 0, 'a'),
+      );
+    });
+
+    test('the bound is configurable', () {
+      final clock = HlcClock('a', maxDrift: const Duration(seconds: 1));
+      expect(clock.beyondBound(Hlc(2001, 0, 'b'), 1000), isTrue);
+      expect(clock.beyondBound(Hlc(2000, 0, 'b'), 1000), isFalse);
+      expect(clock.receive(Hlc(2001, 0, 'b'), 1000), Hlc(1000, 0, 'a'));
+    });
+
+    test('a remote clock behind is never clamped', () {
+      final clock = HlcClock('a');
+      expect(clock.beyondBound(Hlc(1, 0, 'b'), 1 << 40), isFalse);
       expect(clock.receive(Hlc(1, 0, 'b'), 1 << 40), Hlc(1 << 40, 0, 'a'));
+    });
+
+    test('with skews of hours, the clock strictly increases and never adopts a '
+        'wall beyond the bound', () {
+      final r = Random(seed);
+      for (var trace = 0; trace < 200; trace++) {
+        final clock = HlcClock('a');
+        var physical = 1000 * hour;
+        var maxPhysical = 0;
+        var previous = clock.last;
+        for (var i = 0; i < 100; i++) {
+          physical += r.nextInt(2 * hour) - hour ~/ 2;
+          maxPhysical = max(maxPhysical, physical);
+          final got = r.nextBool()
+              ? clock.send(physical)
+              : clock.receive(
+                  Hlc(
+                    physical + r.nextInt(6 * hour) - 3 * hour,
+                    r.nextInt(9),
+                    'b',
+                  ),
+                  physical,
+                );
+          expect(got.compareTo(previous), greaterThan(0));
+          expect(
+            got.wallMillis,
+            lessThanOrEqualTo(maxPhysical + hour + 1),
+            reason: 'trace $trace step $i',
+          );
+          previous = got;
+        }
+      }
     });
   });
 

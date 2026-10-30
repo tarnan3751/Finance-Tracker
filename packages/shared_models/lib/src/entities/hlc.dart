@@ -45,6 +45,12 @@ final class Hlc implements Comparable<Hlc> {
   /// The largest counter the packed form holds.
   static const int maxCounter = 99999;
 
+  /// The clock bound: how far a wall time may lie ahead of the physical clock that judges
+  /// it. A relay refuses a pushed entry more than this ahead of its own clock, and a
+  /// device never adopts a received wall time more than this ahead of its own
+  /// (`docs/reference/sync.md`, **The clock bound**).
+  static const Duration maxDrift = Duration(hours: 1);
+
   static final RegExp _nodeIdPattern = RegExp(r'^[A-Za-z0-9_.:-]+$');
 
   static final RegExp _packedPattern = RegExp(

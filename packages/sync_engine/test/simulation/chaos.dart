@@ -329,6 +329,7 @@ final class ChaosStats {
   int scenarios = 0;
   int steps = 0;
   int driftRefused = 0;
+  int clamped = 0;
   int partitions = 0;
   int restarts = 0;
   int bursts = 0;
@@ -338,7 +339,7 @@ final class ChaosStats {
   String toString() =>
       '$scenarios scenarios, $steps steps: $bursts bursts, $partitions partitions, '
       '$restarts restarts, $reshapedPages pages reordered, duplicated or early, '
-      '$driftRefused pushes refused for drift';
+      '$driftRefused pushes refused for drift, $clamped received clocks clamped';
 }
 
 class _Fault implements Exception {
@@ -387,6 +388,13 @@ final class _Device {
   /// The latest physical time this device has read.
   int maxNow = 0;
 
+  /// Every entry from another device delivered to this one, by entity: its clock and
+  /// the fields it writes.
+  final delivered = <EntityKey, List<(Hlc, Set<String>)>>{};
+
+  /// The greatest received clock a local edit of this device was stamped after.
+  Hlc? editedAfter;
+
   /// The persisted clock when last checked.
   Hlc? persisted;
 
@@ -431,6 +439,18 @@ final class _Device {
     run.log('$id restarted at $last');
   }
 
+  PullPage _deliver(PullPage page, Delivery delivery) {
+    final out = _reshape(page, delivery);
+    for (final e in out.entries) {
+      if (e.deviceId == id) continue;
+      (delivered[(type: e.entityType, id: e.entityId)] ??= []).add((
+        e.hlc,
+        e.payload.keys.toSet(),
+      ));
+    }
+    return out;
+  }
+
   PullPage _reshape(PullPage page, Delivery delivery) {
     if (delivery == Delivery.normal) return page;
     final entries = [...page.entries];
@@ -464,13 +484,15 @@ final class _Device {
   }
 
   Future<void> sync(Sync step) async {
-    relay.deliver = (page) => _reshape(page, step.delivery);
+    relay.deliver = (page) => _deliver(page, step.delivery);
     try {
       final report = await session.run();
       run.log(
         '$id ${step.describe()}: pushed ${report.pushed}, pulled ${report.pulled}, '
-        'applied ${report.applied}, rejected ${report.rejected.length}',
+        'applied ${report.applied}, rejected ${report.rejected.length}, '
+        'clamped ${report.clamped}',
       );
+      run.stats.clamped += report.clamped;
       for (final x in report.rejected) {
         run.check(
           x.reason == PushRejectionReason.clockDrift,
@@ -533,6 +555,8 @@ final class _Device {
     try {
       entry = await editor.recordChange(step.type, step.id, before, after, at);
     } on _Fault catch (e) {
+      // A failed edit may still have moved the clock past what it was editing.
+      _editedAfter(key, null);
       run.log('$id edit $what ${step.type.name}/${step.id} failed: $e');
       return;
     }
@@ -544,32 +568,41 @@ final class _Device {
     produced.add(entry);
     final stored = store.records[key]!;
     for (final f in entry.payload.keys) {
-      final clock = stored.fieldClocks[f]!;
-      if (clock == entry.hlc) {
-        run.check(
-          const DeepCollectionEquality().equals(
-            stored.fields[f],
-            entry.payload[f],
-          ),
-          '$id: local edit of $key.$f not visible right after it',
-        );
-      } else {
-        // Only a remote clock this device did not adopt (beyond the bound) can be
-        // greater than a clock it issues.
-        run.check(
-          clock.compareTo(entry.hlc) > 0,
-          '$id: local edit of $key.$f lost to an older clock $clock',
-        );
-      }
+      run.check(
+        const DeepCollectionEquality().equals(
+              stored.fields[f],
+              entry.payload[f],
+            ) &&
+            stored.fieldClocks[f] == entry.hlc,
+        '$id: local edit of $key.$f not visible right after it',
+      );
     }
+    _editedAfter(key, entry);
     run.log(
       '$id ${entry.operation.name}/$what ${step.type.name}/${step.id} ${entry.hlc} '
       '${entry.payload.keys}',
     );
   }
 
+  /// Raises [editedAfter] to the greatest clock received for [key] that [entry] came
+  /// after on one of its fields (any received for [key] when the edit failed).
+  void _editedAfter(EntityKey key, ChangeLogEntry? entry) {
+    for (final (hlc, fields)
+        in delivered[key] ?? const <(Hlc, Set<String>)>[]) {
+      final after =
+          entry == null ||
+          (hlc.compareTo(entry.hlc) < 0 &&
+              fields.any(entry.payload.containsKey));
+      if (after && (editedAfter == null || hlc.compareTo(editedAfter!) > 0)) {
+        editedAfter = hlc;
+      }
+    }
+  }
+
   /// The clock invariants, between steps: the persisted clock never goes back, and the
-  /// clock never adopted a physical time more than the bound ahead of this device's.
+  /// clock is never further ahead than the greater of this device's physical time plus
+  /// the bound (receiving never adopts more) and the greatest received clock one of its
+  /// edits came after (an edit is stamped past what it changes).
   Future<void> checkClock() async {
     final last = await store.lastClock();
     if (last != null) {
@@ -580,10 +613,14 @@ final class _Device {
       );
       persisted = last;
     }
+    final limit = max(
+      maxNow + clock.maxDrift.inMilliseconds,
+      editedAfter?.wallMillis ?? 0,
+    );
     run.check(
-      clock.last.wallMillis <= maxNow + clock.maxDrift.inMilliseconds + 1,
-      '$id clock ${clock.last} is beyond its latest physical time $maxNow '
-      'plus the bound',
+      clock.last.wallMillis <= limit + 1,
+      '$id clock ${clock.last} is beyond both its latest physical time $maxNow plus '
+      'the bound and the clock $editedAfter it last edited after',
     );
   }
 }

@@ -1,4 +1,5 @@
 // The relay's rules through POST /sync/push and GET /sync/pull.
+import 'package:shared_models/shared_models.dart';
 import 'package:test/test.dart';
 
 import 'support/test_server.dart';
@@ -164,13 +165,15 @@ void main() {
     expect(r.json['accepted'], [hlc(a, 5)]);
   });
 
-  test('a clock more than an hour ahead is clock_drift', () async {
-    const hour = 3600 * 1000;
+  test('a clock more than the bound (an hour) ahead is clock_drift', () async {
+    final bound = Hlc.maxDrift.inMilliseconds;
+    expect(bound, 3600 * 1000);
     final r = await push(a, [
-      entry(a, clock: hlc(a, hour)),
-      entry(a, clock: hlc(a, hour + 1), id: 'c2'),
+      entry(a, clock: hlc(a, bound)),
+      entry(a, clock: hlc(a, bound + 1), id: 'c2'),
+      entry(a, clock: hlc(a, -5 * bound), id: 'c3'),
     ]);
-    expect(r.json['accepted'], [hlc(a, hour)]);
+    expect(r.json['accepted'], [hlc(a, bound), hlc(a, -5 * bound)]);
     expect(codes(r), ['clock_drift']);
   });
 

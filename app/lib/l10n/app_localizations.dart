@@ -2168,11 +2168,17 @@ abstract class AppLocalizations {
   /// **'{count, plural, =0{Every change is synced} =1{1 change waiting to sync} other{{count} changes waiting to sync}}'**
   String syncPending(int count);
 
-  /// Shown when a device's clock is more than an hour ahead, which holds changes back until real time catches up.
+  /// Shown when the server refused some of this device's changes because its clock is more than an hour ahead of the server's; the changes stay queued and are retried.
   ///
   /// In en, this message translates to:
-  /// **'A device\'s clock is far ahead, so some changes wait until it catches up'**
+  /// **'Check your device\'s clock: it is ahead, so some changes wait to sync'**
   String get syncClockDrift;
+
+  /// Shown when changes pulled from other devices were more than an hour ahead of this device's clock, which means this device's clock is behind and its own edits may lose to theirs.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your device\'s clock: it is behind, so changes made here may be overridden'**
+  String get syncClockBehind;
 
   /// How many local changes the server refused for good, and when the latest of them was made (device time zone).
   ///

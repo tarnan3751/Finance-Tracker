@@ -16,7 +16,7 @@ final class InMemorySyncRelay implements SyncRelay {
   /// [maxDrift] ahead of it is rejected as [PushRejectionReason.clockDrift].
   InMemorySyncRelay({
     required this.nowWallMillis,
-    this.maxDrift = const Duration(hours: 1),
+    this.maxDrift = Hlc.maxDrift,
   });
 
   /// The relay's clock, UTC milliseconds.

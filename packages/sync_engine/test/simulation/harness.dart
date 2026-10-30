@@ -190,9 +190,9 @@ class SimDevice {
       sim.log(
         '$id sync ($why): pushed ${report.pushed}, pulled ${report.pulled}, '
         'applied ${report.applied}, rejected ${report.rejected.length}'
-        '${report.pullBlockedBy == null ? '' : ', blocked'}',
+        '${report.clamped == 0 ? '' : ', clamped ${report.clamped}'}',
       );
-      sim.check(report.pullBlockedBy == null, '$id pull blocked by drift');
+      sim.check(report.clamped == 0, '$id clamped a clock skewed by minutes');
       sim.check(
         report.rejected.isEmpty,
         '$id push rejected: ${report.rejected}',

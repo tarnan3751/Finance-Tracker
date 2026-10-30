@@ -1,7 +1,7 @@
 // Entries of a type this build does not know: merged under their raw type by the rules
 // of merge (whatever the order, a create's deleted_at ignored), and a pulled page holding
-// one applies the rest, holds it, receives its clock and advances the cursor; a page
-// whose unknown entry is too far ahead is blocked like any other.
+// one applies the rest, holds it, receives its clock and advances the cursor; an unknown
+// entry beyond the clock bound clamps the clock like any other.
 import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 import 'package:test/test.dart';
@@ -171,27 +171,33 @@ void main() {
       expect((await store.lastClock())!.compareTo(Hlc(500, 0, 'dev-b')), 1);
     });
 
-    test('an unknown entry far ahead blocks its page like any other', () async {
-      final InMemorySyncStore store = InMemorySyncStore();
-      final SyncReport report = await SyncSession(
-        store,
-        _PagedRelay([
-          PullPage(
-            entries: [known(100, 'c1')],
-            unknownTypes: [
-              unknown(10 * 3600 * 1000, ChangeOperation.create, {'id': 'p1'}),
-            ],
-            nextSince: 1,
-            hasMore: false,
-          ),
-        ]),
-        HlcClock('dev-a'),
-        nowWallMillis: () => 1000,
-      ).run();
-      expect(report.pullBlockedBy, isNotNull);
-      expect(await store.pullCursor(), isNull);
-      expect(store.records, isEmpty);
-      expect(store.unknownTypeRecords, isEmpty);
-    });
+    test(
+      'an unknown entry beyond the bound is held and clamps the clock like any '
+      'other',
+      () async {
+        final InMemorySyncStore store = InMemorySyncStore();
+        final HlcClock clock = HlcClock('dev-a');
+        final SyncReport report = await SyncSession(
+          store,
+          _PagedRelay([
+            PullPage(
+              entries: [known(100, 'c1')],
+              unknownTypes: [
+                unknown(10 * 3600 * 1000, ChangeOperation.create, {'id': 'p1'}),
+              ],
+              nextSince: 1,
+              hasMore: false,
+            ),
+          ]),
+          clock,
+          nowWallMillis: () => 1000,
+        ).run();
+        expect(report.clamped, 1);
+        expect(await store.pullCursor(), 1);
+        expect(store.records.keys.map((k) => k.id), ['c1']);
+        expect(store.unknownTypeRecords.keys, [('future_type', 'p1')]);
+        expect(clock.last.wallMillis, 1000);
+      },
+    );
   });
 }

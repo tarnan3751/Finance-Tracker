@@ -83,7 +83,7 @@ void main() {
     ).run();
 
     expect(report.pulled, 3);
-    expect(report.pullBlockedBy, isNull);
+    expect(report.clamped, 0);
     expect(await store.pullCursor(), 3);
     expect(
       (await database.select(database.categories).get()).map((c) => c.id),

@@ -1,5 +1,5 @@
 // The push/pull session: batching, rejections, failures on either side and resume, the
-// pull cursor across a crash, idempotent re-pulls, the drift block, own entries, and one
+// pull cursor across a crash, idempotent re-pulls, the clock bound, own entries, and one
 // run at a time.
 import 'dart:async';
 
@@ -348,28 +348,35 @@ void main() {
     },
   );
 
-  test(
-    'an entry too far ahead blocks the pull until the clock catches up',
-    () async {
-      relayNow = 1000 + 3 * hour;
-      final a = Device('a', relay, page: 1), b = Device('b', relay, page: 1);
-      await a.create('c1');
-      a.now = 1000 + 3 * hour;
-      await a.create('c2');
-      await a.session.run();
-      final r = await b.session.run(); // b's clock reads 1000
-      expect(r.pulled, 1);
-      expect(r.pullBlockedBy, isA<ClockDriftException>());
-      expect(r.pullBlockedBy!.remote.wallMillis, 1000 + 3 * hour);
-      expect(await b.store.pullCursor(), 1);
-      expect(b.store.records.keys, [(type: type, id: 'c1')]);
-      b.now = 1000 + 2 * hour + 1;
-      final later = await b.session.run();
-      expect(later.pulled, 1);
-      expect(later.pullBlockedBy, isNull);
-      expect(b.state(), a.state());
-    },
-  );
+  test('an entry beyond the clock bound is applied and the clock clamps; '
+      'a later local edit of its field wins everywhere', () async {
+    relayNow = 1000 + 3 * hour;
+    final a = Device('a', relay, page: 1), b = Device('b', relay, page: 1);
+    await a.create('c1');
+    a.now = 1000 + 3 * hour;
+    await a.rename('c1', 'From a');
+    await a.session.run();
+    final r = await b.session.run(); // b's clock reads 1000, three hours behind
+    expect((r.pulled, r.applied, r.clamped), (2, 2, 1));
+    expect(await b.store.pullCursor(), 2);
+    expect(b.state(), a.state());
+    expect(b.clock.last.wallMillis, lessThanOrEqualTo(b.now + hour));
+    expect(b.clock.last.compareTo(a.clock.last), lessThan(0));
+    await b.rename('c1', 'From b');
+    expect(
+      (await b.store.read(type, 'c1'))!.fields['name'],
+      'From b',
+      reason:
+          "b's edit is stamped after the value it changed, so it shows at once",
+    );
+    expect(b.clock.last.compareTo(a.clock.last), greaterThan(0));
+    final pushed = await b.session.run();
+    expect(pushed.pushed, 1);
+    expect(pushed.rejected, isEmpty);
+    await a.session.run();
+    expect(b.state(), a.state());
+    expect((await a.store.read(type, 'c1'))!.fields['name'], 'From b');
+  });
 
   test('a run while one is in flight returns the same run', () async {
     final a = Device('a', relay);

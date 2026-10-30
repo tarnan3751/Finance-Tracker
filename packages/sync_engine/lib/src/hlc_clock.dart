@@ -5,8 +5,12 @@
 /// (2014), with two deliberate departures, both for monotonicity, which last-writer-wins
 /// merge depends on: a counter that would pass [Hlc.maxCounter] advances the wall by one
 /// millisecond instead of rolling over, and the paper's corrective reset of `l` to the
-/// physical clock (§4.1) is never applied. The paper's other corrective action, ignoring a
-/// message too far ahead of the physical clock, is [ClockDriftException].
+/// physical clock (§4.1) is never applied. In place of the paper's other corrective
+/// action, ignoring a message too far ahead of the physical clock, a remote clock beyond
+/// the bound ([Hlc.maxDrift]) is received without adopting its wall time: the clock
+/// clamps to its own physical time and bumps the counter. A local edit is stamped past
+/// the clocks of the values it changes ([sendAfter]), whatever the bound, so it is
+/// causally after them (`docs/reference/sync.md`, **The clock bound**).
 ///
 /// The clock does no IO: the host persists [HlcClock.last] (`SyncStore.saveClock`) and
 /// passes it back at construction.
@@ -14,34 +18,12 @@ library;
 
 import 'package:shared_models/shared_models.dart';
 
-/// A remote clock more than the allowed drift ahead of this node's physical clock. The
-/// entry that carried it is rejected, not applied; the clock's state is unchanged.
-final class ClockDriftException implements Exception {
-  /// The exception for [remote] seen at [nowWallMillis] with [maxDrift] allowed.
-  const ClockDriftException(this.remote, this.nowWallMillis, this.maxDrift);
-
-  /// The rejected remote timestamp.
-  final Hlc remote;
-
-  /// This node's physical clock when [remote] was received.
-  final int nowWallMillis;
-
-  /// The drift allowed.
-  final Duration maxDrift;
-
-  @override
-  String toString() =>
-      'ClockDriftException: $remote is '
-      '${remote.wallMillis - nowWallMillis} ms ahead of $nowWallMillis '
-      '(at most ${maxDrift.inMilliseconds} ms allowed)';
-}
-
 /// One node's hybrid logical clock.
 final class HlcClock {
   /// A clock for [nodeId], resumed from the persisted [last] when there is one (the
   /// paper's initial state, wall 0 and counter 0, otherwise). A remote wall time more than
-  /// [maxDrift] ahead of the physical clock is rejected by [receive].
-  HlcClock(this.nodeId, {Hlc? last, this.maxDrift = const Duration(hours: 1)})
+  /// [maxDrift] ahead of the physical clock is never adopted by [receive].
+  HlcClock(this.nodeId, {Hlc? last, this.maxDrift = Hlc.maxDrift})
     : _last = last ?? Hlc(0, 0, nodeId) {
     if (_last.nodeId != nodeId) {
       throw ArgumentError.value(last, 'last', 'issued by another node');
@@ -51,7 +33,7 @@ final class HlcClock {
   /// The node (device) id stamped on every timestamp this clock issues.
   final String nodeId;
 
-  /// How far ahead of the physical clock a remote wall time may be.
+  /// How far ahead of the physical clock a remote wall time may be and still be adopted.
   final Duration maxDrift;
 
   Hlc _last;
@@ -69,12 +51,27 @@ final class HlcClock {
     return _last = _stamp(l, c);
   }
 
-  /// Advances the clock past [remote], received at physical time [nowWallMillis].
+  /// A timestamp for a local event at physical time [nowWallMillis] that follows [seen]:
+  /// greater than [last] and than [seen], by the receive rule of Figure 5 without the
+  /// bound. [LocalEditor] stamps an edit after the greatest clock among the values it
+  /// changes, so the edit wins over what the user saw even when that clock is beyond the
+  /// bound. Such a clock was accepted by a relay, so it was within the bound of the
+  /// relay's time, and an edit just past it is too while the relay's clock does not step
+  /// back (and the counter does not overflow into the next millisecond at the bound's
+  /// edge); otherwise the relay refuses it for drift for a while and it stays queued.
+  Hlc sendAfter(Hlc seen, int nowWallMillis) => _past(seen, nowWallMillis);
+
+  /// Advances the clock on receiving [remote] at physical time [nowWallMillis].
   ///
-  /// Throws [ClockDriftException], leaving the state unchanged, when [remote]'s wall time
-  /// is more than [maxDrift] ahead of [nowWallMillis].
-  Hlc receive(Hlc remote, int nowWallMillis) {
-    checkDrift(remote, nowWallMillis);
+  /// Within the bound, past [remote] (Figure 5). When [remote] is [beyondBound], its wall
+  /// time is not adopted: the clock advances as [send] does, to its own physical time or,
+  /// when that is behind, by one on the counter, and stays behind [remote].
+  Hlc receive(Hlc remote, int nowWallMillis) =>
+      beyondBound(remote, nowWallMillis)
+      ? send(nowWallMillis)
+      : _past(remote, nowWallMillis);
+
+  Hlc _past(Hlc remote, int nowWallMillis) {
     final l0 = _last.wallMillis;
     final lm = remote.wallMillis;
     var l = l0 > lm ? l0 : lm;
@@ -92,13 +89,10 @@ final class HlcClock {
     return _last = _stamp(l, c);
   }
 
-  /// Throws [ClockDriftException] when [remote] is more than [maxDrift] ahead of
-  /// [nowWallMillis]; changes nothing.
-  void checkDrift(Hlc remote, int nowWallMillis) {
-    if (remote.wallMillis - nowWallMillis > maxDrift.inMilliseconds) {
-      throw ClockDriftException(remote, nowWallMillis, maxDrift);
-    }
-  }
+  /// Whether [remote] is more than [maxDrift] ahead of [nowWallMillis], so that [receive]
+  /// clamps instead of adopting it. Changes nothing.
+  bool beyondBound(Hlc remote, int nowWallMillis) =>
+      remote.wallMillis - nowWallMillis > maxDrift.inMilliseconds;
 
   /// The timestamp `(l, c)`, or `(l + 1, 0)` when [c] would pass the counter's range.
   Hlc _stamp(int l, int c) =>

@@ -19,7 +19,7 @@ final class SyncReport {
     required this.pulled,
     required this.applied,
     required this.changed,
-    required this.pullBlockedBy,
+    required this.clamped,
   });
 
   /// Outbox entries the relay accepted.
@@ -43,10 +43,11 @@ final class SyncReport {
   /// The entities whose records changed, for the host to react to.
   final Set<EntityKey> changed;
 
-  /// Set when the pull stopped at a page holding an entry too far ahead of this device's
-  /// clock. That page was not applied and the cursor stays before it; a later run, once
-  /// the device's clock has caught up, applies it.
-  final ClockDriftException? pullBlockedBy;
+  /// Pulled entries whose clock was more than the bound ahead of this device's physical
+  /// clock: they were merged, but the device's clock clamped instead of adopting their
+  /// wall time ([HlcClock.receive]). Only a device whose clock is behind the relay's can
+  /// see one, since the relay refuses entries more than the bound ahead of its own.
+  final int clamped;
 }
 
 /// Syncs one device. Safe to rerun after any failure: a failed push leaves its entries
@@ -89,11 +90,10 @@ final class SyncSession {
   /// synced, permanently rejected ones (`invalid`, `conflictingDuplicate`) are marked
   /// rejected and leave the outbox, and the push continues with the next batch; a
   /// `clockDrift` rejection stays unsynced and ends the push phase for this run. Then
-  /// pulls from the saved
-  /// cursor until the relay has no more, each page in one store transaction that
-  /// receives every entry's clock, merges it (an entry of a type this build does not
-  /// know is held by the store under its raw type, `SyncStore.holdUnknownType`), and
-  /// saves the clock and the cursor.
+  /// pulls from the saved cursor until the relay has no more, each page in one store
+  /// transaction that receives every entry's clock (clamping one beyond the bound),
+  /// merges it (an entry of a type this build does not know is held by the store under
+  /// its raw type, `SyncStore.holdUnknownType`), and saves the clock and the cursor.
   ///
   /// A call while a run is in flight returns that run. A store or relay error propagates;
   /// what was saved before it stays saved. That includes [SyncCursorInvalidException]
@@ -133,7 +133,7 @@ final class SyncSession {
     var pulled = 0;
     var applied = 0;
     final changed = <EntityKey>{};
-    ClockDriftException? blocked;
+    var clamped = 0;
     var cursor = await store.pullCursor() ?? 0;
     while (true) {
       final page = await relay.pull(
@@ -142,20 +142,13 @@ final class SyncSession {
         deviceId: clock.nodeId,
       );
       final now = nowWallMillis();
-      try {
-        for (final e in page.entries) {
-          clock.checkDrift(e.hlc, now);
-        }
-        for (final e in page.unknownTypes) {
-          clock.checkDrift(e.hlc, now);
-        }
-      } on ClockDriftException catch (e) {
-        blocked = e;
-        break;
-      }
       if (page.entries.isNotEmpty ||
           page.unknownTypes.isNotEmpty ||
           page.nextSince != cursor) {
+        final pageClamped = [
+          for (final e in page.entries) e.hlc,
+          for (final e in page.unknownTypes) e.hlc,
+        ].where((hlc) => clock.beyondBound(hlc, now)).length;
         applied += await store.transaction(() async {
           var n = 0;
           for (final e in page.entries) {
@@ -174,6 +167,7 @@ final class SyncSession {
           await store.savePullCursor(page.nextSince);
           return n;
         });
+        clamped += pageClamped;
       }
       pulled += page.entries.length + page.unknownTypes.length;
       cursor = page.nextSince;
@@ -185,7 +179,7 @@ final class SyncSession {
       pulled: pulled,
       applied: applied,
       changed: changed,
-      pullBlockedBy: blocked,
+      clamped: clamped,
     );
   }
 }

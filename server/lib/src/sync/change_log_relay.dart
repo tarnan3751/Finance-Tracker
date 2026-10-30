@@ -9,7 +9,8 @@
 ///    `device_id`, its payload is empty, a delete has no `deleted_at` instant, or (defence
 ///    in depth: Plaid data never syncs through the change log) its payload says
 ///    `source: plaid`;
-/// 2. `clock_drift`: its wall time is more than [maxDrift] ahead of the server's clock;
+/// 2. `clock_drift`: its wall time is more than [Hlc.maxDrift] (the clock bound the
+///    devices share) ahead of the server's clock;
 /// 3. a resend under a stored `(user, device, hlc)` is accepted again without a new `seq`
 ///    when it is identical, and rejected `conflicting_duplicate` otherwise;
 /// 4. otherwise it is stored under the next `seq`.
@@ -24,9 +25,6 @@ import 'dart:convert';
 import 'package:finance_tracker_server/src/db/database.dart';
 import 'package:finance_tracker_server/src/http/problem.dart';
 import 'package:shared_models/shared_models.dart';
-
-/// How far ahead of the server's clock an entry's wall time may be.
-const maxDrift = Duration(hours: 1);
 
 /// The contract's `PushRejectionCode`.
 enum RejectionCode {
@@ -96,7 +94,7 @@ final class ChangeLogRelay {
         continue;
       }
       final ahead = hlc.wallMillis - nowMillis;
-      if (ahead > maxDrift.inMilliseconds) {
+      if (ahead > Hlc.maxDrift.inMilliseconds) {
         reject(e, RejectionCode.clockDrift, '$ahead ms ahead of the server');
         continue;
       }

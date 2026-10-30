@@ -1298,7 +1298,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncClockDrift =>
-      'A device\'s clock is far ahead, so some changes wait until it catches up';
+      'Check your device\'s clock: it is ahead, so some changes wait to sync';
+
+  @override
+  String get syncClockBehind =>
+      'Check your device\'s clock: it is behind, so changes made here may be overridden';
 
   @override
   String syncRejected(int count, String time) {
