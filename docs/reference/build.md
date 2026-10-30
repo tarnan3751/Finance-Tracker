@@ -58,6 +58,9 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
 - `assets/demo/receipt.jpg`, the demo's synthetic receipt photo (`app-core.md`, **The
   image source**), is declared in `app/pubspec.yaml` with `flavors: [demo]`, so only the
   demo APK carries it.
+- `assets/fonts/Roboto-Regular.ttf` and `Roboto-Bold.ttf` (Apache-2.0, `LICENSE.txt`
+  beside them, the files Flutter's `material_fonts` ship) are declared for every flavor:
+  the monthly report's PDF embeds them (`export.md`).
 
 ## Android
 
@@ -109,6 +112,17 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   from Dart only, so `res/raw/keep.xml` keeps `@drawable/ic_stat_*` from the release
   build's resource shrinking. The plugin's transitive Linux implementation brings `dbus`
   (MPL-2.0), which is not part of the Android build.
+- **Export.** `pdf` (Apache-2.0, pure Dart, pinned exactly at 3.13.1: the report's bytes
+  are pinned by a hash golden) draws the monthly report. `flutter_file_dialog` (BSD-3,
+  pinned at 3.3.3) saves a file through the Storage Access Framework's "Save as" dialog,
+  which needs no permission; `share_plus` (BSD-3, pinned at 13.3.1; it needs AGP 8.12.1,
+  Gradle 8.13, Kotlin 2.2.0 and Flutter 3.38.1 or later) shares one. Both sit behind
+  `core/platform/file_exporter.dart` and need nothing in the app's manifest: `share_plus`'s
+  merged manifest declares its own `FileProvider` (authority
+  `${applicationId}.flutter.share_provider`, over `cache/share_plus/`, where it copies a
+  shared file until the next share) and a receiver for the chooser's result. `pdf`'s
+  transitive `qr` and `image`'s `posix` are held in `app/pubspec.yaml` to releases at
+  least two weeks old.
 - **Network security.** `src/main/res/xml/network_security_config.xml` refuses cleartext
   and trusts system certificates; it applies to demo and prod.
   `src/dev/res/xml/network_security_config.xml` overrides it for dev only, adding cleartext

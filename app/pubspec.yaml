@@ -25,6 +25,9 @@ dependencies:
   fl_chart: 1.2.0
   flutter:
     sdk: flutter
+  # The export's "Save as" through the Storage Access Framework (BSD-3), behind
+  # core/platform/file_exporter.dart, used by dev and prod. Pinned exactly.
+  flutter_file_dialog: 3.3.3
   # Bill reminders (BSD-3), behind core/platform/reminder_scheduler.dart, used by dev and
   # prod. Pinned exactly: 22.3.3 was published on 2026-10-25, under two weeks ago.
   flutter_local_notifications: 22.3.2
@@ -42,12 +45,18 @@ dependencies:
   package_info_plus: ^10.2.2
   path: ^1.9.0
   path_provider: ^2.1.6
+  # The monthly report's PDF (Apache-2.0, pure Dart). Pinned exactly: its bytes are pinned
+  # by a hash golden, so a new release is taken deliberately.
+  pdf: 3.13.1
   # The demo flavor's data: the persona engine's demo seed, generated at startup.
   persona_engine:
     path: ../tools/persona_engine
   # Plaid Link (MIT), behind the items feature's LinkLauncher, used by dev and prod.
   plaid_flutter: 5.2.1
   riverpod_annotation: 4.0.7
+  # The export's Share (BSD-3), behind core/platform/file_exporter.dart, used by dev and
+  # prod. Pinned exactly.
+  share_plus: 13.3.1
   shared_models:
     path: ../packages/shared_models
   # Unused by the app itself since the legacy UI went; the Phase 1 legacy importer reads
@@ -83,6 +92,12 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   mocktail: ^1.0.5
+  # Only holds image's transitive posix to a release older than two weeks (6.5.3 and 6.5.4
+  # were published on 2026-10-25 and 2026-10-28); lift it with the next band move.
+  posix: ">=6.5.0 <6.5.3"
+  # Only holds pdf's transitive qr to a release older than two weeks (3.0.3 was published
+  # on 2026-10-29); lift it with the next band move.
+  qr: ">=3.0.0 <3.0.3"
   riverpod_generator: 4.0.9
   # Only holds drift_dev's transitive sqlparser to a release older than two weeks (0.45.1 was
   # published on 2026-10-23); lift it with the next band move.
@@ -92,6 +107,10 @@ flutter:
   generate: true
   uses-material-design: true
   assets:
+    # Roboto Regular and Bold (Apache-2.0, LICENSE.txt beside them), embedded in the
+    # monthly report's PDF (features/export/).
+    - assets/fonts/Roboto-Regular.ttf
+    - assets/fonts/Roboto-Bold.ttf
     # The demo flavor's receipt photo (a synthetic one), for its fake image source.
     - path: assets/demo/receipt.jpg
       flavors:
