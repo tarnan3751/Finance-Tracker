@@ -4,9 +4,14 @@
 # time (CLAUDE.md, **Seeing the app**, **Lanes**). Commands:
 #   integration [-- <flutter test args>]   (the default) boot, uninstall the demo app a
 #                         previous run left, then `flutter test integration_test --flavor demo
-#                         -d <serial>` from app/; the in-app fakes only, never the dev server
+#                         -d <serial>` from app/, or only the tests the args name (a path
+#                         under integration_test/, or a .dart file or directory that exists
+#                         under app/, not the value of an option given without `=`; give
+#                         files before options); the in-app fakes only, never the dev server
 #                         or Plaid Sandbox; then prints each test file's result and duration
-#                         from flutter's JSON report (app/build/emulator/integration.json)
+#                         from flutter's JSON report (app/build/emulator/integration.json);
+#                         on any exit, renames the test app the run built at the demo APK's
+#                         paths (flutter's and Gradle's) to app-demo-debug.integration-test.apk
 #   demo [<screenshot>]   boot, build and install the demo flavor's debug APK, launch it, wait
 #                         for its activity to take focus, and save a screenshot (default
 #                         app/build/emulator/demo.png); prints the path
@@ -61,6 +66,9 @@ HEALTH_TIMEOUT=30
 MAX_UPTIME="${FT_EMULATOR_MAX_UPTIME:-14400}"
 DEMO_PACKAGE="dev.tarnan.financetracker.demo"
 OUT_DIR="$root/app/build/emulator"
+DEMO_APK="$root/app/build/app/outputs/flutter-apk/app-demo-debug.apk"
+GRADLE_DEMO_APK="$root/app/build/app/outputs/apk/demo/debug/app-demo-debug.apk"
+INTEGRATION_MARKER=""
 
 die() { echo "emulator_tests: $*" >&2; exit 1; }
 say() { echo "emulator_tests: $*"; }
@@ -157,6 +165,26 @@ reclaim_stale() {
   fi
   rm -rf "$away"
   say "$done ($holder)"
+}
+
+# `flutter test integration_test --flavor demo` writes its test app to the demo APK's own
+# paths, flutter's copy and Gradle's output; started standalone, that app waits for its test
+# host and never draws a frame. So after an integration run, on any exit, each file there newer
+# than the run's start marker is renamed app-demo-debug.integration-test.apk, and a later
+# install of either path can only pick up a real build.
+set_test_apk_aside() {
+  [ -n "$INTEGRATION_MARKER" ] || return 0
+  local apk aside
+  for apk in "$DEMO_APK" "$GRADLE_DEMO_APK"; do
+    [ -f "$apk" ] && [ "$apk" -nt "$INTEGRATION_MARKER" ] || continue
+    aside="${apk%.apk}.integration-test.apk"
+    mv -f "$apk" "$aside" && say "moved the integration test app aside to $aside"
+  done
+}
+
+on_exit() {
+  set_test_apk_aside
+  release_lock
 }
 
 release_lock() {
@@ -273,7 +301,7 @@ run_child() {
 
 acquire_lock() {
   local waited=0
-  trap 'release_lock' EXIT
+  trap 'on_exit' EXIT
   trap 'on_signal 130' INT
   trap 'on_signal 143' TERM
   CANDIDATE="$(make_candidate "$@")"
@@ -565,15 +593,35 @@ report_files() {
   ' "$report" | while IFS= read -r line; do say "$line"; done
 }
 
+# Whether the arguments of `integration` name tests to run: an argument under
+# integration_test/, or a .dart file or a directory that exists under app/, that is not the
+# value of an option given without `=` (`--name test`, `--dart-define FOO=bar.dart`).
+names_tests() {
+  local arg prev=""
+  for arg in "$@"; do
+    if [[ "$arg" != -* ]] && [[ "$prev" != -* || "$prev" == *=* ]] \
+      && { [[ "$arg" == integration_test/* ]] || { [[ "$arg" == *.dart ]] && [ -f "app/$arg" ]; } \
+        || [ -d "app/$arg" ]; }; then
+      return 0
+    fi
+    prev="$arg"
+  done
+  return 1
+}
+
 cmd_integration() {
   [ "${1:-}" = "--" ] && shift
+  local targets=(integration_test)
+  names_tests "$@" && targets=()
   boot
   assert_ours "$SERIAL"
   uninstall_demo
   local report="$OUT_DIR/integration.json"
   rm -f "$report"
-  say "running the integration tests on $SERIAL"
-  run_child flutter_in_app test integration_test --flavor demo -d "$SERIAL" \
+  INTEGRATION_MARKER="$OUT_DIR/integration.started"
+  touch "$INTEGRATION_MARKER"
+  say "running ${targets[*]:-the tests named in the arguments} on $SERIAL"
+  run_child flutter_in_app test ${targets[@]+"${targets[@]}"} --flavor demo -d "$SERIAL" \
     --file-reporter "json:$report" "$@"
   local status=$?
   report_files "$report"
@@ -586,7 +634,7 @@ cmd_demo() {
   boot
   run_child flutter_in_app build apk --debug --flavor demo -t lib/main_demo.dart || die "the demo build failed"
   assert_ours "$SERIAL"
-  "$ADB" -s "$SERIAL" install -r app/build/app/outputs/flutter-apk/app-demo-debug.apk || die "the install failed"
+  "$ADB" -s "$SERIAL" install -r "$DEMO_APK" || die "the install failed"
   local activity
   activity="$("$ADB" -s "$SERIAL" shell cmd package resolve-activity --brief -c android.intent.category.LAUNCHER "$DEMO_PACKAGE" | tr -d '\r' | tail -1)"
   [[ "$activity" == "$DEMO_PACKAGE"/* ]] || die "no launcher activity for $DEMO_PACKAGE (got '$activity')"

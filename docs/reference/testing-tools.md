@@ -291,7 +291,7 @@ one is running, and kills any polling shell once the run it watched has finished
 
 | Command | What it does |
 |---|---|
-| `integration [-- <args>]` | The default. Boots `ft-lane`, uninstalls the demo app a previous run left (below), then runs `flutter test integration_test --flavor demo -d <serial>` from `app/`, passing any extra arguments through; the tests run against the in-app fakes. Then it prints one line per test file from Flutter's JSON report (`--file-reporter`, kept at `app/build/emulator/integration.json`): its result, its tests and how many were skipped, and its duration from the start of its loading (the build and the install) to the end of its last test, so the slow file is named; a file the run never started (an interrupted run) is listed as "no events"; without `jq` it says so and prints none. |
+| `integration [-- <args>]` | The default. Boots `ft-lane`, uninstalls the demo app a previous run left (below), then runs `flutter test integration_test --flavor demo -d <serial>` from `app/`, passing any extra arguments through; when the arguments name tests (a path relative to `app/` under `integration_test/`, or a `.dart` file or a directory that exists under `app/`), it runs only those instead of the whole `integration_test` directory (`tools/emulator_tests.sh integration -- integration_test/app_launch_test.dart`). An option's value is never taken for a test: an argument right after an option given without `=` (`--name test`, `--dart-define FOO=bar.dart`) is its value, so `integration -- --name test` runs the whole directory with that filter; give files before options. The tests run against the in-app fakes. Then it prints one line per test file from Flutter's JSON report (`--file-reporter`, kept at `app/build/emulator/integration.json`): its result, its tests and how many were skipped, and its duration from the start of its loading (the build and the install) to the end of its last test, so the slow file is named; a file the run never started (an interrupted run) is listed as "no events"; without `jq` it says so and prints none. |
 | `demo [<screenshot>]` | Boots, builds the demo debug APK, installs it with `adb install -r`, launches the launcher activity of `dev.tarnan.financetracker.demo`, waits (up to 60 s) for it to take window focus plus a short settle for the first frame, and saves a screenshot, by default `app/build/emulator/demo.png`; prints the path. |
 | `run <command...>` | Boots, then runs the command with `FT_EMULATOR_SERIAL` set to the emulator's serial: anything else against the AVD goes through this. |
 | `stop [--force]` | Shuts down the `ft-lane` emulator and removes a stale lock. Refuses while a live run holds the lock, unless `--force`: then it prints the holder, kills the emulator and removes the lock whoever holds it. |
@@ -386,11 +386,17 @@ image under the SDK on first use, the lock directory (with its short-lived `.new
 `avdmanager` logs, the integration run's JSON report and the screenshot under `app/build/emulator/`. Installs go onto `ft-lane`
 only.
 
-**The demo APK's path is shared.** An `integration` run (any `flutter test integration_test
---flavor demo`) writes its test app to `app/build/app/outputs/flutter-apk/app-demo-debug.apk`,
-the path `flutter build apk --debug --flavor demo` uses. Started standalone, that test app
-waits for its test host and never draws a frame. A standalone demo install comes from a fresh
-`flutter build apk` or from the harness's `demo` command, which builds before it installs.
+**The integration test app is moved aside.** `flutter test integration_test --flavor demo`
+writes its test app to `app/build/app/outputs/flutter-apk/app-demo-debug.apk` and to Gradle's
+`app/build/app/outputs/apk/demo/debug/app-demo-debug.apk`, the paths `flutter build apk
+--debug --flavor demo` uses, and started standalone that app waits for its test host and never
+draws a frame (the Phase 6 acceptance installed it by mistake and chased a "startup hang").
+So when an `integration` run ends, on any exit (passed, failed, past its ceiling or
+signalled), each file at those paths newer than the run's start (the marker
+`app/build/emulator/integration.started`) is renamed `app-demo-debug.integration-test.apk`
+beside it, and the run says so: a later `adb install` of either demo path finds a real build
+or nothing. The `demo` command builds before it installs, as before. A
+`flutter test integration_test` run outside the harness still leaves its test app there.
 
 **The uninstall before the tests.** `integration` removes `dev.tarnan.financetracker.demo`
 when it is installed, so Flutter's install starts clean. The emulator has answered `adb
