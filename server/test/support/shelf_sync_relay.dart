@@ -19,7 +19,9 @@ final class ShelfSyncRelay implements SyncRelay {
   ShelfSyncRelay(this.server, this.accessToken);
 
   final TestServer server;
-  final String accessToken;
+
+  /// The device's access token; a test that lets hours pass replaces it after a refresh.
+  String accessToken;
 
   @override
   Future<PushResult> push(List<ChangeLogEntry> entries) async {
