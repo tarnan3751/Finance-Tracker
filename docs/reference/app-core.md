@@ -288,7 +288,8 @@ keeping its own navigation stack.
 | | `EditBillRoute` | `/bills/:id` | `bill_editor_screen.dart`, where a tapped reminder opens it |
 | | `ForecastRoute` | `/forecast` | the Forecast segment: `ForecastView` (`features/forecast/presentation/forecast_view.dart`, `forecast.md`) with its Choose accounts action |
 | Insights | `InsightsRoute` | `/insights` | redirects to `/reports` |
-| | `ReportsRoute` | `/reports` | the Reports segment |
+| | `ReportsRoute` | `/reports` | the Reports segment: `ReportsView` (`features/reports/presentation/reports_view.dart`, `reports.md`) |
+| | `WeeklySummaryRoute` | `/reports/weekly` | `weekly_summary_screen.dart` (`reports.md`, **The weekly summary**), opened from the Reports segment and from its in-app notice |
 | | `NetWorthRoute` | `/net-worth` | the Net worth segment: a placeholder until net worth lands |
 | | `InvestmentsRoute` | `/investments` | the Investments segment: a placeholder until the holdings screen lands |
 | | `GoalsRoute` | `/goals` | the Goals segment: a placeholder until goals land |
@@ -346,7 +347,9 @@ keeping its own navigation stack.
   laid out as `PlanScaffold` is: the "Insights" app bar with the segment's actions, then
   the Reports | Net worth | Investments | Goals `SegmentedButton` at the top of the body.
   Four labels do not fit a phone's width, so the control scrolls sideways and opens
-  scrolled to the segment shown. A segment whose feature has not landed shows
+  scrolled to the segment shown. Reports shows the reports (`reports.md`), with the
+  alerts bell (`BudgetAlertsButton`) in its app bar, since the weekly summary's notice is
+  reached through it; a segment whose feature has not landed shows
   `InsightsPlaceholder` ("Coming soon"). The roots are `NoTransitionPage`s. Settings is
   the fifth tab.
 - **Snack bars.** Each branch has its own `ScaffoldMessenger`, so a snack bar shown from a
@@ -414,7 +417,8 @@ on; the settings About section shows the active zone, so the fallback is visible
 `core/platform/notifier.dart` is the boundary between what the app tells the user and how
 the platform shows it: `Notifier.notify(AppNotification)`, where an `AppNotification` is a
 sealed class of typed data, never text, so whoever shows it localizes it (`BudgetThresholdNotification`, `budgets.md`; `BillDueNotification`, a bill due today
-or tomorrow, `bills.md`). `appNotifierProvider` is `InAppNotifier`, which
+or tomorrow, `bills.md`; `WeeklySummaryNotification`, the weekly summary of the week just ended,
+`reports.md`). `appNotifierProvider` is `InAppNotifier`, which
 adds to `inAppNotificationsProvider`: newest first, one per key, at most 50, each with a read
 flag (`markRead(key)`, `markAllRead()`), in memory, so a restart empties it. Android's
 notification channels are Phase 8's implementation of the same interface. The Budgets

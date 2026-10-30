@@ -255,11 +255,14 @@ Save validates inline: a category, a positive amount, and a day from 1 to 28. A 
 deleted budget is refused with "This budget no longer exists." Delete returns to the list
 with an Undo that restores the budget.
 
-**Alerts** (`budget_alerts.dart`). The Budgets segment's app bar has a bell, badged with the unread
+**Alerts** (`budget_alerts.dart`). The Budgets segment's app bar has a bell (so does the
+Insights tab's Reports segment, `reports.md`), badged with the unread
 count of `inAppNotificationsProvider`. It opens a sheet over the whole app that lists the
 notifications newest first ("Groceries reached 80 % of $500.00 on Oct 20", the day in the
 device zone). Unread ones are bold, with a dot that reads "Unread". "Mark all read" clears
 them all. Tapping one marks it read, selects the period it was raised for, and opens the
 budget's detail. A bill due today or tomorrow is listed too ("Rent is due Nov 1",
 `bills.md`, **Reminders**), left out once that occurrence is paid; tapping it marks it
-read and opens the bill.
+read and opens the bill. So is the weekly summary's notice ("Your weekly summary is
+ready", `reports.md`, **The weekly summary**); tapping it marks it read and opens the
+summary.
