@@ -34,7 +34,10 @@ instead and answers `401` to a delivery it cannot verify.
   amount is negative (the server negates what Plaid reports for `credit` and `loan`
   accounts). `available_balance` (funds available, or a card's remaining credit) and
   `credit_limit` are as the institution reports them, never negated. Liability and
-  holding amounts are as reported.
+  holding amounts are as reported. `InvestmentTransaction.amount` is in the app's sign,
+  negative for money out of the account's cash (a buy), positive for money in (a
+  contribution): the server negates Plaid's, whose investment amounts are positive for
+  money out.
 - **`Decimal`** is an exact decimal string (`^-?(0|[1-9][0-9]*)(\.[0-9]+)?$`) for what needs
   more precision than minor units and is not a total: per-unit prices, share quantities,
   interest rates. Securities and holdings carry `currency_code` for their prices.
@@ -52,7 +55,7 @@ instead and answers `401` to a delivery it cannot verify.
 - The main schemas carry an `example`, and a test validates each against its schema.
 
 **Schemas and `shared_models`.** Where an entity exists in `shared_models` the schema of the
-same name is its JSON exactly: `Money`, `User`, `Device`, `Institution`, `Item`, `Account`,
+same name is its JSON exactly, except the investment entities below: `Money`, `User`, `Device`, `Institution`, `Item`, `Account`,
 `Transaction`, `TransactionSplit`, `RecurringStream`, `ChangeLogEntry` and the enums. The
 documented differences: the API's `Item` embeds its `Institution` (`shared_models` keeps it
 apart, by `institution_id`); `ChangeLogEntry` travels without `synced`, which is local
@@ -66,10 +69,14 @@ parent uninstantiable. `RecurringStream.transaction_ids` are the stream's member
 `quarterly`, which Plaid never reports and the app's detector does. The three liability
 schemas carry the `source` the server stored (`plaid`, or `demo` from the fake Plaid
 client); the app reads them into `shared_models`' `Liability` (`liabilities.md`). The
-holding, security and investment-transaction schemas exist only in the contract until
-Phase 6 adds their entities. Entities that
-travel only inside change-log payloads (categories, budgets, rules, goals, bill reminders,
-snapshots) have no schema: the payload is a free-form object.
+`Holding`, `Security` and `InvestmentTransaction` schemas carry the `source` the server
+stored too (since 0.5.0); `shared_models` has entities of the same names that are not
+their JSON (like `Liability`, server-authoritative and never synced, so with no JSON form
+of their own): the entities hold `Decimal`s where the schemas have strings, the
+`Holding` entity drops `currency_code` (its value's currency) and the app reads the
+schemas through its wire classes into them (`investments.md`). Entities that travel only
+inside change-log payloads (categories, budgets, rules, goals, bill reminders) have no
+schema: the payload is a free-form object.
 
 **Paging by version.** `GET /transactions` and `GET /investments/transactions` take `since`
 (the previous page's `next_since`, 0 at first) and `limit` (1 to 500, default 500), and

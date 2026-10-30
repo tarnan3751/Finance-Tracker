@@ -190,6 +190,12 @@ Next to them are the package's own records: opening balances, transfers, recurri
 expectations, holdings, investment transactions, liabilities and anomalies. The app calls
 `generateDemoSeed` directly, with seed 1 as of the device's today, for the persona the demo
 flavor shows (`data.md`, **The demo seed**); the JSON is for inspection and the goldens.
+The app maps the brokerage (the family's) to the contract's holdings, securities and
+investment transactions, `demo` (`demoHoldings`, `demoInvestmentTransactions` in
+`app/lib/core/db/demo_seed.dart`, `investments.md`): `quantityMilli` as a `Decimal` of
+three places, the prices and values as reported, each security an `etf` with id
+`demo-security-<ticker>`, a `cash` contribution as money in and a `buy` as money out;
+the opening holdings are not loaded.
 
 ## Sandbox custom users
 

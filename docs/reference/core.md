@@ -161,9 +161,32 @@ obvious from the field list:
   positive, in the account's currency; rates as integer basis points, `aprs` a list of
   `LiabilityApr`), the server's object whole in `payload`, and `source` `plaid` or
   `demo` (`liabilities.md`).
+- `Holding`, `Security` and `InvestmentTransaction` are the investment records
+  (`investments.md`), server-authoritative and never synced, so, like `Liability`, they
+  have no JSON form: a holding is one account's position in one security (`quantity` and
+  `institutionPrice` `Decimal`s, `institutionValue` and `costBasis` the institution's
+  `Money` totals); a security's `type` is Plaid's open string and its `closePrice` a
+  `Decimal` in `currencyCode`; an investment transaction's `type` and `subtype` are
+  Plaid's open strings, its `quantity` and `price` `Decimal`s, its `amount` `Money` in
+  the app's sign (negative for money out of the account's cash, as a buy), with the
+  server's `deletedAt` tombstone and `syncVersion`. Each carries `source`.
 - Enums that mirror Plaid fall back instead of throwing on a new value: `ItemStatus` and
   `RecurringStream.cadence` to `unknown`, `AccountType` to `other`. Account `subtype` is an open
   string.
+
+## Decimal
+
+`Decimal` (`src/decimal.dart`) is an exact decimal for what is not an amount of money but
+needs more precision than minor units: per-unit prices and share quantities. It is a sign,
+the digits as a `BigInt` and a scale: `Decimal.parse('41.50')` is the digits 4150 at
+scale 2, and `Decimal(BigInt.from(12345), 3)` is 12.345. `parse` reads exactly the
+contract's form (`^-?(0|[1-9][0-9]*)(\.[0-9]+)?$`) and throws a `FormatException` on
+anything else (an exponent, a `+`, `.5`, `01`); `toString` writes it back with its scale
+and no exponent (`41.50` stays `41.50`), zero unsigned (`-0.00` is `0.00`). `compareTo`
+and `==` compare values, so `1.5 == 1.50`, and `hashCode` agrees; `toJson` and
+`fromJson` are the contract's string. There is no arithmetic, no conversion to or from a
+`double`, and nothing that combines it with `Money`: a total is the institution's
+`Money`.
 
 ## The HLC value
 

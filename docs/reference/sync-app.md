@@ -204,8 +204,8 @@ records this version cannot show, and Sync now. Counts and times only: a change'
 
 Plaid data is server-authoritative and only pulled, never pushed (`PLAN.md` §6.4).
 `PlaidPull` (`core/plaid/plaid_pull.dart`, `plaidPullProvider`) brings the server's
-Items, linked accounts, Plaid-sourced transactions, recurring streams and liabilities
-into the store through the
+Items, linked accounts, Plaid-sourced transactions, recurring streams, liabilities and
+investments into the store through the
 repositories' apply paths (`data.md`, **The Plaid apply paths**), which record nothing
 and keep the `source` the server sent. One run:
 
@@ -223,12 +223,20 @@ and keep the `source` the server sent. One run:
    applied in its own store transaction (`RecurringStreamRepository.applyPlaid`: every
    server-supplied stream replaced, the detector's and the overrides kept;
    `LiabilityRepository.applyPlaid`: every liability replaced; `recurring.md`,
-   `liabilities.md`). A failure of either is logged by its type and fails neither the
-   run nor the other: the transactions matter more;
+   `liabilities.md`), then `GET /investments/holdings`, likewise
+   (`HoldingRepository.applyPlaid`: every holding and security replaced), then `GET
+   /investments/transactions` from `plaid_investment_transactions_since` (0 at first),
+   paged as the transactions are, each page and its cursor one store transaction
+   (`InvestmentTransactionRepository.applyPage`: rows replaced by id, tombstones kept;
+   `investments.md`), restarting from 0 once on `SyncCursorInvalid`. A failure of any of
+   these lists is logged by its type and fails neither the run nor the others: the
+   transactions matter more;
 4. the institution logos the Items lack (never fetched, or their URL changed), through
    `GET /institutions/{id}/logo`; a failed fetch is logged and tried again next run, and
    never fails the pull;
-5. `plaid_pulled_at`, when the run succeeded (a failed list does not stop it).
+5. `plaid_pulled_at`, when the run succeeded (a failed list does not stop it); the run's
+   log line gives the counts of each list, and `PlaidPull.completed` emits that instant,
+   which the balance snapshot writer follows (`net-worth.md`).
 
 `run()` is single-flight: a call during a run gets one more run after it, shared by every
 caller during that run, so data a caller has just made the server hold (an Item sync that
@@ -241,7 +249,8 @@ actions only.
 `PlaidPullStore` keeps the cursors and runs a page's writes as one: `DriftPlaidPullStore`
 (dev and prod) in `sync_meta` and one database transaction; `InMemoryPlaidPullStore` (the
 tests and the demo flavor) beside the in-memory store, so the demo's persona switch
-starts it afresh, its writes not atomic. The demo's starts its transactions cursor at
+starts it afresh, its writes not atomic. The demo's starts its transactions and
+investment transactions cursors at
 the version the fake server's data had reached when it seeded the demo user
 (`FakeServer.seededSyncVersionOf`, recorded at seeding, so it does not matter that the
 store is first built during a Link, after the fake applied the new bank): its store is
@@ -258,11 +267,11 @@ never re-reads rows; `arrivalProcessorProvider` is the rules' `RuleRunner` (`rul
 
 | Suite | What it proves |
 |---|---|
-| `test/drift/migration_test.dart` | A schema 1 database with data migrates: rows kept, one create per user-authored row and a delete per deleted one, clocks increasing on one node, the stored records equal to the fold of the entries; a schema 3 database's held rule records become rows, or stay held for the reason that now applies; a schema 5 database's held transaction records carrying `hidden` land in their rows; a schema 8 database's held `recurring_stream` records become overrides, or stay held; a schema 9 database's held `bill_reminder` records become bills (a complete one), or stay held `incomplete` (updates only), `unknown_fields` (a newer field, the rest landing) or `unrepresentable` (a cadence this version lacks), and the step runs again at version 9 |
+| `test/drift/migration_test.dart` | A schema 10 database keeps its rows and gains the four empty investment and snapshot tables, and the step runs again at version 10; a schema 1 database with data migrates: rows kept, one create per user-authored row and a delete per deleted one, clocks increasing on one node, the stored records equal to the fold of the entries; a schema 3 database's held rule records become rows, or stay held for the reason that now applies; a schema 5 database's held transaction records carrying `hidden` land in their rows; a schema 8 database's held `recurring_stream` records become overrides, or stay held; a schema 9 database's held `bill_reminder` records become bills (a complete one), or stay held `incomplete` (updates only), `unknown_fields` (a newer field, the rest landing) or `unrepresentable` (a cadence this version lacks), and the step runs again at version 9 |
 | `test/core/db/drift_sync_store_test.dart` | The engine's store contract cases; records round-tripping through the tables (randomized transactions and rules included, a stream override of updates only, live and cleared; a bill, live and deleted, and one recorded before its new fields landing with their defaults); the held reasons (a bill that does not decode held with its row left as it was, a bill field this version does not know held with the rest landing), the row each leaves and their release; unknown fields surviving a local edit; the node substitution; the ledger |
 | `test/contract/recording_contract.dart` | Exactly the entries each write records, in the Drift and in-memory implementations; a refused write records nothing; a Drift write and its entry roll back together |
 | `test/core/sync/sync_controller_test.dart` | The triggers, the debounce (none on top of the start), single flight with one coalesced rerun, a sign-out and sign-in during a held push (one push at a time, each entry once on the relay), the cursor reset, failures in the status, persistence, demo, in-memory data and signed-out, the Plaid pull after a session and its failure kept apart |
-| `test/core/plaid/plaid_pull_test.dart` | Over the fake server into the Drift repositories: everything applied as sent and nothing recorded, the streams and the liabilities replaced and a failure of either list leaving the run whole, paging with the cursor per page, a failed page rolled back and its cursor kept, the cursor reset, an unlinked Item's data going, an override pulled before its row landing on it, single flight; and the in-memory repositories |
+| `test/core/plaid/plaid_pull_test.dart` | Over the fake server into the Drift repositories: everything applied as sent and nothing recorded, the streams, the liabilities and the holdings replaced and the investment transactions paged from their cursor with tombstones and a restart, a failure of any list leaving the run and the others whole, each whole run announced, paging with the cursor per page, a failed page rolled back and its cursor kept, the cursor reset, an unlinked Item's data going, an override pulled before its row landing on it, single flight; and the in-memory repositories |
 | `test/core/sync/http_sync_relay_test.dart` | The relay over stub endpoints: pass-through, the device check, the cursor exception, a session through it |
 | `test/core/api/fake_dataset_test.dart` | Every persona's household served by the fake server as the engine gave it; the demo flavor's fake on the persona the demo shows |
 | `test/features/transactions/presentation/orphan_transaction_test.dart` | A live transaction on an account this device does not show: labelled by its category, and the editor says the account is gone |
