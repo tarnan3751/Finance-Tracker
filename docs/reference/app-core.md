@@ -313,7 +313,7 @@ keeping its own navigation stack.
 | | `EditBillRoute` | `/bills/:id` | `bill_editor_screen.dart`, where a tapped reminder opens it |
 | | `ForecastRoute` | `/forecast` | the Forecast segment: `ForecastView` (`features/forecast/presentation/forecast_view.dart`, `forecast.md`) with its Choose accounts action |
 | Insights | `InsightsRoute` | `/insights` | redirects to `/reports` |
-| | `ReportsRoute` | `/reports` | the Reports segment: `ReportsView` (`features/reports/presentation/reports_view.dart`, `reports.md`) |
+| | `ReportsRoute` | `/reports` | the Reports segment: `ReportsView` (`features/reports/presentation/reports_view.dart`, `reports.md`), with the alerts bell and the export menu (`export.md`) |
 | | `WeeklySummaryRoute` | `/reports/weekly` | `weekly_summary_screen.dart` (`reports.md`, **The weekly summary**), opened from the Reports segment and from its in-app notice |
 | | `NetWorthRoute` | `/net-worth` | the Net worth segment: `NetWorthView` (`features/net_worth/presentation/net_worth_view.dart`, `net-worth.md`) |
 | | `InvestmentsRoute` | `/investments` | the Investments segment: `InvestmentsView` (`features/investments/presentation/investments_view.dart`, `investments.md`) |
@@ -329,6 +329,7 @@ keeping its own navigation stack.
 | | `RulesRoute` | `/settings/rules` | `features/rules/presentation/rules_screen.dart` |
 | | `NewRuleRoute` | `/settings/rules/new` | `rule_editor_screen.dart` |
 | | `EditRuleRoute` | `/settings/rules/:id` | `rule_editor_screen.dart` |
+| | `ExportRoute` | `/settings/export` | `features/export/presentation/export_screen.dart` (`export.md`): the monthly report as a PDF, the transactions as a CSV |
 
 - The router opens at `/accounts`, and `/` redirects there (`createRouter` in
   `app_router.dart`; `routerFor(ref, initialLocation:)` builds the flavor's router, which
@@ -498,7 +499,7 @@ the only locale.
 | data | `data/drift_settings_repository.dart` | The Drift implementation (dev and prod): one `app_settings` row per field |
 | data | `data/in_memory_settings_repository.dart`, `data/demo_settings_repository.dart` | The in-memory implementation (tests) and the demo one (the demo flavor) |
 | application | `application/settings_controller.dart` | `SettingsController`, following `watch()`; each change reads, changes and saves, and changes run one after another so two issued together both land |
-| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Data (Categories, opening category management, `categories.md`; Rules, `rules.md`), About (app name, version and build, flavor, time zone), Demo data (demo only, `demo_data_section.dart`: the persona the demo shows) and Developer (dev only, `features/developer/presentation/developer_section.dart`: diagnostics, Pull now and the Sandbox controls, `developer.md`); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
+| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Data (Categories, opening category management, `categories.md`; Rules, `rules.md`; Export, `export.md`), About (app name, version and build, flavor, time zone), Demo data (demo only, `demo_data_section.dart`: the persona the demo shows) and Developer (dev only, `features/developer/presentation/developer_section.dart`: diagnostics, Pull now and the Sandbox controls, `developer.md`); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
 
 The repository contract is `test/contract/settings_repository_contract.dart`,
 `runSettingsRepositoryContract(create, {dispose})`; the three implementations each run it

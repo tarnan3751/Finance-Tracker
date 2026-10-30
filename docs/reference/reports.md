@@ -248,7 +248,8 @@ marks it read and opens the screen. The system notification is Phase 8's.
 
 `ReportsView` is the body of the Reports segment (`/reports`, `ReportsRoute`). It has no
 arguments and no Scaffold of its own; the segment's app bar carries the alerts bell
-(`budgets.md`, **Alerts**), where the weekly summary's notice is. From the top:
+(`budgets.md`, **Alerts**), where the weekly summary's notice is, and a menu whose "Export
+this month as PDF" exports the period shown (`export.md`, **Screens**). From the top:
 - the budgets' period selector (`budget_period_selector.dart`), with no next button at
   the current period since nothing lies ahead;
 - a Tables/Charts switch, which turns every chart below into its table;

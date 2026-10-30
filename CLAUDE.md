@@ -124,6 +124,7 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | Bills: schedule, status and the payment assignment, reminders behind the scheduler boundary, the list, calendar and editor | `app/lib/features/bills/`, `app/lib/core/platform/reminder_scheduler.dart`, `app/lib/core/time/` | `docs/reference/bills.md` |
 | Forecast: the projection, its band and allowance, the screen and table | `app/lib/features/forecast/` | `docs/reference/forecast.md` |
 | The Plan tab: the shell, `PlanScaffold`, the editors' `OwnPage` closer | `app/lib/core/router/` | `docs/reference/app-core.md` |
+| Export: the monthly report's PDF, the transactions' CSV, the file exporter | `app/lib/features/export/`, `app/lib/core/platform/file_exporter.dart` | `docs/reference/export.md` |
 | API client, in-app fake server, session and auth | `app/lib/core/api/`, `app/lib/features/auth/` | `docs/reference/app-core.md` (the API client), `docs/reference/auth.md` |
 | The generated API client | `packages/api_client/` | `docs/reference/api.md` (Phase 2) |
 | The API contract | `api/openapi.yaml` | same |
