@@ -65,7 +65,8 @@ void main() {
 
   for (final (String location, InsightsSegment segment, String shown) in [
     ('/net-worth', InsightsSegment.netWorth, 'Coming soon'),
-    ('/investments', InsightsSegment.investments, 'Coming soon'),
+    // The seed has no investment account.
+    ('/investments', InsightsSegment.investments, 'No investment accounts'),
     ('/goals', InsightsSegment.goals, 'No savings goals yet'),
   ]) {
     testWidgets('$location opens inside the tab', (tester) async {

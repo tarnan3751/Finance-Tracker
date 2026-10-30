@@ -47,6 +47,7 @@ import 'package:finance_tracker/features/goals/presentation/contribution_editor_
 import 'package:finance_tracker/features/goals/presentation/goal_detail_screen.dart';
 import 'package:finance_tracker/features/goals/presentation/goal_editor_screen.dart';
 import 'package:finance_tracker/features/goals/presentation/goals_screen.dart';
+import 'package:finance_tracker/features/investments/presentation/investments_view.dart';
 import 'package:finance_tracker/features/items/presentation/items_screen.dart';
 import 'package:finance_tracker/features/recurring/presentation/subscriptions_screen.dart';
 import 'package:finance_tracker/features/reports/presentation/reports_view.dart';
@@ -477,8 +478,7 @@ class NetWorthRoute extends GoRouteData with $NetWorthRoute {
       );
 }
 
-/// `/investments`: the Insights tab's Investments segment (a placeholder until the
-/// holdings screen lands).
+/// `/investments`: the Insights tab's Investments segment (`InvestmentsView`).
 class InvestmentsRoute extends GoRouteData with $InvestmentsRoute {
   const InvestmentsRoute();
 
@@ -487,7 +487,7 @@ class InvestmentsRoute extends GoRouteData with $InvestmentsRoute {
       const NoTransitionPage(
         child: InsightsScaffold(
           segment: InsightsSegment.investments,
-          body: InsightsPlaceholder(),
+          body: InvestmentsView(),
         ),
       );
 }

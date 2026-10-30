@@ -4644,5 +4644,341 @@
   "contributionDateFuture": "Choose today or an earlier date",
   "@contributionDateFuture": {
     "description": "Error under a contribution's date when it is after today."
+  },
+  "investmentsTitle": "Investments",
+  "@investmentsTitle": {
+    "description": "Title of the investments screen."
+  },
+  "investmentsEmptyHeadline": "No investment accounts",
+  "@investmentsEmptyHeadline": {
+    "description": "Headline of the Investments segment when no investment account is linked."
+  },
+  "investmentsEmptyBody": "Link a brokerage or retirement account to see its holdings, allocation and value here.",
+  "@investmentsEmptyBody": {
+    "description": "Supporting text of the Investments segment's empty state."
+  },
+  "investmentsAllocation": "Allocation",
+  "@investmentsAllocation": {
+    "description": "Heading of the holdings' allocation by security type."
+  },
+  "investmentsAllocationIn": "Allocation in {currency}",
+  "@investmentsAllocationIn": {
+    "description": "Heading of the allocation of the holdings valued in one currency, when they are in more than one.",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "USD"
+      }
+    }
+  },
+  "investmentsAllocationSummary": "Holdings worth {total} in {count, plural, =1{one security type} other{{count} security types}}. The largest is {largest} at {share}.",
+  "@investmentsAllocationSummary": {
+    "description": "What a screen reader says for the allocation donut: the total, how many security types, and the largest with its share.",
+    "placeholders": {
+      "total": {
+        "type": "String",
+        "example": "$12,345.67"
+      },
+      "count": {
+        "type": "int",
+        "example": "3"
+      },
+      "largest": {
+        "type": "String",
+        "example": "ETF"
+      },
+      "share": {
+        "type": "String",
+        "example": "62 %"
+      }
+    }
+  },
+  "investmentsAllocationRow": "{type}: {value}, {share}",
+  "@investmentsAllocationRow": {
+    "description": "A row of the allocation table as a screen reader reads it: the security type, its value and its share of the total.",
+    "placeholders": {
+      "type": {
+        "type": "String",
+        "example": "ETF"
+      },
+      "value": {
+        "type": "String",
+        "example": "$7,650.00"
+      },
+      "share": {
+        "type": "String",
+        "example": "62 %"
+      }
+    }
+  },
+  "investmentsTypeCash": "Cash",
+  "@investmentsTypeCash": {
+    "description": "The allocation's name for cash and cash equivalents."
+  },
+  "investmentsTypeOther": "Other",
+  "@investmentsTypeOther": {
+    "description": "The allocation's name for holdings whose security has no type."
+  },
+  "investmentsTypeEtf": "ETF",
+  "@investmentsTypeEtf": {
+    "description": "The allocation's name for exchange-traded funds."
+  },
+  "investmentsPercent": "{percent} %",
+  "@investmentsPercent": {
+    "description": "A whole percent.",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "62"
+      }
+    }
+  },
+  "investmentsPercentUp": "+{percent} %",
+  "@investmentsPercentUp": {
+    "description": "A whole percent increase, with its plus sign.",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "investmentsChange": "{amount} ({percent})",
+  "@investmentsChange": {
+    "description": "A gain with its percent of the cost basis, for example \"+$120.00 (+5 %)\".",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "+$120.00"
+      },
+      "percent": {
+        "type": "String",
+        "example": "+5 %"
+      }
+    }
+  },
+  "investmentsPrice": "{price} {currency}",
+  "@investmentsPrice": {
+    "description": "A per-share price, exact as the institution reports it, with its currency code.",
+    "placeholders": {
+      "price": {
+        "type": "String",
+        "example": "245.10"
+      },
+      "currency": {
+        "type": "String",
+        "example": "USD"
+      }
+    }
+  },
+  "investmentsQuantityAtPrice": "{quantity} at {price}",
+  "@investmentsQuantityAtPrice": {
+    "description": "How many shares at what price, for example \"12.500 at 245.10 USD\".",
+    "placeholders": {
+      "quantity": {
+        "type": "String",
+        "example": "12.500"
+      },
+      "price": {
+        "type": "String",
+        "example": "245.10 USD"
+      }
+    }
+  },
+  "investmentsCostBasis": "Cost basis {cost}",
+  "@investmentsCostBasis": {
+    "description": "A holding's cost basis, as the institution reports it.",
+    "placeholders": {
+      "cost": {
+        "type": "String",
+        "example": "$2,900.00"
+      }
+    }
+  },
+  "investmentsGain": "Gain {gain}",
+  "@investmentsGain": {
+    "description": "A holding's gain (its value less its cost basis), with the gain's percent of the cost basis when there is one.",
+    "placeholders": {
+      "gain": {
+        "type": "String",
+        "example": "+$163.75 (+5 %)"
+      }
+    }
+  },
+  "investmentsCostBasisUnavailable": "Cost basis unavailable",
+  "@investmentsCostBasisUnavailable": {
+    "description": "Shown on a holding whose institution reports no cost basis, so no gain can be shown."
+  },
+  "investmentsPriceAsOf": "Price as of {date}",
+  "@investmentsPriceAsOf": {
+    "description": "The date of a holding's price.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Oct 24, 2026"
+      }
+    }
+  },
+  "investmentsNameAmount": "{name}: {amount}",
+  "@investmentsNameAmount": {
+    "description": "A holding or an investment transaction as a screen reader starts it: its name and its value or amount.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Vanguard Total Stock Market ETF"
+      },
+      "amount": {
+        "type": "String",
+        "example": "$3,063.75"
+      }
+    }
+  },
+  "investmentsDateAndType": "{date} · {type}",
+  "@investmentsDateAndType": {
+    "description": "An investment transaction's date and type.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Oct 15, 2026"
+      },
+      "type": {
+        "type": "String",
+        "example": "Cash · Contribution"
+      }
+    }
+  },
+  "investmentsFees": "Fees {amount}",
+  "@investmentsFees": {
+    "description": "An investment transaction's fees.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$0.00"
+      }
+    }
+  },
+  "investmentsAccountSemantics": "{name}, {balance}, {caption}",
+  "@investmentsAccountSemantics": {
+    "description": "An investment account's heading as a screen reader reads it: its name, its balance and whether the balance was reported or computed.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "401k"
+      },
+      "balance": {
+        "type": "String",
+        "example": "$12,345.67"
+      },
+      "caption": {
+        "type": "String",
+        "example": "reported"
+      }
+    }
+  },
+  "investmentsValueTitle": "Value over time",
+  "@investmentsValueTitle": {
+    "description": "Heading of an investment account's value history."
+  },
+  "investmentsValueCaption": "From install day: recorded on this device since {date}",
+  "@investmentsValueCaption": {
+    "description": "Caption of an investment account's value history: the values are the daily balances this device recorded, from the first one.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Oct 24, 2026"
+      }
+    }
+  },
+  "investmentsValueNone": "No values recorded yet",
+  "@investmentsValueNone": {
+    "description": "Shown instead of the value history when this device has recorded no balance for the account."
+  },
+  "investmentsValueSummary": "Value {start} on {startDate}, {end} on {endDate}.",
+  "@investmentsValueSummary": {
+    "description": "What a screen reader says for an investment account's value chart: the first and the latest values with their dates.",
+    "placeholders": {
+      "start": {
+        "type": "String",
+        "example": "$12,000.00"
+      },
+      "startDate": {
+        "type": "String",
+        "example": "Oct 20"
+      },
+      "end": {
+        "type": "String",
+        "example": "$12,345.67"
+      },
+      "endDate": {
+        "type": "String",
+        "example": "Oct 24"
+      }
+    }
+  },
+  "investmentsValueSummaryOne": "Value {amount} on {date}.",
+  "@investmentsValueSummaryOne": {
+    "description": "What a screen reader says for an investment account's value chart when one day is recorded.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$12,345.67"
+      },
+      "date": {
+        "type": "String",
+        "example": "Oct 24"
+      }
+    }
+  },
+  "investmentsValueRow": "{date}: {value}",
+  "@investmentsValueRow": {
+    "description": "A row of an investment account's value table as a screen reader reads it.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Sat, Oct 24, 2026"
+      },
+      "value": {
+        "type": "String",
+        "example": "$12,345.67"
+      }
+    }
+  },
+  "investmentsShowTable": "Table",
+  "@investmentsShowTable": {
+    "description": "Switches an investment account's value history from its chart to its table."
+  },
+  "investmentsShowChart": "Chart",
+  "@investmentsShowChart": {
+    "description": "Switches an investment account's value history from its table to its chart."
+  },
+  "investmentsHoldings": "Holdings",
+  "@investmentsHoldings": {
+    "description": "Heading of an investment account's holdings."
+  },
+  "investmentsNoHoldings": "No holdings reported",
+  "@investmentsNoHoldings": {
+    "description": "Shown when an investment account has no holdings."
+  },
+  "investmentsUnknownSecurity": "Unknown security",
+  "@investmentsUnknownSecurity": {
+    "description": "The title of a holding whose security has neither a name nor a ticker."
+  },
+  "investmentsTransactions": "Investment transactions",
+  "@investmentsTransactions": {
+    "description": "Heading of an investment account's investment transactions."
+  },
+  "investmentsNoTransactions": "No investment transactions",
+  "@investmentsNoTransactions": {
+    "description": "Shown when an investment account has no investment transactions."
+  },
+  "investmentsShowMore": "Show more ({count} left)",
+  "@investmentsShowMore": {
+    "description": "Shows the next page of an account's investment transactions; count is how many are not shown yet.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "42"
+      }
+    }
   }
 }

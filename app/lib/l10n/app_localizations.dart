@@ -4983,6 +4983,242 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose today or an earlier date'**
   String get contributionDateFuture;
+
+  /// Title of the investments screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Investments'**
+  String get investmentsTitle;
+
+  /// Headline of the Investments segment when no investment account is linked.
+  ///
+  /// In en, this message translates to:
+  /// **'No investment accounts'**
+  String get investmentsEmptyHeadline;
+
+  /// Supporting text of the Investments segment's empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'Link a brokerage or retirement account to see its holdings, allocation and value here.'**
+  String get investmentsEmptyBody;
+
+  /// Heading of the holdings' allocation by security type.
+  ///
+  /// In en, this message translates to:
+  /// **'Allocation'**
+  String get investmentsAllocation;
+
+  /// Heading of the allocation of the holdings valued in one currency, when they are in more than one.
+  ///
+  /// In en, this message translates to:
+  /// **'Allocation in {currency}'**
+  String investmentsAllocationIn(String currency);
+
+  /// What a screen reader says for the allocation donut: the total, how many security types, and the largest with its share.
+  ///
+  /// In en, this message translates to:
+  /// **'Holdings worth {total} in {count, plural, =1{one security type} other{{count} security types}}. The largest is {largest} at {share}.'**
+  String investmentsAllocationSummary(
+    String total,
+    int count,
+    String largest,
+    String share,
+  );
+
+  /// A row of the allocation table as a screen reader reads it: the security type, its value and its share of the total.
+  ///
+  /// In en, this message translates to:
+  /// **'{type}: {value}, {share}'**
+  String investmentsAllocationRow(String type, String value, String share);
+
+  /// The allocation's name for cash and cash equivalents.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get investmentsTypeCash;
+
+  /// The allocation's name for holdings whose security has no type.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get investmentsTypeOther;
+
+  /// The allocation's name for exchange-traded funds.
+  ///
+  /// In en, this message translates to:
+  /// **'ETF'**
+  String get investmentsTypeEtf;
+
+  /// A whole percent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} %'**
+  String investmentsPercent(int percent);
+
+  /// A whole percent increase, with its plus sign.
+  ///
+  /// In en, this message translates to:
+  /// **'+{percent} %'**
+  String investmentsPercentUp(int percent);
+
+  /// A gain with its percent of the cost basis, for example "+$120.00 (+5 %)".
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} ({percent})'**
+  String investmentsChange(String amount, String percent);
+
+  /// A per-share price, exact as the institution reports it, with its currency code.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} {currency}'**
+  String investmentsPrice(String price, String currency);
+
+  /// How many shares at what price, for example "12.500 at 245.10 USD".
+  ///
+  /// In en, this message translates to:
+  /// **'{quantity} at {price}'**
+  String investmentsQuantityAtPrice(String quantity, String price);
+
+  /// A holding's cost basis, as the institution reports it.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost basis {cost}'**
+  String investmentsCostBasis(String cost);
+
+  /// A holding's gain (its value less its cost basis), with the gain's percent of the cost basis when there is one.
+  ///
+  /// In en, this message translates to:
+  /// **'Gain {gain}'**
+  String investmentsGain(String gain);
+
+  /// Shown on a holding whose institution reports no cost basis, so no gain can be shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost basis unavailable'**
+  String get investmentsCostBasisUnavailable;
+
+  /// The date of a holding's price.
+  ///
+  /// In en, this message translates to:
+  /// **'Price as of {date}'**
+  String investmentsPriceAsOf(String date);
+
+  /// A holding or an investment transaction as a screen reader starts it: its name and its value or amount.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {amount}'**
+  String investmentsNameAmount(String name, String amount);
+
+  /// An investment transaction's date and type.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} · {type}'**
+  String investmentsDateAndType(String date, String type);
+
+  /// An investment transaction's fees.
+  ///
+  /// In en, this message translates to:
+  /// **'Fees {amount}'**
+  String investmentsFees(String amount);
+
+  /// An investment account's heading as a screen reader reads it: its name, its balance and whether the balance was reported or computed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {balance}, {caption}'**
+  String investmentsAccountSemantics(
+    String name,
+    String balance,
+    String caption,
+  );
+
+  /// Heading of an investment account's value history.
+  ///
+  /// In en, this message translates to:
+  /// **'Value over time'**
+  String get investmentsValueTitle;
+
+  /// Caption of an investment account's value history: the values are the daily balances this device recorded, from the first one.
+  ///
+  /// In en, this message translates to:
+  /// **'From install day: recorded on this device since {date}'**
+  String investmentsValueCaption(String date);
+
+  /// Shown instead of the value history when this device has recorded no balance for the account.
+  ///
+  /// In en, this message translates to:
+  /// **'No values recorded yet'**
+  String get investmentsValueNone;
+
+  /// What a screen reader says for an investment account's value chart: the first and the latest values with their dates.
+  ///
+  /// In en, this message translates to:
+  /// **'Value {start} on {startDate}, {end} on {endDate}.'**
+  String investmentsValueSummary(
+    String start,
+    String startDate,
+    String end,
+    String endDate,
+  );
+
+  /// What a screen reader says for an investment account's value chart when one day is recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Value {amount} on {date}.'**
+  String investmentsValueSummaryOne(String amount, String date);
+
+  /// A row of an investment account's value table as a screen reader reads it.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: {value}'**
+  String investmentsValueRow(String date, String value);
+
+  /// Switches an investment account's value history from its chart to its table.
+  ///
+  /// In en, this message translates to:
+  /// **'Table'**
+  String get investmentsShowTable;
+
+  /// Switches an investment account's value history from its table to its chart.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart'**
+  String get investmentsShowChart;
+
+  /// Heading of an investment account's holdings.
+  ///
+  /// In en, this message translates to:
+  /// **'Holdings'**
+  String get investmentsHoldings;
+
+  /// Shown when an investment account has no holdings.
+  ///
+  /// In en, this message translates to:
+  /// **'No holdings reported'**
+  String get investmentsNoHoldings;
+
+  /// The title of a holding whose security has neither a name nor a ticker.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown security'**
+  String get investmentsUnknownSecurity;
+
+  /// Heading of an investment account's investment transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Investment transactions'**
+  String get investmentsTransactions;
+
+  /// Shown when an investment account has no investment transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No investment transactions'**
+  String get investmentsNoTransactions;
+
+  /// Shows the next page of an account's investment transactions; count is how many are not shown yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more ({count} left)'**
+  String investmentsShowMore(int count);
 }
 
 class _AppLocalizationsDelegate

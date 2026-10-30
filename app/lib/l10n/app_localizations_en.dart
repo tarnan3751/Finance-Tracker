@@ -3266,4 +3266,176 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contributionDateFuture => 'Choose today or an earlier date';
+
+  @override
+  String get investmentsTitle => 'Investments';
+
+  @override
+  String get investmentsEmptyHeadline => 'No investment accounts';
+
+  @override
+  String get investmentsEmptyBody =>
+      'Link a brokerage or retirement account to see its holdings, allocation and value here.';
+
+  @override
+  String get investmentsAllocation => 'Allocation';
+
+  @override
+  String investmentsAllocationIn(String currency) {
+    return 'Allocation in $currency';
+  }
+
+  @override
+  String investmentsAllocationSummary(
+    String total,
+    int count,
+    String largest,
+    String share,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count security types',
+      one: 'one security type',
+    );
+    return 'Holdings worth $total in $_temp0. The largest is $largest at $share.';
+  }
+
+  @override
+  String investmentsAllocationRow(String type, String value, String share) {
+    return '$type: $value, $share';
+  }
+
+  @override
+  String get investmentsTypeCash => 'Cash';
+
+  @override
+  String get investmentsTypeOther => 'Other';
+
+  @override
+  String get investmentsTypeEtf => 'ETF';
+
+  @override
+  String investmentsPercent(int percent) {
+    return '$percent %';
+  }
+
+  @override
+  String investmentsPercentUp(int percent) {
+    return '+$percent %';
+  }
+
+  @override
+  String investmentsChange(String amount, String percent) {
+    return '$amount ($percent)';
+  }
+
+  @override
+  String investmentsPrice(String price, String currency) {
+    return '$price $currency';
+  }
+
+  @override
+  String investmentsQuantityAtPrice(String quantity, String price) {
+    return '$quantity at $price';
+  }
+
+  @override
+  String investmentsCostBasis(String cost) {
+    return 'Cost basis $cost';
+  }
+
+  @override
+  String investmentsGain(String gain) {
+    return 'Gain $gain';
+  }
+
+  @override
+  String get investmentsCostBasisUnavailable => 'Cost basis unavailable';
+
+  @override
+  String investmentsPriceAsOf(String date) {
+    return 'Price as of $date';
+  }
+
+  @override
+  String investmentsNameAmount(String name, String amount) {
+    return '$name: $amount';
+  }
+
+  @override
+  String investmentsDateAndType(String date, String type) {
+    return '$date · $type';
+  }
+
+  @override
+  String investmentsFees(String amount) {
+    return 'Fees $amount';
+  }
+
+  @override
+  String investmentsAccountSemantics(
+    String name,
+    String balance,
+    String caption,
+  ) {
+    return '$name, $balance, $caption';
+  }
+
+  @override
+  String get investmentsValueTitle => 'Value over time';
+
+  @override
+  String investmentsValueCaption(String date) {
+    return 'From install day: recorded on this device since $date';
+  }
+
+  @override
+  String get investmentsValueNone => 'No values recorded yet';
+
+  @override
+  String investmentsValueSummary(
+    String start,
+    String startDate,
+    String end,
+    String endDate,
+  ) {
+    return 'Value $start on $startDate, $end on $endDate.';
+  }
+
+  @override
+  String investmentsValueSummaryOne(String amount, String date) {
+    return 'Value $amount on $date.';
+  }
+
+  @override
+  String investmentsValueRow(String date, String value) {
+    return '$date: $value';
+  }
+
+  @override
+  String get investmentsShowTable => 'Table';
+
+  @override
+  String get investmentsShowChart => 'Chart';
+
+  @override
+  String get investmentsHoldings => 'Holdings';
+
+  @override
+  String get investmentsNoHoldings => 'No holdings reported';
+
+  @override
+  String get investmentsUnknownSecurity => 'Unknown security';
+
+  @override
+  String get investmentsTransactions => 'Investment transactions';
+
+  @override
+  String get investmentsNoTransactions => 'No investment transactions';
+
+  @override
+  String investmentsShowMore(int count) {
+    return 'Show more ($count left)';
+  }
 }

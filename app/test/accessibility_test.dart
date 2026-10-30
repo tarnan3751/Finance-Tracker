@@ -9,7 +9,9 @@
 // apply confirmation, the subscriptions' folded sections, a stream's menu, the paused
 // bills and the bill calendar open over their screens, the archived goals unfolded, and the editor's receipt (a photo
 // from the fake image source) and its full-screen view. The forecast's chart, table and
-// account sheet are checked on the forecast household through ForecastScreen. The sign-in
+// account sheet are checked on the forecast household through ForecastScreen, and the
+// investments' allocation, value table, holdings and transactions on the test investments
+// through InvestmentsScreen, with its empty state on the seed. The sign-in
 // and registration screens are checked signed out; their text scale is checked with their
 // errors showing, in test/features/auth/auth_screens_test.dart.
 import 'dart:io';
@@ -30,6 +32,7 @@ import 'helpers/bill_seed.dart';
 import 'helpers/budget_seed.dart';
 import 'helpers/forecast_seed.dart';
 import 'helpers/goal_seed.dart';
+import 'helpers/investment_seed.dart';
 import 'helpers/pump_app.dart';
 import 'helpers/rule_seed.dart';
 import 'helpers/seed.dart';
@@ -324,6 +327,44 @@ final Map<String, Future<void> Function(WidgetTester)?> _forecastViews = {
       _tapAndSettle(tester, find.byTooltip('Choose accounts')),
 };
 
+/// Scrolls the screen until [finder] is at the top.
+Future<void> _scrollToTop(WidgetTester tester, Finder finder) async {
+  await Scrollable.ensureVisible(tester.element(finder));
+  await tester.pumpAndSettle();
+}
+
+/// The investments' views: the overrides they run on and what to do after they open.
+final Map<
+  String,
+  ({
+    List<Override> Function() overrides,
+    Future<void> Function(WidgetTester)? open,
+  })
+>
+_investmentsViews = {
+  'Investments allocation': (overrides: investmentOverrides, open: null),
+  'Investments value table': (
+    overrides: investmentOverrides,
+    open: (tester) async {
+      await _scrollToTop(tester, find.text('Value over time'));
+      await _tapAndSettle(tester, find.text('Table'));
+    },
+  ),
+  'Investments holdings': (
+    overrides: investmentOverrides,
+    open: (tester) => _scrollToTop(tester, find.text('Holdings').first),
+  ),
+  'Investments transactions': (
+    overrides: investmentOverrides,
+    open: (tester) =>
+        _scrollToTop(tester, find.text('Investment transactions').first),
+  ),
+  'Investments, empty': (
+    overrides: () => [storeOverride(seededStore())],
+    open: null,
+  ),
+};
+
 /// The auth screens, which only a signed-out user sees.
 const Map<String, String> _authScreens = {
   'Sign in': '/sign-in',
@@ -388,6 +429,45 @@ void main() {
         router: forecastRouter,
       );
       await open?.call(tester);
+
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final MapEntry(key: String name, value: view)
+      in _investmentsViews.entries) {
+    for (final Brightness brightness in Brightness.values) {
+      testWidgets('$name (${brightness.name}) meets the Android and contrast '
+          'guidelines', (tester) async {
+        final SemanticsHandle semantics = tester.ensureSemantics();
+        try {
+          await pumpApp(
+            tester,
+            brightness: brightness,
+            overrides: view.overrides(),
+            router: investmentsRouter,
+          );
+          await view.open?.call(tester);
+
+          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+          await expectLater(tester, meetsGuideline(textContrastGuideline));
+        } finally {
+          semantics.dispose();
+        }
+      });
+    }
+
+    testWidgets('$name lays out at text scale 2.0 without overflow', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        textScale: 2,
+        overrides: view.overrides(),
+        router: investmentsRouter,
+      );
+      await view.open?.call(tester);
 
       expect(tester.takeException(), isNull);
     });
