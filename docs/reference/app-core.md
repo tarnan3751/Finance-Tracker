@@ -49,7 +49,14 @@ then `stopApp()` (the reminder taps cancelled, the container disposed, and the c
 `databaseProvider` started awaited through `databaseClosing`, so the files are free),
 then the restore's work with its progress on that screen (a failure shown with a
 Continue button), then `startApp` again with the same configuration and overrides, so
-the app opens the new database exactly as at launch.
+the app opens the new database exactly as at launch. It gives it `wipeLocalDataProvider`
+too, the local wipe (`data.md`, **The local wipe**) that account deletion and erasing the
+device run (`auth.md`): `runApp` of the plain erasing screen (`ErasingApp`), the same
+`stopApp()`, then the running container's `LocalWipe` until it succeeds (a failure shown
+with Try again, never the app on half-wiped data), then the confirmation for the reason
+and, on Done, `startApp` again, which finds no database and no key and creates both.
+Before it opens anything local, `startApp` reads the wipe's pending record and, when a
+wipe was cut short, finishes it the same way first (`data.md`, **The local wipe**).
 
 `FinanceTrackerApp` (`app.dart`) is a `ConsumerWidget` returning `MaterialApp.router` with
 the router, both themes inside a `DynamicColorBuilder`, the theme mode from settings, the
@@ -95,8 +102,9 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `todayProvider` | `core/time/today_provider.dart` | The clock's local date, kept current past midnight (**Time**) |
 | `goRouterProvider` | `core/router/app_router.dart` | The app's `GoRouter` (`routerFor`), gated on the session in dev and prod, disposed with the container |
 | `tokenStoreProvider`, `fakeServerProvider`, `financeApiProvider`, `appVersionProvider` | `core/api/api_providers.dart` | The API (**The API client**) |
-| `sessionControllerProvider`, `deviceNameProvider` | `features/auth/application/` | The session and the device's name (`auth.md`) |
+| `sessionControllerProvider`, `deviceNameProvider`, `installUserProvider` | `features/auth/application/` | The session, the device's name and the install's user (`auth.md`) |
 | `receiptStoreProvider` | `core/di/providers.dart` | Where receipt photos are kept: in memory by default and in demo, files in the support directory in dev and prod (`data.md`, **Receipts**) |
+| `localWipeProvider`, `wipeLocalDataProvider` | `core/di/providers.dart` | The local wipe (`data.md`, **The local wipe**): the stores only by default, the database files too in dev and prod; and the stop, wipe, confirm and start again that `startApp` supplies (unavailable elsewhere unless overridden) |
 | `imageSourceProvider` | `core/platform/image_source_provider.dart` | The camera and gallery for receipt photos: `image_picker` by default, the fake in demo (**The image source**) |
 | `fileExporterProvider` | `core/platform/file_exporter_provider.dart` | Where exported files go (**The file exporter**): the fake by default and in demo, the "Save as" dialog and the share sheet in dev and prod |
 | `linkLauncherProvider`, `linkControllerProvider`, `linkPollIntervalProvider`, `linkedBanksProvider` | `features/items/application/` | Plaid Link (plaid_flutter by default, the fake launcher wherever the fake server runs), the Item actions and their state, and the stored Items (`items.md`) |
@@ -500,7 +508,8 @@ stays behind interfaces like this one (`CLAUDE.md`, **Security and platform**).
 `core/platform/reminder_scheduler.dart` is the platform boundary for bill reminders, pure
 Dart: `ReminderScheduler` with `ensurePermission({request})`, `replaceAll(reminders)` (the
 pending set made exactly those, the rest cancelled by id, a shown notification kept),
-`pending()`, `cancelAll()` (pending only), `openSettings()` and `openedBillIds`, over
+`pending()`, `cancelAll()` (pending only), `clearAll()` (pending and shown, every kind:
+the local wipe's), `openSettings()` and `openedBillIds`, over
 `ScheduledReminder(id, billId, dueDate, at, title, body)`, whose payload carries the bill,
 the due date and the instant. `local_notifications_scheduler.dart` implements it over
 `flutter_local_notifications` in dev and prod (inexact, the one channel

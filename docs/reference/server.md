@@ -243,6 +243,10 @@ for another user's device), and **`DELETE /me`**:
    at most three rounds in all; an Item still appearing after that is 502 `plaid_error`,
    with nothing deleted.
 
+The app's side of these routes, the deletion screen, the local wipe after the 204 and
+the devices screen, is `auth.md`, **Deleting the account and erasing this device** and
+**Devices**.
+
 ## The sync relay
 
 `lib/src/sync/change_log_relay.dart`. These are the relay rules of

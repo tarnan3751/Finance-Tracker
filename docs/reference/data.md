@@ -196,7 +196,8 @@ caches them under `.dart_tool/hooks_runner/`, so a first build needs the network
    `pragma_cipher` table-valued function, and SQLCipher's `cipher_version` pragma does not
    exist in it. This dev-only path has its own host test and integration test.
 
-**The key** (`core/db/database_key_store.dart`): `DatabaseKeyStore { read(); create(); }`.
+**The key** (`core/db/database_key_store.dart`): `DatabaseKeyStore { read(); create();
+delete(); }`, `delete` only for the local wipe (**The local wipe**).
 `SecureDatabaseKeyStore` keeps 32 bytes from `Random.secure()`, hex-encoded, in
 `flutter_secure_storage` under `db_key_v1`, with `AndroidOptions(resetOnError: false,
 storageNamespace: 'finance_tracker')`: the default `resetOnError: true` would delete every
@@ -473,9 +474,57 @@ The repositories hold no files; `TransactionActions` (`transactions.md`) writes 
   watching (killed during the undo, synced from another device, an account's delete, a
   pending Plaid transaction replaced by its posted one) loses its photo, and a photo
   saved while the sweep runs stays. A deleted transaction restored later by sync shows
-  its receipt as kept on another device. Phase 7's account deletion wipes the folder.
+  its receipt as kept on another device. `deleteAll()` removes the folder, staged
+  photos included: the local wipe's (**The local wipe**).
 
 No path is logged anywhere; a failure is logged by its type.
+
+## The local wipe
+
+`core/db/local_wipe.dart`. Account deletion and "Sign out and erase this device"
+(`auth.md`) end with everything the install keeps of its account erased, so the next
+start is a fresh install (`PLAN.md` §6.6). `bootstrap` runs it with the app stopped: the
+container disposed (sync, the reminder planner and every watcher with it) and the
+database closed (`app-core.md`, **Startup**). `LocalWipe.wipe(reason)` first records the
+reason as pending (`wipe_pending_v1` in the preferences), then, in order, each step
+skipping what is already gone, so a wipe runs again from the top:
+
+1. the original app's plaintext keys the legacy importer reads (**The legacy
+   importer**), first, so a cut later on cannot import them again into a fresh
+   database;
+2. the database files under the support directory: `finance_tracker.db` and the dev
+   flavor's `finance_tracker.plain.db`, each with `-wal`, `-shm` and `-journal`;
+3. the receipts (`ReceiptStore.deleteAll`);
+4. the database key (`db_key_v1`), the session (`session_v1`), then the install's user
+   (`install_user_v1`, `TokenStore.clearInstallUserId`): the marker goes last, so the
+   account's data is never left without the rule that keeps another account from
+   syncing it;
+5. every pending reminder and every shown notification (`ReminderScheduler.clearAll`):
+   a bill's name in the tray is data;
+
+and only then removes the pending record. `app_meta`, the full-text objects and the
+change log go with the database file. `DriftLocalWipe` (dev and prod) does every step;
+`InMemoryLocalWipe` (the default: the tests and the demo flavor, which never offers it)
+skips the files and the preferences, keeps the pending record in memory and clears the
+same stores. Going through the stores, not the raw secure storage, means a test that
+overrides them is wiped for real. Nothing is logged but a failure's type.
+
+**A wipe cut short.** A failure shows "This device's data could not be erased
+completely" with Try again, and the app does not start; a wipe that keeps failing (the
+second failure in a row, or any failure of a wipe resumed at startup) also points at
+Android's app storage settings, since a storage that refuses every time cannot be mended
+from inside the app. A process killed part way leaves
+the wipe pending, and `startApp` reads the pending record before it opens anything
+local: when one is there it finishes the wipe first (the erasing screen, Try again on a
+failure, the confirmation for the recorded reason) and only then starts as usual. So no
+start ever runs on what a wipe left behind: not a fresh database the legacy rows were
+imported into, nor a surviving session that would pull the account back. A record that
+cannot be read is logged by type and taken as none.
+
+Apart from a wipe, an install whose account is gone (deleted from another device, or by a
+deletion whose answer was lost) still holds that account's data and its user; the
+sign-in screen offers "Erase this device's data" whenever the install's user is
+recorded (`auth.md`, **Screens**).
 
 ## The demo seed
 

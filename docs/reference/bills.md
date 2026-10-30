@@ -138,7 +138,8 @@ The texts are localized when planned (`reminderTextProvider`): "Rent is due toda
 `ReminderScheduler` (`core/platform/reminder_scheduler.dart`, pure Dart):
 `ensurePermission({request})`, `replaceAll(reminders)` (makes the pending set exactly
 those, cancelling the rest by id, so a notification already shown stays), `pending()`,
-`cancelAll()` (pending only), `openSettings()`, and `openedBillIds` (the bills whose
+`cancelAll()` (pending only), `clearAll()` (pending and shown: the local wipe's,
+`data.md`), `openSettings()`, and `openedBillIds` (the bills whose
 reminder was tapped, the one that launched the app first). `ScheduledReminder(id, billId,
 dueDate, at, title, body)` carries `{"bill", "due", "at"}` as its payload, `at` a UTC
 instant, from which `pending()` reads the set back: the platform keeps no time.
