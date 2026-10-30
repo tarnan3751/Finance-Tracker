@@ -90,7 +90,7 @@ final class LinkControllerProvider
   }
 }
 
-String _$linkControllerHash() => r'a664e513e789f5a426ecf4eb899625af5ea47924';
+String _$linkControllerHash() => r'26dae881b4c0b18b4ff074b67e3d5b1a55967703';
 
 /// The state of every action on linked banks, and the actions.
 

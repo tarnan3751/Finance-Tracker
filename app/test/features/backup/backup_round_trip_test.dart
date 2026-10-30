@@ -5,8 +5,9 @@
 // receipts, a deleted one, rules, budgets, bills, goals and contributions, settings, a
 // saved filter, alerts, snapshots, device bookkeeping, a held record, an outbox with
 // synced, rejected and unsynced entries) is exported, restored into a new database and
-// dumped again: every table is equal, row for row, but for the three device keys a
-// restore drops and the device identity it resets, and the receipt files are equal byte
+// dumped again: every table is equal, row for row, but for the device keys a restore
+// drops (the reminders' and snapshots' bookkeeping, and the app lock's settings, so a
+// restored device starts unlocked) and the device identity it resets, and the receipt files are equal byte
 // for byte. Two exports of one database are byte-identical with the same instant, salt
 // and nonce, and differ only in the manifest's created_at otherwise. The restored
 // install's outbox pushes to the relay as a new device with nothing refused.
@@ -22,6 +23,7 @@ import 'package:finance_tracker/core/api/fake/fake_server.dart';
 import 'package:finance_tracker/core/api/token_store.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
+import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/demo_seed.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
@@ -186,6 +188,22 @@ void main() {
       _restoredNode,
     );
     final List<BackupTable> after = await dumpDatabase(restored);
+    // The app lock's settings describe the device they were chosen on: the source has
+    // them, the restored database has none.
+    const List<String> lockKeys = [
+      AppMetaKeys.lockEnabled,
+      AppMetaKeys.lockTimeoutSeconds,
+      AppMetaKeys.secureScreen,
+    ];
+    List<Object?> metaKeys(List<BackupTable> tables) => [
+      for (final List<Object?> r
+          in tables.singleWhere((t) => t.name == 'app_meta').rows)
+        r[0],
+    ];
+    expect(metaKeys(await dumpDatabase(source)), containsAll(lockKeys));
+    for (final String key in lockKeys) {
+      expect(metaKeys(after), isNot(contains(key)), reason: key);
+    }
     expect(after.map((t) => t.name), before.map((t) => t.name));
     for (int i = 0; i < before.length; i++) {
       expect(after[i].columns, before[i].columns, reason: before[i].name);

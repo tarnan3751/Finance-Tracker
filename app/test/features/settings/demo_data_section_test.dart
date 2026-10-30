@@ -15,7 +15,8 @@ void main() {
       tester,
       initialLocation: '/settings',
       config: AppConfig.demo(),
-      size: const Size(412, 1600),
+      // Tall enough for the whole screen, the Security section included.
+      size: const Size(412, 2200),
     );
     expect(find.text('Demo data'), findsOneWidget);
     final ProviderContainer container = ProviderScope.containerOf(

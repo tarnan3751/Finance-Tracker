@@ -18,6 +18,7 @@ import 'package:finance_tracker/features/items/data/fake_link_launcher.dart';
 import 'package:finance_tracker/features/items/domain/item_action.dart';
 import 'package:finance_tracker/features/items/domain/link_launcher.dart';
 import 'package:finance_tracker/features/items/domain/linked_bank.dart';
+import 'package:finance_tracker/features/lock/application/lock_hold.dart';
 import 'package:finance_tracker/features/settings/application/package_info.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -95,6 +96,21 @@ void main() {
   LinkState state() => c.read(linkControllerProvider);
   InMemoryStore store() => c.read(inMemoryStoreProvider);
   List<String> banks() => [for (final LinkedBank b in store().items()) b.id];
+
+  test('Link holds the app lock open while it is open', () async {
+    final LockHold hold = c.read(lockHoldProvider);
+    launcher.hold = Completer<void>();
+    final Future<void> linking = controller().link();
+    while (launcher.opened == 0) {
+      await Future<void>.delayed(Duration.zero);
+    }
+
+    expect(hold.isHeld, isTrue);
+    launcher.hold!.complete();
+    await linking;
+    expect(hold.isHeld, isFalse);
+    expect(banks(), ['item-a']);
+  });
 
   test('link: exchange, sync through not_ready, pull', () async {
     final List<LinkState> seen = [];

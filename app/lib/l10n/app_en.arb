@@ -1259,6 +1259,83 @@
   "@transactionRestoreNoAccount": {
     "description": "Snack bar shown when undoing a delete fails because the transaction's account has been deleted since."
   },
+  "settingsSecurity": "Security",
+  "@settingsSecurity": {
+    "description": "Heading of the settings section for the app lock and screenshot blocking."
+  },
+  "lockRequireUnlock": "Require unlock",
+  "@lockRequireUnlock": {
+    "description": "Switch that makes the app ask for the device's biometrics or screen lock when it opens."
+  },
+  "lockRequireUnlockSubtitle": "Ask for your fingerprint, face or screen lock when the app opens",
+  "@lockRequireUnlockSubtitle": {
+    "description": "Supporting text of the Require unlock switch."
+  },
+  "lockAfterTitle": "Lock after",
+  "@lockAfterTitle": {
+    "description": "Setting, and the title of its dialog: how long the app may stay in the background before it locks again."
+  },
+  "lockAfterOff": "Only when the app starts",
+  "@lockAfterOff": {
+    "description": "Lock after choice: the app locks only when it starts, never on a return from the background."
+  },
+  "lockAfterImmediately": "Immediately",
+  "@lockAfterImmediately": {
+    "description": "Lock after choice: the app locks whenever it returns from the background."
+  },
+  "lockBlockScreenshots": "Block screenshots",
+  "@lockBlockScreenshots": {
+    "description": "Switch that blocks screenshots and screen recording and hides the app in recent apps."
+  },
+  "lockBlockScreenshotsSubtitle": "Hide the app in screenshots, recordings and recent apps. Always on while unlock is required",
+  "@lockBlockScreenshotsSubtitle": {
+    "description": "Supporting text of the Block screenshots switch."
+  },
+  "lockUnlock": "Unlock",
+  "@lockUnlock": {
+    "description": "Button on the lock screen that opens the device's unlock prompt."
+  },
+  "lockTryAgain": "Try again",
+  "@lockTryAgain": {
+    "description": "Button on the lock screen after an attempt that did not unlock the app."
+  },
+  "lockPromptReason": "Unlock to see your finances",
+  "@lockPromptReason": {
+    "description": "Reason shown in the device's unlock prompt when the app is locked."
+  },
+  "lockEnablePromptReason": "Confirm it's you to turn on the app lock",
+  "@lockEnablePromptReason": {
+    "description": "Reason shown in the device's unlock prompt when the user turns the lock on."
+  },
+  "lockFailed": "Not recognized. Try again.",
+  "@lockFailed": {
+    "description": "Lock screen message after the user did not pass the device's check."
+  },
+  "lockCancelled": "Unlock was cancelled.",
+  "@lockCancelled": {
+    "description": "Lock screen message after the unlock prompt was closed without an answer."
+  },
+  "lockNoScreenLock": "Set a screen lock on this device first",
+  "@lockNoScreenLock": {
+    "description": "Shown when the device has no screen lock or biometrics to unlock the app with."
+  },
+  "lockLockedOut": "Too many attempts. Wait a moment, then try again.",
+  "@lockLockedOut": {
+    "description": "Lock screen message when the device refuses checks for a while after failed attempts."
+  },
+  "lockUnavailable": "The device could not check it's you. Try again.",
+  "@lockUnavailable": {
+    "description": "Lock screen message when the unlock prompt could not run."
+  },
+  "lockAfterMinutes": "{minutes, plural, =1{1 minute} other{{minutes} minutes}}",
+  "@lockAfterMinutes": {
+    "description": "Lock after choice: the app locks after this many minutes in the background.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "settingsData": "Data",
   "@settingsData": {
     "description": "Heading of the settings section for categories and other data."

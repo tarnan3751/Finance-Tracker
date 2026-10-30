@@ -1,9 +1,10 @@
 /// The Settings tab: Account (`features/auth/presentation/account_section.dart`), Sync
 /// (when this build's data syncs: dev and prod, `sync_section.dart`), Appearance (theme
-/// mode, dynamic color), Data (category management, rules, export, backup; in the demo
-/// flavor the Backup entry says the demo's data is not backed up) and About (app name,
-/// version and build, flavor, the time zone dates are computed in), then Demo data (demo
-/// only, `demo_data_section.dart`) and Developer (dev only,
+/// mode, dynamic color), Security (the app lock and screenshot blocking,
+/// `features/lock/presentation/security_section.dart`), Data (category management, rules,
+/// export, backup; in the demo flavor the Backup entry says the demo's data is not backed
+/// up) and About (app name, version and build, flavor, the time zone dates are computed
+/// in), then Demo data (demo only, `demo_data_section.dart`) and Developer (dev only,
 /// `features/developer/presentation/developer_section.dart`).
 library;
 
@@ -14,6 +15,7 @@ import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/features/auth/presentation/account_section.dart';
 import 'package:finance_tracker/features/developer/presentation/developer_section.dart';
+import 'package:finance_tracker/features/lock/presentation/security_section.dart';
 import 'package:finance_tracker/features/settings/application/package_info.dart';
 import 'package:finance_tracker/features/settings/application/settings_controller.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
@@ -85,6 +87,7 @@ class SettingsScreen extends ConsumerWidget {
               onChanged: controller.setUseDynamicColor,
             ),
           ],
+          const SecuritySection(),
           SettingsSectionHeader(l10n.settingsData),
           ListTile(
             leading: const Icon(Icons.category_outlined),

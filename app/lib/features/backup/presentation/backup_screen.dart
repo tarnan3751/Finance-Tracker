@@ -16,6 +16,7 @@ import 'package:finance_tracker/features/backup/application/backup_worker.dart';
 import 'package:finance_tracker/features/backup/domain/passphrase_strength.dart';
 import 'package:finance_tracker/features/backup/presentation/backup_messages.dart';
 import 'package:finance_tracker/features/backup/presentation/restore_flow.dart';
+import 'package:finance_tracker/features/lock/application/lock_hold.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -122,6 +123,7 @@ class _ExportSectionState extends ConsumerState<_ExportSection> {
     // Read before the awaits: the screen may be gone when they return.
     final BackupService service = ref.read(backupServiceProvider);
     final FileExporter exporter = ref.read(fileExporterProvider);
+    final LockHold hold = ref.read(lockHoldProvider);
     final String name = backupFileName(ref.read(clockProvider).today().toIso());
     try {
       final ProgressThrottle throttle = ProgressThrottle();
@@ -129,10 +131,13 @@ class _ExportSectionState extends ConsumerState<_ExportSection> {
         if (mounted && throttle.admit(p)) setState(() => _progress = p);
       });
       if (mounted) setState(() => _progress = null);
+      // The dialog and the share sheet are activities of their own: the lock stays open.
       if (share) {
-        await exporter.share(file, name, backupMimeType);
+        await hold.holdOpen(() => exporter.share(file, name, backupMimeType));
         _clear();
-      } else if (await exporter.saveAs(file, name, backupMimeType) ==
+      } else if (await hold.holdOpen(
+            () => exporter.saveAs(file, name, backupMimeType),
+          ) ==
           SaveOutcome.saved) {
         messenger.showSnackBar(SnackBar(content: Text(l10n.backupSaved(name))));
         _clear();

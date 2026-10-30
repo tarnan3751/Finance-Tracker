@@ -9,6 +9,7 @@ import 'dart:typed_data';
 
 import 'package:finance_tracker/core/platform/file_exporter.dart';
 import 'package:finance_tracker/core/platform/file_exporter_provider.dart';
+import 'package:finance_tracker/features/lock/application/lock_hold.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,13 +29,16 @@ Future<void> runExport(
   required bool share,
 }) async {
   final FileExporter exporter = ref.read(fileExporterProvider);
+  // The dialog and the share sheet are activities of their own: the lock stays open.
+  final LockHold hold = ref.read(lockHoldProvider);
   try {
     final Uint8List file = await bytes();
     if (share) {
-      await exporter.share(file, fileName, mimeType);
+      await hold.holdOpen(() => exporter.share(file, fileName, mimeType));
       return;
     }
-    if (await exporter.saveAs(file, fileName, mimeType) == SaveOutcome.saved) {
+    if (await hold.holdOpen(() => exporter.saveAs(file, fileName, mimeType)) ==
+        SaveOutcome.saved) {
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.exportSaved(fileName))),
       );

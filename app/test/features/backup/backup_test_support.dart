@@ -184,6 +184,10 @@ Future<void> seedEverything(
   await meta.write(AppMetaKeys.snapshotsWrittenOn, '2026-10-24');
   await meta.write(AppMetaKeys.dismissedAnomalies, '["manual-train"]');
   await meta.write(AppMetaKeys.installDate, '2026-09-01');
+  // The app lock's settings on this device, which a restore drops.
+  await meta.write(AppMetaKeys.lockEnabled, 'true');
+  await meta.write(AppMetaKeys.lockTimeoutSeconds, '60');
+  await meta.write(AppMetaKeys.secureScreen, 'false');
 
   final int raised = _at(5).millisecondsSinceEpoch;
   for (final String sql in [

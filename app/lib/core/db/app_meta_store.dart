@@ -6,8 +6,9 @@
 /// (`forecast_selection`), the last day the balance snapshots were written
 /// (`snapshots_written_on`), the anomaly flags dismissed on this device
 /// (`dismissed_anomalies`), the last week whose summary was announced
-/// (`weekly_summary_raised`), the payoff projections' entries (`payoff_entries`), and
-/// when the restore offer was answered (`restore_offer_answered`).
+/// (`weekly_summary_raised`), the payoff projections' entries (`payoff_entries`), when
+/// the restore offer was answered (`restore_offer_answered`), and the app lock's settings
+/// (`lock_enabled`, `lock_timeout_seconds`, `secure_screen`).
 library;
 
 import 'package:finance_tracker/core/db/app_database.dart';
@@ -62,6 +63,18 @@ abstract final class AppMetaKeys {
   /// When this install answered the restore offer, a UTC instant
   /// (`features/backup/`).
   static const String restoreOfferAnswered = 'restore_offer_answered';
+
+  /// Whether the app lock is enabled on this device, `true` or `false`
+  /// (`features/lock/`).
+  static const String lockEnabled = 'lock_enabled';
+
+  /// How long the app may stay in the background before it locks, in seconds, or `off`
+  /// (`features/lock/`).
+  static const String lockTimeoutSeconds = 'lock_timeout_seconds';
+
+  /// Whether "Block screenshots" is on, `true` or `false`; absent until the user chooses,
+  /// when the flavor's default holds (`features/lock/`).
+  static const String secureScreen = 'secure_screen';
 }
 
 /// The store over the database's `app_meta` table.

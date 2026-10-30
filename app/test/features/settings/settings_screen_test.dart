@@ -17,6 +17,12 @@ const MethodChannel _dynamicColorChannel = MethodChannel(
 /// The device accent color the dynamic color tests report.
 const Color _deviceAccent = Color(0xFF00897B);
 
+/// The dynamic color switch (the Security section has switches too).
+final Finder _dynamicColor = find.widgetWithText(
+  SwitchListTile,
+  'Dynamic color',
+);
+
 ThemeData _currentTheme(WidgetTester tester) =>
     Theme.of(tester.element(find.byType(Scaffold).last));
 
@@ -70,15 +76,12 @@ void main() {
     await pumpApp(tester, initialLocation: '/settings');
     expect(_currentTheme(tester).colorScheme.primary, devicePrimary);
 
-    await tester.tap(find.byType(SwitchListTile));
+    await tester.tap(_dynamicColor);
     await tester.pumpAndSettle();
-    expect(
-      tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value,
-      isFalse,
-    );
+    expect(tester.widget<SwitchListTile>(_dynamicColor).value, isFalse);
     expect(_currentTheme(tester).colorScheme.primary, seedPrimary);
 
-    await tester.tap(find.byType(SwitchListTile));
+    await tester.tap(_dynamicColor);
     await tester.pumpAndSettle();
     expect(_currentTheme(tester).colorScheme.primary, devicePrimary);
   });
@@ -86,10 +89,7 @@ void main() {
   testWidgets('without device colors the seed colors are used', (tester) async {
     await pumpApp(tester, initialLocation: '/settings');
 
-    expect(
-      tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value,
-      isTrue,
-    );
+    expect(tester.widget<SwitchListTile>(_dynamicColor).value, isTrue);
     expect(
       _currentTheme(tester).colorScheme.primary,
       AppTheme.light().colorScheme.primary,

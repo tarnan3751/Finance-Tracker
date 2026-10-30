@@ -12,7 +12,7 @@
 /// the share sheet, and the demo flavor the demo ones, which record nothing, with the
 /// fake image source (and, as by default, the fake reminder scheduler and file
 /// exporter); every flavor gets the window's secure flag and the monotonic clock through
-/// the app's own channels.
+/// the app's own channels, and the app lock's check through `local_auth`.
 library;
 
 import 'dart:async';
@@ -100,6 +100,8 @@ import 'package:finance_tracker/features/liabilities/data/demo_liability_reposit
 import 'package:finance_tracker/features/liabilities/data/drift_liability_repository.dart';
 import 'package:finance_tracker/features/liabilities/data/in_memory_liability_repository.dart';
 import 'package:finance_tracker/features/liabilities/domain/liability_repository.dart';
+import 'package:finance_tracker/features/lock/application/device_auth_provider.dart';
+import 'package:finance_tracker/features/lock/data/local_auth_device_auth.dart';
 import 'package:finance_tracker/features/net_worth/data/demo_balance_snapshot_repository.dart';
 import 'package:finance_tracker/features/net_worth/data/drift_balance_snapshot_repository.dart';
 import 'package:finance_tracker/features/net_worth/data/in_memory_balance_snapshot_repository.dart';
@@ -515,10 +517,11 @@ List<Override> overridesFor(AppConfig config) => [
 ];
 
 /// Every flavor: the platform seams that behave the same in all three, through the app's
-/// own channels to `MainActivity`.
+/// own channels to `MainActivity` and through `local_auth`.
 final List<Override> _platformOverrides = [
   screenSecurityProvider.overrideWithValue(const ChannelScreenSecurity()),
   monotonicClockProvider.overrideWithValue(const ChannelMonotonicClock()),
+  deviceAuthProvider.overrideWith((ref) => LocalAuthDeviceAuth()),
 ];
 
 /// The system's file dialogs in dev and prod (`flutter_file_dialog` and `share_plus`):

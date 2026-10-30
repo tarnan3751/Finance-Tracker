@@ -827,6 +827,73 @@ class AppLocalizationsEn extends AppLocalizations {
       'The transaction can\'t come back: its account was deleted.';
 
   @override
+  String get settingsSecurity => 'Security';
+
+  @override
+  String get lockRequireUnlock => 'Require unlock';
+
+  @override
+  String get lockRequireUnlockSubtitle =>
+      'Ask for your fingerprint, face or screen lock when the app opens';
+
+  @override
+  String get lockAfterTitle => 'Lock after';
+
+  @override
+  String get lockAfterOff => 'Only when the app starts';
+
+  @override
+  String get lockAfterImmediately => 'Immediately';
+
+  @override
+  String get lockBlockScreenshots => 'Block screenshots';
+
+  @override
+  String get lockBlockScreenshotsSubtitle =>
+      'Hide the app in screenshots, recordings and recent apps. Always on while unlock is required';
+
+  @override
+  String get lockUnlock => 'Unlock';
+
+  @override
+  String get lockTryAgain => 'Try again';
+
+  @override
+  String get lockPromptReason => 'Unlock to see your finances';
+
+  @override
+  String get lockEnablePromptReason =>
+      'Confirm it\'s you to turn on the app lock';
+
+  @override
+  String get lockFailed => 'Not recognized. Try again.';
+
+  @override
+  String get lockCancelled => 'Unlock was cancelled.';
+
+  @override
+  String get lockNoScreenLock => 'Set a screen lock on this device first';
+
+  @override
+  String get lockLockedOut =>
+      'Too many attempts. Wait a moment, then try again.';
+
+  @override
+  String get lockUnavailable =>
+      'The device could not check it\'s you. Try again.';
+
+  @override
+  String lockAfterMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '1 minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get settingsData => 'Data';
 
   @override

@@ -38,11 +38,16 @@ import 'package:finance_tracker/features/backup/domain/backup_archive.dart';
 import 'package:finance_tracker/features/backup/domain/backup_format.dart';
 import 'package:sqlite3/sqlite3.dart' show SqliteException;
 
-/// The `app_meta` keys a restore drops, so the new device works them out itself.
+/// The `app_meta` keys a restore drops, so the new device works them out itself; the app
+/// lock's settings describe the device they were chosen on (`features/lock/`), so the
+/// restored device starts with the lock off and its flavor's screenshot default.
 const Set<String> restoreDroppedMetaKeys = {
   AppMetaKeys.remindersZone,
   AppMetaKeys.remindersScheduledAt,
   AppMetaKeys.snapshotsWrittenOn,
+  AppMetaKeys.lockEnabled,
+  AppMetaKeys.lockTimeoutSeconds,
+  AppMetaKeys.secureScreen,
 };
 
 // The tables an empty install may hold rows in: its own bookkeeping, which a restore

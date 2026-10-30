@@ -13,17 +13,22 @@
 // account sheet are checked on the forecast household through ForecastScreen, and the
 // investments' allocation, value table, holdings and transactions on the test investments
 // through InvestmentsScreen, with its empty state on the seed, and the net worth chart,
-// table and liabilities on the net worth household through NetWorthScreen. The sign-in
+// table and liabilities on the net worth household through NetWorthScreen. The lock
+// screen (the lock enabled in app_meta), the Security section of Settings and its "Lock
+// after" dialog are checked on the fake device check. The sign-in
 // and registration screens are checked signed out; their text scale is checked with their
 // errors showing, in test/features/auth/auth_screens_test.dart.
 import 'dart:io';
 
+import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/fake_image_source.dart';
 import 'package:finance_tracker/core/platform/image_source.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/bills/data/in_memory_bill_repository.dart';
+import 'package:finance_tracker/features/lock/application/device_auth_provider.dart';
+import 'package:finance_tracker/features/lock/data/fake_device_auth.dart';
 import 'package:finance_tracker/features/transactions/presentation/receipt_view.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_tile.dart';
 import 'package:flutter/material.dart';
@@ -398,6 +403,59 @@ _investmentsViews = {
   ),
 };
 
+/// The app_meta of a device whose lock is enabled.
+InMemoryAppMetaStore _lockedMeta() =>
+    InMemoryAppMetaStore()..write(AppMetaKeys.lockEnabled, 'true');
+
+/// The lock's views: where each opens, its overrides, and what to do after it opens.
+final Map<
+  String,
+  ({
+    String location,
+    List<Override> Function() overrides,
+    Future<void> Function(WidgetTester)? open,
+  })
+>
+_lockViews = {
+  'Lock screen': (
+    location: '/accounts',
+    overrides: () => [
+      appMetaStoreProvider.overrideWithValue(_lockedMeta()),
+      deviceAuthProvider.overrideWithValue(FakeDeviceAuth()),
+    ],
+    open: null,
+  ),
+  'Security section': (
+    location: '/settings',
+    overrides: () => [deviceAuthProvider.overrideWithValue(FakeDeviceAuth())],
+    open: (tester) async {
+      await tester.scrollUntilVisible(
+        find.text('Block screenshots'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+    },
+  ),
+  'Lock after dialog': (
+    location: '/settings',
+    overrides: () => [
+      appMetaStoreProvider.overrideWithValue(_lockedMeta()),
+      deviceAuthProvider.overrideWithValue(FakeDeviceAuth()),
+    ],
+    open: (tester) async {
+      await _tapAndSettle(tester, find.text('Unlock'));
+      await tester.scrollUntilVisible(
+        find.text('Lock after'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await _tapAndSettle(tester, find.text('Lock after'));
+    },
+  ),
+};
+
 /// The auth screens, which only a signed-out user sees.
 const Map<String, String> _authScreens = {
   'Sign in': '/sign-in',
@@ -405,6 +463,44 @@ const Map<String, String> _authScreens = {
 };
 
 void main() {
+  for (final MapEntry(key: String name, value: view) in _lockViews.entries) {
+    for (final Brightness brightness in Brightness.values) {
+      testWidgets('$name (${brightness.name}) meets the Android and contrast '
+          'guidelines', (tester) async {
+        final SemanticsHandle semantics = tester.ensureSemantics();
+        try {
+          await pumpApp(
+            tester,
+            initialLocation: view.location,
+            brightness: brightness,
+            overrides: view.overrides(),
+          );
+          await view.open?.call(tester);
+
+          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+          await expectLater(tester, meetsGuideline(textContrastGuideline));
+        } finally {
+          semantics.dispose();
+        }
+      });
+    }
+
+    testWidgets('$name lays out at text scale 2.0 without overflow', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        initialLocation: view.location,
+        textScale: 2,
+        overrides: view.overrides(),
+      );
+      await view.open?.call(tester);
+
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   for (final MapEntry(key: String name, value: String location)
       in _authScreens.entries) {
     for (final Brightness brightness in Brightness.values) {

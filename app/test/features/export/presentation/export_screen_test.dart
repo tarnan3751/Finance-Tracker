@@ -17,6 +17,7 @@ import 'package:finance_tracker/core/platform/file_exporter.dart';
 import 'package:finance_tracker/core/platform/file_exporter_provider.dart';
 import 'package:finance_tracker/features/export/domain/transactions_csv.dart';
 import 'package:finance_tracker/features/export/presentation/export_runner.dart';
+import 'package:finance_tracker/features/lock/application/lock_hold.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -279,6 +280,11 @@ void main() {
       }
 
       expect(held.shared, ['report-2026-10.pdf']);
+      // The share sheet is an activity of its own: the app lock is held open.
+      final LockHold hold = ProviderScope.containerOf(
+        tester.element(find.byType(MaterialApp)),
+      ).read(lockHoldProvider);
+      expect(hold.isHeld, isTrue);
       expect(find.text('Monthly report (PDF)'), findsOneWidget);
       expect(find.byType(LinearProgressIndicator), findsOneWidget);
       final FilledButton share = tester.widget(
@@ -288,6 +294,7 @@ void main() {
 
       held.release.complete();
       await tester.pumpAndSettle();
+      expect(hold.isHeld, isFalse);
       expect(find.text('Monthly report (PDF)'), findsNothing);
       expect(held.shared, hasLength(1));
       semantics.dispose();

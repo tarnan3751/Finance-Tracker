@@ -1400,6 +1400,114 @@ abstract class AppLocalizations {
   /// **'The transaction can\'t come back: its account was deleted.'**
   String get transactionRestoreNoAccount;
 
+  /// Heading of the settings section for the app lock and screenshot blocking.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get settingsSecurity;
+
+  /// Switch that makes the app ask for the device's biometrics or screen lock when it opens.
+  ///
+  /// In en, this message translates to:
+  /// **'Require unlock'**
+  String get lockRequireUnlock;
+
+  /// Supporting text of the Require unlock switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for your fingerprint, face or screen lock when the app opens'**
+  String get lockRequireUnlockSubtitle;
+
+  /// Setting, and the title of its dialog: how long the app may stay in the background before it locks again.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock after'**
+  String get lockAfterTitle;
+
+  /// Lock after choice: the app locks only when it starts, never on a return from the background.
+  ///
+  /// In en, this message translates to:
+  /// **'Only when the app starts'**
+  String get lockAfterOff;
+
+  /// Lock after choice: the app locks whenever it returns from the background.
+  ///
+  /// In en, this message translates to:
+  /// **'Immediately'**
+  String get lockAfterImmediately;
+
+  /// Switch that blocks screenshots and screen recording and hides the app in recent apps.
+  ///
+  /// In en, this message translates to:
+  /// **'Block screenshots'**
+  String get lockBlockScreenshots;
+
+  /// Supporting text of the Block screenshots switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the app in screenshots, recordings and recent apps. Always on while unlock is required'**
+  String get lockBlockScreenshotsSubtitle;
+
+  /// Button on the lock screen that opens the device's unlock prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get lockUnlock;
+
+  /// Button on the lock screen after an attempt that did not unlock the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get lockTryAgain;
+
+  /// Reason shown in the device's unlock prompt when the app is locked.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock to see your finances'**
+  String get lockPromptReason;
+
+  /// Reason shown in the device's unlock prompt when the user turns the lock on.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm it\'s you to turn on the app lock'**
+  String get lockEnablePromptReason;
+
+  /// Lock screen message after the user did not pass the device's check.
+  ///
+  /// In en, this message translates to:
+  /// **'Not recognized. Try again.'**
+  String get lockFailed;
+
+  /// Lock screen message after the unlock prompt was closed without an answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock was cancelled.'**
+  String get lockCancelled;
+
+  /// Shown when the device has no screen lock or biometrics to unlock the app with.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a screen lock on this device first'**
+  String get lockNoScreenLock;
+
+  /// Lock screen message when the device refuses checks for a while after failed attempts.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Wait a moment, then try again.'**
+  String get lockLockedOut;
+
+  /// Lock screen message when the unlock prompt could not run.
+  ///
+  /// In en, this message translates to:
+  /// **'The device could not check it\'s you. Try again.'**
+  String get lockUnavailable;
+
+  /// Lock after choice: the app locks after this many minutes in the background.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =1{1 minute} other{{minutes} minutes}}'**
+  String lockAfterMinutes(int minutes);
+
   /// Heading of the settings section for categories and other data.
   ///
   /// In en, this message translates to:

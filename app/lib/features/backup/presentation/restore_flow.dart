@@ -37,6 +37,7 @@ import 'package:finance_tracker/features/backup/data/database_dump.dart';
 import 'package:finance_tracker/features/backup/domain/backup_format.dart';
 import 'package:finance_tracker/features/backup/domain/backup_manifest.dart';
 import 'package:finance_tracker/features/backup/presentation/backup_messages.dart';
+import 'package:finance_tracker/features/lock/application/lock_hold.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -111,8 +112,9 @@ class _RestoreFlowState extends ConsumerState<RestoreFlow> {
 
   // The chosen file's bytes, null when none was chosen: refused unread when it is over
   // [maxBackupBytes] or its header is not a backup's this build opens.
-  Future<Uint8List?> _readPicked(BackupPicker picker) async {
-    final PickedFile? picked = await picker.pick();
+  Future<Uint8List?> _readPicked(BackupPicker picker, LockHold hold) async {
+    // The file dialog is an activity of its own: the lock stays open.
+    final PickedFile? picked = await hold.holdOpen(picker.pick);
     if (picked == null) return null;
     try {
       if (picked.length > maxBackupBytes) throw const BackupTooLargeException();
@@ -139,6 +141,7 @@ class _RestoreFlowState extends ConsumerState<RestoreFlow> {
     // screen has no database it can read.
     final AppDatabase? database = _keyLost ? null : ref.read(databaseProvider);
     final BackupPicker picker = ref.read(backupPickerProvider);
+    final LockHold hold = ref.read(lockHoldProvider);
     final BackupEnvironment environment = ref.read(backupEnvironmentProvider);
     final TokenStore tokens = ref.read(tokenStoreProvider);
     final DatabaseKeyStore keyStore = ref.read(databaseKeyStoreProvider);
@@ -152,7 +155,7 @@ class _RestoreFlowState extends ConsumerState<RestoreFlow> {
     final ProgressThrottle throttle = ProgressThrottle();
     try {
       await _refuseIfData(database);
-      final Uint8List? file = await _readPicked(picker);
+      final Uint8List? file = await _readPicked(picker, hold);
       if (file == null || !mounted) return;
       final String? passphrase = await showDialog<String>(
         context: context,

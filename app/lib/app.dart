@@ -1,6 +1,7 @@
 /// The root widget: `MaterialApp.router` with the router, the light and dark themes (from
 /// the device's dynamic colors when it has them and the setting is on), the theme mode
-/// from settings, the localizations, and the flavor banner in dev and demo.
+/// from settings, the localizations, the flavor banner in dev and demo, and above them
+/// all the app lock's gate (`features/lock/presentation/lock_gate.dart`).
 library;
 
 import 'package:dynamic_color/dynamic_color.dart';
@@ -9,6 +10,7 @@ import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/app_router.dart';
 import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/widgets/flavor_banner.dart';
+import 'package:finance_tracker/features/lock/presentation/lock_gate.dart';
 import 'package:finance_tracker/features/settings/application/settings_controller.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -50,13 +52,17 @@ class FinanceTrackerApp extends ConsumerWidget {
           ],
           supportedLocales: AppLocalizations.supportedLocales,
           routerConfig: router,
-          builder: config.showsFlavorBanner
-              ? (context, child) => FlavorBanner(
-                  // The flavor's identifier, not prose, so it is not localized.
-                  message: config.flavor.name.toUpperCase(),
-                  child: child ?? const SizedBox.shrink(),
-                )
-              : null,
+          // The lock's gate sits above the router, so the lock screen covers every
+          // route and dialog.
+          builder: (context, child) => LockGate(
+            child: config.showsFlavorBanner
+                ? FlavorBanner(
+                    // The flavor's identifier, not prose, so it is not localized.
+                    message: config.flavor.name.toUpperCase(),
+                    child: child ?? const SizedBox.shrink(),
+                  )
+                : child ?? const SizedBox.shrink(),
+          ),
         );
       },
     );

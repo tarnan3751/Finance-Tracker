@@ -19,7 +19,8 @@
 /// [ItemStillPreparing]. A user who closes Link is no failure; Link's error is. Any
 /// `ItemLoginRequired` marks the Item for repair. Failures stay in the state, never
 /// thrown, until that Item's next action. One action per Item at a time, and one Link
-/// session at a time.
+/// session at a time. Link holds the app lock open (`features/lock/`): it is an activity of
+/// its own.
 library;
 
 import 'dart:async';
@@ -32,6 +33,7 @@ import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/features/items/application/link_launcher_provider.dart';
 import 'package:finance_tracker/features/items/domain/item_action.dart';
 import 'package:finance_tracker/features/items/domain/link_launcher.dart';
+import 'package:finance_tracker/features/lock/application/lock_hold.dart';
 import 'package:finance_tracker/features/settings/application/package_info.dart';
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -65,8 +67,8 @@ class LinkController extends _$LinkController {
         androidPackageName: await _packageName(),
       );
       final LinkResult result = await ref
-          .read(linkLauncherProvider)
-          .open(token.linkToken);
+          .read(lockHoldProvider)
+          .holdOpen(() => ref.read(linkLauncherProvider).open(token.linkToken));
       final LinkSucceeded success;
       switch (result) {
         case LinkExited(error: null):
@@ -102,8 +104,8 @@ class LinkController extends _$LinkController {
       androidPackageName: await _packageName(),
     );
     final LinkResult result = await ref
-        .read(linkLauncherProvider)
-        .open(token.linkToken);
+        .read(lockHoldProvider)
+        .holdOpen(() => ref.read(linkLauncherProvider).open(token.linkToken));
     switch (result) {
       case LinkExited(error: null):
         _setItem(itemId, null);

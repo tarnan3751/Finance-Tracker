@@ -37,6 +37,7 @@ import 'package:finance_tracker/features/accounts/domain/account_not_found_excep
 import 'package:finance_tracker/features/accounts/presentation/currency_picker.dart';
 import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
 import 'package:finance_tracker/features/categories/presentation/category_picker.dart';
+import 'package:finance_tracker/features/lock/application/lock_hold.dart';
 import 'package:finance_tracker/features/rules/application/rules_providers.dart';
 import 'package:finance_tracker/features/rules/domain/rules_engine.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
@@ -351,9 +352,12 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final ImageSource source = ref.read(imageSourceProvider);
     try {
-      final PickedImage? image = camera
-          ? await source.pickFromCamera()
-          : await source.pickFromGallery();
+      // The camera and the picker are activities of their own: the lock stays open.
+      final PickedImage? image = await ref
+          .read(lockHoldProvider)
+          .holdOpen(
+            () => camera ? source.pickFromCamera() : source.pickFromGallery(),
+          );
       if (image != null && mounted) {
         setState(() => _receipt = AttachReceipt(image.bytes));
       }

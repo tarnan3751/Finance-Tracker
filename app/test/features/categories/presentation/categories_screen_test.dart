@@ -33,6 +33,8 @@ void main() {
       overrides: [storeOverride(seededStore())],
     );
 
+    // Below the Security section, past what the list builds at first.
+    await tester.scrollUntilVisible(find.text('Categories'), 100);
     await tester.tap(find.text('Categories'));
     await tester.pumpAndSettle();
 

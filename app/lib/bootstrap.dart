@@ -1,15 +1,16 @@
 /// Startup shared by the three entry points: [bootstrap] checks the configuration and
 /// sets up logging, time zones and the locale once, then [startApp] opens the local data
-/// (dev and prod), reads the stored session, starts sync and the budget alerts, and runs
-/// the app on a new Riverpod container; after the first frame, the bill reminders are
-/// planned (a tapped one opens its bill), and dev and prod sweep the receipt files no
-/// transaction references. [startApp] can run again in the same process, on a new
-/// container: a restore (`features/backup/`) stops the app, replaces its database on a
-/// plain screen showing its progress, and starts it again through the app restart
-/// [startApp] supplies (`appRestartProvider`); the local wipe (`core/db/local_wipe.dart`,
-/// `wipeLocalDataProvider`) stops it the same way, wipes, confirms on a plain screen and
-/// starts it again on the fresh install; a wipe cut short is finished the same way before
-/// [startApp] opens anything local.
+/// (dev and prod), reads the stored session and the lock's settings (locking the app and
+/// securing its window before the first frame when they say so), starts sync and the
+/// budget alerts, and runs the app on a new Riverpod container; after the first frame,
+/// the bill reminders are planned (a tapped one opens its bill), and dev and prod sweep
+/// the receipt files no transaction references. [startApp] can run again in the same
+/// process, on a new container: a restore (`features/backup/`) stops the app, replaces
+/// its database on a plain screen showing its progress, and starts it again through the
+/// app restart [startApp] supplies (`appRestartProvider`); the local wipe
+/// (`core/db/local_wipe.dart`, `wipeLocalDataProvider`) stops it the same way, wipes,
+/// confirms on a plain screen and starts it again on the fresh install; a wipe cut short
+/// is finished the same way before [startApp] opens anything local.
 library;
 
 import 'dart:async';
@@ -39,6 +40,7 @@ import 'package:finance_tracker/features/backup/presentation/restore_flow.dart';
 import 'package:finance_tracker/features/backup/presentation/restoring_app.dart';
 import 'package:finance_tracker/features/bills/application/reminder_planner.dart';
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
+import 'package:finance_tracker/features/lock/application/lock_controller.dart';
 import 'package:finance_tracker/features/net_worth/application/snapshot_writer.dart';
 import 'package:finance_tracker/features/recurring/application/detector_runner.dart';
 import 'package:finance_tracker/features/reports/application/weekly_summary_providers.dart';
@@ -125,6 +127,9 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
   // The stored session, read before the first frame so the router never shows the
   // sign-in screen to a signed-in user; GET /me confirms it in the background.
   await container.read(sessionControllerProvider.notifier).restored();
+  // The lock's settings, read before the first frame: a locked app never shows its content,
+  // and a secure window is secure before anything is drawn in it.
+  await container.read(lockControllerProvider.notifier).restored();
   // Sync starts with the app: it runs a session when someone is signed in (never in demo).
   container.read(syncControllerProvider);
   // The budget alerts are evaluated whenever the statuses change, in every flavor.
