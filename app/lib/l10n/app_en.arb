@@ -387,6 +387,121 @@
       }
     }
   },
+  "reportsWeeklySummary": "Weekly summary",
+  "@reportsWeeklySummary": {
+    "description": "The entry on the Reports segment that opens the weekly summary."
+  },
+  "weeklyTitle": "Weekly summary",
+  "@weeklyTitle": {
+    "description": "Title of the weekly summary screen."
+  },
+  "weeklyRange": "{start} – {end}",
+  "@weeklyRange": {
+    "description": "A week's first and last days.",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "weeklyLastWeek": "Last week, {range}",
+  "@weeklyLastWeek": {
+    "description": "Heading of the last complete week in the weekly summary.",
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "weeklyThisWeek": "This week so far",
+  "@weeklyThisWeek": {
+    "description": "Heading of the current week in the weekly summary."
+  },
+  "weeklyTopCategories": "Spent most on",
+  "@weeklyTopCategories": {
+    "description": "Heading of a week's biggest categories."
+  },
+  "weeklyCategoryLine": "{name}: {amount}",
+  "@weeklyCategoryLine": {
+    "description": "One of a week's biggest categories.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "weeklyTopMerchant": "Spent most at {name}: {amount}",
+  "@weeklyTopMerchant": {
+    "description": "A week's biggest merchant.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "weeklyNoSpending": "No spending this week.",
+  "@weeklyNoSpending": {
+    "description": "Shown when a week has no spending."
+  },
+  "weeklyBillsNextWeek": "Bills due next week",
+  "@weeklyBillsNextWeek": {
+    "description": "Heading of the bills due in the coming week."
+  },
+  "weeklyNoBills": "No bills due next week.",
+  "@weeklyNoBills": {
+    "description": "Shown when no bill is due in the coming week."
+  },
+  "weeklyBudgets": "Budgets",
+  "@weeklyBudgets": {
+    "description": "Heading of the budgets in the weekly summary."
+  },
+  "weeklyNoBudgets": "No budgets yet.",
+  "@weeklyNoBudgets": {
+    "description": "Shown in the weekly summary when there are no budgets."
+  },
+  "weeklyBudgetLeft": "{spent} of {available} spent, {left} left",
+  "@weeklyBudgetLeft": {
+    "description": "A budget's standing in the weekly summary.",
+    "placeholders": {
+      "spent": {
+        "type": "String"
+      },
+      "available": {
+        "type": "String"
+      },
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "weeklyBudgetOver": "{spent} of {available} spent, over by {over}",
+  "@weeklyBudgetOver": {
+    "description": "A budget over its amount in the weekly summary.",
+    "placeholders": {
+      "spent": {
+        "type": "String"
+      },
+      "available": {
+        "type": "String"
+      },
+      "over": {
+        "type": "String"
+      }
+    }
+  },
+  "alertWeeklySummary": "Your weekly summary is ready",
+  "@alertWeeklySummary": {
+    "description": "The in-app notice that the weekly summary for the week just ended is ready."
+  },
   "navSettings": "Settings",
   "@navSettings": {
     "description": "Label of the Settings tab in the bottom navigation bar, and the title of the Settings screen."

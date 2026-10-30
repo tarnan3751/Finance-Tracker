@@ -96,3 +96,22 @@ final class BillDueNotification extends AppNotification {
   @override
   String get key => 'bill/$billId/$dueDate';
 }
+
+/// The summary of the week starting Monday [weekStart] is ready
+/// (`features/reports/`).
+final class WeeklySummaryNotification extends AppNotification {
+  /// The notification.
+  const WeeklySummaryNotification({
+    required this.weekStart,
+    required this.raisedAt,
+  });
+
+  /// The Monday the week summarised starts on.
+  final LocalDate weekStart;
+
+  @override
+  final DateTime raisedAt;
+
+  @override
+  String get key => 'weekly/$weekStart';
+}

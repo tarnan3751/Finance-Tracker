@@ -27,6 +27,7 @@ import 'package:finance_tracker/features/bills/application/reminder_planner.dart
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
 import 'package:finance_tracker/features/net_worth/application/snapshot_writer.dart';
 import 'package:finance_tracker/features/recurring/application/detector_runner.dart';
+import 'package:finance_tracker/features/reports/application/weekly_summary_providers.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -85,6 +86,8 @@ Future<void> bootstrap(AppConfig config) async {
   container.listen(budgetAlertWatcherProvider, (_, _) {});
   // The detected recurring streams follow the transactions, in every flavor.
   container.listen(detectorRunnerProvider, (_, _) {});
+  // The weekly summary's notice is raised once a week, in every flavor.
+  container.listen(weeklySummaryNoticeProvider, (_, _) {});
   runApp(
     UncontrolledProviderScope(
       container: container,

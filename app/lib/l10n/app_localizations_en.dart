@@ -253,6 +253,66 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get reportsWeeklySummary => 'Weekly summary';
+
+  @override
+  String get weeklyTitle => 'Weekly summary';
+
+  @override
+  String weeklyRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String weeklyLastWeek(String range) {
+    return 'Last week, $range';
+  }
+
+  @override
+  String get weeklyThisWeek => 'This week so far';
+
+  @override
+  String get weeklyTopCategories => 'Spent most on';
+
+  @override
+  String weeklyCategoryLine(String name, String amount) {
+    return '$name: $amount';
+  }
+
+  @override
+  String weeklyTopMerchant(String name, String amount) {
+    return 'Spent most at $name: $amount';
+  }
+
+  @override
+  String get weeklyNoSpending => 'No spending this week.';
+
+  @override
+  String get weeklyBillsNextWeek => 'Bills due next week';
+
+  @override
+  String get weeklyNoBills => 'No bills due next week.';
+
+  @override
+  String get weeklyBudgets => 'Budgets';
+
+  @override
+  String get weeklyNoBudgets => 'No budgets yet.';
+
+  @override
+  String weeklyBudgetLeft(String spent, String available, String left) {
+    return '$spent of $available spent, $left left';
+  }
+
+  @override
+  String weeklyBudgetOver(String spent, String available, String over) {
+    return '$spent of $available spent, over by $over';
+  }
+
+  @override
+  String get alertWeeklySummary => 'Your weekly summary is ready';
+
+  @override
   String get navSettings => 'Settings';
 
   @override

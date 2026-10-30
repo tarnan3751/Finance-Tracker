@@ -74,6 +74,10 @@ class BudgetAlertsButton extends ConsumerWidget {
             Navigator.of(sheetContext).pop();
             _openBill(context, ref, notification);
           },
+          onOpenSummary: (notification) {
+            Navigator.of(sheetContext).pop();
+            _openSummary(context, ref, notification);
+          },
         ),
       ),
     );
@@ -115,13 +119,28 @@ class BudgetAlertsButton extends ConsumerWidget {
     ref.read(inAppNotificationsProvider.notifier).markRead(notification.key);
     EditBillRoute(notification.billId).push<void>(context);
   }
+
+  // Marks [notification] read and opens the weekly summary.
+  void _openSummary(
+    BuildContext context,
+    WidgetRef ref,
+    WeeklySummaryNotification notification,
+  ) {
+    ref.read(inAppNotificationsProvider.notifier).markRead(notification.key);
+    const WeeklySummaryRoute().push<void>(context);
+  }
 }
 
 class _AlertsSheet extends ConsumerWidget {
-  const _AlertsSheet({required this.onOpen, required this.onOpenBill});
+  const _AlertsSheet({
+    required this.onOpen,
+    required this.onOpenBill,
+    required this.onOpenSummary,
+  });
 
   final ValueChanged<BudgetThresholdNotification> onOpen;
   final ValueChanged<BillDueNotification> onOpenBill;
+  final ValueChanged<WeeklySummaryNotification> onOpenSummary;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -199,6 +218,12 @@ class _AlertsSheet extends ConsumerWidget {
                       full: false,
                       read: n.read,
                       onTap: () => onOpenBill(due),
+                    ),
+                    final WeeklySummaryNotification summary => _AlertTile(
+                      text: l10n.alertWeeklySummary,
+                      full: false,
+                      read: n.read,
+                      onTap: () => onOpenSummary(summary),
                     ),
                   },
               ],

@@ -6,7 +6,7 @@
 /// | Accounts | `/accounts`, `/accounts/new`, `/accounts/linked-banks`, `/accounts/:id`, `/accounts/:id/edit` |
 /// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/duplicates`, `/transactions/:id` |
 /// | Plan | `/plan` (redirects to `/budgets`); `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new?stream-id=<id>`, `/bills/new?liability-account-id=<id>`, `/bills/subscriptions`, `/bills/:id`; `/forecast` |
-/// | Insights | `/insights` (redirects to `/reports`); `/reports`; `/net-worth`; `/investments`; `/goals` |
+/// | Insights | `/insights` (redirects to `/reports`); `/reports`, `/reports/weekly`; `/net-worth`; `/investments`; `/goals` |
 /// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
@@ -35,6 +35,7 @@ import 'package:finance_tracker/features/auth/presentation/register_screen.dart'
 import 'package:finance_tracker/features/auth/presentation/sign_in_screen.dart';
 import 'package:finance_tracker/features/bills/presentation/bill_editor_screen.dart';
 import 'package:finance_tracker/features/bills/presentation/bills_screen.dart';
+import 'package:finance_tracker/features/budgets/presentation/budget_alerts.dart';
 import 'package:finance_tracker/features/budgets/presentation/budget_detail_screen.dart';
 import 'package:finance_tracker/features/budgets/presentation/budget_editor_screen.dart';
 import 'package:finance_tracker/features/budgets/presentation/budgets_screen.dart';
@@ -45,6 +46,7 @@ import 'package:finance_tracker/features/forecast/presentation/forecast_view.dar
 import 'package:finance_tracker/features/items/presentation/items_screen.dart';
 import 'package:finance_tracker/features/recurring/presentation/subscriptions_screen.dart';
 import 'package:finance_tracker/features/reports/presentation/reports_view.dart';
+import 'package:finance_tracker/features/reports/presentation/weekly_summary_screen.dart';
 import 'package:finance_tracker/features/rules/presentation/rule_editor_screen.dart';
 import 'package:finance_tracker/features/rules/presentation/rules_screen.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
@@ -122,7 +124,12 @@ part 'routes.g.dart';
       routes: <TypedRoute<RouteData>>[
         // First, so it is the branch's first location: the tab opens on Reports.
         TypedGoRoute<InsightsRoute>(path: '/insights'),
-        TypedGoRoute<ReportsRoute>(path: '/reports'),
+        TypedGoRoute<ReportsRoute>(
+          path: '/reports',
+          routes: <TypedRoute<RouteData>>[
+            TypedGoRoute<WeeklySummaryRoute>(path: 'weekly'),
+          ],
+        ),
         TypedGoRoute<NetWorthRoute>(path: '/net-worth'),
         TypedGoRoute<InvestmentsRoute>(path: '/investments'),
         TypedGoRoute<GoalsRoute>(path: '/goals'),
@@ -421,9 +428,21 @@ class ReportsRoute extends GoRouteData with $ReportsRoute {
       const NoTransitionPage(
         child: InsightsScaffold(
           segment: InsightsSegment.reports,
+          // The weekly summary's notice is reached through the alerts.
+          actions: [BudgetAlertsButton()],
           body: ReportsView(),
         ),
       );
+}
+
+/// `/reports/weekly`: the weekly summary, opened from the Reports segment and from its
+/// in-app notice.
+class WeeklySummaryRoute extends GoRouteData with $WeeklySummaryRoute {
+  const WeeklySummaryRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const WeeklySummaryScreen();
 }
 
 /// `/net-worth`: the Insights tab's Net worth segment (a placeholder until net worth

@@ -146,6 +146,13 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
           path: '/reports',
           hasOverriddenOnExit: false,
           factory: $ReportsRoute._fromState,
+          routes: [
+            GoRouteData.$route(
+              path: 'weekly',
+              hasOverriddenOnExit: false,
+              factory: $WeeklySummaryRoute._fromState,
+            ),
+          ],
         ),
         GoRouteData.$route(
           path: '/net-worth',
@@ -669,6 +676,27 @@ mixin $ReportsRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/reports');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $WeeklySummaryRoute on GoRouteData {
+  static WeeklySummaryRoute _fromState(GoRouterState state) =>
+      const WeeklySummaryRoute();
+
+  @override
+  String get location => GoRouteData.$location('/reports/weekly');
 
   @override
   void go(BuildContext context) => context.go(location);

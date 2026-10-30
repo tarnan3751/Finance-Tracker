@@ -169,6 +169,7 @@ final Map<String, _Screen> _screens = {
   'Forecast': (location: '/forecast', seeded: true, open: null),
   'Insights placeholder': (location: '/goals', seeded: false, open: null),
   'Reports': (location: '/reports', seeded: true, open: null),
+  'Weekly summary': (location: '/reports/weekly', seeded: true, open: null),
   'Reports, tables': (
     location: '/reports',
     seeded: true,

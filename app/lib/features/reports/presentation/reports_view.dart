@@ -2,11 +2,13 @@
 /// selector, the headline (spending, income and the savings rate), the comparisons with
 /// the period before and the year before, spending or income by category as a donut
 /// that drills into a group, income and spending over six periods as bars, the trend
-/// over twelve as lines, the top merchants, the top movers and "Worth a look". One
+/// over twelve as lines, the top merchants, the top movers, "Worth a look" and the
+/// entry to the weekly summary. One
 /// Table/Chart switch turns every chart into its table. No Scaffold of its own: the
 /// Insights tab mounts it under its app bar.
 library;
 
+import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/features/budgets/presentation/budget_period_selector.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/reports/application/reports_providers.dart';
@@ -123,6 +125,13 @@ class _ReportsViewState extends ConsumerState<ReportsView> {
           _Movers(r),
           _SectionTitle(l10n.anomaliesTitle),
           AnomalyList(window: r.current.range),
+          const Divider(height: 32),
+          ListTile(
+            leading: const Icon(Icons.date_range),
+            title: Text(l10n.reportsWeeklySummary),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => const WeeklySummaryRoute().push<void>(context),
+          ),
         ],
       ),
       AsyncValue(hasError: true) => Center(child: Text(l10n.loadFailed)),

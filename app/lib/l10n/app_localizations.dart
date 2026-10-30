@@ -446,6 +446,102 @@ abstract class AppLocalizations {
   /// **'Dismiss {name}'**
   String anomalyDismissTooltip(String name);
 
+  /// The entry on the Reports segment that opens the weekly summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly summary'**
+  String get reportsWeeklySummary;
+
+  /// Title of the weekly summary screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly summary'**
+  String get weeklyTitle;
+
+  /// A week's first and last days.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String weeklyRange(String start, String end);
+
+  /// Heading of the last complete week in the weekly summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Last week, {range}'**
+  String weeklyLastWeek(String range);
+
+  /// Heading of the current week in the weekly summary.
+  ///
+  /// In en, this message translates to:
+  /// **'This week so far'**
+  String get weeklyThisWeek;
+
+  /// Heading of a week's biggest categories.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent most on'**
+  String get weeklyTopCategories;
+
+  /// One of a week's biggest categories.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {amount}'**
+  String weeklyCategoryLine(String name, String amount);
+
+  /// A week's biggest merchant.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent most at {name}: {amount}'**
+  String weeklyTopMerchant(String name, String amount);
+
+  /// Shown when a week has no spending.
+  ///
+  /// In en, this message translates to:
+  /// **'No spending this week.'**
+  String get weeklyNoSpending;
+
+  /// Heading of the bills due in the coming week.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills due next week'**
+  String get weeklyBillsNextWeek;
+
+  /// Shown when no bill is due in the coming week.
+  ///
+  /// In en, this message translates to:
+  /// **'No bills due next week.'**
+  String get weeklyNoBills;
+
+  /// Heading of the budgets in the weekly summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets'**
+  String get weeklyBudgets;
+
+  /// Shown in the weekly summary when there are no budgets.
+  ///
+  /// In en, this message translates to:
+  /// **'No budgets yet.'**
+  String get weeklyNoBudgets;
+
+  /// A budget's standing in the weekly summary.
+  ///
+  /// In en, this message translates to:
+  /// **'{spent} of {available} spent, {left} left'**
+  String weeklyBudgetLeft(String spent, String available, String left);
+
+  /// A budget over its amount in the weekly summary.
+  ///
+  /// In en, this message translates to:
+  /// **'{spent} of {available} spent, over by {over}'**
+  String weeklyBudgetOver(String spent, String available, String over);
+
+  /// The in-app notice that the weekly summary for the week just ended is ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Your weekly summary is ready'**
+  String get alertWeeklySummary;
+
   /// Label of the Settings tab in the bottom navigation bar, and the title of the Settings screen.
   ///
   /// In en, this message translates to:
