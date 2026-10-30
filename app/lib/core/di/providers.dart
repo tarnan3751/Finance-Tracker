@@ -270,6 +270,19 @@ bool localDataSyncs(Ref ref) => false;
 @Riverpod(keepAlive: true)
 Duration syncDebounce(Ref ref) => const Duration(seconds: 3);
 
+/// How long after the [failures]th failed session in a row the next one runs: 15 s,
+/// doubling, at most five minutes.
+@Riverpod(keepAlive: true)
+Duration Function(int failures) syncBackoff(Ref ref) => syncBackoffAfter;
+
+/// [syncBackoff]'s schedule.
+Duration syncBackoffAfter(int failures) {
+  const Duration cap = Duration(minutes: 5);
+  final int shift = (failures - 1).clamp(0, 5);
+  final Duration delay = const Duration(seconds: 15) * (1 << shift);
+  return delay > cap ? cap : delay;
+}
+
 /// The persona the demo flavor shows: [initialDemoPersona] at start, then what Settings →
 /// Demo data selects.
 @Riverpod(keepAlive: true)

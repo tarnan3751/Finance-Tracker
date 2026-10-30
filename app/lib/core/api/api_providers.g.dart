@@ -138,6 +138,64 @@ final class FakeServerProvider
 
 String _$fakeServerHash() => r'0065010ad7f9cdc26bd5990ca1e358cee036a793';
 
+/// The network connections the API goes through, which Sync now and a returning network
+/// drop (`ResettableHttpClientAdapter`). Over the fake server nothing reads its adapter,
+/// so a reset there drops nothing.
+
+@ProviderFor(httpConnections)
+final httpConnectionsProvider = HttpConnectionsProvider._();
+
+/// The network connections the API goes through, which Sync now and a returning network
+/// drop (`ResettableHttpClientAdapter`). Over the fake server nothing reads its adapter,
+/// so a reset there drops nothing.
+
+final class HttpConnectionsProvider
+    extends
+        $FunctionalProvider<
+          ResettableHttpClientAdapter,
+          ResettableHttpClientAdapter,
+          ResettableHttpClientAdapter
+        >
+    with $Provider<ResettableHttpClientAdapter> {
+  /// The network connections the API goes through, which Sync now and a returning network
+  /// drop (`ResettableHttpClientAdapter`). Over the fake server nothing reads its adapter,
+  /// so a reset there drops nothing.
+  HttpConnectionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'httpConnectionsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$httpConnectionsHash();
+
+  @$internal
+  @override
+  $ProviderElement<ResettableHttpClientAdapter> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ResettableHttpClientAdapter create(Ref ref) {
+    return httpConnections(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ResettableHttpClientAdapter value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ResettableHttpClientAdapter>(value),
+    );
+  }
+}
+
+String _$httpConnectionsHash() => r'3aaf85f4d1b26037db2e54a6f2d6720f522dff85';
+
 /// The API, over the network.
 
 @ProviderFor(financeApi)
@@ -182,4 +240,4 @@ final class FinanceApiProvider
   }
 }
 
-String _$financeApiHash() => r'bb9a5746f3a7cc643c6b16b805fb73be52841221';
+String _$financeApiHash() => r'3bbbc9370d71d7ee08b0fe1cef3d97ea4b548816';

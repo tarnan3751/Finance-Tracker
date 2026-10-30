@@ -4,8 +4,17 @@
 /// When the local data syncs (dev and prod, `localDataSyncsProvider`) and someone is
 /// signed in (`syncDeviceIdProvider`, from the session; `syncRelayProvider`, the API's
 /// relay), a session runs: when the controller starts, when the app resumes,
-/// [SyncController.syncNow], and the debounce (3 s by default) after the last local
-/// change, which it sees as the outbox growing. One session runs at a time; a
+/// [SyncController.syncNow], the debounce (3 s by default) after the last local
+/// change, which it sees as the outbox growing, when a network returns or changes after a
+/// failed session (`core/platform/connectivity.dart`), and after a failed session on a
+/// backoff of its own (15 s, doubling, at most five minutes; `syncBackoffProvider`), reset
+/// by a session that succeeds and by a network change, armed only while the app is resumed
+/// and the connectivity seam says a network is up (a paused or offline app waits for
+/// resume or the network instead). While the backoff waits only the debounce defers to it;
+/// the start, resume, Sync now and a returning network run at once.
+/// Sync now and a returning network drop the API's idle connections first
+/// (`httpConnectionsProvider`), so a request after a network change never goes out on
+/// what the old network left. One session runs at a time; a
 /// trigger during a run runs one more after it. A device change (sign-out, sign-in) lets
 /// a session in flight finish and discards its report. Before each session the device
 /// clock adopts the server's device id, moving the outbox to it. A relay whose log was
@@ -27,6 +36,8 @@ import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/db/tables/sync_meta.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/platform/connectivity.dart';
+import 'package:finance_tracker/core/platform/connectivity_provider.dart';
 import 'package:finance_tracker/core/sync/device_clock.dart';
 import 'package:finance_tracker/core/sync/receipt_uploader.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
@@ -50,6 +61,15 @@ class SyncController extends _$SyncController {
   Future<void>? _running;
   bool _again = false;
   Timer? _debounce;
+  // The retry after a failed session, and how many failed in a row.
+  Timer? _backoff;
+  int _failures = 0;
+  StreamSubscription<bool>? _network;
+  // Whether the app is in use and a network is up: the backoff's retry is armed only
+  // then, so a paused or offline app does not retry forever (the network trigger and
+  // resume run a session when either comes back).
+  bool _resumed = true;
+  bool _online = true;
   int? _pending;
   StreamSubscription<SyncLedger>? _ledger;
   AppLifecycleListener? _lifecycle;
@@ -76,12 +96,14 @@ class SyncController extends _$SyncController {
       if (_held && !_holds(next)) {
         _held = false;
         scheduleMicrotask(() {
-          if (ref.mounted) unawaited(syncNow());
+          if (ref.mounted) unawaited(_run());
         });
       }
     });
     ref.onDispose(() {
       _debounce?.cancel();
+      _backoff?.cancel();
+      unawaited(_network?.cancel());
       _lifecycle?.dispose();
       unawaited(_ledger?.cancel());
     });
@@ -90,9 +112,19 @@ class SyncController extends _$SyncController {
     return const SyncStatus(phase: SyncPhase.idle);
   }
 
-  /// Runs a session now, or one more after the one running. Completes when it has run;
-  /// a failure is kept in the status, not thrown. Does nothing unless signed in.
+  /// Sync now: drops the API's idle connections, then runs a session now (whatever the
+  /// backoff), or one more after the one running. Completes when it has run; a failure is
+  /// kept in the status, not thrown. Does nothing unless signed in.
   Future<void> syncNow() {
+    if (state.phase != SyncPhase.idle && state.phase != SyncPhase.running) {
+      return Future<void>.value();
+    }
+    ref.read(httpConnectionsProvider).reset();
+    return _run();
+  }
+
+  // Runs a session now, or one more after the one running.
+  Future<void> _run() {
     if (state.phase != SyncPhase.idle && state.phase != SyncPhase.running) {
       return Future<void>.value();
     }
@@ -118,11 +150,68 @@ class SyncController extends _$SyncController {
       state = state.copyWith(ledger: value, failure: state.failure);
       if (grew) {
         _debounce?.cancel();
-        _debounce = Timer(debounce, () => unawaited(syncNow()));
+        // The backoff's retry pushes the change when it comes.
+        _debounce = Timer(debounce, () {
+          if (_backoff == null) unawaited(_run());
+        });
       }
     });
-    _lifecycle = AppLifecycleListener(onResume: () => unawaited(syncNow()));
+    final AppLifecycleState? lifecycle = WidgetsBinding.instance.lifecycleState;
+    _resumed = lifecycle == null || lifecycle == AppLifecycleState.resumed;
+    _lifecycle = AppLifecycleListener(
+      onResume: () {
+        _resumed = true;
+        unawaited(_run());
+      },
+      onPause: () {
+        _resumed = false;
+        _backoff?.cancel();
+        _backoff = null;
+      },
+    );
+    // A platform that cannot say leaves the other triggers to it, and counts as online.
+    final Connectivity connectivity = ref.read(connectivityProvider);
+    unawaited(
+      connectivity.isOnline().then(
+        (online) => _online = online,
+        onError: (Object e) =>
+            _log.fine('the network state is unknown: ${e.runtimeType}'),
+      ),
+    );
+    _network = connectivity.changes.listen(
+      _networkChanged,
+      onError: (Object e) =>
+          _log.fine('the network state is unknown: ${e.runtimeType}'),
+    );
     unawaited(_restoreThenSync(store));
+  }
+
+  // A network came back, or another type of network replaced it: after a failed session,
+  // the backoff starts over and a session runs on new connections. With no network the
+  // backoff's retry waits for this trigger.
+  void _networkChanged(bool online) {
+    _online = online;
+    if (!online) {
+      _backoff?.cancel();
+      _backoff = null;
+    }
+    if (!online || !ref.mounted) return;
+    if (state.failure == null && state.plaidFailure == null) return;
+    _failures = 0;
+    unawaited(syncNow());
+  }
+
+  // After a failed session: the next one, unless a trigger runs one first; only while
+  // the app is resumed and a network is up.
+  void _scheduleRetry() {
+    _backoff?.cancel();
+    _backoff = null;
+    _failures++;
+    if (!_resumed || !_online) return;
+    _backoff = Timer(ref.read(syncBackoffProvider)(_failures), () {
+      _backoff = null;
+      if (ref.mounted) unawaited(_run());
+    });
   }
 
   // The session's device changed (sign-out, sign-in, another account's sign-in). A
@@ -141,7 +230,7 @@ class SyncController extends _$SyncController {
       failure: null,
     );
     // A first start runs its own session after restoring the status.
-    if (started) unawaited(syncNow());
+    if (started) unawaited(_run());
   }
 
   Future<void> _restoreThenSync(DriftSyncStore store) async {
@@ -161,7 +250,7 @@ class SyncController extends _$SyncController {
           : SyncSummary.fromJson(jsonDecode(report) as Map<String, Object?>),
       failure: state.failure,
     );
-    await syncNow();
+    await _run();
   }
 
   // After a session whose device changed: the phase the current device gives.
@@ -184,6 +273,8 @@ class SyncController extends _$SyncController {
     do {
       _again = false;
       _debounce?.cancel();
+      _backoff?.cancel();
+      _backoff = null;
       await _runOnce();
     } while (_again && ref.mounted);
   }
@@ -251,6 +342,7 @@ class SyncController extends _$SyncController {
         lastSummary: summary,
         failure: null,
       );
+      _failures = 0;
       if (!await _pullPlaid(deviceId)) return;
       state = state.copyWith(phase: SyncPhase.idle, failure: null);
     } on Object catch (e) {
@@ -264,6 +356,7 @@ class SyncController extends _$SyncController {
         phase: SyncPhase.idle,
         failure: classifySyncError(e),
       );
+      _scheduleRetry();
     }
   }
 

@@ -8,16 +8,19 @@
 ///   holds for the app's own traffic.
 /// - **Certificates are never relaxed**: the adapter is Dio's default with no
 ///   `createHttpClient` or `validateCertificate`, so the platform's checks apply in every
-///   flavor. Tests and the demo pass the fake server's adapter instead.
+///   flavor, wrapped by [ResettableHttpClientAdapter] so its connections can be dropped
+///   after a network change. Tests and the demo pass the fake server's adapter instead.
 /// - A build with no server URL (a prod build without `FT_SERVER_URL`) gets a Dio whose
 ///   every request fails with `ServerNotConfiguredException`, which the problem mapper
 ///   reports as a `NetworkError` (`notConfigured`).
-/// - Timeouts: 10 s to connect, 30 s to receive. Every request carries
+/// - Timeouts: 10 s to connect, 30 s to send a body, 30 s to receive. Every request carries
 ///   `User-Agent: finance-tracker/<version> (<flavor>)`.
 /// - In dev only, each answer is logged on the `api` logger: method, path template,
 ///   status, duration and the server's `X-Request-Id`. Never a body, a header value other
 ///   than the request id, a query string or a token.
 library;
+
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:finance_tracker/core/api/problems.dart';
@@ -56,6 +59,7 @@ Dio buildDio(
           ? 'https://unconfigured.invalid/v1'
           : apiBaseUrl(server),
       connectTimeout: const Duration(seconds: 10),
+      sendTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
     ),
   );
@@ -64,6 +68,45 @@ Dio buildDio(
   if (server == null) dio.interceptors.add(const _NotConfiguredInterceptor());
   if (config.flavor == Flavor.dev) dio.interceptors.add(DevLogInterceptor());
   return dio;
+}
+
+/// Connections that can be dropped: [reset] makes the next request open a new one.
+abstract interface class HttpConnections {
+  /// Drops the idle connections; a request in flight finishes on its own.
+  void reset();
+}
+
+/// Dio's default adapter, replaced by a new one on [reset]: the old one is closed without
+/// force, so its idle connections go and a request in flight finishes, and every request
+/// after it opens a new connection. Sync now and a returning network reset it
+/// (`core/sync/sync_controller.dart`), so nothing a network change left behind in the
+/// old connection pool is used again.
+final class ResettableHttpClientAdapter
+    implements HttpClientAdapter, HttpConnections {
+  /// The adapter, starting on [create]'s (Dio's default by default).
+  ResettableHttpClientAdapter([HttpClientAdapter Function()? create])
+    : _create = create ?? HttpClientAdapter.new,
+      _inner = (create ?? HttpClientAdapter.new)();
+
+  final HttpClientAdapter Function() _create;
+  HttpClientAdapter _inner;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) => _inner.fetch(options, requestStream, cancelFuture);
+
+  @override
+  void reset() {
+    final HttpClientAdapter old = _inner;
+    _inner = _create();
+    old.close();
+  }
+
+  @override
+  void close({bool force = false}) => _inner.close(force: force);
 }
 
 /// The API base URL on [server]: its path with `/v1` appended.

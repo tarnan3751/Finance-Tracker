@@ -698,6 +698,63 @@ final class SyncDebounceProvider
 
 String _$syncDebounceHash() => r'c2ba3054ead3d6775d154f2cb91eea025f9e1bc4';
 
+/// How long after the [failures]th failed session in a row the next one runs: 15 s,
+/// doubling, at most five minutes.
+
+@ProviderFor(syncBackoff)
+final syncBackoffProvider = SyncBackoffProvider._();
+
+/// How long after the [failures]th failed session in a row the next one runs: 15 s,
+/// doubling, at most five minutes.
+
+final class SyncBackoffProvider
+    extends
+        $FunctionalProvider<
+          Duration Function(int failures),
+          Duration Function(int failures),
+          Duration Function(int failures)
+        >
+    with $Provider<Duration Function(int failures)> {
+  /// How long after the [failures]th failed session in a row the next one runs: 15 s,
+  /// doubling, at most five minutes.
+  SyncBackoffProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'syncBackoffProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$syncBackoffHash();
+
+  @$internal
+  @override
+  $ProviderElement<Duration Function(int failures)> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  Duration Function(int failures) create(Ref ref) {
+    return syncBackoff(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Duration Function(int failures) value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Duration Function(int failures)>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$syncBackoffHash() => r'b4df0a1c8f61be454feb6f74ad5d9ad354faeceb';
+
 /// The persona the demo flavor shows: [initialDemoPersona] at start, then what Settings →
 /// Demo data selects.
 

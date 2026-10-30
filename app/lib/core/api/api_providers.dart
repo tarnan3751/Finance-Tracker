@@ -56,12 +56,23 @@ FakeServer fakeServer(Ref ref) => throw UnimplementedError(
   'fakeServerProvider is supplied by apiOverridesFor',
 );
 
+/// The network connections the API goes through, which Sync now and a returning network
+/// drop (`ResettableHttpClientAdapter`). Over the fake server nothing reads its adapter,
+/// so a reset there drops nothing.
+@Riverpod(keepAlive: true)
+ResettableHttpClientAdapter httpConnections(Ref ref) {
+  final ResettableHttpClientAdapter adapter = ResettableHttpClientAdapter();
+  ref.onDispose(adapter.close);
+  return adapter;
+}
+
 /// The API, over the network.
 @Riverpod(keepAlive: true)
 FinanceApi financeApi(Ref ref) {
   final HttpFinanceApi api = HttpFinanceApi(
     buildDio(
       ref.watch(appConfigProvider),
+      adapter: ref.watch(httpConnectionsProvider),
       version: () => ref.read(appVersionProvider.future),
     ),
     tokens: ref.watch(tokenStoreProvider),

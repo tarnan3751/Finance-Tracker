@@ -5,18 +5,24 @@
 // offer is pending, running once the offer is answered.
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:drift/native.dart';
+import 'package:finance_tracker/core/api/api_config.dart';
 import 'package:finance_tracker/core/api/api_providers.dart';
+import 'package:finance_tracker/core/api/problems.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/platform/connectivity_provider.dart';
+import 'package:finance_tracker/core/platform/fake_connectivity.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/features/backup/application/backup_providers.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart';
@@ -85,12 +91,20 @@ final NotifierProvider<_Device, String?> _device = NotifierProvider(
   _Device.new,
 );
 
+/// The dev flavor's wiring with the network left to each test's fake.
+List<Override> devWiring() => [
+  for (final Override o in overridesFor(AppConfig.dev()))
+    // ignore: invalid_use_of_visible_for_testing_member
+    if (!identical(o.origin, connectivityProvider)) o,
+];
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late AppDatabase database;
   late ScriptedRelay relay;
   late SteppingClock clock;
+  late FakeConnectivity network;
 
   setUp(() async {
     database = AppDatabase(NativeDatabase.memory());
@@ -100,21 +114,30 @@ void main() {
       [AppMetaKeys.restoreOfferAnswered, '2026-10-24T15:00:00.000Z'],
     );
     clock = SteppingClock();
+    network = FakeConnectivity();
     relay = ScriptedRelay(
       InMemorySyncRelay(
         nowWallMillis: () => clock.nowUtc().millisecondsSinceEpoch,
       ),
     );
   });
-  tearDown(() => database.close());
+  tearDown(() async {
+    await database.close();
+    await network.close();
+  });
 
-  ProviderContainer device({String? deviceId = 'dev-a'}) {
+  ProviderContainer device({
+    String? deviceId = 'dev-a',
+    List<Override> extra = const [],
+  }) {
     final ProviderContainer container = ProviderContainer.test(
       overrides: [
-        ...overridesFor(AppConfig.dev()),
+        ...extra,
+        ...devWiring(),
         ...fakeApiOverrides(signedIn: true),
         databaseProvider.overrideWithValue(database),
         clockProvider.overrideWithValue(clock),
+        connectivityProvider.overrideWithValue(network),
         syncDeviceIdProvider.overrideWithValue(deviceId),
         syncRelayProvider.overrideWithValue(deviceId == null ? null : relay),
         syncDebounceProvider.overrideWithValue(
@@ -233,7 +256,7 @@ void main() {
       ];
       final ProviderContainer c = ProviderContainer.test(
         overrides: [
-          ...overridesFor(AppConfig.dev()),
+          ...devWiring(),
           ...fakeApiOverrides(signedIn: true),
           databaseProvider.overrideWithValue(database),
           clockProvider.overrideWithValue(clock),
@@ -416,9 +439,10 @@ void main() {
       'on the relay once', () async {
     final ProviderContainer c = ProviderContainer.test(
       overrides: [
-        ...overridesFor(AppConfig.dev()),
+        ...devWiring(),
         databaseProvider.overrideWithValue(database),
         clockProvider.overrideWithValue(clock),
+        connectivityProvider.overrideWithValue(network),
         syncDeviceIdProvider.overrideWith((ref) => ref.watch(_device)),
         syncRelayProvider.overrideWith(
           (ref) => ref.watch(_device) == null ? null : relay,
@@ -472,10 +496,11 @@ void main() {
   test('a sign-out during the Plaid pull leaves the status signed out', () async {
     final ProviderContainer c = ProviderContainer.test(
       overrides: [
-        ...overridesFor(AppConfig.dev()),
+        ...devWiring(),
         ...fakeApiOverrides(signedIn: true),
         databaseProvider.overrideWithValue(database),
         clockProvider.overrideWithValue(clock),
+        connectivityProvider.overrideWithValue(network),
         syncDeviceIdProvider.overrideWith((ref) => ref.watch(_device)),
         syncRelayProvider.overrideWith(
           (ref) => ref.watch(_device) == null ? null : relay,
@@ -505,10 +530,11 @@ void main() {
       'build', (tester) async {
     final ProviderContainer c = ProviderContainer(
       overrides: [
-        ...overridesFor(AppConfig.dev()),
+        ...devWiring(),
         ...fakeApiOverrides(signedIn: true),
         databaseProvider.overrideWithValue(database),
         clockProvider.overrideWithValue(clock),
+        connectivityProvider.overrideWithValue(network),
         syncDeviceIdProvider.overrideWith((ref) => ref.watch(_device)),
         syncRelayProvider.overrideWith(
           (ref) => ref.watch(_device) == null ? null : relay,
@@ -545,5 +571,140 @@ void main() {
     await tester.pump();
     expect(c.read(syncControllerProvider).phase, SyncPhase.signedOut);
     expect(find.text('signedOut'), findsOneWidget);
+  });
+
+  group('after a failure', () {
+    const NetworkError offline = NetworkError(NetworkErrorKind.connection);
+
+    // A session that fails offline after the start's.
+    Future<ProviderContainer> failed({
+      Duration backoff = const Duration(hours: 1),
+      List<Override> extra = const [],
+    }) async {
+      final ProviderContainer c = device(
+        extra: [
+          syncBackoffProvider.overrideWithValue((_) => backoff),
+          ...extra,
+        ],
+      );
+      c.read(syncControllerProvider);
+      await settled(c);
+      relay.failNextPull = offline;
+      await c.read(syncControllerProvider.notifier).syncNow();
+      expect(c.read(syncControllerProvider).failure, SyncFailure.offline);
+      return c;
+    }
+
+    test(
+      'the backoff runs the next session, and the debounce waits for it',
+      () async {
+        final ProviderContainer c = await failed(
+          backoff: const Duration(milliseconds: 400),
+        );
+        await c.read(accountRepositoryProvider).upsert(testAccount('a1'));
+        await Future<void>.delayed(const Duration(milliseconds: 250));
+        expect(relay.pulls, 2, reason: 'the debounce waits for the backoff');
+        await settled(c, pulls: 3);
+        expect(c.read(syncControllerProvider).failure, isNull);
+        expect(relay.inner.entries, hasLength(1));
+      },
+    );
+
+    test('a paused app arms no retry; resume runs the session', () async {
+      final TestWidgetsFlutterBinding binding =
+          TestWidgetsFlutterBinding.instance;
+      final ProviderContainer c = await failed(
+        backoff: const Duration(milliseconds: 100),
+      );
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      addTearDown(
+        () => binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed),
+      );
+      relay.failNextPull = offline;
+      await c.read(syncControllerProvider.notifier).syncNow();
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      expect(relay.pulls, 3, reason: 'no retry while paused');
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await settled(c, pulls: 4);
+    });
+
+    test(
+      'offline, no retry is armed; the network back runs the session',
+      () async {
+        final ProviderContainer c = await failed(
+          backoff: const Duration(milliseconds: 100),
+        );
+        network.set(false);
+        relay.failNextPull = offline;
+        await c.read(syncControllerProvider.notifier).syncNow();
+        await Future<void>.delayed(const Duration(milliseconds: 400));
+        expect(relay.pulls, 3, reason: 'no retry while offline');
+        network.set(true);
+        await settled(c, pulls: 4);
+      },
+    );
+
+    test(
+      'a network that returns runs a session at once, with no tap',
+      () async {
+        final ProviderContainer c = await failed();
+        network.set(false);
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        expect(relay.pulls, 2, reason: 'nothing runs while offline');
+        network.set(true);
+        await settled(c, pulls: 3);
+        expect(c.read(syncControllerProvider).failure, isNull);
+      },
+    );
+
+    test('a network change after a success runs nothing', () async {
+      final ProviderContainer c = device();
+      c.read(syncControllerProvider);
+      await settled(c);
+      network.set(true);
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(relay.pulls, 1);
+    });
+
+    test('resume runs at once during the backoff', () async {
+      final ProviderContainer c = await failed();
+      final TestWidgetsFlutterBinding binding =
+          TestWidgetsFlutterBinding.instance;
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await settled(c, pulls: 3);
+    });
+
+    test(
+      'Sync now and a returning network drop the idle connections first',
+      () async {
+        int pools = 0;
+        final ResettableHttpClientAdapter connections =
+            ResettableHttpClientAdapter(() {
+              pools++;
+              return HttpClientAdapter();
+            });
+        addTearDown(connections.close);
+        final ProviderContainer c = await failed(
+          extra: [httpConnectionsProvider.overrideWithValue(connections)],
+        );
+        // The start's pool, then the failed Sync now's.
+        expect(pools, 2);
+        network.set(true);
+        await settled(c, pulls: 3);
+        expect(pools, 3);
+      },
+    );
+  });
+
+  test('the backoff doubles from 15 s to at most five minutes', () {
+    expect(
+      [for (int n = 1; n <= 8; n++) syncBackoffAfter(n).inSeconds],
+      [15, 30, 60, 120, 240, 300, 300, 300],
+    );
   });
 }
