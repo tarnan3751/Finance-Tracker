@@ -7,10 +7,19 @@
 /// foldable unfolded, a tablet turned). Screen readers go through the screen before the
 /// rail, as they do before the bar, though the rail comes first on the screen.
 ///
+/// On an expanded window the Accounts, Transactions and Settings tabs, and the Plan tab
+/// on its Bills segment, show their list beside the tab's navigator (`TwoPane`,
+/// `core/layout/two_pane.dart`), chosen by the first location of the tab's stack.
+///
 /// Each branch has its own `ScaffoldMessenger`, so a snack bar shown from a tab (Undo
 /// after a delete, a save error) appears in that tab's screen `Scaffold`: above the
 /// navigation bar, lifting the screen's floating button instead of covering it, and
-/// carried over to the screen below when the one that showed it is popped.
+/// carried over to the screen below when the one that showed it is popped. Beside a
+/// detail, the list has a messenger of its own (`TwoPane`), so a snack bar shows once,
+/// in the pane whose screen showed it.
+///
+/// The list beside a detail and the list as the navigator's first page are one element
+/// under one key (`ListKeys`), so it keeps its state when the window changes class.
 ///
 /// The Plan tab's icon carries a badge with the number of active bills whose last
 /// occurrence was missed (`billStatusesProvider`), read by screen readers in words.
@@ -21,9 +30,15 @@ library;
 
 import 'package:finance_tracker/core/db/legacy_import/import_summary.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/layout/window_size_class.dart';
+import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/features/accounts/presentation/accounts_screen.dart';
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
 import 'package:finance_tracker/features/bills/domain/bill_status.dart';
+import 'package:finance_tracker/features/bills/presentation/bills_screen.dart';
+import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
+import 'package:finance_tracker/features/transactions/presentation/transactions_screen.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
@@ -55,6 +70,18 @@ class _AppShellState extends ConsumerState<AppShell> {
     for (int i = 0; i < widget.children.length; i++)
       GlobalKey<ScaffoldMessengerState>(),
   ];
+
+  // One key per branch navigator, so a navigator keeps its state when the window
+  // changes class and it moves into or out of a two-pane layout.
+  late final List<GlobalKey> _navigators = [
+    for (int i = 0; i < widget.children.length; i++) GlobalKey(),
+  ];
+
+  // The first location of each branch's stack, as of the last time it was shown.
+  final Map<int, String> _roots = {};
+
+  // The key of each list shown beside its detail (`ListKeys`).
+  final Map<Type, GlobalKey> _lists = {};
 
   @override
   void initState() {
@@ -91,6 +118,8 @@ class _AppShellState extends ConsumerState<AppShell> {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final StatefulNavigationShell navigationShell = widget.navigationShell;
     final int current = navigationShell.currentIndex;
+    _roots[current] =
+        navigationShell.shellRouteContext.match.matches.first.matchedLocation;
     final int missed = [
       for (final BillStatus s in ref.watch(billStatusesProvider).value ?? [])
         if (s.bill.active && s.state == BillState.missed) s,
@@ -152,7 +181,7 @@ class _AppShellState extends ConsumerState<AppShell> {
             enabled: i == current,
             child: ScaffoldMessenger(
               key: _messengers[i],
-              child: widget.children[i],
+              child: ListKeys(keys: _lists, child: _branch(i, size)),
             ),
           ),
       ],
@@ -212,6 +241,31 @@ class _AppShellState extends ConsumerState<AppShell> {
       ),
     );
   }
+
+  /// Branch [i]'s navigator, beside the branch's list when [size] is expanded and the
+  /// branch's stack starts at a list that has a detail.
+  Widget _branch(int i, WindowSizeClass size) {
+    final Widget navigator = KeyedSubtree(
+      key: _navigators[i],
+      child: widget.children[i],
+    );
+    final Widget? list = size == WindowSizeClass.expanded
+        ? _listBesideDetail(_roots[i])
+        : null;
+    if (list == null) return navigator;
+    return TwoPane(start: ListKeys.wrapIn(_lists, list), end: navigator);
+  }
+}
+
+/// The list shown beside the pages of a stack that starts at [root], or null.
+Widget? _listBesideDetail(String? root) {
+  if (root == const AccountsRoute().location) return const AccountsScreen();
+  if (root == const TransactionsRoute().location) {
+    return const TransactionsScreen();
+  }
+  if (root == const BillsRoute().location) return const BillsScreen();
+  if (root == const SettingsRoute().location) return const SettingsScreen();
+  return null;
 }
 
 /// A navigation destination, drawn by the bar or the rail.

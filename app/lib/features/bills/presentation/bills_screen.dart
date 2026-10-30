@@ -14,6 +14,7 @@ library;
 
 import 'dart:async';
 
+import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/plan_scaffold.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
@@ -114,12 +115,13 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
         IconButton(
           tooltip: l10n.subscriptionsTitle,
           icon: const Icon(Icons.subscriptions_outlined),
-          onPressed: () => const SubscriptionsRoute().push<void>(context),
+          onPressed: () =>
+              openDetail(context, const SubscriptionsRoute().location),
         ),
         IconButton(
           tooltip: l10n.billNew,
           icon: const Icon(Icons.add),
-          onPressed: () => const NewBillRoute().push<void>(context),
+          onPressed: () => openDetail(context, const NewBillRoute().location),
         ),
       ],
       body: switch (list) {
@@ -130,7 +132,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
           headline: l10n.billsEmptyHeadline,
           body: l10n.billsEmptyBody,
           action: FilledButton.icon(
-            onPressed: () => const NewBillRoute().push<void>(context),
+            onPressed: () => openDetail(context, const NewBillRoute().location),
             icon: const Icon(Icons.add),
             label: Text(l10n.billNew),
           ),
@@ -358,7 +360,7 @@ class _BillTile extends ConsumerWidget {
             ),
         ],
       ),
-      onTap: () => EditBillRoute(bill.id).push<void>(context),
+      onTap: () => openDetail(context, EditBillRoute(bill.id).location),
     );
   }
 
@@ -512,12 +514,15 @@ class _SuggestionTile extends ConsumerWidget {
               ),
               FilledButton.tonal(
                 onPressed: () => switch (suggestion) {
-                  StreamBillSuggestion(:final stream) => NewBillRoute(
-                    streamId: stream.id,
-                  ).push<void>(context),
-                  LiabilityBillSuggestion(:final liability) => NewBillRoute(
-                    liabilityAccountId: liability.accountId,
-                  ).push<void>(context),
+                  StreamBillSuggestion(:final stream) => openDetail(
+                    context,
+                    NewBillRoute(streamId: stream.id).location,
+                  ),
+                  LiabilityBillSuggestion(:final liability) => openDetail(
+                    context,
+                    NewBillRoute(liabilityAccountId: liability.accountId)
+                        .location,
+                  ),
                 },
                 child: Text(
                   l10n.billSuggestionAdd,

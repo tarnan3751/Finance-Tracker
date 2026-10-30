@@ -25,6 +25,7 @@
 /// (`insights_scaffold.dart`), and `/insights` first.
 library;
 
+import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/app_shell.dart';
 import 'package:finance_tracker/core/router/insights_scaffold.dart';
 import 'package:finance_tracker/core/router/plan_scaffold.dart';
@@ -65,6 +66,7 @@ import 'package:finance_tracker/features/rules/presentation/rules_screen.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_editor_screen.dart';
 import 'package:finance_tracker/features/transactions/presentation/transactions_screen.dart';
+import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -234,13 +236,19 @@ class SettingsBranch extends StatefulShellBranchData {
   const SettingsBranch();
 }
 
-/// `/accounts`: the account list.
+/// `/accounts`: the account list, or beside it on an expanded window (`TwoPane`) what
+/// to choose there.
 class AccountsRoute extends GoRouteData with $AccountsRoute {
   const AccountsRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const AccountsScreen();
+  Widget build(BuildContext context, GoRouterState state) => ListPane(
+    list: const AccountsScreen(),
+    placeholder: DetailPlaceholder(
+      icon: Icons.account_balance_outlined,
+      text: AppLocalizations.of(context).paneAccountsEmpty,
+    ),
+  );
 }
 
 /// `/accounts/new`: the editor of a new account.
@@ -284,13 +292,19 @@ class EditAccountRoute extends GoRouteData with $EditAccountRoute {
       AccountEditorScreen(accountId: id);
 }
 
-/// `/transactions`: the transaction list.
+/// `/transactions`: the transaction list, or beside it on an expanded window
+/// (`TwoPane`) what to choose there.
 class TransactionsRoute extends GoRouteData with $TransactionsRoute {
   const TransactionsRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const TransactionsScreen();
+  Widget build(BuildContext context, GoRouterState state) => ListPane(
+    list: const TransactionsScreen(),
+    placeholder: DetailPlaceholder(
+      icon: Icons.receipt_long_outlined,
+      text: AppLocalizations.of(context).paneTransactionsEmpty,
+    ),
+  );
 }
 
 /// `/transactions/new`: the editor of a new transaction, on [account] when given.
@@ -375,13 +389,22 @@ class BudgetTransactionsRoute extends GoRouteData
       BudgetDetailScreen(budgetId: id);
 }
 
-/// `/bills`: the Plan tab's Bills segment, the bills with their status.
+/// `/bills`: the Plan tab's Bills segment, the bills with their status, or beside them
+/// on an expanded window (`TwoPane`) what to choose there.
 class BillsRoute extends GoRouteData with $BillsRoute {
   const BillsRoute();
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      const NoTransitionPage(child: BillsScreen());
+      NoTransitionPage(
+        child: ListPane(
+          list: const BillsScreen(),
+          placeholder: DetailPlaceholder(
+            icon: Icons.event_note_outlined,
+            text: AppLocalizations.of(context).paneBillsEmpty,
+          ),
+        ),
+      );
 }
 
 /// `/bills/new`: the editor of a new bill, prefilled from the suggestion of recurring
@@ -506,13 +529,19 @@ class InvestmentsRoute extends GoRouteData with $InvestmentsRoute {
       );
 }
 
-/// `/settings`: the settings screen.
+/// `/settings`: the settings screen, or beside it on an expanded window (`TwoPane`)
+/// what to choose there.
 class SettingsRoute extends GoRouteData with $SettingsRoute {
   const SettingsRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const SettingsScreen();
+  Widget build(BuildContext context, GoRouterState state) => ListPane(
+    list: const SettingsScreen(),
+    placeholder: DetailPlaceholder(
+      icon: Icons.settings_outlined,
+      text: AppLocalizations.of(context).paneSettingsEmpty,
+    ),
+  );
 }
 
 /// `/settings/categories`: the category hierarchy.

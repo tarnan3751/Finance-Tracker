@@ -548,6 +548,30 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get navSettings;
 
+  /// On a large screen, the pane beside the account list while no account is open.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an account to see it here'**
+  String get paneAccountsEmpty;
+
+  /// On a large screen, the pane beside the transaction list while no transaction is open.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a transaction to see it here'**
+  String get paneTransactionsEmpty;
+
+  /// On a large screen, the pane beside the bill list while no bill is open.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a bill to edit it here'**
+  String get paneBillsEmpty;
+
+  /// On a large screen, the pane beside the settings while none of their screens is open.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a setting to open it here'**
+  String get paneSettingsEmpty;
+
   /// Headline of the Accounts screen when the user has no accounts.
   ///
   /// In en, this message translates to:

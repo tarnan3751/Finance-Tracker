@@ -14,6 +14,7 @@ library;
 import 'dart:async';
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
+import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
@@ -341,8 +342,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                     ),
                     itemBuilder: (_) => [
                       PopupMenuItem<void>(
-                        onTap: () =>
-                            const DuplicatesRoute().push<void>(context),
+                        onTap: () => openDetail(
+                          context,
+                          const DuplicatesRoute().location,
+                        ),
                         child: Text(l10n.duplicatesMenuItem(duplicates)),
                       ),
                     ],
@@ -356,7 +359,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             ? null
             : FloatingActionButton.extended(
                 onPressed: () =>
-                    const NewTransactionRoute().push<void>(context),
+                    openDetail(context, const NewTransactionRoute().location),
                 icon: const Icon(Icons.add),
                 label: Text(l10n.transactionAdd),
               ),
@@ -380,8 +383,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                   headline: l10n.transactionsEmptyHeadline,
                   body: l10n.transactionsEmptyBody,
                   action: FilledButton.icon(
-                    onPressed: () =>
-                        const NewTransactionRoute().push<void>(context),
+                    onPressed: () => openDetail(
+                      context,
+                      const NewTransactionRoute().location,
+                    ),
                     icon: const Icon(Icons.add),
                     label: Text(l10n.transactionAdd),
                   ),
@@ -520,7 +525,10 @@ class _TransactionList extends ConsumerWidget {
               hidden: transaction.hidden,
               selected: selection?.contains(transaction.id),
               onTap: selection == null
-                  ? () => TransactionRoute(transaction.id).push<void>(context)
+                  ? () => openDetail(
+                      context,
+                      TransactionRoute(transaction.id).location,
+                    )
                   : () => onToggle(transaction.id),
               onLongPress: selection == null
                   ? () => onSelect(transaction.id)

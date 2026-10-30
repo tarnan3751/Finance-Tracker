@@ -7,6 +7,7 @@
 /// the app bar.
 library;
 
+import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/widgets/amount_text.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
@@ -41,13 +42,14 @@ class AccountsScreen extends ConsumerWidget {
           IconButton(
             tooltip: l10n.itemsTitle,
             icon: const Icon(Icons.account_balance_outlined),
-            onPressed: () => const ItemsRoute().push<void>(context),
+            onPressed: () => openDetail(context, const ItemsRoute().location),
           ),
         ],
       ),
       floatingActionButton: hasAccounts
           ? FloatingActionButton.extended(
-              onPressed: () => const NewAccountRoute().push<void>(context),
+              onPressed: () =>
+                  openDetail(context, const NewAccountRoute().location),
               icon: const Icon(Icons.add),
               label: Text(l10n.accountAdd),
             )
@@ -59,7 +61,8 @@ class AccountsScreen extends ConsumerWidget {
             headline: l10n.accountsEmptyHeadline,
             body: l10n.accountsEmptyBody,
             action: FilledButton.icon(
-              onPressed: () => const NewAccountRoute().push<void>(context),
+              onPressed: () =>
+                  openDetail(context, const NewAccountRoute().location),
               icon: const Icon(Icons.add),
               label: Text(l10n.accountAdd),
             ),
@@ -262,7 +265,8 @@ class _AccountCard extends StatelessWidget {
       child: MergeSemantics(
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () => AccountDetailRoute(account.id).push<void>(context),
+          onTap: () =>
+              openDetail(context, AccountDetailRoute(account.id).location),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(

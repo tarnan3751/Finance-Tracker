@@ -3,7 +3,8 @@
 // screen at tablet size (1024 × 768, expanded), and the Accounts tab in each window size
 // class: compact at phone size (412 × 915, a Pixel 6), medium at 701 × 841 (a Pixel
 // Fold's inner display upright) and expanded at 1280 × 800 (a Pixel Tablet on its
-// side), on the seed. Tagged
+// side), on the seed, and a transaction beside the transactions on an expanded
+// window. Tagged
 // `golden`; see test/flutter_test_config.dart for where the files go and how to update
 // them.
 import 'package:alchemist/alchemist.dart';
@@ -88,6 +89,19 @@ void main() {
       ),
     );
   }
+
+  goldenTest(
+    'a transaction beside the transactions, light, expanded',
+    fileName: 'shell_transactions_two_pane_expanded_light',
+    constraints: BoxConstraints.tight(expandedSize),
+    builder: () => _device(
+      expandedSize,
+      buildTestApp(
+        initialLocation: '/transactions/demo-txn-04',
+        overrides: [storeOverride(seededStore())],
+      ),
+    ),
+  );
 
   goldenTest(
     'the settings screen, light, tablet',

@@ -506,6 +506,22 @@
   "@navSettings": {
     "description": "Label of the Settings tab in the bottom navigation bar, and the title of the Settings screen."
   },
+  "paneAccountsEmpty": "Choose an account to see it here",
+  "@paneAccountsEmpty": {
+    "description": "On a large screen, the pane beside the account list while no account is open."
+  },
+  "paneTransactionsEmpty": "Choose a transaction to see it here",
+  "@paneTransactionsEmpty": {
+    "description": "On a large screen, the pane beside the transaction list while no transaction is open."
+  },
+  "paneBillsEmpty": "Choose a bill to edit it here",
+  "@paneBillsEmpty": {
+    "description": "On a large screen, the pane beside the bill list while no bill is open."
+  },
+  "paneSettingsEmpty": "Choose a setting to open it here",
+  "@paneSettingsEmpty": {
+    "description": "On a large screen, the pane beside the settings while none of their screens is open."
+  },
   "accountsEmptyHeadline": "No accounts yet",
   "@accountsEmptyHeadline": {
     "description": "Headline of the Accounts screen when the user has no accounts."

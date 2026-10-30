@@ -7,6 +7,7 @@
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
@@ -103,7 +104,7 @@ class SyncSection extends ConsumerWidget {
             title: Text(l10n.syncConflicts(conflicts)),
             subtitle: Text(l10n.syncConflictsHint),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => const ConflictsRoute().push<void>(context),
+            onTap: () => openDetail(context, const ConflictsRoute().location),
           ),
         if (signedIn)
           Padding(

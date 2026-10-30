@@ -9,6 +9,7 @@ import 'package:finance_tracker/core/api/api_config.dart';
 import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
 import 'package:finance_tracker/features/auth/domain/session_state.dart';
@@ -42,14 +43,14 @@ class AccountSection extends ConsumerWidget {
           leading: const Icon(Icons.account_balance_outlined),
           title: Text(l10n.itemsTitle),
           trailing: const Icon(Icons.chevron_right),
-          onTap: () => const ItemsRoute().push<void>(context),
+          onTap: () => openDetail(context, const ItemsRoute().location),
         ),
         if (config.flavor != Flavor.demo)
           ListTile(
             leading: const Icon(Icons.devices),
             title: Text(l10n.settingsDevices),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => const DevicesRoute().push<void>(context),
+            onTap: () => openDetail(context, const DevicesRoute().location),
           ),
         if (config.flavor != Flavor.demo)
           ListTile(
@@ -70,7 +71,8 @@ class AccountSection extends ConsumerWidget {
             ),
             title: Text(l10n.settingsDeleteAccount),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => const DeleteAccountRoute().push<void>(context),
+            onTap: () =>
+                openDetail(context, const DeleteAccountRoute().location),
           ),
         ],
         if (config.flavor == Flavor.dev)

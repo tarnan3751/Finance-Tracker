@@ -316,6 +316,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navSettings => 'Settings';
 
   @override
+  String get paneAccountsEmpty => 'Choose an account to see it here';
+
+  @override
+  String get paneTransactionsEmpty => 'Choose a transaction to see it here';
+
+  @override
+  String get paneBillsEmpty => 'Choose a bill to edit it here';
+
+  @override
+  String get paneSettingsEmpty => 'Choose a setting to open it here';
+
+  @override
   String get accountsEmptyHeadline => 'No accounts yet';
 
   @override

@@ -10,6 +10,7 @@ library;
 
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
@@ -93,20 +94,20 @@ class SettingsScreen extends ConsumerWidget {
             leading: const Icon(Icons.category_outlined),
             title: Text(l10n.categoriesTitle),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => const CategoriesRoute().push<void>(context),
+            onTap: () => openDetail(context, const CategoriesRoute().location),
           ),
           ListTile(
             leading: const Icon(Icons.rule),
             title: Text(l10n.rulesTitle),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => const RulesRoute().push<void>(context),
+            onTap: () => openDetail(context, const RulesRoute().location),
           ),
           ListTile(
             leading: const Icon(Icons.ios_share),
             title: Text(l10n.exportTitle),
             subtitle: Text(l10n.exportSettingsSubtitle),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => const ExportRoute().push<void>(context),
+            onTap: () => openDetail(context, const ExportRoute().location),
           ),
           if (ref.watch(appConfigProvider).flavor == Flavor.demo)
             ListTile(
@@ -120,7 +121,7 @@ class SettingsScreen extends ConsumerWidget {
               title: Text(l10n.backupTitle),
               subtitle: Text(l10n.backupSettingsSubtitle),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => const BackupRoute().push<void>(context),
+              onTap: () => openDetail(context, const BackupRoute().location),
             ),
           SettingsSectionHeader(l10n.settingsAbout),
           ListTile(title: Text(l10n.aboutAppName), subtitle: Text(appName)),
