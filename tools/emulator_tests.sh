@@ -25,6 +25,13 @@
 # Their long steps (flutter, sdkmanager, the run command) run as a background child that the
 # script waits on, so SIGTERM or SIGINT takes effect at once: the trap stops the child and its
 # descendants, then releases the lock, and exits 143 or 130.
+# Each such child has a ceiling of FT_EMULATOR_RUN_TIMEOUT seconds (default 1800). When it
+# passes, the run prints the texts on the emulator's screen (a uiautomator dump, a password
+# field's text and any text with an `@` printed as [redacted]) and the last 40 lines of the
+# demo app's log (of the whole emulator's when the app is not running), stops the child
+# and its descendants (TERM, then KILL after 10 s), releases the lock and exits 124.
+# FT_EMULATOR_LOCK_TIMEOUT (below) bounds the wait for the lock, not the run. Both must be
+# whole numbers of seconds; the script refuses anything else before it starts.
 # The lock is the directory ${TMPDIR:-/tmp}/finance-tracker-emulator.lock holding `pid`,
 # `started` and `command`. It is built in a private directory beside it and taken with one
 # rename, so it is never seen half-written (macOS has no flock). A waiter polls every 5 s for
@@ -48,6 +55,7 @@ AVD_IMAGE="${FT_AVD_IMAGE:-system-images;android-36;google_apis;arm64-v8a}"
 LOCK_DIR="${TMPDIR:-/tmp}"
 LOCK_DIR="${LOCK_DIR%/}/finance-tracker-emulator.lock"
 LOCK_TIMEOUT="${FT_EMULATOR_LOCK_TIMEOUT:-1800}"
+RUN_TIMEOUT="${FT_EMULATOR_RUN_TIMEOUT:-1800}"
 BOOT_TIMEOUT=240
 HEALTH_TIMEOUT=30
 MAX_UPTIME="${FT_EMULATOR_MAX_UPTIME:-14400}"
@@ -56,6 +64,9 @@ OUT_DIR="$root/app/build/emulator"
 
 die() { echo "emulator_tests: $*" >&2; exit 1; }
 say() { echo "emulator_tests: $*"; }
+
+[[ "$LOCK_TIMEOUT" =~ ^[0-9]+$ ]] || die "FT_EMULATOR_LOCK_TIMEOUT must be a whole number of seconds, not '$LOCK_TIMEOUT'"
+[[ "$RUN_TIMEOUT" =~ ^[0-9]+$ ]] || die "FT_EMULATOR_RUN_TIMEOUT must be a whole number of seconds, not '$RUN_TIMEOUT'"
 
 if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then
   FLUTTER="fvm flutter"
@@ -189,12 +200,71 @@ on_signal() {
   exit "$1"
 }
 
-# Runs a command (or a function) as a background child and waits for it. bash runs a trap only
-# after its foreground command ends; a signal interrupts `wait` at once, so the trap can stop
-# the child before the lock is released. Standard input is passed through.
+# Prints the texts on the emulator's screen, one per line: each node's text, else its
+# content-desc, from a uiautomator dump (the acceptance scripts' `ui.sh dump`, without the
+# coordinates). A password field's text and any text holding an `@` (a typed email) print as
+# [redacted], so a lane's log never holds them.
+screen_texts() {
+  if ! adb_within 30 "$SERIAL" shell uiautomator dump /sdcard/ft-harness-ui.xml >/dev/null; then
+    say "uiautomator dump did not answer within 30s: no screen texts"
+    return 0
+  fi
+  say "the texts on the screen of $SERIAL:"
+  adb_within 30 "$SERIAL" shell cat /sdcard/ft-harness-ui.xml | perl -0777 -ne '
+    while (/<node ([^>]*)>/g) {
+      my $node = $1;
+      my ($text) = $node =~ /\btext="([^"]*)"/;
+      my ($desc) = $node =~ /\bcontent-desc="([^"]*)"/;
+      my $label = defined $text && length $text ? $text : ($desc // "");
+      next unless $label =~ /\S/;
+      for ($label) {
+        s/&#10;|\n/ \/ /g; s/&lt;/</g; s/&gt;/>/g; s/&quot;/"/g; s/&apos;/\x27/g; s/&amp;/&/g;
+      }
+      $label = "[redacted]" if $node =~ /\bpassword="true"/ || $label =~ /@/;
+      print "    $label\n";
+    }'
+}
+
+# Prints the last 40 lines of the demo app's log, or of the whole emulator's when the app is
+# not running.
+app_log_tail() {
+  local pid
+  pid="$(adb_within 10 "$SERIAL" shell pidof "$DEMO_PACKAGE" | awk '{ print $1 }')"
+  if [ -n "$pid" ]; then
+    say "the last 40 lines of the log of $DEMO_PACKAGE (pid $pid):"
+    adb_within 30 "$SERIAL" logcat -d -t 40 --pid="$pid" | sed 's/^/    /'
+  else
+    say "$DEMO_PACKAGE is not running; the last 40 lines of the log of $SERIAL:"
+    adb_within 30 "$SERIAL" logcat -d -t 40 | sed 's/^/    /'
+  fi
+}
+
+# The child passed RUN_TIMEOUT: shows what the emulator was doing, stops the child and exits
+# 124; the EXIT trap releases the lock.
+on_timeout() {
+  say "the run passed its ceiling of ${RUN_TIMEOUT}s (FT_EMULATOR_RUN_TIMEOUT): stopping it"
+  if [ -n "${SERIAL:-}" ]; then
+    screen_texts
+    app_log_tail
+  fi
+  stop_child
+  exit 124
+}
+
+# Runs a command (or a function) as a background child and waits for it, at most RUN_TIMEOUT
+# seconds. bash runs a trap only after its foreground command ends; a signal interrupts `wait`
+# at once, so the trap can stop the child before the lock is released. The wait is in steps
+# of one second, each a `wait` on a one-second `sleep`, so no sleeping process outlives the
+# run by more than a second. Standard input is passed through.
 run_child() {
   "$@" <&0 &
   CHILD=$!
+  local started=$SECONDS
+  while alive "$CHILD"; do
+    [ $((SECONDS - started)) -ge "$RUN_TIMEOUT" ] && on_timeout
+    sleep 1 &
+    wait $!
+  done
   wait "$CHILD"
   local status=$?
   CHILD=""

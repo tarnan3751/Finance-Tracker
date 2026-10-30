@@ -296,6 +296,19 @@ releases the lock and exits 143 or 130, and no orphan is left driving the emulat
 killed with `SIGKILL` leaves its lock and its child behind, and the next run reclaims the
 lock.
 
+**The run ceiling.** Each of those children has a ceiling of `FT_EMULATOR_RUN_TIMEOUT`
+seconds (default 1800), counted from its start, so a hung run cannot hold the lock for
+hours (a Phase 7 integration run sat idle for 2 h 35 min). When it passes, the harness
+prints the texts on the emulator's screen (a `uiautomator dump`: each node's text, else its
+content description; a password field's text and any text holding an `@`, such as a typed
+email, print as `[redacted]`) and the last 40 lines of the demo app's log (of the whole
+emulator's when the app is not running), stops the child and its descendants (TERM, then
+KILL after 10 s), releases the lock and exits 124. The ceiling bounds the run;
+`FT_EMULATOR_LOCK_TIMEOUT` still bounds only the wait for the lock. Both are whole numbers of
+seconds, and the harness refuses any other value before it starts rather than run without a
+ceiling. `FT_EMULATOR_RUN_TIMEOUT=20 tools/emulator_tests.sh
+run sleep 200` exercises it.
+
 **The AVD.** Created on first use with `avdmanager create avd -n ft-lane -k <image> -d
 pixel_6`, from `FT_AVD_IMAGE` (default `system-images;android-36;google_apis;arm64-v8a`,
 installed with `sdkmanager --install`, licences accepted, when missing), then given
