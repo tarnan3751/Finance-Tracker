@@ -9,7 +9,14 @@
 ///    runs on plain SQLite in dev or prod;
 /// 2. `PRAGMA key = "x'<64 hex>'"`, a raw key with no key derivation;
 /// 3. `SELECT count(*) FROM sqlite_master`, where "file is not a database" means the key
-///    is wrong: [DatabaseKeyMismatchException].
+///    is wrong: [DatabaseKeyMismatchException];
+/// 4. `PRAGMA busy_timeout = 5000` (set right after the key, so the check above waits
+///    too) and `PRAGMA journal_mode = WAL`, on every connection (both idempotent): the
+///    background sync's own connection
+///    (`docs/reference/background.md`) shares the file with the app's, so a write that
+///    meets the other's write waits up to five seconds instead of failing with
+///    `SQLITE_BUSY` at once, and readers never block the writer. The local wipe and the
+///    restore already delete the `-wal` and `-shm` files with the database.
 ///
 /// The sequence also runs once on the calling isolate, on a short-lived connection, before
 /// the background one opens, so the caller gets these exceptions as themselves rather than
@@ -47,6 +54,9 @@ const bool _plainDatabaseRequested = bool.fromEnvironment('FT_PLAIN_DB');
 
 /// SQLite's result code for "file is not a database".
 const int _sqliteNotADatabase = 26;
+
+/// How long a connection waits for another's lock before failing.
+const int busyTimeoutMillis = 5000;
 
 final RegExp _hexKey = RegExp(r'^[0-9a-f]{64}$');
 
@@ -130,6 +140,7 @@ DatabaseSetup databaseSetup({
     if (hexKey != null) {
       database.execute('PRAGMA key = "x\'$hexKey\'";');
     }
+    database.execute('PRAGMA busy_timeout = $busyTimeoutMillis;');
     try {
       database.select('SELECT count(*) FROM sqlite_master;');
     } on SqliteException catch (e) {
@@ -138,5 +149,6 @@ DatabaseSetup databaseSetup({
       }
       rethrow;
     }
+    database.select('PRAGMA journal_mode = WAL;');
   };
 }
