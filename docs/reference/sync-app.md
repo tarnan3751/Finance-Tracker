@@ -169,6 +169,21 @@ node with the same wall and counter: the relay stores both, and merge converges 
 one with the greater node, whose payload is the same. A device identity stable across
 logins is Phase 7 scope.
 
+**The device's clock and the bound.** The clock is the engine's `HlcClock` with its
+default bound, `Hlc.maxDrift` (one hour), the bound the dev server's relay and the in-app
+fake's relay refuse pushes by (`sync.md`, **The clock bound**). `DeviceClock` adds no rule
+of its own. A pulled change more than an hour ahead of the device's clock is applied, and
+the clock stays at the device's own time; only a device whose clock is behind the
+server's meets one. An edit made after such a change is stamped past it, because the
+recorder goes through `LocalEditor`, so it shows at once and wins on every device. It is
+not refused for drift unless the server's clock has stepped back since it accepted the
+change (or in a one-millisecond counter-overflow corner); then the refusal is transient,
+the change stays queued, and the "ahead" line can show briefly though this device's clock
+is right. This matters here more than in the engine's own store: the
+repositories write the row before recording, and the sync store reads values from the
+rows, so an edit stamped below the stored clock would leave its value under the other
+device's clock.
+
 ## The relay
 
 `HttpSyncRelay` (`core/sync/http_sync_relay.dart`) is the engine's `SyncRelay` over the
@@ -216,15 +231,19 @@ does a session's report; otherwise its outcome is kept in the status apart
 from the session's.
 
 The status (`SyncStatus`) is the phase, the last sync time, the last session's counts
-(`SyncSummary`: pushed, pulled, applied, refused for good, refused for clock drift, pull
-held back), why the last session failed (offline, server, other) and the ledger (entries
-waiting, entries refused for good and the clock of the newest, held records). The time
-and counts persist in `sync_meta`. The status also has the last whole Plaid pull's time
-(`plaid_pulled_at`, restored at start) and why the last pull failed, classified the same
-way. Settings → Sync (dev and prod) shows them: the last sync in the device's zone, Bank
-data (when it was last updated, or why the update failed), the changes waiting, a clock
-far ahead holding changes back, the refused changes with the time of the latest, the
-records this version cannot show, and Sync now. Counts and times only: a change's content is never shown or logged.
+(`SyncSummary`: pushed, pulled, applied, refused for good, refused for clock drift,
+received clocks clamped), why the last session failed (offline, server, other) and the
+ledger (entries waiting, entries refused for good and the clock of the newest, held
+records). The time and counts persist in `sync_meta`. A summary kept by an earlier build,
+without the clamp count, reads as no clamp. The status also has the last whole Plaid
+pull's time (`plaid_pulled_at`, restored at start) and why the last pull failed,
+classified the same way. Settings → Sync (dev and prod) shows them: the last sync in the
+device's zone, Bank data (when it was last updated, or why the update failed), the changes
+waiting, "Check your device's clock: it is ahead, so some changes wait to sync" when the
+last session's pushes were refused for drift (they stay queued), "Check your device's
+clock: it is behind, so changes made here may be overridden" when it clamped a received
+clock, the refused changes with the time of the latest, the records this version cannot
+show, and Sync now. Counts and times only: a change's content is never shown or logged.
 
 ## The Plaid pull
 
@@ -299,8 +318,9 @@ never re-reads rows; `arrivalProcessorProvider` is the rules' `RuleRunner` (`rul
 | `test/contract/recording_contract.dart` | Exactly the entries each write records, in the Drift and in-memory implementations; a refused write records nothing; a Drift write and its entry roll back together |
 | `test/core/sync/sync_controller_test.dart` | The triggers, the debounce (none on top of the start), single flight with one coalesced rerun, a sign-out and sign-in during a held push (one push at a time, each entry once on the relay), the cursor reset, failures in the status, persistence, demo, in-memory data and signed-out, the Plaid pull after a session and its failure kept apart |
 | `test/core/plaid/plaid_pull_test.dart` | Over the fake server into the Drift repositories: everything applied as sent and nothing recorded, the streams, the liabilities and the holdings replaced and the investment transactions paged from their cursor with tombstones and a restart, a failure of any list leaving the run and the others whole, each whole run announced, paging with the cursor per page, a failed page rolled back and its cursor kept, the cursor reset, an unlinked Item's data going, an override pulled before its row landing on it, single flight; and the in-memory repositories |
+| `test/core/sync/sync_summary_test.dart` | The session summary's JSON round trip, a summary kept by an earlier build read as no clamp, and which clock line each count raises |
 | `test/core/sync/http_sync_relay_test.dart` | The relay over stub endpoints: pass-through, the device check, the cursor exception, a session through it |
 | `test/core/api/fake_dataset_test.dart` | Every persona's household served by the fake server as the engine gave it; the demo flavor's fake on the persona the demo shows |
 | `test/features/transactions/presentation/orphan_transaction_test.dart` | A live transaction on an account this device does not show: labelled by its category, and the editor says the account is gone |
 | `integration_test/sync_two_devices_test.dart` | On a device: two app instances, encrypted databases and the real client, sync through the fake server, one driven through its screens |
-| `test/sync/two_device_convergence_test.dart` | Devices, each the app's wiring over its own database, converge through one relay: offline edits, delete against edit and against restore, the cascade, settings, a system category, an amount moved to another currency against splits in the old one, clock skew, a wiped relay, changes before sign-in, a seeded random run on three devices; rules: concurrent edits, a reorder against an edit, concurrent reorders, delete against edit, two devices filing one bank transaction by a synced rule, and a seeded random run of rule edits; hidden: a hide against a notes edit and a batch hide, hide against unhide by clock, a hidden bank row kept through the bank's update and a hide pulled before its row; stream overrides: first choices on two devices merging, a clear winning over an edit and restored by a later choice, an override reaching a device before its stream; bills: a paid mark and a rename on two devices both surviving, two concurrent marks keeping the later device's list whole, a delete winning over an edit and a restore showing it; goals: contributions added on two devices at once both surviving, a rename and an archive on two devices both surviving, a delete winning over an edit and a restore showing the edit and the contributions, a contribution reaching a device before its goal landing and showing once the goal arrives |
+| `test/sync/two_device_convergence_test.dart` | Devices, each the app's wiring over its own database, converge through one relay: offline edits, delete against edit and against restore, the cascade, settings, a system category, an amount moved to another currency against splits in the old one, clock skew, a wiped relay, a device cut off while the others make more than a page of changes and rejoining with every cursor at the relay's end, a restart between edits resuming the clock, a device three hours behind applying what it pulls with its clock within the bound and its later edit shown at once, accepted and winning, changes before sign-in, a seeded random run on three devices; rules: concurrent edits, a reorder against an edit, concurrent reorders, delete against edit, two devices filing one bank transaction by a synced rule, and a seeded random run of rule edits; hidden: a hide against a notes edit and a batch hide, hide against unhide by clock, a hidden bank row kept through the bank's update and a hide pulled before its row; stream overrides: first choices on two devices merging, a clear winning over an edit and restored by a later choice, an override reaching a device before its stream; bills: a paid mark and a rename on two devices both surviving, two concurrent marks keeping the later device's list whole, a delete winning over an edit and a restore showing it; goals: contributions added on two devices at once both surviving, a rename and an archive on two devices both surviving, a delete winning over an edit and a restore showing the edit and the contributions, a contribution reaching a device before its goal landing and showing once the goal arrives |

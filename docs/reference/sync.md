@@ -41,22 +41,67 @@ device's physical clock.
 - **`receive(m, pt)`**: `l = max(l, l.m, pt)`. If all three of `l`, `l.m` and the old `l`
   are equal, then `c = max(c, c.m) + 1`. If only the old `l` equals the new `l`, then
   `c + 1`. If only `l.m` does, then `c.m + 1`. If `pt` is ahead of both, then `0`.
-- **Drift.** A remote wall time more than `maxDrift` (one hour by default) ahead of `pt`
-  throws `ClockDriftException`. The state is unchanged and the entry is not applied. This
-  is the paper's rule for ignoring out-of-bounds messages. `checkDrift` makes the same
-  check without receiving.
+- **`sendAfter(seen, pt)`**: the receive rule with `seen` in place of `m`, without the
+  bound. It stamps a local edit past the values it changes (**Local edits**).
+- **The bound.** A remote wall time more than `maxDrift` (`Hlc.maxDrift`, one hour) ahead
+  of `pt` is received without adopting it (**The clock bound**). `beyondBound(m, pt)`
+  says whether it is.
 - **Counter overflow.** A counter that would pass `Hlc.maxCounter` advances `l` by one
   millisecond and resets `c` to 0. The paper lets it roll over. Advancing keeps the clock
   monotonic and still greater than the remote clock.
 - **A wall clock that goes backwards** leaves `l` where it was, and the counter increments
   until `pt` catches up. The paper's corrective reset of `l` to `pt` is never applied,
   because last-writer-wins needs every new clock to be greater than every clock the device
-  has issued or seen.
+  has issued, and every local edit's clock greater than the clocks of the values it
+  changes.
 - **Persistence.** The clock does no IO. `last` is its state. `LocalEditor` and
   `SyncSession` save it with `SyncStore.saveClock` in the same transaction as the work that
   advanced it. At startup the host resumes the clock with
   `HlcClock(deviceId, last: await store.lastClock())`. One clock instance is shared by the
   device's `LocalEditor` and `SyncSession`.
+
+## The clock bound
+
+The bound is one hour, `Hlc.maxDrift` in `shared_models`, the one constant that the
+device's clock (`HlcClock`'s default `maxDrift`), `InMemorySyncRelay` and the server's
+relay read.
+
+- **The relay** refuses a pushed entry whose wall time is more than the bound ahead of its
+  own clock, as `clockDrift`. The entry stays in the outbox and is offered again each
+  run, so it waits until the device's clock is set right and real time has caught up
+  with the wall it was stamped at. An entry behind the relay's clock is never refused:
+  a device whose clock is behind simply loses concurrent conflicts.
+- **A device** never adopts a received wall time more than the bound ahead of its own
+  physical clock. `receive` then applies the rule of `send` instead: `l = max(l, pt)`,
+  and the counter goes up by one when `l` did not move, or to 0. The clock still moves
+  strictly forward, but receiving never drags it more than the bound ahead. The entry is
+  merged as any other, with its own clock on its fields, so last-writer-wins is
+  unchanged, the page applies and the cursor advances. `SyncReport.clamped` counts such
+  clocks.
+- **Who meets a clamp.** Every entry a relay holds was within the bound of the relay's
+  clock when it was accepted, so a device whose clock agrees with the relay's never
+  clamps. Only a device whose clock is behind the relay's can, which is why the app shows
+  "check your device's clock: it is behind" after one.
+- **A local edit after a clamped value.** After a clamp the device stores a field clock
+  greater than its own. An edit of that field is stamped with `sendAfter`, past the
+  greatest stored clock among the fields it writes, so it is causally after the value
+  the user saw: it is visible at once and wins everywhere, and only then does the
+  device's clock move to that value's time. Stamping it with `send` would leave the edit
+  below the stored clock: the edit would lose, and over a store that reads values from
+  the host's rows (the app's, whose repositories write the row before recording) the
+  record would hold the edit's value under the other clock, one clock with two payloads.
+  The edit is not refused for drift: the value's clock was accepted by the relay, so it
+  was within the bound of the relay's clock then, and while the relay's clock only moves
+  on, an edit one counter past it is within the bound too. Two corners make a refusal
+  possible, both transient: the relay's clock stepping back (an NTP step, or a restart on
+  a host whose clock is behind), and a counter that overflows into the next millisecond
+  at the edge of the bound. The entry then stays queued and is accepted once the relay's
+  clock passes it again; meanwhile the app may briefly show its "ahead" line though the
+  device's clock is right.
+- **What the bound limits.** A device whose clock is ahead stamps writes that win
+  concurrent conflicts until real time catches up; the relay keeps that lead under an
+  hour. A device whose clock is behind keeps receiving, and its concurrent edits lose;
+  an edit made after seeing a value wins, as causality requires.
 
 ## Records and merge
 
@@ -178,8 +223,9 @@ reference behaviour for any implementation. Drift's `transaction` meets the cont
 
 - **`push(entries)`** returns `PushResult`: the `accepted` clocks and the `rejected` ones,
   each with a `PushRejectionReason`.
-  - `clockDrift`: the entry's wall time is more than an hour ahead of the relay's clock.
-    This is transient: the entry stays in the outbox and is retried later.
+  - `clockDrift`: the entry's wall time is more than the bound (`Hlc.maxDrift`, an hour)
+    ahead of the relay's clock. This is transient: the entry stays in the outbox and is
+    retried later (**The clock bound**).
   - `invalid`: the clock's node is not the entry's device, the payload is empty, or a
     delete has no `deleted_at` instant. This is permanent.
   - `conflictingDuplicate`: another payload is already stored under this device and clock.
@@ -217,7 +263,8 @@ reference behaviour for any implementation. Drift's `transaction` meets the cont
 the app's repositories call for a change to user-authored data. In one store transaction
 it:
 
-1. stamps a clock with `send` and saves the clock;
+1. stamps a clock and saves it: `sendAfter` the greatest stored clock among the fields
+   the entry writes, or `send` when none of them has one (**The clock bound**);
 2. diffs the change;
 3. merges the entry into the stored record (so the local record is exactly what merging
    the entry gives on any other device) and writes the record;
@@ -230,7 +277,7 @@ nor the entry.
 
 `SyncSession(store, relay, clock, nowWallMillis:)` has one method, `run()`, which returns a
 `SyncReport`: counts, rejections, `changed` (the `(type, id)` keys whose records changed,
-for the host to react to) and `pullBlockedBy`.
+for the host to react to) and `clamped` (received clocks beyond the bound).
 
 1. **Push.** `unsynced(limit: 200)`, push, and repeat until the outbox is empty. Each
    entry has one of three fates:
@@ -256,10 +303,9 @@ for the host to react to) and `pullBlockedBy`.
    it back as that type's record. A device on an older build therefore keeps syncing
    when another device pushes a type added after its build: the rest of every page
    applies and its cursor advances.
-3. **Drift.** Before applying a page, every entry, of a known type or not, is checked with `checkDrift`. If one is
-   too far ahead of the device's clock, none of the page is applied, the cursor stays
-   before it, and the report carries the `ClockDriftException`. A later run applies the
-   page once the device's clock has caught up.
+3. **The bound.** An entry, of a known type or not, more than the bound ahead of the
+   device's clock is applied like any other while the clock clamps instead of adopting
+   it, and is counted in `clamped` (**The clock bound**). No page is ever held back.
 
 Failures, and why a rerun is always safe:
 
@@ -282,8 +328,9 @@ The app's side of these is `sync-app.md`.
   resume it at startup with `HlcClock(deviceId, last: await store.lastClock())`.
 - **Implement `SyncStore.transaction`** to the contract above. Drift's `transaction` does.
 - **Run `SyncSession.run()`** when there is network, and react to `SyncReport.changed`.
-  Surface `pullBlockedBy` and any rejection that is not drift, and let a user or a log
-  inspect the entries the store kept as rejected.
+  Surface drift refusals (this device's clock is ahead) and `clamped` (it is behind),
+  and any rejection that is not drift, and let a user or a log inspect the entries the
+  store kept as rejected.
 - **Handle a relay whose log was reset.** If the relay was wiped (for example a
   development server deleted), a pull from a cursor past the end of its log throws
   `SyncCursorInvalidException`, which carries `since` and the relay's last `seq`. The dev
@@ -296,17 +343,17 @@ The app's side of these is `sync-app.md`.
 
 | Suite | What it proves |
 |---|---|
-| `test/hlc_clock_test.dart` | Every branch of Figure 5 with hand-computed values; the Figure 4 loop, where `c` resets once `pt` passes `l`; Theorems 1 and 2 on seeded random traces; counter overflow; drift; a backwards wall clock. Figure 6's printed values are inside the figure graphic and are not reproduced. |
+| `test/hlc_clock_test.dart` | Every branch of Figure 5 with hand-computed values; the Figure 4 loop, where `c` resets once `pt` passes `l`; Theorems 1 and 2 on seeded random traces; counter overflow; a backwards wall clock; the clock bound: one constant for the clock and the relays, a remote exactly at the bound adopted and one past it clamped (the counter bumped when `pt` is behind `l`, the wall advanced at the counter's limit), a remote behind never clamped, `sendAfter` past a clock beyond the bound, and seeded traces with skews of hours in which the clock strictly increases and never adopts a wall beyond the bound. Figure 6's printed values are inside the figure graphic and are not reproduced. |
 | `test/diff_test.dart`, `test/merge_test.dart` | Classification; a create carries no `deleted_at`, and empty or deleted creates are refused; nested values replaced whole; delete versus edit in both orders; delete versus restore; a create concurrent with a delete, which stays deleted; a create carrying `deleted_at` from another producer, which is ignored; a create arriving after its own updates; duplicate creates; idempotent reapplication. |
 | `test/merge_property_test.dart` | Random entry sets folded in random orders, duplications and groupings all equal a brute-force oracle (`test/support/oracle.dart`), and agree with the tombstone rule checked on its own, 5000 cases. |
 | `test/in_memory_sync_store_test.dart`, `test/in_memory_sync_relay_test.dart` | The store and relay contracts. |
-| `test/local_editor_test.dart`, `test/sync_session_test.dart` | The edit path; batching; the three fates of a pushed entry (permanently rejected entries leave the outbox and do not block the good ones; drift waits); a create on an offline device after another device's delete, which stays deleted everywhere; a relay reset, recovered by resetting the cursor; push failures before storing and after storing; a pull failing on a later page; a crash between pages; a re-pulled page; the drift block; own entries excluded, or harmless when a relay does not filter them. |
-| `test/unknown_type_test.dart` | An unknown type's entries fold under its raw name in any order, idempotently, to what `merge` gives once the type is known; a page holding one applies the rest, holds it, receives its clock and advances the cursor; one too far ahead blocks its page. |
-| `test/simulation/` | The multi-device simulation, below. |
+| `test/local_editor_test.dart`, `test/sync_session_test.dart` | The edit path, an edit after a value beyond the bound stamped past it and winning, also over a store that reads values from the host's rows as the app's does; batching; the three fates of a pushed entry (permanently rejected entries leave the outbox and do not block the good ones; drift waits); a create on an offline device after another device's delete, which stays deleted everywhere; a relay reset, recovered by resetting the cursor; push failures before storing and after storing; a pull failing on a later page; a crash between pages; a re-pulled page; an entry beyond the bound applied with the clock clamped, and a later edit of its field winning everywhere; own entries excluded, or harmless when a relay does not filter them. |
+| `test/unknown_type_test.dart` | An unknown type's entries fold under its raw name in any order, idempotently, to what `merge` gives once the type is known; a page holding one applies the rest, holds it, receives its clock and advances the cursor; one beyond the bound clamps the clock like any other. |
+| `test/simulation/` | The multi-device simulation and the chaos simulation, below; `shrink_test.dart` checks the shrinker against a planted failure. |
 
 **The simulation** (`test/simulation/harness.dart`) runs 4000 scenarios in the normal test
-run. That takes about 15 seconds on the development machine, and the whole package about
-16. Each scenario has:
+run. That takes about 15 seconds on the development machine, and the whole package, the
+chaos simulation included, under a minute. Each scenario has:
 
 - three to eight devices, with clock skews up to ±5 minutes plus jitter;
 - a shared id space over a random choice of entity types, with creates, nested-value
@@ -326,7 +373,49 @@ After a final round without faults, the simulation checks:
 - each device's clocks strictly increase;
 - a local edit is visible as soon as it is recorded.
 
-Virtual time and one seeded `Random` per scenario make every run deterministic.
+Virtual time and one seeded `Random` per scenario make every run deterministic. Its
+skews of minutes never meet the bound, and it checks that no clock is clamped.
+
+**The chaos simulation** (`test/simulation/chaos.dart`, `chaos_test.dart`, tagged
+`chaos`) runs 400 scenarios in the normal test run, about 20 seconds here. A scenario is
+a configuration (three to six devices, each with an initial skew of nothing, up to half
+an hour either way, or one to six hours either way; one to three entity types with two to
+five ids each; a batch size) and a list of steps generated up front from its seed:
+
+- time passing (milliseconds, minutes or hours);
+- edits, made by the record's state as in the simulation, stale snapshots included;
+- syncs whose pulled pages arrive as served, reordered, with entries twice and entries
+  already served, or with entries from after the page's cursor (the `deliver` hook of
+  `test/support/hooked_relay.dart`);
+- concurrent groups of syncs and edits, interleaved by event-loop yields;
+- bursts: two devices up to all of them editing one record at once, often one field;
+- partitions (a device's requests fail until it heals), restarts (the clock and session
+  rebuilt from the store) and skews set to hours ahead or behind;
+- injected lost requests, lost responses and failed store operations.
+
+Every step carries its own seed, so a step behaves the same whatever runs around it. The
+end is fixed: every partition heals, every clock is set right, time passes every clock
+that was ahead plus the bound, then two rounds without faults and a quiet run. Checked
+during the run: a device's issued clocks strictly increase and its persisted clock never
+goes back, across restarts too; its clock is never further ahead than the greater of its
+physical time plus the bound and the greatest received clock one of its edits came
+after; a local edit is visible at once; a push is refused only for drift. Checked at
+the end:
+
+- every device is byte-identical to every other and to the relay's fold, which equals
+  the oracle (no acknowledged write is lost: each field holds the value of the greatest
+  clock that wrote it);
+- every device agrees with the tombstone rule;
+- the relay holds exactly the entries the devices produced, once each and unchanged;
+- every relay entry applied again to a device, in a random order and twice, changes
+  nothing, and the log folded in a random order with duplicates gives the same records;
+- every device's pull cursor is the relay's last `seq`.
+
+A failure prints the seed, the scenario, its steps and the smallest failing scenario
+`shrink` finds by dropping chunks of steps (halves down to single steps), members of
+groups, and whole devices with every step naming them, while the failure persists. A
+run prints one line of what it exercised: bursts, partitions, restarts, reshaped pages,
+drift refusals and clamps.
 
 ## Commands
 
@@ -339,3 +428,6 @@ All commands run in `packages/sync_engine` unless noted.
 | Another simulation seed | `SYNC_SIM_SEED=7 dart test test/simulation` |
 | Replay the scenario a failure names, with its trace | `SYNC_SIM_SEED=<seed> SYNC_SIM_SCENARIO=<n> dart test test/simulation` |
 | Another seed for the clock and merge property tests | `SYNC_ENGINE_SEED=7 dart test` |
+| The chaos simulation alone, with its figures | `dart test --tags chaos` |
+| More chaos scenarios, or another seed | `SYNC_CHAOS_SCENARIOS=4000 SYNC_CHAOS_SEED=7 dart test test/simulation/chaos_test.dart` |
+| Replay one chaos scenario, printing its steps | `SYNC_CHAOS_SEED=<seed> SYNC_CHAOS_SCENARIO=<n> dart test test/simulation/chaos_test.dart` |

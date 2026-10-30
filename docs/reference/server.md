@@ -257,7 +257,11 @@ for another user's device), and **`DELETE /me`**:
    - it is a delete without a valid `deleted_at` instant;
    - or, as defence in depth, its payload says `source: plaid`. Plaid data never syncs
      through the change log.
-2. **`clock_drift`** when its wall time is more than one hour ahead of the server's clock.
+2. **`clock_drift`** when its wall time is more than the clock bound, `Hlc.maxDrift` (one
+   hour), ahead of the server's clock. It is the bound the devices' clocks use: a device
+   never adopts a received time more than the bound ahead of its own, and the app keeps
+   a refused entry queued and shows "Check your device's clock" (`sync.md`, **The clock
+   bound**). An entry behind the server's clock is never refused.
 3. **Duplicates.** A resend under a stored `(user, device, hlc)` is accepted again
    without a new `seq` when its entity, operation and payload are identical. Payloads
    compare as decoded JSON, the way the engine's `jsonEquality` does: maps by key in any
@@ -282,9 +286,13 @@ are harmless. Push and pull stamp the device's `last_sync_at`.
 **Proof of equivalence.** `test/sync_convergence_test.dart` runs two of the engine's
 `SyncSession`s against the server through an in-process `SyncRelay` adapter, which calls
 the shelf handler with each device's token (`test/support/shelf_sync_relay.dart`). It
-runs a scripted scenario and a seeded random one. It asserts that the devices converge,
-and that the same script run against `InMemorySyncRelay` ends in byte-identical records
-with identical session reports.
+runs a scripted scenario and a seeded random one, and three with clocks hours apart: a
+device three hours ahead refused for drift until its entry falls within the bound, a
+device three hours behind clamping what it receives and its later edit winning without a
+refusal, and a seeded script with one device ahead, the other behind and long stretches
+in which one never syncs (hours passing refresh the devices' tokens). It asserts that the
+devices converge, and that the same script run against `InMemorySyncRelay` ends in
+byte-identical records with identical session reports.
 
 ## PlaidClient
 

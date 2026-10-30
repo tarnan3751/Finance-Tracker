@@ -55,6 +55,31 @@ runs it only in its own clone.
 (`app`, `server`, `packages/<name>`); `tools/run_tests.sh app "Money"` runs that package's
 tests whose name contains the text. It writes the same build output as the gate.
 
+## Test tags and seeds
+
+Tags mark the measured and randomized suites so they can run alone; the gate runs every
+one of them. They are declared in each package's `dart_test.yaml`.
+
+| Tag | Package | What it marks |
+|---|---|---|
+| `golden` | `app` | the golden tests |
+| `detector_harness` | `app` | the recurring detector measured against the persona engine |
+| `anomaly_harness` | `app` | the anomaly flags measured against the persona engine |
+| `chaos` | `packages/sync_engine` | the chaos simulation (`sync.md`, **Testing**) |
+
+The sync engine's seeded suites take their seed and size from the environment, so a
+failure replays exactly:
+
+| Variable | Suite | Default |
+|---|---|---|
+| `SYNC_ENGINE_SEED` | the clock and merge property tests | 20261024 |
+| `SYNC_SIM_SEED`, `SYNC_SIM_SCENARIOS` | the simulation | 20261024, 4000 |
+| `SYNC_SIM_SCENARIO` | the simulation: the one scenario a failure names, with its trace | |
+| `SYNC_CHAOS_SEED`, `SYNC_CHAOS_SCENARIOS` | the chaos simulation | 20261030, 400 |
+| `SYNC_CHAOS_SCENARIO` | the chaos simulation: the one scenario a failure names, with its steps and trace | |
+
+A chaos failure also prints the smallest failing step list its shrinker found.
+
 ## `tools/gen_api_client.sh`: the generated API client
 
 `tools/gen_api_client.sh` regenerates `packages/api_client` from `api/openapi.yaml` with
