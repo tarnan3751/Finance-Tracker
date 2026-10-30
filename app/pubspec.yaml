@@ -13,6 +13,9 @@ dependencies:
     path: ../packages/api_client
   # The generated client's models are built_value classes.
   built_value: ^8.13.0
+  # Whether a network is up (BSD-3), behind core/platform/connectivity.dart: sync runs again
+  # when one returns after a failure. Pinned exactly.
+  connectivity_plus: 7.3.2
   # SHA-256 for the in-app fake server's password hashes (core/api/fake/) and the backup.
   crypto: ^3.0.7
   # The backup's key and frames (Apache-2.0, pure Dart): Argon2id, HKDF-SHA256 and
@@ -84,6 +87,10 @@ dependencies:
     path: ../packages/sync_engine
   timezone: ^0.11.1
   uuid: ^4.6.0
+  # Background sync through Android's WorkManager (MIT), behind
+  # core/platform/background_work.dart, used by dev and prod. Pinned exactly: 0.10.10 carries
+  # the AGP 9 build and the Android 16 fixes.
+  workmanager: 0.10.10
 
 dev_dependencies:
   alchemist: ^0.14.1
