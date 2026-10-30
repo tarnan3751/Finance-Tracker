@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# The emulator harness: runs the app on the harness's own headless Android Virtual Device,
-# `ft-lane`, under a machine-wide lock, so only one emulator run happens on the machine at a
-# time (CLAUDE.md, **Seeing the app**, **Lanes**). Commands:
+# The emulator harness: runs the app on one of the harness's own headless Android Virtual
+# Devices, FT_EMULATOR_AVD (default `ft-lane`; a name starting `ft-`, such as ft-fold or
+# ft-tablet), under a machine-wide lock, so only one emulator run happens on the machine at a
+# time whichever AVD it uses (CLAUDE.md, **Seeing the app**, **Lanes**). Commands:
 #   integration [-- <flutter test args>]   (the default) boot, uninstall the demo app a
 #                         previous run left, then `flutter test integration_test --flavor demo
 #                         -d <serial>` from app/, or only the tests the args name (a path
@@ -16,17 +17,21 @@
 #                         for its activity to take focus, and save a screenshot (default
 #                         app/build/emulator/demo.png); prints the path
 #   run <command...>      boot, then run the command with FT_EMULATOR_SERIAL exported
-#   stop [--force]        shut down the ft-lane emulator; refuses while a live run holds the
+#   posture <folded|half|unfolded|list>   boot, then set a foldable AVD's posture through the
+#                         emulator console (`adb emu posture` 1, 2 or 3), or list the console's
+#                         postures and the device states (`cmd device_state print-states`)
+#   stop [--force]        shut down the AVD's emulator; refuses while a live run holds the
 #                         lock, unless --force, which kills the emulator and removes the lock
 #                         whoever holds it, printing the holder
-#   status                who holds the lock, and whether ft-lane is running and on which serial
+#   status                who holds the lock, and whether the AVD is running and on which serial
 # The script runs from the repository root: a relative screenshot path is relative to it, and
 # `run` runs its command in it.
-# integration, demo and run hold the lock for their whole run and release it on exit (normal,
-# failure or signal) through a trap; the emulator is left running so the next run reuses it,
-# but only when it is healthy (boot completed, `pm path android` answering within 30 s) and
-# has been up less than FT_EMULATOR_MAX_UPTIME seconds (default four hours): otherwise the run
-# kills it (`emu kill`, then SIGTERM, then SIGKILL, 10 s apart) and boots a fresh one.
+# integration, demo, run and posture hold the lock for their whole run and release it on exit
+# (normal, failure or signal) through a trap; the emulator is left running so the next run
+# reuses it, but only when it is healthy (boot completed, `pm path android` answering within
+# 30 s) and has been up less than FT_EMULATOR_MAX_UPTIME seconds (default four hours):
+# otherwise the run kills it (`emu kill`, then SIGTERM, then SIGKILL, 10 s apart) and boots a
+# fresh one.
 # Their long steps (flutter, sdkmanager, the run command) run as a background child that the
 # script waits on, so SIGTERM or SIGINT takes effect at once: the trap stops the child and its
 # descendants, then releases the lock, and exits 143 or 130.
@@ -45,9 +50,13 @@
 # renaming it away, so only one waiter wins.
 # The AVD is created on first use from FT_AVD_IMAGE (default
 # system-images;android-36;google_apis;arm64-v8a, installed with sdkmanager when missing) and
-# lives in ~/.android/avd/ft-lane.avd. The script talks to an emulator only after
-# `adb emu avd name` has confirmed it is ft-lane, so the owner's Pixel_* and Nexus_* emulators
-# and any physical device are never touched. The SDK comes from ANDROID_HOME, else
+# the device definition FT_AVD_DEVICE (default pixel_6; pixel_fold, pixel_9_pro_fold,
+# pixel_tablet and medium_tablet are others in `avdmanager list device -c`), and lives in
+# ~/.android/avd/<name>.avd. It boots on the first free even port from 5554, so two AVDs never
+# collide, and a run first stops any other ft- AVD that is running, printing which. The
+# script talks to an emulator only after `adb emu avd name` has confirmed it is
+# the AVD, so the owner's Pixel_* and Nexus_* emulators and any physical device are never
+# touched. The SDK comes from ANDROID_HOME, else
 # ANDROID_SDK_ROOT, else ~/Library/Android/sdk. Writes the AVD, the lock directory and
 # app/build/ (the APK, the emulator log, the screenshot).
 set -uo pipefail
@@ -55,8 +64,9 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 root="$(pwd)"
 
-AVD_NAME="ft-lane"
+AVD_NAME="${FT_EMULATOR_AVD:-ft-lane}"
 AVD_IMAGE="${FT_AVD_IMAGE:-system-images;android-36;google_apis;arm64-v8a}"
+AVD_DEVICE="${FT_AVD_DEVICE:-pixel_6}"
 LOCK_DIR="${TMPDIR:-/tmp}"
 LOCK_DIR="${LOCK_DIR%/}/finance-tracker-emulator.lock"
 LOCK_TIMEOUT="${FT_EMULATOR_LOCK_TIMEOUT:-1800}"
@@ -75,6 +85,11 @@ say() { echo "emulator_tests: $*"; }
 
 [[ "$LOCK_TIMEOUT" =~ ^[0-9]+$ ]] || die "FT_EMULATOR_LOCK_TIMEOUT must be a whole number of seconds, not '$LOCK_TIMEOUT'"
 [[ "$RUN_TIMEOUT" =~ ^[0-9]+$ ]] || die "FT_EMULATOR_RUN_TIMEOUT must be a whole number of seconds, not '$RUN_TIMEOUT'"
+
+# Only a harness-owned AVD is ever booted, stopped or killed: the name is matched as a pattern
+# against emulator processes, so it is held to letters, digits, `_` and `-` after `ft-`.
+[[ "$AVD_NAME" =~ ^ft-[A-Za-z0-9_-]+$ ]] || die "FT_EMULATOR_AVD must be a harness-owned name such as ft-lane, ft-fold or ft-tablet (ft- then letters, digits, _ or -), not '$AVD_NAME'"
+EMULATOR_LOG="$OUT_DIR/emulator-$AVD_NAME.log"
 
 if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then
   FLUTTER="fvm flutter"
@@ -362,14 +377,15 @@ ensure_avd() {
     [ -d "$image_dir" ] || { tail -20 "$OUT_DIR/sdkmanager.log" >&2; die "sdkmanager could not install $AVD_IMAGE (log: $OUT_DIR/sdkmanager.log)"; }
     say "installed $AVD_IMAGE in $((SECONDS - started))s ($(du -sh "$image_dir" | cut -f1) on disk)"
   fi
-  say "creating the AVD $AVD_NAME from $AVD_IMAGE"
-  echo no | "$AVDMANAGER" create avd -n "$AVD_NAME" -k "$AVD_IMAGE" -d pixel_6 --force >"$OUT_DIR/avdmanager.log" 2>&1 \
-    || { cat "$OUT_DIR/avdmanager.log" >&2; die "avdmanager could not create $AVD_NAME"; }
+  say "creating the AVD $AVD_NAME from $AVD_IMAGE as a $AVD_DEVICE"
+  echo no | "$AVDMANAGER" create avd -n "$AVD_NAME" -k "$AVD_IMAGE" -d "$AVD_DEVICE" --force >"$OUT_DIR/avdmanager.log" 2>&1 \
+    || { cat "$OUT_DIR/avdmanager.log" >&2; die "avdmanager could not create $AVD_NAME as a $AVD_DEVICE (avdmanager list device -c names the definitions)"; }
   local config="$HOME/.android/avd/$AVD_NAME.avd/config.ini"
   [ -f "$config" ] || die "avdmanager created no $config"
   # Replace avdmanager's values rather than append duplicates (pixel_6 brings a 6 GB data
-  # partition, for one).
-  local settings="hw.keyboard=yes disk.dataPartition.size=2G hw.lcd.density=420 hw.gpu.enabled=yes hw.gpu.mode=swiftshader_indirect"
+  # partition, for one). Another device definition keeps its own density.
+  local settings="hw.keyboard=yes disk.dataPartition.size=2G hw.gpu.enabled=yes hw.gpu.mode=swiftshader_indirect"
+  [ "$AVD_DEVICE" = pixel_6 ] && settings="$settings hw.lcd.density=420"
   local setting
   for setting in $settings; do
     grep -v "^${setting%%=*}[[:space:]]*=" "$config" >"$config.tmp" && mv "$config.tmp" "$config"
@@ -470,14 +486,14 @@ wait_for_boot() {
   local emulator_pid="$1" started="$2" setting
   # adb wait-for-device has no timeout, so poll the state instead, watching the process.
   until [ "$("$ADB" -s "$SERIAL" get-state 2>/dev/null)" = "device" ]; do
-    emulator_alive "$emulator_pid" || { tail -20 "$OUT_DIR/emulator.log" >&2; die "the emulator exited during boot"; }
+    emulator_alive "$emulator_pid" || { tail -20 "$EMULATOR_LOG" >&2; die "the emulator exited during boot"; }
     [ $((SECONDS - started)) -ge "$BOOT_TIMEOUT" ] && die "$SERIAL did not come up within ${BOOT_TIMEOUT}s"
     sleep 2
   done
   assert_ours "$SERIAL"
   until [ "$("$ADB" -s "$SERIAL" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ] \
     && "$ADB" -s "$SERIAL" shell pm path android 2>/dev/null | grep -q '^package:'; do
-    emulator_alive "$emulator_pid" || { tail -20 "$OUT_DIR/emulator.log" >&2; die "the emulator exited during boot"; }
+    emulator_alive "$emulator_pid" || { tail -20 "$EMULATOR_LOG" >&2; die "the emulator exited during boot"; }
     [ $((SECONDS - started)) -ge "$BOOT_TIMEOUT" ] && die "$SERIAL did not finish booting within ${BOOT_TIMEOUT}s"
     sleep 2
   done
@@ -506,12 +522,28 @@ recycle_if_needed() {
   kill_avd "$serial"
 }
 
-# Boots ft-lane unless a reusable one is running (recycle_if_needed), waits until it is booted
-# (a running one too: an interrupted run can leave it offline or still booting), then sets
-# SERIAL.
+# Stops every other harness AVD (an ft- name) that adb sees running: one emulator run happens
+# at a time, so another one left up by an earlier run only holds memory. The run holds the
+# lock, so none of them is in use.
+stop_other_avds() {
+  local serial name ours="$AVD_NAME"
+  for serial in $("$ADB" devices | awk '$1 ~ /^emulator-[0-9]+$/ { print $1 }'); do
+    name="$(avd_name_of "$serial")"
+    [[ "$name" =~ ^ft-[A-Za-z0-9_-]+$ ]] && [ "$name" != "$ours" ] || continue
+    say "stopping the harness AVD $name on $serial before using $ours: one runs at a time"
+    AVD_NAME="$name"
+    kill_avd "$serial"
+    AVD_NAME="$ours"
+  done
+}
+
+# Boots the AVD unless a reusable one is running (recycle_if_needed), after stopping any other
+# harness AVD, waits until it is booted (a running one too: an interrupted run can leave it
+# offline or still booting), then sets SERIAL.
 boot() {
   mkdir -p "$OUT_DIR"
   "$ADB" start-server >/dev/null 2>&1
+  stop_other_avds
   recycle_if_needed
   local emulator_pid="" started=$SECONDS
   if SERIAL="$(our_serial)"; then
@@ -532,9 +564,9 @@ boot() {
     done
     [ -n "$port" ] || die "no free emulator port in 5554-5584"
     SERIAL="emulator-$port"
-    say "booting $AVD_NAME on $SERIAL (log: $OUT_DIR/emulator.log)"
+    say "booting $AVD_NAME on $SERIAL (log: $EMULATOR_LOG)"
     nohup "$EMULATOR" -avd "$AVD_NAME" -no-window -no-audio -no-boot-anim -no-snapshot \
-      -gpu swiftshader_indirect -port "$port" >"$OUT_DIR/emulator.log" 2>&1 &
+      -gpu swiftshader_indirect -port "$port" >"$EMULATOR_LOG" 2>&1 &
     emulator_pid=$!
     started=$SECONDS
   fi
@@ -629,6 +661,14 @@ cmd_integration() {
   return $status
 }
 
+# Prints the physical id of the active internal display, for `screencap -d`: a foldable has
+# two displays, and screencap without -d writes a warning into its output ahead of the PNG.
+active_display() {
+  "$ADB" -s "$SERIAL" shell dumpsys display | tr -d '\r' \
+    | grep -o "DisplayViewport{type=INTERNAL, valid=true, isActive=true, [^}]*uniqueId='local:[0-9]*'" \
+    | head -1 | sed "s/.*local:\([0-9]*\)'.*/\1/"
+}
+
 cmd_demo() {
   local shot="${1:-$OUT_DIR/demo.png}"
   boot
@@ -647,8 +687,10 @@ cmd_demo() {
   # Focus comes with the launch screen; give the debug build a moment to draw its first frame.
   sleep 3
   mkdir -p "$(dirname "$shot")"
-  "$ADB" -s "$SERIAL" exec-out screencap -p >"$shot" || die "screencap failed"
-  [ -s "$shot" ] || die "screencap wrote nothing"
+  local display
+  display="$(active_display)"
+  "$ADB" -s "$SERIAL" exec-out screencap -p ${display:+-d "$display"} >"$shot" || die "screencap failed"
+  [ "$(head -c 4 "$shot" | tail -c 3)" = PNG ] || die "screencap wrote no PNG: $(head -c 200 "$shot")"
   say "screenshot: $(cd "$(dirname "$shot")" && pwd)/$(basename "$shot")"
 }
 
@@ -657,6 +699,40 @@ cmd_run() {
   boot
   export FT_EMULATOR_SERIAL="$SERIAL"
   run_child "$@"
+}
+
+# Sets a foldable's posture through the emulator console (1 closed, 2 half-opened, 3 opened),
+# or lists the console's postures and the device states the system offers. Inside a `run`
+# command, which already holds the lock, call `adb -s "$FT_EMULATOR_SERIAL" emu posture <n>`
+# directly.
+posture_id() {
+  case "$1" in
+    folded) echo 1 ;;
+    half) echo 2 ;;
+    unfolded) echo 3 ;;
+    list) echo list ;;
+    *) return 1 ;;
+  esac
+}
+
+cmd_posture() {
+  local id out
+  id="$(posture_id "${1:-}")" || die "usage: tools/emulator_tests.sh posture <folded|half|unfolded|list>"
+  boot
+  assert_ours "$SERIAL"
+  if [ "$id" = list ]; then
+    # The console lists its postures, tab-separated, after the usage it answers to `posture`
+    # with no id ('KO: Usage: "posture <posture_id>" 1: closed<TAB>2: half-opened...').
+    say "the postures of the emulator console on $SERIAL (adb emu posture):"
+    adb_within 30 "$SERIAL" emu posture | perl -pe 's/^.*?(?=\d+: )//' | tr '\t' '\n' \
+      | sed '/^[[:space:]]*$/d; s/^/    /'
+    say "the device states of $AVD_NAME (cmd device_state print-states):"
+    adb_within 30 "$SERIAL" shell cmd device_state print-states | sed 's/^/    /'
+    return 0
+  fi
+  out="$(adb_within 30 "$SERIAL" emu posture "$id")" || die "the emulator console did not answer within 30s"
+  printf '%s\n' "$out" | grep -q '^OK' || die "the emulator refused posture $id ($1): $(printf '%s' "$out" | tr '\n' ' '); is $AVD_NAME a foldable?"
+  say "$AVD_NAME on $SERIAL is $1 (posture $id); device state now: $(adb_within 30 "$SERIAL" shell cmd device_state print-state | tr '\n' ' ')"
 }
 
 # With --force, a live holder's lock is removed after the emulator is gone; the holder is not
@@ -706,11 +782,14 @@ command="${1:-integration}"
 [ $# -gt 0 ] && shift
 require_tools
 case "$command" in
-  integration | demo | run)
+  integration | demo | run | posture)
+    if [ "$command" = posture ] && ! posture_id "${1:-}" >/dev/null; then
+      die "usage: tools/emulator_tests.sh posture <folded|half|unfolded|list>"
+    fi
     acquire_lock "$command" "$@"
     "cmd_$command" "$@"
     ;;
   stop | status) "cmd_$command" "$@" ;;
   -h | --help | help) sed -n '2,/^set -uo/p' "$0" | sed '$d; s/^# \{0,1\}//' ;;
-  *) die "unknown command '$command'; one of integration, demo, run, stop, status" ;;
+  *) die "unknown command '$command'; one of integration, demo, run, posture, stop, status" ;;
 esac

@@ -278,11 +278,12 @@ so it proves the sink, not a release-mode run; the release smoke is the coordina
 
 ## `tools/emulator_tests.sh`: the emulator harness
 
-Runs the app on the harness's own headless Android Virtual Device, `ft-lane`, under a
-machine-wide lock, so only one emulator run happens on the machine at a time and a second
-lane waits its turn. It runs from the repository root wherever it is called from: a relative
+Runs the app on one of the harness's own headless Android Virtual Devices, `ft-lane` unless
+`FT_EMULATOR_AVD` names another (**Other AVDs**, below), under a machine-wide lock, so only
+one emulator run happens on the machine at a time, whichever AVD it uses, and a second lane
+waits its turn. It runs from the repository root wherever it is called from: a relative
 screenshot path is relative to the root, and `run` runs its command there. It talks to an
-emulator only after `adb -s <serial> emu avd name` has answered `ft-lane`, so the owner's
+emulator only after `adb -s <serial> emu avd name` has answered the AVD's name, so the owner's
 `Pixel_*` and `Nexus_*` emulators and any physical device are never touched, and it fails
 loudly otherwise.
 
@@ -291,13 +292,14 @@ one is running, and kills any polling shell once the run it watched has finished
 
 | Command | What it does |
 |---|---|
-| `integration [-- <args>]` | The default. Boots `ft-lane`, uninstalls the demo app a previous run left (below), then runs `flutter test integration_test --flavor demo -d <serial>` from `app/`, passing any extra arguments through; when the arguments name tests (a path relative to `app/` under `integration_test/`, or a `.dart` file or a directory that exists under `app/`), it runs only those instead of the whole `integration_test` directory (`tools/emulator_tests.sh integration -- integration_test/app_launch_test.dart`). An option's value is never taken for a test: an argument right after an option given without `=` (`--name test`, `--dart-define FOO=bar.dart`) is its value, so `integration -- --name test` runs the whole directory with that filter; give files before options. The tests run against the in-app fakes. Then it prints one line per test file from Flutter's JSON report (`--file-reporter`, kept at `app/build/emulator/integration.json`): its result, its tests and how many were skipped, and its duration from the start of its loading (the build and the install) to the end of its last test, so the slow file is named; a file the run never started (an interrupted run) is listed as "no events"; without `jq` it says so and prints none. |
-| `demo [<screenshot>]` | Boots, builds the demo debug APK, installs it with `adb install -r`, launches the launcher activity of `dev.tarnan.financetracker.demo`, waits (up to 60 s) for it to take window focus plus a short settle for the first frame, and saves a screenshot, by default `app/build/emulator/demo.png`; prints the path. |
+| `integration [-- <args>]` | The default. Boots the AVD, uninstalls the demo app a previous run left (below), then runs `flutter test integration_test --flavor demo -d <serial>` from `app/`, passing any extra arguments through; when the arguments name tests (a path relative to `app/` under `integration_test/`, or a `.dart` file or a directory that exists under `app/`), it runs only those instead of the whole `integration_test` directory (`tools/emulator_tests.sh integration -- integration_test/app_launch_test.dart`). An option's value is never taken for a test: an argument right after an option given without `=` (`--name test`, `--dart-define FOO=bar.dart`) is its value, so `integration -- --name test` runs the whole directory with that filter; give files before options. The tests run against the in-app fakes. Then it prints one line per test file from Flutter's JSON report (`--file-reporter`, kept at `app/build/emulator/integration.json`): its result, its tests and how many were skipped, and its duration from the start of its loading (the build and the install) to the end of its last test, so the slow file is named; a file the run never started (an interrupted run) is listed as "no events"; without `jq` it says so and prints none. |
+| `demo [<screenshot>]` | Boots, builds the demo debug APK, installs it with `adb install -r`, launches the launcher activity of `dev.tarnan.financetracker.demo`, waits (up to 60 s) for it to take window focus plus a short settle for the first frame, and saves a screenshot of the active display (`screencap -d`, so a foldable's two displays do not spoil it), by default `app/build/emulator/demo.png`; prints the path. |
 | `run <command...>` | Boots, then runs the command with `FT_EMULATOR_SERIAL` set to the emulator's serial: anything else against the AVD goes through this. |
-| `stop [--force]` | Shuts down the `ft-lane` emulator and removes a stale lock. Refuses while a live run holds the lock, unless `--force`: then it prints the holder, kills the emulator and removes the lock whoever holds it. |
-| `status` | Who holds the lock (pid, since when, command), and whether `ft-lane` is running and on which serial. |
+| `posture <folded\|half\|unfolded\|list>` | Boots, then sets a foldable's posture through the emulator console (`adb emu posture` 1, 2 or 3) and prints the device state it led to; `list` prints the console's postures and the device states the system offers (`cmd device_state print-states`). Takes the lock like a run, so inside a `run` command call `adb -s "$FT_EMULATOR_SERIAL" emu posture <n>` directly. |
+| `stop [--force]` | Shuts down the AVD's emulator and removes a stale lock. Refuses while a live run holds the lock, unless `--force`: then it prints the holder, kills the emulator and removes the lock whoever holds it. |
+| `status` | Who holds the lock (pid, since when, command), and whether the AVD (named in the line) is running and on which serial. |
 
-**The lock.** `integration`, `demo` and `run` hold it for their whole run. It is the
+**The lock.** `integration`, `demo`, `run` and `posture` hold it for their whole run. It is the
 directory `${TMPDIR:-/tmp}/finance-tracker-emulator.lock` holding the files `pid`, `started`
 (UTC) and `command`. A run builds those in a private directory beside the lock and takes the
 lock with one rename of that directory, which fails while a lock exists, so a lock is never
@@ -329,18 +331,47 @@ seconds, and the harness refuses any other value before it starts rather than ru
 ceiling. `FT_EMULATOR_RUN_TIMEOUT=20 tools/emulator_tests.sh
 run sleep 200` exercises it.
 
-**The AVD.** Created on first use with `avdmanager create avd -n ft-lane -k <image> -d
-pixel_6`, from `FT_AVD_IMAGE` (default `system-images;android-36;google_apis;arm64-v8a`,
-installed with `sdkmanager --install`, licences accepted, when missing), then given
-`hw.keyboard=yes`, `disk.dataPartition.size=2G`, `hw.lcd.density=420` and the SwiftShader
-GPU in its `config.ini`, replacing the values `avdmanager` wrote. The API 36 emulator raises
+**The AVD.** Created on first use with `avdmanager create avd -n <name> -k <image> -d
+<device>`, from `FT_AVD_IMAGE` (default `system-images;android-36;google_apis;arm64-v8a`,
+installed with `sdkmanager --install`, licences accepted, when missing) and `FT_AVD_DEVICE`
+(default `pixel_6`), then given `hw.keyboard=yes`, `disk.dataPartition.size=2G`, the
+SwiftShader GPU and, for `pixel_6`, `hw.lcd.density=420` in its `config.ini`, replacing the
+values `avdmanager` wrote; another device definition keeps its own density. The API 36 emulator raises
 the data partition to 6 GB on first boot whatever the file says; the image is sparse, so it
 takes far less on disk. It boots with `-no-window -no-audio -no-boot-anim -no-snapshot -gpu
 swiftshader_indirect` on the first free even port from 5554 to 5584, so an emulator the
-owner already has on 5554 is left alone; the boot waits up to 240 s for `sys.boot_completed`
-and the package manager, then turns the window, transition and animator animations off. A
-run that finds `ft-lane` already running waits the same way before using it, since an
-interrupted run can leave it offline or still booting.
+owner already has on 5554 is left alone; the boot waits
+up to 240 s for `sys.boot_completed` and the package manager, then turns the window,
+transition and animator animations off. A run that finds the AVD already running waits the
+same way before using it, since an interrupted run can leave it offline or still booting. Its
+log is `app/build/emulator/emulator-<name>.log`.
+
+**Other AVDs.** `FT_EMULATOR_AVD` names the AVD a command is about (default `ft-lane`); it
+must be a harness-owned name, `ft-` then letters, digits, `_` or `-`, and the harness refuses
+any other, so it can never boot, stop or kill the owner's `Pixel_*` AVDs. An AVD that does not
+exist is created from `FT_AVD_IMAGE` and `FT_AVD_DEVICE`; `avdmanager list device -c` names
+the definitions, among them `pixel_fold`, `pixel_9_pro_fold`, `pixel_tablet` and
+`medium_tablet`. The lock is the same for every AVD, so there is still one emulator run on the
+machine at a time, and before a run boots or reuses its AVD it stops any other harness AVD
+that is running (`stopping the harness AVD ft-fold on emulator-5554 before using ft-lane`), so
+at most one harness emulator is up; the AVD a run used is left running for the next run, as
+`ft-lane` always was. `status` is about the AVD `FT_EMULATOR_AVD` names. For layout work:
+
+```
+FT_EMULATOR_AVD=ft-fold FT_AVD_DEVICE=pixel_fold tools/emulator_tests.sh demo app/build/emulator/fold.png
+FT_EMULATOR_AVD=ft-fold tools/emulator_tests.sh posture folded
+FT_EMULATOR_AVD=ft-tablet FT_AVD_DEVICE=pixel_tablet tools/emulator_tests.sh demo app/build/emulator/tablet.png
+```
+
+`FT_AVD_DEVICE` matters only when the AVD is created. A `pixel_fold` AVD has two displays, the
+inner 2208 x 1840 and the outer 1080 x 2092, and its `config.ini` lists the postures 1 to 3
+(`hw.sensor.posture_list`); the console's `posture` usage names 1 closed, 2 half-opened,
+3 opened, 4 flipped and 5 tent, of which the fold takes the first three, and the system offers
+the device states `CLOSED` (0), `HALF_OPENED` (1), `OPENED` (2) and `REAR_DISPLAY_MODE` (3).
+`posture folded`, `half` and `unfolded` move it to states 0, 1 and 2. Folding moves the
+foreground to the outer display behind the keyguard (Android's default on fold), so a folded
+screenshot shows the lock screen until it is dismissed; a non-foldable AVD refuses a posture
+and the command fails.
 
 **Recycling.** A long-lived `ft-lane` can wedge: twice on 2026-10-25, after hours under
 several lanes, `system_server` restarted, the `package` service was gone (`pm path android`
@@ -380,11 +411,11 @@ The SDK comes from `ANDROID_HOME`,
 else `ANDROID_SDK_ROOT`, else `~/Library/Android/sdk`; a missing `adb`, `emulator`,
 `avdmanager` or `sdkmanager` fails with the fix.
 
-**What it writes.** The AVD in `~/.android/avd/ft-lane.avd` (and its `.ini`), the system
+**What it writes.** The AVD in `~/.android/avd/<name>.avd` (and its `.ini`), the system
 image under the SDK on first use, the lock directory (with its short-lived `.new.*` and
 `.stale.*` siblings), and `app/build/`: the APKs, the emulator, `sdkmanager` and
-`avdmanager` logs, the integration run's JSON report and the screenshot under `app/build/emulator/`. Installs go onto `ft-lane`
-only.
+`avdmanager` logs, the integration run's JSON report and the screenshot under `app/build/emulator/`. Installs go onto the
+harness's own AVDs only.
 
 **The integration test app is moved aside.** `flutter test integration_test --flavor demo`
 writes its test app to `app/build/app/outputs/flutter-apk/app-demo-debug.apk` and to Gradle's
