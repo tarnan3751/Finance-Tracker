@@ -3,11 +3,12 @@
 The holdings, securities and investment transactions of the user's linked investment
 accounts, as Plaid's Investments product reports them. Server-authoritative, never
 synced. The decisions are `PLAN.md` §12, "Investments in the app" and "6a plan rulings".
-The Investments segment that shows them is Phase 6e's; this file covers the data.
+This file covers the data and the Investments segment that shows them (**The segment**).
 
-Code: `app/lib/features/investments/` (`domain/` the repository interfaces and
-`HoldingView`, `data/` the Drift, in-memory and demo repositories, `application/` the
-providers); `shared_models`' `Holding`, `Security`, `InvestmentTransaction` and `Decimal`
+Code: `app/lib/features/investments/` (`domain/` the repository interfaces,
+`HoldingView` and the allocation and gain (`allocation.dart`), `data/` the Drift,
+in-memory and demo repositories, `application/` the providers, `presentation/` the
+segment); `shared_models`' `Holding`, `Security`, `InvestmentTransaction` and `Decimal`
 (`core.md`); the `securities`, `holdings` and `investment_transactions` tables
 (`data.md`); the contract's three schemas and their app-side wire classes
 (`core/api/api_models.dart`); the pull's two investment steps
@@ -18,7 +19,13 @@ Tests: `app/test/contract/holding_repository_contract.dart` and
 `app/test/features/investments/data/`), the investments group of
 `app/test/core/plaid/plaid_pull_test.dart`, `app/test/core/api/fake_dataset_test.dart`,
 the investment objects' case of `app/test/core/api/fake_contract_test.dart`,
-`app/integration_test/investments_snapshots_test.dart`; on the server, the flow tests in
+`app/integration_test/investments_snapshots_test.dart`; for the segment,
+`app/test/features/investments/domain/allocation_test.dart`, the screen tests and goldens
+light and dark at text scale 1 and 2 in `app/test/features/investments/presentation/` on
+`test/helpers/investment_seed.dart`, the investments entries of
+`app/test/accessibility_test.dart`, and on the harness
+`app/integration_test/investments_view_test.dart` (the renter's empty state, then the
+family's 401k in the demo flavor); on the server, the flow tests in
 `server/test/plaid_flow_test.dart` and the sign assertion in
 `server/test/http_plaid_client_test.dart`.
 
@@ -62,7 +69,9 @@ by its type, and fails neither the run nor the other lists.
 Both refuse, before writing anything, a record that is not `plaid` or `demo` or a repeated
 key (`ArgumentError`), and amounts in two currencies (`CurrencyMismatchException`); both
 record nothing. `holdingsProvider` is `watchAll()`; `investmentTransactionsProvider(accountId)`
-is `watchByAccount`.
+is `watchByAccount`; `investmentAccountsProvider` is the live investment accounts that
+are not hidden, in display order; `investmentValueHistoryProvider(accountId)` is the
+account's balance snapshots (`net-worth.md`).
 
 ## The demo
 
@@ -76,3 +85,55 @@ reports them; each security an `etf` (VTI, VXUS, BND; the engine carries no type
 quantity and price. The demo repositories and `FakeDataset.fromDemoSeed` both start from
 the mapping. The investment account itself reports its total, the holdings' value plus
 its cash, as Plaid's current balance does.
+
+## The segment
+
+`InvestmentsView` (`presentation/investments_view.dart`; const, no arguments, no
+Scaffold) is the body of the Insights tab's Investments segment, `/investments`
+(`PLAN.md` §12, "Investments in the app", "Insights tab"; `app-core.md`, **Routing and
+the shell**); `InvestmentsScreen`, a thin Scaffold titled "Investments" with no route,
+serves the tests. It shows, for the investment accounts (`investmentAccountsProvider`),
+with the empty state ("No investment accounts") when there are none:
+
+- the **allocation**: every shown account's holdings by security type, one per currency
+  of their values (headed "Allocation in USD" when there is more than one). A holding is
+  allocated under "Cash" when its security is a cash equivalent, else under its
+  security's type (Plaid's open string, trimmed and lower-cased, shown title-cased:
+  "Mutual Fund"; "ETF" for `etf`), "Other" with no type or no security
+  (`allocationOf`, `allocation.dart`); each type's value is the sum of its holdings'
+  `institutionValue`. A donut (fl_chart; the positive slices drawn, the total in its
+  middle) read by a screen reader as one summary (the total, how many types, the largest
+  with its share), and its table, the equivalent and the legend: a swatch, the type, its
+  share (whole percent, truncated) and its value, each row one semantics node;
+- then each account in display order: its name and balance, labelled "reported" or
+  "from transactions" as the accounts screens label it (`shownBalance`, `accounts.md`);
+- its **value over time**: the account's balance snapshots in its currency, captioned
+  "From install day: recorded on this device since" the first one, as a line
+  (`value_history.dart`: days from the first snapshot along the x axis, so a day with no
+  snapshot is a gap the line spans; a dot on the latest; the first and last dates
+  below; a tooltip on touch) read as one summary (the first and latest values and dates),
+  or, with the Table switch, its table, a row per recorded day newest first. Sandbox and
+  demo prices do not move, so their lines are flat; the demo's snapshots start on the
+  launch day, so its line is one point;
+- its **holdings**, in the repository's order (`HoldingRow` in `investment_rows.dart`):
+  the security's name (else its ticker, else "Unknown security"), the ticker, the
+  quantity at the price ("12.500 at 245.10 USD": each `Decimal`'s canonical string,
+  every scale digit kept, the price with its currency code, never a `double`),
+  the value, then the cost basis and the gain (value less cost basis, with its percent
+  of the cost basis, whole and truncated, when the cost basis is positive) or "Cost basis
+  unavailable" when the institution reports none, and the price's date; each holding one
+  semantics node;
+- its **investment transactions**, newest first (`InvestmentTransactionRow`): the name,
+  the amount in the app's sign, the date and the type title-cased with its subtype when
+  it says something else ("Cash · Contribution", "Buy"), the quantity at the price when
+  the row has a security, and the fees when reported; ten at first
+  (`investmentTransactionsPage`), "Show more (N left)" adding ten each time.
+
+The value history and the transactions show a progress indicator while their streams
+load and the shared "could not load" line when one fails, never their empty texts. Each
+account's section is keyed by the account, so its Table switch and its page follow it.
+The allocation's colours are the scheme's primary, tertiary, secondary, inverse primary
+the containers and the outline, never the error colour, so no slice reads as a loss.
+
+fl_chart places marks by `double` values, which serve placement only: every amount on
+screen, in a tooltip or in a summary is the `Money` formatted through intl.

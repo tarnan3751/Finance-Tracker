@@ -66,7 +66,7 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `goalEntriesProvider`, `goalViewsProvider`, `goalViewByIdProvider`, `goalActionsProvider` | `features/goals/application/goals_providers.dart` | The goals with their contributions; each as the screens show it today (progress, suggestion, status); one of them; the writes (`goals.md`) |
 | `recurringStreamsProvider`, `subscriptionsProvider`, `streamActionsProvider`; `liabilitiesProvider` | `features/recurring/application/`; `features/liabilities/application/` | The streams with their overrides, the subscriptions with their annual cost, the actions on a stream; the liabilities |
 | `holdingRepositoryProvider`, `investmentTransactionRepositoryProvider` | `core/di/providers.dart` | The holdings with their securities and the investment transactions (`investments.md`): in memory by default, Drift in dev and prod, demo in demo (the persona's brokerage, rebuilt with it) |
-| `holdingsProvider`, `investmentTransactionsProvider(accountId)` | `features/investments/application/investments_providers.dart` | Every holding with its security; one account's live investment transactions, newest first |
+| `holdingsProvider`, `investmentTransactionsProvider(accountId)`, `investmentAccountsProvider`, `investmentValueHistoryProvider(accountId)` | `features/investments/application/investments_providers.dart` | Every holding with its security; one account's live investment transactions, newest first; the investment accounts the Investments segment shows; one account's balance snapshots, its value over time (`investments.md`) |
 | `balanceSnapshotRepositoryProvider`, `snapshotWriterRunnerProvider` | `core/di/providers.dart`; `features/net_worth/application/snapshot_writer.dart` | The daily balance snapshots (`net-worth.md`): in memory by default, `balance_snapshots` in dev and prod, empty at launch in demo (rebuilt with the in-memory store); and the writer that keeps today's written while listened to (`bootstrap` does, after the first frame, in every flavor) |
 | `forecastSelectionControllerProvider`, `forecastPlanProvider`, `forecastProvider` | `features/forecast/application/forecast_providers.dart` | The forecast's account selection (kept in `app_meta`), the plan of the series shown, and the series for 30 or 90 days (`forecast.md`) |
 | `budgetAlertStoreProvider` | `core/di/providers.dart` | Which budget alerts this device raised (`budgets.md`): in memory by default and in demo, `budget_alerts` in dev and prod |
@@ -293,7 +293,7 @@ keeping its own navigation stack.
 | | `ReportsRoute` | `/reports` | the Reports segment: `ReportsView` (`features/reports/presentation/reports_view.dart`, `reports.md`) |
 | | `WeeklySummaryRoute` | `/reports/weekly` | `weekly_summary_screen.dart` (`reports.md`, **The weekly summary**), opened from the Reports segment and from its in-app notice |
 | | `NetWorthRoute` | `/net-worth` | the Net worth segment: a placeholder until net worth lands |
-| | `InvestmentsRoute` | `/investments` | the Investments segment: a placeholder until the holdings screen lands |
+| | `InvestmentsRoute` | `/investments` | the Investments segment: `InvestmentsView` (`features/investments/presentation/investments_view.dart`, `investments.md`) |
 | | `GoalsRoute` | `/goals` | the Goals segment: `GoalsScreen` (`features/goals/presentation/goals_screen.dart`, `goals.md`) with its New goal action |
 | | `NewGoalRoute` | `/goals/new` | `goal_editor_screen.dart` |
 | | `GoalDetailRoute` | `/goals/:id` | `goal_detail_screen.dart` |
@@ -356,7 +356,8 @@ keeping its own navigation stack.
   Four labels do not fit a phone's width, so the control scrolls sideways and opens
   scrolled to the segment shown. Reports shows the reports (`reports.md`), with the
   alerts bell (`BudgetAlertsButton`) in its app bar, since the weekly summary's notice is
-  reached through it; Goals shows the goals (`goals.md`) with New goal in its app bar, and
+  reached through it; Investments shows the investments (`investments.md`, **The
+  segment**); Goals shows the goals (`goals.md`) with New goal in its app bar, and
   every `/goals...` route opens inside the tab; a segment whose feature has not landed shows
   `InsightsPlaceholder` ("Coming soon"). The roots are `NoTransitionPage`s. Settings is
   the fifth tab.
