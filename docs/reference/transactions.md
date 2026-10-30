@@ -34,7 +34,9 @@ labelled, since they count toward the balance.
   checks that with 2,000 transactions only the rows on screen are built.
 - **Search.** The app bar's search field sets `TransactionFilters.text` 250 ms after the
   last keystroke (`TransactionsScreen.searchDebounce`); Close clears it at once, a
-  pending keystroke included, and closes the field. The text is split into terms on
+  pending keystroke included, and closes the field. The Search transactions shortcut opens
+  the list with the field open (`/transactions?search=true`, `app-core.md`, **Launch
+  links**); closing it there goes to `/transactions`, so the next shortcut opens it again. The text is split into terms on
   whitespace, and each term must be found as words in a row, the last one a prefix, in
   the name, the merchant name, the notes or the tags, ignoring case and Latin diacritics:
   `cafe` finds "Café Crème", `acme pay` "Acme Corp Payroll", `o'bri` "O'Brien's", and
@@ -262,7 +264,10 @@ a blob by its hash (`data.md`, **Receipts**; `sync-app.md`, **Receipts**).
   **The image source**): the camera or the gallery through `image_picker` in dev and
   prod, the demo receipt in the demo flavor. A cancelled pick changes nothing; a device
   with no camera app, or an image that cannot be used (malformed, or neither a JPEG nor
-  a PNG, so its metadata could not be stripped), is explained in a snack bar.
+  a PNG, so its metadata could not be stripped), is explained in a snack bar. The Scan
+  receipt shortcut (`/transactions/new?receipt=camera`) opens a new transaction's editor
+  with the camera already asked for, or, when the app is locked, once it is unlocked
+  (the camera's activity is not under the lock screen).
 - **Showing.** A thumbnail, read as "Receipt image" with "open the receipt full screen"
   as its action, opens the photo full screen (`ReceiptViewScreen`, pushed without a
   route of its own), zoomable. Photos are shown from their bytes, so a replaced one,

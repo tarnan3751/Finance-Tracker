@@ -155,7 +155,10 @@ problem, on:
   named as the fix.
 
 It prints each translated locale's untranslated count (shown in English), which never
-fails it.
+fails it. Android's XML strings are outside the check: the few the launcher reads
+without the app (the home screen widgets' names, descriptions and set-up message,
+`widgets.md`) live in `app/android/app/src/main/res/values/` with each translation
+beside them in `res/values-<locale>/`.
 
 ## `tools/pseudo_locale.dart`: the pseudo-locale
 

@@ -504,11 +504,15 @@ skipping what is already gone, so a wipe runs again from the top:
 2. the database files under the support directory: `finance_tracker.db` and the dev
    flavor's `finance_tracker.plain.db`, each with `-wal`, `-shm` and `-journal`;
 3. the receipts (`ReceiptStore.deleteAll`);
-4. the database key (`db_key_v1`), the session (`session_v1`), then the install's user
+4. the home screen widgets' snapshot (`WidgetWriter.clear`, `widgets.md`): removed and
+   every placed widget redrawn, which then offers to set the app up, so no name or
+   balance of the erased account stays on the home screen however soon the process is
+   killed;
+5. the database key (`db_key_v1`), the session (`session_v1`), then the install's user
    (`install_user_v1`, `TokenStore.clearInstallUserId`): the marker goes last, so the
    account's data is never left without the rule that keeps another account from
    syncing it;
-5. every pending reminder and every shown notification (`ReminderScheduler.clearAll`):
+6. every pending reminder and every shown notification (`ReminderScheduler.clearAll`):
    a bill's name in the tray is data;
 
 and only then removes the pending record. `app_meta`, the full-text objects and the

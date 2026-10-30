@@ -140,6 +140,20 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   shared file until the next share) and a receiver for the chooser's result. `pdf`'s
   transitive `qr` and `image`'s `posix` are held in `app/pubspec.yaml` to releases at
   least two weeks old.
+- **Home screen widgets and shortcuts.** `home_widget` (BSD-3, pinned exactly at 0.10.0)
+  and `quick_actions` (BSD-3, pinned exactly at 1.1.1, `quick_actions_android` 1.0.34).
+  `home_widget` brings Jetpack Glance 1.2.0, `androidx.work` 2.11.2 and coroutines for its
+  own code; the app's widgets are RemoteViews and the app module declares no Compose. The
+  manifest declares the three widget receivers, `exported="true"` for the system's widget
+  host, each with the `APPWIDGET_UPDATE` action and its `android.appwidget.provider`
+  meta-data (`res/xml/widget_{balances,budgets,bills}_info.xml`, `updatePeriodMillis`
+  0), and on `MainActivity` the meta-data `flutter_deeplinking_enabled` false (the launch
+  links reach the router through the app's own seam, `app-core.md`, **Launch links**).
+  `MainActivity` stays `singleTop` and overrides `onNewIntent` only to keep the newest
+  intent as its own. The shortcuts' icons are adaptive icons named from Dart, so
+  `res/raw/keep.xml` keeps `@drawable/ic_shortcut_*` from the release build's resource
+  shrinking; the providers are named by the manifest and kept by AAPT. The widgets'
+  resources are `widgets.md`'s.
 - **Network security.** `src/main/res/xml/network_security_config.xml` refuses cleartext
   and trusts system certificates; it applies to demo and prod.
   `src/dev/res/xml/network_security_config.xml` overrides it for dev only, adding cleartext

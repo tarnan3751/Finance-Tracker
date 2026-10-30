@@ -201,7 +201,8 @@ The list:
   `liability/<account id>`) are kept in `app_meta` under `bill_suggestions_dismissed`
   (`dismissedBillSuggestionsProvider`), never synced. A dismissed stream can still be made
   a bill from the subscriptions screen.
-- The active bills in three groups, each row showing one occurrence (`billFocus`): the
+- The active bills in three groups, each row showing one occurrence (`billFocus`, `domain/bill_status.dart`, which the home
+  screen widget's bills read too, `widgets.md`): the
   missed one, else the one due (the last, while in its grace days, before the next), else
   the next. **Overdue**: the last occurrence missed. **Due soon**: the occurrence shown is
   due within 7 days, or is in its grace days. **Later**: the rest, by date, the bills due

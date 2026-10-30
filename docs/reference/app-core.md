@@ -34,22 +34,25 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
 8. the stored session is read (`sessionControllerProvider`'s `restored()`, `auth.md`),
    so the first frame is already signed in or out; the lock's settings are read
    (`lockControllerProvider`'s `restored()`, `lock.md`), so with the lock on the first
-   frame is the lock screen and the window is secure before anything is drawn; then the
-   sync controller starts
+   frame is the lock screen and the window is secure before anything is drawn; the
+   launch link the app was started at, if any, is read (**Launch links**), so the router
+   opens at its location; then the sync controller starts
    (`sync-app.md`, **The controller**) and, in every flavor, the budget alert watcher is
    listened to (`budgets.md`, **Alerts**);
 9. `runApp(UncontrolledProviderScope(container: container, child: FinanceTrackerApp()))`;
 10. after the first frame, in every flavor, the reminder watcher is listened to (the bill
     reminders are planned then and whenever their inputs change, `bills.md`,
     **Reminders**) and `reminderSchedulerProvider.openedBillIds` pushes `/bills/:id` for
-    a tapped reminder;
+    a tapped reminder; the home screen widgets' runner is listened to (`widgets.md`), the
+    launch links that reach the running app go to their locations and the app shortcuts
+    are set (**Launch links**);
 11. in dev and prod, after the first frame, `sweepReceipts(container)`: the receipt files
     no live transaction references are deleted (`data.md`, **Receipts**), a failure
     logged by type only.
 
 **Starting again.** `startApp` gives its container `appRestartProvider`, the restart a
 restore runs under (`backup.md`, **Restore**): `runApp` of the plain restoring screen,
-then `stopApp()` (the reminder taps cancelled, the container disposed, and the close its
+then `stopApp()` (the reminder taps and the launch links cancelled, the container disposed, and the close its
 `databaseProvider` started awaited through `databaseClosing`, so the files are free),
 then the restore's work with its progress on that screen (a failure shown with a
 Continue button), then `startApp` again with the same configuration and overrides, so
@@ -107,7 +110,9 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `demoPersonaProvider`, `demoSeedProvider` | `core/di/providers.dart` | The persona the demo flavor shows and its demo seed (`data.md`, **The demo seed**) |
 | `legacyImportResultProvider` | `core/di/providers.dart` | The legacy importer's `ImportSummary` at this launch, or null; `AppShell` shows it once and clears it |
 | `todayProvider` | `core/time/today_provider.dart` | The clock's local date, kept current past midnight (**Time**) |
-| `goRouterProvider` | `core/router/app_router.dart` | The app's `GoRouter` (`routerFor`), gated on the session in dev and prod, disposed with the container |
+| `goRouterProvider`, `launchLocationProvider` | `core/router/app_router.dart` | The app's `GoRouter` (`routerFor`), gated on the session in dev and prod, opening at the start link's location when there is one, disposed with the container; that location (**Launch links**) |
+| `launchIntentProvider`, `appShortcutsProvider` | `core/platform/launch_intent_provider.dart`, `app_shortcuts_provider.dart` | The links the app is opened at and the launcher's shortcuts (**Launch links**): the fakes by default, `home_widget` and `quick_actions` in every flavor |
+| `widgetWriterProvider`, `widgetDataProvider`, `widgetRefreshRunnerProvider` | `features/widgets/application/widget_providers.dart` | The home screen widgets' writer (the fake by default, `home_widget` in every flavor), their snapshot and the runner that keeps them current (`widgets.md`) |
 | `tokenStoreProvider`, `fakeServerProvider`, `financeApiProvider`, `appVersionProvider` | `core/api/api_providers.dart` | The API (**The API client**) |
 | `sessionControllerProvider`, `deviceNameProvider`, `installUserProvider` | `features/auth/application/` | The session, the device's name and the install's user (`auth.md`) |
 | `receiptStoreProvider` | `core/di/providers.dart` | Where receipt photos are kept: in memory by default and in demo, files in the support directory in dev and prod (`data.md`, **Receipts**) |
@@ -138,8 +143,9 @@ file dialogs (`filePickerOverridesFor`: the platform file exporter and backup pi
 dev and prod, the fakes otherwise, so a test on the dev wiring through
 `localDataOverridesFor` keeps the fakes), and in every flavor the platform seams that
 behave the same in all three (the secure flag and the monotonic clock through
-`MainActivity`'s channels, the device's check through `local_auth`); later phases add
-theirs there.
+`MainActivity`'s channels, the device's check through `local_auth`, the home screen
+widgets' writer and the launch links through `home_widget`, the shortcuts through
+`quick_actions`); later phases add theirs there.
 
 ## The image source
 
@@ -377,8 +383,8 @@ keeping its own navigation stack.
 | | `ItemsRoute` | `/accounts/linked-banks` | `features/items/presentation/items_screen.dart` (`items.md`) |
 | | `AccountDetailRoute` | `/accounts/:id` | `account_detail_screen.dart` |
 | | `EditAccountRoute` | `/accounts/:id/edit` | `account_editor_screen.dart` |
-| Transactions | `TransactionsRoute` | `/transactions` | `features/transactions/presentation/transactions_screen.dart` |
-| | `NewTransactionRoute` | `/transactions/new?account=<id>` | `transaction_editor_screen.dart` |
+| Transactions | `TransactionsRoute` | `/transactions`, `/transactions?search=true` | `features/transactions/presentation/transactions_screen.dart`; with `search=true` (Search transactions) it starts searching, and closing that search goes to `/transactions` |
+| | `NewTransactionRoute` | `/transactions/new?account=<id>`, `/transactions/new?receipt=camera` | `transaction_editor_screen.dart`; with `receipt=camera` (Scan receipt) the camera opens for the receipt photo, under the lock once unlocked |
 | | `DuplicatesRoute` | `/transactions/duplicates` | `features/duplicates/presentation/duplicate_review_screen.dart` (`duplicates.md`) |
 | | `TransactionRoute` | `/transactions/:id` | `transaction_editor_screen.dart` |
 | Plan | `PlanRoute` | `/plan` | redirects to `/budgets` |
@@ -557,6 +563,55 @@ keeping its own navigation stack.
   (each list and its detail, `openDetail`, Back, deep links, another tab's page, the
   compact and medium windows), `test/core/layout/two_pane_fold_test.dart` (the fold
   split with injected display features). Goldens and their device sizes: **Tests**.
+
+## Launch links
+
+A home screen widget's tap and an app shortcut open the app at a `financetracker://`
+link; `core/router/launch_links.dart` maps each to a router location (`launchTargetOf`),
+and a link it does not know opens nothing (logged without the link).
+
+| Link | Location |
+|---|---|
+| `financetracker://accounts` | `/accounts` |
+| `financetracker://insights/net-worth` | `/net-worth` |
+| `financetracker://plan/budgets`, `…/plan/budgets/<id>` | `/budgets`, `/budgets/<id>/transactions` |
+| `financetracker://plan/bills`, `…/plan/bills/<id>` | `/bills`, `/bills/<id>` |
+| `financetracker://transactions/new`, `…?receipt=camera` | `/transactions/new`, `/transactions/new?receipt=camera` |
+| `financetracker://search` | `/transactions?search=true` |
+| `financetracker://sync` | `/settings`, and a sync session (`SyncController.syncNow`, which does nothing in demo) when the app was already running; a cold start syncs anyway |
+
+- **The seam.** `core/platform/launch_intent.dart`, pure Dart: `LaunchIntent.initial()`,
+  the link of a cold start, and `opened`, the links that reach the running app.
+  `PlatformLaunchIntent` (every flavor, one instance for the process, so a restart in the
+  process does not reopen the first link) reads a widget's link from `home_widget`
+  (`initiallyLaunchedFromHomeWidget`, `widgetClicked`) and a shortcut's from
+  `quick_actions` (its type is the link; `initialize`'s handler); both plugins hear
+  `MainActivity`'s `onNewIntent`, so a second tap or shortcut after backgrounding reaches
+  the router, and `MainActivity` makes each new intent its own (`setIntent`). When
+  Android recreates the activity (after the process died, from Recents:
+  `savedInstanceState` is set) or relaunches it from history
+  (`FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY`), `MainActivity.onCreate` clears the intent's
+  link and the shortcut's extra before the plugins read them, so the destination (the
+  camera, for Scan receipt) is not reopened unasked.
+  `FakeLaunchIntent` starts at a given link and delivers others with `open`.
+- **Routing.** `bootstrap` reads `initial()` before `runApp` and sets
+  `launchLocationProvider`, which `goRouterProvider` opens at; after the first frame it
+  sends every `opened` link through `openLaunchLink` (`router.go`, and `syncNow` for Sync
+  now). The session gate, the restore offer and the lock apply as to any location: under
+  the lock the destination is built behind the gate. Being a `go` to the destination's
+  URL, a link lands as the two-pane shell draws that URL (**Large screens and
+  foldables**): on an expanded window `…/plan/bills/<id>` is the bills list beside the
+  bill, and `…/search` the transactions searching beside their placeholder (the shell
+  passes `search` to the list it shows in the start pane). The embedding's own deep linking is
+  off (`flutter_deeplinking_enabled` false in the manifest, `build.md`), so an intent's
+  data never reaches the router as a raw route.
+- **Shortcuts.** `core/platform/app_shortcuts.dart`, pure Dart: `AppShortcuts.set(list)`
+  of `AppShortcut(link, title, icon)`. `QuickActionsAppShortcuts` (every flavor) sets them
+  as `quick_actions`' dynamic shortcuts; `FakeAppShortcuts` records. `appShortcutsFor`
+  (`launch_links.dart`) is the list, in the ARB's words for the device's language: Add
+  transaction, Scan receipt, Search transactions and Sync now, with the adaptive icons
+  `res/drawable/ic_shortcut_{add,receipt,search,sync}.xml`. `bootstrap` sets them after the
+  first frame, in every flavor (Sync now opens Settings in demo).
 
 ## Theme
 
