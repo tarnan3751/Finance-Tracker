@@ -19,7 +19,11 @@ duplicates, and given a receipt photo. Recurring streams come from the bank and 
 that runs over every transaction, subscriptions are listed with what they cost a year, bills
 have a calendar and local reminders that fire at the right local time across daylight-saving
 changes, and a forecast projects the next 30 or 90 days of balance with a confidence band.
-Reports and net worth are not built yet.
+An Insights tab reports spending by category and merchant with comparisons, top movers and
+anomaly hints, raises a weekly summary, shows net worth over time with the history before
+install estimated from transactions and labelled as such, lists holdings with allocation and
+gains, tracks savings goals with contributions and suggestions, and projects when a loan or card
+is paid off; a monthly PDF report and a CSV export save through the system dialog or share.
 
 ## Layout
 

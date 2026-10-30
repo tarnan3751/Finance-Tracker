@@ -18,25 +18,33 @@ heading of this file or of a doc.
 
 ## Status
 
-**Phases 0 to 5 have landed and passed their gates; Phase 6 (reports, net worth, investments,
-goals) is next:** the app runs on its Riverpod and go_router core with manual accounts,
-transactions and categories on the encrypted Drift database (schema v10 with the change log, field
-clocks, Items, rules, budgets and their alerts, dismissed duplicate pairs, saved filters, a
-full-text index, recurring streams and their overrides, liabilities, bills and bill alerts); it
-signs in against the development server through the API client, syncs user data between devices
-through the sync engine, links banks through Plaid Link (real Sandbox Items through the server,
-which polls Plaid and verifies its webhooks), pulls their accounts and transactions with reported
-balances and institution logos, applies the user's rules on arrival and, on request, to the
-existing transactions; it budgets by category with periods, rollover, projection and in-app
-alerts, hides and bulk-edits transactions, reviews likely duplicates, searches by word prefixes,
-saves filters, splits transactions and attaches receipt photos; it pulls Plaid's recurring streams
-and liabilities, detects recurring streams in every transaction source with a measured detector
-and merges the two, classifies subscriptions and lists them with annual totals, tracks bills with
+**Phases 0 to 6 have landed and passed their gates; Phase 7 (sync hardening and security) is
+next:** the app runs on its Riverpod and go_router core with manual accounts, transactions and
+categories on the encrypted Drift database (schema v12 with the change log, field clocks, Items,
+rules, budgets and their alerts, dismissed duplicate pairs, saved filters, a full-text index,
+recurring streams and their overrides, liabilities, bills and bill alerts, securities, holdings,
+investment transactions, daily balance snapshots, goals and their contributions); it signs in
+against the development server through the API client, syncs user data between devices through
+the sync engine (contract 0.6.0; a pulled record of a type this build does not know is held, not
+failed), links banks through Plaid Link (real Sandbox Items through the server, which polls Plaid
+and verifies its webhooks), pulls their accounts and transactions with reported balances and
+institution logos, applies the user's rules on arrival and, on request, to the existing
+transactions; it budgets by category with periods, rollover, projection and in-app alerts, hides
+and bulk-edits transactions, reviews likely duplicates, searches by word prefixes, saves filters,
+splits transactions and attaches receipt photos; it pulls Plaid's recurring streams and
+liabilities, detects recurring streams in every transaction source with a measured detector and
+merges the two, classifies subscriptions and lists them with annual totals, tracks bills with
 local reminders scheduled at the right wall-clock time across DST and flags missed payments, and
 projects 30 and 90 days of cash flow with a confidence band, all under a Plan tab with Budgets,
-Bills and Forecast segments; and it runs the demo flavor on the persona engine's seed against an
-in-process fake server with no network; the dev flavor carries a developer menu for the Sandbox
-controls.
+Bills and Forecast segments; it pulls holdings and investment transactions, records a balance
+snapshot per account per day and shows net worth over time with pre-install history reconstructed
+from transactions and labelled as derived, reports spending by category and merchant with
+comparisons, top movers and anomaly hints measured against the persona seeds, raises a weekly
+summary, tracks savings goals with contributions and suggestions, projects liability payoff, and
+exports a byte-identical PDF monthly report and a CSV, all under an Insights tab with Reports,
+Net worth, Investments and Goals segments; and it runs the demo flavor on the persona engine's
+seed against an in-process fake server with no network; the dev flavor carries a developer menu
+for the Sandbox controls.
 The repository is the pub workspace of **Folder layout**, Android only. The app runs in
 three flavors (`dev`, `demo`, `prod`) through `app/lib/bootstrap.dart`; `server/` is the
 development server implementing the contract with a fake Plaid client
@@ -119,11 +127,15 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | Transactions: hidden, bulk edit, search and saved filters, splits, receipts | `app/lib/features/transactions/`, `app/lib/core/db/full_text_search.dart`, `app/lib/core/db/receipt_store.dart`, `app/lib/core/platform/image_source.dart` | `docs/reference/transactions.md`, `docs/reference/data.md` |
 | Recurring: the pull of Plaid streams, the detector and its harness, subscriptions, the merge, the user's overrides, the Subscriptions screen | `app/lib/features/recurring/` | `docs/reference/recurring.md` |
 | Liabilities: the pull and the repository | `app/lib/features/liabilities/` | `docs/reference/liabilities.md` |
-| Investments: holdings, securities and investment transactions, the pull and the repositories | `app/lib/features/investments/` | `docs/reference/investments.md` |
-| Net worth: the daily balance snapshots and their writer, the series and its reconstruction, payoff projections, the net worth screen | `app/lib/features/net_worth/` | `docs/reference/net-worth.md` |
+| Investments: holdings, securities and investment transactions, the pull and the repositories, allocation and gains, the Investments segment | `app/lib/features/investments/` | `docs/reference/investments.md` |
+| Net worth: the daily balance snapshots and their writer, the series and its reconstruction, payoff projections, the Net worth segment | `app/lib/features/net_worth/` | `docs/reference/net-worth.md` |
+| Reports: transaction classification, periods, comparisons, movers, anomaly flags and their harness, the weekly summary, the Reports segment | `app/lib/features/reports/` | `docs/reference/reports.md` |
+| Goals: the goal and contribution entities and their sync records, progress and suggestions, the Goals segment and its editors | `app/lib/features/goals/` | `docs/reference/goals.md` |
+| Export: the PDF monthly report, the CSV, the `FileExporter` boundary, the export screen | `app/lib/features/export/`, `app/lib/core/platform/file_exporter.dart` | `docs/reference/export.md` |
 | Bills: schedule, status and the payment assignment, reminders behind the scheduler boundary, the list, calendar and editor | `app/lib/features/bills/`, `app/lib/core/platform/reminder_scheduler.dart`, `app/lib/core/time/` | `docs/reference/bills.md` |
 | Forecast: the projection, its band and allowance, the screen and table | `app/lib/features/forecast/` | `docs/reference/forecast.md` |
 | The Plan tab: the shell, `PlanScaffold`, the editors' `OwnPage` closer | `app/lib/core/router/` | `docs/reference/app-core.md` |
+| The Insights tab: the shell, `InsightsScaffold`, the fifth destination | `app/lib/core/router/` | `docs/reference/app-core.md` |
 | Export: the monthly report's PDF, the transactions' CSV, the file exporter | `app/lib/features/export/`, `app/lib/core/platform/file_exporter.dart` | `docs/reference/export.md` |
 | API client, in-app fake server, session and auth | `app/lib/core/api/`, `app/lib/features/auth/` | `docs/reference/app-core.md` (the API client), `docs/reference/auth.md` |
 | The generated API client | `packages/api_client/` | `docs/reference/api.md` (Phase 2) |
@@ -242,11 +254,25 @@ PLAN.md          the plan: gitignored, read from the main tree
   min)`, a time in a DST gap moves later by the gap, an ambiguous time takes its first occurrence.
 - The detector's precision and recall harness runs under the `detector_harness` tag in the gate;
   a change to the detector or to the persona engine's recurring expectations must keep every
-  persona at or above 0.9 both ways.
+  persona at or above 0.9 both ways. The anomaly harness runs under `anomaly_harness` (seeds 1
+  and 2); a change to the flags or to the planted anomalies must keep recall at or above 0.8 and
+  precision above the floor in `docs/reference/reports.md`.
 - A detected stream's id hashes its stable anchor (`L` for any day of the month of 28 or more),
   currency and direction; the user's overrides and bill links are keyed by it.
 - `app_meta` holds device-local state (`reminders_zone`, `reminders_scheduled_at`,
-  `forecast_selection`, `bill_suggestions_dismissed`) and never syncs; `app_settings` syncs.
+  `forecast_selection`, `bill_suggestions_dismissed`, `snapshots_written_on`,
+  `dismissed_anomalies`, `weekly_summary_raised`, `payoff_entries`) and never syncs;
+  `app_settings` syncs.
+- A pulled change-log entry whose `entity_type` this build does not know is held under its raw
+  type name and released, at a schema step or at any later open, by a build that knows it; a pull
+  never fails on an unknown type (`docs/reference/sync-app.md`, Unknown types). The first build
+  that holds them is v0.7.0, so every device moves to it together; a new entity type is additive
+  from then on.
+- `Decimal` (shared_models) is for quantities and prices only: exact and comparable, with no
+  arithmetic against `Money`.
+- The PDF report's bytes are a golden: `pdf` with no metadata, `compress: false` and the `/ID`
+  fixed, so the file is identical on every device; a layout or string change moves the pinned
+  hash, and the golden is regenerated on purpose.
 
 ## Seeing the app
 
@@ -335,7 +361,9 @@ the tests and the demo flavor on that AVD run any time the lock is held); the se
 its series onto `main` before delivery; a lane's docs changes stay within its area's reference
 file, the map only where a status line changes. A lane never runs the dev flavor, the dev server
 with real keys, or anything against Plaid Sandbox: those are the coordinator's, and the keys are
-not in a clone.
+not in a clone. At most two or three lanes and reviews run gates at once, and every agent waits
+on a gate or a harness run with one bounded loop under its tool's timeout, leaving no polling
+shell behind (the agent definitions say so).
 
 **Review routing.** The reviewer's findings go back to the **same** developer (`SendMessage`),
 which folds them into the series; the coordinator reads the fold's diff; then the reviewer

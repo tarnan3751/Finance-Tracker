@@ -3,6 +3,82 @@
 Each release section is generated from the Conventional Commit log since the previous tag
 (`PLAN.md` §10). Tags are `vX.Y.Z`; a phase ends with a `vX.Y.Z-phaseN` pre-release.
 
+## v0.7.0-phase6 — 2026-10-30
+
+Phase 6 lands insights: the app pulls holdings, securities and investment transactions (contract
+0.6.0, with provenance on every investment record and a contribution record type for goals), records
+a balance snapshot per account per day from install day, and shows net worth over time with
+pre-install history reconstructed from transactions and labelled as an estimate. Reports break spending
+down by category and merchant with month-over-month and year-over-year comparisons, top movers, a
+savings rate and anomaly hints measured against the persona seeds; a weekly summary arrives in the
+alerts sheet each Monday. Savings goals track a balance or logged contributions, suggest a monthly
+amount and say whether they are on track, with contributions synced as their own records so two
+devices never overwrite each other. Liabilities get payoff projections with an extra-payment slider,
+holdings get allocation, cost basis and gain, and a monthly PDF report and a CSV export save through
+the system dialog or share, the PDF byte-identical on any device. All of it lives under a new Insights
+tab with Reports, Net worth, Investments and Goals segments. The sync layer now holds pulled records of
+entity types a build does not yet know instead of failing the page, so later additions are safe for
+every device that carries this release; the local schema moves to v12.
+
+### Features
+
+- api: Serve investment provenance (94484b0)
+- server: Add an investment fixture to the fake Plaid client (f55579a)
+- models: Add Decimal and the investment entities (0d9680a)
+- app: Add schema v11 with investments and balance snapshots (291f9c2)
+- investments: Pull and store holdings and investment transactions (6227351)
+- net_worth: Record a balance snapshot per account per day (d7d9e24)
+- app: Serve the family persona's brokerage in demo (c7e3e2e)
+- app: Add the Insights tab with four segments (7f92385)
+- reports: Classify and total transactions by period (a787748)
+- reports: Flag unusual amounts and new merchants (781554c)
+- reports: Add the reports screen and its tables (c6d13d8)
+- reports: Add the weekly summary (2a855a0)
+- models: Make goal contributions their own entity (63b23b4)
+- app: Add schema v12 with goals and contributions (7b9bf56)
+- goals: Store goals with their progress and suggestions (5025dff)
+- goals: Add the goals screens (5efb560)
+- app: Seed two goals per persona in demo (444a568)
+- investments: Allocate holdings by security type and compute gains (054c67d)
+- investments: Add the Investments segment (6f0e3ab)
+- net_worth: Compute the net worth series from balance snapshots (ec3416c)
+- net_worth: Reconstruct pre-install net worth from transactions (febf2b2)
+- net_worth: Project liability payoff by monthly amortization (a556805)
+- net_worth: Add the net worth screen with its chart and table (5246397)
+- app: Add the file exporter boundary (c1c8262)
+- export: Write transactions as RFC 4180 CSV (e5f3d1b)
+- export: Render the monthly report as a reproducible PDF (3040300)
+- export: Add the export screen and the reports menu (34a3a4b)
+
+### Fixes
+
+- sync: Hold pulled entries of types this build does not know (25f4144)
+- server: Tamper a middle byte in the password hash test (6231bc4)
+- sync: Release held records of every known type at each open (1403616)
+
+### Tests
+
+- reports: Measure the anomaly flags against the persona seeds (6243624)
+- app: Show the demo reports on a device (8f03272)
+- app: Converge goals across devices (f4f3513)
+- app: Give the other seeded convergence runs the same timeout room (355a7ff)
+- app: Show the demo family's net worth on a device (cabdd30)
+- app: Export a report on a device (3edfded)
+
+### Build and tooling
+
+- app: Add pdf, the save and share plugins and Roboto (a8f43a8)
+
+### Documentation
+
+- Describe investments and balance snapshots (e8b3cbf)
+- reports: Describe reports and insights (76ef935)
+- goals: Describe savings goals (58f9852)
+- investments: Describe the Investments segment (14bed02)
+- Tell developers and reviewers to wait with one bounded loop (73acb43)
+- net_worth: Describe the net worth series and payoff (23d0dac)
+- export: Describe the export (abef10b)
+
 ## v0.6.0-phase5 — 2026-10-29
 
 Phase 5 lands recurring streams, subscriptions, bills with reminders and a cash-flow forecast,
