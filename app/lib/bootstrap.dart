@@ -146,9 +146,10 @@ String deviceLocale() => Intl.verifiedLocale(
 
 /// Opens the dev and prod flavors' database in [container] and prepares it: the open
 /// sequence runs (and throws its exceptions) here rather than under the first screen, the
-/// install date is recorded on the first launch, the system categories are seeded, and
-/// the original app's data is imported once (in the currency of [locale]), its summary
-/// left in `legacyImportResultProvider`. A failed import is logged, not thrown.
+/// held records of every type this build knows are released, the install date is recorded
+/// on the first launch, the system categories are seeded, and the original app's data is
+/// imported once (in the currency of [locale]), its summary left in
+/// `legacyImportResultProvider`. A failed release or import is logged, not thrown.
 Future<void> openLocalData(
   ProviderContainer container, {
   required String locale,
@@ -157,6 +158,13 @@ Future<void> openLocalData(
 }) async {
   final AppDatabase database = container.read(databaseProvider);
   await database.verifyOpen();
+  try {
+    await releaseKnownHeldRecords(container.read(driftSyncStoreProvider));
+  } on Object catch (e) {
+    // A held record that cannot be read or written must not keep the app from starting:
+    // its type's records stay held, and the next launch tries again.
+    _log.warning('releasing the held records failed: ${e.runtimeType}');
+  }
   final DriftAppMetaStore meta = DriftAppMetaStore(database);
   if (await meta.read(AppMetaKeys.installDate) == null) {
     await meta.write(

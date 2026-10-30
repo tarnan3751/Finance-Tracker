@@ -248,6 +248,23 @@ final class DriftSyncStore implements SyncStore {
         }
       });
 
+  /// The types this build knows that have a held record: one query, a cheap no-op for
+  /// the caller when nothing is held. A type held under a raw name this build does not
+  /// know is not among them.
+  Future<Set<EntityType>> heldTypes() async {
+    final Set<String> names = {
+      for (final TypedResult row in await (_database.selectOnly(
+        _database.heldRecords,
+        distinct: true,
+      )..addColumns([_database.heldRecords.entityType])).get())
+        row.read(_database.heldRecords.entityType)!,
+    };
+    return {
+      for (final EntityType type in EntityType.values)
+        if (names.contains(snakeName(type))) type,
+    };
+  }
+
   /// The ids of the held records of [type], in id order.
   Future<List<String>> heldIds(EntityType type) async => [
     for (final HeldRecordRow row

@@ -110,9 +110,14 @@ into the field clocks (`record_clocks`) and fields (`held_records`, `unsupported
 kept under the raw name, exactly as `merge` would fold them; the rest of the page applies
 and the cursor advances, so a device on an older build keeps receiving every other change.
 Its outbox never holds one: a build only records types it knows. The version that knows
-the type releases these records in its schema step as for any held type
-(`releaseHeldRecords` finds them under the type's JSON name). The server refuses a push of
-a type it does not know.
+the type releases these records as for any held type (`releaseHeldRecords` finds them under
+the type's JSON name), in its schema step and again at every open: `openLocalData` calls
+`releaseKnownHeldRecords` after the migrations, which releases the held records of every
+type this build knows that has any (`DriftSyncStore.heldTypes`, one query when nothing is
+held), so a build that learns a type without a schema step still releases them. A release
+that throws (a held row that does not read back) is logged by type and leaves the records
+held, so it never blocks a launch; the next open tries again. The server refuses a push of a
+type it does not know.
 
 Pulled changes reach the screens through Drift's watchers on the tables the store writes.
 

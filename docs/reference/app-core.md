@@ -22,11 +22,12 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
    not followed yet;
 6. a `ProviderContainer` with `overridesFor(config)`;
 7. in dev and prod, `openLocalData(container)`: the database opens (`data.md`,
-   **Encryption and the key**), `install_date` is recorded on the first launch, the system
-   categories are seeded and the legacy importer runs once. Any failure to open is
-   logged by type and `runApp(DatabaseErrorApp(failure: ...))` shows a plain error screen
-   instead of the app, with a message for a missing cipher, a wrong key, a lost key, or
-   anything else;
+   **Encryption and the key**), the held records of every type this build knows are
+   released (`sync-app.md`, **Unknown types**; a failure is logged by type and leaves
+   them held), `install_date` is recorded on the first launch, the system categories are
+   seeded and the legacy importer runs once. Any failure to open is logged by type and
+   `runApp(DatabaseErrorApp(failure: ...))` shows a plain error screen instead of the
+   app, with a message for a missing cipher, a wrong key, a lost key, or anything else;
 8. the stored session is read (`sessionControllerProvider`'s `restored()`, `auth.md`),
    so the first frame is already signed in or out; then the sync controller starts
    (`sync-app.md`, **The controller**) and, in every flavor, the budget alert watcher is

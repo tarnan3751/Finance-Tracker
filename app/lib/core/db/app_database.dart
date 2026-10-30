@@ -341,6 +341,17 @@ int _systemWallMillis() => DateTime.now().millisecondsSinceEpoch;
 Future<void> releaseHeldRecords(DriftSyncStore store, EntityType type) async =>
     store.materializeHeld(type, await store.heldIds(type));
 
+/// [releaseHeldRecords] for every type this build knows that has a held record, so a
+/// record held under a type's raw name by a build that did not know the type lands once
+/// a build that knows it opens the database, whether or not a schema step came with the
+/// type. Runs at every open, after the migrations (`openLocalData`); one query when
+/// nothing is held, and nothing the second time but the records still held for a reason.
+Future<void> releaseKnownHeldRecords(DriftSyncStore store) async {
+  for (final EntityType type in await store.heldTypes()) {
+    await releaseHeldRecords(store, type);
+  }
+}
+
 // The migrations' clock: only "now", from the database's wall clock.
 final class _WallClock implements Clock {
   _WallClock(this._wallMillis);
