@@ -21,6 +21,9 @@ abstract interface class DatabaseKeyStore {
 
   /// Creates a new key, stores it and returns it.
   Future<String> create();
+
+  /// Deletes the stored key, if any: the local wipe's, once the database is gone.
+  Future<void> delete();
 }
 
 /// A new key: 32 bytes from [Random.secure], as 64 lowercase hex digits.
@@ -69,6 +72,9 @@ final class SecureDatabaseKeyStore implements DatabaseKeyStore {
     await _storage.write(key: keyName, value: key);
     return key;
   }
+
+  @override
+  Future<void> delete() => _storage.delete(key: keyName);
 }
 
 /// A key held in memory, for tests.
@@ -84,4 +90,7 @@ final class InMemoryDatabaseKeyStore implements DatabaseKeyStore {
 
   @override
   Future<String> create() async => key = newDatabaseKey();
+
+  @override
+  Future<void> delete() async => key = null;
 }

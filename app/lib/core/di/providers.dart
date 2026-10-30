@@ -6,7 +6,8 @@
 /// over one shared [InMemoryStore] (what tests get), recording into an in-memory sync
 /// store, and the receipts are in memory; [overridesFor] gives dev and prod the Drift
 /// repositories over the encrypted database, recording into the Drift sync store, with
-/// the receipts as files in the app's support directory, the bill reminders through
+/// the receipts as files in the app's support directory (which the local wipe deletes
+/// with the database files), the bill reminders through
 /// `flutter_local_notifications` and the exported files through the "Save as" dialog and
 /// the share sheet, and the demo flavor the demo ones, which record nothing, with the
 /// fake image source (and, as by default, the fake reminder scheduler and file
@@ -28,6 +29,7 @@ import 'package:finance_tracker/core/db/drift_plaid_pull_store.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/db/legacy_import/import_summary.dart';
+import 'package:finance_tracker/core/db/local_wipe.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/plaid/plaid_pull.dart';
@@ -126,6 +128,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:persona_engine/persona_engine.dart' show DemoSeed, PersonaId;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_models/shared_models.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sync_engine/sync_engine.dart';
 
 part 'providers.g.dart';
@@ -425,6 +428,22 @@ SettingsRepository settingsRepository(Ref ref) {
 @Riverpod(keepAlive: true)
 ReceiptStore receiptStore(Ref ref) => MemoryReceiptStore();
 
+/// The local wipe (`local_wipe.dart`): the stores only by default (the tests, the demo
+/// flavor), the database files too in dev and prod.
+@Riverpod(keepAlive: true)
+LocalWipe localWipe(Ref ref) => InMemoryLocalWipe(
+  receipts: ref.watch(receiptStoreProvider),
+  keys: ref.watch(databaseKeyStoreProvider),
+  tokens: ref.watch(tokenStoreProvider),
+  reminders: ref.watch(reminderSchedulerProvider),
+);
+
+/// Stops the app, wipes its local data, confirms and starts it again: `bootstrap`
+/// supplies it; anywhere else (the tests) it is unavailable unless overridden.
+@Riverpod(keepAlive: true)
+WipeLocalData wipeLocalData(Ref ref) =>
+    (_) => throw UnsupportedError('the local wipe is supplied by bootstrap');
+
 /// Where the Plaid pull keeps its cursors: in memory by default (beside the in-memory
 /// store, so a new store starts it afresh), `sync_meta` in dev and prod.
 @Riverpod(keepAlive: true)
@@ -649,6 +668,16 @@ final List<Override> _driftOverrides = [
   ),
   receiptStoreProvider.overrideWith(
     (ref) => FileReceiptStore(getApplicationSupportDirectory),
+  ),
+  localWipeProvider.overrideWith(
+    (ref) => DriftLocalWipe(
+      directory: getApplicationSupportDirectory,
+      receipts: ref.watch(receiptStoreProvider),
+      preferences: SharedPreferences.getInstance,
+      keys: ref.watch(databaseKeyStoreProvider),
+      tokens: ref.watch(tokenStoreProvider),
+      reminders: ref.watch(reminderSchedulerProvider),
+    ),
   ),
   reminderSchedulerProvider.overrideWith((ref) {
     final AppLocalizations l10n = lookupAppLocalizations(

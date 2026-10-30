@@ -180,6 +180,11 @@ void main() {
     expect(calls.where((c) => c.method == 'cancelAll'), isEmpty);
   });
 
+  test('clears every notification, shown ones included', () async {
+    await scheduler().clearAll();
+    expect(calls.where((c) => c.method == 'cancelAll'), hasLength(1));
+  });
+
   test('replays the reminder that launched the app', () async {
     launch = {
       'notificationLaunchedApp': true,

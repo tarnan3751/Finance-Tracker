@@ -82,6 +82,9 @@ final class _FailingStore implements TokenStore {
   @override
   Future<void> writeInstallUserId(String userId) =>
       inner.writeInstallUserId(userId);
+
+  @override
+  Future<void> clearInstallUserId() => inner.clearInstallUserId();
 }
 
 const String _email = 'ada@example.com';

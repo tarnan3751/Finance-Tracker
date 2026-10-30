@@ -31,6 +31,9 @@ final class FakeReminderScheduler implements ReminderScheduler {
   /// The reminders [fire] showed, in order.
   final List<ScheduledReminder> fired = [];
 
+  /// How many times [clearAll] ran.
+  int cleared = 0;
+
   final Map<int, ScheduledReminder> _pending = {};
   final StreamController<String> _opened = StreamController<String>.broadcast();
 
@@ -57,6 +60,12 @@ final class FakeReminderScheduler implements ReminderScheduler {
 
   @override
   Future<void> cancelAll() async => _pending.clear();
+
+  @override
+  Future<void> clearAll() async {
+    _pending.clear();
+    cleared++;
+  }
 
   @override
   Future<void> openSettings() async => settingsOpened++;

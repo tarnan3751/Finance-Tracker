@@ -55,6 +55,9 @@ abstract interface class ReceiptStore {
   /// last written before [olderThan] (so a photo saved while the sweep runs stays), staged
   /// ones included. Returns how many it deleted.
   Future<int> sweep(Set<String> keep, {required DateTime olderThan});
+
+  /// Deletes every receipt, staged ones included: the local wipe's.
+  Future<void> deleteAll();
 }
 
 final RegExp _id = RegExp(r'^[A-Za-z0-9_-]+$');
@@ -152,6 +155,12 @@ final class FileReceiptStore implements ReceiptStore {
     return deleted;
   }
 
+  @override
+  Future<void> deleteAll() async {
+    final Directory folder = Directory(p.join(await _baseDir, receiptFolder));
+    if (folder.existsSync()) await folder.delete(recursive: true);
+  }
+
   // Whether [file] was there to delete.
   static Future<bool> _deleteIfPresent(File file) async {
     try {
@@ -215,5 +224,11 @@ final class MemoryReceiptStore implements ReceiptStore {
     ];
     gone.forEach(_files.remove);
     return gone.length;
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    _files.clear();
+    _staged.clear();
   }
 }

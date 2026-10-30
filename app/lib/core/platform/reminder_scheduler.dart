@@ -31,6 +31,10 @@ abstract interface class ReminderScheduler {
   /// Cancels every pending reminder; a notification already shown stays.
   Future<void> cancelAll();
 
+  /// Cancels every pending reminder and removes every notification the app has shown,
+  /// whatever its kind: the local wipe's, since a bill's name in the tray is data.
+  Future<void> clearAll();
+
   /// Opens the system's notification settings for the app.
   Future<void> openSettings();
 

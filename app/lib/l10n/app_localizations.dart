@@ -6088,6 +6088,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start fresh'**
   String get restoreOfferStartFresh;
+
+  /// Headline while the local wipe runs with the app stopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Erasing this device\'s data…'**
+  String get erasingTitle;
+
+  /// Headline when the local wipe failed part way.
+  ///
+  /// In en, this message translates to:
+  /// **'This device\'s data could not be erased completely'**
+  String get eraseFailedTitle;
+
+  /// Supporting text when the local wipe failed. The second sentence, pointing at Android's app storage settings, shows when the failure repeats: the second failure in a row, or any failure of a wipe resumed at startup.
+  ///
+  /// In en, this message translates to:
+  /// **'{repeated, select, true{The app does not start on what is left. Try again; what is already erased stays erased. If this keeps failing, clear the app\'s storage in Android\'s settings.} other{The app does not start on what is left. Try again; what is already erased stays erased.}}'**
+  String eraseFailedBody(String repeated);
+
+  /// Button that runs a failed local wipe again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get eraseTryAgain;
+
+  /// Headline once the account was deleted on the server and this device wiped.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account and this device\'s data were deleted'**
+  String get erasedAccountTitle;
+
+  /// Supporting text of the account deletion's confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Every linked bank was disconnected, every record on the server was deleted, and your other devices were signed out.'**
+  String get erasedAccountBody;
+
+  /// Headline once this device was signed out and wiped, the account kept.
+  ///
+  /// In en, this message translates to:
+  /// **'This device\'s data was erased'**
+  String get erasedDeviceTitle;
+
+  /// Supporting text of the erase's confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is unchanged. Sign in again to bring back your bank data and everything that had synced.'**
+  String get erasedDeviceBody;
+
+  /// Button on the wipe's confirmation that starts the app again, at sign-in.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get erasedDone;
 }
 
 class _AppLocalizationsDelegate

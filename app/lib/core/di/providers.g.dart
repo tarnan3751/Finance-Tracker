@@ -1779,6 +1779,104 @@ final class ReceiptStoreProvider
 
 String _$receiptStoreHash() => r'7c0a4f57f4a5fd258e6ef9009f695f9622a3b0f2';
 
+/// The local wipe (`local_wipe.dart`): the stores only by default (the tests, the demo
+/// flavor), the database files too in dev and prod.
+
+@ProviderFor(localWipe)
+final localWipeProvider = LocalWipeProvider._();
+
+/// The local wipe (`local_wipe.dart`): the stores only by default (the tests, the demo
+/// flavor), the database files too in dev and prod.
+
+final class LocalWipeProvider
+    extends $FunctionalProvider<LocalWipe, LocalWipe, LocalWipe>
+    with $Provider<LocalWipe> {
+  /// The local wipe (`local_wipe.dart`): the stores only by default (the tests, the demo
+  /// flavor), the database files too in dev and prod.
+  LocalWipeProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'localWipeProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$localWipeHash();
+
+  @$internal
+  @override
+  $ProviderElement<LocalWipe> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  LocalWipe create(Ref ref) {
+    return localWipe(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(LocalWipe value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<LocalWipe>(value),
+    );
+  }
+}
+
+String _$localWipeHash() => r'b151b32adfb9294e0b3c6dbd9f6b99ca53b8685d';
+
+/// Stops the app, wipes its local data, confirms and starts it again: `bootstrap`
+/// supplies it; anywhere else (the tests) it is unavailable unless overridden.
+
+@ProviderFor(wipeLocalData)
+final wipeLocalDataProvider = WipeLocalDataProvider._();
+
+/// Stops the app, wipes its local data, confirms and starts it again: `bootstrap`
+/// supplies it; anywhere else (the tests) it is unavailable unless overridden.
+
+final class WipeLocalDataProvider
+    extends $FunctionalProvider<WipeLocalData, WipeLocalData, WipeLocalData>
+    with $Provider<WipeLocalData> {
+  /// Stops the app, wipes its local data, confirms and starts it again: `bootstrap`
+  /// supplies it; anywhere else (the tests) it is unavailable unless overridden.
+  WipeLocalDataProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'wipeLocalDataProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$wipeLocalDataHash();
+
+  @$internal
+  @override
+  $ProviderElement<WipeLocalData> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  WipeLocalData create(Ref ref) {
+    return wipeLocalData(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(WipeLocalData value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<WipeLocalData>(value),
+    );
+  }
+}
+
+String _$wipeLocalDataHash() => r'ac0f7379aedf0b5e086823928036195af0f5678a';
+
 /// Where the Plaid pull keeps its cursors: in memory by default (beside the in-memory
 /// store, so a new store starts it afresh), `sync_meta` in dev and prod.
 

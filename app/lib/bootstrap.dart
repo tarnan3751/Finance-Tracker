@@ -6,7 +6,10 @@
 /// transaction references. [startApp] can run again in the same process, on a new
 /// container: a restore (`features/backup/`) stops the app, replaces its database on a
 /// plain screen showing its progress, and starts it again through the app restart
-/// [startApp] supplies (`appRestartProvider`).
+/// [startApp] supplies (`appRestartProvider`); the local wipe (`core/db/local_wipe.dart`,
+/// `wipeLocalDataProvider`) stops it the same way, wipes, confirms on a plain screen and
+/// starts it again on the fresh install; a wipe cut short is finished the same way before
+/// [startApp] opens anything local.
 library;
 
 import 'dart:async';
@@ -18,6 +21,7 @@ import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/db/legacy_import/import_summary.dart';
 import 'package:finance_tracker/core/db/legacy_import/legacy_importer.dart';
+import 'package:finance_tracker/core/db/local_wipe.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/logging/app_log.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
@@ -27,6 +31,7 @@ import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/time/time_zone_setup.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
+import 'package:finance_tracker/features/auth/presentation/erasing_app.dart';
 import 'package:finance_tracker/features/backup/application/backup_providers.dart';
 import 'package:finance_tracker/features/backup/application/backup_service.dart';
 import 'package:finance_tracker/features/backup/presentation/backup_messages.dart';
@@ -83,9 +88,21 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
   final Override restart = appRestartProvider.overrideWithValue(
     (work) => _restart(config, overrides, work),
   );
-  final ProviderContainer container = ProviderContainer(
-    overrides: [...base, restart],
+  late final ProviderContainer container;
+  final Override wipe = wipeLocalDataProvider.overrideWithValue(
+    (reason) =>
+        _wipe(config, overrides, container.read(localWipeProvider), reason),
   );
+  container = ProviderContainer(overrides: [...base, restart, wipe]);
+  // A wipe cut short (the process killed part way) is finished before anything local
+  // opens, so the app never starts on what is left of it.
+  final LocalWipe localWipe = container.read(localWipeProvider);
+  final WipeReason? pending = await _pendingWipe(localWipe);
+  if (pending != null) {
+    container.dispose();
+    await _wipe(config, overrides, localWipe, pending, resumed: true);
+    return;
+  }
   if (config.flavor != Flavor.demo) {
     try {
       await openLocalData(container, locale: Intl.getCurrentLocale());
@@ -97,7 +114,7 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
       _log.severe('the local database did not open: ${e.runtimeType}');
       runApp(
         ProviderScope(
-          overrides: [...base, restart],
+          overrides: [...base, restart, wipe],
           child: DatabaseErrorApp(failure: databaseFailureOf(e)),
         ),
       );
@@ -178,6 +195,66 @@ Future<void> _restart(
     await resume.future;
   }
   await startApp(config, overrides: overrides);
+}
+
+// The local wipe: the erasing screen, the running app stopped (none when it finishes a
+// pending wipe at startup, [resumed]), [wipe] run until it succeeds (each failure shown,
+// by type in the log, until the user tries again; a repeated one, the second in a row
+// or any of a resumed wipe, also points at Android's storage settings), the confirmation
+// for [reason], then, on Done, the app started again on [config] and [overrides], on the
+// fresh install.
+Future<void> _wipe(
+  AppConfig config,
+  List<Override>? overrides,
+  LocalWipe wipe,
+  WipeReason reason, {
+  bool resumed = false,
+}) async {
+  final ValueNotifier<ErasingState> state = ValueNotifier(const Erasing());
+  runApp(
+    ProviderScope(
+      child: ErasingApp(state: state, reason: reason),
+    ),
+  );
+  await WidgetsBinding.instance.endOfFrame;
+  await stopApp();
+  int failures = 0;
+  while (true) {
+    try {
+      await wipe.wipe(reason);
+      break;
+    } on Object catch (e) {
+      _log.severe('the local wipe failed: ${e.runtimeType}');
+      failures++;
+      final Completer<void> retry = Completer<void>();
+      state.value = EraseFailed(
+        () => _completeOnce(retry),
+        repeated: resumed || failures > 1,
+      );
+      await retry.future;
+      state.value = const Erasing();
+    }
+  }
+  final Completer<void> done = Completer<void>();
+  state.value = Erased(() => _completeOnce(done));
+  await done.future;
+  await startApp(config, overrides: overrides);
+}
+
+// A second tap lands before the state moves on: only the first counts.
+void _completeOnce(Completer<void> completer) {
+  if (!completer.isCompleted) completer.complete();
+}
+
+// The reason of a wipe cut short, or null; a record that cannot be read is logged by
+// type and taken as none, so a broken preference store cannot keep the app from starting.
+Future<WipeReason?> _pendingWipe(LocalWipe wipe) async {
+  try {
+    return await wipe.pending();
+  } on Object catch (e) {
+    _log.warning('the pending wipe could not be read: ${e.runtimeType}');
+    return null;
+  }
 }
 
 /// Stops the running app: its reminder taps, its container (sync, the watchers), and its

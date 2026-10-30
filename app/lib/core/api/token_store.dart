@@ -99,6 +99,10 @@ abstract interface class TokenStore {
 
   /// Records [userId] as the install's user.
   Future<void> writeInstallUserId(String userId);
+
+  /// Forgets the install's user: only the local wipe, once the install's data is gone,
+  /// lifts the one-user-per-install rule.
+  Future<void> clearInstallUserId();
 }
 
 /// Runs the store's changes one after another.
@@ -204,6 +208,9 @@ final class SecureTokenStore implements TokenStore {
   @override
   Future<void> writeInstallUserId(String userId) =>
       _storage.write(key: installUserKey, value: userId);
+
+  @override
+  Future<void> clearInstallUserId() => _storage.delete(key: installUserKey);
 }
 
 /// A [TokenStore] in memory.
@@ -238,4 +245,7 @@ final class InMemoryTokenStore implements TokenStore {
   @override
   Future<void> writeInstallUserId(String userId) async =>
       installUserId = userId;
+
+  @override
+  Future<void> clearInstallUserId() async => installUserId = null;
 }

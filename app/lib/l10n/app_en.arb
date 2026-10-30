@@ -5778,5 +5778,47 @@
   "restoreOfferStartFresh": "Start fresh",
   "@restoreOfferStartFresh": {
     "description": "Button that declines the restore offer."
+  },
+  "erasingTitle": "Erasing this device's data…",
+  "@erasingTitle": {
+    "description": "Headline while the local wipe runs with the app stopped."
+  },
+  "eraseFailedTitle": "This device's data could not be erased completely",
+  "@eraseFailedTitle": {
+    "description": "Headline when the local wipe failed part way."
+  },
+  "eraseFailedBody": "{repeated, select, true{The app does not start on what is left. Try again; what is already erased stays erased. If this keeps failing, clear the app's storage in Android's settings.} other{The app does not start on what is left. Try again; what is already erased stays erased.}}",
+  "@eraseFailedBody": {
+    "description": "Supporting text when the local wipe failed. The second sentence, pointing at Android's app storage settings, shows when the failure repeats: the second failure in a row, or any failure of a wipe resumed at startup.",
+    "placeholders": {
+      "repeated": {
+        "type": "String",
+        "example": "true"
+      }
+    }
+  },
+  "eraseTryAgain": "Try again",
+  "@eraseTryAgain": {
+    "description": "Button that runs a failed local wipe again."
+  },
+  "erasedAccountTitle": "Your account and this device's data were deleted",
+  "@erasedAccountTitle": {
+    "description": "Headline once the account was deleted on the server and this device wiped."
+  },
+  "erasedAccountBody": "Every linked bank was disconnected, every record on the server was deleted, and your other devices were signed out.",
+  "@erasedAccountBody": {
+    "description": "Supporting text of the account deletion's confirmation."
+  },
+  "erasedDeviceTitle": "This device's data was erased",
+  "@erasedDeviceTitle": {
+    "description": "Headline once this device was signed out and wiped, the account kept."
+  },
+  "erasedDeviceBody": "Your account is unchanged. Sign in again to bring back your bank data and everything that had synced.",
+  "@erasedDeviceBody": {
+    "description": "Supporting text of the erase's confirmation."
+  },
+  "erasedDone": "Done",
+  "@erasedDone": {
+    "description": "Button on the wipe's confirmation that starts the app again, at sign-in."
   }
 }

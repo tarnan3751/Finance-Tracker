@@ -133,6 +133,12 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
   }
 
   @override
+  Future<void> clearAll() async {
+    await _ready();
+    await _plugin.cancelAll();
+  }
+
+  @override
   Future<void> openSettings() async {
     await _ready();
     await _android?.openAppNotificationSettings();

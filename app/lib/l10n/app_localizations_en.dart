@@ -3978,4 +3978,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreOfferStartFresh => 'Start fresh';
+
+  @override
+  String get erasingTitle => 'Erasing this device\'s data…';
+
+  @override
+  String get eraseFailedTitle =>
+      'This device\'s data could not be erased completely';
+
+  @override
+  String eraseFailedBody(String repeated) {
+    String _temp0 = intl.Intl.selectLogic(repeated, {
+      'true': 'The app does not start on what is left. Try again; what is already erased stays erased. If this keeps failing, clear the app\'s storage in Android\'s settings.',
+      'other': 'The app does not start on what is left. Try again; what is already erased stays erased.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get eraseTryAgain => 'Try again';
+
+  @override
+  String get erasedAccountTitle =>
+      'Your account and this device\'s data were deleted';
+
+  @override
+  String get erasedAccountBody =>
+      'Every linked bank was disconnected, every record on the server was deleted, and your other devices were signed out.';
+
+  @override
+  String get erasedDeviceTitle => 'This device\'s data was erased';
+
+  @override
+  String get erasedDeviceBody =>
+      'Your account is unchanged. Sign in again to bring back your bank data and everything that had synced.';
+
+  @override
+  String get erasedDone => 'Done';
 }
