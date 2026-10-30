@@ -60,6 +60,9 @@ abstract interface class ReceiptStore {
 final RegExp _id = RegExp(r'^[A-Za-z0-9_-]+$');
 final RegExp _path = RegExp(r'^receipts/[A-Za-z0-9_-]+\.jpg$');
 
+/// Whether [path] is a receipt path, `receipts/<id>.jpg` ([receiptPathFor]).
+bool isReceiptPath(String path) => _path.hasMatch(path);
+
 void _checkId(String transactionId) {
   if (!_id.hasMatch(transactionId)) {
     throw ArgumentError.value(
