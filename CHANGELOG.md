@@ -3,6 +3,71 @@
 Each release section is generated from the Conventional Commit log since the previous tag
 (`PLAN.md` §10). Tags are `vX.Y.Z`; a phase ends with a `vX.Y.Z-phaseN` pre-release.
 
+## v0.8.0-phase7 — 2026-10-30
+
+Phase 7 hardens sync and security. Everything the app holds can be exported into one file encrypted
+with a passphrase (`FTBK` v1: Argon2id, HKDF and XChaCha20-Poly1305 over authenticated 64 KiB
+frames) and restored onto a fresh install or after a lost database key, with the restored content
+proven equal to the source and the device's sync identity minted anew. The app locks behind the
+device's biometrics or screen lock on a timeout measured on the monotonic clock, covers itself the
+moment it leaves the foreground, blocks screenshots and the recents thumbnail, and keeps every
+route behind the lock, predictive back included. An account can be deleted for good (the server
+removes its Plaid Items, rows and sessions before the device wipes itself), a device can be erased
+in a fixed order that a kill cannot leave half done, the devices on an account are listed and
+removed with a remote sign-out notice on the other side, and a stranded install always has a way to
+erase. The sync engine reports the losing side of two edits made within ten minutes of each other
+so the person can keep either value, receipt photos travel between devices through
+content-addressed blobs on the server (contract 0.7.0, schema v13), a seeded chaos simulation of
+partitions, restarts, reordered pages and clock skew runs in the gate, a received clock more than
+an hour ahead is clamped instead of failing the pull, and release builds keep a scrubbed copy of
+every log record with a secrets sweep over the manifest and a logcat capture.
+
+### Features
+
+- sync: Clamp a received clock more than an hour ahead (3815f31)
+- backup: Add the FTBK v1 archive format and its encryption (e60d29b)
+- backup: Export and import the database and receipts (5a1f662)
+- backup: Add the backup screens and the restore entry points (47c4fb8)
+- app: Add the local wipe (6b64b98)
+- auth: Delete the account and erase this device (4d80e0b)
+- auth: List and remove devices and notice a remote sign-out (64ab1c7)
+- app: Add the screen security and monotonic clock seams (5b30c2f)
+- lock: Add the app lock, its gate and the Security settings (c6e8b7a)
+- app: Keep a sanitised copy of each prod log record (109c044)
+- sync: Report the values a merge overwrites within ten minutes (1233bce)
+- sync: Let the host hold back outbox entries before a push (16fa6e2)
+- api: Add receipt blobs and the receipt hash to contract 0.7.0 (dca457b)
+- server: Delete a user's receipts with the account (a5935c2)
+- app: Keep sync conflicts and review them in Settings (eb3b01d)
+- app: Upload receipts before their changes and fetch them on view (b666713)
+
+### Refactoring
+
+- app: Split startup so the app can start again (07b9a78)
+
+### Tests
+
+- sync: Add a seeded chaos simulation with a shrinking step list (acecab0)
+- server: Converge through the relay with clocks hours apart (8074434)
+- app: Converge after a partition, a restart and a clock behind (bc61bb4)
+- app: Back up and restore on a device (867e6b5)
+- app: Delete an account and remove a device on a device (67865e4)
+- tools: Add the secrets sweep (3e75df9)
+- app: Converge through a conflict and a receipt on two devices (34bc668)
+
+### Build and tooling
+
+- app: Add cryptography (4fe81d9)
+- app: Add local_auth and the activity and theme it needs (e51ef9c)
+
+### Documentation
+
+- sync: Document the clock bound and the chaos simulation (4721ef9)
+- backup: Describe backup and restore (89e57cc)
+- auth: Describe account deletion, the wipe and devices (189706d)
+- lock: Describe the app lock, the seams and the release sweep (c682688)
+- sync: Document conflicts and receipt blobs (0f4ace4)
+
 ## v0.7.0-phase6 — 2026-10-30
 
 Phase 6 lands insights: the app pulls holdings, securities and investment transactions (contract

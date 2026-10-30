@@ -24,6 +24,11 @@ anomaly hints, raises a weekly summary, shows net worth over time with the histo
 install estimated from transactions and labelled as such, lists holdings with allocation and
 gains, tracks savings goals with contributions and suggestions, and projects when a loan or card
 is paid off; a monthly PDF report and a CSV export save through the system dialog or share.
+Everything can be exported into one file encrypted with a passphrase and restored onto a new
+install; the app locks behind the device's biometrics or screen lock and blocks screenshots;
+an account can be deleted outright or a device erased; the devices on an account are listed
+and can be signed out; two edits made within minutes of each other on different devices are
+shown side by side so either can be kept; receipt photos follow the transaction to every device.
 
 ## Layout
 

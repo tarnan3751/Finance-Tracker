@@ -18,43 +18,48 @@ heading of this file or of a doc.
 
 ## Status
 
-**Phases 0 to 6 have landed and passed their gates; Phase 7 (sync hardening and security) is
-next:** the app runs on its Riverpod and go_router core with manual accounts, transactions and
-categories on the encrypted Drift database (schema v12 with the change log, field clocks, Items,
-rules, budgets and their alerts, dismissed duplicate pairs, saved filters, a full-text index,
-recurring streams and their overrides, liabilities, bills and bill alerts, securities, holdings,
-investment transactions, daily balance snapshots, goals and their contributions); it signs in
-against the development server through the API client, syncs user data between devices through
-the sync engine (contract 0.6.0; a pulled record of a type this build does not know is held, not
-failed), links banks through Plaid Link (real Sandbox Items through the server, which polls Plaid
-and verifies its webhooks), pulls their accounts and transactions with reported balances and
-institution logos, applies the user's rules on arrival and, on request, to the existing
-transactions; it budgets by category with periods, rollover, projection and in-app alerts, hides
-and bulk-edits transactions, reviews likely duplicates, searches by word prefixes, saves filters,
-splits transactions and attaches receipt photos; it pulls Plaid's recurring streams and
-liabilities, detects recurring streams in every transaction source with a measured detector and
-merges the two, classifies subscriptions and lists them with annual totals, tracks bills with
-local reminders scheduled at the right wall-clock time across DST and flags missed payments, and
-projects 30 and 90 days of cash flow with a confidence band, all under a Plan tab with Budgets,
-Bills and Forecast segments; it pulls holdings and investment transactions, records a balance
-snapshot per account per day and shows net worth over time with pre-install history reconstructed
-from transactions and labelled as derived, reports spending by category and merchant with
-comparisons, top movers and anomaly hints measured against the persona seeds, raises a weekly
-summary, tracks savings goals with contributions and suggestions, projects liability payoff, and
-exports a byte-identical PDF monthly report and a CSV, all under an Insights tab with Reports,
-Net worth, Investments and Goals segments; and it runs the demo flavor on the persona engine's
-seed against an in-process fake server with no network; the dev flavor carries a developer menu
-for the Sandbox controls.
-The repository is the pub workspace of **Folder layout**, Android only. The app runs in
-three flavors (`dev`, `demo`, `prod`) through `app/lib/bootstrap.dart`; `server/` is the
-development server implementing the contract with a fake Plaid client
-(`docs/reference/server.md`); `api/openapi.yaml` is the v1 contract, with
-`packages/api_client` generated from it and `packages/contract_test` checking against it;
-the Android build is Flutter 3.47's template with the package id, the flavors and the
-release hardening; CI runs the gate, builds the APKs and proves the generated client
-current. `PLAN.md` §4 is the Plaid architecture with the verified Sandbox facts, §7.1 the
-data-coverage and synthesis policy, §8 the ten phases with sizes, §10 the process, §12 the
-decisions.
+**Phases 0 to 7 have landed and passed their gates; Phase 8 is next:** the app runs on its Riverpod
+and go_router core with manual accounts, transactions and categories on the encrypted Drift
+database (schema v13 with the change log, field clocks, Items, rules, budgets and their alerts,
+dismissed duplicate pairs, saved filters, a full-text index, recurring streams and their overrides,
+liabilities, bills and bill alerts, securities, holdings, investment transactions, daily balance
+snapshots, goals and their contributions, the device-local conflicts and the transactions' receipt
+hashes); it signs in against the development server through the API client, syncs user data between
+devices through the sync engine (contract 0.7.0; a pulled record of a type this build does not know
+is held, not failed; a received clock more than an hour ahead is clamped), links banks through
+Plaid Link (real Sandbox Items through the server, which polls Plaid and verifies its webhooks),
+pulls their accounts and transactions with reported balances and institution logos, applies the
+user's rules on arrival and, on request, to the existing transactions; it budgets by category with
+periods, rollover, projection and in-app alerts, hides and bulk-edits transactions, reviews likely
+duplicates, searches by word prefixes, saves filters, splits transactions and attaches receipt
+photos; it pulls Plaid's recurring streams and liabilities, detects recurring streams in every
+transaction source with a measured detector and merges the two, classifies subscriptions and lists
+them with annual totals, tracks bills with local reminders scheduled at the right wall-clock time
+across DST and flags missed payments, and projects 30 and 90 days of cash flow with a confidence
+band, all under a Plan tab with Budgets, Bills and Forecast segments; it pulls holdings and
+investment transactions, records a balance snapshot per account per day and shows net worth over
+time with pre-install history reconstructed from transactions and labelled as derived, reports
+spending by category and merchant with comparisons, top movers and anomaly hints measured against
+the persona seeds, raises a weekly summary, tracks savings goals with contributions and
+suggestions, projects liability payoff, and exports a byte-identical PDF monthly report and a CSV,
+all under an Insights tab with Reports, Net worth, Investments and Goals segments; it backs
+everything up into one passphrase-encrypted file and restores it onto a fresh install or after a
+lost key, locks behind the device's biometrics or screen lock with a privacy screen and screenshot
+blocking, deletes the account or erases this device in an order a kill cannot leave half done,
+lists and removes the account's devices, shows the losing side of two edits made within ten minutes
+so the person can keep either, syncs receipt photos between devices through content-addressed
+blobs, survives a seeded chaos simulation of partitions, restarts and clock skew in the gate, and
+keeps a scrubbed copy of every log record in release builds; and it runs the demo flavor on the
+persona engine's seed against an in-process fake server with no network; the dev flavor carries a
+developer menu for the Sandbox controls. The repository is the pub workspace of **Folder layout**,
+Android only. The app runs in three flavors (`dev`, `demo`, `prod`) through
+`app/lib/bootstrap.dart`; `server/` is the development server implementing the contract with a fake
+Plaid client (`docs/reference/server.md`); `api/openapi.yaml` is the v1 contract, with
+`packages/api_client` generated from it and `packages/contract_test` checking against it; the
+Android build is Flutter 3.47's template with the package id, the flavors and the release
+hardening; CI runs the gate, builds the APKs and proves the generated client current. `PLAN.md` §4
+is the Plaid architecture with the verified Sandbox facts, §7.1 the data-coverage and synthesis
+policy, §8 the ten phases with sizes, §10 the process, §12 the decisions.
 
 ## Stack (pinned)
 
@@ -97,6 +102,8 @@ scripts pick it the same way. Commands marked with a phase do not exist before i
 | Land a delivered series | `tools/land_series.sh <patch-dir> <base-commit> <tree-hash>` |
 | Lint the commits since a base (the gate runs it on `origin/main..HEAD`) | `tools/check_commits.sh <base>` |
 | Stop the harness emulator, even past a live lock | `tools/emulator_tests.sh stop [--force]` |
+| Run the sync chaos simulation with a seed and a budget | `SYNC_CHAOS_SEED=<n> SYNC_CHAOS_SCENARIOS=<k> dart test -t chaos` in `packages/sync_engine` |
+| Sweep the manifest, the extraction rules and a logcat capture for secrets | `tools/secrets_sweep.sh <capture>` (`--self-test` checks the patterns) |
 
 **Any Flutter run writes files**: `build/` and `.dart_tool/` in the tree it runs in, and a `run`
 or `install` writes the app and its data onto whatever emulator or device is attached. The dev
@@ -117,8 +124,11 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | Shared domain: `Money`, `LocalDate`, entities, taxonomy | `packages/shared_models/` | `docs/reference/core.md` |
 | Features, one folder each with `presentation/ application/ domain/ data/` | `app/lib/features/<feature>/` | `docs/reference/<feature>.md` as each lands |
 | Local database: Drift schema, migrations, repositories in three implementations | `app/lib/features/*/data/`, `app/lib/core/db/` | `docs/reference/data.md` (Phase 1) |
-| Sync engine (pure Dart, no Flutter) | `packages/sync_engine/` (Phase 2) | `docs/reference/sync.md` |
-| Sync in the app: the Drift sync store, recording, the controller, the relay | `app/lib/core/sync/`, `app/lib/core/db/` | `docs/reference/sync-app.md` |
+| Sync engine (pure Dart, no Flutter): the merge, the session, the conflicts it reports, the chaos simulation under the `chaos` tag | `packages/sync_engine/` | `docs/reference/sync.md` |
+| Sync in the app: the Drift sync store, recording, the controller, the relay, the receipt upload before a push | `app/lib/core/sync/`, `app/lib/core/db/` | `docs/reference/sync-app.md` |
+| Conflicts: the device-local table, the store, "Keep this device's value" and the Conflicts screen | `app/lib/features/conflicts/` | `docs/reference/sync-app.md` |
+| Backup: the `FTBK` archive and its cipher, the canonical dump and tolerant import, the restore offer and flow, the restart | `app/lib/features/backup/`, `app/lib/core/platform/backup_picker.dart`, `app/lib/bootstrap.dart` | `docs/reference/backup.md` |
+| The local wipe, account deletion, erasing this device, the devices list and the remote sign-out notice | `app/lib/core/db/local_wipe.dart`, `app/lib/features/auth/` | `docs/reference/auth.md`, `docs/reference/data.md` |
 | Linked banks: Items, Plaid Link, repair, unlink, the Plaid pull and the arrival seam | `app/lib/features/items/`, `app/lib/core/plaid/` | `docs/reference/items.md` |
 | Rules: the engine, the runner on arrival and on demand, the rules screens | `app/lib/features/rules/` | `docs/reference/rules.md` |
 | Developer menu (dev flavor only): the Sandbox controls, provisioning, diagnostics | `app/lib/features/developer/` | `docs/reference/developer.md` |
@@ -141,10 +151,10 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | API client, in-app fake server, session and auth | `app/lib/core/api/`, `app/lib/features/auth/` | `docs/reference/app-core.md` (the API client), `docs/reference/auth.md` |
 | The generated API client | `packages/api_client/` | `docs/reference/api.md` (Phase 2) |
 | The API contract | `api/openapi.yaml` | same |
-| Development server: auth, sync, the Plaid client (fake or Sandbox), the poll, webhooks, provisioning | `server/` | `docs/reference/server.md` |
+| Development server: auth, sync, the Plaid client (fake or Sandbox), the poll, webhooks, provisioning, receipt blobs | `server/` | `docs/reference/server.md` |
 | Persona engine: demo seed, Sandbox custom users and their manifest | `tools/persona_engine/` (Phase 2) | `docs/reference/persona.md` |
 | Build: workspace, flavors, Android configuration, signing, R8 | `pubspec.yaml`, `app/android/`, `app/lib/core/config/` | `docs/reference/build.md` |
-| Testing and tools: gate, test runner, emulator harness, landing, scripts | `*/test/`, `app/integration_test/`, `tools/` | `docs/reference/testing-tools.md` (Phase 0) |
+| Testing and tools: gate, test runner, emulator harness, landing, the secrets sweep, scripts | `*/test/`, `app/integration_test/`, `tools/` | `docs/reference/testing-tools.md` |
 
 ## Architecture rules
 
@@ -275,6 +285,38 @@ PLAN.md          the plan: gitignored, read from the main tree
 - The PDF report's bytes are a golden: `pdf` with no metadata, `compress: false` and the `/ID`
   fixed, so the file is identical on every device; a layout or string change moves the pinned
   hash, and the golden is regenerated on purpose.
+- A backup is logical NDJSON under `FTBK` v1 (Argon2id, HKDF, XChaCha20-Poly1305 over 64 KiB frames
+  with the header as authenticated data): the engine is SQLite3 Multiple Ciphers, not SQLCipher, so
+  there is no `sqlcipher_export`; every instant in it is a UTC ISO string, nullable columns
+  included; a restore ends in `substituteNode(provisionalNodeId())` because both relays reject
+  entries naming a foreign device, and the restore offer holds sync until answered. Every schema
+  change keeps `dumpDatabase` working (a REAL or `dateTime()` column, or a table without a primary
+  key, breaks it and a host test says so), and `conflicts` and the lock keys never travel.
+- `startApp(config, overrides)` and `stopApp()`: a restore or a wipe stops the app, works on a plain
+  screen and starts it again; `stopApp` awaits the close the database provider started
+  (`databaseClosing`), or the files are still open when they are replaced or deleted.
+- The local wipe runs legacy keys → files → receipts → database key → session → install marker →
+  reminders, under a `wipe_pending_v1` record that `startApp` finishes before anything local opens;
+  the marker goes last so a cut-short wipe never leaves one account's data for another.
+- Lock: `local_auth` 3.0.2 needs `FlutterFragmentActivity`, an AppCompat DayNight launch theme and
+  `USE_BIOMETRIC`; the timeout reads `SystemClock.elapsedRealtime()` through a channel (a Dart
+  `Stopwatch` stops in deep sleep); `inactive` is not background; the app is covered at `hidden`
+  and uncovered only by the clock decision; while locked the gate gives Android pages a
+  non-predictive transition so a back gesture cannot pop the route under the lock screen.
+- `Hlc.maxDrift` is one hour: a received clock further ahead is clamped, never thrown, and a local
+  edit is stamped after what it edits (`sendAfter`); a merge that overwrites a field whose clocks
+  lie within ten minutes with a different non-null value is recorded on the device whose edit lost
+  (schema v13 `conflicts`, swept after thirty days); tombstones still win without a conflict.
+- Receipts: `receipt_sha256` syncs and `receipt_path` is the device-local file; the outbox entry
+  that names a receipt waits for `PUT /receipts/{sha256}` (a 400 or 413 lets it through), and the
+  view fetches a missing or mismatching file on first view.
+- `flutter test integration_test --flavor demo` overwrites `app-demo-debug.apk` with the
+  integration-test app, which waits for its host forever when installed standalone; copy a
+  standalone demo APK right after building it.
+- `adb backup` includes a debuggable build's data on API 31+ whatever `allowBackup` says; the
+  empty-archive check belongs to the release build. Device-to-device transfer ignores
+  `allowBackup` for target 31+ too, so the `<device-transfer>` exclusion in
+  `data_extraction_rules.xml` is what protects the data.
 
 ## Seeing the app
 
@@ -351,21 +393,22 @@ brief and one review.
   series must be built on.
 - **Delivery** — the plan format (tier A) or the report format, as the agent definition states.
 
-**Lanes.** Every Flutter run writes files in the tree it runs in (`build/`, `.dart_tool/`), and
-a run or install writes onto the attached device, so the main working tree is the coordinator's
-and stays at `HEAD`: no agent writes to it or its index. A developer or a reviewer works in a
-`git clone` of its own under `~/.claude-finance-tracker/scratch/finance-tracker/lanes/` (never
-the session scratchpad under `/private/tmp`, which a reboot empties); the first `tools/gates.sh` run fetches
-packages and generates code. Two developers may run at once on disjoint areas, under three
+**Lanes.** Every Flutter run writes files in the tree it runs in (`build/`, `.dart_tool/`), and a
+run or install writes onto the attached device, so the main working tree is the coordinator's and
+stays at `HEAD`: no agent writes to it or its index. A developer or a reviewer works in a `git
+clone` of its own under `~/.claude-finance-tracker/scratch/finance-tracker/lanes/` (never the
+session scratchpad under `/private/tmp`, which a reboot empties); the first `tools/gates.sh` run
+fetches packages and generates code. Two developers may run at once on disjoint areas, under three
 rules: only one **emulator** run happens on the machine at a time, which `tools/emulator_tests.sh`
-enforces with a machine-wide lock and its own AVD, so a lane just runs it and waits (the gate,
-the tests and the demo flavor on that AVD run any time the lock is held); the second lane rebases
-its series onto `main` before delivery; a lane's docs changes stay within its area's reference
-file, the map only where a status line changes. A lane never runs the dev flavor, the dev server
-with real keys, or anything against Plaid Sandbox: those are the coordinator's, and the keys are
-not in a clone. At most two or three lanes and reviews run gates at once, and every agent waits
-on a gate or a harness run with one bounded loop under its tool's timeout, leaving no polling
-shell behind (the agent definitions say so).
+enforces with a machine-wide lock and its own AVD, so a lane just runs it and waits (the gate, the
+tests and the demo flavor on that AVD run any time the lock is held); the second lane rebases its
+series onto `main` before delivery; a device run is wrapped in a ceiling (this Mac has no
+`timeout`; a `perl` `alarm` that sends SIGTERM does) so a hang never holds the lock; a lane's docs
+changes stay within its area's reference file, the map only where a status line changes. A lane
+never runs the dev flavor, the dev server with real keys, or anything against Plaid Sandbox: those
+are the coordinator's, and the keys are not in a clone. At most two or three lanes and reviews run
+gates at once, and every agent waits on a gate or a harness run with one bounded loop under its
+tool's timeout, leaving no polling shell behind (the agent definitions say so).
 
 **Review routing.** The reviewer's findings go back to the **same** developer (`SendMessage`),
 which folds them into the series; the coordinator reads the fold's diff; then the reviewer
