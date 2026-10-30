@@ -4364,4 +4364,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get conflictKeepFailed => 'The value could not be kept. Try again.';
+
+  @override
+  String get receiptDownloading => 'Downloading the receipt';
+
+  @override
+  String get receiptDownloadFailed => 'The receipt could not be downloaded';
+
+  @override
+  String get receiptNotOnServer => 'The receipt has not reached the server yet';
+
+  @override
+  String get receiptRetry => 'Try again';
+
+  @override
+  String get conflictPhotoHere => 'Photo, on this device';
+
+  @override
+  String get conflictPhotoNotHere => 'Photo, not on this device';
+
+  @override
+  String get conflictPhotoGone => 'This photo is no longer on this device';
 }

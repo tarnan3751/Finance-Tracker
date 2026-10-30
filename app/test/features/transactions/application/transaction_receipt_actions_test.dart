@@ -4,7 +4,8 @@
 // after the write; a Plaid row takes a receipt and splits as overrides; a bulk delete
 // removes the photos at once, a single delete's photo goes through discardReceiptOf;
 // the sweep deletes the photos of deleted or unknown transactions and keeps the live
-// ones'.
+// ones'. Every write keeps the receipt's hash with its photo, and the fill gives the
+// photos attached before hashes existed theirs, once.
 import 'dart:typed_data';
 
 import 'package:finance_tracker/core/db/in_memory_store.dart';
@@ -72,6 +73,7 @@ void main() {
     ))).id;
 
     expect(store.transaction(id)!.receiptPath, 'receipts/$id.jpg');
+    expect(store.transaction(id)!.receiptSha256, receiptHash(_photo));
     expect(await receipts.read('receipts/$id.jpg'), _photo);
     expect(receipts.stagedCount, 0);
   });
@@ -111,6 +113,10 @@ void main() {
       'receipts/demo-txn-02.jpg',
     );
     expect(await receipts.read('receipts/demo-txn-02.jpg'), _newPhoto);
+    expect(
+      store.transaction('demo-txn-02')!.receiptSha256,
+      receiptHash(_newPhoto),
+    );
   });
 
   test('a replacement whose write fails keeps the old photo', () async {
@@ -145,13 +151,17 @@ void main() {
     );
 
     expect(store.transaction('demo-txn-02')!.receiptPath, isNull);
+    expect(store.transaction('demo-txn-02')!.receiptSha256, isNull);
     expect(receipts.paths, isEmpty);
   });
 
   test('keeping the receipt keeps a path whose photo is elsewhere', () async {
     final Transaction t = store
         .transaction('demo-txn-02')!
-        .copyWith(receiptPath: 'receipts/demo-txn-02.jpg');
+        .copyWith(
+          receiptPath: 'receipts/demo-txn-02.jpg',
+          receiptSha256: receiptHash(_photo),
+        );
     store.upsertTransaction(t);
     await actions.update(t, _draftOf(t.copyWith(notes: 'n')));
 
@@ -159,6 +169,31 @@ void main() {
       store.transaction('demo-txn-02')!.receiptPath,
       'receipts/demo-txn-02.jpg',
     );
+    expect(
+      store.transaction('demo-txn-02')!.receiptSha256,
+      receiptHash(_photo),
+    );
+  });
+
+  test('the fill hashes the photos here that have no hash, once', () async {
+    final Transaction own = store
+        .transaction('demo-txn-02')!
+        .copyWith(receiptPath: receiptPathFor('demo-txn-02'));
+    final Transaction elsewhere = store
+        .transaction('demo-txn-03')!
+        .copyWith(receiptPath: receiptPathFor('demo-txn-03'));
+    store
+      ..upsertTransaction(own)
+      ..upsertTransaction(elsewhere);
+    await receipts.commit(await receipts.stage('demo-txn-02', _photo));
+
+    expect(await actions.fillReceiptHashes(), 1);
+    final Transaction filled = store.transaction('demo-txn-02')!;
+    expect(filled.receiptSha256, receiptHash(_photo));
+    expect(filled.updatedAt, own.updatedAt);
+    // Its photo is on another device, which hashes it there.
+    expect(store.transaction('demo-txn-03')!.receiptSha256, isNull);
+    expect(await actions.fillReceiptHashes(), 0);
   });
 
   test('a Plaid transaction takes a receipt and splits as overrides', () async {

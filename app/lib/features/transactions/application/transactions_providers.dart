@@ -8,6 +8,8 @@ library;
 
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart' as crypto;
+import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/clock.dart';
@@ -217,11 +219,61 @@ final class SavedFilterActions {
   Future<void> delete(String id) => _repository.delete(id);
 }
 
-/// The photo at receipt [path] (a transaction's `receiptPath`), or null when this device
-/// has none: the receipt was kept on another device.
+/// The receipt photo of transaction [transactionId] as this device has it: the file
+/// when [sha256] is null or its bytes hash to it, else null (no file, or another photo's,
+/// one replaced elsewhere). No fetch: the editor shows it at once, and the Conflicts
+/// screen asks it whether a photo is still here.
 @riverpod
-Future<Uint8List?> receipt(Ref ref, String path) =>
-    ref.watch(receiptStoreProvider).read(path);
+Future<Uint8List?> localReceipt(
+  Ref ref,
+  String transactionId,
+  String? sha256,
+) async {
+  final Uint8List? local = await ref
+      .watch(receiptStoreProvider)
+      .read(receiptPathFor(transactionId));
+  if (sha256 == null || local == null) return local;
+  return receiptHash(local) == sha256 ? local : null;
+}
+
+/// The receipt photo of transaction [transactionId], whose bytes hash to [sha256]
+/// (`docs/reference/transactions.md`, **Receipts**): the file on this device when it is
+/// that photo; else, when the hash is known, fetched from the server on this first view,
+/// checked against the hash and stored under the usual path, so the next view is local.
+/// Null when there is no file and no hash (a receipt attached on another device before
+/// hashes existed, not hashed there yet). A failed fetch is an error (`NotFound` while
+/// the photo has not reached the server); invalidating retries.
+@riverpod
+Future<Uint8List?> receipt(
+  Ref ref,
+  String transactionId,
+  String? sha256,
+) async {
+  final ReceiptStore store = ref.watch(receiptStoreProvider);
+  final Uint8List? local = await store.read(receiptPathFor(transactionId));
+  if (sha256 == null) return local;
+  if (local != null && receiptHash(local) == sha256) return local;
+  final Uint8List fetched = await ref
+      .read(financeApiProvider)
+      .getReceipt(sha256);
+  if (receiptHash(fetched) != sha256) throw const ReceiptHashMismatch();
+  await store.commit(await store.stage(transactionId, fetched));
+  // The file changed: whatever showed it (another photo's check on the Conflicts screen
+  // included) reads it again.
+  ref.invalidate(localReceiptProvider);
+  return fetched;
+}
+
+/// The SHA-256 of receipt photo [bytes], lower-case hex: its `receiptSha256`.
+String receiptHash(List<int> bytes) => crypto.sha256.convert(bytes).toString();
+
+/// A fetched receipt photo whose bytes do not hash to the transaction's `receiptSha256`.
+final class ReceiptHashMismatch implements Exception {
+  const ReceiptHashMismatch();
+
+  @override
+  String toString() => 'ReceiptHashMismatch';
+}
 
 /// The writes of the transaction editor and of bulk edit.
 @riverpod
@@ -323,6 +375,10 @@ final class TransactionActions {
       tags: draft.tags,
       splits: draft.splits,
       receiptPath: draft.receipt is AttachReceipt ? receiptPathFor(id) : null,
+      receiptSha256: switch (draft.receipt) {
+        AttachReceipt(:final Uint8List bytes) => receiptHash(bytes),
+        _ => null,
+      },
       hidden: draft.hidden,
       source: DataSource.manual,
       createdAt: now,
@@ -353,6 +409,11 @@ final class TransactionActions {
       receiptPath: switch (receipt) {
         KeepReceipt() => existing.receiptPath,
         AttachReceipt() => receiptPathFor(existing.id),
+        RemoveReceipt() => null,
+      },
+      receiptSha256: switch (receipt) {
+        KeepReceipt() => existing.receiptSha256,
+        AttachReceipt(:final Uint8List bytes) => receiptHash(bytes),
         RemoveReceipt() => null,
       },
       hidden: draft.hidden,
@@ -388,6 +449,39 @@ final class TransactionActions {
 
   /// Deletes the receipt photo of deleted transaction [id], once its delete is final.
   Future<void> discardReceiptOf(String id) => _deleteFile(receiptPathFor(id));
+
+  /// Gives each live transaction with a receipt photo on this device but no
+  /// `receiptSha256` (attached before hashes existed) the hash of its file, as a recorded
+  /// change, so the photo is uploaded and other devices can fetch it. The rest of the
+  /// row is kept as it is, `updatedAt` included. A photo whose file is not here (it was
+  /// attached on another device) is left for that device. Runs once per launch after the
+  /// first frame (`bootstrap.dart`): one query for the rows with a path and no hash
+  /// (`TransactionRepository.unhashedReceipts`), which finds nothing once every row has
+  /// one, and a file read for each it finds. Returns how many it filled.
+  Future<int> fillReceiptHashes() async {
+    int filled = 0;
+    for (final Transaction t in await _transactions.unhashedReceipts()) {
+      final String path = t.receiptPath!;
+      final Uint8List? bytes = await _receipts.read(path);
+      if (bytes == null) continue;
+      final bool wrote = await _inTransaction(() async {
+        final Transaction? current = await currentValue(
+          _transactions.watchById(t.id),
+        );
+        if (current == null ||
+            current.receiptPath != path ||
+            current.receiptSha256 != null) {
+          return false;
+        }
+        await _transactions.upsert(
+          current.copyWith(receiptSha256: receiptHash(bytes)),
+        );
+        return true;
+      });
+      if (wrote) filled++;
+    }
+    return filled;
+  }
 
   /// Deletes the receipt files no live transaction references (a delete final while the
   /// app was not watching: killed during an undo, synced from another device, an account's

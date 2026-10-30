@@ -2,6 +2,9 @@
 // from the devices list, else the node id) and when, in the device's zone; values shown
 // as amounts, categories and lists; the two actions; the empty state; and Settings →
 // Sync's entry, there only while there are conflicts.
+import 'dart:typed_data';
+
+import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
@@ -10,6 +13,8 @@ import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/conflicts/application/conflicts_providers.dart';
 import 'package:finance_tracker/features/conflicts/data/in_memory_conflict_store.dart';
 import 'package:finance_tracker/features/conflicts/domain/sync_conflict.dart';
+import 'package:finance_tracker/features/transactions/application/transactions_providers.dart'
+    show receiptHash;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -151,6 +156,68 @@ void main() {
     expect(find.text('Everyday Checking'), findsOneWidget);
     // An account this device does not have shows its id.
     expect(find.text('gone-account'), findsOneWidget);
+  });
+
+  group('a receipt photo', () {
+    final Uint8List mine = Uint8List.fromList([0xff, 0xd8, 0xff, 1]);
+    final Uint8List theirs = Uint8List.fromList([0xff, 0xd8, 0xff, 2]);
+
+    Future<void> pumpWith(WidgetTester tester, Uint8List? here) async {
+      final MemoryReceiptStore receipts = MemoryReceiptStore();
+      if (here != null) await receipts.commit(await receipts.stage('t1', here));
+      store.add(
+        _conflict(
+          't1',
+          'receipt_sha256',
+          receiptHash(mine),
+          receiptHash(theirs),
+        ),
+      );
+      await pumpApp(
+        tester,
+        initialLocation: '/settings/conflicts',
+        clock: newYork(),
+        overrides: [
+          ...overrides(),
+          receiptStoreProvider.overrideWithValue(receipts),
+        ],
+      );
+    }
+
+    FilledButton keep(WidgetTester tester) => tester.widget<FilledButton>(
+      find.ancestor(
+        of: find.text("Keep this device's value"),
+        matching: find.byType(FilledButton),
+      ),
+    );
+
+    testWidgets('shows each photo as here or not, and keeps one still here', (
+      tester,
+    ) async {
+      await pumpWith(tester, mine);
+      expect(find.text('Photo, on this device'), findsOneWidget);
+      expect(find.text('Photo, not on this device'), findsOneWidget);
+      expect(find.textContaining(receiptHash(mine)), findsNothing);
+      expect(keep(tester).onPressed, isNotNull);
+      expect(find.text('This photo is no longer on this device'), findsNothing);
+    });
+
+    testWidgets("offers only Keep the other once this device's photo is gone", (
+      tester,
+    ) async {
+      // The other photo was fetched over the file this device had.
+      await pumpWith(tester, theirs);
+      expect(find.text('Photo, not on this device'), findsOneWidget);
+      expect(find.text('Photo, on this device'), findsOneWidget);
+      expect(keep(tester).onPressed, isNull);
+      expect(
+        find.text('This photo is no longer on this device'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Keep the other'));
+      await tester.pumpAndSettle();
+      expect(find.text('No conflicts'), findsOneWidget);
+    });
   });
 
   testWidgets('either action resolves its conflict', (tester) async {

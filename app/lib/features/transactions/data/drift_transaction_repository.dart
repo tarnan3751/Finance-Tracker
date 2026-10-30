@@ -271,6 +271,19 @@ final class DriftTransactionRepository implements TransactionRepository {
       );
 
   @override
+  Future<List<Transaction>> unhashedReceipts() async =>
+      transactionsWithChildren(
+        _database,
+        await (_database.select(_transactions)..where(
+              (t) =>
+                  t.receiptPath.isNotNull() &
+                  t.receiptSha256.isNull() &
+                  t.deletedAt.isNull(),
+            ))
+            .get(),
+      );
+
+  @override
   Future<int> count(TransactionQuery query) async {
     final Expression<int> count = _transactions.id.count();
     final TypedResult row =

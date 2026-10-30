@@ -6616,6 +6616,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The value could not be kept. Try again.'**
   String get conflictKeepFailed;
+
+  /// Beside the receipt's placeholder while its photo is fetched from the server on first view.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading the receipt'**
+  String get receiptDownloading;
+
+  /// When fetching a receipt photo from the server failed (no network, the server's error).
+  ///
+  /// In en, this message translates to:
+  /// **'The receipt could not be downloaded'**
+  String get receiptDownloadFailed;
+
+  /// When the receipt photo is not on the server yet: the device that took it has not synced it.
+  ///
+  /// In en, this message translates to:
+  /// **'The receipt has not reached the server yet'**
+  String get receiptNotOnServer;
+
+  /// Fetches the receipt photo again after a failure.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get receiptRetry;
+
+  /// A receipt photo conflict's value whose photo this device has.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo, on this device'**
+  String get conflictPhotoHere;
+
+  /// A receipt photo conflict's value whose photo this device no longer has.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo, not on this device'**
+  String get conflictPhotoNotHere;
+
+  /// Why Keep this device's value is unavailable on a receipt photo conflict: its photo was replaced here.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo is no longer on this device'**
+  String get conflictPhotoGone;
 }
 
 class _AppLocalizationsDelegate

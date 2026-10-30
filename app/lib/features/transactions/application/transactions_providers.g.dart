@@ -467,14 +467,122 @@ final class SavedFilterActionsProvider
 String _$savedFilterActionsHash() =>
     r'ae328cf8b0cdea13efca125770905b02f4efbbd9';
 
-/// The photo at receipt [path] (a transaction's `receiptPath`), or null when this device
-/// has none: the receipt was kept on another device.
+/// The receipt photo of transaction [transactionId] as this device has it: the file
+/// when [sha256] is null or its bytes hash to it, else null (no file, or another photo's,
+/// one replaced elsewhere). No fetch: the editor shows it at once, and the Conflicts
+/// screen asks it whether a photo is still here.
+
+@ProviderFor(localReceipt)
+final localReceiptProvider = LocalReceiptFamily._();
+
+/// The receipt photo of transaction [transactionId] as this device has it: the file
+/// when [sha256] is null or its bytes hash to it, else null (no file, or another photo's,
+/// one replaced elsewhere). No fetch: the editor shows it at once, and the Conflicts
+/// screen asks it whether a photo is still here.
+
+final class LocalReceiptProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Uint8List?>,
+          Uint8List?,
+          FutureOr<Uint8List?>
+        >
+    with $FutureModifier<Uint8List?>, $FutureProvider<Uint8List?> {
+  /// The receipt photo of transaction [transactionId] as this device has it: the file
+  /// when [sha256] is null or its bytes hash to it, else null (no file, or another photo's,
+  /// one replaced elsewhere). No fetch: the editor shows it at once, and the Conflicts
+  /// screen asks it whether a photo is still here.
+  LocalReceiptProvider._({
+    required LocalReceiptFamily super.from,
+    required (String, String?) super.argument,
+  }) : super(
+         retry: null,
+         name: r'localReceiptProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$localReceiptHash();
+
+  @override
+  String toString() {
+    return r'localReceiptProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Uint8List?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Uint8List?> create(Ref ref) {
+    final argument = this.argument as (String, String?);
+    return localReceipt(ref, argument.$1, argument.$2);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is LocalReceiptProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$localReceiptHash() => r'2e84da27c22e9b00393f1477a29468a91c38c1b7';
+
+/// The receipt photo of transaction [transactionId] as this device has it: the file
+/// when [sha256] is null or its bytes hash to it, else null (no file, or another photo's,
+/// one replaced elsewhere). No fetch: the editor shows it at once, and the Conflicts
+/// screen asks it whether a photo is still here.
+
+final class LocalReceiptFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<Uint8List?>, (String, String?)> {
+  LocalReceiptFamily._()
+    : super(
+        retry: null,
+        name: r'localReceiptProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// The receipt photo of transaction [transactionId] as this device has it: the file
+  /// when [sha256] is null or its bytes hash to it, else null (no file, or another photo's,
+  /// one replaced elsewhere). No fetch: the editor shows it at once, and the Conflicts
+  /// screen asks it whether a photo is still here.
+
+  LocalReceiptProvider call(String transactionId, String? sha256) =>
+      LocalReceiptProvider._(argument: (transactionId, sha256), from: this);
+
+  @override
+  String toString() => r'localReceiptProvider';
+}
+
+/// The receipt photo of transaction [transactionId], whose bytes hash to [sha256]
+/// (`docs/reference/transactions.md`, **Receipts**): the file on this device when it is
+/// that photo; else, when the hash is known, fetched from the server on this first view,
+/// checked against the hash and stored under the usual path, so the next view is local.
+/// Null when there is no file and no hash (a receipt attached on another device before
+/// hashes existed, not hashed there yet). A failed fetch is an error (`NotFound` while
+/// the photo has not reached the server); invalidating retries.
 
 @ProviderFor(receipt)
 final receiptProvider = ReceiptFamily._();
 
-/// The photo at receipt [path] (a transaction's `receiptPath`), or null when this device
-/// has none: the receipt was kept on another device.
+/// The receipt photo of transaction [transactionId], whose bytes hash to [sha256]
+/// (`docs/reference/transactions.md`, **Receipts**): the file on this device when it is
+/// that photo; else, when the hash is known, fetched from the server on this first view,
+/// checked against the hash and stored under the usual path, so the next view is local.
+/// Null when there is no file and no hash (a receipt attached on another device before
+/// hashes existed, not hashed there yet). A failed fetch is an error (`NotFound` while
+/// the photo has not reached the server); invalidating retries.
 
 final class ReceiptProvider
     extends
@@ -484,11 +592,16 @@ final class ReceiptProvider
           FutureOr<Uint8List?>
         >
     with $FutureModifier<Uint8List?>, $FutureProvider<Uint8List?> {
-  /// The photo at receipt [path] (a transaction's `receiptPath`), or null when this device
-  /// has none: the receipt was kept on another device.
+  /// The receipt photo of transaction [transactionId], whose bytes hash to [sha256]
+  /// (`docs/reference/transactions.md`, **Receipts**): the file on this device when it is
+  /// that photo; else, when the hash is known, fetched from the server on this first view,
+  /// checked against the hash and stored under the usual path, so the next view is local.
+  /// Null when there is no file and no hash (a receipt attached on another device before
+  /// hashes existed, not hashed there yet). A failed fetch is an error (`NotFound` while
+  /// the photo has not reached the server); invalidating retries.
   ReceiptProvider._({
     required ReceiptFamily super.from,
-    required String super.argument,
+    required (String, String?) super.argument,
   }) : super(
          retry: null,
          name: r'receiptProvider',
@@ -504,7 +617,7 @@ final class ReceiptProvider
   String toString() {
     return r'receiptProvider'
         ''
-        '($argument)';
+        '$argument';
   }
 
   @$internal
@@ -514,8 +627,8 @@ final class ReceiptProvider
 
   @override
   FutureOr<Uint8List?> create(Ref ref) {
-    final argument = this.argument as String;
-    return receipt(ref, argument);
+    final argument = this.argument as (String, String?);
+    return receipt(ref, argument.$1, argument.$2);
   }
 
   @override
@@ -529,13 +642,18 @@ final class ReceiptProvider
   }
 }
 
-String _$receiptHash() => r'60b77ad6036605d73366d1e1c91f0904e29464d3';
+String _$receiptHash() => r'37cab8d312003025111d2f1dbf65fbca164c3219';
 
-/// The photo at receipt [path] (a transaction's `receiptPath`), or null when this device
-/// has none: the receipt was kept on another device.
+/// The receipt photo of transaction [transactionId], whose bytes hash to [sha256]
+/// (`docs/reference/transactions.md`, **Receipts**): the file on this device when it is
+/// that photo; else, when the hash is known, fetched from the server on this first view,
+/// checked against the hash and stored under the usual path, so the next view is local.
+/// Null when there is no file and no hash (a receipt attached on another device before
+/// hashes existed, not hashed there yet). A failed fetch is an error (`NotFound` while
+/// the photo has not reached the server); invalidating retries.
 
 final class ReceiptFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<Uint8List?>, String> {
+    with $FunctionalFamilyOverride<FutureOr<Uint8List?>, (String, String?)> {
   ReceiptFamily._()
     : super(
         retry: null,
@@ -545,11 +663,16 @@ final class ReceiptFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// The photo at receipt [path] (a transaction's `receiptPath`), or null when this device
-  /// has none: the receipt was kept on another device.
+  /// The receipt photo of transaction [transactionId], whose bytes hash to [sha256]
+  /// (`docs/reference/transactions.md`, **Receipts**): the file on this device when it is
+  /// that photo; else, when the hash is known, fetched from the server on this first view,
+  /// checked against the hash and stored under the usual path, so the next view is local.
+  /// Null when there is no file and no hash (a receipt attached on another device before
+  /// hashes existed, not hashed there yet). A failed fetch is an error (`NotFound` while
+  /// the photo has not reached the server); invalidating retries.
 
-  ReceiptProvider call(String path) =>
-      ReceiptProvider._(argument: path, from: this);
+  ReceiptProvider call(String transactionId, String? sha256) =>
+      ReceiptProvider._(argument: (transactionId, sha256), from: this);
 
   @override
   String toString() => r'receiptProvider';

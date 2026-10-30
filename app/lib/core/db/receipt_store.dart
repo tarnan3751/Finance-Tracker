@@ -1,8 +1,11 @@
 /// Where receipt photos are kept (`docs/reference/data.md`, **Receipts**): one file per
 /// transaction, `receipts/<transaction id>.jpg` under the app's private support directory
 /// in dev and prod, in memory in the demo flavor and the tests. A transaction's
-/// `receiptPath` holds that relative name; the file never syncs, so on another device the
-/// path names nothing. A new photo is staged under a temporary name and committed over the
+/// `receiptPath` holds that relative name, the same on every device, and its
+/// `receiptSha256` the photo's hash, by which the photo travels between devices
+/// (uploaded before the change that names it, fetched on its first view elsewhere and
+/// stored here under the same name; `docs/reference/sync-app.md`, **Receipts**). A new
+/// photo is staged under a temporary name and committed over the
 /// old one only once the transaction's write has succeeded. [ReceiptStore.sweep] removes
 /// the files no live transaction references. No path is logged. No Flutter import.
 library;

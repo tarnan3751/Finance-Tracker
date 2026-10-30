@@ -3,7 +3,9 @@
 /// minutes. Each shows the record (its kind and name) and the field, both values with
 /// the device that wrote each and when (in this device's zone), and two actions: "Keep
 /// this device's value", which writes it again so it syncs and wins, and "Keep the
-/// other", which keeps what is there and forgets the conflict
+/// other", which keeps what is there and forgets the conflict. A receipt photo's conflict
+/// shows each photo as on this device or not, and keeping this device's photo is offered
+/// only while its bytes are still here, so it can be uploaded
 /// (`docs/reference/sync-app.md`, **Conflicts**).
 library;
 
@@ -87,6 +89,17 @@ class _ConflictCardState extends ConsumerState<_ConflictCard> {
     }
   }
 
+  // "Keep this device's value", saying so when its photo turned out to be gone.
+  Future<void> _keep() {
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final String gone = AppLocalizations.of(context).conflictPhotoGone;
+    return _run((a) async {
+      if (!await a.keepLocal(widget.conflict)) {
+        messenger.showSnackBar(SnackBar(content: Text(gone)));
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
@@ -107,8 +120,17 @@ class _ConflictCardState extends ConsumerState<_ConflictCard> {
       device(hlc),
       formatDateTime(hlc.wall, clock.location),
     );
-    String value(Object? v) =>
-        conflictValueText(l10n, c.field, v, categories, accounts);
+    // A receipt photo's hash is no value to read: whether this device has the photo is.
+    final bool photo = c.field == _receiptHashField;
+    bool photoHere(Object? hash) =>
+        hash is String &&
+        ref.watch(localReceiptProvider(c.entityId, hash)).value != null;
+    String value(Object? v) => photo && v is String
+        ? (photoHere(v) ? l10n.conflictPhotoHere : l10n.conflictPhotoNotHere)
+        : conflictValueText(l10n, c.field, v, categories, accounts);
+    // Keeping a photo this device no longer has would name one nobody can fetch.
+    final bool canKeep =
+        !photo || c.localValue == null || photoHere(c.localValue);
     final String kind = l10n.conflictEntityType(c.entityType.name);
     final String fieldName = conflictFieldName(l10n, c.field);
 
@@ -152,6 +174,16 @@ class _ConflictCardState extends ConsumerState<_ConflictCard> {
             side(l10n.conflictThisValue, c.localValue, c.localClock),
             side(l10n.conflictOtherValue, c.remoteValue, c.remoteClock),
             const SizedBox(height: 12),
+            if (!canKeep)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  l10n.conflictPhotoGone,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
             Wrap(
               alignment: WrapAlignment.end,
               spacing: 8,
@@ -162,7 +194,7 @@ class _ConflictCardState extends ConsumerState<_ConflictCard> {
                   child: Text(l10n.conflictKeepOther),
                 ),
                 FilledButton.tonal(
-                  onPressed: _busy ? null : () => _run((a) => a.keepLocal(c)),
+                  onPressed: _busy || !canKeep ? null : _keep,
                   child: Text(l10n.conflictKeepThis),
                 ),
               ],
@@ -220,3 +252,5 @@ String conflictValueText(
     list.isEmpty ? l10n.conflictNoValue : list.join(', '),
   _ => '$value',
 };
+
+const String _receiptHashField = 'receipt_sha256';

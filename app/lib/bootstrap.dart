@@ -164,10 +164,14 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
         );
   });
   if (config.flavor != Flavor.demo) {
-    // Once per launch, off the first frame: a delete that became final while the app
-    // was not watching (`TransactionActions.sweepReceipts`) leaves its photo behind.
+    // Once per launch, off the first frame: the photos attached before receipt hashes
+    // existed get theirs (`TransactionActions.fillReceiptHashes`), then a delete that
+    // became final while the app was not watching (`TransactionActions.sweepReceipts`)
+    // leaves its photo behind.
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => unawaited(sweepReceipts(container)),
+      (_) => unawaited(
+        fillReceiptHashes(container).then((_) => sweepReceipts(container)),
+      ),
     );
   }
 }
@@ -279,6 +283,20 @@ Future<void> stopApp() async {
   // The close the container started (one close only: two at once race in Drift),
   // awaited so the files can go.
   if (database != null) await databaseClosing[database];
+}
+
+/// Gives the receipt photos on this device that have no hash theirs, recorded, so they
+/// upload and sync (`TransactionActions.fillReceiptHashes`). A failure is logged by type
+/// only; the next launch tries again.
+Future<void> fillReceiptHashes(ProviderContainer container) async {
+  try {
+    final int filled = await container
+        .read(transactionActionsProvider)
+        .fillReceiptHashes();
+    if (filled > 0) _log.info('hashed $filled receipt photos');
+  } on Object catch (e) {
+    _log.warning('hashing the receipt photos failed: ${e.runtimeType}');
+  }
 }
 
 /// Deletes the receipt files no live transaction in [container] references. A failure

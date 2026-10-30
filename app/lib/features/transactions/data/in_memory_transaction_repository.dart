@@ -81,6 +81,12 @@ base class InMemoryTransactionRepository implements TransactionRepository {
   Future<int> count(TransactionQuery query) async => store.count(query);
 
   @override
+  Future<List<Transaction>> unhashedReceipts() async => [
+    for (final Transaction t in store.transactions(TransactionQuery.all))
+      if (t.receiptPath != null && t.receiptSha256 == null) t,
+  ];
+
+  @override
   Stream<TransactionUsage> watchUsage({int recentLimit = 20}) {
     checkRecentLimit(recentLimit);
     return store.watch(() => store.usage(recentLimit));

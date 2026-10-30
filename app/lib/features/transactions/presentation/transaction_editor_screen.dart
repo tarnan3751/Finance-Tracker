@@ -23,8 +23,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:finance_tracker/core/api/problems.dart';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
-import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/image_source.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
@@ -485,12 +485,13 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
       final Transaction stored = initial == null
           ? await actions.create(draft)
           : await actions.update(initial, draft);
-      final String id = stored.id;
       if (mounted) {
         setState(() => _initial = stored);
         // A replaced photo keeps its path: the next read must not be the old one.
         if (draft.receipt is! KeepReceipt) {
-          ref.invalidate(receiptProvider(receiptPathFor(id)));
+          ref
+            ..invalidate(localReceiptProvider)
+            ..invalidate(receiptProvider);
         }
         page.close();
       }
@@ -630,25 +631,55 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     },
   );
 
-  // The receipt section: the photo picked in this session, else the stored one (or that
-  // it is on another device), else the buttons to add one.
+  // The receipt section: the photo picked in this session, else the stored one (fetched
+  // from the server on this first view when only its hash is here, or that it is on
+  // another device), else the buttons to add one.
   Widget _buildReceipt() {
     final ReceiptChange change = _receipt;
-    final String? stored = _initial?.receiptPath;
-    final AsyncValue<Uint8List?>? read = change is KeepReceipt && stored != null
-        ? ref.watch(receiptProvider(stored))
+    final Transaction? initial = _initial;
+    final String? stored = initial?.receiptPath;
+    final String? hash = initial?.receiptSha256;
+    final bool kept = change is KeepReceipt && stored != null;
+    // The photo here first; only when it is not (and its hash is known), the fetch.
+    final AsyncValue<Uint8List?>? local = kept
+        ? ref.watch(localReceiptProvider(initial!.id, hash))
         : null;
+    final ReceiptProvider? fetch =
+        kept && hash != null && local!.hasValue && local.value == null
+        ? receiptProvider(initial!.id, hash)
+        : null;
+    final AsyncValue<Uint8List?>? fetched = fetch == null
+        ? null
+        : ref.watch(fetch);
+    final AsyncValue<Uint8List?>? read = fetched ?? local;
+    final bool localFailed =
+        local != null && !local.isLoading && local.hasError;
     return ReceiptSection(
       bytes: switch (change) {
         AttachReceipt(:final Uint8List bytes) => bytes,
         KeepReceipt() => read?.value,
         RemoveReceipt() => null,
       },
-      // A photo that cannot be read is as good as not on this device.
+      // Without a hash, a photo that cannot be read is as good as not on this device.
       missing:
-          read != null &&
-          (read.hasError || read.hasValue && read.value == null),
-      loading: read != null && !read.hasValue && !read.hasError,
+          hash == null &&
+          local != null &&
+          (local.hasError || local.hasValue && local.value == null),
+      // A retry shows the spinner again, not the last failure.
+      loading: read != null && read.isLoading,
+      downloading: fetched != null,
+      // A failed read of the file here, when the hash says what it should be, is a
+      // failure to retry like a failed fetch.
+      fetchFailure: hash != null && local != null && localFailed
+          ? ReceiptFetchFailure.failed
+          : fetched == null || fetched.isLoading || !fetched.hasError
+          ? null
+          : fetched.error is NotFound
+          ? ReceiptFetchFailure.notOnServer
+          : ReceiptFetchFailure.failed,
+      onRetry: () => fetch == null
+          ? ref.invalidate(localReceiptProvider(initial!.id, hash))
+          : ref.invalidate(fetch),
       onTakePhoto: () => _pickReceipt(camera: true),
       onChoosePhoto: () => _pickReceipt(camera: false),
       onRemove: () => setState(

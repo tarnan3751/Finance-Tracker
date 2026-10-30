@@ -4,22 +4,30 @@
 // whose photo is not on this device says so and can still be removed; a device without
 // a camera, or an image that cannot be used, is explained; the thumbnail opens the photo
 // full screen; deleting the transaction keeps the photo through Undo and drops it once
-// the undo has gone.
+// the undo has gone. A receipt synced from another device with its hash is fetched on
+// first view behind a placeholder; a failed fetch says why and Try again fetches it.
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:finance_tracker/core/api/api_providers.dart';
+import 'package:finance_tracker/core/api/fake/fake_server.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/fake_image_source.dart';
 import 'package:finance_tracker/core/platform/image_source.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
+import 'package:finance_tracker/core/router/app_router.dart';
+import 'package:finance_tracker/features/transactions/application/transactions_providers.dart'
+    show receiptHash;
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/presentation/receipt_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
 
+import '../../../core/api/support/fake_api.dart';
 import '../../../helpers/pump_app.dart';
 import '../../../helpers/seed.dart';
 
@@ -173,6 +181,122 @@ void main() {
     expect(store.transaction('demo-txn-02')!.receiptPath, isNull);
   });
 
+  testWidgets('a photo taken here is saved with its hash', (tester) async {
+    await pumpEditor(tester, '/transactions/demo-txn-02');
+    await tester.ensureVisible(find.text('Take photo'));
+    await tester.tap(find.text('Take photo'));
+    await tester.pumpAndSettle();
+    await save(tester);
+    expect(
+      store.transaction('demo-txn-02')!.receiptSha256,
+      receiptHash(_photo),
+    );
+  });
+
+  // Gives demo-txn-02 a receipt synced from another device: its path and hash, no file.
+  void syncedReceipt() => store.upsertTransaction(
+    store
+        .transaction('demo-txn-02')!
+        .copyWith(
+          receiptPath: receiptPathFor('demo-txn-02'),
+          receiptSha256: receiptHash(_photo),
+        ),
+  );
+
+  // The app's container, once pumped.
+  ProviderContainer container(WidgetTester tester) =>
+      ProviderScope.containerOf(tester.element(find.byType(Scaffold).first));
+
+  testWidgets(
+    'a synced receipt is fetched on first view; a failure says so and '
+    'Try again fetches it',
+    (tester) async {
+      syncedReceipt();
+      await pumpEditor(tester, '/transactions');
+      final FakeServer server = container(tester).read(fakeServerProvider);
+      // The other device uploaded it (through the real client, off the fake clock).
+      await tester.runAsync(
+        () => FakeClient(
+          server,
+          session: server.seedSession(email: demoEmail, password: demoPassword),
+        ).api.putReceipt(receiptHash(_photo), _photo),
+      );
+      server.failNextNetwork('getReceipt');
+      container(tester).read(goRouterProvider).go('/transactions/demo-txn-02');
+      await tester.pumpAndSettle();
+      expect(find.text('The receipt could not be downloaded'), findsOneWidget);
+      expect(_thumbnail, findsNothing);
+      // The fetch runs on the fake clock: hold its answer to see the retry's state.
+      server.latency = const Duration(seconds: 1);
+      await tester.tap(find.text('Try again'));
+      await tester.pump();
+      expect(find.text('The receipt could not be downloaded'), findsNothing);
+      expect(find.text('Downloading the receipt'), findsOneWidget);
+      await tester.pumpAndSettle(const Duration(milliseconds: 100));
+      expect(_thumbnail, findsOneWidget);
+      expect(find.text('The receipt could not be downloaded'), findsNothing);
+      expect(await receipts.read(receiptPathFor('demo-txn-02')), _photo);
+    },
+  );
+
+  testWidgets('a hashed receipt whose photo is here shows without a fetch', (
+    tester,
+  ) async {
+    await withReceipt('demo-txn-02', _photo);
+    store.upsertTransaction(
+      store
+          .transaction('demo-txn-02')!
+          .copyWith(receiptSha256: receiptHash(_photo)),
+    );
+    await pumpEditor(tester, '/transactions/demo-txn-02');
+    expect(_thumbnail, findsOneWidget);
+    expect(find.text('Downloading the receipt'), findsNothing);
+    expect(
+      container(tester).read(fakeServerProvider).calls,
+      isNot(contains('getReceipt')),
+    );
+  });
+
+  testWidgets(
+    'a hashed receipt whose file cannot be read says so and retries',
+    (tester) async {
+      await withReceipt('demo-txn-02', _photo);
+      store.upsertTransaction(
+        store
+            .transaction('demo-txn-02')!
+            .copyWith(receiptSha256: receiptHash(_photo)),
+      );
+      final _FailingReads failing = _FailingReads(receipts);
+      await pumpApp(
+        tester,
+        initialLocation: '/transactions/demo-txn-02',
+        overrides: [
+          storeOverride(store),
+          receiptStoreProvider.overrideWithValue(failing),
+          imageSourceProvider.overrideWithValue(images),
+        ],
+        size: _tall,
+      );
+      expect(find.text('The receipt could not be downloaded'), findsOneWidget);
+      expect(find.text('Take photo'), findsNothing);
+      failing.fail = false;
+      await tester.tap(find.text('Try again'));
+      await tester.pumpAndSettle();
+      expect(_thumbnail, findsOneWidget);
+    },
+  );
+
+  testWidgets('a synced receipt not on the server yet says so', (tester) async {
+    syncedReceipt();
+    await pumpEditor(tester, '/transactions/demo-txn-02');
+    expect(
+      find.text('The receipt has not reached the server yet'),
+      findsOneWidget,
+    );
+    expect(find.text('Try again'), findsOneWidget);
+    expect(find.text('Remove receipt'), findsOneWidget);
+  });
+
   testWidgets('no camera, or an image that cannot be used, is explained', (
     tester,
   ) async {
@@ -236,4 +360,38 @@ void main() {
 
     expect(receipts.paths, isEmpty);
   });
+}
+
+/// [inner], whose reads fail while [fail] is set, as an unreadable file does.
+final class _FailingReads implements ReceiptStore {
+  _FailingReads(this.inner);
+
+  final ReceiptStore inner;
+  bool fail = true;
+
+  @override
+  Future<Uint8List?> read(String path) async {
+    if (fail) throw const FileSystemException('unreadable');
+    return inner.read(path);
+  }
+
+  @override
+  Future<StagedReceipt> stage(String transactionId, Uint8List bytes) =>
+      inner.stage(transactionId, bytes);
+
+  @override
+  Future<String> commit(StagedReceipt staged) => inner.commit(staged);
+
+  @override
+  Future<void> discard(StagedReceipt staged) => inner.discard(staged);
+
+  @override
+  Future<void> delete(String path) => inner.delete(path);
+
+  @override
+  Future<int> sweep(Set<String> keep, {required DateTime olderThan}) =>
+      inner.sweep(keep, olderThan: olderThan);
+
+  @override
+  Future<void> deleteAll() => inner.deleteAll();
 }

@@ -1091,6 +1091,43 @@ void runTransactionRepositoryContract(
       );
     });
 
+    test(
+      'unhashedReceipts: the live rows with a receipt and no hash',
+      () async {
+        final String hash = 'a' * 64;
+        await transactions.upsert(testTransaction('t1', 'a1', -100));
+        await transactions.upsert(
+          testTransaction(
+            't2',
+            'a1',
+            -100,
+          ).copyWith(receiptPath: 'receipts/t2.jpg'),
+        );
+        await transactions.upsert(
+          testTransaction(
+            't3',
+            'a1',
+            -100,
+          ).copyWith(receiptPath: 'receipts/t3.jpg', receiptSha256: hash),
+        );
+        await transactions.upsert(
+          testTransaction(
+            't4',
+            'a1',
+            -100,
+          ).copyWith(receiptPath: 'receipts/t4.jpg'),
+        );
+        await transactions.delete('t4');
+        expect(
+          [for (final t in await transactions.unhashedReceipts()) t.id],
+          ['t2'],
+        );
+        final Transaction t2 = (await transactions.watchById('t2').first)!;
+        await transactions.upsert(t2.copyWith(receiptSha256: hash));
+        expect(await transactions.unhashedReceipts(), isEmpty);
+      },
+    );
+
     group('applyPlaid', () {
       final DateTime at = DateTime.utc(2026, 10, 20, 8);
       Transaction bank(

@@ -10,6 +10,8 @@
 /// a session in flight finish and discards its report. Before each session the device
 /// clock adopts the server's device id, moving the outbox to it. A relay whose log was
 /// reset (`SyncCursorInvalidException`) resets the pull cursor to 0 and runs again once.
+/// An outbox entry that names a receipt photo waits for the photo's upload
+/// (`receipt_uploader.dart`); one whose upload fails waits for the next session.
 /// After each successful session the Plaid pull runs (`core/plaid/plaid_pull.dart`), so
 /// Sync now covers both; its time and failure are in the status apart from the
 /// session's. While the restore offer is pending, or not yet known (`RestoreOffer`), no
@@ -19,12 +21,14 @@ library;
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/api/problems.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/db/tables/sync_meta.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/device_clock.dart';
+import 'package:finance_tracker/core/sync/receipt_uploader.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/backup/application/backup_providers.dart';
@@ -205,6 +209,11 @@ class SyncController extends _$SyncController {
         relay,
         await store.transaction(deviceClock.current),
         nowWallMillis: () => clock.nowUtc().millisecondsSinceEpoch,
+        beforePush: ReceiptUploader(
+          ref.read(financeApiProvider),
+          ref.read(receiptStoreProvider),
+          store,
+        ).ready,
       ).run();
       SyncReport report;
       try {

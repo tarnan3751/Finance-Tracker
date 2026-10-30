@@ -1,6 +1,8 @@
 /// A transaction's receipt photo: the editor's section (the thumbnail with Replace and
 /// Remove, "Take photo" and "Choose photo" while there is none, "Receipt kept on another
-/// device" when the photo is not on this device) and the full-screen view a tap on the
+/// device" when the photo is not on this device and has no hash to fetch it by; while a
+/// photo is fetched on its first view, a placeholder saying so; when the fetch fails, why,
+/// with Try again) and the full-screen view a tap on the
 /// thumbnail opens, zoomable, through a pageless push (no route of its own). The photos
 /// are bytes in memory: a replaced photo keeps its path, so no file image cache can show
 /// the old one. The bytes become an image through [receiptImageProvider], which the
@@ -23,9 +25,18 @@ part 'receipt_view.g.dart';
 ImageProvider Function(Uint8List bytes) receiptImage(Ref ref) =>
     MemoryImage.new;
 
+/// Why a receipt photo could not be fetched from the server.
+enum ReceiptFetchFailure {
+  /// The device that took it has not uploaded it yet.
+  notOnServer,
+
+  /// No network, or the server's error.
+  failed,
+}
+
 /// The receipt section's content for the editor: [bytes] when there is a photo to show,
-/// else [missing] when the transaction names a receipt this device does not have, else
-/// the buttons to add one.
+/// else [fetchFailure] when fetching it failed, else [missing] when the transaction names
+/// a receipt this device does not have, else the buttons to add one.
 class ReceiptSection extends StatelessWidget {
   const ReceiptSection({
     super.key,
@@ -35,6 +46,9 @@ class ReceiptSection extends StatelessWidget {
     required this.onTakePhoto,
     required this.onChoosePhoto,
     required this.onRemove,
+    this.downloading = false,
+    this.fetchFailure,
+    this.onRetry,
   });
 
   /// The photo shown, or null.
@@ -46,6 +60,16 @@ class ReceiptSection extends StatelessWidget {
   /// Whether the stored photo is still being read.
   final bool loading;
 
+  /// Whether a read in progress may fetch the photo from the server (its hash is known),
+  /// so the placeholder says so.
+  final bool downloading;
+
+  /// Why fetching the photo failed, or null.
+  final ReceiptFetchFailure? fetchFailure;
+
+  /// Fetches the photo again after [fetchFailure].
+  final VoidCallback? onRetry;
+
   final VoidCallback onTakePhoto;
   final VoidCallback onChoosePhoto;
   final VoidCallback onRemove;
@@ -56,12 +80,33 @@ class ReceiptSection extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final Uint8List? bytes = this.bytes;
     final Widget body;
-    if (loading) {
+    final ReceiptFetchFailure? failure = fetchFailure;
+    if (loading && downloading) {
+      body = Row(
+        children: [
+          const _Placeholder(
+            child: Padding(
+              padding: EdgeInsets.all(36),
+              child: CircularProgressIndicator(),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              l10n.receiptDownloading,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      );
+    } else if (loading) {
       body = const Padding(
         padding: EdgeInsets.all(16),
         child: Center(child: CircularProgressIndicator()),
       );
-    } else if (bytes == null && !missing) {
+    } else if (bytes == null && failure == null && !missing) {
       body = Wrap(
         spacing: 8,
         runSpacing: 4,
@@ -85,18 +130,10 @@ class ReceiptSection extends StatelessWidget {
           if (bytes != null)
             _Thumbnail(bytes)
           else
-            SizedBox(
-              width: _Thumbnail.width,
-              height: _Thumbnail.height,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  border: Border.all(color: theme.colorScheme.outlineVariant),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.receipt_long_outlined,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+            _Placeholder(
+              child: Icon(
+                Icons.receipt_long_outlined,
+                color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
           const SizedBox(width: 16),
@@ -104,7 +141,23 @@ class ReceiptSection extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (missing)
+                if (failure != null && bytes == null) ...[
+                  Text(
+                    switch (failure) {
+                      ReceiptFetchFailure.notOnServer =>
+                        l10n.receiptNotOnServer,
+                      ReceiptFetchFailure.failed => l10n.receiptDownloadFailed,
+                    },
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: onRetry,
+                    icon: const Icon(Icons.refresh),
+                    label: Text(l10n.receiptRetry),
+                  ),
+                ] else if (missing)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Text(
@@ -139,6 +192,26 @@ class ReceiptSection extends StatelessWidget {
       ],
     );
   }
+}
+
+// Where the photo goes while there is none to show.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: _Thumbnail.width,
+    height: _Thumbnail.height,
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Center(child: child),
+    ),
+  );
 }
 
 // The photo, small; a tap opens it full screen.

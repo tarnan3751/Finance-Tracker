@@ -76,6 +76,11 @@ abstract interface class TransactionRepository {
   /// The number of live transactions matching [query], ignoring its limit and offset.
   Future<int> count(TransactionQuery query);
 
+  /// The live transactions with a `receiptPath` and no `receiptSha256` (photos attached
+  /// before receipt hashes existed), from a query that reads only those rows: empty once
+  /// every one has its hash.
+  Future<List<Transaction>> unhashedReceipts();
+
   /// The distinct tags of the live transactions and their [recentLimit] most recently
   /// used categories and accounts ([TransactionUsage] documents the order), from queries
   /// that read only those columns. A [recentLimit] below 1 is an [ArgumentError].

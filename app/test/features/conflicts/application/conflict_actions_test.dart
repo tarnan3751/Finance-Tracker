@@ -5,16 +5,21 @@
 // change syncs and wins on the other device; "Keep the other" changes nothing but the
 // conflict; a conflict whose entity is deleted since goes; and the demo's wiring only
 // forgets.
+import 'dart:typed_data';
+
 import 'package:drift/native.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
+import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/conflicts/application/conflicts_providers.dart';
 import 'package:finance_tracker/features/conflicts/data/in_memory_conflict_store.dart';
 import 'package:finance_tracker/features/conflicts/domain/sync_conflict.dart';
+import 'package:finance_tracker/features/transactions/application/transactions_providers.dart'
+    show receiptHash;
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -77,6 +82,7 @@ void main() {
   late ProviderContainer a;
   late InMemorySyncRelay relay;
   late _Other b;
+  late MemoryReceiptStore receipts;
 
   Future<void> syncA() async {
     final DriftSyncStore store = a.read(driftSyncStoreProvider);
@@ -99,9 +105,12 @@ void main() {
     clock = _Clock();
     relay = InMemorySyncRelay(nowWallMillis: () => clock.millis);
     database = AppDatabase(NativeDatabase.memory());
+    receipts = MemoryReceiptStore();
     a = ProviderContainer(
       overrides: [
-        ...overridesFor(AppConfig.dev()),
+        for (final o in overridesFor(AppConfig.dev()))
+          if (o.origin != receiptStoreProvider) o,
+        receiptStoreProvider.overrideWithValue(receipts),
         databaseProvider.overrideWithValue(database),
         clockProvider.overrideWithValue(clock),
       ],
@@ -240,6 +249,58 @@ void main() {
     expect((await conflicts()).where((c) => c.entityId == 'p1'), isEmpty);
     await a.read(conflictActionsProvider).keepLocal(c);
     expect(await a.read(driftSyncStoreProvider).unsynced(), isEmpty);
+  });
+
+  group('a receipt photo', () {
+    final Uint8List mine = Uint8List.fromList([0xff, 0xd8, 0xff, 1]);
+    final Uint8List theirs = Uint8List.fromList([0xff, 0xd8, 0xff, 2]);
+
+    // a attaches its photo; b replaces the hash a minute later; a pulls: a conflict.
+    Future<SyncConflict> race() async {
+      await receipts.commit(await receipts.stage('t1', mine));
+      final Transaction t = (await transactions().watchById('t1').first)!;
+      await transactions().upsert(
+        t.copyWith(
+          receiptPath: receiptPathFor('t1'),
+          receiptSha256: receiptHash(mine),
+        ),
+      );
+      await syncA();
+      await b.session.run();
+      b.now = clock.millis + _minute;
+      await b.edit('t1', {'receipt_sha256': receiptHash(theirs)});
+      await b.session.run();
+      clock.millis += 2 * _minute;
+      await syncA();
+      return (await conflicts()).firstWhere((c) => c.field == 'receipt_sha256');
+    }
+
+    test("keeping this device's photo while it is here keeps it", () async {
+      final SyncConflict c = await race();
+      expect(await a.read(conflictActionsProvider).keepLocal(c), isTrue);
+      expect(
+        (await transactions().watchById('t1').first)!.receiptSha256,
+        receiptHash(mine),
+      );
+    });
+
+    test(
+      'a photo fetched over it since the screen looked refuses the keep',
+      () async {
+        final SyncConflict c = await race();
+        // The other photo is fetched over the file while the screen still shows Keep.
+        await receipts.commit(await receipts.stage('t1', theirs));
+        expect(await a.read(conflictActionsProvider).keepLocal(c), isFalse);
+        expect([
+          for (final c in await conflicts()) c.field,
+        ], isNot(contains('receipt_sha256')));
+        expect(await a.read(driftSyncStoreProvider).unsynced(), isEmpty);
+        expect(
+          (await transactions().watchById('t1').first)!.receiptSha256,
+          receiptHash(theirs),
+        );
+      },
+    );
   });
 
   test('a build that records nothing only forgets', () async {
