@@ -1,7 +1,8 @@
 // Two (and three) devices, each the real app wiring over its own Drift database (the
 // Drift repositories, the recorder, the device clock, the sync controller), syncing
 // through one relay: scripted conflicts, rules, budgets, recurring stream overrides,
-// bills and goals among them, a partition, a restart, a clock hours behind, and seeded
+// bills and goals among them, a conflict resolved both ways, a partition, a restart, a
+// clock hours behind, and seeded
 // random runs, after
 // which every device's entity tables and sync records are the same (sync-app.md,
 // **Testing**). The Plaid pull after each session goes to an in-app fake server with no
@@ -33,6 +34,8 @@ import 'package:finance_tracker/features/backup/application/backup_providers.dar
 import 'package:finance_tracker/features/bills/domain/bill_repository.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
+import 'package:finance_tracker/features/conflicts/application/conflicts_providers.dart';
+import 'package:finance_tracker/features/conflicts/domain/sync_conflict.dart';
 import 'package:finance_tracker/features/goals/domain/goal_repository.dart';
 import 'package:finance_tracker/features/recurring/domain/recurring_stream_repository.dart';
 import 'package:finance_tracker/features/recurring/domain/stream_override.dart';
@@ -203,6 +206,13 @@ final class Device {
     ),
   );
   DriftSyncStore get store => container.read(driftSyncStoreProvider);
+
+  /// The conflicts this device keeps.
+  Future<List<SyncConflict>> conflicts() =>
+      container.read(conflictStoreProvider).watch().first;
+
+  ConflictActions get conflictActions =>
+      container.read(conflictActionsProvider);
 
   /// Runs a session to the end and returns the status after it.
   Future<SyncStatus> sync() async {
@@ -403,6 +413,63 @@ void main() {
       await b.accounts.watchDerivedBalance('acc').first,
       Money(100000 - 2500 - 2000, 'USD'),
     );
+  });
+
+  group('a conflict', () {
+    // a writes its notes; b writes others a minute later; they sync in turn, so b's
+    // value wins and a, whose own value lost, keeps the conflict.
+    Future<(Device, Device)> race() async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b');
+      await shared(a, [b]);
+      final Transaction t1 = (await a.transactions.watchById('t1').first)!;
+      await a.transactions.upsert(t1.copyWith(notes: 'from A'));
+      world.now += 60 * 1000;
+      final Transaction t1b = (await b.transactions.watchById('t1').first)!;
+      await b.transactions.upsert(t1b.copyWith(notes: 'from B'));
+      await a.sync();
+      await b.sync();
+      await a.sync();
+      return (a, b);
+    }
+
+    Future<String?> notes(Device d) async =>
+        (await d.transactions.watchById('t1').first)?.notes;
+
+    test('kept on the device whose value lost, and keeping it wins', () async {
+      final (Device a, Device b) = await race();
+      expect(await b.conflicts(), isEmpty);
+      final SyncConflict lost = (await a.conflicts()).single;
+      expect(
+        (lost.field, lost.localValue, lost.remoteValue),
+        ('notes', 'from A', 'from B'),
+      );
+      expect(await notes(a), 'from B');
+
+      await a.conflictActions.keepLocal(lost);
+      expect(await notes(a), 'from A');
+      expect(await a.conflicts(), isEmpty);
+      await expectConverged([a, b]);
+      expect(await notes(b), 'from A');
+      // b's own value lost within ten minutes in turn; b keeps the other.
+      final SyncConflict back = (await b.conflicts()).single;
+      expect(back.localValue, 'from B');
+      await b.conflictActions.keepOther(back);
+      await expectConverged([a, b]);
+      expect(await notes(a), 'from A');
+      expect(await b.conflicts(), isEmpty);
+    });
+
+    test('keeping the other changes nothing anywhere', () async {
+      final (Device a, Device b) = await race();
+      await a.conflictActions.keepOther((await a.conflicts()).single);
+      expect(await a.store.unsynced(), isEmpty);
+      await expectConverged([a, b]);
+      expect(await notes(a), 'from B');
+      expect(await notes(b), 'from B');
+      expect(await a.conflicts(), isEmpty);
+      expect(await b.conflicts(), isEmpty);
+    });
   });
 
   test(
