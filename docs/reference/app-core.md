@@ -88,6 +88,7 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `sessionControllerProvider`, `deviceNameProvider` | `features/auth/application/` | The session and the device's name (`auth.md`) |
 | `receiptStoreProvider` | `core/di/providers.dart` | Where receipt photos are kept: in memory by default and in demo, files in the support directory in dev and prod (`data.md`, **Receipts**) |
 | `imageSourceProvider` | `core/platform/image_source_provider.dart` | The camera and gallery for receipt photos: `image_picker` by default, the fake in demo (**The image source**) |
+| `fileExporterProvider` | `core/platform/file_exporter_provider.dart` | Where exported files go (**The file exporter**): the fake by default and in demo, the "Save as" dialog and the share sheet in dev and prod |
 | `linkLauncherProvider`, `linkControllerProvider`, `linkPollIntervalProvider`, `linkedBanksProvider` | `features/items/application/` | Plaid Link (plaid_flutter by default, the fake launcher wherever the fake server runs), the Item actions and their state, and the stored Items (`items.md`) |
 | `settingsControllerProvider` | `features/settings/application/settings_controller.dart` | The settings as `AsyncValue<Settings>`, with `setThemeMode` and `setUseDynamicColor` |
 | `packageInfoProvider` | `features/settings/application/package_info.dart` | `PackageInfo.fromPlatform()` for About |
@@ -102,8 +103,9 @@ the bill statuses and the reminder watcher, which it listens to from the first f
 `localDataOverridesFor(config)`, the flavor and its local data, then `apiOverridesFor`;
 a test that brings its own API, such as the two-device integration test sharing one fake
 server, takes the first alone): the Drift repositories and the Plaid pull's `sync_meta`
-store for dev and prod with the receipt files and the notification plugin's reminder
-scheduler, the demo ones for demo with the fake image source (and the fake scheduler), and the API's (`apiOverridesFor`: the in-app fake server, with the fake
+store for dev and prod with the receipt files, the notification plugin's reminder
+scheduler and the platform file exporter, the demo ones for demo with the fake image
+source (and the fake scheduler and exporter), and the API's (`apiOverridesFor`: the in-app fake server, with the fake
 Link launcher over it, for demo, and for dev under `FT_FAKE_SERVER`); later phases add
 theirs there.
 
@@ -140,6 +142,26 @@ editor explains in a snack bar ("That image can't be used").
   `FakeImageSource.demo()`, gives `assets/demo/receipt.jpg`, a synthetic "DEMO RECEIPT"
   photo declared as an asset of the demo flavor only (`build.md`). Tests give a fixture
   from `test/fixtures/receipts/`.
+
+## The file exporter
+
+`core/platform/file_exporter.dart` is the platform boundary for the files the app makes
+(`export.md`), pure Dart: a `FileExporter` has `saveAs(bytes, fileName, mimeType)`,
+completing with `SaveOutcome.saved` or `SaveOutcome.cancelled`, and `share(bytes,
+fileName, mimeType)`; both throw `ExportFailedException` when the file cannot be written
+or the platform fails.
+
+- **`PlatformFileExporter`** (`platform_file_exporter.dart`, dev and prod): writes the
+  bytes to `<fileName>` in a directory of the call's own under `<temporary
+  directory>/export/` (so two calls for one name never share a file), hands that path to
+  `flutter_file_dialog`'s `saveFile` (the Storage Access Framework's "Save as"; a null
+  answer is a cancel) or to `share_plus`'s share sheet (which copies the file into its own
+  `cache/share_plus/` first), and deletes the temporary directory when the call returns,
+  whatever the outcome. A platform error is logged by its code alone.
+- **`FakeFileExporter`** (`fake_file_exporter.dart`, the demo flavor and the tests):
+  nothing leaves the app; every call is recorded as an `ExportCall` (kind, bytes, name,
+  type), "Save as" answers its `outcome` (saved by default), and a set `failure` is
+  thrown after the call is recorded.
 
 riverpod_lint runs as an analyzer plugin declared in the workspace root's
 `analysis_options.yaml` and enabled for the app by including that file from

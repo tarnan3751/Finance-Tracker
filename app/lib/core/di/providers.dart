@@ -6,10 +6,11 @@
 /// over one shared [InMemoryStore] (what tests get), recording into an in-memory sync
 /// store, and the receipts are in memory; [overridesFor] gives dev and prod the Drift
 /// repositories over the encrypted database, recording into the Drift sync store, with
-/// the receipts as files in the app's support directory and the bill reminders through
-/// `flutter_local_notifications`, and the demo flavor the demo ones, which record
-/// nothing, with the fake image source (and, as by default, the fake reminder
-/// scheduler).
+/// the receipts as files in the app's support directory, the bill reminders through
+/// `flutter_local_notifications` and the exported files through the "Save as" dialog and
+/// the share sheet, and the demo flavor the demo ones, which record nothing, with the
+/// fake image source (and, as by default, the fake reminder scheduler and file
+/// exporter).
 library;
 
 import 'dart:async';
@@ -31,8 +32,10 @@ import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/plaid/plaid_pull.dart';
 import 'package:finance_tracker/core/platform/fake_image_source.dart';
+import 'package:finance_tracker/core/platform/file_exporter_provider.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
 import 'package:finance_tracker/core/platform/local_notifications_scheduler.dart';
+import 'package:finance_tracker/core/platform/platform_file_exporter.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/core/sync/device_clock.dart';
@@ -616,6 +619,9 @@ final List<Override> _driftOverrides = [
   ),
   receiptStoreProvider.overrideWith(
     (ref) => FileReceiptStore(getApplicationSupportDirectory),
+  ),
+  fileExporterProvider.overrideWith(
+    (ref) => PlatformFileExporter(getTemporaryDirectory),
   ),
   reminderSchedulerProvider.overrideWith((ref) {
     final AppLocalizations l10n = lookupAppLocalizations(
