@@ -5219,6 +5219,300 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show more ({count} left)'**
   String investmentsShowMore(int count);
+
+  /// The net worth screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Net worth'**
+  String get netWorthTitle;
+
+  /// Above the headline amount: the day of the latest point.
+  ///
+  /// In en, this message translates to:
+  /// **'Net worth on {date}'**
+  String netWorthHeadlineLabel(String date);
+
+  /// The change in net worth against the point 30 days before the latest.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} over 30 days'**
+  String netWorthChange(String amount);
+
+  /// The change in net worth when the point 30 days before is estimated from transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} over 30 days, against an estimate'**
+  String netWorthChangeEstimated(String amount);
+
+  /// The range control: the last three months.
+  ///
+  /// In en, this message translates to:
+  /// **'3 m'**
+  String get netWorthRangeThreeMonths;
+
+  /// The range control: the last year.
+  ///
+  /// In en, this message translates to:
+  /// **'1 y'**
+  String get netWorthRangeYear;
+
+  /// The range control: the whole history.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get netWorthRangeAll;
+
+  /// Switches the net worth history from its chart to its table.
+  ///
+  /// In en, this message translates to:
+  /// **'Table'**
+  String get netWorthShowTable;
+
+  /// Switches the net worth history from its table to its chart.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart'**
+  String get netWorthShowChart;
+
+  /// The assets line and column.
+  ///
+  /// In en, this message translates to:
+  /// **'Assets'**
+  String get netWorthAssets;
+
+  /// The liabilities line and column.
+  ///
+  /// In en, this message translates to:
+  /// **'Liabilities'**
+  String get netWorthLiabilitiesLine;
+
+  /// The chart legend for the dashed part of each line.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashed: estimated from transactions'**
+  String get netWorthEstimatedLegend;
+
+  /// What a screen reader says for the net worth chart.
+  ///
+  /// In en, this message translates to:
+  /// **'Net worth from {startDate} to {endDate}: {start} to {end}. On {endDate}, assets {assets} and liabilities {liabilities}.'**
+  String netWorthChartSummary(
+    String startDate,
+    String endDate,
+    String start,
+    String end,
+    String assets,
+    String liabilities,
+  );
+
+  /// Added to the chart's summary when part of the history is reconstructed.
+  ///
+  /// In en, this message translates to:
+  /// **'Before {date}, estimated from transactions.'**
+  String netWorthChartEstimated(String date);
+
+  /// What a screen reader says for one day of the net worth table.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: net worth {netWorth}, assets {assets}, liabilities {liabilities}.'**
+  String netWorthRowSemantics(
+    String date,
+    String netWorth,
+    String assets,
+    String liabilities,
+  );
+
+  /// Under a day's net worth in the table.
+  ///
+  /// In en, this message translates to:
+  /// **'Assets {assets} · Liabilities {liabilities}'**
+  String netWorthRowDetail(String assets, String liabilities);
+
+  /// Marks a day of the table reconstructed from transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated from transactions'**
+  String get netWorthEstimated;
+
+  /// Marks a day of the table with no stored snapshot.
+  ///
+  /// In en, this message translates to:
+  /// **'No snapshot this day: the day before\'s values'**
+  String get netWorthCarried;
+
+  /// The empty state's headline.
+  ///
+  /// In en, this message translates to:
+  /// **'No net worth yet'**
+  String get netWorthEmptyHeadline;
+
+  /// The empty state's body.
+  ///
+  /// In en, this message translates to:
+  /// **'Your net worth is recorded once a day from your accounts\' balances. Add or link an account to start.'**
+  String get netWorthEmptyBody;
+
+  /// The heading of the payoff projections.
+  ///
+  /// In en, this message translates to:
+  /// **'Liabilities'**
+  String get netWorthLiabilitiesHeading;
+
+  /// A liability's owed amount.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} owed'**
+  String netWorthOwed(String amount);
+
+  /// Under a liability's name when its account is hidden: net worth still counts it.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden account'**
+  String get netWorthHiddenAccount;
+
+  /// A liability's interest rate, as the bank reports it.
+  ///
+  /// In en, this message translates to:
+  /// **'{rate} % a year'**
+  String netWorthRate(String rate);
+
+  /// A liability's interest rate, as the user entered it.
+  ///
+  /// In en, this message translates to:
+  /// **'{rate} % a year, entered'**
+  String netWorthRateEntered(String rate);
+
+  /// When neither the bank nor the user gave a rate.
+  ///
+  /// In en, this message translates to:
+  /// **'No interest rate reported'**
+  String get netWorthNoRate;
+
+  /// A card's or student loan's payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum payment {amount}'**
+  String netWorthPaymentMinimum(String amount);
+
+  /// A mortgage's payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly payment {amount}'**
+  String netWorthPaymentMonthly(String amount);
+
+  /// A payment the user entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment {amount}'**
+  String netWorthPaymentEntered(String amount);
+
+  /// When neither the bank nor the user gave a payment.
+  ///
+  /// In en, this message translates to:
+  /// **'No payment reported'**
+  String get netWorthNoPayment;
+
+  /// Opens the rate entry for a liability with no reported rate.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter rate'**
+  String get netWorthEnterRate;
+
+  /// Opens the payment entry for a liability with no reported payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter payment'**
+  String get netWorthEnterPayment;
+
+  /// Opens the rate entry for a rate the user entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Change rate'**
+  String get netWorthEditRate;
+
+  /// Opens the payment entry for a payment the user entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Change payment'**
+  String get netWorthEditPayment;
+
+  /// A liability's payoff projection.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid off in {months, plural, =1{1 month} other{{months} months}}, {date}; {interest} in interest'**
+  String netWorthPaidOff(int months, String date, String interest);
+
+  /// When the payment does not exceed a month's interest.
+  ///
+  /// In en, this message translates to:
+  /// **'Never paid off: the payment doesn\'t cover the interest of {interest} a month'**
+  String netWorthNever(String interest);
+
+  /// When the payoff takes longer than the projection's cap.
+  ///
+  /// In en, this message translates to:
+  /// **'Over 50 years to pay off'**
+  String get netWorthBeyondCap;
+
+  /// When the account owes nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing owed'**
+  String get netWorthNothingOwed;
+
+  /// The extra-payment slider's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra a month: {amount}'**
+  String netWorthExtra(String amount);
+
+  /// What the extra payment changes against the payment alone.
+  ///
+  /// In en, this message translates to:
+  /// **'{months, plural, =0{no sooner} =1{1 month sooner} other{{months} months sooner}}, {interest} less interest'**
+  String netWorthExtraDifference(int months, String interest);
+
+  /// The projection with the extra payment.
+  ///
+  /// In en, this message translates to:
+  /// **'With {extra} more a month: {result}'**
+  String netWorthWithExtra(String extra, String result);
+
+  /// The rate entry's field.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest rate, % a year'**
+  String get netWorthRateLabel;
+
+  /// The rate entry's error.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a rate from 0 to 100, with up to two decimals'**
+  String get netWorthRateInvalid;
+
+  /// The payment entry's field.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly payment'**
+  String get netWorthPaymentLabel;
+
+  /// The payment entry's error.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount above zero'**
+  String get netWorthPaymentInvalid;
+
+  /// Removes an entered rate or payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get netWorthClearEntry;
+
+  /// Shown when a payoff entry could not be kept.
+  ///
+  /// In en, this message translates to:
+  /// **'The entry could not be saved. Try again.'**
+  String get netWorthEntryFailed;
 }
 
 class _AppLocalizationsDelegate

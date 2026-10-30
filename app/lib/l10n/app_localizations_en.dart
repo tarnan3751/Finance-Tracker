@@ -3438,4 +3438,209 @@ class AppLocalizationsEn extends AppLocalizations {
   String investmentsShowMore(int count) {
     return 'Show more ($count left)';
   }
+
+  @override
+  String get netWorthTitle => 'Net worth';
+
+  @override
+  String netWorthHeadlineLabel(String date) {
+    return 'Net worth on $date';
+  }
+
+  @override
+  String netWorthChange(String amount) {
+    return '$amount over 30 days';
+  }
+
+  @override
+  String netWorthChangeEstimated(String amount) {
+    return '$amount over 30 days, against an estimate';
+  }
+
+  @override
+  String get netWorthRangeThreeMonths => '3 m';
+
+  @override
+  String get netWorthRangeYear => '1 y';
+
+  @override
+  String get netWorthRangeAll => 'All';
+
+  @override
+  String get netWorthShowTable => 'Table';
+
+  @override
+  String get netWorthShowChart => 'Chart';
+
+  @override
+  String get netWorthAssets => 'Assets';
+
+  @override
+  String get netWorthLiabilitiesLine => 'Liabilities';
+
+  @override
+  String get netWorthEstimatedLegend => 'Dashed: estimated from transactions';
+
+  @override
+  String netWorthChartSummary(
+    String startDate,
+    String endDate,
+    String start,
+    String end,
+    String assets,
+    String liabilities,
+  ) {
+    return 'Net worth from $startDate to $endDate: $start to $end. On $endDate, assets $assets and liabilities $liabilities.';
+  }
+
+  @override
+  String netWorthChartEstimated(String date) {
+    return 'Before $date, estimated from transactions.';
+  }
+
+  @override
+  String netWorthRowSemantics(
+    String date,
+    String netWorth,
+    String assets,
+    String liabilities,
+  ) {
+    return '$date: net worth $netWorth, assets $assets, liabilities $liabilities.';
+  }
+
+  @override
+  String netWorthRowDetail(String assets, String liabilities) {
+    return 'Assets $assets · Liabilities $liabilities';
+  }
+
+  @override
+  String get netWorthEstimated => 'Estimated from transactions';
+
+  @override
+  String get netWorthCarried =>
+      'No snapshot this day: the day before\'s values';
+
+  @override
+  String get netWorthEmptyHeadline => 'No net worth yet';
+
+  @override
+  String get netWorthEmptyBody =>
+      'Your net worth is recorded once a day from your accounts\' balances. Add or link an account to start.';
+
+  @override
+  String get netWorthLiabilitiesHeading => 'Liabilities';
+
+  @override
+  String netWorthOwed(String amount) {
+    return '$amount owed';
+  }
+
+  @override
+  String get netWorthHiddenAccount => 'Hidden account';
+
+  @override
+  String netWorthRate(String rate) {
+    return '$rate % a year';
+  }
+
+  @override
+  String netWorthRateEntered(String rate) {
+    return '$rate % a year, entered';
+  }
+
+  @override
+  String get netWorthNoRate => 'No interest rate reported';
+
+  @override
+  String netWorthPaymentMinimum(String amount) {
+    return 'Minimum payment $amount';
+  }
+
+  @override
+  String netWorthPaymentMonthly(String amount) {
+    return 'Monthly payment $amount';
+  }
+
+  @override
+  String netWorthPaymentEntered(String amount) {
+    return 'Your payment $amount';
+  }
+
+  @override
+  String get netWorthNoPayment => 'No payment reported';
+
+  @override
+  String get netWorthEnterRate => 'Enter rate';
+
+  @override
+  String get netWorthEnterPayment => 'Enter payment';
+
+  @override
+  String get netWorthEditRate => 'Change rate';
+
+  @override
+  String get netWorthEditPayment => 'Change payment';
+
+  @override
+  String netWorthPaidOff(int months, String date, String interest) {
+    String _temp0 = intl.Intl.pluralLogic(
+      months,
+      locale: localeName,
+      other: '$months months',
+      one: '1 month',
+    );
+    return 'Paid off in $_temp0, $date; $interest in interest';
+  }
+
+  @override
+  String netWorthNever(String interest) {
+    return 'Never paid off: the payment doesn\'t cover the interest of $interest a month';
+  }
+
+  @override
+  String get netWorthBeyondCap => 'Over 50 years to pay off';
+
+  @override
+  String get netWorthNothingOwed => 'Nothing owed';
+
+  @override
+  String netWorthExtra(String amount) {
+    return 'Extra a month: $amount';
+  }
+
+  @override
+  String netWorthExtraDifference(int months, String interest) {
+    String _temp0 = intl.Intl.pluralLogic(
+      months,
+      locale: localeName,
+      other: '$months months sooner',
+      one: '1 month sooner',
+      zero: 'no sooner',
+    );
+    return '$_temp0, $interest less interest';
+  }
+
+  @override
+  String netWorthWithExtra(String extra, String result) {
+    return 'With $extra more a month: $result';
+  }
+
+  @override
+  String get netWorthRateLabel => 'Interest rate, % a year';
+
+  @override
+  String get netWorthRateInvalid =>
+      'Enter a rate from 0 to 100, with up to two decimals';
+
+  @override
+  String get netWorthPaymentLabel => 'Monthly payment';
+
+  @override
+  String get netWorthPaymentInvalid => 'Enter an amount above zero';
+
+  @override
+  String get netWorthClearEntry => 'Clear';
+
+  @override
+  String get netWorthEntryFailed => 'The entry could not be saved. Try again.';
 }

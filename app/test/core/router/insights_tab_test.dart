@@ -64,7 +64,8 @@ void main() {
   });
 
   for (final (String location, InsightsSegment segment, String shown) in [
-    ('/net-worth', InsightsSegment.netWorth, 'Coming soon'),
+    // No snapshot is stored in the test app, so net worth shows its empty state.
+    ('/net-worth', InsightsSegment.netWorth, 'No net worth yet'),
     // The seed has no investment account.
     ('/investments', InsightsSegment.investments, 'No investment accounts'),
     ('/goals', InsightsSegment.goals, 'No savings goals yet'),

@@ -49,6 +49,7 @@ import 'package:finance_tracker/features/goals/presentation/goal_editor_screen.d
 import 'package:finance_tracker/features/goals/presentation/goals_screen.dart';
 import 'package:finance_tracker/features/investments/presentation/investments_view.dart';
 import 'package:finance_tracker/features/items/presentation/items_screen.dart';
+import 'package:finance_tracker/features/net_worth/presentation/net_worth_view.dart';
 import 'package:finance_tracker/features/recurring/presentation/subscriptions_screen.dart';
 import 'package:finance_tracker/features/reports/presentation/reports_view.dart';
 import 'package:finance_tracker/features/reports/presentation/weekly_summary_screen.dart';
@@ -463,8 +464,8 @@ class WeeklySummaryRoute extends GoRouteData with $WeeklySummaryRoute {
       const WeeklySummaryScreen();
 }
 
-/// `/net-worth`: the Insights tab's Net worth segment (a placeholder until net worth
-/// lands).
+/// `/net-worth`: the Insights tab's Net worth segment, the history and the liabilities'
+/// payoffs.
 class NetWorthRoute extends GoRouteData with $NetWorthRoute {
   const NetWorthRoute();
 
@@ -473,7 +474,7 @@ class NetWorthRoute extends GoRouteData with $NetWorthRoute {
       const NoTransitionPage(
         child: InsightsScaffold(
           segment: InsightsSegment.netWorth,
-          body: InsightsPlaceholder(),
+          body: NetWorthView(),
         ),
       );
 }

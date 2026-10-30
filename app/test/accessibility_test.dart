@@ -11,7 +11,8 @@
 // from the fake image source) and its full-screen view. The forecast's chart, table and
 // account sheet are checked on the forecast household through ForecastScreen, and the
 // investments' allocation, value table, holdings and transactions on the test investments
-// through InvestmentsScreen, with its empty state on the seed. The sign-in
+// through InvestmentsScreen, with its empty state on the seed, and the net worth chart,
+// table and liabilities on the net worth household through NetWorthScreen. The sign-in
 // and registration screens are checked signed out; their text scale is checked with their
 // errors showing, in test/features/auth/auth_screens_test.dart.
 import 'dart:io';
@@ -33,6 +34,7 @@ import 'helpers/budget_seed.dart';
 import 'helpers/forecast_seed.dart';
 import 'helpers/goal_seed.dart';
 import 'helpers/investment_seed.dart';
+import 'helpers/net_worth_seed.dart';
 import 'helpers/pump_app.dart';
 import 'helpers/rule_seed.dart';
 import 'helpers/seed.dart';
@@ -171,7 +173,7 @@ final Map<String, _Screen> _screens = {
   ),
   'New bill': (location: '/bills/new', seeded: true, open: null),
   'Forecast': (location: '/forecast', seeded: true, open: null),
-  'Insights placeholder': (location: '/net-worth', seeded: false, open: null),
+  'Net worth': (location: '/net-worth', seeded: true, open: null),
   'Reports': (location: '/reports', seeded: true, open: null),
   'Weekly summary': (location: '/reports/weekly', seeded: true, open: null),
   'Reports, tables': (
@@ -318,6 +320,20 @@ List<Override> _overrides(_Screen screen) => screen.seeded
         ),
       ]
     : const [];
+
+/// The net worth screen's views: its chart, its table, and its liabilities scrolled to.
+final Map<String, Future<void> Function(WidgetTester)?> _netWorthViews = {
+  'Net worth chart': null,
+  'Net worth table': (tester) => _tapAndSettle(tester, find.text('Table')),
+  'Net worth liabilities': (tester) async {
+    await tester.scrollUntilVisible(
+      find.text('Enter payment'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+  },
+};
 
 /// The forecast's views, opened from its chart.
 final Map<String, Future<void> Function(WidgetTester)?> _forecastViews = {
@@ -468,6 +484,45 @@ void main() {
         router: investmentsRouter,
       );
       await view.open?.call(tester);
+
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final MapEntry(key: String name, value: open)
+      in _netWorthViews.entries) {
+    for (final Brightness brightness in Brightness.values) {
+      testWidgets('$name (${brightness.name}) meets the Android and contrast '
+          'guidelines', (tester) async {
+        final SemanticsHandle semantics = tester.ensureSemantics();
+        try {
+          await pumpApp(
+            tester,
+            brightness: brightness,
+            overrides: netWorthOverrides(),
+            router: netWorthRouter,
+          );
+          await open?.call(tester);
+
+          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+          await expectLater(tester, meetsGuideline(textContrastGuideline));
+        } finally {
+          semantics.dispose();
+        }
+      });
+    }
+
+    testWidgets('$name lays out at text scale 2.0 without overflow', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        textScale: 2,
+        overrides: netWorthOverrides(),
+        router: netWorthRouter,
+      );
+      await open?.call(tester);
 
       expect(tester.takeException(), isNull);
     });

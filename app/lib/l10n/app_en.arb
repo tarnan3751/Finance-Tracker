@@ -4980,5 +4980,353 @@
         "example": "42"
       }
     }
+  },
+  "netWorthTitle": "Net worth",
+  "@netWorthTitle": {
+    "description": "The net worth screen's title."
+  },
+  "netWorthHeadlineLabel": "Net worth on {date}",
+  "@netWorthHeadlineLabel": {
+    "description": "Above the headline amount: the day of the latest point.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Oct 24"
+      }
+    }
+  },
+  "netWorthChange": "{amount} over 30 days",
+  "@netWorthChange": {
+    "description": "The change in net worth against the point 30 days before the latest.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "+$1,250.00"
+      }
+    }
+  },
+  "netWorthChangeEstimated": "{amount} over 30 days, against an estimate",
+  "@netWorthChangeEstimated": {
+    "description": "The change in net worth when the point 30 days before is estimated from transactions.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "+$1,250.00"
+      }
+    }
+  },
+  "netWorthRangeThreeMonths": "3 m",
+  "@netWorthRangeThreeMonths": {
+    "description": "The range control: the last three months."
+  },
+  "netWorthRangeYear": "1 y",
+  "@netWorthRangeYear": {
+    "description": "The range control: the last year."
+  },
+  "netWorthRangeAll": "All",
+  "@netWorthRangeAll": {
+    "description": "The range control: the whole history."
+  },
+  "netWorthShowTable": "Table",
+  "@netWorthShowTable": {
+    "description": "Switches the net worth history from its chart to its table."
+  },
+  "netWorthShowChart": "Chart",
+  "@netWorthShowChart": {
+    "description": "Switches the net worth history from its table to its chart."
+  },
+  "netWorthAssets": "Assets",
+  "@netWorthAssets": {
+    "description": "The assets line and column."
+  },
+  "netWorthLiabilitiesLine": "Liabilities",
+  "@netWorthLiabilitiesLine": {
+    "description": "The liabilities line and column."
+  },
+  "netWorthEstimatedLegend": "Dashed: estimated from transactions",
+  "@netWorthEstimatedLegend": {
+    "description": "The chart legend for the dashed part of each line."
+  },
+  "netWorthChartSummary": "Net worth from {startDate} to {endDate}: {start} to {end}. On {endDate}, assets {assets} and liabilities {liabilities}.",
+  "@netWorthChartSummary": {
+    "description": "What a screen reader says for the net worth chart.",
+    "placeholders": {
+      "startDate": {
+        "type": "String",
+        "example": "Oct 24, 2025"
+      },
+      "endDate": {
+        "type": "String",
+        "example": "Oct 24, 2026"
+      },
+      "start": {
+        "type": "String",
+        "example": "$10,000.00"
+      },
+      "end": {
+        "type": "String",
+        "example": "$12,000.00"
+      },
+      "assets": {
+        "type": "String",
+        "example": "$30,000.00"
+      },
+      "liabilities": {
+        "type": "String",
+        "example": "$18,000.00"
+      }
+    }
+  },
+  "netWorthChartEstimated": "Before {date}, estimated from transactions.",
+  "@netWorthChartEstimated": {
+    "description": "Added to the chart's summary when part of the history is reconstructed.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Oct 24, 2026"
+      }
+    }
+  },
+  "netWorthRowSemantics": "{date}: net worth {netWorth}, assets {assets}, liabilities {liabilities}.",
+  "@netWorthRowSemantics": {
+    "description": "What a screen reader says for one day of the net worth table.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Sat, Oct 24, 2026"
+      },
+      "netWorth": {
+        "type": "String",
+        "example": "$12,000.00"
+      },
+      "assets": {
+        "type": "String",
+        "example": "$30,000.00"
+      },
+      "liabilities": {
+        "type": "String",
+        "example": "$18,000.00"
+      }
+    }
+  },
+  "netWorthRowDetail": "Assets {assets} · Liabilities {liabilities}",
+  "@netWorthRowDetail": {
+    "description": "Under a day's net worth in the table.",
+    "placeholders": {
+      "assets": {
+        "type": "String",
+        "example": "$30,000.00"
+      },
+      "liabilities": {
+        "type": "String",
+        "example": "$18,000.00"
+      }
+    }
+  },
+  "netWorthEstimated": "Estimated from transactions",
+  "@netWorthEstimated": {
+    "description": "Marks a day of the table reconstructed from transactions."
+  },
+  "netWorthCarried": "No snapshot this day: the day before's values",
+  "@netWorthCarried": {
+    "description": "Marks a day of the table with no stored snapshot."
+  },
+  "netWorthEmptyHeadline": "No net worth yet",
+  "@netWorthEmptyHeadline": {
+    "description": "The empty state's headline."
+  },
+  "netWorthEmptyBody": "Your net worth is recorded once a day from your accounts' balances. Add or link an account to start.",
+  "@netWorthEmptyBody": {
+    "description": "The empty state's body."
+  },
+  "netWorthLiabilitiesHeading": "Liabilities",
+  "@netWorthLiabilitiesHeading": {
+    "description": "The heading of the payoff projections."
+  },
+  "netWorthOwed": "{amount} owed",
+  "@netWorthOwed": {
+    "description": "A liability's owed amount.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$1,200.00"
+      }
+    }
+  },
+  "netWorthHiddenAccount": "Hidden account",
+  "@netWorthHiddenAccount": {
+    "description": "Under a liability's name when its account is hidden: net worth still counts it."
+  },
+  "netWorthRate": "{rate} % a year",
+  "@netWorthRate": {
+    "description": "A liability's interest rate, as the bank reports it.",
+    "placeholders": {
+      "rate": {
+        "type": "String",
+        "example": "6.25"
+      }
+    }
+  },
+  "netWorthRateEntered": "{rate} % a year, entered",
+  "@netWorthRateEntered": {
+    "description": "A liability's interest rate, as the user entered it.",
+    "placeholders": {
+      "rate": {
+        "type": "String",
+        "example": "4.89"
+      }
+    }
+  },
+  "netWorthNoRate": "No interest rate reported",
+  "@netWorthNoRate": {
+    "description": "When neither the bank nor the user gave a rate."
+  },
+  "netWorthPaymentMinimum": "Minimum payment {amount}",
+  "@netWorthPaymentMinimum": {
+    "description": "A card's or student loan's payment.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$25.00"
+      }
+    }
+  },
+  "netWorthPaymentMonthly": "Monthly payment {amount}",
+  "@netWorthPaymentMonthly": {
+    "description": "A mortgage's payment.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$2,150.00"
+      }
+    }
+  },
+  "netWorthPaymentEntered": "Your payment {amount}",
+  "@netWorthPaymentEntered": {
+    "description": "A payment the user entered.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$400.00"
+      }
+    }
+  },
+  "netWorthNoPayment": "No payment reported",
+  "@netWorthNoPayment": {
+    "description": "When neither the bank nor the user gave a payment."
+  },
+  "netWorthEnterRate": "Enter rate",
+  "@netWorthEnterRate": {
+    "description": "Opens the rate entry for a liability with no reported rate."
+  },
+  "netWorthEnterPayment": "Enter payment",
+  "@netWorthEnterPayment": {
+    "description": "Opens the payment entry for a liability with no reported payment."
+  },
+  "netWorthEditRate": "Change rate",
+  "@netWorthEditRate": {
+    "description": "Opens the rate entry for a rate the user entered."
+  },
+  "netWorthEditPayment": "Change payment",
+  "@netWorthEditPayment": {
+    "description": "Opens the payment entry for a payment the user entered."
+  },
+  "netWorthPaidOff": "Paid off in {months, plural, =1{1 month} other{{months} months}}, {date}; {interest} in interest",
+  "@netWorthPaidOff": {
+    "description": "A liability's payoff projection.",
+    "placeholders": {
+      "months": {
+        "type": "int",
+        "example": "38"
+      },
+      "date": {
+        "type": "String",
+        "example": "Dec 2029"
+      },
+      "interest": {
+        "type": "String",
+        "example": "$1,234.56"
+      }
+    }
+  },
+  "netWorthNever": "Never paid off: the payment doesn't cover the interest of {interest} a month",
+  "@netWorthNever": {
+    "description": "When the payment does not exceed a month's interest.",
+    "placeholders": {
+      "interest": {
+        "type": "String",
+        "example": "$210.00"
+      }
+    }
+  },
+  "netWorthBeyondCap": "Over 50 years to pay off",
+  "@netWorthBeyondCap": {
+    "description": "When the payoff takes longer than the projection's cap."
+  },
+  "netWorthNothingOwed": "Nothing owed",
+  "@netWorthNothingOwed": {
+    "description": "When the account owes nothing."
+  },
+  "netWorthExtra": "Extra a month: {amount}",
+  "@netWorthExtra": {
+    "description": "The extra-payment slider's label.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$100.00"
+      }
+    }
+  },
+  "netWorthExtraDifference": "{months, plural, =0{no sooner} =1{1 month sooner} other{{months} months sooner}}, {interest} less interest",
+  "@netWorthExtraDifference": {
+    "description": "What the extra payment changes against the payment alone.",
+    "placeholders": {
+      "months": {
+        "type": "int",
+        "example": "7"
+      },
+      "interest": {
+        "type": "String",
+        "example": "$420.00"
+      }
+    }
+  },
+  "netWorthWithExtra": "With {extra} more a month: {result}",
+  "@netWorthWithExtra": {
+    "description": "The projection with the extra payment.",
+    "placeholders": {
+      "extra": {
+        "type": "String",
+        "example": "$100.00"
+      },
+      "result": {
+        "type": "String",
+        "example": "7 months sooner, $420.00 less interest"
+      }
+    }
+  },
+  "netWorthRateLabel": "Interest rate, % a year",
+  "@netWorthRateLabel": {
+    "description": "The rate entry's field."
+  },
+  "netWorthRateInvalid": "Enter a rate from 0 to 100, with up to two decimals",
+  "@netWorthRateInvalid": {
+    "description": "The rate entry's error."
+  },
+  "netWorthPaymentLabel": "Monthly payment",
+  "@netWorthPaymentLabel": {
+    "description": "The payment entry's field."
+  },
+  "netWorthPaymentInvalid": "Enter an amount above zero",
+  "@netWorthPaymentInvalid": {
+    "description": "The payment entry's error."
+  },
+  "netWorthClearEntry": "Clear",
+  "@netWorthClearEntry": {
+    "description": "Removes an entered rate or payment."
+  },
+  "netWorthEntryFailed": "The entry could not be saved. Try again.",
+  "@netWorthEntryFailed": {
+    "description": "Shown when a payoff entry could not be kept."
   }
 }
