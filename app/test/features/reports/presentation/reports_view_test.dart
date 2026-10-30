@@ -1,7 +1,8 @@
 // The Reports segment on the report household (report_seed.dart), as of 24 October
 // 2026: the headline and the savings rate, the comparisons' same-day note, the donut's
 // summary, the tables with a drill into a group and back, the previous period, and
-// "Worth a look" with a tap to the transaction, Dismiss and Undo.
+// "Worth a look" with a tap to the transaction, Dismiss and Undo, whose snackbar lasts
+// the undo window and goes when the segment is left.
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_editor_screen.dart';
 import 'package:flutter/material.dart';
@@ -210,4 +211,35 @@ void main() {
     await _scrollTo(tester, find.byTooltip('Dismiss Guitar Center'));
     expect(find.byTooltip('Dismiss Guitar Center'), findsOneWidget);
   });
+  testWidgets('the dismissal snackbar lasts the undo window', (tester) async {
+    await _open(tester);
+    await _scrollTo(tester, find.byTooltip('Dismiss Guitar Center'));
+    await tester.tap(find.byTooltip('Dismiss Guitar Center'));
+    await tester.pumpAndSettle();
+    expect(find.text(_dismissed), findsOneWidget);
+
+    await tester.pump(undoDuration);
+    await tester.pumpAndSettle();
+    expect(find.text(_dismissed), findsNothing);
+    expect(find.byTooltip('Dismiss Guitar Center'), findsNothing);
+  });
+
+  testWidgets('the dismissal snackbar goes when the segment is left', (
+    tester,
+  ) async {
+    await _open(tester);
+    await _scrollTo(tester, find.byTooltip('Dismiss Guitar Center'));
+    await tester.tap(find.byTooltip('Dismiss Guitar Center'));
+    await tester.pump();
+    expect(find.text(_dismissed), findsOneWidget);
+
+    await tester.tap(find.text('Net worth'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(tester.takeException(), isNull);
+    expect(find.text(_dismissed), findsNothing);
+  });
 }
+
+const String _dismissed =
+    'Dismissed. It won\'t be flagged again on this device.';

@@ -304,7 +304,11 @@ this month as PDF" exports the period shown (`export.md`, **Screens**). From the
 - **Worth a look** (`anomaly_list.dart`): the flags in the period. Each shows the
   merchant, the date and amount, and why: "Usually about $45.00 here", "… in this
   category", or "New: not seen in the last six months". A tap opens the transaction.
-  Dismiss hides it on this device, with Undo;
+  Dismiss hides it on this device, with Undo in a snackbar that lasts the app's undo
+  window (`undoDuration`, five seconds). It is taken down at once when the list is
+  disposed (another Insights segment, the weekly summary closed, the report reloading);
+  a bottom-tab switch or a pushed route (the goal editor, a transaction opened from the
+  list) keeps the list mounted, so the snackbar follows for the rest of its window;
 - **Weekly summary**, which opens `/reports/weekly`.
 
 **Accessibility and amounts.**
