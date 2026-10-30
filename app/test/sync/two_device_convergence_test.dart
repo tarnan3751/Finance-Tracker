@@ -1,7 +1,8 @@
 // Two (and three) devices, each the real app wiring over its own Drift database (the
 // Drift repositories, the recorder, the device clock, the sync controller), syncing
 // through one relay: scripted conflicts, rules, budgets, recurring stream overrides,
-// bills and goals among them, and seeded random runs, after
+// bills and goals among them, a partition, a restart, a clock hours behind, and seeded
+// random runs, after
 // which every device's entity tables and sync records are the same (sync-app.md,
 // **Testing**). The Plaid pull after each session goes to an in-app fake server with no
 // bank linked, so it brings nothing and never touches the network; a test that needs a
@@ -98,6 +99,34 @@ final class SwappableRelay implements SyncRelay {
     int limit = 200,
     required String deviceId,
   }) => inner.pull(since: since, limit: limit, deviceId: deviceId);
+}
+
+/// A device's own way to the relay, which a test can cut, as a network loss would.
+final class CuttableRelay implements SyncRelay {
+  CuttableRelay(this.inner);
+
+  final SyncRelay inner;
+  bool cut = false;
+
+  Future<void> _reach() async {
+    if (cut) throw StateError('no network');
+  }
+
+  @override
+  Future<PushResult> push(List<ChangeLogEntry> entries) async {
+    await _reach();
+    return inner.push(entries);
+  }
+
+  @override
+  Future<PullPage> pull({
+    required int since,
+    int limit = 200,
+    required String deviceId,
+  }) async {
+    await _reach();
+    return inner.pull(since: since, limit: limit, deviceId: deviceId);
+  }
 }
 
 /// One device: the app's dev wiring over an in-memory database.
@@ -319,10 +348,11 @@ void main() {
     String name, {
     Duration skew = Duration.zero,
     String? deviceId,
+    SyncRelay? via,
   }) {
     final Device d = Device(
       name,
-      relay,
+      via ?? relay,
       SkewedClock(world, skew),
       deviceId: deviceId,
     );
@@ -506,6 +536,136 @@ void main() {
       expect(
         (await b.transactions.watchById('t1').first)!.notes,
         'after the wipe',
+      );
+    },
+  );
+
+  test('a device cut off while the others make more than a page of changes '
+      'rejoins and converges', () async {
+    final CuttableRelay network = CuttableRelay(relay);
+    final Device a = device('dev-a');
+    final Device b = device('dev-b');
+    final Device c = device('dev-c', via: network);
+    await shared(a, [b, c]);
+
+    network.cut = true;
+    for (int i = 0; i < 210; i++) {
+      await a.transactions.upsert(txn('p$i', 'acc', -100 - i, world));
+    }
+    final Transaction t1 = (await a.transactions.watchById('t1').first)!;
+    await a.transactions.upsert(t1.copyWith(notes: 'from A'));
+    await a.sync();
+    final Transaction t2 = (await b.transactions.watchById('t2').first)!;
+    await b.transactions.upsert(t2.copyWith(tags: ['b']));
+    await b.sync();
+    await a.sync();
+    // Offline, c edits the same records and deletes another.
+    final Transaction t1c = (await c.transactions.watchById('t1').first)!;
+    await c.transactions.upsert(t1c.copyWith(amount: Money(-2500, 'USD')));
+    final Transaction t2c = (await c.transactions.watchById('t2').first)!;
+    await c.transactions.upsert(t2c.copyWith(notes: 'from C'));
+    await c.transactions.delete('t3');
+    expect((await c.sync()).failure, isNotNull);
+    expect(await c.store.unsynced(), hasLength(3), reason: 'kept queued');
+
+    network.cut = false;
+    await expectConverged([a, b, c]);
+    final Transaction t1m = (await c.transactions.watchById('t1').first)!;
+    expect(t1m.notes, 'from A');
+    expect(t1m.amount, Money(-2500, 'USD'));
+    final Transaction t2m = (await a.transactions.watchById('t2').first)!;
+    expect(t2m.tags, ['b']);
+    expect(t2m.notes, 'from C');
+    expect(await a.transactions.watchById('t3').first, isNull);
+    expect(await c.transactions.watchById('p209').first, isNotNull);
+    final int last = (relay.inner as InMemorySyncRelay).entries.length;
+    for (final Device d in [a, b, c]) {
+      expect(await d.store.pullCursor(), last, reason: '${d.name} cursor');
+    }
+  });
+
+  test('a device restarted between its edits resumes its clock and '
+      'converges', () async {
+    final Device a = device('dev-a');
+    final Device b = device('dev-b');
+    await shared(a, [b]);
+    final Transaction t1 = (await a.transactions.watchById('t1').first)!;
+    await a.transactions.upsert(t1.copyWith(notes: 'before the restart'));
+    final Hlc before = (await a.store.lastClock())!;
+    a.reopen('dev-a');
+    expect((await a.store.lastClock())!.compareTo(before), 0);
+    await a.transactions.upsert(
+      (await a.transactions.watchById('t1').first)!.copyWith(tags: ['after']),
+    );
+    expect((await a.store.lastClock())!.compareTo(before), greaterThan(0));
+    await a.sync();
+    final Transaction t2 = (await b.transactions.watchById('t2').first)!;
+    await b.transactions.upsert(t2.copyWith(notes: 'from B'));
+    await b.sync();
+    a.reopen('dev-a');
+    await expectConverged([a, b]);
+    final Transaction t1b = (await b.transactions.watchById('t1').first)!;
+    expect(t1b.notes, 'before the restart');
+    expect(t1b.tags, ['after']);
+    expect((await a.transactions.watchById('t2').first)!.notes, 'from B');
+    final List<Hlc> clocks = [
+      for (final ChangeLogEntry e in (relay.inner as InMemorySyncRelay).entries)
+        if (e.deviceId == 'dev-a') e.hlc,
+    ];
+    for (int i = 1; i < clocks.length; i++) {
+      expect(clocks[i].compareTo(clocks[i - 1]), greaterThan(0));
+    }
+  });
+
+  test(
+    'a device three hours behind applies what it pulls, keeps its clock within '
+    'the bound and says so; its later edit shows at once and wins without being '
+    'refused',
+    () async {
+      final Device a = device('dev-a');
+      final Device b = device('dev-b', skew: const Duration(hours: -3));
+      await shared(a, [b]);
+      expect(await b.transactions.watchById('t1').first, isNotNull);
+
+      final Transaction t1 = (await a.transactions.watchById('t1').first)!;
+      await a.transactions.upsert(t1.copyWith(notes: 'A, on time'));
+      await a.sync();
+      // One session, so the status is the one that pulled a's edit.
+      await b.container.read(syncControllerProvider.notifier).syncNow();
+      final SyncStatus status = b.container.read(syncControllerProvider);
+      expect(status.phase, SyncPhase.idle);
+      expect(status.lastSummary!.clamped, 1);
+      expect(status.lastSummary!.clockBehind, isTrue);
+      expect(status.lastSummary!.clockAhead, isFalse);
+      final int bNow = b.clock.nowUtc().millisecondsSinceEpoch;
+      expect(
+        (await b.store.lastClock())!.wallMillis,
+        lessThanOrEqualTo(bNow + Hlc.maxDrift.inMilliseconds),
+      );
+      await b.transactions.upsert(
+        (await b.transactions.watchById('t1').first)!.copyWith(
+          notes: 'B, after seeing A',
+        ),
+      );
+      expect(
+        (await b.transactions.watchById('t1').first)!.notes,
+        'B, after seeing A',
+        reason: "b's edit is stamped past the value it changed",
+      );
+      // Accepted at once: neither queued for drift nor refused as invalid.
+      final SyncStatus pushed = await b.sync();
+      expect(await b.store.unsynced(), isEmpty);
+      expect(pushed.ledger!.rejected, 0);
+      expect(
+        (relay.inner as InMemorySyncRelay).entries.where(
+          (e) => e.deviceId == 'dev-b',
+        ),
+        isNotEmpty,
+      );
+      await expectConverged([a, b]);
+      expect(
+        (await a.transactions.watchById('t1').first)!.notes,
+        'B, after seeing A',
       );
     },
   );
