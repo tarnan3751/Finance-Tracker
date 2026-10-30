@@ -259,8 +259,30 @@ class _AccountCard extends StatelessWidget {
         ),
       ],
     );
-    // With large text the balance goes under the name, where it has the full width.
-    final bool stacked = MediaQuery.textScalerOf(context).scale(1) > 1.5;
+    // With large text, or in a narrow pane (beside a fold), the balance goes under
+    // the name, where it has the full width.
+    return LayoutBuilder(
+      builder: (context, constraints) => _card(
+        context,
+        l10n,
+        theme,
+        caption,
+        balanceColumn,
+        stacked:
+            MediaQuery.textScalerOf(context).scale(1) > 1.5 ||
+            constraints.maxWidth < 360,
+      ),
+    );
+  }
+
+  Widget _card(
+    BuildContext context,
+    AppLocalizations l10n,
+    ThemeData theme,
+    TextStyle? caption,
+    Widget balanceColumn, {
+    required bool stacked,
+  }) {
     return Card(
       child: MergeSemantics(
         child: InkWell(

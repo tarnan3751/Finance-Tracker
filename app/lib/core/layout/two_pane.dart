@@ -18,7 +18,18 @@
 /// between the start pane and the navigator's first page with its state (its scroll,
 /// its search field, its selection). The start pane has its own `ScaffoldMessenger`, so
 /// a snack bar shows once, in the pane whose screen showed it.
+///
+/// On a foldable the panes split on the fold: when the window reports a vertical fold
+/// or hinge ([verticalFold]) that is flat or half opened, the start pane ends where the
+/// fold starts and the end pane starts where it ends, so no text sits across it; the
+/// shell keeps its rail narrow then (`app_shell.dart`), so the list has the room left of
+/// the fold. A folded foldable shows its outer display, a compact window, with no
+/// fold and one pane. A horizontal fold (a foldable on its side, half open like a
+/// laptop) leaves the panes as they are, side by side across it.
 library;
+
+import 'dart:math' as math;
+import 'dart:ui' show DisplayFeature, DisplayFeatureState, DisplayFeatureType;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -47,8 +58,29 @@ class PaneScope extends InheritedWidget {
   bool updateShouldNotify(PaneScope oldWidget) => role != oldWidget.role;
 }
 
-/// [start] and [end] side by side, [start] taking two fifths of the width within
+/// The vertical fold or hinge of [context]'s window, flat or half opened, in window
+/// coordinates, or null.
+Rect? verticalFold(BuildContext context) {
+  for (final DisplayFeature feature in MediaQuery.displayFeaturesOf(context)) {
+    final bool separates =
+        feature.type == DisplayFeatureType.fold ||
+        feature.type == DisplayFeatureType.hinge;
+    final bool open =
+        feature.state == DisplayFeatureState.postureFlat ||
+        feature.state == DisplayFeatureState.postureHalfOpened;
+    if (separates && open && feature.bounds.height > feature.bounds.width) {
+      return feature.bounds;
+    }
+  }
+  return null;
+}
+
+/// [start] and [end] side by side: split on the window's [verticalFold] when it falls
+/// inside the panes, else [start] taking two fifths of the width within
 /// [minStartWidth] and [maxStartWidth], a divider between them.
+///
+/// Laid out flush with the window's end edge, as the shell's body is (the rail is at
+/// the start), which places the fold in the panes' own coordinates.
 class TwoPane extends StatelessWidget {
   const TwoPane({super.key, required this.start, required this.end});
 
@@ -66,12 +98,26 @@ class TwoPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Rect? fold = verticalFold(context);
+    final double windowWidth = MediaQuery.sizeOf(context).width;
+    final TextDirection direction = Directionality.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double startWidth = (constraints.maxWidth * 0.4).clamp(
-          minStartWidth,
-          maxStartWidth,
-        );
+        final double width = constraints.maxWidth;
+        double startWidth = (width * 0.4).clamp(minStartWidth, maxStartWidth);
+        double gap = 1;
+        if (fold != null) {
+          // The fold's edges from the panes' start edge.
+          final double origin = direction == TextDirection.ltr
+              ? windowWidth - width
+              : 0;
+          final double left = fold.left - origin;
+          final double right = fold.right - origin;
+          if (left > 0 && right < width) {
+            startWidth = direction == TextDirection.ltr ? left : width - right;
+            gap = math.max(right - left, 1);
+          }
+        }
         return Row(
           children: [
             SizedBox(
@@ -92,7 +138,8 @@ class TwoPane extends StatelessWidget {
                 ),
               ),
             ),
-            const VerticalDivider(width: 1),
+            // On a fold the divider is as wide as the hinge, at least a line.
+            VerticalDivider(width: gap),
             Expanded(
               child: Semantics(
                 container: true,

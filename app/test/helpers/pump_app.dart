@@ -43,6 +43,13 @@ const Size mediumSize = Size(701, 841);
 /// An expanded window, in logical pixels: a Pixel Tablet held on its side.
 const Size expandedSize = Size(1280, 800);
 
+/// An unfolded foldable on its side, in logical pixels: a Pixel Fold's inner display,
+/// an expanded window with [foldBounds] down its middle.
+const Size foldSize = Size(841, 701);
+
+/// Where a Pixel Fold's fold runs on [foldSize]: a vertical line at its middle.
+const Rect foldBounds = Rect.fromLTWH(420.5, 0, 0, 701);
+
 /// The package metadata tests see.
 final PackageInfo testPackageInfo = PackageInfo(
   appName: 'Finance Tracker',

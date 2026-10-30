@@ -204,7 +204,9 @@ class _AppShellState extends ConsumerState<AppShell> {
         ),
       );
     }
-    final bool extended = size == WindowSizeClass.expanded;
+    // On a fold the extended rail would leave the list little room before the fold.
+    final bool extended =
+        size == WindowSizeClass.expanded && verticalFold(context) == null;
     return Scaffold(
       body: Row(
         children: [

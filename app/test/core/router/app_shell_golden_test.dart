@@ -4,9 +4,12 @@
 // class: compact at phone size (412 × 915, a Pixel 6), medium at 701 × 841 (a Pixel
 // Fold's inner display upright) and expanded at 1280 × 800 (a Pixel Tablet on its
 // side), on the seed, and a transaction beside the transactions on an expanded
-// window. Tagged
+// window, and an account beside the accounts split on the fold of an unfolded Pixel
+// Fold on its side (841 × 701, the fold at 420.5). Tagged
 // `golden`; see test/flutter_test_config.dart for where the files go and how to update
 // them.
+import 'dart:ui' show DisplayFeature, DisplayFeatureState, DisplayFeatureType;
+
 import 'package:alchemist/alchemist.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:flutter/material.dart';
@@ -15,16 +18,22 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/pump_app.dart';
 import '../../helpers/seed.dart';
 
-/// [child] laid out at [size] with [padding] as the system insets (a status bar).
+/// [child] laid out at [size] with [padding] as the system insets (a status bar) and
+/// [displayFeatures] (a fold).
 Widget _device(
   Size size,
   Widget child, {
   EdgeInsets padding = EdgeInsets.zero,
+  List<DisplayFeature> displayFeatures = const [],
 }) {
   return Builder(
     builder: (context) => MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(size: size, padding: padding, viewPadding: padding),
+      data: MediaQuery.of(context).copyWith(
+        size: size,
+        padding: padding,
+        viewPadding: padding,
+        displayFeatures: displayFeatures,
+      ),
       child: SizedBox.fromSize(size: size, child: child),
     ),
   );
@@ -100,6 +109,26 @@ void main() {
         initialLocation: '/transactions/demo-txn-04',
         overrides: [storeOverride(seededStore())],
       ),
+    ),
+  );
+
+  goldenTest(
+    'an account beside the accounts, split on a fold, light',
+    fileName: 'shell_accounts_fold_light',
+    constraints: BoxConstraints.tight(foldSize),
+    builder: () => _device(
+      foldSize,
+      buildTestApp(
+        initialLocation: '/accounts/$checkingId',
+        overrides: [storeOverride(seededStore())],
+      ),
+      displayFeatures: const [
+        DisplayFeature(
+          bounds: foldBounds,
+          type: DisplayFeatureType.fold,
+          state: DisplayFeatureState.postureFlat,
+        ),
+      ],
     ),
   );
 
