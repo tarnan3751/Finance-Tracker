@@ -146,7 +146,10 @@ The in-app notifier appends it to `inAppNotificationsProvider`:
 - kept in memory, so the list is empty after a restart. Persisting it is later scope. The
   `budget_alerts` row keeps an alert from firing again.
 
-Android notification channels are Phase 8's, behind the same interface.
+In dev and prod the notifier is also the system tray's (`background.md`,
+**Notifications**): the alert is posted on the `budget_alerts` channel ("Budget alert",
+the same text), and a tap opens the budget. Saving a new budget is one of the moments the
+app asks, once on the device, for the permission to notify (`NotificationPermission`).
 
 `budgetAlertWatcherProvider` listens to the statuses. It evaluates them
 `budgetAlertDebounceProvider` (1 s) after they last changed, on a timer and never inside a

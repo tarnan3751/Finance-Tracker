@@ -85,11 +85,12 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   `Theme.AppCompat.DayNight.NoActionBar`, without which the prompt crashes on Android 8
   and below; AppCompat comes into the build through the plugins' dependencies (none is
   declared in `app/build.gradle.kts`). The main manifest declares `USE_BIOMETRIC` (the
-  plugin's merged manifest brings it too). `MainActivity` also answers two channels of the
-  app's own in `configureFlutterEngine`: `dev.tarnan.financetracker/screen_security`
-  (`setSecure`, `FLAG_SECURE` on the window) and `dev.tarnan.financetracker/clock`
+  plugin's merged manifest brings it too). `MainActivity` also answers three channels of
+  the app's own in `configureFlutterEngine`: `dev.tarnan.financetracker/screen_security`
+  (`setSecure`, `FLAG_SECURE` on the window), `dev.tarnan.financetracker/clock`
   (`elapsedRealtime`) (`app-core.md`, **Screen security** and **The monotonic clock**;
-  `lock.md`).
+  `lock.md`) and `dev.tarnan.financetracker/system_settings` (**Background sync**
+  below).
 - **Backup.** The `<application>` element sets `android:allowBackup="false"`,
   `android:fullBackupContent="false"` and
   `android:dataExtractionRules="@xml/data_extraction_rules"`, which excludes everything
@@ -129,6 +130,23 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   from Dart only, so `res/raw/keep.xml` keeps `@drawable/ic_stat_*` from the release
   build's resource shrinking. The plugin's transitive Linux implementation brings `dbus`
   (MPL-2.0), which is not part of the Android build.
+- **Background sync.** `workmanager` (MIT, pinned exactly at 0.10.10, with
+  `workmanager_android` 0.10.9; behind `core/platform/background_work.dart`) runs the
+  hourly sync through the `androidx.work` the Plaid SDK already brings. Its manifest
+  merges `POST_NOTIFICATIONS`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SHORT_SERVICE`
+  and WorkManager's `SystemForegroundService` (`foregroundServiceType="shortService"`),
+  for expedited work on Android 14 and later; they are kept, since the plugin refuses
+  expedited work without them. The app itself never starts a foreground service: a cycle
+  takes seconds, and its one-off is expedited only on Android 12 and later, where
+  JobScheduler runs it as an expedited job. Nothing else goes in the app's manifest: the
+  task runs in a new engine of the app's process (`background.md`, **The isolate**).
+  `connectivity_plus` (BSD-3, pinned exactly at 7.3.2, behind
+  `core/platform/connectivity.dart`) merges `ACCESS_NETWORK_STATE`; its transitive Linux
+  implementation brings `nm` (MPL-2.0), never compiled into the Android app.
+  `MainActivity`'s third channel, `dev.tarnan.financetracker/system_settings`, opens a
+  notification channel's settings (`android.settings.CHANNEL_NOTIFICATION_SETTINGS`) and
+  the app's details, and reports a background restriction
+  (`ActivityManager.isBackgroundRestricted`, the restricted standby bucket).
 - **Export.** `pdf` (Apache-2.0, pure Dart, pinned exactly at 3.13.1: the report's bytes
   are pinned by a hash golden) draws the monthly report. `flutter_file_dialog` (BSD-3,
   pinned at 3.3.3) saves a file through the Storage Access Framework's "Save as" dialog,

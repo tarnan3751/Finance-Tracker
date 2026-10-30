@@ -15,6 +15,7 @@ schema 2 tables under `app/lib/core/db/tables/`, the repositories' writes
 `app/test/sync/two_device_convergence_test.dart`,
 `app/integration_test/sync_two_devices_test.dart`, `app/integration_test/receipts_sync_test.dart`,
 `app/test/core/plaid/plaid_pull_test.dart`, `app/test/features/conflicts/`.
+Sessions also run while the app is closed, from WorkManager (`background.md`).
 
 Sync covers the user-authored data the app stores now: accounts, transactions,
 categories, rules, budgets, the overrides of recurring streams, bills, goals and their
@@ -298,11 +299,39 @@ status is `unavailable` and Settings has no Sync section) and someone is signed 
 (`syncDeviceIdProvider`, the session's `SignedIn` device id; otherwise the status is
 `signedOut`). `bootstrap` starts it once the stored session is read. A session runs:
 
-- when the controller starts;
+- when the controller starts (`firstSession()` completes once that session has run, at
+  once when none runs; the background cycle waits on it, `background.md`);
 - when the app resumes (`AppLifecycleListener`);
 - `syncDebounceProvider` (3 s) after the last local change, seen as the outbox growing
   (the outbox found at start is the start session's);
-- on Sync now.
+- on Sync now;
+- when a network returns, or a network of another type replaces it, after a failed
+  session or Plaid pull (`connectivityProvider`, `core/platform/connectivity.dart`:
+  `connectivity_plus` in dev and prod, a fake a test drives elsewhere; the plugin applies
+  `distinct()` to the set of network types, so a switch between two Wi-Fi networks, say,
+  is not reported); the controller's view of the network starts from `isOnline()`;
+- after a failed session, on the controller's own backoff (`syncBackoffProvider`: 15 s,
+  doubling, at most five minutes), which a session that succeeds and a network change
+  reset. Its retry is armed only while the app is resumed and the seam says a network is
+  up: pausing the app cancels it and resume runs a session; offline, the retry waits for
+  the network trigger.
+
+While the backoff waits only the debounce defers to it (its retry pushes the change);
+the start, resume, Sync now and a returning network run at once. Sync now and a
+returning network first drop the API's idle connections (`httpConnectionsProvider`,
+`app-core.md`, **The API client**), so nothing a network change left in the old pool is
+used again. The Phase 7 acceptance saw sync stay failed for about two minutes after
+airplane mode until a restart; that was not reproduced (on the harness AVD the app's
+long-lived client and a fresh one both reach a host again about a second after airplane
+mode goes off, the controller had no backoff to bypass, and no provider on the session
+path retries), and these triggers make recovery not depend on when the platform's
+network becomes usable. Leaving the app (`onPause`) while changes wait after a failed
+session queues a one-off background sync (`BackgroundWork.runSyncNow`), which WorkManager
+runs once a network is connected. Sessions failing for a day since the last that worked,
+and a linked bank that needs its sign-in after a Plaid pull, are told once each on the
+device through the notifier (`SyncProblemNotification`, the `sync_problems` channel):
+`SyncProblemsTold` keeps the keys told in `app_meta.sync_problems_told` and drops one when
+its problem clears, so every container, the background cycle's included, tells it once.
 
 One session runs at a time; a trigger during one runs one more after it. The controller
 is built once and hears the device id through a listener, which applies a change in a

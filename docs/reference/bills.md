@@ -151,9 +151,15 @@ in the demo flavor, and `LocalNotificationsScheduler` in dev and prod.
 initialized on first use with the small icon `ic_stat_bill`; `zonedSchedule` with
 `AndroidScheduleMode.inexactAllowWhileIdle` (no exact-alarm permission: Android 14
 denies it by default, so a reminder may come up to about an hour late) on the one channel
-`bill_reminders`, named and described from the ARB (Phase 8 adds the other channels and
-their settings). The permission is Android 13's `POST_NOTIFICATIONS`, asked only when the
-user saves a bill with reminders on, never at startup. A tap pushes `/bills/:id`
+`bill_reminders` (its id and default importance kept: Android never changes a created
+channel's importance), named and described from the ARB; the app's other channels, their
+creation at each start and Settings → Notifications are in `background.md`,
+**Notifications**. The plugin's one initialization is shared through
+`local_notifications.dart`. The permission is Android 13's `POST_NOTIFICATIONS`, asked
+once on the device (`NotificationPermission`, `background.md`) when the user saves a bill
+with reminders on, never at startup. A `BillDueNotification` stays in-app only: the
+scheduled reminder is its tray notification. The background sync plans the reminders
+again after each of its cycles. A tap pushes `/bills/:id`
 (`bootstrap`). After a reboot the plugin's boot receiver schedules its pending
 notifications again from its own cache; the planner's start-up run covers the rest. The
 Android pieces (desugaring, the receivers, `RECEIVE_BOOT_COMPLETED`, the icon and its
@@ -237,10 +243,11 @@ accounts), first due date, how often, the account it is paid from, the reminder 
 (on the day, 1, 2, 3 or 7 days before) and time (the time picker), active, autopay, and
 Delete with undo (the editor pops back where it was opened from, whose messenger is on
 screen, so the Undo shows even when a reminder's tap opened it on another tab). Saving
-saves first, then, with reminders on, asks for the permission when the app lacks it; a
-refusal shows `notification_permission_sheet.dart` (the bill is saved; why, and Open
-settings). Both happen only while the editor is the page on screen: a save that lands
-after the user went elsewhere asks nothing, and the next save with reminders on asks.
+saves first, then, with reminders on, asks for the permission when the app lacks it and
+has never asked on this device; a refusal (now or earlier) shows
+`notification_permission_sheet.dart` (the bill is saved; why, and Open settings). Both
+happen only while the editor is the page on screen: a save that lands after the user went
+elsewhere asks nothing.
 `/bills/new?stream-id=<id>` and `?liability-account-id=<id>` start from that
 stream's or liability's suggestion (one without a suggestion starts empty). The
 in-app alerts sheet (`budgets.md`, **Alerts**) lists `BillDueNotification`s ("Rent is due

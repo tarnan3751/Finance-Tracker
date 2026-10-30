@@ -126,6 +126,7 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | Local database: Drift schema, migrations, repositories in three implementations | `app/lib/features/*/data/`, `app/lib/core/db/` | `docs/reference/data.md` (Phase 1) |
 | Sync engine (pure Dart, no Flutter): the merge, the session, the conflicts it reports, the chaos simulation under the `chaos` tag | `packages/sync_engine/` | `docs/reference/sync.md` |
 | Sync in the app: the Drift sync store, recording, the controller, the relay, the receipt upload before a push | `app/lib/core/sync/`, `app/lib/core/db/` | `docs/reference/sync-app.md` |
+| Background sync and notifications: the WorkManager seam and the cycle, the app and the worker in one process, the channels, the tray, Settings → Notifications | `app/lib/core/background/`, `app/lib/core/platform/`, `app/lib/features/settings/` | `docs/reference/background.md` |
 | Conflicts: the device-local table, the store, "Keep this device's value" and the Conflicts screen | `app/lib/features/conflicts/` | `docs/reference/sync-app.md` |
 | Backup: the `FTBK` archive and its cipher, the canonical dump and tolerant import, the restore offer and flow, the restart | `app/lib/features/backup/`, `app/lib/core/platform/backup_picker.dart`, `app/lib/bootstrap.dart` | `docs/reference/backup.md` |
 | The local wipe, account deletion, erasing this device, the devices list and the remote sign-out notice | `app/lib/core/db/local_wipe.dart`, `app/lib/features/auth/` | `docs/reference/auth.md`, `docs/reference/data.md` |

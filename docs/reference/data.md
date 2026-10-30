@@ -25,7 +25,7 @@ can run them in the Dart VM to dump the schema.
 | `transaction_splits` | A transaction's splits, `(transaction_id, position)` primary key, in list order |
 | `categories` | The system categories and the user's |
 | `app_settings` | The app preferences: `key` is the field name, `value` its JSON |
-| `app_meta` | Facts about the install: `legacy_import_done`, `install_date`, `fts_definition` (**Full-text search**), `reminders_zone` and `reminders_scheduled_at` (the zone and time the bill reminders were last planned in, `bills.md`), `bill_suggestions_dismissed` (the bill suggestions dismissed on this device, `bills.md`, **Screens**), `forecast_selection` (the forecast's account selection on this device, the JSON of its changes from the default, `forecast.md`), `snapshots_written_on` (the last local date the balance snapshots were written, `net-worth.md`), `dismissed_anomalies` (the transaction ids whose anomaly flags were dismissed on this device, `reports.md`, **Anomalies**), `weekly_summary_raised` (the Monday of the last week whose summary notice was raised, `reports.md`, **The weekly summary**), `payoff_entries` (the payments, rates and extras entered for the payoff projections on this device, `net-worth.md`, **Payoff**), `restore_offer_answered` (when this install answered the restore offer, `backup.md`, **Restore**), `lock_enabled`, `lock_timeout_seconds` and `secure_screen` (the app lock's settings on this device, `lock.md`, **Settings**) |
+| `app_meta` | Facts about the install: `legacy_import_done`, `install_date`, `fts_definition` (**Full-text search**), `reminders_zone` and `reminders_scheduled_at` (the zone and time the bill reminders were last planned in, `bills.md`), `bill_suggestions_dismissed` (the bill suggestions dismissed on this device, `bills.md`, **Screens**), `forecast_selection` (the forecast's account selection on this device, the JSON of its changes from the default, `forecast.md`), `snapshots_written_on` (the last local date the balance snapshots were written, `net-worth.md`), `dismissed_anomalies` (the transaction ids whose anomaly flags were dismissed on this device, `reports.md`, **Anomalies**), `weekly_summary_raised` (the Monday of the last week whose summary notice was raised, `reports.md`, **The weekly summary**), `payoff_entries` (the payments, rates and extras entered for the payoff projections on this device, `net-worth.md`, **Payoff**), `restore_offer_answered` (when this install answered the restore offer, `backup.md`, **Restore**), `lock_enabled`, `lock_timeout_seconds` and `secure_screen` (the app lock's settings on this device, `lock.md`, **Settings**), `background_sync_enabled`, `background_last_run` and `session_ended_in_background` (the background sync's switch, its last run and a session it found ended, `background.md`), `notification_permission_asked` (when this device asked for the permission to notify, `background.md`, **Notifications**), `sync_problems_told` (the sync problems this device has told, by notification key, each dropped when it clears, `sync-app.md`, **The controller**) |
 | `change_log` | The sync outbox (schema 2): one row per local change-log entry (`sync-app.md`) |
 | `record_clocks` | The sync clock of each field of each synced entity, `_create` holding its create's (schema 2) |
 | `sync_meta` | The device's sync state: `pull_cursor`, `last_clock`, `device_id`, `last_sync_at`, `last_report` (schema 2); the Plaid pull's `plaid_transactions_since`, `plaid_accounts_pulled_at`, `plaid_items_pulled_at`, `plaid_pulled_at`, and from schema 11 `plaid_investment_transactions_since` (`sync-app.md`) |
@@ -190,8 +190,17 @@ caches them under `.dart_tool/hooks_runner/`, so a first build needs the network
    `NativeDatabase.createInBackground`:
    - `PRAGMA cipher;` must return a row, else `EncryptionUnavailableException`;
    - `PRAGMA key = "x'<64 hex>'"`: a raw 32-byte key, no key derivation;
+   - `PRAGMA busy_timeout = 5000;`, so the check below waits too;
    - `SELECT count(*) FROM sqlite_master;`: "file is not a database" (result code 26) is
-     `DatabaseKeyMismatchException`.
+     `DatabaseKeyMismatchException`;
+   - `PRAGMA journal_mode = WAL;`.
+
+   The busy timeout and WAL are on every connection, idempotent at each open (a database
+   kept with a rollback journal moves to WAL with its data): the background sync opens its
+   own connection to the file the app may hold (`background.md`, **The database**), so a
+   write that meets the other's waits up to five seconds rather than failing with
+   `SQLITE_BUSY`, and readers never block the writer. Drift streams never see another
+   connection's writes; the app re-reads them on resume after a run of the worker's own.
 4. `beforeOpen` turns foreign keys on and, in dev, logs the result of `PRAGMA cipher;` and
    of `SELECT sqlite3mc_version();`, run as two statements: sqlite3mc has no
    `pragma_cipher` table-valued function, and SQLCipher's `cipher_version` pragma does not
@@ -520,7 +529,8 @@ skipping what is already gone, so a wipe runs again from the top:
    account's data is never left without the rule that keeps another account from
    syncing it;
 6. every pending reminder and every shown notification (`ReminderScheduler.clearAll`):
-   a bill's name in the tray is data;
+   a bill's name in the tray is data; then the background sync's schedule
+   (`BackgroundWork.cancelAll`, `background.md`);
 
 and only then removes the pending record. `app_meta`, the full-text objects and the
 change log go with the database file. `DriftLocalWipe` (dev and prod) does every step;

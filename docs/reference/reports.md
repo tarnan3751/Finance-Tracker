@@ -260,7 +260,9 @@ after the install day's week is summarised, so a fresh install waits for the nex
 The install day is `app_meta` `install_date`; the demo, which has none, counts the day
 the app was launched. The alerts sheet
 (`budgets.md`, **Alerts**) shows the notice as "Your weekly summary is ready", and a tap
-marks it read and opens the screen. The system notification is Phase 8's.
+marks it read and opens the screen. In dev and prod it is also posted on the
+`weekly_summary` channel (low importance; `background.md`, **Notifications**), and its tap
+opens the screen.
 
 ## Providers
 

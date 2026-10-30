@@ -21,9 +21,14 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
    `Money.parse` without a locale follow the device, and the date symbols of every locale
    loaded (`initializeDateFormatting`); a locale change while the app runs is not followed
    yet, except the language chosen in Settings (**Localization**);
-6. `startApp(config)`, the rest, which can run again in the same process: a
-   `ProviderContainer` with `overridesFor(config)` (or the overrides a test gives);
-7. in dev and prod, `openLocalData(container)`: the database opens (`data.md`,
+6. in dev and prod, the process's `ft.app` port is registered once, through which the
+   background sync's worker asks the running app to sync instead of running its own
+   session (`background.md`, **One session at a time**);
+7. `startApp(config)`, the rest, which can run again in the same process: in dev and
+   prod it first waits, at most 45 s, for a cycle the worker runs on its own to end, then
+   builds a `ProviderContainer` with `overridesFor(config)` (or the overrides a test
+   gives);
+8. in dev and prod, `openLocalData(container)`: the database opens (`data.md`,
    **Encryption and the key**), the held records of every type this build knows are
    released (`sync-app.md`, **Unknown types**; a failure is logged by type and leaves
    them held), `install_date` is recorded on the first launch, the system categories are
@@ -31,29 +36,33 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
    `runApp(DatabaseErrorApp(failure: ...))` shows a plain error screen instead of the
    app, with a message for a missing cipher, a wrong key, a lost key, or anything else;
    for a lost key it also offers "Restore from a backup" (`backup.md`);
-8. the stored session is read (`sessionControllerProvider`'s `restored()`, `auth.md`),
-   so the first frame is already signed in or out; the lock's settings are read
+9. the stored session is read (`sessionControllerProvider`'s `restored()`, `auth.md`),
+   so the first frame is already signed in or out (a session the background sync found
+   ended becomes the sign-in screen's notice, `auth.md`); the lock's settings are read
    (`lockControllerProvider`'s `restored()`, `lock.md`), so with the lock on the first
    frame is the lock screen and the window is secure before anything is drawn; the
    launch link the app was started at, if any, is read (**Launch links**), so the router
    opens at its location; then the sync controller starts
-   (`sync-app.md`, **The controller**) and, in every flavor, the budget alert watcher is
-   listened to (`budgets.md`, **Alerts**);
-9. `runApp(UncontrolledProviderScope(container: container, child: FinanceTrackerApp()))`;
-10. after the first frame, in every flavor, the reminder watcher is listened to (the bill
+   (`sync-app.md`, **The controller**), the background sync's watcher keeps the periodic
+   sync scheduled while someone is signed in (`background.md`, **Scheduling**) and, in
+   every flavor, the budget alert watcher is listened to (`budgets.md`, **Alerts**);
+10. `runApp(UncontrolledProviderScope(container: container, child: FinanceTrackerApp()))`;
+11. after the first frame, in every flavor, the reminder watcher is listened to (the bill
     reminders are planned then and whenever their inputs change, `bills.md`,
     **Reminders**) and `reminderSchedulerProvider.openedBillIds` pushes `/bills/:id` for
     a tapped reminder; the home screen widgets' runner is listened to (`widgets.md`), the
     launch links that reach the running app go to their locations and the app shortcuts
-    are set (**Launch links**);
-11. in dev and prod, after the first frame, `sweepReceipts(container)`: the receipt files
+    are set (**Launch links**); the notification channels are created, named in the
+    device's locale, and in dev and prod `LocalNotifications.routes` pushes a tapped
+    system notification's route (`background.md`, **Notifications**);
+12. in dev and prod, after the first frame, `sweepReceipts(container)`: the receipt files
     no live transaction references are deleted (`data.md`, **Receipts**), a failure
     logged by type only.
 
 **Starting again.** `startApp` gives its container `appRestartProvider`, the restart a
 restore runs under (`backup.md`, **Restore**): `runApp` of the plain restoring screen,
 two frames (`runApp` attaches the new tree on a timer, so only after the second is the
-old one unmounted and its streams cancelled), then `stopApp()` (the reminder taps and the launch links cancelled, the container disposed, and the close its
+old one unmounted and its streams cancelled), then `stopApp()` (the reminder and notification taps and the launch links cancelled, the container disposed, and the close its
 `databaseProvider` started awaited through `databaseClosing`, so the files are free),
 then the restore's work with its progress on that screen (a failure shown with a
 Continue button), then `startApp` again with the same configuration and overrides, so
@@ -103,10 +112,14 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `appMetaStoreProvider` | `core/di/providers.dart` | Facts about the install (`app_meta`): in memory by default and in demo, the database's in dev and prod; the reminders' zone and time, the dismissed bill suggestions, the forecast's account selection and the last day the balance snapshots were written among them |
 | `reminderSchedulerProvider` | `core/platform/reminder_scheduler_provider.dart` | The bill reminders' scheduler (**Reminders**): the fake by default and in demo, `flutter_local_notifications` in dev and prod |
 | `dismissedPairStoreProvider` | `core/di/providers.dart` | The duplicate pairs the user dismissed, on the device only: in memory by default and in demo (rebuilt with the in-memory store), `dismissed_pairs` in dev and prod (`duplicates.md`) |
-| `appNotifierProvider`, `inAppNotificationsProvider` | `core/platform/in_app_notifications.dart` | Where the app's notifications go (**Notifications**): the in-app list in every flavor |
+| `appNotifierProvider`, `inAppNotificationsProvider` | `core/platform/in_app_notifications.dart` | Where the app's notifications go (**Notifications**): the in-app list by default and in demo, the list and the tray in dev and prod |
+| `localNotificationsProvider` | `core/platform/local_notifications_provider.dart` | The one `flutter_local_notifications` instance and its taps, read only by the dev and prod implementations |
+| `notificationChannelsProvider`, `systemSettingsProvider`, `channelTextsProvider`, `systemNoticeTextProvider`, `notificationPermissionProvider` | `core/platform/notification_providers.dart` | The channels and Android's settings screens (the fakes by default and in demo, the platform's in dev and prod), the channels' names and each kind's tray text in the device's locale, and the one-time permission request (`background.md`, **Notifications**) |
+| `backgroundWorkProvider`, `connectivityProvider` | `core/platform/background_work_provider.dart`, `connectivity_provider.dart` | The background sync's scheduling and whether a network is up: the fakes by default and in demo, `workmanager` and `connectivity_plus` in dev and prod (`background.md`) |
+| `backgroundSyncWatcherProvider`, `backgroundCycleHooksProvider` | `core/background/` | The periodic sync kept scheduled while signed in (with the device's switch) and the steps a background cycle runs after its sync (`background.md`) |
 | `plaidPullStoreProvider`, `arrivalProcessorProvider`, `plaidPullProvider` | `core/di/providers.dart` | The Plaid pull (`sync-app.md`, **The Plaid pull**): its cursors in memory by default and in `sync_meta` in dev and prod, the rules run on what it inserts (`RuleRunner`, `rules.md`), and the pull over the API into the repositories |
 | `inMemorySyncStoreProvider`, `driftSyncStoreProvider`, `deviceClockProvider`, `changeRecorderProvider`, `recordingSyncStoreProvider` | `core/di/providers.dart` | The sync stores, the device clock, the recorder the repositories record through, and the store it records into (which the rules' owned-field guard reads, and in whose transaction a rule is applied to the existing transactions): in memory by default, Drift in dev and prod, none in demo (`sync-app.md`) |
-| `syncDeviceIdProvider`, `syncRelayProvider`, `localDataSyncsProvider`, `syncDebounceProvider` | `core/di/providers.dart` | The session's device id and the API's relay as that device while signed in (null otherwise), whether the local data syncs (dev and prod), and the debounce after a local change |
+| `syncDeviceIdProvider`, `syncRelayProvider`, `localDataSyncsProvider`, `syncDebounceProvider`, `syncBackoffProvider` | `core/di/providers.dart` | The session's device id and the API's relay as that device while signed in (null otherwise), whether the local data syncs (dev and prod), the debounce after a local change, and the controller's backoff after a failed session |
 | `syncControllerProvider` | `core/sync/sync_controller.dart` | The sync status and Sync now (`sync-app.md`) |
 | `demoPersonaProvider`, `demoSeedProvider` | `core/di/providers.dart` | The persona the demo flavor shows and its demo seed (`data.md`, **The demo seed**) |
 | `legacyImportResultProvider` | `core/di/providers.dart` | The legacy importer's `ImportSummary` at this launch, or null; `AppShell` shows it once and clears it |
@@ -114,7 +127,7 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `goRouterProvider`, `launchLocationProvider` | `core/router/app_router.dart` | The app's `GoRouter` (`routerFor`), gated on the session in dev and prod, opening at the start link's location when there is one, disposed with the container; that location (**Launch links**) |
 | `launchIntentProvider`, `appShortcutsProvider` | `core/platform/launch_intent_provider.dart`, `app_shortcuts_provider.dart` | The links the app is opened at and the launcher's shortcuts (**Launch links**): the fakes by default, `home_widget` and `quick_actions` in every flavor |
 | `widgetWriterProvider`, `widgetDataProvider`, `widgetRefreshRunnerProvider` | `features/widgets/application/widget_providers.dart` | The home screen widgets' writer (the fake by default, `home_widget` in every flavor), their snapshot and the runner that keeps them current (`widgets.md`) |
-| `tokenStoreProvider`, `fakeServerProvider`, `financeApiProvider`, `appVersionProvider` | `core/api/api_providers.dart` | The API (**The API client**) |
+| `tokenStoreProvider`, `fakeServerProvider`, `financeApiProvider`, `appVersionProvider`, `httpConnectionsProvider` | `core/api/api_providers.dart` | The API (**The API client**) and its network connections, which Sync now and a returning network drop |
 | `sessionControllerProvider`, `deviceNameProvider`, `installUserProvider` | `features/auth/application/` | The session, the device's name and the install's user (`auth.md`) |
 | `receiptStoreProvider` | `core/di/providers.dart` | Where receipt photos are kept: in memory by default and in demo, files in the support directory in dev and prod (`data.md`, **Receipts**) |
 | `localWipeProvider`, `wipeLocalDataProvider` | `core/di/providers.dart` | The local wipe (`data.md`, **The local wipe**): the stores only by default, the database files too in dev and prod; and the stop, wipe, confirm and start again that `startApp` supplies (unavailable elsewhere unless overridden) |
@@ -283,9 +296,12 @@ client (`api.md`), which nothing outside this folder imports.
   `http://10.0.2.2:8080/v1`). In prod a non-`https` URL is a `StateError` before any
   request (`PLAN.md` §12: Dart's `HttpClient` ignores Android's network security config,
   so the rule holds here and in `bootstrap`). Certificate checks are never relaxed: the
-  adapter is Dio's default with no `createHttpClient` or `validateCertificate`. A build
+  adapter is Dio's default with no `createHttpClient` or `validateCertificate`, wrapped in
+  `ResettableHttpClientAdapter` (`httpConnectionsProvider`), whose `reset()` closes the
+  pool without force and opens a new one (Sync now and a returning network call it,
+  `sync-app.md`). A build
   with no server URL fails every request as a `NetworkError` (`notConfigured`). Timeouts
-  are 10 s to connect and 30 s to receive; every request sends `User-Agent:
+  are 10 s to connect, 30 s to send a body and 30 s to receive; every request sends `User-Agent:
   finance-tracker/<version> (<flavor>)`. In dev only, `DevLogInterceptor` logs one line
   per answer on the `api` logger: method, path template, status, duration and the
   server's `X-Request-Id`, never a body, a query or a token.
@@ -309,8 +325,10 @@ client (`api.md`), which nothing outside this folder imports.
   while signing in). On 401 `token_expired` the request waits for one refresh shared by
   every request that needs it, then is sent again, once: the server rotates refresh tokens
   with reuse detection and no grace window (`server.md`, **Tokens**), so a refresh starts
-  only when none is in flight and the stored access token is still the one the request
-  carried; otherwise the request is simply sent again with the newer token. A refused
+  only when none is in flight and the stored access token, read again from storage
+  (`TokenStore.reload`: the background sync's isolate may have refreshed it), is still
+  the one the request carried; otherwise the request is simply sent again with the newer
+  token. A refused
   refresh (any 401) or a 401 `token_revoked` clears the stored session, but only while it
   still holds the tokens the failing call used, and fires `sessionEnded`. Refreshed tokens
   are written, and sessions cleared, through `TokenStore.update`, so the check and the
@@ -666,10 +684,14 @@ on; the settings About section shows the active zone, so the fallback is visible
 the platform shows it: `Notifier.notify(AppNotification)`, where an `AppNotification` is a
 sealed class of typed data, never text, so whoever shows it localizes it (`BudgetThresholdNotification`, `budgets.md`; `BillDueNotification`, a bill due today
 or tomorrow, `bills.md`; `WeeklySummaryNotification`, the weekly summary of the week just ended,
-`reports.md`). `appNotifierProvider` is `InAppNotifier`, which
+`reports.md`; `SyncProblemNotification`, sync failing for a day, a session the server
+ended or a bank that needs its sign-in, `background.md`). `appNotifierProvider` is
+`InAppNotifier` by default and in demo, which
 adds to `inAppNotificationsProvider`: newest first, one per key, at most 50, each with a read
-flag (`markRead(key)`, `markAllRead()`), in memory, so a restart empties it. Android's
-notification channels are Phase 8's implementation of the same interface. The Budgets
+flag (`markRead(key)`, `markAllRead()`), in memory, so a restart empties it. In dev and
+prod it is a `CompositeNotifier` of the in-app list and the `SystemNotifier`, which posts
+each kind (a bill due excepted) to its Android notification channel (`background.md`,
+**Notifications**). The Budgets
 screen's bell shows the in-app list (`budgets.md`, **Screens**). Platform code
 stays behind interfaces like this one (`CLAUDE.md`, **Security and platform**).
 
@@ -682,8 +704,9 @@ pending set made exactly those, the rest cancelled by id, a shown notification k
 the local wipe's), `openSettings()` and `openedBillIds`, over
 `ScheduledReminder(id, billId, dueDate, at, title, body)`, whose payload carries the bill,
 the due date and the instant. `local_notifications_scheduler.dart` implements it over
-`flutter_local_notifications` in dev and prod (inexact, the one channel
-`bill_reminders`, the small icon `ic_stat_bill`; `build.md` for the Android pieces), and
+`flutter_local_notifications` in dev and prod (inexact, the channel `bill_reminders`,
+through the app's one plugin initialization, `local_notifications.dart`, with the small
+icon `ic_stat_bill`; `build.md` for the Android pieces), and
 `fake_reminder_scheduler.dart` in the demo flavor and the tests. The instants and the
 rescheduling rules are `bills.md`, **Reminders**.
 
@@ -771,7 +794,7 @@ committed. Read strings with `AppLocalizations.of(context)`. `flutter pub get`, 
 | data | `data/in_memory_settings_repository.dart`, `data/demo_settings_repository.dart` | The in-memory implementation (tests) and the demo one (the demo flavor) |
 | application | `application/settings_controller.dart` | `SettingsController`, following `watch()`; each change reads, changes and saves, and changes run one after another so two issued together both land |
 | domain, application | `domain/app_language.dart`, `application/app_language_controller.dart` | `AppLanguage` (`system`, `english`, `pseudo`) and `AppLanguageController`, kept in `app_meta` (`app_language`), device-local (**Localization**) |
-| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color, and in dev and demo a `SegmentedButton` for the language), Security (`features/lock/presentation/security_section.dart`: Require unlock, Lock after and Block screenshots, kept in `app_meta`, `lock.md`), Data (Categories, opening category management, `categories.md`; Rules, `rules.md`; Export, `export.md`; Backup, `backup.md`, which in the demo flavor only says that the demo's data is not kept or backed up), About (app name, version and build, flavor, time zone), Demo data (demo only, `demo_data_section.dart`: the persona the demo shows) and Developer (dev only, `features/developer/presentation/developer_section.dart`: diagnostics, Pull now and the Sandbox controls, `developer.md`); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
+| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color, and in dev and demo a `SegmentedButton` for the language), Security (`features/lock/presentation/security_section.dart`: Require unlock, Lock after and Block screenshots, kept in `app_meta`, `lock.md`), Notifications (the row opening `notifications_screen.dart`, Settings → Notifications, `background.md`), Data (Categories, opening category management, `categories.md`; Rules, `rules.md`; Export, `export.md`; Backup, `backup.md`, which in the demo flavor only says that the demo's data is not kept or backed up), About (app name, version and build, flavor, time zone), Demo data (demo only, `demo_data_section.dart`: the persona the demo shows) and Developer (dev only, `features/developer/presentation/developer_section.dart`: diagnostics, Pull now and the Sandbox controls, `developer.md`); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
 
 The repository contract is `test/contract/settings_repository_contract.dart`,
 `runSettingsRepositoryContract(create, {dispose})`; the three implementations each run it

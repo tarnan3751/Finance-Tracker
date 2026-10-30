@@ -48,7 +48,10 @@ still being read), `SignedOut`, or `SignedIn(User, Device)`, this installation's
   signed out remotely", the local data kept (one user per install still holds). A new
   sign-in drops a notice not yet shown; a sign-out here, or `endLocally()`, never leaves
   one, even when the sign-out's logout has its refresh refused and the client ends the
-  session meanwhile.
+  session meanwhile. A session the background sync found ended (its own client cleared
+  it) is recorded in `app_meta` (`session_ended_in_background`); the next start turns it
+  into the same notice (`noteEndedRemotely()`) and posts it on `sync_problems` from the
+  worker (`background.md`).
 - **The device name** (`application/device_name.dart`) is the Android model from
   `device_info_plus`, at most 100 characters, or "Android device"; it is data sent to
   the server, not localized.
@@ -88,7 +91,12 @@ compare-and-clear and the restore's user write all go through `update`.
 - **`SecureTokenStore`** keeps it in `flutter_secure_storage` with the database key's
   options (`resetOnError: false`, the `finance_tracker` namespace) as one JSON value under
   `session_v1`: `{access_token, refresh_token, access_expires_at, user, device}`, the user
-  and the device as `shared_models` writes them. It caches the value after the first read.
+  and the device as `shared_models` writes them. It caches the value after the first read;
+  `reload()` reads it again from storage, which the client does before every refresh, so
+  a session the background sync's isolate refreshed is reused rather than refreshed again
+  with its spent refresh token (the server's reuse detection would end it). A storage
+  failure during `reload()` keeps the copy in memory (the type logged); only a value that
+  cannot be parsed is deleted.
   A value that cannot be read (a storage failure such as a decryption error, or any
   failure to parse it) is deleted and read as signed out; only the error's type is
   logged. A failure to read the install user is not caught. The database key

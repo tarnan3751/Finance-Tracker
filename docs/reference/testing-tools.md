@@ -292,6 +292,51 @@ seat only. A lane points it at a fake-mode server started from its own clone (fo
 `PORT=18080 tools/run_server.sh`, then `--server http://127.0.0.1:18080/v1`), where the
 whole job runs against the fake client with `source: demo` data, paced in real time.
 
+## `tools/scripts/background_doze_check.sh`: the background sync's job under Doze
+
+`tools/emulator_tests.sh run tools/scripts/background_doze_check.sh`, only through the
+harness, which exports the serial (`background.md`, **Testing**). It proves that
+WorkManager keeps the periodic sync's job, that Doze defers it while the device is idle
+and that it runs the dispatcher's engine in Doze's maintenance window. It does not prove a
+sync under Doze: in the demo flavor the cycle returns at its first step ("background:
+demo, nothing to sync"); a real sync against the dev server under Doze is the
+coordinator's dev-flavor acceptance.
+
+1. It unplugs the battery and sets it low, then runs
+   `integration_test/background_sync_test.dart` in the demo flavor with `--no-uninstall`,
+   so the periodic sync the test schedules afresh with the real plugin stays, its first
+   run (no initial delay) held back by its battery-not-low constraint and so still due. A
+   periodic sync that has just run cannot be run again: WorkManager refuses it before its
+   period is due ("Delaying execution ... because it is being executed before schedule").
+   The test's end stops the app, which drops its jobs, so the script sends WorkManager's
+   diagnostics broadcast (`androidx.work.diagnostics.REQUEST_DIAGNOSTICS`, a debug
+   build's, with `FLAG_INCLUDE_STOPPED_PACKAGES`), which starts the app's process in the
+   background, where WorkManager registers them again.
+2. It checks the sync has not run, then finds the registered job under "Registered <n>
+   jobs:" in `dumpsys jobscheduler`: `JOB androidx.work.systemjobscheduler:u0a<app
+   id>/<job id>: ...` (WorkManager's namespace on Android 14 and later; the id is
+   assigned per device, so looked up each time, and the app's uid from
+   `pm list packages -U` picks this install's).
+3. It ends the app's background process (`am kill`, which keeps its jobs; Doze holds no
+   running app's jobs back while it serves a receiver), refuses an app on Doze's
+   permanent allowlist (`dumpsys deviceidle whitelist`) and waits, at most three
+   minutes, until `dumpsys deviceidle tempwhitelist` no longer lists it (the shell's
+   broadcast puts it on the temporary allowlist, under which its jobs run even while
+   idle), then forces the device idle (`dumpsys deviceidle force-idle`, which must read
+   `IDLE`) and sets the battery level back up, so only Doze can hold the job.
+4. It reads the hold from JobScheduler: the job's entry must report `readyNotDozing:
+   false`, not a timed absence of the task. That line alone is the evidence; the job's
+   `CONNECTIVITY` constraint may read satisfied or not meanwhile.
+5. It steps Doze to its maintenance window (`dumpsys deviceidle step deep`) and waits for
+   the task's line in the log. Nothing forces the job: `cmd jobscheduler run -f` would
+   override its constraints, so only the maintenance window's run counts.
+6. On exit, whatever happened, it lets the device out of idle, resets the battery and
+   uninstalls the demo app.
+
+It exits 0 only on the maintenance window's run. Any other path says which step failed
+(the task running while idle, JobScheduler never reporting the hold, the task not running
+in the window) and prints the job's constraint lines, and the log when the task never ran.
+
 ## `tools/secrets_sweep.sh`: the secrets sweep
 
 `tools/secrets_sweep.sh [<logcat-capture>]` checks the release hardening that files can
