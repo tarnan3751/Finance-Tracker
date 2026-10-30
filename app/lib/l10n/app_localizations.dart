@@ -2033,7 +2033,7 @@ abstract class AppLocalizations {
   /// Shown when a sign-in or registration is refused because this install belongs to another account.
   ///
   /// In en, this message translates to:
-  /// **'This device already holds another account\'s data. Sign in with that account, or clear the app\'s storage in Android settings to start over.'**
+  /// **'This device already holds another account\'s data. Sign in with that account, or erase this device\'s data to start over.'**
   String get authErrorOtherAccount;
 
   /// Shown when sign-in or registration fails for another reason.
@@ -6268,6 +6268,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Erase'**
   String get eraseDeviceConfirm;
+
+  /// Settings row that opens the list of devices signed in to the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices'**
+  String get settingsDevices;
+
+  /// Title of the devices screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices'**
+  String get devicesTitle;
+
+  /// Marks the device the app is running on in the devices list.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get devicesThisDevice;
+
+  /// When a device last synced; time is a date and time in the device's time zone.
+  ///
+  /// In en, this message translates to:
+  /// **'Last seen {time}'**
+  String devicesLastSeen(String time);
+
+  /// Shown for a device that has never synced.
+  ///
+  /// In en, this message translates to:
+  /// **'Not synced yet'**
+  String get devicesNeverSynced;
+
+  /// Tooltip and accessibility label of a device's menu button.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions for {name}'**
+  String devicesActions(String name);
+
+  /// Menu item and confirmation button that removes a device from the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get devicesRemove;
+
+  /// Title of the confirmation before another device is removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String devicesRemoveTitle(String name);
+
+  /// Body of the confirmation before another device is removed.
+  ///
+  /// In en, this message translates to:
+  /// **'It is signed out and has to sign in again. What it keeps stays on it.'**
+  String get devicesRemoveBody;
+
+  /// Title of the confirmation before the device the app runs on is removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this device?'**
+  String get devicesRemoveThisTitle;
+
+  /// Body of the confirmation before the device the app runs on is removed.
+  ///
+  /// In en, this message translates to:
+  /// **'This device signs out. Its data stays on it until you erase it.'**
+  String get devicesRemoveThisBody;
+
+  /// Shown when removing a device failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t remove {name}. Try again.'**
+  String devicesRemoveFailed(String name);
+
+  /// Button that removes every device but this one.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out everywhere else'**
+  String get devicesSignOutOthers;
+
+  /// Title of the confirmation before every other device is removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out everywhere else?'**
+  String get devicesSignOutOthersTitle;
+
+  /// Body of the confirmation before every other device is removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Every other device signs out and has to sign in again. This device stays signed in.'**
+  String get devicesSignOutOthersBody;
+
+  /// Shown when every other device was removed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Signed out 1 device} other{Signed out {count} devices}}'**
+  String devicesSignOutOthersDone(int count);
+
+  /// Shown when some of the other devices could not be removed.
+  ///
+  /// In en, this message translates to:
+  /// **'{failed, plural, =1{1 device could not be signed out. Try again.} other{{failed} devices could not be signed out. Try again.}}'**
+  String devicesSignOutOthersFailed(int failed);
+
+  /// Shown when the devices list could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your devices.'**
+  String get devicesLoadFailed;
+
+  /// Button that reads the devices list again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get devicesRetry;
+
+  /// Shown once on the sign-in screen after the server ended this device's session.
+  ///
+  /// In en, this message translates to:
+  /// **'This device was signed out remotely. Its data is still here.'**
+  String get signInRemoteNotice;
+
+  /// Button that deletes this device's local data: on the sign-in screen while the install still holds an account's data, and on the registration screen beside the another-account refusal.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase this device\'s data'**
+  String get signInEraseDevice;
 }
 
 class _AppLocalizationsDelegate

@@ -192,6 +192,7 @@ final Map<String, _Screen> _screens = {
   ),
   'Export': (location: '/settings/export', seeded: true, open: null),
   'Backup': (location: '/settings/backup', seeded: false, open: null),
+  'Devices': (location: '/settings/devices', seeded: false, open: null),
   'Delete account': (
     location: '/settings/delete-account',
     seeded: false,

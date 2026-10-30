@@ -387,4 +387,94 @@ void main() {
       expect(stateOf(c), const SignedOut());
     });
   });
+
+  group('the remote sign-out notice', () {
+    bool notice(ProviderContainer c) =>
+        c.read(sessionControllerProvider.notifier).takeRemoteSignOutNotice();
+
+    test('a revocation leaves it, taken once', () async {
+      final Session session = storeSession();
+      final ProviderContainer c = await restored();
+      await pumpEventQueue();
+      await FakeClient.signedIn(
+        server,
+        deviceName: 'Tablet',
+      ).api.deleteDevice(session.deviceId);
+      await expectLater(
+        c.read(financeApiProvider).listDevices(),
+        throwsA(isA<TokenRevoked>()),
+      );
+      await pumpEventQueue();
+
+      expect(notice(c), isTrue);
+      expect(notice(c), isFalse);
+      expect(store.installUserId, session.userId, reason: 'data kept');
+    });
+
+    test('the restore\'s 401 leaves it', () async {
+      final Session session = storeSession();
+      await FakeClient.signedIn(
+        server,
+        deviceName: 'Tablet',
+      ).api.deleteDevice(session.deviceId);
+      final ProviderContainer c = await restored();
+      await pumpEventQueue();
+      expect(stateOf(c), const SignedOut());
+      expect(notice(c), isTrue);
+    });
+
+    test(
+      'a sign-out here leaves none, and neither does ending locally',
+      () async {
+        storeSession();
+        final ProviderContainer c = await restored();
+        await c.read(sessionControllerProvider.notifier).signOut();
+        expect(notice(c), isFalse);
+
+        await c
+            .read(sessionControllerProvider.notifier)
+            .signIn(email: _email, password: _password);
+        final int before = server.calls.length;
+        await c.read(sessionControllerProvider.notifier).endLocally();
+        expect(stateOf(c), const SignedOut());
+        expect(store.session, isNull);
+        expect(server.calls.skip(before), isEmpty, reason: 'no logout call');
+        expect(notice(c), isFalse);
+      },
+    );
+
+    test('a sign-out whose refresh is refused leaves none', () async {
+      storeSession();
+      final ProviderContainer c = await restored();
+      await pumpEventQueue();
+      server
+        ..advanceClock(const Duration(minutes: 16))
+        ..failNext('refreshTokens', 401, code: 'token_revoked');
+
+      await c.read(sessionControllerProvider.notifier).signOut();
+      await pumpEventQueue();
+      expect(server.calls, containsAllInOrder(['logout', 'refreshTokens']));
+      expect(stateOf(c), const SignedOut());
+      expect(notice(c), isFalse);
+    });
+
+    test('a new sign-in drops a notice not yet shown', () async {
+      final Session session = storeSession();
+      final ProviderContainer c = await restored();
+      await pumpEventQueue();
+      await FakeClient.signedIn(
+        server,
+        deviceName: 'Tablet',
+      ).api.deleteDevice(session.deviceId);
+      await expectLater(
+        c.read(financeApiProvider).listDevices(),
+        throwsA(isA<TokenRevoked>()),
+      );
+      await pumpEventQueue();
+      await c
+          .read(sessionControllerProvider.notifier)
+          .signIn(email: _email, password: _password);
+      expect(notice(c), isFalse);
+    });
+  });
 }

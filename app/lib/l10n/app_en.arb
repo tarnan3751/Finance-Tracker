@@ -1745,7 +1745,7 @@
   "@authErrorValidation": {
     "description": "Shown when the server refused the details entered."
   },
-  "authErrorOtherAccount": "This device already holds another account's data. Sign in with that account, or clear the app's storage in Android settings to start over.",
+  "authErrorOtherAccount": "This device already holds another account's data. Sign in with that account, or erase this device's data to start over.",
   "@authErrorOtherAccount": {
     "description": "Shown when a sign-in or registration is refused because this install belongs to another account."
   },
@@ -5922,5 +5922,125 @@
   "eraseDeviceConfirm": "Erase",
   "@eraseDeviceConfirm": {
     "description": "Button that confirms erasing this device's data."
+  },
+  "settingsDevices": "Devices",
+  "@settingsDevices": {
+    "description": "Settings row that opens the list of devices signed in to the account."
+  },
+  "devicesTitle": "Devices",
+  "@devicesTitle": {
+    "description": "Title of the devices screen."
+  },
+  "devicesThisDevice": "This device",
+  "@devicesThisDevice": {
+    "description": "Marks the device the app is running on in the devices list."
+  },
+  "devicesLastSeen": "Last seen {time}",
+  "@devicesLastSeen": {
+    "description": "When a device last synced; time is a date and time in the device's time zone.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "Oct 24, 2026 3:00 PM"
+      }
+    }
+  },
+  "devicesNeverSynced": "Not synced yet",
+  "@devicesNeverSynced": {
+    "description": "Shown for a device that has never synced."
+  },
+  "devicesActions": "Actions for {name}",
+  "@devicesActions": {
+    "description": "Tooltip and accessibility label of a device's menu button.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Pixel 6"
+      }
+    }
+  },
+  "devicesRemove": "Remove",
+  "@devicesRemove": {
+    "description": "Menu item and confirmation button that removes a device from the account."
+  },
+  "devicesRemoveTitle": "Remove {name}?",
+  "@devicesRemoveTitle": {
+    "description": "Title of the confirmation before another device is removed.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Pixel 6"
+      }
+    }
+  },
+  "devicesRemoveBody": "It is signed out and has to sign in again. What it keeps stays on it.",
+  "@devicesRemoveBody": {
+    "description": "Body of the confirmation before another device is removed."
+  },
+  "devicesRemoveThisTitle": "Remove this device?",
+  "@devicesRemoveThisTitle": {
+    "description": "Title of the confirmation before the device the app runs on is removed."
+  },
+  "devicesRemoveThisBody": "This device signs out. Its data stays on it until you erase it.",
+  "@devicesRemoveThisBody": {
+    "description": "Body of the confirmation before the device the app runs on is removed."
+  },
+  "devicesRemoveFailed": "Couldn't remove {name}. Try again.",
+  "@devicesRemoveFailed": {
+    "description": "Shown when removing a device failed.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Pixel 6"
+      }
+    }
+  },
+  "devicesSignOutOthers": "Sign out everywhere else",
+  "@devicesSignOutOthers": {
+    "description": "Button that removes every device but this one."
+  },
+  "devicesSignOutOthersTitle": "Sign out everywhere else?",
+  "@devicesSignOutOthersTitle": {
+    "description": "Title of the confirmation before every other device is removed."
+  },
+  "devicesSignOutOthersBody": "Every other device signs out and has to sign in again. This device stays signed in.",
+  "@devicesSignOutOthersBody": {
+    "description": "Body of the confirmation before every other device is removed."
+  },
+  "devicesSignOutOthersDone": "{count, plural, =1{Signed out 1 device} other{Signed out {count} devices}}",
+  "@devicesSignOutOthersDone": {
+    "description": "Shown when every other device was removed.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "devicesSignOutOthersFailed": "{failed, plural, =1{1 device could not be signed out. Try again.} other{{failed} devices could not be signed out. Try again.}}",
+  "@devicesSignOutOthersFailed": {
+    "description": "Shown when some of the other devices could not be removed.",
+    "placeholders": {
+      "failed": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "devicesLoadFailed": "Couldn't load your devices.",
+  "@devicesLoadFailed": {
+    "description": "Shown when the devices list could not be read."
+  },
+  "devicesRetry": "Try again",
+  "@devicesRetry": {
+    "description": "Button that reads the devices list again."
+  },
+  "signInRemoteNotice": "This device was signed out remotely. Its data is still here.",
+  "@signInRemoteNotice": {
+    "description": "Shown once on the sign-in screen after the server ended this device's session."
+  },
+  "signInEraseDevice": "Erase this device's data",
+  "@signInEraseDevice": {
+    "description": "Button that deletes this device's local data: on the sign-in screen while the install still holds an account's data, and on the registration screen beside the another-account refusal."
   }
 }

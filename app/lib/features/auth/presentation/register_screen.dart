@@ -1,13 +1,16 @@
 /// The registration screen (`/register`): email, a password of 8 to 128 characters, an
 /// optional name, the name this device registers under, and the failure inline (email
-/// taken, too many attempts, no server, another account on this install). A successful
-/// registration needs no navigation: the router follows the session to the shell.
+/// taken, too many attempts, no server, another account on this install, with the offer
+/// to erase this device's data beside that refusal). A successful registration needs no
+/// navigation: the router follows the session to the shell.
 library;
 
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/features/auth/application/device_name.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
+import 'package:finance_tracker/features/auth/domain/session_state.dart';
 import 'package:finance_tracker/features/auth/presentation/auth_form.dart';
+import 'package:finance_tracker/features/auth/presentation/erase_device_dialog.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -137,6 +140,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           const SizedBox(height: 16),
           AuthErrorText(authErrorMessage(l10n, error)),
         ],
+        if (error is OtherAccountOnDeviceException)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton(
+              onPressed: _busy
+                  ? null
+                  : () => confirmAndEraseDevice(context, ref),
+              child: Text(l10n.signInEraseDevice),
+            ),
+          ),
         const SizedBox(height: 24),
         AuthSubmitButton(
           label: l10n.registerSubmit,

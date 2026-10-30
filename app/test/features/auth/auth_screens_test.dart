@@ -156,8 +156,7 @@ void main() {
       expect(
         find.text(
           "This device already holds another account's data. Sign in with "
-          "that account, or clear the app's storage in Android settings to "
-          'start over.',
+          "that account, or erase this device's data to start over.",
         ),
         findsOneWidget,
       );

@@ -1,12 +1,19 @@
 /// The sign-in screen (`/sign-in`): email and password, a link to registration, and the
 /// failure inline (wrong credentials, too many attempts, no server, another account on
-/// this install). A successful sign-in needs no navigation: the router follows the
-/// session to the shell.
+/// this install). After the server ended this device's session it says so, once. While
+/// the install still holds an account's data (its user is recorded), a line under the
+/// form offers to erase this device's data (the local wipe, after a confirmation): the
+/// way out for an install whose account is gone, deleted elsewhere or by a deletion
+/// whose answer was lost. A successful sign-in needs no navigation: the router follows
+/// the session to the shell.
 library;
 
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/features/auth/application/install_user.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
+import 'package:finance_tracker/features/auth/domain/session_state.dart';
 import 'package:finance_tracker/features/auth/presentation/auth_form.dart';
+import 'package:finance_tracker/features/auth/presentation/erase_device_dialog.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,6 +34,16 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   bool _busy = false;
   Exception? _error;
   Map<String, String> _fieldErrors = const {};
+  late final bool _endedRemotely;
+
+  @override
+  void initState() {
+    super.initState();
+    // Taken once, as the screen opens.
+    _endedRemotely = ref
+        .read(sessionControllerProvider.notifier)
+        .takeRemoteSignOutNotice();
+  }
 
   @override
   void dispose() {
@@ -73,6 +90,16 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     return AuthFrame(
       title: l10n.signInTitle,
       children: [
+        if (_endedRemotely) ...[
+          Semantics(
+            liveRegion: true,
+            child: Text(
+              l10n.signInRemoteNotice,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
         Form(
           key: _form,
           child: Column(
@@ -119,6 +146,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           onPressed: _busy ? null : () => const RegisterRoute().go(context),
           child: Text(l10n.signInCreateAccount),
         ),
+        if (ref.watch(installUserProvider).value != null ||
+            error is OtherAccountOnDeviceException)
+          TextButton(
+            onPressed: _busy ? null : () => confirmAndEraseDevice(context, ref),
+            child: Text(l10n.signInEraseDevice),
+          ),
       ],
     );
   }

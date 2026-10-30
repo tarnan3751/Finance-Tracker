@@ -7,7 +7,7 @@
 /// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/duplicates`, `/transactions/:id` |
 /// | Plan | `/plan` (redirects to `/budgets`); `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new?stream-id=<id>`, `/bills/new?liability-account-id=<id>`, `/bills/subscriptions`, `/bills/:id`; `/forecast` |
 /// | Insights | `/insights` (redirects to `/reports`); `/reports`, `/reports/weekly`; `/net-worth`; `/investments`; `/goals`, `/goals/new`, `/goals/:id`, `/goals/:id/edit`, `/goals/:id/contribute` |
-/// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id`, `/settings/export`, `/settings/backup`, `/settings/delete-account` |
+/// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id`, `/settings/export`, `/settings/backup`, `/settings/devices`, `/settings/delete-account` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
 /// user is sent in dev and prod, and `/restore` the restore offer of a fresh install. `/` redirects to `/accounts` (`app_router.dart`). Detail and editor routes are
@@ -32,6 +32,7 @@ import 'package:finance_tracker/features/accounts/presentation/account_detail_sc
 import 'package:finance_tracker/features/accounts/presentation/account_editor_screen.dart';
 import 'package:finance_tracker/features/accounts/presentation/accounts_screen.dart';
 import 'package:finance_tracker/features/auth/presentation/delete_account_screen.dart';
+import 'package:finance_tracker/features/auth/presentation/devices_screen.dart';
 import 'package:finance_tracker/features/auth/presentation/register_screen.dart';
 import 'package:finance_tracker/features/auth/presentation/sign_in_screen.dart';
 import 'package:finance_tracker/features/backup/presentation/backup_screen.dart';
@@ -180,6 +181,7 @@ part 'routes.g.dart';
             ),
             TypedGoRoute<ExportRoute>(path: 'export'),
             TypedGoRoute<BackupRoute>(path: 'backup'),
+            TypedGoRoute<DevicesRoute>(path: 'devices'),
             TypedGoRoute<DeleteAccountRoute>(path: 'delete-account'),
           ],
         ),
@@ -556,6 +558,15 @@ class BackupRoute extends GoRouteData with $BackupRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const BackupScreen();
+}
+
+/// `/settings/devices`: the devices signed in to the account.
+class DevicesRoute extends GoRouteData with $DevicesRoute {
+  const DevicesRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const DevicesScreen();
 }
 
 /// `/settings/delete-account`: delete the account, after a typed confirmation.

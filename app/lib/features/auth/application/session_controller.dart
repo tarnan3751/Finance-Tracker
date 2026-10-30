@@ -21,6 +21,12 @@
 ///   whatever the answer. The install's user stays. Erasing the device
 ///   (`AccountActions.eraseDevice`) calls [logOutOnServer] alone and leaves the clearing to
 ///   the local wipe, which runs with the app stopped.
+/// - **Ended elsewhere.** A session the server ended (the client's `sessionEnded`: a
+///   `token_revoked` answer or a refused refresh, or the restore's 401) signs out and
+///   leaves a notice the sign-in screen takes once ([takeRemoteSignOutNotice]); the local
+///   data stays. A user's own [signOut] never leaves one, even when its logout's refresh
+///   is refused and the client fires `sessionEnded` meanwhile. [endLocally] signs out
+///   after this device removed itself, with no logout call and no notice.
 library;
 
 import 'dart:async';
@@ -45,6 +51,8 @@ final Logger _log = Logger('auth');
 @Riverpod(keepAlive: true)
 class SessionController extends _$SessionController {
   final Completer<void> _ready = Completer<void>();
+  bool _endedRemotely = false;
+  bool _signingOut = false;
 
   /// Completes once the stored session has been read: the state is then `SignedIn` or
   /// `SignedOut`. `bootstrap` waits for it before the first frame.
@@ -58,7 +66,7 @@ class SessionController extends _$SessionController {
     final StreamSubscription<void> ended = ref
         .watch(financeApiProvider)
         .sessionEnded
-        .listen((_) => _signedOut());
+        .listen((_) => _signedOutRemotely());
     ref.onDispose(ended.cancel);
     unawaited(_restore());
     return const SessionUnknown();
@@ -111,7 +119,7 @@ class SessionController extends _$SessionController {
         ended = true;
         return null;
       });
-      if (ended) _signedOut();
+      if (ended) _signedOutRemotely();
     }
   }
 
@@ -173,6 +181,7 @@ class SessionController extends _$SessionController {
       ),
     );
     if (installUser == null) await _store.writeInstallUserId(user.id);
+    _endedRemotely = false;
     if (ref.mounted) state = SignedIn(user, tokens.device);
   }
 
@@ -186,9 +195,16 @@ class SessionController extends _$SessionController {
 
   /// Signs this device out.
   Future<void> signOut() async {
-    await logOutOnServer();
-    await _store.clear();
-    _signedOut();
+    // Its logout's refresh may be refused, which ends the session through the client
+    // too: that is still the user's own sign-out, with no notice.
+    _signingOut = true;
+    try {
+      await logOutOnServer();
+      await _store.clear();
+      _signedOut();
+    } finally {
+      _signingOut = false;
+    }
   }
 
   /// Logs this device out on the server, best effort, and keeps the stored session and
@@ -213,6 +229,26 @@ class SessionController extends _$SessionController {
         // Best effort: offline, or the server already ended the session.
       }
     }
+  }
+
+  /// Signs out with the stored session already gone on the server: this device removed
+  /// itself (`DELETE /devices/{id}`), so a logout would only be refused.
+  Future<void> endLocally() async {
+    await _store.clear();
+    _signedOut();
+  }
+
+  /// Whether the last session ended on the server's word rather than the user's here;
+  /// true at most once per such ending.
+  bool takeRemoteSignOutNotice() {
+    final bool notice = _endedRemotely;
+    _endedRemotely = false;
+    return notice;
+  }
+
+  void _signedOutRemotely() {
+    if (!_signingOut) _endedRemotely = true;
+    _signedOut();
   }
 
   void _signedOut() {

@@ -1211,7 +1211,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authErrorOtherAccount =>
-      'This device already holds another account\'s data. Sign in with that account, or clear the app\'s storage in Android settings to start over.';
+      'This device already holds another account\'s data. Sign in with that account, or erase this device\'s data to start over.';
 
   @override
   String get authErrorGeneric => 'Something went wrong. Try again.';
@@ -4096,4 +4096,95 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eraseDeviceConfirm => 'Erase';
+
+  @override
+  String get settingsDevices => 'Devices';
+
+  @override
+  String get devicesTitle => 'Devices';
+
+  @override
+  String get devicesThisDevice => 'This device';
+
+  @override
+  String devicesLastSeen(String time) {
+    return 'Last seen $time';
+  }
+
+  @override
+  String get devicesNeverSynced => 'Not synced yet';
+
+  @override
+  String devicesActions(String name) {
+    return 'Actions for $name';
+  }
+
+  @override
+  String get devicesRemove => 'Remove';
+
+  @override
+  String devicesRemoveTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String get devicesRemoveBody =>
+      'It is signed out and has to sign in again. What it keeps stays on it.';
+
+  @override
+  String get devicesRemoveThisTitle => 'Remove this device?';
+
+  @override
+  String get devicesRemoveThisBody =>
+      'This device signs out. Its data stays on it until you erase it.';
+
+  @override
+  String devicesRemoveFailed(String name) {
+    return 'Couldn\'t remove $name. Try again.';
+  }
+
+  @override
+  String get devicesSignOutOthers => 'Sign out everywhere else';
+
+  @override
+  String get devicesSignOutOthersTitle => 'Sign out everywhere else?';
+
+  @override
+  String get devicesSignOutOthersBody =>
+      'Every other device signs out and has to sign in again. This device stays signed in.';
+
+  @override
+  String devicesSignOutOthersDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Signed out $count devices',
+      one: 'Signed out 1 device',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesSignOutOthersFailed(int failed) {
+    String _temp0 = intl.Intl.pluralLogic(
+      failed,
+      locale: localeName,
+      other: '$failed devices could not be signed out. Try again.',
+      one: '1 device could not be signed out. Try again.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devicesLoadFailed => 'Couldn\'t load your devices.';
+
+  @override
+  String get devicesRetry => 'Try again';
+
+  @override
+  String get signInRemoteNotice =>
+      'This device was signed out remotely. Its data is still here.';
+
+  @override
+  String get signInEraseDevice => 'Erase this device\'s data';
 }

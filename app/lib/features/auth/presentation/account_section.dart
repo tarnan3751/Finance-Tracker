@@ -1,4 +1,5 @@
-/// The Settings screen's Account section: who is signed in, the linked banks, Sign out,
+/// The Settings screen's Account section: who is signed in, the linked banks, Devices
+/// (not in demo), Sign out,
 /// Sign out and erase this device, and Delete account (none of the three in demo, which
 /// is always the demo user), and in dev the server the app talks to. Nothing while
 /// signed out, which outside demo the router never shows.
@@ -43,6 +44,13 @@ class AccountSection extends ConsumerWidget {
           trailing: const Icon(Icons.chevron_right),
           onTap: () => const ItemsRoute().push<void>(context),
         ),
+        if (config.flavor != Flavor.demo)
+          ListTile(
+            leading: const Icon(Icons.devices),
+            title: Text(l10n.settingsDevices),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => const DevicesRoute().push<void>(context),
+          ),
         if (config.flavor != Flavor.demo)
           ListTile(
             leading: const Icon(Icons.logout),
