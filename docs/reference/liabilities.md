@@ -2,8 +2,9 @@
 
 The liability detail of the user's linked card and loan accounts, as Plaid's Liabilities
 product reports it: what bills need (the next due date, the minimum or monthly payment,
-the statement, the last payment) and what Phase 6's payoff projections will need (rates,
-terms, origination, year-to-date figures). Server-authoritative, never synced. The
+the statement, the last payment), what the payoff projections read (the rate and the
+payment, `net-worth.md`, **Payoff**) and the rest Plaid reports (terms, origination,
+year-to-date figures). Server-authoritative, never synced. The
 decision is `PLAN.md` §12, "Liabilities in Phase 5".
 
 Code: `app/lib/features/liabilities/` (`domain/` the repository interface, `data/` the

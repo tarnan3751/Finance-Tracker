@@ -120,7 +120,7 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | Recurring: the pull of Plaid streams, the detector and its harness, subscriptions, the merge, the user's overrides, the Subscriptions screen | `app/lib/features/recurring/` | `docs/reference/recurring.md` |
 | Liabilities: the pull and the repository | `app/lib/features/liabilities/` | `docs/reference/liabilities.md` |
 | Investments: holdings, securities and investment transactions, the pull and the repositories | `app/lib/features/investments/` | `docs/reference/investments.md` |
-| Net worth: the daily balance snapshots and their writer | `app/lib/features/net_worth/` | `docs/reference/net-worth.md` |
+| Net worth: the daily balance snapshots and their writer, the series and its reconstruction, payoff projections, the net worth screen | `app/lib/features/net_worth/` | `docs/reference/net-worth.md` |
 | Bills: schedule, status and the payment assignment, reminders behind the scheduler boundary, the list, calendar and editor | `app/lib/features/bills/`, `app/lib/core/platform/reminder_scheduler.dart`, `app/lib/core/time/` | `docs/reference/bills.md` |
 | Forecast: the projection, its band and allowance, the screen and table | `app/lib/features/forecast/` | `docs/reference/forecast.md` |
 | The Plan tab: the shell, `PlanScaffold`, the editors' `OwnPage` closer | `app/lib/core/router/` | `docs/reference/app-core.md` |
