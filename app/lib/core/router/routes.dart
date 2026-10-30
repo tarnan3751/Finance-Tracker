@@ -45,6 +45,7 @@ import 'package:finance_tracker/features/budgets/presentation/budget_editor_scre
 import 'package:finance_tracker/features/budgets/presentation/budgets_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/categories_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/category_editor_screen.dart';
+import 'package:finance_tracker/features/conflicts/presentation/conflicts_screen.dart';
 import 'package:finance_tracker/features/duplicates/presentation/duplicate_review_screen.dart';
 import 'package:finance_tracker/features/export/presentation/export_screen.dart';
 import 'package:finance_tracker/features/export/presentation/report_export_menu.dart';
@@ -183,6 +184,7 @@ part 'routes.g.dart';
             TypedGoRoute<BackupRoute>(path: 'backup'),
             TypedGoRoute<DevicesRoute>(path: 'devices'),
             TypedGoRoute<DeleteAccountRoute>(path: 'delete-account'),
+            TypedGoRoute<ConflictsRoute>(path: 'conflicts'),
           ],
         ),
       ],
@@ -576,6 +578,15 @@ class DeleteAccountRoute extends GoRouteData with $DeleteAccountRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const DeleteAccountScreen();
+}
+
+/// `/settings/conflicts`: this device's sync conflicts, from Settings → Sync.
+class ConflictsRoute extends GoRouteData with $ConflictsRoute {
+  const ConflictsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const ConflictsScreen();
 }
 
 /// `/settings/rules`: the rules, in the order they are tried.

@@ -195,6 +195,16 @@ final class DriftTransactionRepository implements TransactionRepository {
             currency: row.amount.currencyCode,
             deletedAt: Value(row.deletedAt),
           );
+          if (row.deletedAt != null) {
+            // Plaid removed it (a pending row its posted one replaced included): its
+            // sync record carries no tombstone, so its conflicts go here.
+            await (_database.delete(_database.conflicts)..where(
+                  (c) =>
+                      c.entityType.equals('transaction') &
+                      c.entityId.equals(t.id),
+                ))
+                .go();
+          }
           if (old == null) inserted.add(row);
         }
         return inserted;
@@ -483,6 +493,7 @@ Future<List<Transaction>> transactionsWithChildren(
         tags: tags[row.id] ?? const [],
         splits: splits[row.id] ?? const [],
         receiptPath: row.receiptPath,
+        receiptSha256: row.receiptSha256,
         hidden: row.hidden,
         source: row.source,
         createdAt: row.createdAt,
@@ -530,6 +541,7 @@ Future<void> writeTransactionRow(
           userCategoryId: Value(transaction.userCategoryId),
           notes: Value(transaction.notes),
           receiptPath: Value(transaction.receiptPath),
+          receiptSha256: Value(transaction.receiptSha256),
           hidden: Value(transaction.hidden),
           source: Value(transaction.source),
           createdAt: Value(transaction.createdAt),

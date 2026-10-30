@@ -76,6 +76,9 @@ import 'package:finance_tracker/features/categories/data/demo_category_repositor
 import 'package:finance_tracker/features/categories/data/drift_category_repository.dart';
 import 'package:finance_tracker/features/categories/data/in_memory_category_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
+import 'package:finance_tracker/features/conflicts/data/drift_conflict_store.dart';
+import 'package:finance_tracker/features/conflicts/data/in_memory_conflict_store.dart';
+import 'package:finance_tracker/features/conflicts/domain/conflict_store.dart';
 import 'package:finance_tracker/features/duplicates/data/drift_dismissed_pair_store.dart';
 import 'package:finance_tracker/features/duplicates/data/in_memory_dismissed_pair_store.dart';
 import 'package:finance_tracker/features/duplicates/domain/dismissed_pair_store.dart';
@@ -470,6 +473,16 @@ DismissedPairStore dismissedPairStore(Ref ref) {
   return store;
 }
 
+/// This device's sync conflicts, kept on the device and never synced: in memory by
+/// default and in the demo (which never syncs, so it stays empty), `conflicts` in dev
+/// and prod.
+@Riverpod(keepAlive: true)
+ConflictStore conflictStore(Ref ref) {
+  final InMemoryConflictStore store = InMemoryConflictStore();
+  ref.onDispose(store.close);
+  return store;
+}
+
 /// What the Plaid pull does with the transactions it inserts: the rules
 /// (`docs/reference/rules.md`, **On arrival**).
 @Riverpod(keepAlive: true)
@@ -681,6 +694,9 @@ final List<Override> _driftOverrides = [
       ref.watch(databaseProvider),
       ref.watch(clockProvider),
     ),
+  ),
+  conflictStoreProvider.overrideWith(
+    (ref) => DriftConflictStore(ref.watch(databaseProvider)),
   ),
   receiptStoreProvider.overrideWith(
     (ref) => FileReceiptStore(getApplicationSupportDirectory),

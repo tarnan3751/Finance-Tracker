@@ -1985,6 +1985,58 @@ final class DismissedPairStoreProvider
 String _$dismissedPairStoreHash() =>
     r'7ed3e2b5233371d8c439614aa131195ffe2bf0f1';
 
+/// This device's sync conflicts, kept on the device and never synced: in memory by
+/// default and in the demo (which never syncs, so it stays empty), `conflicts` in dev
+/// and prod.
+
+@ProviderFor(conflictStore)
+final conflictStoreProvider = ConflictStoreProvider._();
+
+/// This device's sync conflicts, kept on the device and never synced: in memory by
+/// default and in the demo (which never syncs, so it stays empty), `conflicts` in dev
+/// and prod.
+
+final class ConflictStoreProvider
+    extends $FunctionalProvider<ConflictStore, ConflictStore, ConflictStore>
+    with $Provider<ConflictStore> {
+  /// This device's sync conflicts, kept on the device and never synced: in memory by
+  /// default and in the demo (which never syncs, so it stays empty), `conflicts` in dev
+  /// and prod.
+  ConflictStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'conflictStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$conflictStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<ConflictStore> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ConflictStore create(Ref ref) {
+    return conflictStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ConflictStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ConflictStore>(value),
+    );
+  }
+}
+
+String _$conflictStoreHash() => r'2e59c2000b66fe769e917f43b612272184817b7f';
+
 /// What the Plaid pull does with the transactions it inserts: the rules
 /// (`docs/reference/rules.md`, **On arrival**).
 

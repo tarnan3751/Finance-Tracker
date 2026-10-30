@@ -6119,5 +6119,115 @@
   "signInEraseDevice": "Erase this device's data",
   "@signInEraseDevice": {
     "description": "Button that deletes this device's local data: on the sign-in screen while the install still holds an account's data, and on the registration screen beside the another-account refusal."
+  },
+  "syncConflicts": "Conflicts ({count})",
+  "@syncConflicts": {
+    "description": "Settings → Sync: opens the conflicts, changes made here that another device replaced within minutes; shown while there are any.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "syncConflictsHint": "Changes made on two devices at about the same time",
+  "@syncConflictsHint": {
+    "description": "Under Settings → Sync's Conflicts entry."
+  },
+  "conflictsTitle": "Conflicts",
+  "@conflictsTitle": {
+    "description": "The Conflicts screen's title."
+  },
+  "conflictsIntro": "Each of these is a change made on this device that a change from another device replaced a few minutes later. Choose the value to keep.",
+  "@conflictsIntro": {
+    "description": "The Conflicts screen's explanation above the list."
+  },
+  "conflictsEmptyHeadline": "No conflicts",
+  "@conflictsEmptyHeadline": {
+    "description": "The Conflicts screen with nothing to resolve."
+  },
+  "conflictsEmptyBody": "When a change made here and one from another device meet within minutes, both are shown here so you can choose.",
+  "@conflictsEmptyBody": {
+    "description": "The Conflicts screen's empty body."
+  },
+  "conflictEntityType": "{type, select, transaction{Transaction} account{Account} category{Category} settings{Settings} rule{Rule} budget{Budget} recurringStream{Subscription} billReminder{Bill} goal{Goal} goalContribution{Goal contribution} other{Record}}",
+  "@conflictEntityType": {
+    "description": "What kind of record a conflict is about.",
+    "placeholders": {
+      "type": {
+        "type": "String",
+        "example": "transaction"
+      }
+    }
+  },
+  "conflictField": "{field, select, name{Name} notes{Notes} category{Category} tags{Tags} splits{Splits} amount{Amount} day{Date} hidden{Hidden} receipt{Receipt} account{Account} theme{Theme} dynamicColor{Dynamic colour} muted{Muted} subscription{Subscription} target{Target} targetDay{Target date} note{Note} other{}}",
+  "@conflictField": {
+    "description": "The name of the field a conflict is about, by a key the screen derives from the field; empty for a field without one, when the screen shows the field's own name.",
+    "placeholders": {
+      "field": {
+        "type": "String",
+        "example": "notes"
+      }
+    }
+  },
+  "conflictThisValue": "This device's value",
+  "@conflictThisValue": {
+    "description": "Label of the value this device wrote, which lost."
+  },
+  "conflictOtherValue": "The other value",
+  "@conflictOtherValue": {
+    "description": "Label of the value from another device that replaced it."
+  },
+  "conflictThisDevice": "This device",
+  "@conflictThisDevice": {
+    "description": "Names this device in a conflict's \"from\" line."
+  },
+  "conflictFrom": "{device}, {time}",
+  "@conflictFrom": {
+    "description": "Which device wrote a conflict's value, and when (in this device's zone).",
+    "placeholders": {
+      "device": {
+        "type": "String",
+        "example": "Pixel 6"
+      },
+      "time": {
+        "type": "String",
+        "example": "Oct 30, 2026 10:02 AM"
+      }
+    }
+  },
+  "conflictKeepThis": "Keep this device's value",
+  "@conflictKeepThis": {
+    "description": "Writes this device's value again, so it syncs and wins on every device."
+  },
+  "conflictKeepOther": "Keep the other",
+  "@conflictKeepOther": {
+    "description": "Keeps the value from the other device and forgets the conflict."
+  },
+  "conflictNoValue": "None",
+  "@conflictNoValue": {
+    "description": "A conflict's value that is empty."
+  },
+  "conflictYes": "Yes",
+  "@conflictYes": {
+    "description": "A conflict's true value."
+  },
+  "conflictNo": "No",
+  "@conflictNo": {
+    "description": "A conflict's false value."
+  },
+  "conflictSplits": "{count, plural, =0{No splits} =1{1 split} other{{count} splits}}",
+  "@conflictSplits": {
+    "description": "A conflict's value that is a list of splits.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "conflictKeepFailed": "The value could not be kept. Try again.",
+  "@conflictKeepFailed": {
+    "description": "Shown when keeping this device's value failed."
   }
 }

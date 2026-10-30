@@ -106,6 +106,12 @@ void main() {
     await verifier.migrateAndValidate(database, 12);
   });
 
+  test('a new database matches the schema 13 dump', () async {
+    final AppDatabase database = AppDatabase(await verifier.startAt(13));
+    addTearDown(database.close);
+    await verifier.migrateAndValidate(database, 13);
+  });
+
   group('schema 1 to 2', () {
     // 2026-10-01 09:00 UTC, the v1 rows' audit instants; 2026-10-02, a v1 delete.
     const int created = 1759309200000;
@@ -799,7 +805,7 @@ void main() {
       ''');
         final AppDatabase database = AppDatabase(schema.newConnection());
         addTearDown(database.close);
-        await verifier.migrateAndValidate(database, 6);
+        await verifier.migrateAndValidate(database, database.schemaVersion);
 
         expect(
           {
@@ -891,7 +897,7 @@ void main() {
       insertRows(schema);
       final AppDatabase database = AppDatabase(schema.newConnection());
       addTearDown(database.close);
-      await verifier.migrateAndValidate(database, 7);
+      await verifier.migrateAndValidate(database, database.schemaVersion);
       await rowsIntact(database);
       expect(await database.select(database.dismissedPairs).get(), isEmpty);
     });
@@ -902,7 +908,7 @@ void main() {
       insertRows(schema);
       final AppDatabase first = AppDatabase(schema.newConnection());
       addTearDown(first.close);
-      await verifier.migrateAndValidate(first, 7);
+      await verifier.migrateAndValidate(first, first.schemaVersion);
       schema.rawDatabase.execute('''
         INSERT INTO dismissed_pairs (id_a, id_b, dismissed_at)
         VALUES ('t-bank', 't-manual', $dismissed);
@@ -911,7 +917,7 @@ void main() {
 
       final AppDatabase again = AppDatabase(schema.newConnection());
       addTearDown(again.close);
-      await verifier.migrateAndValidate(again, 7);
+      await verifier.migrateAndValidate(again, again.schemaVersion);
       await rowsIntact(again);
       final DismissedPairRow pair = await again
           .select(again.dismissedPairs)
@@ -957,6 +963,27 @@ void main() {
       expect(t.hidden, isFalse);
     }
 
+    for (final int from in [1, 5, 12]) {
+      test(
+        'from schema $from with the receipt hash column already added',
+        () async {
+          final schema = await verifier.schemaAt(from);
+          insertRows(schema);
+          // What the first run's ALTER TABLE left before a later step failed.
+          schema.rawDatabase.execute(
+            'ALTER TABLE transactions ADD COLUMN receipt_sha256 TEXT NULL',
+          );
+          final AppDatabase database = AppDatabase(
+            schema.newConnection(),
+            newNodeId: () => 'local-test',
+          );
+          addTearDown(database.close);
+          await verifier.migrateAndValidate(database, database.schemaVersion);
+          await rowsIntact(database);
+        },
+      );
+    }
+
     for (final int from in [1, 4, 5]) {
       test('from schema $from with the hidden column already added', () async {
         final schema = await verifier.schemaAt(from);
@@ -976,7 +1003,7 @@ void main() {
       });
     }
 
-    for (final int from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]) {
+    for (final int from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]) {
       test('from schema $from, after a whole run whose version was not '
           'written', () async {
         final schema = await verifier.schemaAt(from);
@@ -1042,7 +1069,7 @@ void main() {
         allowFullTextSearch: allowFullTextSearch,
       );
       addTearDown(database.close);
-      await verifier.migrateAndValidate(database, 8);
+      await verifier.migrateAndValidate(database, database.schemaVersion);
       return database;
     }
 
@@ -1096,13 +1123,13 @@ void main() {
       // leaves the version at 7, so the next open runs the step again.
       final schema = await seeded();
       final AppDatabase first = AppDatabase(schema.newConnection());
-      await verifier.migrateAndValidate(first, 8);
+      await verifier.migrateAndValidate(first, first.schemaVersion);
       await first.close();
       schema.rawDatabase.execute('PRAGMA user_version = 7');
 
       final AppDatabase again = AppDatabase(schema.newConnection());
       addTearDown(again.close);
-      await verifier.migrateAndValidate(again, 8);
+      await verifier.migrateAndValidate(again, again.schemaVersion);
       expect(
         (await again.select(again.transactions).get()).map((t) => t.id),
         unorderedEquals(['t-cafe', 't-uber']),
@@ -1471,7 +1498,7 @@ void main() {
         (await seeded()).newConnection(),
       );
       addTearDown(database.close);
-      await verifier.migrateAndValidate(database, 11);
+      await verifier.migrateAndValidate(database, database.schemaVersion);
       await checkMigrated(database);
     });
 
@@ -1480,7 +1507,7 @@ void main() {
         (await seeded()).newConnection(),
       );
       addTearDown(database.close);
-      await verifier.migrateAndValidate(database, 11);
+      await verifier.migrateAndValidate(database, database.schemaVersion);
       await expectLater(
         database.customStatement(
           'INSERT INTO balance_snapshots (account_id, date, current_minor, '
@@ -1494,7 +1521,7 @@ void main() {
     test('runs again after a run whose version was not written', () async {
       final schema = await seeded();
       final AppDatabase first = AppDatabase(schema.newConnection());
-      await verifier.migrateAndValidate(first, 11);
+      await verifier.migrateAndValidate(first, first.schemaVersion);
       await first.close();
       schema.rawDatabase.execute('PRAGMA user_version = 10');
       // What the first run's tables already hold when the step runs again.
@@ -1506,7 +1533,7 @@ void main() {
 
       final AppDatabase again = AppDatabase(schema.newConnection());
       addTearDown(again.close);
-      await verifier.migrateAndValidate(again, 11);
+      await verifier.migrateAndValidate(again, again.schemaVersion);
       expect(await again.select(again.balanceSnapshots).get(), hasLength(1));
       await again.delete(again.balanceSnapshots).go();
       await checkMigrated(again);
@@ -1660,7 +1687,7 @@ void main() {
           wallMillis: () => migratedAt,
         );
         addTearDown(database.close);
-        await verifier.migrateAndValidate(database, 12);
+        await verifier.migrateAndValidate(database, database.schemaVersion);
         await checkMigrated(database);
       },
     );
@@ -1671,7 +1698,7 @@ void main() {
         schema.newConnection(),
         wallMillis: () => migratedAt,
       );
-      await verifier.migrateAndValidate(first, 12);
+      await verifier.migrateAndValidate(first, first.schemaVersion);
       await first.close();
       schema.rawDatabase.execute('PRAGMA user_version = 11');
 
@@ -1680,8 +1707,113 @@ void main() {
         wallMillis: () => migratedAt + 1000,
       );
       addTearDown(again.close);
-      await verifier.migrateAndValidate(again, 12);
+      await verifier.migrateAndValidate(again, again.schemaVersion);
       // The rows the first run wrote are kept as they were: created_at unchanged.
+      await checkMigrated(again);
+    });
+  });
+
+  group('schema 12 to 13', () {
+    const int created = 1759309200000; // 2026-10-01 09:00 UTC
+    const String clock = '001759309200000-00000-dev-b';
+    const String hash =
+        '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08';
+
+    // A schema 12 database with a manual account and two manual transactions: one with
+    // a photo of its own (no hash yet), and one a newer device recorded with a receipt
+    // hash, held with unknown fields; sync state.
+    Future<InitializedSchema> seeded() async {
+      final schema = await verifier.schemaAt(12);
+      final Transaction newer = Transaction(
+        id: 't-newer',
+        accountId: 'acc',
+        amount: Money(-1250, 'USD'),
+        date: LocalDate(2026, 9, 30),
+        pending: false,
+        name: 'Lunch',
+        receiptPath: 'receipts/t-newer.jpg',
+        receiptSha256: hash,
+        source: DataSource.manual,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(created, isUtc: true),
+        updatedAt: DateTime.fromMillisecondsSinceEpoch(created, isUtc: true),
+        syncVersion: 0,
+      );
+      final Map<String, Object?> fields = transactionRecordJson(newer);
+      final String clocks = [
+        for (final String f in [...fields.keys, '_create'])
+          "('transaction', 't-newer', '$f', '$clock')",
+      ].join(', ');
+      schema.rawDatabase.execute('''
+        INSERT INTO accounts (id, item_id, type, subtype, name, official_name, mask,
+          currency, current_balance_minor, available_balance_minor, credit_limit_minor,
+          balances_as_of, is_hidden, display_order, created_at, updated_at, deleted_at,
+          sync_version)
+        VALUES ('acc', NULL, 'depository', NULL, 'Wallet', NULL, NULL, 'USD',
+          NULL, NULL, NULL, NULL, 0, 0, $created, $created, NULL, 0);
+        INSERT INTO transactions (id, account_id, amount_minor, currency, date,
+          authorized_date, pending, pending_transaction_id, name, merchant_name,
+          merchant_logo_url, plaid_primary_category, plaid_detailed_category,
+          user_category_id, notes, receipt_path, hidden, source, created_at,
+          updated_at, deleted_at, sync_version, deleted_with_account)
+        VALUES
+          ('t-own', 'acc', -800, 'USD', '2026-09-29', NULL, 0, NULL, 'Coffee', NULL,
+           NULL, NULL, NULL, NULL, NULL, 'receipts/t-own.jpg', 0, 'manual',
+           $created, $created, NULL, 0, 0),
+          ('t-newer', 'acc', -1250, 'USD', '2026-09-30', NULL, 0, NULL, 'Lunch', NULL,
+           NULL, NULL, NULL, NULL, NULL, 'receipts/t-newer.jpg', 0, 'manual',
+           $created, $created, NULL, 0, 0);
+        INSERT INTO held_records (entity_type, entity_id, fields, reason)
+        VALUES ('transaction', 't-newer', '${jsonEncode(fields)}', 'unknown_fields');
+        INSERT INTO record_clocks (entity_type, entity_id, field, hlc)
+        VALUES $clocks;
+        INSERT INTO sync_meta (key, value)
+        VALUES ('pull_cursor', '9'), ('device_id', 'dev-a');
+      ''');
+      return schema;
+    }
+
+    Future<void> checkMigrated(AppDatabase database) async {
+      final List<TransactionRow> rows = await (database.select(
+        database.transactions,
+      )..orderBy([(t) => OrderingTerm.asc(t.id)])).get();
+      expect(rows.map((t) => (t.id, t.receiptPath, t.receiptSha256)), [
+        ('t-newer', 'receipts/t-newer.jpg', hash),
+        // Its hash comes from the photo, after open: the step reads no file.
+        ('t-own', 'receipts/t-own.jpg', null),
+      ]);
+      expect(await database.select(database.heldRecords).get(), isEmpty);
+      expect(await database.select(database.conflicts).get(), isEmpty);
+      final DriftSyncStore store = DriftSyncStore(database, testClock);
+      expect(await store.pullCursor(), 9);
+      expect(
+        (await store.read(
+          EntityType.transaction,
+          't-newer',
+        ))!.fields['receipt_sha256'],
+        hash,
+      );
+    }
+
+    test('keeps every row, adds the conflicts table and the receipt hash, and '
+        'lands the held hashes', () async {
+      final AppDatabase database = AppDatabase(
+        (await seeded()).newConnection(),
+      );
+      addTearDown(database.close);
+      await verifier.migrateAndValidate(database, 13);
+      await checkMigrated(database);
+    });
+
+    test('runs again after a run whose version was not written', () async {
+      final schema = await seeded();
+      final AppDatabase first = AppDatabase(schema.newConnection());
+      await verifier.migrateAndValidate(first, 13);
+      await first.close();
+      schema.rawDatabase.execute('PRAGMA user_version = 12');
+
+      final AppDatabase again = AppDatabase(schema.newConnection());
+      addTearDown(again.close);
+      await verifier.migrateAndValidate(again, 13);
       await checkMigrated(again);
     });
   });

@@ -31,6 +31,15 @@
 ///   that knows the type releases it as it releases any held record of that type).
 ///   A later write the table can hold exactly deletes the held row.
 ///
+/// The conflicts a session hands over ([DriftSyncStore.recordConflicts]) go into the
+/// device-local `conflicts` table, one row per entity and field, a newer one replacing
+/// it; one on an audit instant (`created_at`, `updated_at`), which every edit moves, is
+/// not kept. Every write of a record settles its conflicts: all of them go when the record is
+/// deleted, and each one whose field's clock is no longer the clock that won (a later
+/// edit from anywhere, "Keep this device's value" included); the rest take the entity's
+/// current name as their label. [DriftSyncStore.sweepConflicts] removes the ones thirty
+/// days old.
+///
 /// Pure Dart, no Flutter import.
 library;
 
@@ -156,6 +165,7 @@ final class DriftSyncStore implements SyncStore {
             ),
           );
     }
+    await _settleConflicts(record);
   });
 
   @override
@@ -617,10 +627,92 @@ final class DriftSyncStore implements SyncStore {
 
   // Conflicts ---------------------------------------------------------------------------
 
-  // Not kept yet: the `conflicts` table arrives with schema v13, in the commit "Keep sync
-  // conflicts and review them in Settings", which replaces this.
+  static const Set<String> _auditFields = {'created_at', 'updated_at'};
+
+  /// How long a conflict is kept: [sweepConflicts] removes older ones.
+  static const Duration conflictLifetime = Duration(days: 30);
+
   @override
-  Future<void> recordConflicts(List<FieldConflict> conflicts) async {}
+  Future<void> recordConflicts(List<FieldConflict> conflicts) =>
+      _database.transaction(() async {
+        final DateTime now = _clock.nowUtc();
+        for (final FieldConflict c in conflicts) {
+          // An audit instant moves with every edit and is nobody's choice.
+          if (_auditFields.contains(c.field)) continue;
+          await _database
+              .into(_database.conflicts)
+              .insertOnConflictUpdate(
+                ConflictsCompanion.insert(
+                  entityType: snakeName(c.entityType),
+                  entityId: c.entityId,
+                  field: c.field,
+                  localValue: jsonEncode(c.localValue),
+                  localHlc: c.localClock.pack(),
+                  remoteValue: jsonEncode(c.remoteValue),
+                  remoteHlc: c.remoteClock.pack(),
+                  entityLabel: Value(await _label(c.entityType, c.entityId)),
+                  seenAt: now,
+                ),
+              );
+        }
+      });
+
+  /// Deletes the conflicts seen more than [conflictLifetime] before now; returns how
+  /// many. Runs at every open (`openLocalData`).
+  Future<int> sweepConflicts() =>
+      (_database.delete(_database.conflicts)..where(
+            (c) => c.seenAt.isSmallerThanValue(
+              _clock.nowUtc().subtract(conflictLifetime).millisecondsSinceEpoch,
+            ),
+          ))
+          .go();
+
+  // After [record] is written: drops its conflicts when it is deleted, and each one whose
+  // field's clock has moved on; relabels the rest.
+  Future<void> _settleConflicts(EntityRecord record) async {
+    final String name = snakeName(record.type);
+    final List<ConflictRow> rows =
+        await (_database.select(_database.conflicts)..where(
+              (c) => c.entityType.equals(name) & c.entityId.equals(record.id),
+            ))
+            .get();
+    if (rows.isEmpty) return;
+    final String? label = record.isDeleted
+        ? null
+        : await _label(record.type, record.id);
+    for (final ConflictRow row in rows) {
+      final where =
+          _database.conflicts.entityType.equals(name) &
+          _database.conflicts.entityId.equals(record.id) &
+          _database.conflicts.field.equals(row.field);
+      if (record.isDeleted ||
+          record.fieldClocks[row.field]?.pack() != row.remoteHlc) {
+        await (_database.delete(_database.conflicts)..where((_) => where)).go();
+      } else if (label != row.entityLabel) {
+        await (_database.update(_database.conflicts)..where((_) => where))
+            .write(ConflictsCompanion(entityLabel: Value(label)));
+      }
+    }
+  }
+
+  // The name an entity goes by, for a conflict's row: a transaction's merchant (else its
+  // name), the name of an account, category, rule, bill or goal, a stream override's
+  // display name; null for the rest, and for an entity with no row.
+  Future<String?> _label(EntityType type, String id) async {
+    final Map<String, Object?>? fields = await _entityFields(type, id);
+    if (fields == null) return null;
+    final Object? label = switch (type) {
+      EntityType.transaction => fields['merchant_name'] ?? fields['name'],
+      EntityType.account ||
+      EntityType.category ||
+      EntityType.rule ||
+      EntityType.billReminder ||
+      EntityType.goal => fields['name'],
+      EntityType.recurringStream => fields['display_name'],
+      _ => null,
+    };
+    return label is String ? label : null;
+  }
 
   // The outbox --------------------------------------------------------------------------
 

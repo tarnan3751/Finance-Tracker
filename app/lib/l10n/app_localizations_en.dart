@@ -4254,4 +4254,114 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signInEraseDevice => 'Erase this device\'s data';
+
+  @override
+  String syncConflicts(int count) {
+    return 'Conflicts ($count)';
+  }
+
+  @override
+  String get syncConflictsHint =>
+      'Changes made on two devices at about the same time';
+
+  @override
+  String get conflictsTitle => 'Conflicts';
+
+  @override
+  String get conflictsIntro =>
+      'Each of these is a change made on this device that a change from another device replaced a few minutes later. Choose the value to keep.';
+
+  @override
+  String get conflictsEmptyHeadline => 'No conflicts';
+
+  @override
+  String get conflictsEmptyBody =>
+      'When a change made here and one from another device meet within minutes, both are shown here so you can choose.';
+
+  @override
+  String conflictEntityType(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'transaction': 'Transaction',
+      'account': 'Account',
+      'category': 'Category',
+      'settings': 'Settings',
+      'rule': 'Rule',
+      'budget': 'Budget',
+      'recurringStream': 'Subscription',
+      'billReminder': 'Bill',
+      'goal': 'Goal',
+      'goalContribution': 'Goal contribution',
+      'other': 'Record',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String conflictField(String field) {
+    String _temp0 = intl.Intl.selectLogic(field, {
+      'name': 'Name',
+      'notes': 'Notes',
+      'category': 'Category',
+      'tags': 'Tags',
+      'splits': 'Splits',
+      'amount': 'Amount',
+      'day': 'Date',
+      'hidden': 'Hidden',
+      'receipt': 'Receipt',
+      'account': 'Account',
+      'theme': 'Theme',
+      'dynamicColor': 'Dynamic colour',
+      'muted': 'Muted',
+      'subscription': 'Subscription',
+      'target': 'Target',
+      'targetDay': 'Target date',
+      'note': 'Note',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get conflictThisValue => 'This device\'s value';
+
+  @override
+  String get conflictOtherValue => 'The other value';
+
+  @override
+  String get conflictThisDevice => 'This device';
+
+  @override
+  String conflictFrom(String device, String time) {
+    return '$device, $time';
+  }
+
+  @override
+  String get conflictKeepThis => 'Keep this device\'s value';
+
+  @override
+  String get conflictKeepOther => 'Keep the other';
+
+  @override
+  String get conflictNoValue => 'None';
+
+  @override
+  String get conflictYes => 'Yes';
+
+  @override
+  String get conflictNo => 'No';
+
+  @override
+  String conflictSplits(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count splits',
+      one: '1 split',
+      zero: 'No splits',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get conflictKeepFailed => 'The value could not be kept. Try again.';
 }

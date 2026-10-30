@@ -6502,6 +6502,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Erase this device\'s data'**
   String get signInEraseDevice;
+
+  /// Settings → Sync: opens the conflicts, changes made here that another device replaced within minutes; shown while there are any.
+  ///
+  /// In en, this message translates to:
+  /// **'Conflicts ({count})'**
+  String syncConflicts(int count);
+
+  /// Under Settings → Sync's Conflicts entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes made on two devices at about the same time'**
+  String get syncConflictsHint;
+
+  /// The Conflicts screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Conflicts'**
+  String get conflictsTitle;
+
+  /// The Conflicts screen's explanation above the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Each of these is a change made on this device that a change from another device replaced a few minutes later. Choose the value to keep.'**
+  String get conflictsIntro;
+
+  /// The Conflicts screen with nothing to resolve.
+  ///
+  /// In en, this message translates to:
+  /// **'No conflicts'**
+  String get conflictsEmptyHeadline;
+
+  /// The Conflicts screen's empty body.
+  ///
+  /// In en, this message translates to:
+  /// **'When a change made here and one from another device meet within minutes, both are shown here so you can choose.'**
+  String get conflictsEmptyBody;
+
+  /// What kind of record a conflict is about.
+  ///
+  /// In en, this message translates to:
+  /// **'{type, select, transaction{Transaction} account{Account} category{Category} settings{Settings} rule{Rule} budget{Budget} recurringStream{Subscription} billReminder{Bill} goal{Goal} goalContribution{Goal contribution} other{Record}}'**
+  String conflictEntityType(String type);
+
+  /// The name of the field a conflict is about, by a key the screen derives from the field; empty for a field without one, when the screen shows the field's own name.
+  ///
+  /// In en, this message translates to:
+  /// **'{field, select, name{Name} notes{Notes} category{Category} tags{Tags} splits{Splits} amount{Amount} day{Date} hidden{Hidden} receipt{Receipt} account{Account} theme{Theme} dynamicColor{Dynamic colour} muted{Muted} subscription{Subscription} target{Target} targetDay{Target date} note{Note} other{}}'**
+  String conflictField(String field);
+
+  /// Label of the value this device wrote, which lost.
+  ///
+  /// In en, this message translates to:
+  /// **'This device\'s value'**
+  String get conflictThisValue;
+
+  /// Label of the value from another device that replaced it.
+  ///
+  /// In en, this message translates to:
+  /// **'The other value'**
+  String get conflictOtherValue;
+
+  /// Names this device in a conflict's "from" line.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get conflictThisDevice;
+
+  /// Which device wrote a conflict's value, and when (in this device's zone).
+  ///
+  /// In en, this message translates to:
+  /// **'{device}, {time}'**
+  String conflictFrom(String device, String time);
+
+  /// Writes this device's value again, so it syncs and wins on every device.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep this device\'s value'**
+  String get conflictKeepThis;
+
+  /// Keeps the value from the other device and forgets the conflict.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the other'**
+  String get conflictKeepOther;
+
+  /// A conflict's value that is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get conflictNoValue;
+
+  /// A conflict's true value.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get conflictYes;
+
+  /// A conflict's false value.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get conflictNo;
+
+  /// A conflict's value that is a list of splits.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No splits} =1{1 split} other{{count} splits}}'**
+  String conflictSplits(int count);
+
+  /// Shown when keeping this device's value failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The value could not be kept. Try again.'**
+  String get conflictKeepFailed;
 }
 
 class _AppLocalizationsDelegate

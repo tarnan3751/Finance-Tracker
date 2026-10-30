@@ -62,6 +62,7 @@ import 'package:finance_tracker/core/db/tables/budget_alerts.dart';
 import 'package:finance_tracker/core/db/tables/budgets.dart';
 import 'package:finance_tracker/core/db/tables/categories.dart';
 import 'package:finance_tracker/core/db/tables/change_log.dart';
+import 'package:finance_tracker/core/db/tables/conflicts.dart';
 import 'package:finance_tracker/core/db/tables/dismissed_pairs.dart';
 import 'package:finance_tracker/core/db/tables/goal_contributions.dart';
 import 'package:finance_tracker/core/db/tables/goals.dart';
@@ -125,6 +126,7 @@ final Logger _log = Logger('db');
     BalanceSnapshots,
     Goals,
     GoalContributions,
+    Conflicts,
   ],
 )
 final class AppDatabase extends _$AppDatabase {
@@ -160,7 +162,7 @@ final class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -173,6 +175,15 @@ final class AppDatabase extends _$AppDatabase {
         // First: every later step (the schema 2 backfill included) reads transactions
         // through this version's table, which has the column.
         await m.addColumn(transactions, transactions.hidden);
+      }
+      if (from < 13 && !await _hasColumn('transactions', 'receipt_sha256')) {
+        // Also first, for the same reason.
+        await m.addColumn(transactions, transactions.receiptSha256);
+      }
+      if (from < 13) {
+        // First too: every later step that writes a record through the sync store
+        // settles that record's conflicts (`DriftSyncStore.write`).
+        await m.createTable(conflicts);
       }
       // The change log's presence means this step committed: its tables and the
       // backfill land in one transaction, and the backfill must not run twice.
@@ -284,6 +295,18 @@ final class AppDatabase extends _$AppDatabase {
           await releaseHeldRecords(store, EntityType.goal);
           await releaseHeldRecords(store, EntityType.goalContribution);
         });
+      }
+      if (from < 13) {
+        // The transactions a newer device recorded with a receipt hash before this
+        // version could store it (held with unknown fields) land. Their hashes come from
+        // the records; the hashes of this device's own older photos are filled after
+        // open (`TransactionActions.fillReceiptHashes`).
+        await transaction(
+          () => releaseHeldRecords(
+            DriftSyncStore(this, _WallClock(wallMillis)),
+            EntityType.transaction,
+          ),
+        );
       }
     },
     beforeOpen: (details) async {

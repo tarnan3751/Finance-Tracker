@@ -8,7 +8,8 @@
 /// string (the ISO dates, the `Decimal`s), a BLOB as base64, and an audit instant (a
 /// column through `UtcMillisColumnConverter`) as a UTC ISO string with milliseconds;
 /// `Money` is already integer `_minor` columns beside a `currency`. The full-text
-/// objects and `sqlite_sequence` are not Drift tables and are not dumped. A table with
+/// objects and `sqlite_sequence` are not Drift tables and are not dumped, and the tables
+/// of [backupExcludedTables] (device-local: `conflicts`) are left out. A table with
 /// no primary key, or a column of another type (a REAL, a Drift `dateTime()`), makes
 /// [dumpDatabase] throw, so a schema change that adds one fails the gate.
 ///
@@ -16,8 +17,8 @@
 /// the full-text objects (`allowFullTextSearch: false`), so the first normal open builds
 /// and fills them. With foreign keys off, in one transaction: each table in the
 /// backup's order (parents before `transaction_tags` and `transaction_splits`), unknown
-/// tables and columns dropped, missing columns left to their SQL default (the schema
-/// policy is additive); the `app_meta` rows of [restoreDroppedMetaKeys] and the
+/// tables and columns dropped, the tables of [backupExcludedTables] ignored if present,
+/// missing columns left to their SQL default (the schema policy is additive); the `app_meta` rows of [restoreDroppedMetaKeys] and the
 /// full-text definition skipped; `PRAGMA foreign_key_check` must find nothing; then
 /// the device's identity is reset: [DriftSyncStore.substituteNode] moves the unsynced
 /// outbox, its field clocks, the persisted clock and `device_id` to a new provisional
@@ -50,6 +51,11 @@ const Set<String> restoreDroppedMetaKeys = {
   AppMetaKeys.secureScreen,
 };
 
+/// The tables a backup leaves out and a restore ignores: device-local state that means
+/// nothing on another install (`conflicts`, this device's sync conflicts,
+/// `docs/reference/sync-app.md`, **Conflicts**).
+const Set<String> backupExcludedTables = {'conflicts'};
+
 // The tables an empty install may hold rows in: its own bookkeeping, which a restore
 // replaces.
 const Set<String> _bookkeeping = {'app_meta', 'sync_meta', 'app_settings'};
@@ -60,6 +66,7 @@ Future<List<BackupTable>> dumpDatabase(AppDatabase database) =>
       final List<BackupTable> tables = [];
       for (final TableInfo<Table, Object?> table in database.allTables) {
         _checkDumpable(table);
+        if (backupExcludedTables.contains(table.actualTableName)) continue;
         final List<GeneratedColumn> columns = table.$columns;
         final String order = table.$primaryKey
             .map((c) => '"${c.name}"')
@@ -117,7 +124,9 @@ String? syncMetaIn(List<BackupTable> tables, String key) {
 Future<bool> hasLocalData(AppDatabase database) async {
   for (final TableInfo<Table, Object?> table in database.allTables) {
     final String name = table.actualTableName;
-    if (_bookkeeping.contains(name)) continue;
+    if (_bookkeeping.contains(name) || backupExcludedTables.contains(name)) {
+      continue;
+    }
     final String where = name == 'categories' ? ' WHERE is_system = 0' : '';
     if ((await database
             .customSelect('SELECT 1 FROM "$name"$where LIMIT 1')
@@ -151,6 +160,7 @@ Future<({Set<String> tables, Set<String> columns})> importTables(
     await database.transaction(() async {
       int imported = 0;
       for (final BackupTable backup in tables) {
+        if (backupExcludedTables.contains(backup.name)) continue;
         final TableInfo<Table, Object?>? table = known[backup.name];
         if (table == null) {
           droppedTables.add(backup.name);

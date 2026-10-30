@@ -1222,6 +1222,17 @@ class $TransactionsTable extends Transactions
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _receiptSha256Meta = const VerificationMeta(
+    'receiptSha256',
+  );
+  @override
+  late final GeneratedColumn<String> receiptSha256 = GeneratedColumn<String>(
+    'receipt_sha256',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _hiddenMeta = const VerificationMeta('hidden');
   @override
   late final GeneratedColumn<bool> hidden = GeneratedColumn<bool>(
@@ -1315,6 +1326,7 @@ class $TransactionsTable extends Transactions
     userCategoryId,
     notes,
     receiptPath,
+    receiptSha256,
     hidden,
     source,
     createdAt,
@@ -1443,6 +1455,15 @@ class $TransactionsTable extends Transactions
         ),
       );
     }
+    if (data.containsKey('receipt_sha256')) {
+      context.handle(
+        _receiptSha256Meta,
+        receiptSha256.isAcceptableOrUnknown(
+          data['receipt_sha256']!,
+          _receiptSha256Meta,
+        ),
+      );
+    }
     if (data.containsKey('hidden')) {
       context.handle(
         _hiddenMeta,
@@ -1546,6 +1567,10 @@ class $TransactionsTable extends Transactions
         DriftSqlType.string,
         data['${effectivePrefix}receipt_path'],
       ),
+      receiptSha256: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}receipt_sha256'],
+      ),
       hidden: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}hidden'],
@@ -1630,6 +1655,10 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
   final String? notes;
   final String? receiptPath;
 
+  /// The SHA-256 of the receipt photo's bytes (schema 13), by which a device without the
+  /// file fetches it.
+  final String? receiptSha256;
+
   /// The user's hidden override (schema 5): the row still counts toward its account's
   /// balance and leaves the default list, budgets and reports.
   final bool hidden;
@@ -1659,6 +1688,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
     this.userCategoryId,
     this.notes,
     this.receiptPath,
+    this.receiptSha256,
     required this.hidden,
     required this.source,
     required this.createdAt,
@@ -1711,6 +1741,9 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
     }
     if (!nullToAbsent || receiptPath != null) {
       map['receipt_path'] = Variable<String>(receiptPath);
+    }
+    if (!nullToAbsent || receiptSha256 != null) {
+      map['receipt_sha256'] = Variable<String>(receiptSha256);
     }
     map['hidden'] = Variable<bool>(hidden);
     {
@@ -1774,6 +1807,9 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
       receiptPath: receiptPath == null && nullToAbsent
           ? const Value.absent()
           : Value(receiptPath),
+      receiptSha256: receiptSha256 == null && nullToAbsent
+          ? const Value.absent()
+          : Value(receiptSha256),
       hidden: Value(hidden),
       source: Value(source),
       createdAt: Value(createdAt),
@@ -1814,6 +1850,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
       userCategoryId: serializer.fromJson<String?>(json['userCategoryId']),
       notes: serializer.fromJson<String?>(json['notes']),
       receiptPath: serializer.fromJson<String?>(json['receiptPath']),
+      receiptSha256: serializer.fromJson<String?>(json['receiptSha256']),
       hidden: serializer.fromJson<bool>(json['hidden']),
       source: $TransactionsTable.$convertersource.fromJson(
         serializer.fromJson<String>(json['source']),
@@ -1847,6 +1884,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
       'userCategoryId': serializer.toJson<String?>(userCategoryId),
       'notes': serializer.toJson<String?>(notes),
       'receiptPath': serializer.toJson<String?>(receiptPath),
+      'receiptSha256': serializer.toJson<String?>(receiptSha256),
       'hidden': serializer.toJson<bool>(hidden),
       'source': serializer.toJson<String>(
         $TransactionsTable.$convertersource.toJson(source),
@@ -1876,6 +1914,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
     Value<String?> userCategoryId = const Value.absent(),
     Value<String?> notes = const Value.absent(),
     Value<String?> receiptPath = const Value.absent(),
+    Value<String?> receiptSha256 = const Value.absent(),
     bool? hidden,
     DataSource? source,
     DateTime? createdAt,
@@ -1912,6 +1951,9 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
         : this.userCategoryId,
     notes: notes.present ? notes.value : this.notes,
     receiptPath: receiptPath.present ? receiptPath.value : this.receiptPath,
+    receiptSha256: receiptSha256.present
+        ? receiptSha256.value
+        : this.receiptSha256,
     hidden: hidden ?? this.hidden,
     source: source ?? this.source,
     createdAt: createdAt ?? this.createdAt,
@@ -1956,6 +1998,9 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
       receiptPath: data.receiptPath.present
           ? data.receiptPath.value
           : this.receiptPath,
+      receiptSha256: data.receiptSha256.present
+          ? data.receiptSha256.value
+          : this.receiptSha256,
       hidden: data.hidden.present ? data.hidden.value : this.hidden,
       source: data.source.present ? data.source.value : this.source,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
@@ -1989,6 +2034,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
           ..write('userCategoryId: $userCategoryId, ')
           ..write('notes: $notes, ')
           ..write('receiptPath: $receiptPath, ')
+          ..write('receiptSha256: $receiptSha256, ')
           ..write('hidden: $hidden, ')
           ..write('source: $source, ')
           ..write('createdAt: $createdAt, ')
@@ -2018,6 +2064,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
     userCategoryId,
     notes,
     receiptPath,
+    receiptSha256,
     hidden,
     source,
     createdAt,
@@ -2046,6 +2093,7 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
           other.userCategoryId == this.userCategoryId &&
           other.notes == this.notes &&
           other.receiptPath == this.receiptPath &&
+          other.receiptSha256 == this.receiptSha256 &&
           other.hidden == this.hidden &&
           other.source == this.source &&
           other.createdAt == this.createdAt &&
@@ -2072,6 +2120,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
   final Value<String?> userCategoryId;
   final Value<String?> notes;
   final Value<String?> receiptPath;
+  final Value<String?> receiptSha256;
   final Value<bool> hidden;
   final Value<DataSource> source;
   final Value<DateTime> createdAt;
@@ -2097,6 +2146,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
     this.userCategoryId = const Value.absent(),
     this.notes = const Value.absent(),
     this.receiptPath = const Value.absent(),
+    this.receiptSha256 = const Value.absent(),
     this.hidden = const Value.absent(),
     this.source = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -2123,6 +2173,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
     this.userCategoryId = const Value.absent(),
     this.notes = const Value.absent(),
     this.receiptPath = const Value.absent(),
+    this.receiptSha256 = const Value.absent(),
     this.hidden = const Value.absent(),
     required DataSource source,
     required DateTime createdAt,
@@ -2158,6 +2209,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
     Expression<String>? userCategoryId,
     Expression<String>? notes,
     Expression<String>? receiptPath,
+    Expression<String>? receiptSha256,
     Expression<bool>? hidden,
     Expression<String>? source,
     Expression<int>? createdAt,
@@ -2187,6 +2239,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
       if (userCategoryId != null) 'user_category_id': userCategoryId,
       if (notes != null) 'notes': notes,
       if (receiptPath != null) 'receipt_path': receiptPath,
+      if (receiptSha256 != null) 'receipt_sha256': receiptSha256,
       if (hidden != null) 'hidden': hidden,
       if (source != null) 'source': source,
       if (createdAt != null) 'created_at': createdAt,
@@ -2216,6 +2269,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
     Value<String?>? userCategoryId,
     Value<String?>? notes,
     Value<String?>? receiptPath,
+    Value<String?>? receiptSha256,
     Value<bool>? hidden,
     Value<DataSource>? source,
     Value<DateTime>? createdAt,
@@ -2243,6 +2297,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
       userCategoryId: userCategoryId ?? this.userCategoryId,
       notes: notes ?? this.notes,
       receiptPath: receiptPath ?? this.receiptPath,
+      receiptSha256: receiptSha256 ?? this.receiptSha256,
       hidden: hidden ?? this.hidden,
       source: source ?? this.source,
       createdAt: createdAt ?? this.createdAt,
@@ -2321,6 +2376,9 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
     if (receiptPath.present) {
       map['receipt_path'] = Variable<String>(receiptPath.value);
     }
+    if (receiptSha256.present) {
+      map['receipt_sha256'] = Variable<String>(receiptSha256.value);
+    }
     if (hidden.present) {
       map['hidden'] = Variable<bool>(hidden.value);
     }
@@ -2375,6 +2433,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
           ..write('userCategoryId: $userCategoryId, ')
           ..write('notes: $notes, ')
           ..write('receiptPath: $receiptPath, ')
+          ..write('receiptSha256: $receiptSha256, ')
           ..write('hidden: $hidden, ')
           ..write('source: $source, ')
           ..write('createdAt: $createdAt, ')
@@ -16356,6 +16415,585 @@ class GoalContributionsCompanion extends UpdateCompanion<GoalContributionRow> {
   }
 }
 
+class $ConflictsTable extends Conflicts
+    with TableInfo<$ConflictsTable, ConflictRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ConflictsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _entityTypeMeta = const VerificationMeta(
+    'entityType',
+  );
+  @override
+  late final GeneratedColumn<String> entityType = GeneratedColumn<String>(
+    'entity_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entityIdMeta = const VerificationMeta(
+    'entityId',
+  );
+  @override
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
+    'entity_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fieldMeta = const VerificationMeta('field');
+  @override
+  late final GeneratedColumn<String> field = GeneratedColumn<String>(
+    'field',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _localValueMeta = const VerificationMeta(
+    'localValue',
+  );
+  @override
+  late final GeneratedColumn<String> localValue = GeneratedColumn<String>(
+    'local_value',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _localHlcMeta = const VerificationMeta(
+    'localHlc',
+  );
+  @override
+  late final GeneratedColumn<String> localHlc = GeneratedColumn<String>(
+    'local_hlc',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _remoteValueMeta = const VerificationMeta(
+    'remoteValue',
+  );
+  @override
+  late final GeneratedColumn<String> remoteValue = GeneratedColumn<String>(
+    'remote_value',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _remoteHlcMeta = const VerificationMeta(
+    'remoteHlc',
+  );
+  @override
+  late final GeneratedColumn<String> remoteHlc = GeneratedColumn<String>(
+    'remote_hlc',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entityLabelMeta = const VerificationMeta(
+    'entityLabel',
+  );
+  @override
+  late final GeneratedColumn<String> entityLabel = GeneratedColumn<String>(
+    'entity_label',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> seenAt =
+      GeneratedColumn<int>(
+        'seen_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($ConflictsTable.$converterseenAt);
+  @override
+  List<GeneratedColumn> get $columns => [
+    entityType,
+    entityId,
+    field,
+    localValue,
+    localHlc,
+    remoteValue,
+    remoteHlc,
+    entityLabel,
+    seenAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'conflicts';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ConflictRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('entity_type')) {
+      context.handle(
+        _entityTypeMeta,
+        entityType.isAcceptableOrUnknown(data['entity_type']!, _entityTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityTypeMeta);
+    }
+    if (data.containsKey('entity_id')) {
+      context.handle(
+        _entityIdMeta,
+        entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityIdMeta);
+    }
+    if (data.containsKey('field')) {
+      context.handle(
+        _fieldMeta,
+        field.isAcceptableOrUnknown(data['field']!, _fieldMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fieldMeta);
+    }
+    if (data.containsKey('local_value')) {
+      context.handle(
+        _localValueMeta,
+        localValue.isAcceptableOrUnknown(data['local_value']!, _localValueMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_localValueMeta);
+    }
+    if (data.containsKey('local_hlc')) {
+      context.handle(
+        _localHlcMeta,
+        localHlc.isAcceptableOrUnknown(data['local_hlc']!, _localHlcMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_localHlcMeta);
+    }
+    if (data.containsKey('remote_value')) {
+      context.handle(
+        _remoteValueMeta,
+        remoteValue.isAcceptableOrUnknown(
+          data['remote_value']!,
+          _remoteValueMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_remoteValueMeta);
+    }
+    if (data.containsKey('remote_hlc')) {
+      context.handle(
+        _remoteHlcMeta,
+        remoteHlc.isAcceptableOrUnknown(data['remote_hlc']!, _remoteHlcMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_remoteHlcMeta);
+    }
+    if (data.containsKey('entity_label')) {
+      context.handle(
+        _entityLabelMeta,
+        entityLabel.isAcceptableOrUnknown(
+          data['entity_label']!,
+          _entityLabelMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {entityType, entityId, field};
+  @override
+  ConflictRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ConflictRow(
+      entityType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_type'],
+      )!,
+      entityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_id'],
+      )!,
+      field: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}field'],
+      )!,
+      localValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_value'],
+      )!,
+      localHlc: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_hlc'],
+      )!,
+      remoteValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remote_value'],
+      )!,
+      remoteHlc: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remote_hlc'],
+      )!,
+      entityLabel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_label'],
+      ),
+      seenAt: $ConflictsTable.$converterseenAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}seen_at'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $ConflictsTable createAlias(String alias) {
+    return $ConflictsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<DateTime, int> $converterseenAt =
+      const UtcMillisColumnConverter();
+}
+
+class ConflictRow extends DataClass implements Insertable<ConflictRow> {
+  final String entityType;
+  final String entityId;
+  final String field;
+  final String localValue;
+  final String localHlc;
+  final String remoteValue;
+  final String remoteHlc;
+  final String? entityLabel;
+  final DateTime seenAt;
+  const ConflictRow({
+    required this.entityType,
+    required this.entityId,
+    required this.field,
+    required this.localValue,
+    required this.localHlc,
+    required this.remoteValue,
+    required this.remoteHlc,
+    this.entityLabel,
+    required this.seenAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['entity_type'] = Variable<String>(entityType);
+    map['entity_id'] = Variable<String>(entityId);
+    map['field'] = Variable<String>(field);
+    map['local_value'] = Variable<String>(localValue);
+    map['local_hlc'] = Variable<String>(localHlc);
+    map['remote_value'] = Variable<String>(remoteValue);
+    map['remote_hlc'] = Variable<String>(remoteHlc);
+    if (!nullToAbsent || entityLabel != null) {
+      map['entity_label'] = Variable<String>(entityLabel);
+    }
+    {
+      map['seen_at'] = Variable<int>(
+        $ConflictsTable.$converterseenAt.toSql(seenAt),
+      );
+    }
+    return map;
+  }
+
+  ConflictsCompanion toCompanion(bool nullToAbsent) {
+    return ConflictsCompanion(
+      entityType: Value(entityType),
+      entityId: Value(entityId),
+      field: Value(field),
+      localValue: Value(localValue),
+      localHlc: Value(localHlc),
+      remoteValue: Value(remoteValue),
+      remoteHlc: Value(remoteHlc),
+      entityLabel: entityLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(entityLabel),
+      seenAt: Value(seenAt),
+    );
+  }
+
+  factory ConflictRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ConflictRow(
+      entityType: serializer.fromJson<String>(json['entityType']),
+      entityId: serializer.fromJson<String>(json['entityId']),
+      field: serializer.fromJson<String>(json['field']),
+      localValue: serializer.fromJson<String>(json['localValue']),
+      localHlc: serializer.fromJson<String>(json['localHlc']),
+      remoteValue: serializer.fromJson<String>(json['remoteValue']),
+      remoteHlc: serializer.fromJson<String>(json['remoteHlc']),
+      entityLabel: serializer.fromJson<String?>(json['entityLabel']),
+      seenAt: serializer.fromJson<DateTime>(json['seenAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'entityType': serializer.toJson<String>(entityType),
+      'entityId': serializer.toJson<String>(entityId),
+      'field': serializer.toJson<String>(field),
+      'localValue': serializer.toJson<String>(localValue),
+      'localHlc': serializer.toJson<String>(localHlc),
+      'remoteValue': serializer.toJson<String>(remoteValue),
+      'remoteHlc': serializer.toJson<String>(remoteHlc),
+      'entityLabel': serializer.toJson<String?>(entityLabel),
+      'seenAt': serializer.toJson<DateTime>(seenAt),
+    };
+  }
+
+  ConflictRow copyWith({
+    String? entityType,
+    String? entityId,
+    String? field,
+    String? localValue,
+    String? localHlc,
+    String? remoteValue,
+    String? remoteHlc,
+    Value<String?> entityLabel = const Value.absent(),
+    DateTime? seenAt,
+  }) => ConflictRow(
+    entityType: entityType ?? this.entityType,
+    entityId: entityId ?? this.entityId,
+    field: field ?? this.field,
+    localValue: localValue ?? this.localValue,
+    localHlc: localHlc ?? this.localHlc,
+    remoteValue: remoteValue ?? this.remoteValue,
+    remoteHlc: remoteHlc ?? this.remoteHlc,
+    entityLabel: entityLabel.present ? entityLabel.value : this.entityLabel,
+    seenAt: seenAt ?? this.seenAt,
+  );
+  ConflictRow copyWithCompanion(ConflictsCompanion data) {
+    return ConflictRow(
+      entityType: data.entityType.present
+          ? data.entityType.value
+          : this.entityType,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      field: data.field.present ? data.field.value : this.field,
+      localValue: data.localValue.present
+          ? data.localValue.value
+          : this.localValue,
+      localHlc: data.localHlc.present ? data.localHlc.value : this.localHlc,
+      remoteValue: data.remoteValue.present
+          ? data.remoteValue.value
+          : this.remoteValue,
+      remoteHlc: data.remoteHlc.present ? data.remoteHlc.value : this.remoteHlc,
+      entityLabel: data.entityLabel.present
+          ? data.entityLabel.value
+          : this.entityLabel,
+      seenAt: data.seenAt.present ? data.seenAt.value : this.seenAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConflictRow(')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('field: $field, ')
+          ..write('localValue: $localValue, ')
+          ..write('localHlc: $localHlc, ')
+          ..write('remoteValue: $remoteValue, ')
+          ..write('remoteHlc: $remoteHlc, ')
+          ..write('entityLabel: $entityLabel, ')
+          ..write('seenAt: $seenAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    entityType,
+    entityId,
+    field,
+    localValue,
+    localHlc,
+    remoteValue,
+    remoteHlc,
+    entityLabel,
+    seenAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ConflictRow &&
+          other.entityType == this.entityType &&
+          other.entityId == this.entityId &&
+          other.field == this.field &&
+          other.localValue == this.localValue &&
+          other.localHlc == this.localHlc &&
+          other.remoteValue == this.remoteValue &&
+          other.remoteHlc == this.remoteHlc &&
+          other.entityLabel == this.entityLabel &&
+          other.seenAt == this.seenAt);
+}
+
+class ConflictsCompanion extends UpdateCompanion<ConflictRow> {
+  final Value<String> entityType;
+  final Value<String> entityId;
+  final Value<String> field;
+  final Value<String> localValue;
+  final Value<String> localHlc;
+  final Value<String> remoteValue;
+  final Value<String> remoteHlc;
+  final Value<String?> entityLabel;
+  final Value<DateTime> seenAt;
+  final Value<int> rowid;
+  const ConflictsCompanion({
+    this.entityType = const Value.absent(),
+    this.entityId = const Value.absent(),
+    this.field = const Value.absent(),
+    this.localValue = const Value.absent(),
+    this.localHlc = const Value.absent(),
+    this.remoteValue = const Value.absent(),
+    this.remoteHlc = const Value.absent(),
+    this.entityLabel = const Value.absent(),
+    this.seenAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ConflictsCompanion.insert({
+    required String entityType,
+    required String entityId,
+    required String field,
+    required String localValue,
+    required String localHlc,
+    required String remoteValue,
+    required String remoteHlc,
+    this.entityLabel = const Value.absent(),
+    required DateTime seenAt,
+    this.rowid = const Value.absent(),
+  }) : entityType = Value(entityType),
+       entityId = Value(entityId),
+       field = Value(field),
+       localValue = Value(localValue),
+       localHlc = Value(localHlc),
+       remoteValue = Value(remoteValue),
+       remoteHlc = Value(remoteHlc),
+       seenAt = Value(seenAt);
+  static Insertable<ConflictRow> custom({
+    Expression<String>? entityType,
+    Expression<String>? entityId,
+    Expression<String>? field,
+    Expression<String>? localValue,
+    Expression<String>? localHlc,
+    Expression<String>? remoteValue,
+    Expression<String>? remoteHlc,
+    Expression<String>? entityLabel,
+    Expression<int>? seenAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (entityType != null) 'entity_type': entityType,
+      if (entityId != null) 'entity_id': entityId,
+      if (field != null) 'field': field,
+      if (localValue != null) 'local_value': localValue,
+      if (localHlc != null) 'local_hlc': localHlc,
+      if (remoteValue != null) 'remote_value': remoteValue,
+      if (remoteHlc != null) 'remote_hlc': remoteHlc,
+      if (entityLabel != null) 'entity_label': entityLabel,
+      if (seenAt != null) 'seen_at': seenAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ConflictsCompanion copyWith({
+    Value<String>? entityType,
+    Value<String>? entityId,
+    Value<String>? field,
+    Value<String>? localValue,
+    Value<String>? localHlc,
+    Value<String>? remoteValue,
+    Value<String>? remoteHlc,
+    Value<String?>? entityLabel,
+    Value<DateTime>? seenAt,
+    Value<int>? rowid,
+  }) {
+    return ConflictsCompanion(
+      entityType: entityType ?? this.entityType,
+      entityId: entityId ?? this.entityId,
+      field: field ?? this.field,
+      localValue: localValue ?? this.localValue,
+      localHlc: localHlc ?? this.localHlc,
+      remoteValue: remoteValue ?? this.remoteValue,
+      remoteHlc: remoteHlc ?? this.remoteHlc,
+      entityLabel: entityLabel ?? this.entityLabel,
+      seenAt: seenAt ?? this.seenAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (entityType.present) {
+      map['entity_type'] = Variable<String>(entityType.value);
+    }
+    if (entityId.present) {
+      map['entity_id'] = Variable<String>(entityId.value);
+    }
+    if (field.present) {
+      map['field'] = Variable<String>(field.value);
+    }
+    if (localValue.present) {
+      map['local_value'] = Variable<String>(localValue.value);
+    }
+    if (localHlc.present) {
+      map['local_hlc'] = Variable<String>(localHlc.value);
+    }
+    if (remoteValue.present) {
+      map['remote_value'] = Variable<String>(remoteValue.value);
+    }
+    if (remoteHlc.present) {
+      map['remote_hlc'] = Variable<String>(remoteHlc.value);
+    }
+    if (entityLabel.present) {
+      map['entity_label'] = Variable<String>(entityLabel.value);
+    }
+    if (seenAt.present) {
+      map['seen_at'] = Variable<int>(
+        $ConflictsTable.$converterseenAt.toSql(seenAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConflictsCompanion(')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('field: $field, ')
+          ..write('localValue: $localValue, ')
+          ..write('localHlc: $localHlc, ')
+          ..write('remoteValue: $remoteValue, ')
+          ..write('remoteHlc: $remoteHlc, ')
+          ..write('entityLabel: $entityLabel, ')
+          ..write('seenAt: $seenAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $AccountsTable accounts = $AccountsTable(this);
@@ -16397,6 +17035,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $GoalsTable goals = $GoalsTable(this);
   late final $GoalContributionsTable goalContributions =
       $GoalContributionsTable(this);
+  late final $ConflictsTable conflicts = $ConflictsTable(this);
   late final Index transactionsAccountDate = Index(
     'transactions_account_date',
     'CREATE INDEX transactions_account_date ON transactions (account_id, date)',
@@ -16490,6 +17129,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     balanceSnapshots,
     goals,
     goalContributions,
+    conflicts,
     transactionsAccountDate,
     transactionsUserCategory,
     transactionsPendingTransaction,

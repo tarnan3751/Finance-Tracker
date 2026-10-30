@@ -1,15 +1,18 @@
 /// The settings screen's Sync section (dev and prod): the status of the last session, the
 /// outbox, a clock ahead (changes held back) or behind (changes that may be overridden),
-/// changes the server refused for good, records this version cannot show, when the bank
-/// data was last pulled (or why it failed), and "Sync now", which runs both. Counts and
-/// times only, never a change's content.
+/// changes the server refused for good, records this version cannot show, the conflicts
+/// to review (while there are any; they open the Conflicts screen), when the bank data
+/// was last pulled (or why it failed), and "Sync now", which runs both. Counts and times
+/// only, never a change's content.
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
+import 'package:finance_tracker/features/conflicts/application/conflicts_providers.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +44,7 @@ class SyncSection extends ConsumerWidget {
       _ => l10n.syncNever,
     };
     final ledger = status.ledger;
+    final int conflicts = signedIn ? ref.watch(conflictCountProvider) : 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -93,6 +97,14 @@ class SyncSection extends ConsumerWidget {
               title: Text(l10n.syncHeld(ledger.held)),
             ),
         ],
+        if (conflicts > 0)
+          ListTile(
+            leading: const Icon(Icons.call_split),
+            title: Text(l10n.syncConflicts(conflicts)),
+            subtitle: Text(l10n.syncConflictsHint),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => const ConflictsRoute().push<void>(context),
+          ),
         if (signedIn)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

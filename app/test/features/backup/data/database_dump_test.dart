@@ -3,7 +3,8 @@
 // default), refuses rows that break a foreign key or a constraint and leaves nothing
 // behind, skips the device keys and the full-text definition, and resets the device's
 // identity; an install's data is everything but its bookkeeping and the system
-// categories; a backup of a newer schema, or naming a file outside the receipts folder,
+// categories; the device-local conflicts are left out both ways; a backup of a newer
+// schema, or naming a file outside the receipts folder,
 // is refused before anything is touched.
 import 'dart:convert';
 import 'dart:typed_data';
@@ -64,12 +65,43 @@ void main() {
       final AppDatabase empty = AppDatabase(NativeDatabase.memory());
       addTearDown(empty.close);
       final List<BackupTable> tables = await dumpDatabase(empty);
-      expect(
-        tables.map((t) => t.name),
-        empty.allTables.map((t) => t.actualTableName),
-      );
+      expect(tables.map((t) => t.name), [
+        for (final t in empty.allTables)
+          if (!backupExcludedTables.contains(t.actualTableName))
+            t.actualTableName,
+      ]);
     },
   );
+
+  test('the conflicts are device-local: never exported, ignored on import, '
+      'and no reason to call an install non-empty', () async {
+    const String conflict =
+        'INSERT INTO conflicts (entity_type, entity_id, field, local_value, '
+        "local_hlc, remote_value, remote_hlc, seen_at) VALUES ('transaction', 't1', "
+        "'notes', '\"a\"', '001761318000000-00000-dev-a', '\"b\"', "
+        "'001761318060000-00000-dev-b', 1)";
+    await source.customStatement(conflict);
+    final List<BackupTable> dumped = await dumpDatabase(source);
+    expect(dumped.map((t) => t.name), isNot(contains('conflicts')));
+    // A backup that carries one anyway (another build's) lands without it.
+    final List<BackupTable> carrying = [
+      ...dumped,
+      const BackupTable(
+        'conflicts',
+        ['entity_type', 'entity_id', 'field'],
+        [
+          ['transaction', 't1', 'notes'],
+        ],
+      ),
+    ];
+    final dropped = await importTables(target, carrying, newNodeId: 'n');
+    expect(await target.customSelect('SELECT 1 FROM conflicts').get(), isEmpty);
+    expect(dropped.tables, isEmpty);
+    final AppDatabase only = AppDatabase(NativeDatabase.memory());
+    addTearDown(only.close);
+    await only.customStatement(conflict);
+    expect(await hasLocalData(only), isFalse);
+  });
 
   test('nullable instants dump as UTC ISO strings and round-trip', () async {
     await source.customStatement(

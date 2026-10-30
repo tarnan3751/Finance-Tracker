@@ -278,6 +278,10 @@ void main() {
       await FileReceiptStore(() async => dir).read(lunch.receiptPath!),
       receiptPhoto(),
     );
+    // Schema 13's additions: the receipt hash a schema 12 backup lacks defaults to
+    // null (the launch's hash fill gives it one), and no conflict comes along.
+    expect(lunch.receiptSha256, isNull);
+    expect(await restored.select(restored.conflicts).get(), isEmpty);
     final Account? checking = await container
         .read(accountRepositoryProvider)
         .watchById('fixture-checking')

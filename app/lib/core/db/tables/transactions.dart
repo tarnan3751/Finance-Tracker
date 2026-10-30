@@ -36,6 +36,10 @@ class Transactions extends Table {
   TextColumn get notes => text().nullable()();
   TextColumn get receiptPath => text().nullable()();
 
+  /// The SHA-256 of the receipt photo's bytes (schema 13), by which a device without the
+  /// file fetches it.
+  TextColumn get receiptSha256 => text().nullable()();
+
   /// The user's hidden override (schema 5): the row still counts toward its account's
   /// balance and leaves the default list, budgets and reports.
   BoolColumn get hidden => boolean().withDefault(const Constant(false))();

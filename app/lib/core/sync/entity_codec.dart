@@ -38,6 +38,7 @@ const Set<String> plaidOverrideFields = {
   'tags',
   'splits',
   'receipt_path',
+  'receipt_sha256',
   'hidden',
 };
 
