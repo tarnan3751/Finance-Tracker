@@ -73,11 +73,11 @@ void main() {
       throwsFormatException,
     );
     final phc = await hasher.hash('a password');
-    final tampered = phc.replaceRange(
-      phc.length - 2,
-      phc.length,
-      phc.endsWith('AA') ? 'BB' : 'AA',
-    );
+    // Change one character in the middle of the 43-character hash. The last
+    // character also carries the base64 padding bits, so tampering at the end
+    // can decode to the same 32 bytes and leave the hash valid.
+    final at = phc.length - 22;
+    final tampered = phc.replaceRange(at, at + 1, phc[at] == 'A' ? 'B' : 'A');
     expect(await hasher.verify('a password', tampered), isFalse);
   });
 
