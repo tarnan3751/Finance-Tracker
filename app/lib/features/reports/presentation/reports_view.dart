@@ -9,6 +9,7 @@
 library;
 
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/features/budgets/presentation/budget_period_selector.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/reports/application/reports_providers.dart';
@@ -298,7 +299,9 @@ class _Categories extends ConsumerWidget {
     int i = 0;
     Color colorOf(String? id) {
       final Category? c = byId[id];
-      if (shown == null && c != null && c.color != 0) return Color(c.color);
+      if (shown == null && c != null && c.color != 0) {
+        return FinanceColors.of(context).custom(Color(c.color));
+      }
       return palette[i++ % palette.length];
     }
 
