@@ -1,6 +1,7 @@
 /// The Dio adapter in front of `FakeServer`: it turns a request into a `FakeRequest`
-/// (the path without `/v1`, the query, the headers, the body decoded from JSON) and the
-/// server's answer into a response body (JSON, or PNG bytes for a `Uint8List` body), so
+/// (the path without `/v1`, the query, the headers, the body decoded from JSON, or its
+/// bytes for an image body) and the server's answer into a response body (JSON, or image
+/// bytes for a `Uint8List` body, PNG unless the answer names its type), so
 /// everything above the adapter (the generated client, its serializers, the interceptors)
 /// runs exactly as against a real server.
 library;
@@ -28,7 +29,13 @@ final class FakeHttpAdapter implements HttpClientAdapter {
         for (final Uint8List chunk in await requestStream.toList()) ...chunk,
     ];
     Object? body;
-    if (bytes.isNotEmpty) {
+    final bool image =
+        '${options.headers[Headers.contentTypeHeader] ?? options.contentType ?? ''}'
+            .toLowerCase()
+            .startsWith('image/');
+    if (image) {
+      body = Uint8List.fromList(bytes);
+    } else if (bytes.isNotEmpty) {
       try {
         body = jsonDecode(utf8.decode(bytes));
       } on FormatException {
@@ -63,15 +70,12 @@ final class FakeHttpAdapter implements HttpClientAdapter {
       body: body,
     ));
     if (response.body case final Uint8List bytes) {
-      return ResponseBody.fromBytes(
-        bytes,
-        response.status,
-        headers: {
-          Headers.contentTypeHeader: ['image/png'],
-          for (final MapEntry(:key, :value) in response.headers.entries)
-            key.toLowerCase(): [value],
-        },
-      );
+      final Map<String, List<String>> headers = {
+        for (final MapEntry(:key, :value) in response.headers.entries)
+          key.toLowerCase(): [value],
+      };
+      headers[Headers.contentTypeHeader] ??= ['image/png'];
+      return ResponseBody.fromBytes(bytes, response.status, headers: headers);
     }
     return ResponseBody.fromString(
       response.body == null ? '' : jsonEncode(response.body),

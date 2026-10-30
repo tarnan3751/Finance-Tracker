@@ -44,7 +44,7 @@ final class ApiRoute {
 
   /// [path] in `shelf_router`'s syntax (`<item_id>`).
   String get routerPath =>
-      path.replaceAllMapped(RegExp(r'\{([a-z_]+)\}'), (m) => '<${m[1]}>');
+      path.replaceAllMapped(RegExp(r'\{([a-z0-9_]+)\}'), (m) => '<${m[1]}>');
 }
 
 /// A request as a handler sees it: the shelf request, its path parameters and, for an

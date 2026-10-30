@@ -49,6 +49,7 @@ Serializers _$serializers =
           ..add(PushRejectionCode.serializer)
           ..add(PushRequest.serializer)
           ..add(PushResult.serializer)
+          ..add(Receipt.serializer)
           ..add(RecurringCadence.serializer)
           ..add(RecurringSource.serializer)
           ..add(RecurringStatus.serializer)

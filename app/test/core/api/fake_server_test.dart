@@ -1,9 +1,10 @@
 // The in-app fake server through the real client stack: the dev server's auth rules
 // (rotation, reuse detection, the live-family bearer check, devices, account deletion),
-// the sync relay's rules, the Plaid proxy and the data pages over the dataset, the
+// the sync relay's rules, the receipt photos by hash, the Plaid proxy and the data pages over the dataset, the
 // failure hooks, and the boundary conversions of HttpFinanceApi on the way back.
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
 import 'package:finance_tracker/core/api/api_models.dart';
 import 'package:finance_tracker/core/api/fake/fake_dataset.dart';
 import 'package:finance_tracker/core/api/fake/fake_server.dart';
@@ -265,6 +266,61 @@ void main() {
     });
   });
 
+  group('receipts', () {
+    final Uint8List jpeg = Uint8List.fromList([0xff, 0xd8, 0xff, 9, 8, 7]);
+    final String hash = sha256.convert(jpeg).toString();
+
+    test(
+      'a stored photo comes back, and storing it again changes nothing',
+      () async {
+        final FakeClient ada = FakeClient.signedIn(server);
+        await ada.api.putReceipt(hash, jpeg);
+        await ada.api.putReceipt(hash, jpeg);
+        expect(await ada.api.getReceipt(hash), jpeg);
+        // Another device of the same user reads it too.
+        final FakeClient tablet = FakeClient.signedIn(
+          server,
+          deviceName: 'Tablet',
+        );
+        expect(await tablet.api.getReceipt(hash), jpeg);
+      },
+    );
+
+    test("another user's hash is not found until they store it", () async {
+      final FakeClient ada = FakeClient.signedIn(server);
+      final FakeClient bob = FakeClient.signedIn(
+        server,
+        email: 'bob@example.com',
+      );
+      await ada.api.putReceipt(hash, jpeg);
+      await expectLater(bob.api.getReceipt(hash), throwsA(isA<NotFound>()));
+      await bob.api.putReceipt(hash, jpeg);
+      expect(await bob.api.getReceipt(hash), jpeg);
+    });
+
+    test(
+      'bytes that do not hash to the path, none, or too many, are refused',
+      () async {
+        final FakeClient ada = FakeClient.signedIn(server);
+        await expectLater(
+          ada.api.putReceipt('0' * 64, jpeg),
+          throwsA(isA<ValidationFailed>()),
+        );
+        final Uint8List large = Uint8List(FakeServer.receiptCap + 1);
+        await expectLater(
+          ada.api.putReceipt(sha256.convert(large).toString(), large),
+          throwsA(isA<ApiException>().having((e) => e.status, 'status', 413)),
+        );
+        await expectLater(
+          ada.api.putReceipt(sha256.convert(<int>[]).toString(), Uint8List(0)),
+          throwsA(isA<ValidationFailed>()),
+        );
+        final Uint8List cap = Uint8List(FakeServer.receiptCap);
+        await ada.api.putReceipt(sha256.convert(cap).toString(), cap);
+      },
+    );
+  });
+
   group('plaid and data', () {
     test('link, not_ready, completed, then the data as demo', () async {
       final FakeClient client = FakeClient.signedIn(server);
@@ -470,7 +526,7 @@ void main() {
     });
 
     test('health reports the contract version', () async {
-      expect((await FakeClient(server).api.getHealth()).version, '0.6.0');
+      expect((await FakeClient(server).api.getHealth()).version, '0.7.0');
     });
   });
 

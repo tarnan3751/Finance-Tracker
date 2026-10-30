@@ -144,6 +144,17 @@ abstract interface class FinanceApi {
   /// `GET /sync/pull`; a [since] past the server's last `seq` throws `SyncCursorInvalid`.
   Future<PullPage> pullChanges({required int since, required int limit});
 
+  // receipts
+
+  /// `PUT /receipts/{sha256}`: stores [bytes], a JPEG or a PNG (by its signature) of at
+  /// most 5 MiB whose SHA-256 is [sha256]; storing it again is a no-op. Over the cap it
+  /// is a `ServerError` with status 413 and code `payload_too_large`; empty, or bytes that
+  /// do not hash to [sha256], `ValidationFailed`.
+  Future<void> putReceipt(String sha256, Uint8List bytes);
+
+  /// `GET /receipts/{sha256}`: the bytes the user stored, `NotFound` when none.
+  Future<Uint8List> getReceipt(String sha256);
+
   // sandbox: development controls; a server that cannot drive Plaid Sandbox answers
   // `Conflict`, as does a `removed` Item.
 
@@ -177,3 +188,18 @@ abstract interface class FinanceApi {
   /// `GET /health`.
   Future<Health> getHealth();
 }
+
+/// The media type of receipt photo [bytes] by their signature: `image/png` for a PNG,
+/// else `image/jpeg` (what the image source writes for every other photo).
+String receiptMediaType(List<int> bytes) =>
+    bytes.length >= 8 &&
+        bytes[0] == 0x89 &&
+        bytes[1] == 0x50 &&
+        bytes[2] == 0x4e &&
+        bytes[3] == 0x47 &&
+        bytes[4] == 0x0d &&
+        bytes[5] == 0x0a &&
+        bytes[6] == 0x1a &&
+        bytes[7] == 0x0a
+    ? 'image/png'
+    : 'image/jpeg';

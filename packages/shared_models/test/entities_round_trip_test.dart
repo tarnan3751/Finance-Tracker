@@ -116,6 +116,8 @@ _entities = [
         TransactionSplit(categoryId: 'cat2', amount: _usd(-299)),
       ],
       receiptPath: 'receipts/t1.jpg',
+      receiptSha256:
+          '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
       hidden: true,
       source: DataSource.plaid,
       createdAt: _instant,
@@ -438,6 +440,7 @@ void main() {
         'user_category_id',
         'notes',
         'receipt_path',
+        'receipt_sha256',
         'deleted_at',
       ]) {
         expect(transaction, containsPair(key, null), reason: key);

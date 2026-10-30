@@ -16,6 +16,7 @@ import 'package:api_client/src/api/health_api.dart';
 import 'package:api_client/src/api/institutions_api.dart';
 import 'package:api_client/src/api/me_api.dart';
 import 'package:api_client/src/api/plaid_api.dart';
+import 'package:api_client/src/api/receipts_api.dart';
 import 'package:api_client/src/api/sandbox_api.dart';
 import 'package:api_client/src/api/sync_api.dart';
 import 'package:api_client/src/api/webhooks_api.dart';
@@ -176,6 +177,12 @@ class ApiClient {
   /// by doing that all interceptors will not be executed
   PlaidApi getPlaidApi() {
     return PlaidApi(dio, serializers);
+  }
+
+  /// Get ReceiptsApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  ReceiptsApi getReceiptsApi() {
+    return ReceiptsApi(dio, serializers);
   }
 
   /// Get SandboxApi instance, base route and serializer can be overridden by a given but be careful,

@@ -24,7 +24,9 @@ enum ProblemCode {
   rateLimited('rate_limited', 'Too many requests'),
   internal('internal', 'Internal error'),
   syncCursorInvalid('sync_cursor_invalid', 'Sync cursor invalid'),
-  webhookUnverified('webhook_unverified', 'Webhook unverified');
+  webhookUnverified('webhook_unverified', 'Webhook unverified'),
+  payloadTooLarge('payload_too_large', 'Payload too large'),
+  unsupportedMediaType('unsupported_media_type', 'Unsupported media type');
 
   const ProblemCode(this.wire, this.title);
 

@@ -60,6 +60,7 @@ _Transaction _$TransactionFromJson(Map<String, dynamic> json) => $checkedCreate(
             const <TransactionSplit>[],
       ),
       receiptPath: $checkedConvert('receipt_path', (v) => v as String?),
+      receiptSha256: $checkedConvert('receipt_sha256', (v) => v as String?),
       hidden: $checkedConvert('hidden', (v) => v as bool? ?? false),
       source: $checkedConvert(
         'source',
@@ -94,6 +95,7 @@ _Transaction _$TransactionFromJson(Map<String, dynamic> json) => $checkedCreate(
     'plaidDetailedCategory': 'plaid_detailed_category',
     'userCategoryId': 'user_category_id',
     'receiptPath': 'receipt_path',
+    'receiptSha256': 'receipt_sha256',
     'createdAt': 'created_at',
     'updatedAt': 'updated_at',
     'deletedAt': 'deleted_at',
@@ -120,6 +122,7 @@ Map<String, dynamic> _$TransactionToJson(_Transaction instance) =>
       'tags': instance.tags,
       'splits': instance.splits.map((e) => e.toJson()).toList(),
       'receipt_path': instance.receiptPath,
+      'receipt_sha256': instance.receiptSha256,
       'hidden': instance.hidden,
       'source': _$DataSourceEnumMap[instance.source]!,
       'created_at': const UtcInstantConverter().toJson(instance.createdAt),

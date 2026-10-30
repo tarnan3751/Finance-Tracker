@@ -7,6 +7,7 @@ lib/src/api/health_api.dart
 lib/src/api/institutions_api.dart
 lib/src/api/me_api.dart
 lib/src/api/plaid_api.dart
+lib/src/api/receipts_api.dart
 lib/src/api/sandbox_api.dart
 lib/src/api/sync_api.dart
 lib/src/api/webhooks_api.dart
@@ -58,6 +59,7 @@ lib/src/model/pulled_change_log_entry.dart
 lib/src/model/push_rejection_code.dart
 lib/src/model/push_request.dart
 lib/src/model/push_result.dart
+lib/src/model/receipt.dart
 lib/src/model/recurring_cadence.dart
 lib/src/model/recurring_source.dart
 lib/src/model/recurring_status.dart

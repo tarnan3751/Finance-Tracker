@@ -494,6 +494,45 @@ final class HttpFinanceApi implements FinanceApi {
 
   // --- sync -----------------------------------------------------------------------------
 
+  // --- receipts -------------------------------------------------------------------------
+
+  @override
+  Future<void> putReceipt(
+    String sha256,
+    Uint8List bytes,
+  ) => _call('/receipts/{sha256}', (extra) async {
+    // By hand: the generated method sends a MultipartFile stream under a fixed
+    // image/jpeg, which can neither carry a PNG's type nor be resent when the auth
+    // interceptor retries after a refresh; Uint8List data is sent as is, and again.
+    _data(
+      (await _dio.put<Object>(
+        '/receipts/$sha256',
+        data: bytes,
+        options: Options(
+          contentType: receiptMediaType(bytes),
+          responseType: ResponseType.json,
+          extra: {
+            'secure': const [
+              {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
+            ],
+            ...extra,
+          },
+        ),
+      )).data,
+    );
+  });
+
+  @override
+  Future<Uint8List> getReceipt(String sha256) => _call(
+    '/receipts/{sha256}',
+    (extra) async => _data(
+      (await _client.getReceiptsApi().getReceipt(
+        sha256: sha256,
+        extra: extra,
+      )).data,
+    ),
+  );
+
   @override
   Future<PushResult> pushChanges(List<ChangeLogEntry> entries) =>
       _call('/sync/push', (extra) async {

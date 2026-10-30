@@ -54,7 +54,7 @@ final class TestResponse {
   /// The headers.
   final Map<String, String> headers;
 
-  /// The decoded JSON body, the bytes of an `image/png` body, or null for an empty one.
+  /// The decoded JSON body, the bytes of an image body, or null for an empty one.
   final Object? body;
 
   /// The body as an object.
@@ -98,7 +98,7 @@ final _templates = [
       method: op.method,
       path: op.path,
       pattern: RegExp(
-        '^${op.path.replaceAll(RegExp(r'\{[a-z_]+\}'), '[^/]+')}\$',
+        '^${op.path.replaceAll(RegExp(r'\{[a-z0-9_]+\}'), '[^/]+')}\$',
       ),
     ),
 ];
@@ -125,8 +125,11 @@ final class TestServer {
     final client =
         plaid?.call(clock) ?? await FakePlaidClient.load(now: clock.call);
     late final TestServer server;
+    final receipts = Directory.systemTemp.createTempSync('ft-receipts-');
+    addTearDown(() => receipts.deleteSync(recursive: true));
     server = TestServer._(
       ServerApp(
+        receiptsDirectory: receipts,
         config: config ?? testConfig,
         db: AppDatabase.inMemory(),
         plaid: client,
@@ -160,12 +163,14 @@ final class TestServer {
   late final Handler _handler = app.handler;
 
   /// Calls `method path` (a `/v1`-relative path, query allowed) with [body] as JSON, or
-  /// [rawBody] verbatim. [validRequest] false skips the request-body check.
+  /// [rawBody] verbatim, or [bytes] (an image body). [validRequest] false skips the
+  /// request-body check.
   Future<TestResponse> call(
     String method,
     String path, {
     Object? body,
     String? rawBody,
+    List<int>? bytes,
     String? token,
     String contentType = 'application/json',
     Map<String, String> headers = const {},
@@ -177,27 +182,29 @@ final class TestServer {
       expect(body, conformsToRequest(contract, template, method));
     }
     final text = rawBody ?? (body == null ? null : jsonEncode(body));
+    final Object? sent = bytes ?? text;
     final response = await _handler(
       Request(
         method.toUpperCase(),
         uri,
-        body: text,
+        body: sent,
         headers: {
-          if (text != null) 'content-type': contentType,
+          if (sent != null) 'content-type': contentType,
           if (token != null) 'authorization': 'Bearer $token',
           ...headers,
         },
       ),
     );
-    final bytes = [
+    final answer = [
       for (final chunk in await response.read().toList()) ...chunk,
     ];
-    final png = response.headers['content-type'] == 'image/png';
-    final Object? decoded = png
-        ? bytes
-        : bytes.isEmpty
+    final image =
+        response.headers['content-type']?.startsWith('image/') ?? false;
+    final Object? decoded = image
+        ? answer
+        : answer.isEmpty
         ? null
-        : jsonDecode(utf8.decode(bytes));
+        : jsonDecode(utf8.decode(answer));
     final result = TestResponse(response.statusCode, response.headers, decoded);
     if (template == null) {
       // A path or method outside the contract can only be the router's 404.
@@ -217,8 +224,8 @@ final class TestServer {
         expect(type, 'application/problem+json');
       } else if (decoded != null) {
         expect(
-          type,
-          contract.responseMediaType(template, method, response.statusCode),
+          contract.responseMediaTypes(template, method, response.statusCode),
+          contains(type),
         );
       }
     }

@@ -2,9 +2,10 @@
 // driven through the generated client (and, for bodies the client would never send and
 // for the webhook, whose generated method cannot serialize its body, raw Dio), and every
 // request and answer that crosses the adapter is checked with contract_test in strict
-// mode: the request body against the operation's schema, the answer against the schema
-// of its status (which must be declared; an image/png answer is its bytes), the content
-// type and the X-Request-Id. A table
+// mode: the request body against the operation's schema (an image body is its bytes),
+// the answer against the schema of its status (which must be declared; an image answer
+// is its bytes), the content type (one the status declares) and the X-Request-Id. The
+// receipt upload goes through `HttpFinanceApi`, whose request is hand-written. A table
 // test holds the fake's routes equal to the document's operations, with the same
 // security.
 import 'dart:convert';
@@ -14,11 +15,15 @@ import 'dart:typed_data';
 import 'package:api_client/api_client.dart' as api;
 import 'package:built_value/serializer.dart';
 import 'package:contract_test/contract_test.dart';
+import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:finance_tracker/core/api/api_config.dart';
 import 'package:finance_tracker/core/api/api_models.dart' as wire;
 import 'package:finance_tracker/core/api/fake/fake_dataset.dart';
 import 'package:finance_tracker/core/api/fake/fake_server.dart';
+import 'package:finance_tracker/core/api/http_finance_api.dart';
+import 'package:finance_tracker/core/api/token_store.dart';
+import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
 
@@ -51,12 +56,16 @@ final class _RecordingAdapter implements HttpClientAdapter {
       for (final Uint8List chunk in await stream.toList()) ...chunk,
   ];
 
-  static Object? _decode(List<int> bytes, {String? contentType}) =>
-      contentType == 'image/png'
-      ? bytes
-      : bytes.isEmpty
-      ? null
-      : jsonDecode(utf8.decode(bytes));
+  // Image bytes stay bytes, as does a body that is not JSON (sent on purpose).
+  static Object? _decode(List<int> bytes, {String? contentType}) {
+    if (contentType?.startsWith('image/') ?? false) return bytes;
+    if (bytes.isEmpty) return null;
+    try {
+      return jsonDecode(utf8.decode(bytes));
+    } on FormatException {
+      return bytes;
+    }
+  }
 
   @override
   Future<ResponseBody> fetch(
@@ -76,7 +85,7 @@ final class _RecordingAdapter implements HttpClientAdapter {
     exchanges.add((
       method: options.method,
       path: options.uri.path.replaceFirst('/v1', ''),
-      request: _decode(request),
+      request: _decode(request, contentType: options.contentType),
       status: response.statusCode,
       response: _decode(body, contentType: contentType),
       contentType: contentType,
@@ -207,8 +216,8 @@ final class _Harness {
       expect(e.requestId, isNotEmpty, reason: '$what: X-Request-Id');
       if (e.response != null) {
         expect(
-          e.contentType,
-          _contract.responseMediaType(template, method, e.status),
+          _contract.responseMediaTypes(template, method, e.status),
+          contains(e.contentType),
           reason: what,
         );
       }
@@ -852,6 +861,59 @@ void main() {
         await _status(() => auth.logout(refreshRequest: sessionRefresh)),
         204,
       );
+
+      // receipts: the upload through HttpFinanceApi (its request is hand-written), the
+      // download through the generated client, the refusals through raw Dio.
+      h.signInAs((await auth.login(loginRequest: login)).data!.accessToken);
+      final HttpFinanceApi app = HttpFinanceApi(
+        buildDio(
+          AppConfig.prod(),
+          adapter: h.recorder,
+          baseUrl: FakeServer.baseUrl,
+          version: () async => '1.0.0',
+        ),
+        tokens: InMemoryTokenStore(
+          session: h.server.seedSession(
+            email: 'ada@example.com',
+            password: 'correct horse battery',
+          ),
+        ),
+        clock: fakeClientClock,
+      );
+      final Uint8List jpeg = Uint8List.fromList([0xff, 0xd8, 0xff, 1, 2, 3]);
+      final String jpegHash = sha256.convert(jpeg).toString();
+      await app.putReceipt(jpegHash, jpeg);
+      await app.putReceipt(jpegHash, jpeg);
+      final String pngHash = sha256.convert(_logo).toString();
+      await app.putReceipt(pngHash, _logo);
+      final api.ReceiptsApi receipts = h.client.getReceiptsApi();
+      expect((await receipts.getReceipt(sha256: jpegHash)).data, jpeg);
+      expect((await receipts.getReceipt(sha256: pngHash)).data, _logo);
+      expect(await _status(() => receipts.getReceipt(sha256: 'a' * 64)), 404);
+      expect(
+        await _status(() => receipts.getReceipt(sha256: 'NOT-A-HASH')),
+        400,
+      );
+      Future<int> putRaw(String hash, List<int> bytes, String type) async {
+        h.invalidOnPurpose.add(h.recorder.exchanges.length);
+        return (await h.raw.put<dynamic>(
+          '/receipts/$hash',
+          data: Uint8List.fromList(bytes),
+          options: Options(
+            headers: {'Authorization': ?h._bearer},
+            contentType: type,
+          ),
+        )).statusCode!;
+      }
+
+      expect(await putRaw('b' * 64, jpeg, 'image/jpeg'), 400);
+      final Uint8List large = Uint8List(FakeServer.receiptCap + 1);
+      expect(
+        await putRaw(sha256.convert(large).toString(), large, 'image/jpeg'),
+        413,
+      );
+      expect(await putRaw(jpegHash, jpeg, 'text/plain'), 415);
+      expect(await putRaw('NOT-A-HASH', jpeg, 'image/jpeg'), 400);
 
       // account deletion, on a fresh session
       h.signInAs((await auth.login(loginRequest: login)).data!.accessToken);

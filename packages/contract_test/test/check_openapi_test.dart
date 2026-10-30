@@ -49,6 +49,28 @@ void main() {
     expect(_check(root), isEmpty);
   });
 
+  const binary = {'type': 'string', 'format': 'binary'};
+
+  test('a 2xx of image/jpeg or image/png bytes passes', () {
+    final root = _minimal();
+    _at(root, [...health, 'responses', '200'])['content'] = {
+      'image/jpeg': {'schema': binary},
+      'image/png': {'schema': binary},
+    };
+    expect(_check(root), isEmpty);
+  });
+
+  test('a request body of image bytes passes, unclosed', () {
+    final root = _minimal();
+    _at(root, wallet)['requestBody'] = {
+      'required': true,
+      'content': {
+        'image/jpeg': {'schema': binary},
+      },
+    };
+    expect(_check(root), isEmpty);
+  });
+
   final cases = <String, (void Function(Map<String, Object?>), String)>{
     'an OpenAPI version other than 3.0.x': (
       (root) => root['openapi'] = '3.1.0',
@@ -85,7 +107,21 @@ void main() {
       (root) => _at(root, [...health, 'responses', '200'])['content'] = png({
         'type': 'object',
       }),
-      'has no application/json schema or image/png body',
+      'has no application/json schema or image body',
+    ),
+    'a 2xx of an image type that is not png or jpeg': (
+      (root) => _at(root, [...health, 'responses', '200'])['content'] = {
+        'image/gif': {'schema': binary},
+      },
+      'has no application/json schema or image body',
+    ),
+    'a request body of bytes that are not an image': (
+      (root) => _at(root, wallet)['requestBody'] = {
+        'content': {
+          'application/octet-stream': {'schema': binary},
+        },
+      },
+      'request body has no application/json schema',
     ),
     'a 204 with a body': (
       (root) => _at(root, [...wallet, 'responses', '204'])['content'] = {

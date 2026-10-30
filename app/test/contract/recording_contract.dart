@@ -56,7 +56,7 @@ void runRecordingContract(
         'account_id,amount,authorized_date,created_at,date,deleted_with_account,'
         'hidden,id,merchant_logo_url,merchant_name,name,notes,pending,'
         'pending_transaction_id,plaid_detailed_category,plaid_primary_category,'
-        'receipt_path,source,splits,sync_version,tags,updated_at,user_category_id';
+        'receipt_path,receipt_sha256,source,splits,sync_version,tags,updated_at,user_category_id';
 
     test('an account: a create, then an update of what changed', () async {
       await f.accounts.upsert(testAccount('a1'));

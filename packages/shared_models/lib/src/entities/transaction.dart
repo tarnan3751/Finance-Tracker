@@ -24,6 +24,12 @@ part 'transaction.g.dart';
 /// account's balance (the money moved) and is left out of budgets, reports and the
 /// default transaction list. The server never sets it; it travels through the change log.
 ///
+/// [receiptPath] names the receipt photo's file on a device (`receipts/<id>.jpg`, the same
+/// on every device) and [receiptSha256] the SHA-256 of its bytes, lower-case hex, by which
+/// a device without the file fetches it; both are the user's and travel through the change
+/// log. [receiptSha256] is null without a receipt, and for one attached before it existed
+/// until its device hashes it.
+///
 /// [source] is the record's provenance (`PLAN.md` §7.1). [deletedAt] is the tombstone.
 @freezed
 abstract class Transaction with _$Transaction {
@@ -46,6 +52,7 @@ abstract class Transaction with _$Transaction {
     @Default(<String>[]) List<String> tags,
     @Default(<TransactionSplit>[]) List<TransactionSplit> splits,
     String? receiptPath,
+    String? receiptSha256,
     @Default(false) bool hidden,
     required DataSource source,
     @UtcInstantConverter() required DateTime createdAt,

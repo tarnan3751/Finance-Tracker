@@ -9,8 +9,8 @@ import 'package:test/test.dart';
 
 /// Matches the decoded body of the [status] response of [method] [path] (a path template
 /// such as `/plaid/items/{item_id}`). A response declared without a body (a 204) matches
-/// only null or an empty string; an `image/png` response matches only non-empty bytes
-/// (a `List<int>`).
+/// only null or an empty string; an image response (`image/png`, `image/jpeg`) matches
+/// only non-empty bytes (a `List<int>`).
 Matcher conformsToResponse(
   OpenApiDocument document,
   String path,
@@ -21,20 +21,27 @@ Matcher conformsToResponse(
   document.responseSchema(path, method, status),
   ValidationMode.response,
   '${method.toUpperCase()} $path $status response',
-  binary: document.responseMediaType(path, method, status) == 'image/png',
+  binary:
+      document.responseMediaType(path, method, status)?.startsWith('image/') ??
+      false,
 );
 
-/// Matches the decoded request body of [method] [path].
+/// Matches the decoded request body of [method] [path]; an image body matches only
+/// non-empty bytes.
 Matcher conformsToRequest(
   OpenApiDocument document,
   String path,
   String method,
-) => _Conforms(
-  document,
-  document.requestSchema(path, method),
-  ValidationMode.request,
-  '${method.toUpperCase()} $path request body',
-);
+) {
+  final binary = document.requestMediaType(path, method).startsWith('image/');
+  return _Conforms(
+    document,
+    binary ? null : document.requestSchema(path, method),
+    ValidationMode.request,
+    '${method.toUpperCase()} $path request body',
+    binary: binary,
+  );
+}
 
 /// Matches a decoded value against the component schema [name], as a response unless
 /// [mode] says otherwise.

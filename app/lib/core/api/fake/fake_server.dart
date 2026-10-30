@@ -35,6 +35,13 @@
 ///   `removed`, and every call that would reach Plaid for it is 409 `conflict`. The logo
 ///   route serves a dataset Item's `institutionLogo`, and `logo_url` points at it only
 ///   then. The webhook is always 401 `webhook_unverified`.
+/// - **Receipts.** Each user's photos in memory by SHA-256, as the dev server keeps them
+///   on disk: a `PUT` takes `image/jpeg` or `image/png` (else 415
+///   `unsupported_media_type`) of one to [receiptCap] bytes (else 400 for none, 413
+///   `payload_too_large` for more) that hash to the path (else 400), and stores bytes it
+///   already holds no second time; a `GET` answers them with the type their signature
+///   gives, or 404 for a hash the user never stored. A user's account deletion drops
+///   them.
 /// - **Sandbox.** Reset-login makes the Item `login_required` (`ITEM_LOGIN_REQUIRED`):
 ///   sync, refresh, the balance refresh and created transactions answer 409
 ///   `item_login_required` until an update-mode link token is created for it and
@@ -67,6 +74,8 @@ import 'package:finance_tracker/core/api/api_models.dart';
 import 'package:finance_tracker/core/api/fake/fake_dataset.dart';
 import 'package:finance_tracker/core/api/fake/fake_http_adapter.dart';
 import 'package:finance_tracker/core/api/fake/fake_validation.dart';
+import 'package:finance_tracker/core/api/finance_api.dart'
+    show receiptMediaType;
 import 'package:finance_tracker/core/api/token_store.dart';
 import 'package:persona_engine/persona_engine.dart'
     show PersonaId, generateDemoSeed;
@@ -95,15 +104,17 @@ final class FakeRoute {
   final bool authenticated;
 
   RegExp get _pattern => RegExp(
-    '^${template.replaceAllMapped(RegExp(r'\{[a-z_]+\}'), (_) => '([^/]+)')}\$',
+    '^${template.replaceAllMapped(RegExp(r'\{[a-z0-9_]+\}'), (_) => '([^/]+)')}\$',
   );
 
   List<String> get _parameterNames => [
-    for (final Match m in RegExp(r'\{([a-z_]+)\}').allMatches(template)) m[1]!,
+    for (final Match m in RegExp(r'\{([a-z0-9_]+)\}').allMatches(template))
+      m[1]!,
   ];
 }
 
-/// A request as the fake sees it. [body] is the decoded JSON, or [invalidJson].
+/// A request as the fake sees it. [body] is the decoded JSON, or [invalidJson], or the
+/// bytes of an image body (a `Uint8List`).
 typedef FakeRequest = ({
   String method,
   String path,
@@ -228,6 +239,7 @@ final class _UserData {
   final Map<String, _LinkedItem> items = {};
   final Map<String, Transaction> transactions = {};
   final Map<String, InvestmentTransaction> investmentTransactions = {};
+  final Map<String, Uint8List> receipts = {};
   int version = 0;
 }
 
@@ -268,6 +280,9 @@ final class FakeServer {
   static const Duration accessLifetime = Duration(minutes: 15);
   static const Duration refreshLifetime = Duration(days: 30);
 
+  /// The largest receipt photo `PUT /receipts/{sha256}` takes: 5 MiB.
+  static const int receiptCap = 5 * 1024 * 1024;
+
   /// Every contract operation, with the contract's template and security.
   static const List<FakeRoute> routes = [
     FakeRoute('register', 'POST', '/auth/register', authenticated: false),
@@ -301,6 +316,8 @@ final class FakeServer {
     FakeRoute('listHoldings', 'GET', '/investments/holdings'),
     FakeRoute('listInvestmentTransactions', 'GET', '/investments/transactions'),
     FakeRoute('listRecurringStreams', 'GET', '/recurring'),
+    FakeRoute('putReceipt', 'PUT', '/receipts/{sha256}'),
+    FakeRoute('getReceipt', 'GET', '/receipts/{sha256}'),
     FakeRoute('pushChanges', 'POST', '/sync/push'),
     FakeRoute('pullChanges', 'GET', '/sync/pull'),
     FakeRoute(
@@ -606,6 +623,8 @@ final class FakeServer {
     401 => 'invalid_credentials',
     404 => 'not_found',
     409 => 'conflict',
+    413 => 'payload_too_large',
+    415 => 'unsupported_media_type',
     429 => 'rate_limited',
     502 => 'plaid_error',
     _ => 'internal',
@@ -627,6 +646,8 @@ final class FakeServer {
     'internal': 'Internal error',
     'sync_cursor_invalid': 'Sync cursor invalid',
     'webhook_unverified': 'Webhook unverified',
+    'payload_too_large': 'Payload too large',
+    'unsupported_media_type': 'Unsupported media type',
   };
 
   static FakeResponse _problem(_Problem p) {
@@ -782,6 +803,8 @@ final class FakeServer {
         for (final _LinkedItem i in _applied(caller!))
           for (final RecurringStream s in i.data.recurringStreams) s.toJson(),
       ]),
+      'putReceipt' => _putReceipt(parameters['sha256']!, request, caller!),
+      'getReceipt' => _getReceipt(parameters['sha256']!, caller!),
       'pushChanges' => await _push(body(), caller!),
       'pullChanges' => await _pull(request.query, caller!),
       'receivePlaidWebhook' => _webhook(body()),
@@ -1342,6 +1365,68 @@ final class FakeServer {
         )
         .toJson(),
   };
+
+  // --- receipts -------------------------------------------------------------------------
+
+  static final RegExp _sha256Shape = RegExp(r'^[0-9a-f]{64}$');
+
+  static void _checkSha256(String value) {
+    if (!_sha256Shape.hasMatch(value)) {
+      throw FakeValidationException.single(
+        'sha256',
+        'must be 64 lower-case hex digits',
+      );
+    }
+  }
+
+  FakeResponse _putReceipt(String hash, FakeRequest request, _Caller caller) {
+    _checkSha256(hash);
+    final String type = (request.headers['content-type'] ?? '')
+        .split(';')
+        .first
+        .trim()
+        .toLowerCase();
+    if (type != 'image/jpeg' && type != 'image/png') {
+      throw const _Problem(
+        415,
+        'unsupported_media_type',
+        'A receipt is image/jpeg or image/png',
+      );
+    }
+    final Object? body = request.body;
+    final Uint8List bytes = body is Uint8List ? body : Uint8List(0);
+    if (bytes.isEmpty) {
+      throw FakeValidationException.single('', 'a receipt is not empty');
+    }
+    if (bytes.length > receiptCap) {
+      throw const _Problem(
+        413,
+        'payload_too_large',
+        'A receipt is at most 5 MiB',
+      );
+    }
+    if (sha256.convert(bytes).toString() != hash) {
+      throw FakeValidationException.single(
+        '',
+        "the bytes do not hash to the path's sha256",
+      );
+    }
+    _dataOf(caller.user.id).receipts.putIfAbsent(hash, () => bytes);
+    return _ok({'sha256': hash, 'size': bytes.length});
+  }
+
+  FakeResponse _getReceipt(String hash, _Caller caller) {
+    _checkSha256(hash);
+    final Uint8List? bytes = _dataOf(caller.user.id).receipts[hash];
+    if (bytes == null) {
+      throw const _Problem(404, 'not_found', 'No receipt with that hash');
+    }
+    return (
+      status: 200,
+      body: bytes,
+      headers: {'Content-Type': receiptMediaType(bytes)},
+    );
+  }
 
   FakeResponse _logo(String institutionId, _Caller caller) {
     for (final _LinkedItem i in _dataOf(

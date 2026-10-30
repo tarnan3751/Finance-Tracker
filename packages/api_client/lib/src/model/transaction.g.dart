@@ -42,6 +42,8 @@ class _$Transaction extends Transaction {
   @override
   final String? receiptPath;
   @override
+  final String? receiptSha256;
+  @override
   final bool hidden;
   @override
   final DataSource source_;
@@ -75,6 +77,7 @@ class _$Transaction extends Transaction {
     required this.tags,
     required this.splits,
     this.receiptPath,
+    this.receiptSha256,
     required this.hidden,
     required this.source_,
     required this.createdAt,
@@ -110,6 +113,7 @@ class _$Transaction extends Transaction {
         tags == other.tags &&
         splits == other.splits &&
         receiptPath == other.receiptPath &&
+        receiptSha256 == other.receiptSha256 &&
         hidden == other.hidden &&
         source_ == other.source_ &&
         createdAt == other.createdAt &&
@@ -138,6 +142,7 @@ class _$Transaction extends Transaction {
     _$hash = $jc(_$hash, tags.hashCode);
     _$hash = $jc(_$hash, splits.hashCode);
     _$hash = $jc(_$hash, receiptPath.hashCode);
+    _$hash = $jc(_$hash, receiptSha256.hashCode);
     _$hash = $jc(_$hash, hidden.hashCode);
     _$hash = $jc(_$hash, source_.hashCode);
     _$hash = $jc(_$hash, createdAt.hashCode);
@@ -168,6 +173,7 @@ class _$Transaction extends Transaction {
           ..add('tags', tags)
           ..add('splits', splits)
           ..add('receiptPath', receiptPath)
+          ..add('receiptSha256', receiptSha256)
           ..add('hidden', hidden)
           ..add('source_', source_)
           ..add('createdAt', createdAt)
@@ -256,6 +262,11 @@ class TransactionBuilder implements Builder<Transaction, TransactionBuilder> {
   String? get receiptPath => _$this._receiptPath;
   set receiptPath(String? receiptPath) => _$this._receiptPath = receiptPath;
 
+  String? _receiptSha256;
+  String? get receiptSha256 => _$this._receiptSha256;
+  set receiptSha256(String? receiptSha256) =>
+      _$this._receiptSha256 = receiptSha256;
+
   bool? _hidden;
   bool? get hidden => _$this._hidden;
   set hidden(bool? hidden) => _$this._hidden = hidden;
@@ -304,6 +315,7 @@ class TransactionBuilder implements Builder<Transaction, TransactionBuilder> {
       _tags = $v.tags.toBuilder();
       _splits = $v.splits.toBuilder();
       _receiptPath = $v.receiptPath;
+      _receiptSha256 = $v.receiptSha256;
       _hidden = $v.hidden;
       _source_ = $v.source_;
       _createdAt = $v.createdAt;
@@ -367,6 +379,7 @@ class TransactionBuilder implements Builder<Transaction, TransactionBuilder> {
             tags: tags.build(),
             splits: splits.build(),
             receiptPath: receiptPath,
+            receiptSha256: receiptSha256,
             hidden: BuiltValueNullFieldError.checkNotNull(
               hidden,
               r'Transaction',

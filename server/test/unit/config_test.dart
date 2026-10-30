@@ -21,6 +21,7 @@ void main() {
     expect(c.port, 8080);
     expect(c.host, '127.0.0.1');
     expect(c.databasePath, 'data/finance_tracker.db');
+    expect(c.receiptsPath, 'data/receipts');
     expect(c.plaidMode, PlaidMode.fake);
     expect(c.plaidEnv, 'sandbox');
     expect(c.argon2.memoryKib, 19456);
@@ -37,6 +38,7 @@ void main() {
         'PORT': '9090',
         'HOST': '0.0.0.0',
         'DATABASE_PATH': '/tmp/x.db',
+        'RECEIPTS_PATH': '/tmp/receipts',
         'JWT_SECRET_PREVIOUS': base64.encode(List.filled(40, 2)),
         'SEED_USER_EMAIL': 'dev@example.test',
         'SEED_USER_PASSWORD': 'a long password',
@@ -49,6 +51,7 @@ void main() {
     expect(c.port, 9090);
     expect(c.host, '0.0.0.0');
     expect(c.databasePath, '/tmp/x.db');
+    expect(c.receiptsPath, '/tmp/receipts');
     expect(c.jwtSecretPrevious, hasLength(40));
     expect(c.seedUserEmail, 'dev@example.test');
     expect(c.argon2.parallelism, 2);

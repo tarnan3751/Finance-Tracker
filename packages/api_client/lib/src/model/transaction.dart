@@ -13,7 +13,7 @@ import 'package:built_value/serializer.dart';
 
 part 'transaction.g.dart';
 
-/// Mirrors `shared_models` `Transaction`. `amount` is negative for an outflow (Plaid's sign flipped at the server). `name` is Plaid's raw name; `merchant_name` is Plaid's cleaned merchant, null when Plaid has none. `deleted_at` is the tombstone. `hidden` is the user's override, synced through the change log; the server never sets it and always serves `false`.
+/// Mirrors `shared_models` `Transaction`. `amount` is negative for an outflow (Plaid's sign flipped at the server). `name` is Plaid's raw name; `merchant_name` is Plaid's cleaned merchant, null when Plaid has none. `deleted_at` is the tombstone. `hidden` is the user's override, synced through the change log; the server never sets it and always serves `false`. `receipt_path` and `receipt_sha256` are the user's receipt photo, synced through the change log the same way (the server always serves null): the path names the photo's file on a device, the same on every device, and the hash is how a device that does not have the file fetches it (`GET /receipts/{sha256}`).
 ///
 /// Properties:
 /// * [id]
@@ -33,6 +33,7 @@ part 'transaction.g.dart';
 /// * [tags]
 /// * [splits]
 /// * [receiptPath]
+/// * [receiptSha256] - The SHA-256 of the receipt photo's bytes, lower-case hex; null without a receipt, or for a receipt attached before contract 0.7.0 whose device has not hashed it yet.
 /// * [hidden] - The user's override: a hidden transaction still counts toward its account's balance and is left out of budgets, reports and the default transaction list. User data synced through the change log; `GET /transactions` always serves `false`.
 /// * [source_]
 /// * [createdAt]
@@ -91,6 +92,10 @@ abstract class Transaction implements Built<Transaction, TransactionBuilder> {
 
   @BuiltValueField(wireName: r'receipt_path')
   String? get receiptPath;
+
+  /// The SHA-256 of the receipt photo's bytes, lower-case hex; null without a receipt, or for a receipt attached before contract 0.7.0 whose device has not hashed it yet.
+  @BuiltValueField(wireName: r'receipt_sha256')
+  String? get receiptSha256;
 
   /// The user's override: a hidden transaction still counts toward its account's balance and is left out of budgets, reports and the default transaction list. User data synced through the change log; `GET /transactions` always serves `false`.
   @BuiltValueField(wireName: r'hidden')
@@ -236,6 +241,13 @@ class _$TransactionSerializer implements PrimitiveSerializer<Transaction> {
         ? null
         : serializers.serialize(
             object.receiptPath,
+            specifiedType: const FullType.nullable(String),
+          );
+    yield r'receipt_sha256';
+    yield object.receiptSha256 == null
+        ? null
+        : serializers.serialize(
+            object.receiptSha256,
             specifiedType: const FullType.nullable(String),
           );
     yield r'hidden';
@@ -426,6 +438,14 @@ class _$TransactionSerializer implements PrimitiveSerializer<Transaction> {
           ) as String?;
           if (valueDes == null) continue;
           result.receiptPath = valueDes;
+          break;
+        case r'receipt_sha256':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
+          result.receiptSha256 = valueDes;
           break;
         case r'hidden':
           final valueDes = serializers.deserialize(

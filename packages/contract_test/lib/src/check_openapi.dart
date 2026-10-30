@@ -143,9 +143,9 @@ void _checkResponses(
       if (status == '204') {
         if (content != null) violations.add('$where 204 declares a body');
       } else if (_schemaOf(content, 'application/json') == null &&
-          !_isPngBody(content)) {
+          !_isImageBody(content)) {
         violations.add(
-          '$where $status has no application/json schema or image/png body',
+          '$where $status has no application/json schema or image body',
         );
       }
     } else if (status.startsWith('4') || status.startsWith('5')) {
@@ -207,10 +207,9 @@ void _checkBody(
   final body = operation['requestBody'];
   if (body == null || freeFormBodies.contains(id)) return;
   try {
-    final schema = _schemaOf(
-      document.deref(body)['content'],
-      'application/json',
-    );
+    final content = document.deref(body)['content'];
+    if (_isImageBody(content)) return; // bytes: nothing to close
+    final schema = _schemaOf(content, 'application/json');
     if (schema == null) {
       violations.add('$where request body has no application/json schema');
     } else if (document.deref(schema)['additionalProperties'] != false) {
@@ -221,13 +220,20 @@ void _checkBody(
   }
 }
 
-/// A body that is only `image/png` bytes: `{type: string, format: binary}`.
-bool _isPngBody(Object? content) {
-  if (content is! Map<String, Object?> || content.length != 1) return false;
-  final schema = _schemaOf(content, 'image/png');
-  return schema != null &&
-      schema['type'] == 'string' &&
-      schema['format'] == 'binary';
+/// The media types an image body may have.
+const imageMediaTypes = {'image/png', 'image/jpeg'};
+
+/// A body that is only image bytes: one or more of [imageMediaTypes], each
+/// `{type: string, format: binary}`.
+bool _isImageBody(Object? content) {
+  if (content is! Map<String, Object?> || content.isEmpty) return false;
+  return content.keys.every((type) {
+    final schema = _schemaOf(content, type);
+    return imageMediaTypes.contains(type) &&
+        schema != null &&
+        schema['type'] == 'string' &&
+        schema['format'] == 'binary';
+  });
 }
 
 Map<String, Object?>? _schemaOf(Object? content, String type) {

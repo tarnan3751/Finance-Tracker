@@ -27,6 +27,10 @@ const ProblemCode _$syncCursorInvalid = const ProblemCode._(
 const ProblemCode _$webhookUnverified = const ProblemCode._(
   'webhookUnverified',
 );
+const ProblemCode _$payloadTooLarge = const ProblemCode._('payloadTooLarge');
+const ProblemCode _$unsupportedMediaType = const ProblemCode._(
+  'unsupportedMediaType',
+);
 
 ProblemCode _$valueOf(String name) {
   switch (name) {
@@ -56,6 +60,10 @@ ProblemCode _$valueOf(String name) {
       return _$syncCursorInvalid;
     case 'webhookUnverified':
       return _$webhookUnverified;
+    case 'payloadTooLarge':
+      return _$payloadTooLarge;
+    case 'unsupportedMediaType':
+      return _$unsupportedMediaType;
     default:
       throw ArgumentError(name);
   }
@@ -76,6 +84,8 @@ final BuiltSet<ProblemCode> _$values = BuiltSet<ProblemCode>(
     _$internal,
     _$syncCursorInvalid,
     _$webhookUnverified,
+    _$payloadTooLarge,
+    _$unsupportedMediaType,
   ],
 );
 
@@ -94,6 +104,8 @@ class _$ProblemCodeMeta {
   ProblemCode get internal => _$internal;
   ProblemCode get syncCursorInvalid => _$syncCursorInvalid;
   ProblemCode get webhookUnverified => _$webhookUnverified;
+  ProblemCode get payloadTooLarge => _$payloadTooLarge;
+  ProblemCode get unsupportedMediaType => _$unsupportedMediaType;
   ProblemCode valueOf(String name) => _$valueOf(name);
   BuiltSet<ProblemCode> get values => _$values;
 }
@@ -120,6 +132,8 @@ class _$ProblemCodeSerializer implements PrimitiveSerializer<ProblemCode> {
     'internal': 'internal',
     'syncCursorInvalid': 'sync_cursor_invalid',
     'webhookUnverified': 'webhook_unverified',
+    'payloadTooLarge': 'payload_too_large',
+    'unsupportedMediaType': 'unsupported_media_type',
   };
   static const Map<Object, String> _fromWire = const <Object, String>{
     'validation_failed': 'validationFailed',
@@ -135,6 +149,8 @@ class _$ProblemCodeSerializer implements PrimitiveSerializer<ProblemCode> {
     'internal': 'internal',
     'sync_cursor_invalid': 'syncCursorInvalid',
     'webhook_unverified': 'webhookUnverified',
+    'payload_too_large': 'payloadTooLarge',
+    'unsupported_media_type': 'unsupportedMediaType',
   };
 
   @override

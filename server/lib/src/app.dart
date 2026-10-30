@@ -7,6 +7,8 @@
 /// which reads its own body under its size limit.
 library;
 
+import 'dart:io';
+
 import 'package:finance_tracker_server/src/auth/access_tokens.dart';
 import 'package:finance_tracker_server/src/auth/auth_routes.dart';
 import 'package:finance_tracker_server/src/auth/auth_service.dart';
@@ -30,6 +32,7 @@ import 'package:finance_tracker_server/src/plaid/sandbox_service.dart';
 import 'package:finance_tracker_server/src/plaid/token_cipher.dart';
 import 'package:finance_tracker_server/src/plaid/webhook_service.dart';
 import 'package:finance_tracker_server/src/plaid/webhook_verifier.dart';
+import 'package:finance_tracker_server/src/receipts/receipt_routes.dart';
 import 'package:finance_tracker_server/src/sync/change_log_relay.dart';
 import 'package:finance_tracker_server/src/sync/sync_routes.dart';
 import 'package:finance_tracker_server/src/users/user_routes.dart';
@@ -41,7 +44,8 @@ import 'package:shelf_router/shelf_router.dart';
 final class ServerApp {
   /// A server over [db] and [plaid] configured by [config]. [now] is the clock (UTC),
   /// [clientIp] keys the rate limiter, [delay] waits between Plaid retries and paces
-  /// the provisioning jobs.
+  /// the provisioning jobs. [receiptsDirectory] holds the receipt photos (by default
+  /// [ServerConfig.receiptsPath]).
   ServerApp({
     required this.config,
     required this.db,
@@ -49,8 +53,14 @@ final class ServerApp {
     DateTime Function()? now,
     String Function(Request)? clientIp,
     Future<void> Function(Duration)? delay,
+    Directory? receiptsDirectory,
   }) : now = now ?? DateTime.now,
        clientIp = clientIp ?? socketClientIp {
+    receipts = ReceiptService(
+      db: db,
+      directory: receiptsDirectory ?? Directory(config.receiptsPath),
+      now: this.now,
+    );
     auth = AuthService(
       db: db,
       hasher: PasswordHasher(config.argon2),
@@ -103,6 +113,7 @@ final class ServerApp {
       ...sandboxRoutes(sandbox, provisioning),
       ...dataRoutes(db),
       ...syncRoutes(ChangeLogRelay(db: db, now: this.now)),
+      ...receiptRoutes(receipts),
       ApiRoute(
         'getHealth',
         'get',
@@ -130,6 +141,9 @@ final class ServerApp {
 
   /// Authentication.
   late final AuthService auth;
+
+  /// The receipt photos.
+  late final ReceiptService receipts;
 
   /// Plaid Items.
   late final ItemService items;

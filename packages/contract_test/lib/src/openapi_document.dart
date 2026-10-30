@@ -101,6 +101,17 @@ final class OpenApiDocument {
     return schema;
   }
 
+  /// The media type of the request body of [path] and [method] (its first `content`
+  /// key, such as `application/json` or `image/jpeg`); an [ArgumentError] when the
+  /// operation takes no body.
+  String requestMediaType(String path, String method) {
+    final body = operation(path, method)['requestBody'];
+    if (body == null) {
+      throw ArgumentError('${method.toUpperCase()} $path takes no body');
+    }
+    return _map(deref(body)['content']).keys.first;
+  }
+
   /// The schema of the [status] response of [path] and [method], or null when that
   /// response has no body (a 204); an [ArgumentError] when the response is not declared.
   Map<String, Object?>? responseSchema(String path, String method, int status) {
@@ -118,14 +129,21 @@ final class OpenApiDocument {
   /// `content` key, such as `application/json` or `image/png`), or null when that
   /// response has no body; an [ArgumentError] when the response is not declared.
   String? responseMediaType(String path, String method, int status) {
+    final types = responseMediaTypes(path, method, status);
+    return types.isEmpty ? null : types.first;
+  }
+
+  /// Every media type the [status] response of [path] and [method] declares (its
+  /// `content` keys, in order; a receipt is `image/jpeg` or `image/png`), empty when that
+  /// response has no body; an [ArgumentError] when the response is not declared.
+  List<String> responseMediaTypes(String path, String method, int status) {
     final response = _map(operation(path, method)['responses'])['$status'];
     if (response == null) {
       throw ArgumentError(
         '${method.toUpperCase()} $path declares no $status response',
       );
     }
-    final content = _map(deref(response)['content']);
-    return content.isEmpty ? null : content.keys.first;
+    return [..._map(deref(response)['content']).keys];
   }
 
   /// Follows a local `$ref` (`#/...`) to its target, repeatedly; returns any other node

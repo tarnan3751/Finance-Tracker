@@ -54,6 +54,7 @@ import 'package:api_client/src/model/pulled_change_log_entry.dart';
 import 'package:api_client/src/model/push_rejection_code.dart';
 import 'package:api_client/src/model/push_request.dart';
 import 'package:api_client/src/model/push_result.dart';
+import 'package:api_client/src/model/receipt.dart';
 import 'package:api_client/src/model/recurring_cadence.dart';
 import 'package:api_client/src/model/recurring_source.dart';
 import 'package:api_client/src/model/recurring_status.dart';
@@ -117,6 +118,7 @@ part 'serializers.g.dart';
   PushRejectionCode,
   PushRequest,
   PushResult,
+  Receipt,
   RecurringCadence,
   RecurringSource,
   RecurringStatus,

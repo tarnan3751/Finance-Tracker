@@ -27,7 +27,7 @@ final class SchemaTooNewException implements Exception {
 }
 
 /// The migrations, oldest first.
-const List<String> migrations = [_v1, _v2, _v3, _v4];
+const List<String> migrations = [_v1, _v2, _v3, _v4, _v5];
 
 /// Applies every migration [db] has not yet applied, each in its own transaction. A rerun
 /// applies nothing.
@@ -282,4 +282,18 @@ ALTER TABLE items ADD COLUMN investments_synced_at INTEGER;
 /// Plaid's ids; `/recurring` serves them as the server's own transaction ids.
 const _v4 = '''
 ALTER TABLE recurring_streams ADD COLUMN plaid_transaction_ids TEXT NOT NULL DEFAULT '[]';
+''';
+
+/// v5: who stored each receipt photo (`PUT /receipts/{sha256}`): one row per user and
+/// hash; the bytes are a file per hash under the receipts directory, shared by its
+/// owners.
+const _v5 = '''
+CREATE TABLE receipts (
+  user_id TEXT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  sha256 TEXT NOT NULL,
+  size INTEGER NOT NULL,
+  created_at INTEGER NOT NULL,
+  PRIMARY KEY (user_id, sha256)
+);
+CREATE INDEX receipts_by_hash ON receipts (sha256);
 ''';

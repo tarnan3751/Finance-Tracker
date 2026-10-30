@@ -147,8 +147,33 @@ void main() {
       expect(stream['plaid_transaction_ids'], '[]');
       expect(
         db.select('SELECT MAX(version) AS v FROM schema_migrations').first['v'],
-        4,
+        migrations.length,
       );
+    },
+  );
+
+  test(
+    'a v4 database migrates to v5 with an empty receipts table that cascades',
+    () {
+      final db = sqlite3.openInMemory();
+      addTearDown(db.close);
+      db.execute('PRAGMA foreign_keys = ON');
+      db.execute(
+        'CREATE TABLE schema_migrations ('
+        'version INTEGER PRIMARY KEY, applied_at INTEGER NOT NULL)',
+      );
+      for (var v = 0; v < 4; v++) {
+        db.execute(migrations[v]);
+      }
+      db.execute(
+        'INSERT INTO schema_migrations VALUES (1, 0), (2, 0), (3, 0), (4, 0)',
+      );
+      db.execute("INSERT INTO users VALUES ('u', 'a@b.test', 'h', 'a', 0)");
+      migrate(db);
+      expect(db.select('SELECT * FROM receipts'), isEmpty);
+      db.execute("INSERT INTO receipts VALUES ('u', '${'a' * 64}', 3, 0)");
+      db.execute("DELETE FROM users WHERE id = 'u'");
+      expect(db.select('SELECT * FROM receipts'), isEmpty);
     },
   );
 

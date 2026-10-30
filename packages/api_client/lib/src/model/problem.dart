@@ -37,7 +37,7 @@ abstract class Problem implements Built<Problem, ProblemBuilder> {
 
   @BuiltValueField(wireName: r'code')
   ProblemCode get code;
-  // enum codeEnum {  validation_failed,  invalid_credentials,  email_taken,  token_expired,  token_revoked,  not_found,  conflict,  item_login_required,  plaid_error,  rate_limited,  internal,  sync_cursor_invalid,  webhook_unverified,  };
+  // enum codeEnum {  validation_failed,  invalid_credentials,  email_taken,  token_expired,  token_revoked,  not_found,  conflict,  item_login_required,  plaid_error,  rate_limited,  internal,  sync_cursor_invalid,  webhook_unverified,  payload_too_large,  unsupported_media_type,  };
 
   Problem._();
 

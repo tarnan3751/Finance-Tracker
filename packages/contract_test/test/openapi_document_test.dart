@@ -16,8 +16,8 @@ void main() {
     final ids = [
       for (final op in contract.operations) op.operation['operationId'],
     ];
-    expect(ids, hasLength(32));
-    expect(ids.toSet(), hasLength(32));
+    expect(ids, hasLength(34));
+    expect(ids.toSet(), hasLength(34));
   });
 
   test('finds request schemas', () {

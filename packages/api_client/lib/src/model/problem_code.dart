@@ -36,6 +36,10 @@ class ProblemCode extends EnumClass {
   static const ProblemCode syncCursorInvalid = _$syncCursorInvalid;
   @BuiltValueEnumConst(wireName: r'webhook_unverified')
   static const ProblemCode webhookUnverified = _$webhookUnverified;
+  @BuiltValueEnumConst(wireName: r'payload_too_large')
+  static const ProblemCode payloadTooLarge = _$payloadTooLarge;
+  @BuiltValueEnumConst(wireName: r'unsupported_media_type')
+  static const ProblemCode unsupportedMediaType = _$unsupportedMediaType;
 
   static Serializer<ProblemCode> get serializer => _$problemCodeSerializer;
 

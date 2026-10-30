@@ -6,7 +6,7 @@
 openapi: 3.0.3
 info:
   title: Finance Tracker API
-  version: 0.6.0
+  version: 0.7.0
   description: >-
     The API between the Finance Tracker app and its server. All JSON, snake_case. Money is
     integer minor units plus an ISO 4217 code (`Money`), never a floating-point number;
@@ -14,7 +14,8 @@ info:
     precision and a `Z` suffix. Errors are RFC 9457 problem details. Plaid-sourced data
     (accounts, transactions, liabilities, investments, recurring streams) is
     server-authoritative and pulled by version; user-authored data syncs through the change
-    log (`/sync/push`, `/sync/pull`). Clients ignore response properties they do not know;
+    log (`/sync/push`, `/sync/pull`), and receipt photos travel as blobs by content hash
+    (`/receipts/{sha256}`). Clients ignore response properties they do not know;
     request bodies are closed.
 servers:
   - url: http://10.0.2.2:8080/v1
@@ -38,6 +39,8 @@ tags:
     description: Plaid-sourced data, server-authoritative
   - name: sync
     description: The change log of user-authored data
+  - name: receipts
+    description: Receipt photos, stored by content hash
   - name: webhooks
     description: Plaid webhook deliveries
   - name: sandbox
@@ -734,6 +737,80 @@ paths:
         '500':
           $ref: '#/components/responses/Internal'
 
+  /receipts/{sha256}:
+    put:
+      operationId: putReceipt
+      tags: [receipts]
+      summary: Stores a receipt photo
+      description: >-
+        The photo's bytes, a JPEG or a PNG of at most 5 MiB (5,242,880 bytes), stored for
+        the calling user under their SHA-256. Content-addressed and idempotent: bytes the
+        user has already stored answer `200` without being stored again, so a retry after
+        a lost answer is safe. Bytes that do not hash to the path's `sha256` are `400`;
+        more than the cap is `413` `payload_too_large`; another content type is `415`
+        `unsupported_media_type`. A device uploads a receipt before it pushes the change
+        that names it in `Transaction.receipt_sha256`, so a device that pulls the change
+        can fetch it.
+      parameters:
+        - $ref: '#/components/parameters/Sha256'
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+          image/png:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: The photo is stored, now or before
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '500':
+          $ref: '#/components/responses/Internal'
+    get:
+      operationId: getReceipt
+      tags: [receipts]
+      summary: Returns a receipt photo
+      description: >-
+        The bytes the user stored under `sha256`, as `image/jpeg` or `image/png` by their
+        signature. `404` when the user has stored none under it, whoever else has.
+      parameters:
+        - $ref: '#/components/parameters/Sha256'
+      responses:
+        '200':
+          description: The photo
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Internal'
+
   /webhooks/plaid:
     post:
       operationId: receivePlaidWebhook
@@ -988,6 +1065,14 @@ components:
       schema:
         type: string
         minLength: 1
+    Sha256:
+      name: sha256
+      in: path
+      required: true
+      description: The SHA-256 of a receipt photo's bytes, lower-case hex
+      schema:
+        type: string
+        pattern: '^[0-9a-f]{64}$'
     Since:
       name: since
       in: query
@@ -1047,6 +1132,18 @@ components:
           schema:
             type: integer
             minimum: 0
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    PayloadTooLarge:
+      description: The request body is over the operation's size limit (`payload_too_large`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    UnsupportedMediaType:
+      description: The request body's content type is not one the operation takes (`unsupported_media_type`)
       content:
         application/problem+json:
           schema:
@@ -1166,6 +1263,8 @@ components:
         - internal
         - sync_cursor_invalid
         - webhook_unverified
+        - payload_too_large
+        - unsupported_media_type
 
     # Errors -------------------------------------------------------------------------------
     Problem:
@@ -1623,7 +1722,11 @@ components:
         sign flipped at the server). `name` is Plaid's raw name; `merchant_name` is Plaid's
         cleaned merchant, null when Plaid has none. `deleted_at` is the tombstone.
         `hidden` is the user's override, synced through the change log; the server never
-        sets it and always serves `false`.
+        sets it and always serves `false`. `receipt_path` and `receipt_sha256` are the
+        user's receipt photo, synced through the change log the same way (the server
+        always serves null): the path names the photo's file on a device, the same on
+        every device, and the hash is how a device that does not have the file fetches it
+        (`GET /receipts/{sha256}`).
       required:
         - id
         - account_id
@@ -1642,6 +1745,7 @@ components:
         - tags
         - splits
         - receipt_path
+        - receipt_sha256
         - hidden
         - source
         - created_at
@@ -1700,6 +1804,14 @@ components:
         receipt_path:
           type: string
           nullable: true
+        receipt_sha256:
+          type: string
+          pattern: '^[0-9a-f]{64}$'
+          nullable: true
+          description: >-
+            The SHA-256 of the receipt photo's bytes, lower-case hex; null without a
+            receipt, or for a receipt attached before contract 0.7.0 whose device has not
+            hashed it yet.
         hidden:
           type: boolean
           default: false
@@ -1749,6 +1861,7 @@ components:
         tags: []
         splits: []
         receipt_path: null
+        receipt_sha256: null
         hidden: false
         source: plaid
         created_at: '2026-10-23T12:00:00.000Z'
@@ -2676,6 +2789,22 @@ components:
       type: object
       description: A Plaid webhook body, verified before it is read
       additionalProperties: true
+    Receipt:
+      type: object
+      description: A stored receipt photo.
+      required: [sha256, size]
+      properties:
+        sha256:
+          type: string
+          pattern: '^[0-9a-f]{64}$'
+        size:
+          type: integer
+          minimum: 1
+          maximum: 5242880
+          description: Its length in bytes
+      example:
+        sha256: 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08
+        size: 4
     Health:
       type: object
       required: [status, version]

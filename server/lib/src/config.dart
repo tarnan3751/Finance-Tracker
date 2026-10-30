@@ -66,6 +66,7 @@ final class ServerConfig {
     this.port = 8080,
     this.host = '127.0.0.1',
     this.databasePath = 'data/finance_tracker.db',
+    this.receiptsPath = 'data/receipts',
     required this.jwtSecret,
     this.jwtSecretPrevious,
     required this.tokenEncryptionKey,
@@ -216,6 +217,7 @@ final class ServerConfig {
       port: integer('PORT', 8080, min: 1, max: 65535),
       host: host,
       databasePath: value('DATABASE_PATH') ?? 'data/finance_tracker.db',
+      receiptsPath: value('RECEIPTS_PATH') ?? 'data/receipts',
       jwtSecret: key('JWT_SECRET', atLeast: 32),
       jwtSecretPrevious: previous.isEmpty ? null : previous,
       tokenEncryptionKey: key('TOKEN_ENCRYPTION_KEY', exactly: 32),
@@ -244,6 +246,10 @@ final class ServerConfig {
 
   /// The SQLite file (`DATABASE_PATH`), relative to the working directory (`server/`).
   final String databasePath;
+
+  /// The directory of the receipt photos (`RECEIPTS_PATH`), one file per hash, relative
+  /// to the working directory (`server/`) and created on the first upload.
+  final String receiptsPath;
 
   /// The key access tokens are signed with (`JWT_SECRET`).
   final List<int> jwtSecret;

@@ -18,7 +18,7 @@ Map<String, Object?> _transaction({String syncVersion = '42'}) => jsonDecode('''
  "pending_transaction_id": null, "name": "NETFLIX.COM", "merchant_name": null,
  "merchant_logo_url": null, "plaid_primary_category": null,
  "plaid_detailed_category": null, "user_category_id": null, "notes": null, "tags": [],
- "splits": [], "receipt_path": null, "hidden": false, "source": "plaid",
+ "splits": [], "receipt_path": null, "receipt_sha256": null, "hidden": false, "source": "plaid",
  "created_at": "2026-10-23T12:00:00.000Z", "updated_at": "2026-10-23T12:00:00.000Z",
  "deleted_at": null, "sync_version": $syncVersion}
 ''') as Map<String, Object?>;
