@@ -4,7 +4,8 @@ The reports: spending and income by period, by category and by merchant, the sav
 comparisons with the period before and the year before, the top movers, the trends, the
 anomaly flags ("Worth a look") and the weekly summary. They are the Insights tab's
 Reports segment (`app-core.md`, **The Insights tab**). The decisions are in `PLAN.md`
-§12: "Reports and insights", "Insights tab" and "6c plan rulings".
+§12: "Reports and insights", "Insights tab", "6c plan rulings" and "Credit card payments
+in reports".
 
 Code:
 - `app/lib/features/reports/domain/` (pure Dart, integer `Money` only):
@@ -51,9 +52,39 @@ transfer.
 |---|---|
 | `TRANSFER_IN*`, `TRANSFER_OUT*` | transfer |
 | `LOAN_PAYMENTS*` or `LOAN_DISBURSEMENTS*`, an inflow | transfer (the receiving leg of a payment; borrowed money) |
+| `LOAN_PAYMENTS_CREDIT_CARD_PAYMENT`, an outflow paired with its card's inflow (below) | transfer |
+| an inflow on a credit account paired with a card payment, any code | transfer |
+| `LOAN_PAYMENTS_CREDIT_CARD_PAYMENT`, an outflow not paired | spending (an unlinked card's payment is the only trace of its spending) |
 | `INCOME*`, either sign | income |
 | any other code | spending; a refund under it nets against it |
 | no code at all | income when it comes in, spending when it goes out |
+
+**Credit card payments.** A payment from checking to a linked card has two legs: the
+outflow from checking and the card's inflow. The card's purchases are already spending,
+so counting the outflow too would count them twice.
+- **The rule.** An outflow without splits whose effective category's code is
+  `LOAN_PAYMENTS_CREDIT_CARD_PAYMENT` is a transfer when it is paired. Its pair is a
+  counted inflow (live, not hidden) on a credit account (type `credit`), of the same
+  currency and amount, dated within five days either side
+  (`cardPaymentPairingDays`). Otherwise it stays spending.
+- **One-to-one.** An inflow pairs one payment at most. The pairs closest in date are
+  taken first, then the earlier payment (by date, then id), then the earlier inflow.
+- **Where.** `pairedCardPayments` runs once over the rows `reportEntries` is given, so
+  the report, the export and the weekly summary agree. The credit accounts are
+  `reportCreditAccountIdsProvider`. The anomalies already leave every `LOAN_PAYMENTS*`
+  outflow out, and budgets and the forecast do not use this classification.
+- **The inflow** paired is a transfer too, whatever its code, so an uncoded inflow is
+  not income and one under a spending code is not a refund. An inflow with splits
+  pairs nothing, nor does a payment with splits: each counts by its splits.
+- **An edge, accepted.** Any counted inflow on the card can pair, so a refund to the
+  card of the same amount within five days of a payment pairs it as well.
+
+Worked example: $500.00 paid from checking on 3 October under "Credit card payment",
+and the card's $500.00 inflow on the 5th.
+- Both legs are transfers, and the month's spending does not include the payment.
+- Without the card's inflow (the card not linked), the payment is $500.00 of spending.
+- With a second $500.00 payment on the 9th and still one inflow on the 8th, the 9th's
+  is the transfer (one day away), and the 3rd's stays spending.
 
 A known limit: an opening-balance transaction (a manual account's, or the demo seed's,
 dated the day before its window) has no category. When it is positive it counts as
@@ -237,6 +268,7 @@ marks it read and opens the screen. The system notification is Phase 8's.
 |---|---|
 | `reportStartDayProvider` | The start day (**Periods**) |
 | `reportCurrencyProvider` | The currency (**Periods**) |
+| `reportCreditAccountIdsProvider` | The live credit accounts' ids, which pair the card payments (**Classification**) |
 | `reportPeriodOffsetProvider` | The period shown as an offset from today's, the screen's own (not the budgets'); `select(offset)` |
 | `reportProvider(offset)` | The `Report` of that period over every live transaction (`recurringLedgerProvider`) |
 | `anomaliesProvider(window)` | The flags in a window, less the dismissed ones |

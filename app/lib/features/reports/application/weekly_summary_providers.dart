@@ -33,6 +33,9 @@ typedef WeeklyReport = ({WeeklySummary lastWeek, WeeklySummary thisWeek});
 Future<WeeklyReport> weeklyReport(Ref ref) async {
   final LocalDate today = ref.watch(todayProvider);
   final String currency = await ref.watch(reportCurrencyProvider.future);
+  final Set<String> credit = await ref.watch(
+    reportCreditAccountIdsProvider.future,
+  );
   final List<Category> categories = await ref.watch(categoriesProvider.future);
   final List<Transaction> ledger = await ref.watch(
     recurringLedgerProvider.future,
@@ -42,6 +45,7 @@ Future<WeeklyReport> weeklyReport(Ref ref) async {
     ledger,
     lookup,
     currencyCode: currency,
+    creditAccountIds: credit,
     excluded: (t) => t.hidden,
   ).toList();
   final LocalDateRange thisWeek = weekContaining(today);

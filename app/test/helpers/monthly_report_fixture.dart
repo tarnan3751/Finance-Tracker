@@ -152,7 +152,12 @@ MonthlyReportData monthlyReportFixture() {
     periodStartDay: 1,
     today: today,
     currencyCode: 'USD',
-    entries: reportEntries(ledger, lookup, currencyCode: 'USD').toList(),
+    entries: reportEntries(
+      ledger,
+      lookup,
+      currencyCode: 'USD',
+      creditAccountIds: const {},
+    ).toList(),
     lookup: lookup,
   );
   Transaction byId(String id) => ledger.firstWhere((t) => t.id == id);

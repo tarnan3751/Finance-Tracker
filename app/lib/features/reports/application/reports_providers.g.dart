@@ -90,6 +90,54 @@ final class ReportCurrencyProvider
 
 String _$reportCurrencyHash() => r'01452865940cef77d746b0445bb280cb42c1ad1b';
 
+/// The live credit accounts' ids, whose inflows pair the credit card payments
+/// (`pairedCardPayments`).
+
+@ProviderFor(reportCreditAccountIds)
+final reportCreditAccountIdsProvider = ReportCreditAccountIdsProvider._();
+
+/// The live credit accounts' ids, whose inflows pair the credit card payments
+/// (`pairedCardPayments`).
+
+final class ReportCreditAccountIdsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Set<String>>,
+          Set<String>,
+          FutureOr<Set<String>>
+        >
+    with $FutureModifier<Set<String>>, $FutureProvider<Set<String>> {
+  /// The live credit accounts' ids, whose inflows pair the credit card payments
+  /// (`pairedCardPayments`).
+  ReportCreditAccountIdsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'reportCreditAccountIdsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$reportCreditAccountIdsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<Set<String>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Set<String>> create(Ref ref) {
+    return reportCreditAccountIds(ref);
+  }
+}
+
+String _$reportCreditAccountIdsHash() =>
+    r'0d873368aa5ef83bec23d91096e86159891a3459';
+
 /// Which period the Reports segment shows: 0 for the current one, -1 for the one before.
 /// Its own, apart from the budgets'.
 
@@ -154,19 +202,22 @@ abstract class _$ReportPeriodOffset extends $Notifier<int> {
 }
 
 /// The report of the period [offset] periods after today's, over every live
-/// transaction (`recurringLedgerProvider`), hidden ones left out.
+/// transaction (`recurringLedgerProvider`), hidden ones left out, a credit card
+/// payment paired against the live credit accounts' inflows.
 
 @ProviderFor(report)
 final reportProvider = ReportFamily._();
 
 /// The report of the period [offset] periods after today's, over every live
-/// transaction (`recurringLedgerProvider`), hidden ones left out.
+/// transaction (`recurringLedgerProvider`), hidden ones left out, a credit card
+/// payment paired against the live credit accounts' inflows.
 
 final class ReportProvider
     extends $FunctionalProvider<AsyncValue<Report>, Report, FutureOr<Report>>
     with $FutureModifier<Report>, $FutureProvider<Report> {
   /// The report of the period [offset] periods after today's, over every live
-  /// transaction (`recurringLedgerProvider`), hidden ones left out.
+  /// transaction (`recurringLedgerProvider`), hidden ones left out, a credit card
+  /// payment paired against the live credit accounts' inflows.
   ReportProvider._({
     required ReportFamily super.from,
     required int super.argument,
@@ -210,10 +261,11 @@ final class ReportProvider
   }
 }
 
-String _$reportHash() => r'e1fb3c816731f92d8f9e1fe7a81462c348d280a6';
+String _$reportHash() => r'0114022dfd108cc13fecfe07cdbae88bf3b14ddc';
 
 /// The report of the period [offset] periods after today's, over every live
-/// transaction (`recurringLedgerProvider`), hidden ones left out.
+/// transaction (`recurringLedgerProvider`), hidden ones left out, a credit card
+/// payment paired against the live credit accounts' inflows.
 
 final class ReportFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<Report>, int> {
@@ -227,7 +279,8 @@ final class ReportFamily extends $Family
       );
 
   /// The report of the period [offset] periods after today's, over every live
-  /// transaction (`recurringLedgerProvider`), hidden ones left out.
+  /// transaction (`recurringLedgerProvider`), hidden ones left out, a credit card
+  /// payment paired against the live credit accounts' inflows.
 
   ReportProvider call(int offset) =>
       ReportProvider._(argument: offset, from: this);

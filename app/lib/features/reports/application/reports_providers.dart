@@ -42,6 +42,14 @@ Future<String> reportCurrency(Ref ref) async {
       .currencyCode;
 }
 
+/// The live credit accounts' ids, whose inflows pair the credit card payments
+/// (`pairedCardPayments`).
+@riverpod
+Future<Set<String>> reportCreditAccountIds(Ref ref) async => {
+  for (final Account a in await ref.watch(accountsProvider.future))
+    if (a.type == AccountType.credit) a.id,
+};
+
 /// Which period the Reports segment shows: 0 for the current one, -1 for the one before.
 /// Its own, apart from the budgets'.
 @riverpod
@@ -54,12 +62,16 @@ class ReportPeriodOffset extends _$ReportPeriodOffset {
 }
 
 /// The report of the period [offset] periods after today's, over every live
-/// transaction (`recurringLedgerProvider`), hidden ones left out.
+/// transaction (`recurringLedgerProvider`), hidden ones left out, a credit card
+/// payment paired against the live credit accounts' inflows.
 @riverpod
 Future<Report> report(Ref ref, int offset) async {
   final LocalDate today = ref.watch(todayProvider);
   final int startDay = await ref.watch(reportStartDayProvider.future);
   final String currency = await ref.watch(reportCurrencyProvider.future);
+  final Set<String> credit = await ref.watch(
+    reportCreditAccountIdsProvider.future,
+  );
   final List<Category> categories = await ref.watch(categoriesProvider.future);
   final List<Transaction> ledger = await ref.watch(
     recurringLedgerProvider.future,
@@ -74,6 +86,7 @@ Future<Report> report(Ref ref, int offset) async {
       ledger,
       lookup,
       currencyCode: currency,
+      creditAccountIds: credit,
       excluded: (t) => t.hidden,
     ).toList(),
     lookup: lookup,

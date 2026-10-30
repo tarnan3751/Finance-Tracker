@@ -63,6 +63,7 @@ Report report(List<Transaction> ts) => buildReport(
     ts,
     lookup,
     currencyCode: 'USD',
+    creditAccountIds: const {},
     excluded: (t) => t.hidden,
   ).toList(),
   lookup: lookup,
@@ -98,6 +99,7 @@ void main() {
             ts,
             lookup,
             currencyCode: 'USD',
+            creditAccountIds: const {},
             excluded: (t) => t.hidden,
           ))
             if (p.range.contains(e.date) && !e.date.isAfter(p.through))

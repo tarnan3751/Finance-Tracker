@@ -53,7 +53,7 @@ final class WeeklyReportProvider
   }
 }
 
-String _$weeklyReportHash() => r'ac1816ca281a976cb3ce7d28aac0d4781eb80f4d';
+String _$weeklyReportHash() => r'e2b60f27e40084cad4e679a61674a735ceba3289';
 
 /// Raises "Your weekly summary is ready" once a week: on the first day in a week that
 /// it is listened to (`bootstrap` does, for the life of the app), it tells the

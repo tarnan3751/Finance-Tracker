@@ -1,7 +1,8 @@
 // The report math on worked examples (docs/reference/reports.md): the classification
-// by effective category, splits, signs and currencies; a period's totals with the parent
-// roll-up and the merchants; the savings rate; month-over-month and year-over-year on a
-// partial period, including a clamp to a short month; the top movers and the trend.
+// by effective category, splits, signs and currencies; credit card payments paired with
+// their card's inflow; a period's totals with the parent roll-up and the merchants; the
+// savings rate; month-over-month and year-over-year on a partial period, including a
+// clamp to a short month; the top movers and the trend.
 import 'package:finance_tracker/features/budgets/domain/budget_math.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_period.dart';
 import 'package:finance_tracker/features/categories/data/category_defaults.dart';
@@ -45,6 +46,7 @@ Transaction txn(
   String? code,
   String? category,
   String currency = 'USD',
+  String account = 'a1',
   String? merchant,
   List<TransactionSplit> splits = const [],
   bool hidden = false,
@@ -52,7 +54,7 @@ Transaction txn(
   DateTime? deletedAt,
 }) => Transaction(
   id: 't${(_n++).toString().padLeft(4, '0')}',
-  accountId: 'a1',
+  accountId: account,
   amount: Money(minor, currency),
   date: date,
   pending: pending,
@@ -74,6 +76,7 @@ List<ReportEntry> entries(List<Transaction> ts, {String currency = 'USD'}) =>
       ts,
       lookup,
       currencyCode: currency,
+      creditAccountIds: const {'card'},
       excluded: (t) => t.hidden,
     ).toList();
 
@@ -92,6 +95,146 @@ ReportPeriod period(
 final LocalDateRange october = LocalDateRange(d(2026, 10, 1), d(2026, 11, 1));
 
 void main() {
+  group('a credit card payment', () {
+    const String pay = 'LOAN_PAYMENTS_CREDIT_CARD_PAYMENT';
+    Transaction payment(int day, int minor, {String currency = 'USD'}) =>
+        txn(d(2026, 10, day), -minor, code: pay, currency: currency);
+    Transaction received(
+      int day,
+      int minor, {
+      String account = 'card',
+      String currency = 'USD',
+      String? code = pay,
+      bool hidden = false,
+    }) => txn(
+      d(2026, 10, day),
+      minor,
+      code: code,
+      account: account,
+      currency: currency,
+      hidden: hidden,
+    );
+    Map<String, TransactionKind> kinds(
+      List<Transaction> ts, {
+      String currency = 'USD',
+    }) => {
+      for (final ReportEntry e in entries(ts, currency: currency))
+        e.transaction.id: e.kind,
+    };
+
+    test('is a transfer on both legs when the card\'s inflow is in the '
+        'ledger', () {
+      final Transaction out = payment(3, 50000);
+      final Transaction inflow = received(5, 50000);
+      expect(kinds([out, inflow]), {
+        out.id: TransactionKind.transfer,
+        inflow.id: TransactionKind.transfer,
+      });
+      expect(period([out, inflow], october).spend, usd(0));
+    });
+
+    test('makes an uncoded or refund-coded card inflow a transfer too', () {
+      for (final String? code in [null, 'FOOD_AND_DRINK_GROCERIES']) {
+        final Transaction out = payment(3, 50000);
+        final Transaction inflow = received(5, 50000, code: code);
+        expect(kinds([out, inflow]), {
+          out.id: TransactionKind.transfer,
+          inflow.id: TransactionKind.transfer,
+        });
+        final ReportPeriod p = period([out, inflow], october);
+        expect(p.income, usd(0));
+        expect(p.spend, usd(0));
+      }
+      // Unpaired, the uncoded inflow is income.
+      expect(
+        kinds([received(5, 50000, code: null)]).values.single,
+        TransactionKind.income,
+      );
+    });
+
+    test('stays spending without the card\'s inflow', () {
+      final Transaction out = payment(3, 50000);
+      expect(kinds([out]), {out.id: TransactionKind.spend});
+      expect(period([out], october).spend, usd(50000));
+    });
+
+    test('pairs one-to-one, the nearest date first', () {
+      final Transaction early = payment(3, 50000);
+      final Transaction near = payment(9, 50000);
+      final Transaction inflow = received(8, 50000);
+      expect(kinds([early, near, inflow]), {
+        early.id: TransactionKind.spend,
+        near.id: TransactionKind.transfer,
+        inflow.id: TransactionKind.transfer,
+      });
+    });
+
+    test('takes the earlier payment on a tie', () {
+      final Transaction early = payment(3, 50000);
+      final Transaction late = payment(7, 50000);
+      final Transaction inflow = received(5, 50000);
+      expect(kinds([late, inflow, early]), {
+        late.id: TransactionKind.spend,
+        inflow.id: TransactionKind.transfer,
+        early.id: TransactionKind.transfer,
+      });
+    });
+
+    test('stays spending against another currency, amount, date or '
+        'account', () {
+      final Transaction out = payment(10, 50000);
+      for (final Transaction other in [
+        received(11, 50000, currency: 'EUR'),
+        received(11, 49999),
+        received(4, 50000),
+        received(16, 50000),
+        received(11, 50000, account: 'a2'),
+      ]) {
+        expect(kinds([out, other])[out.id], TransactionKind.spend);
+      }
+      expect(
+        kinds([out, received(5, 50000), received(15, 50000)])[out.id],
+        TransactionKind.transfer,
+      );
+    });
+
+    test('a hidden inflow pairs nothing', () {
+      final Transaction out = payment(3, 50000);
+      expect(kinds([out, received(5, 50000, hidden: true)]), {
+        out.id: TransactionKind.spend,
+      });
+    });
+
+    test('an autopay and a manual payment in one month are both paired', () {
+      final List<Transaction> ts = [
+        payment(8, 525601),
+        received(9, 525601),
+        payment(20, 235169),
+        received(21, 235169),
+        txn(
+          d(2026, 10, 22),
+          -38000,
+          code: 'LOAN_PAYMENTS_CAR_PAYMENT',
+          merchant: 'Gingham Auto',
+        ),
+        txn(
+          d(2026, 10, 12),
+          -6000,
+          code: 'FOOD_AND_DRINK_GROCERIES',
+          merchant: 'Safeway',
+        ),
+      ];
+      final ReportPeriod p = period(ts, october);
+      expect(p.spend, usd(44000));
+      expect(p.transferNet, usd(0));
+      expect(p.counts[TransactionKind.transfer], 4);
+      expect(
+        [for (final m in p.spendByMerchant) m.total],
+        [usd(38000), usd(6000)],
+      );
+    });
+  });
+
   group('the classification', () {
     TransactionKind kind(int minor, {String? code, String? category}) =>
         transactionKind(

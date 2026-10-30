@@ -54,8 +54,12 @@ void main() {
     txn(d(2026, 10, 19), -1000, 'FOOD_AND_DRINK_COFFEE', 'Blue Bottle'),
     txn(d(2026, 10, 22), -2500, 'FOOD_AND_DRINK_COFFEE', 'Blue Bottle'),
   ];
-  List<ReportEntry> entries() =>
-      reportEntries(ts, lookup, currencyCode: 'USD').toList();
+  List<ReportEntry> entries() => reportEntries(
+    ts,
+    lookup,
+    currencyCode: 'USD',
+    creditAccountIds: const {},
+  ).toList();
 
   test('a week\'s totals, biggest categories and merchant', () {
     final WeeklySummary w = WeeklySummary.of(
