@@ -46,4 +46,9 @@ final class AppConfig {
 
   /// Whether the UI draws a strip naming the flavor above the app (dev and demo).
   bool get showsFlavorBanner => flavor != Flavor.prod;
+
+  /// Whether "Block screenshots" is on before the user has chosen (`features/lock/`): on
+  /// in prod, off in dev and demo, whose screens the emulator harness and the acceptance
+  /// read. The setting and its behaviour are the same in every flavor.
+  bool get secureScreenDefault => flavor == Flavor.prod;
 }

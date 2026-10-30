@@ -11,7 +11,8 @@
 /// `flutter_local_notifications` and the exported files through the "Save as" dialog and
 /// the share sheet, and the demo flavor the demo ones, which record nothing, with the
 /// fake image source (and, as by default, the fake reminder scheduler and file
-/// exporter).
+/// exporter); every flavor gets the window's secure flag and the monotonic clock through
+/// the app's own channels.
 library;
 
 import 'dart:async';
@@ -34,13 +35,17 @@ import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/plaid/plaid_pull.dart';
 import 'package:finance_tracker/core/platform/backup_picker_provider.dart';
+import 'package:finance_tracker/core/platform/channel_monotonic_clock.dart';
+import 'package:finance_tracker/core/platform/channel_screen_security.dart';
 import 'package:finance_tracker/core/platform/fake_image_source.dart';
 import 'package:finance_tracker/core/platform/file_exporter_provider.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
 import 'package:finance_tracker/core/platform/local_notifications_scheduler.dart';
+import 'package:finance_tracker/core/platform/monotonic_clock_provider.dart';
 import 'package:finance_tracker/core/platform/platform_backup_picker.dart';
 import 'package:finance_tracker/core/platform/platform_file_exporter.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
+import 'package:finance_tracker/core/platform/screen_security_provider.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/core/sync/device_clock.dart';
 import 'package:finance_tracker/core/sync/http_sync_relay.dart';
@@ -506,6 +511,14 @@ List<Override> overridesFor(AppConfig config) => [
   ...localDataOverridesFor(config),
   ...apiOverridesFor(config),
   ...filePickerOverridesFor(config),
+  ..._platformOverrides,
+];
+
+/// Every flavor: the platform seams that behave the same in all three, through the app's
+/// own channels to `MainActivity`.
+final List<Override> _platformOverrides = [
+  screenSecurityProvider.overrideWithValue(const ChannelScreenSecurity()),
+  monotonicClockProvider.overrideWithValue(const ChannelMonotonicClock()),
 ];
 
 /// The system's file dialogs in dev and prod (`flutter_file_dialog` and `share_plus`):
