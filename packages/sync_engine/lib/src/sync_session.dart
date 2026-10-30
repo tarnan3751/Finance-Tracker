@@ -3,6 +3,7 @@
 library;
 
 import 'package:meta/meta.dart';
+import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/src/entity_record.dart';
 import 'package:sync_engine/src/hlc_clock.dart';
 import 'package:sync_engine/src/merge.dart';
@@ -21,6 +22,7 @@ final class SyncReport {
     required this.changed,
     required this.clamped,
     required this.conflicts,
+    required this.deferred,
   });
 
   /// Outbox entries the relay accepted.
@@ -53,6 +55,10 @@ final class SyncReport {
   /// Overwrites of this device's own values that were conflicts ([MergeOutcome.losers]
   /// whose old value this device wrote), handed to [SyncStore.recordConflicts].
   final int conflicts;
+
+  /// Outbox entries [SyncSession.beforePush] held back: still unsynced, offered again on
+  /// the next run.
+  final int deferred;
 }
 
 /// Syncs one device. Safe to rerun after any failure: a failed push leaves its entries
@@ -69,6 +75,7 @@ final class SyncSession {
     required this.nowWallMillis,
     this.pushBatchSize = 200,
     this.pullPageSize = 200,
+    this.beforePush,
   });
 
   /// The device's store.
@@ -89,9 +96,18 @@ final class SyncSession {
   /// Entries per pull page.
   final int pullPageSize;
 
+  /// Called with each batch before it is pushed; returns the entries of the batch that
+  /// may be pushed now, in the batch's order (the host's work that must come first, such
+  /// as uploading the bytes an entry names). The entries it leaves out stay unsynced,
+  /// are not offered again in this run, so they never hold up the entries behind them,
+  /// and are offered first on the next run. Null pushes every entry.
+  final Future<List<ChangeLogEntry>> Function(List<ChangeLogEntry> batch)?
+  beforePush;
+
   Future<SyncReport>? _running;
 
-  /// Pushes every unsynced entry in clock order, in batches: accepted entries are marked
+  /// Pushes every unsynced entry in clock order, in batches, less those [beforePush]
+  /// holds back: accepted entries are marked
   /// synced, permanently rejected ones (`invalid`, `conflictingDuplicate`) are marked
   /// rejected and leave the outbox, and the push continues with the next batch; a
   /// `clockDrift` rejection stays unsynced and ends the push phase for this run. Then
@@ -113,10 +129,22 @@ final class SyncSession {
   Future<SyncReport> _run() async {
     var pushed = 0;
     final rejected = <PushRejection>[];
+    final held = <Hlc>{};
     while (true) {
-      final batch = await store.unsynced(limit: pushBatchSize);
+      final batch = [
+        for (final e in await store.unsynced(
+          limit: pushBatchSize + held.length,
+        ))
+          if (!held.contains(e.hlc)) e,
+      ].take(pushBatchSize).toList();
       if (batch.isEmpty) break;
-      final result = await relay.push(batch);
+      final ready = beforePush == null ? batch : await beforePush!(batch);
+      final readyClocks = {for (final e in ready) e.hlc};
+      for (final e in batch) {
+        if (!readyClocks.contains(e.hlc)) held.add(e.hlc);
+      }
+      if (ready.isEmpty) continue;
+      final result = await relay.push(ready);
       if (result.accepted.isNotEmpty) await store.markSynced(result.accepted);
       pushed += result.accepted.length;
       rejected.addAll(result.rejected);
@@ -202,6 +230,7 @@ final class SyncSession {
       changed: changed,
       clamped: clamped,
       conflicts: conflicts,
+      deferred: held.length,
     );
   }
 }

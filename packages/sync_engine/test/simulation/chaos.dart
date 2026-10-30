@@ -337,13 +337,15 @@ final class ChaosStats {
   int conflicts = 0;
   int kept = 0;
   int dismissed = 0;
+  int deferred = 0;
 
   @override
   String toString() =>
       '$scenarios scenarios, $steps steps: $bursts bursts, $partitions partitions, '
       '$restarts restarts, $reshapedPages pages reordered, duplicated or early, '
       '$driftRefused pushes refused for drift, $clamped received clocks clamped, '
-      '$conflicts conflicts ($kept kept, $dismissed dismissed)';
+      '$conflicts conflicts ($kept kept, $dismissed dismissed), '
+      '$deferred entries held back before a push';
 }
 
 class _Fault implements Exception {
@@ -376,6 +378,10 @@ final class _Device {
   /// The randomness of the step running on this device: yields, faults, jitter.
   Random r = Random(0);
   bool faults = false;
+
+  /// Whether a session holds back some of its outbox before pushing, as a host whose
+  /// uploads fail would.
+  bool deferring = false;
 
   final store = InMemorySyncStore();
   late final HookedRelay relay;
@@ -418,6 +424,12 @@ final class _Device {
       nowWallMillis: now,
       pushBatchSize: run.scenario.batch,
       pullPageSize: run.scenario.batch,
+      beforePush: (batch) async => deferring
+          ? [
+              for (final e in batch)
+                if (r.nextInt(3) != 0) e,
+            ]
+          : batch,
     );
   }
 
@@ -490,6 +502,7 @@ final class _Device {
   Future<void> sync(Sync step) async {
     relay.deliver = (page) => _deliver(page, step.delivery);
     final known = store.conflicts.toSet();
+    deferring = faults && r.nextInt(2) == 0;
     try {
       final report = await session.run();
       run.log(
@@ -499,6 +512,7 @@ final class _Device {
       );
       run.stats.clamped += report.clamped;
       run.stats.conflicts += report.conflicts;
+      run.stats.deferred += report.deferred;
       for (final x in report.rejected) {
         run.check(
           x.reason == PushRejectionReason.clockDrift,
@@ -510,6 +524,7 @@ final class _Device {
       run.log('$id ${step.describe()} failed: $e');
     } finally {
       relay.deliver = null;
+      deferring = false;
     }
     for (final c in store.conflicts) {
       if (!known.contains(c)) _checkConflict(c);

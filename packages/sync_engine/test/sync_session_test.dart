@@ -530,4 +530,82 @@ void main() {
       expect(a.store.conflicts, isEmpty);
     });
   });
+
+  group('beforePush', () {
+    SyncSession held(
+      Device d,
+      bool Function(ChangeLogEntry) wait, {
+      int page = 200,
+    }) => SyncSession(
+      d.store,
+      relay,
+      d.clock,
+      nowWallMillis: () => d.now,
+      pushBatchSize: page,
+      pullPageSize: page,
+      beforePush: (batch) async => [
+        for (final e in batch)
+          if (!wait(e)) e,
+      ],
+    );
+
+    test(
+      'an entry held back stays unsynced and goes on the next run',
+      () async {
+        final a = Device('a', relay);
+        await a.create('c1');
+        await a.create('c2');
+        await a.create('c3');
+        final r = await held(a, (e) => e.entityId == 'c2').run();
+        expect((r.pushed, r.deferred), (2, 1));
+        expect([for (final e in inner.entries) e.entityId], ['c1', 'c3']);
+        expect([for (final e in await a.store.unsynced()) e.entityId], ['c2']);
+        final again = await a.session.run();
+        expect((again.pushed, again.deferred), (1, 0));
+        final b = Device('b', relay);
+        await b.session.run();
+        expect(b.store.records, a.store.records);
+      },
+    );
+
+    test('entries held back never hold up the ones behind them', () async {
+      final a = Device('a', relay);
+      for (var i = 0; i < 9; i++) {
+        await a.create('c$i');
+      }
+      // The first five wait; batches of two.
+      final waiting = {for (var i = 0; i < 5; i++) 'c$i'};
+      var calls = 0;
+      final session = SyncSession(
+        a.store,
+        relay,
+        a.clock,
+        nowWallMillis: () => a.now,
+        pushBatchSize: 2,
+        beforePush: (batch) async {
+          calls++;
+          expect(batch.length, lessThanOrEqualTo(2));
+          return [
+            for (final e in batch)
+              if (!waiting.contains(e.entityId)) e,
+          ];
+        },
+      );
+      final r = await session.run();
+      expect((r.pushed, r.deferred), (4, 5));
+      expect(calls, 5, reason: 'each entry is offered once');
+      expect(
+        [for (final e in inner.entries) e.entityId],
+        ['c5', 'c6', 'c7', 'c8'],
+      );
+    });
+
+    test('an entry held back by every batch ends the push', () async {
+      final a = Device('a', relay);
+      await a.create('c1');
+      final r = await held(a, (_) => true).run();
+      expect((r.pushed, r.deferred), (0, 1));
+      expect(relay.pushCalls, 0);
+    });
+  });
 }
