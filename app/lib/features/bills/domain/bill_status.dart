@@ -245,3 +245,28 @@ BillStatus billStatus(
   if (lastState == BillState.paid) return status(BillState.paid, last);
   return status(BillState.upcoming, next);
 }
+
+/// The occurrence a row is about, and what that occurrence is.
+typedef BillOccurrence = ({LocalDate? due, BillState? state});
+
+/// The occurrence of [status]'s bill a bill row shows on [today], given its [paid]
+/// occurrences: the missed one, the one due, else the next.
+BillOccurrence billFocus(
+  BillStatus status,
+  LocalDate today,
+  Map<LocalDate, String> paid,
+) {
+  final BillReminder bill = status.bill;
+  BillState stateOf(LocalDate due) =>
+      occurrenceState(bill, due, today, paidBy: paid[due]);
+  final LocalDate? last = status.lastOccurrence;
+  final LocalDate? next = status.nextDue;
+  return switch (status.state) {
+    BillState.missed => (due: last, state: BillState.missed),
+    BillState.due when last != null && stateOf(last) == BillState.due => (
+      due: last,
+      state: BillState.due,
+    ),
+    _ => (due: next, state: next == null ? null : stateOf(next)),
+  };
+}

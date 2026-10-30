@@ -35,31 +35,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_models/shared_models.dart';
 
-/// The occurrence a row is about, and what that occurrence is.
-typedef BillOccurrence = ({LocalDate? due, BillState? state});
-
-/// The occurrence of [status]'s bill the list shows on [today], given its [paid]
-/// occurrences: the missed one, the one due, else the next.
-BillOccurrence billFocus(
-  BillStatus status,
-  LocalDate today,
-  Map<LocalDate, String> paid,
-) {
-  final BillReminder bill = status.bill;
-  BillState stateOf(LocalDate due) =>
-      occurrenceState(bill, due, today, paidBy: paid[due]);
-  final LocalDate? last = status.lastOccurrence;
-  final LocalDate? next = status.nextDue;
-  return switch (status.state) {
-    BillState.missed => (due: last, state: BillState.missed),
-    BillState.due when last != null && stateOf(last) == BillState.due => (
-      due: last,
-      state: BillState.due,
-    ),
-    _ => (due: next, state: next == null ? null : stateOf(next)),
-  };
-}
-
 /// The bills segment.
 class BillsScreen extends ConsumerStatefulWidget {
   const BillsScreen({super.key});
