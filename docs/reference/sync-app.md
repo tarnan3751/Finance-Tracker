@@ -4,15 +4,17 @@ How the app hosts the sync engine (`sync.md`): what it stores, what it records, 
 changes reach the screens, how it talks to the server, and when sessions run; and the
 Plaid pull, which brings the server's bank data after each session. Code:
 `app/lib/core/sync/` (the record codec, the recorder, the device clock, the HTTP relay,
-the controller and its status), `app/lib/core/plaid/plaid_pull.dart`,
+the controller and its status, the receipt uploader), `app/lib/core/plaid/plaid_pull.dart`,
 `app/lib/core/db/drift_plaid_pull_store.dart`,
 `app/lib/core/db/drift_sync_store.dart`, `app/lib/core/db/sync_backfill.dart`, the
 schema 2 tables under `app/lib/core/db/tables/`, the repositories' writes
-(`data.md`), and `app/lib/features/settings/presentation/sync_section.dart`. Tests:
+(`data.md`), `app/lib/features/conflicts/` (the conflicts' store, actions and screen), and
+`app/lib/features/settings/presentation/sync_section.dart`. Tests:
 `app/test/core/db/drift_sync_store_test.dart`, `app/test/core/sync/`,
 `app/test/contract/recording_contract.dart`, `app/test/drift/migration_test.dart`,
 `app/test/sync/two_device_convergence_test.dart`,
-`app/integration_test/sync_two_devices_test.dart`, `app/test/core/plaid/plaid_pull_test.dart`.
+`app/integration_test/sync_two_devices_test.dart`, `app/integration_test/receipts_sync_test.dart`,
+`app/test/core/plaid/plaid_pull_test.dart`, `app/test/features/conflicts/`.
 
 Sync covers the user-authored data the app stores now: accounts, transactions,
 categories, rules, budgets, the overrides of recurring streams, bills, goals and their
@@ -28,7 +30,7 @@ plus what the app keeps beside it:
 | Type | Fields |
 |---|---|
 | `account` | `Account.toJson()` and `deleted_at` (the entity carries no tombstone) |
-| `transaction` | `Transaction.toJson()` (its own `deleted_at`) and `deleted_with_account`, the account cascade's flag, synced so a restore on any device brings back the same rows |
+| `transaction` | `Transaction.toJson()` (its own `deleted_at`) and `deleted_with_account`, the account cascade's flag, synced so a restore on any device brings back the same rows; `receipt_path` (the same `receipts/<id>.jpg` on every device) and `receipt_sha256` (the photo's hash) name the receipt photo, which travels as a blob (**Receipts**) |
 | `category` | `Category.toJson()` and `deleted_at` |
 | `rule` | `Rule.toJson()` and `deleted_at`; `conditions` and `actions` are whole field values, so concurrent edits of two conditions of one rule resolve last-writer-wins on the list |
 | `budget` | `Budget.toJson()` and `deleted_at`; the amount is one whole field value (`{minor_units, currency}`) and `start_date` an ISO date (`budgets.md`) |
@@ -52,6 +54,7 @@ own; a transaction's are in its record and sync.
 | `record_clocks` | the clock of each field of each record; the reserved field `_create` holds the clock of its earliest create |
 | `sync_meta` | `pull_cursor`, `last_clock`, `device_id` (the clock's node), `last_sync_at`, `last_report` (counts only) |
 | `held_records` | the whole fields of records the entity tables cannot hold exactly, with the reason: `incomplete`, `unrepresentable`, `unknown_fields`, `unsupported_type` |
+| `conflicts` | this device's own values a pulled change overwrote within ten minutes (**Conflicts**); device-local, never synced |
 
 `transaction` is Drift's: a call inside a repository's transaction joins it.
 
@@ -121,6 +124,89 @@ type it does not know.
 
 Pulled changes reach the screens through Drift's watchers on the tables the store writes.
 
+## Conflicts
+
+The engine reports a field value of this device's that a pulled change from another
+device overwrote within ten minutes (`sync.md`, **Conflicts**; `PLAN.md` §12,
+"Conflicts and receipt blobs" and "7d plan rulings"). The app keeps and shows them:
+
+- **The table.** `DriftSyncStore.recordConflicts`, inside the page's transaction, writes
+  one `conflicts` row (schema 13) per entity and field: both values as JSON, both packed
+  clocks (each clock's node is the device that wrote it), the entity's label (a
+  transaction's merchant, else its name; the name of an account, category, rule, bill or
+  goal; a stream override's display name; else none) and when it was seen (UTC). A newer
+  conflict on the field replaces the older. One on an audit instant (`created_at`,
+  `updated_at`), which every edit moves, is not kept.
+- **Settling.** Every `write` of a record settles its conflicts: all of them go when the
+  record is deleted (a pulled delete included), and each one whose field's clock is no
+  longer the clock that won (a later edit from anywhere, "Keep this device's value"
+  included); the rest take the entity's current name as their label. So a conflict
+  always offers the value there now. A Plaid transaction's sync record carries no
+  tombstone, so `applyPlaid` deletes the conflicts of every row it tombstones (Plaid's
+  removal, a pending row its posted one replaced).
+- **Not in a backup.** The table is device-local: a backup leaves it out and a restore
+  ignores it (`backup.md`), so a restored install starts with no conflicts.
+- **Expiry.** `openLocalData` sweeps the conflicts seen more than thirty days ago
+  (`DriftSyncStore.sweepConflicts`) at every open; a failed sweep is logged by type and
+  never keeps the app from starting.
+- **The store.** `ConflictStore` (`features/conflicts/domain/`): `watch()` (the most
+  recently seen first) and `dismiss`. Drift (`DriftConflictStore`, dev and prod) and in
+  memory (`InMemoryConflictStore`, the tests' and the demo's, which never syncs, so it
+  stays empty) pass one contract suite (`test/contract/conflict_store_contract.dart`).
+- **The screen.** Settings → Sync shows "Conflicts (n)" while there are any; it opens
+  the Conflicts screen (`/settings/conflicts`), one card per conflict: the record's
+  kind and label, the field (by name), this device's value and the other value (an
+  amount in its currency, a category or an account by name, a list joined, splits
+  counted, none, yes or no; a receipt photo's hash as "Photo, on this device" or "Photo,
+  not on this device"), each with the device that wrote it (this device; a name from `GET /devices`; else
+  the node id, for a device no longer listed) and when, from its clock, in the device's
+  zone.
+- **The actions** (`ConflictActions`). "Keep the other" forgets the conflict. "Keep this
+  device's value", in one sync-store transaction, reads the record and, while it is live
+  (a transaction's row too, which a Plaid removal tombstones while its record says
+  nothing) and the field still holds the winning clock, records a change writing the lost value
+  again (and `updated_at` now, for a record that has one) through the engine's
+  `LocalEditor` over the Drift store, with the device's clock: the same local edit path a
+  repository's recorder takes, so it is stamped after the clock that won and wins on every
+  device, and the row is materialised by `DriftSyncStore.write` exactly as a pulled merge
+  is, so the full-text index, the repositories' streams and everything derived from the
+  row follow. Its write settles the conflict. Otherwise, and on a build that records
+  nothing (the demo), it only forgets it. A "keep this" within ten minutes of the winning
+  edit shows on the other device as that device's own conflict. On a receipt photo's
+  conflict, keeping this device's photo is offered only while its file here still hashes
+  to it (the upload then has the bytes); otherwise the card says "This photo is no longer
+  on this device" and only "Keep the other" remains. The action reads and hashes the file
+  again inside its transaction, since a fetch on another tab may have replaced it after
+  the screen looked, and refuses then, forgetting the conflict and saying so; a fetch
+  also makes every reader of the local photo read it again.
+
+## Receipts
+
+A receipt photo's file is device-local (`data.md`, **Receipts**); what syncs is the
+transaction's `receipt_path`, the same `receipts/<id>.jpg` on every device, and its
+`receipt_sha256`. The photo travels as a blob by that hash (contract 0.7.0, `PUT` and
+`GET /receipts/{sha256}`; `api.md`):
+
+- **Upload before push.** The controller gives each session a `ReceiptUploader`
+  (`core/sync/receipt_uploader.dart`) as its `beforePush`. An outbox entry of a
+  transaction whose payload sets `receipt_sha256` to a hash waits until that photo is
+  on the server. If the record no longer holds that hash (a later edit, here or pulled,
+  replaced it), or the photo with that hash is not here (replaced or gone), the entry
+  goes as it is: its value has already lost, or the bytes cannot be had. Otherwise the
+  photo is uploaded (idempotent, so a retry after a lost answer is harmless); on success,
+  or a refusal no retry can change (400, 413, 415, logged by status only), the entry
+  goes; on any other failure it is held back until the next session, without holding up
+  the entries behind it. Each hash is uploaded once a session.
+- **Hashes for older photos.** Photos attached before hashes existed get theirs after
+  the first frame, once (`TransactionActions.fillReceiptHashes`), as a recorded change,
+  which then uploads and syncs; a photo whose file is on another device is left to it.
+  The pass is one query for the rows with a path and no hash
+  (`TransactionRepository.unhashedReceipts`), which finds nothing once every row has one.
+- **Fetch on view.** A pulled `receipt_sha256` is stored like any field; nothing is
+  fetched then. "Receipt not downloaded" is derived where the photo is shown: no file
+  here, or a file whose hash differs (a photo replaced elsewhere). The receipt view
+  fetches it on first view (`transactions.md`, **Receipts**).
+
 ## Recording
 
 Every user-authored repository write calls `ChangeRecorder.record(type, id, before,
@@ -136,7 +222,7 @@ The filter by `source` is `userAuthoredChange`, shared by every implementation:
 | Change | Recorded |
 |---|---|
 | a `manual` or `import` transaction | all of it |
-| a `plaid` transaction | only `user_category_id`, `notes`, `tags`, `splits`, `receipt_path`, `hidden`, as updates; nothing at creation |
+| a `plaid` transaction | only `user_category_id`, `notes`, `tags`, `splits`, `receipt_path`, `receipt_sha256`, `hidden`, as updates; nothing at creation |
 | a `derived` or `demo` transaction | nothing |
 | an account with an `item_id` | nothing, until Phase 3 rules on linked-account overrides |
 | categories, rules, budgets, bills, goals, contributions, settings | all of it; the seeding of the system categories is not recorded |
@@ -226,7 +312,8 @@ during a session never start a second one: the session in flight finishes (the e
 cannot cancel one), its report is discarded, and the next session adopts the new device
 id first. What the relay accepted during it stays synced under the old node; the rest of
 the outbox moves to the new one, so each entry reaches the relay once. Each session
-adopts the device id, then runs `SyncSession` with the shared clock. A
+adopts the device id, then runs `SyncSession` with the shared clock and the receipt
+uploader as its `beforePush` (**Receipts**). A
 `SyncCursorInvalidException` (the relay's log was reset) saves cursor 0 and runs again once.
 The demo flavor never syncs, and nothing runs, or opens the database, while signed out.
 While the restore offer is pending or not yet known (`restoreOfferProvider`, `backup.md`,
@@ -251,7 +338,7 @@ waiting, "Check your device's clock: it is ahead, so some changes wait to sync" 
 last session's pushes were refused for drift (they stay queued), "Check your device's
 clock: it is behind, so changes made here may be overridden" when it clamped a received
 clock, the refused changes with the time of the latest, the records this version cannot
-show, and Sync now. Counts and times only: a change's content is never shown or logged.
+show, "Conflicts (n)" while there are any (**Conflicts**), and Sync now. Counts and times only: a change's content is never shown or logged.
 
 ## The Plaid pull
 
@@ -320,7 +407,10 @@ never re-reads rows; `arrivalProcessorProvider` is the rules' `RuleRunner` (`rul
 
 | Suite | What it proves |
 |---|---|
-| `test/drift/migration_test.dart` | A schema 10 database keeps its rows and gains the four empty investment and snapshot tables, and the step runs again at version 10; a schema 1 database with data migrates: rows kept, one create per user-authored row and a delete per deleted one, clocks increasing on one node, the stored records equal to the fold of the entries; a schema 3 database's held rule records become rows, or stay held for the reason that now applies; a schema 5 database's held transaction records carrying `hidden` land in their rows; a schema 8 database's held `recurring_stream` records become overrides, or stay held; a schema 9 database's held `bill_reminder` records become bills (a complete one), or stay held `incomplete` (updates only), `unknown_fields` (a newer field, the rest landing) or `unrepresentable` (a cadence this version lacks), and the step runs again at version 9; a schema 11 database's held `goal` and `goal_contribution` records become rows (a contribution whose goal never arrived among them), or stay held for the reason that applies, and the step runs again at version 11 |
+| `test/drift/migration_test.dart` | A schema 12 database keeps its rows, gains the empty `conflicts` table and `receipt_sha256` (empty for this device's own photos, filled for the held transaction records a newer device sent with a hash, which land), and the step runs again at version 12, with or without the column already added; a schema 10 database keeps its rows and gains the four empty investment and snapshot tables, and the step runs again at version 10; a schema 1 database with data migrates: rows kept, one create per user-authored row and a delete per deleted one, clocks increasing on one node, the stored records equal to the fold of the entries; a schema 3 database's held rule records become rows, or stay held for the reason that now applies; a schema 5 database's held transaction records carrying `hidden` land in their rows; a schema 8 database's held `recurring_stream` records become overrides, or stay held; a schema 9 database's held `bill_reminder` records become bills (a complete one), or stay held `incomplete` (updates only), `unknown_fields` (a newer field, the rest landing) or `unrepresentable` (a cadence this version lacks), and the step runs again at version 9; a schema 11 database's held `goal` and `goal_contribution` records become rows (a contribution whose goal never arrived among them), or stay held for the reason that applies, and the step runs again at version 11 |
+| `test/core/db/drift_sync_store_conflicts_test.dart` | A conflict kept with both values, clocks, the label and when, a newer one replacing it, audit instants left out; dropped when its field's clock moves on or the entity is deleted, relabelled on a rename; swept after thirty days, not before |
+| `test/features/conflicts/` | The conflict store contract over Drift (conflicts arriving through the sync store) and in memory; the actions over the dev wiring syncing with an engine-only second device: a conflict a pull produces, "Keep this device's value" shown by the repository's stream at once, syncing and winning on the other device (which keeps its own conflict in turn), "Keep the other" writing nothing, a conflict whose entity is deleted since going, a Plaid removal dropping its row's conflicts and keeping on a removed row writing nothing, one whose field moved on only forgotten, the demo's wiring only forgetting; the screen: both values, devices by name, this device or node id, times in a non-UTC zone, amounts, accounts and lists, a receipt photo here or not with keeping it offered only while it is here, both actions, the empty state, and Settings → Sync's entry only while there are conflicts |
+| `test/core/sync/receipt_uploader_test.dart` | Over the fake server: the photo uploaded before the push of its change; a failed upload holding back only its change, which goes next session; a change whose hash was replaced since, or whose photo is gone, or whose file hashes differently, going without an upload; a 400, 413 or 415 letting it go; a 5xx or 401 holding it back; one photo named twice uploaded once |
 | `test/core/db/drift_sync_store_test.dart` | The engine's store contract cases; records round-tripping through the tables (randomized transactions and rules included, a stream override of updates only, live and cleared; a bill, live and deleted, and one recorded before its new fields landing with their defaults; a goal live, archived and deleted; a contribution live and deleted, before its goal exists; a goal's updates laid over its row or held `incomplete`); the held reasons (a bill that does not decode held with its row left as it was, a bill field this version does not know held with the rest landing, a goal kind or contribution amount that does not decode held with the row as it was, a goal field this version does not know held with the rest landing), the row each leaves and their release; unknown fields surviving a local edit; a type this build does not know held under its raw name, folded in any order, and released whole by a version that knows the type; the node substitution; the ledger |
 | `test/core/api/pull_unknown_types_test.dart`, `test/core/sync/unknown_types_session_test.dart` | A pulled page read by the client: an unknown `entity_type` kept apart with its raw name, the rest as before, a malformed page still a server error; a session over the Drift store applying the rest of such a page, advancing the cursor and holding the entry |
 | `test/contract/recording_contract.dart` | Exactly the entries each write records, in the Drift and in-memory implementations; a refused write records nothing; a Drift write and its entry roll back together |
@@ -331,4 +421,5 @@ never re-reads rows; `arrivalProcessorProvider` is the rules' `RuleRunner` (`rul
 | `test/core/api/fake_dataset_test.dart` | Every persona's household served by the fake server as the engine gave it; the demo flavor's fake on the persona the demo shows |
 | `test/features/transactions/presentation/orphan_transaction_test.dart` | A live transaction on an account this device does not show: labelled by its category, and the editor says the account is gone |
 | `integration_test/sync_two_devices_test.dart` | On a device: two app instances, encrypted databases and the real client, sync through the fake server, one driven through its screens |
-| `test/sync/two_device_convergence_test.dart` | Devices, each the app's wiring over its own database, converge through one relay: offline edits, delete against edit and against restore, the cascade, settings, a system category, an amount moved to another currency against splits in the old one, clock skew, a wiped relay, a device cut off while the others make more than a page of changes and rejoining with every cursor at the relay's end, a restart between edits resuming the clock, a device three hours behind applying what it pulls with its clock within the bound and its later edit shown at once, accepted and winning, changes before sign-in, a seeded random run on three devices; rules: concurrent edits, a reorder against an edit, concurrent reorders, delete against edit, two devices filing one bank transaction by a synced rule, and a seeded random run of rule edits; hidden: a hide against a notes edit and a batch hide, hide against unhide by clock, a hidden bank row kept through the bank's update and a hide pulled before its row; stream overrides: first choices on two devices merging, a clear winning over an edit and restored by a later choice, an override reaching a device before its stream; bills: a paid mark and a rename on two devices both surviving, two concurrent marks keeping the later device's list whole, a delete winning over an edit and a restore showing it; goals: contributions added on two devices at once both surviving, a rename and an archive on two devices both surviving, a delete winning over an edit and a restore showing the edit and the contributions, a contribution reaching a device before its goal landing and showing once the goal arrives |
+| `integration_test/receipts_sync_test.dart` | On a device: two app instances, each with its own receipt folder; one attaches a photo and syncs (the upload before the push); the other, through its screens, syncs, opens the transaction, fetches the photo on first view, shows it and keeps it |
+| `test/sync/two_device_convergence_test.dart` | Devices, each the app's wiring over its own database, converge through one relay: offline edits, delete against edit and against restore, the cascade, settings, a system category, an amount moved to another currency against splits in the old one, clock skew, a wiped relay, a device cut off while the others make more than a page of changes and rejoining with every cursor at the relay's end, a restart between edits resuming the clock, a device three hours behind applying what it pulls with its clock within the bound and its later edit shown at once, accepted and winning, changes before sign-in, a seeded random run on three devices; rules: concurrent edits, a reorder against an edit, concurrent reorders, delete against edit, two devices filing one bank transaction by a synced rule, and a seeded random run of rule edits; hidden: a hide against a notes edit and a batch hide, hide against unhide by clock, a hidden bank row kept through the bank's update and a hide pulled before its row; stream overrides: first choices on two devices merging, a clear winning over an edit and restored by a later choice, an override reaching a device before its stream; bills: a paid mark and a rename on two devices both surviving, two concurrent marks keeping the later device's list whole, a delete winning over an edit and a restore showing it; goals: contributions added on two devices at once both surviving, a rename and an archive on two devices both surviving, a delete winning over an edit and a restore showing the edit and the contributions, a contribution reaching a device before its goal landing and showing once the goal arrives; a conflict: kept by the device whose value lost, kept both ways ("keep this" winning everywhere, the other device keeping its own conflict in turn; "keep the other" changing nothing), converging each time |

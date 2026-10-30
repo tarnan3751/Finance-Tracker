@@ -23,7 +23,7 @@ refuses, as `invalid`, any pushed entry whose payload says `source: plaid`
 | `HlcClock` | The device's hybrid logical clock. It stamps local changes and advances past received ones. |
 | `EntityRecord` | One entity's field-level state: its JSON fields, a clock per field, and the clock of its create. |
 | `diff` | Turns a local edit (before and after JSON) into a `ChangeLogEntry`. |
-| `merge` | Applies an entry to a record, last-writer-wins per field. |
+| `merge` | Applies an entry to a record, last-writer-wins per field, and reports the overwrites that are conflicts (`FieldConflict`). |
 | `UnknownTypeEntry`, `mergeUnknownType` | A pulled entry of a type this build does not know, with its raw type name, and its fold under that name by `merge`'s rules (**The session**, Unknown types). |
 | `SyncStore` | What the host stores: records, records of unknown types, outbox, pull cursor, clock, transactions. `InMemorySyncStore` is the reference implementation. |
 | `SyncRelay` | The server as the engine sees it: push entries, pull by `seq`. `InMemorySyncRelay` is the reference implementation. |
@@ -136,8 +136,9 @@ the same change.
    produced the entry. This is a defence in depth, since `diff` already leaves it out.
    A create lowers `createdAt` to its clock if that clock is earlier. A create for an id
    that already exists is an update of every other field it carries.
-3. `MergeOutcome` reports the merged record, the fields taken (`changedFields`), and
-   whether anything changed (`applied`).
+3. `MergeOutcome` reports the merged record, the fields taken (`changedFields`),
+   whether anything changed (`applied`), and the overwrites that are conflicts
+   (`losers`, **Conflicts**).
 
 **Why every device converges.** Each field register is a join semilattice: the join keeps
 the pair with the greater clock. `createdAt` is also a join semilattice, under minimum.
@@ -166,6 +167,48 @@ resolves by clock. The join argument above is unaffected: a create simply does n
 the tombstone register. Put independently of merge, the rule is that an entity is deleted
 exactly when the greatest-clock non-create write to `deleted_at` is non-null. The
 simulation and the property test check that rule directly.
+
+## Conflicts
+
+Last-writer-wins resolves every concurrent edit on its own, but when two people change
+the same field within minutes, the value that lost may be the one someone wanted. The
+engine reports those overwrites so the host can ask (`PLAN.md` §12, "Conflicts and
+receipt blobs" and "7d plan rulings").
+
+**The rule.** `merge` reports a `FieldConflict` (`MergeOutcome.losers`) for each field
+the entry takes whose old value:
+
+- is not null: a value a create set counts as that device's edit (a phone creating a
+  transaction of 10 that a tablet changes to 12 a minute later is a conflict), while a
+  null old value never conflicts, whether a create's default or a later clear, so
+  "none against x" is never asked;
+- has a clock from another node than the entry's (a node's later edit of its own value
+  is causally after it);
+- is at most `conflictWindow`, ten minutes, older by the clocks' physical time
+  (`remote.wallMillis - local.wallMillis <= 10 min`, inclusive);
+- differs from the new value (deep equality: equal values never conflict).
+
+Only an `update` of a record that was not deleted can report one: a create, a delete, a
+restore and an edit of a tombstoned record report none (tombstones still win without
+asking), and `deleted_at` itself is never a loser. An entry of a type this build does
+not know goes through `mergeUnknownType`, which reports nothing. A conflict carries the
+entity, the field, both values and both clocks; each clock's node is the device that
+wrote it. Reporting changes nothing in the merged record, so convergence is untouched.
+
+**Whose conflict.** The session keeps only the losers whose old value this device wrote
+(the old clock's node is the session clock's node) and hands them to
+`SyncStore.recordConflicts` inside the page's transaction, right after the merged record
+is written, so they commit or roll back with the merge; `SyncReport.conflicts` counts
+them. A conflict therefore appears once, on the device whose own edit lost; a third
+device that saw two others' values meet records nothing. An edit stamped under an
+earlier device id of the same install (before a sign-out and a new sign-in, which
+creates a new server device) counts as another device's and is not recorded.
+
+**Resolving one** is the host's: keeping the lost value is an ordinary local edit
+through `LocalEditor`, which stamps it after the clock that won (`sendAfter`), so it wins
+on every device; keeping the other value writes nothing. A "keep this" made within ten
+minutes of the winning edit is in turn recorded on the other device, whose value it
+replaced, as that device's own conflict: by design, since it is one.
 
 ## Diff
 
@@ -202,6 +245,7 @@ SQLite, and `InMemorySyncStore` for tests and the simulation.
 | `unsynced({limit})` | Up to `limit` unsynced outbox entries, in clock order. |
 | `markSynced(hlcs)` | Marks the entries the relay accepted. Clocks are unique per device, so a clock identifies an outbox entry. |
 | `markRejected(hlcs, reason)` | Takes entries the relay refused for good (`invalid`, `conflictingDuplicate`) out of the outbox. The store keeps them with the reason, for the host to inspect, and `unsynced` never returns them again. |
+| `recordConflicts(conflicts)` | Keeps the conflicts a pulled entry made of this device's own values (**Conflicts**), for the host to show; called inside the page's transaction right after the record is written. How long they are kept, and when one stops mattering, is the host's policy; `InMemorySyncStore` keeps a list. |
 | `holdUnknownType(entry)` | Merges a pulled `UnknownTypeEntry` (a type this build does not know) into the record kept under its raw type name, by `mergeUnknownType` (**Unknown types**). |
 | `pullCursor()` / `savePullCursor(seq)` | The relay `seq` pulled up to (null before the first pull). |
 | `lastClock()` / `saveClock(hlc)` | The persisted `HlcClock.last`. |
@@ -275,12 +319,20 @@ nor the entry.
 
 ## The session
 
-`SyncSession(store, relay, clock, nowWallMillis:)` has one method, `run()`, which returns a
-`SyncReport`: counts, rejections, `changed` (the `(type, id)` keys whose records changed,
-for the host to react to) and `clamped` (received clocks beyond the bound).
+`SyncSession(store, relay, clock, nowWallMillis:, beforePush:)` has one method, `run()`,
+which returns a `SyncReport`: counts, rejections, `changed` (the `(type, id)` keys whose
+records changed, for the host to react to), `clamped` (received clocks beyond the bound),
+`conflicts` (handed to the store, **Conflicts**) and `deferred` (held back by
+`beforePush`).
 
-1. **Push.** `unsynced(limit: 200)`, push, and repeat until the outbox is empty. Each
-   entry has one of three fates:
+1. **Push.** `unsynced(limit: 200)`, push, and repeat until the outbox is empty. When
+   the host gives `beforePush`, each batch goes through it first and only the entries
+   it returns are pushed: the others stay unsynced, are not offered again in this run
+   (the next batch skips them, so they never hold up the entries behind them) and are
+   offered first on the next run. The app uses it to upload a receipt photo before the
+   change that names it (`sync-app.md`, **Receipts**). Pushing out of clock order is
+   safe, as merge does not depend on delivery order. Each pushed entry has one of three
+   fates:
    - **accepted**: `markSynced`, counted in `pushed`;
    - **rejected for good** (`invalid` or `conflictingDuplicate`): `markRejected`, so it
      leaves the outbox and never blocks the entries behind it. The push continues with
@@ -294,7 +346,8 @@ for the host to react to) and `clamped` (received clocks beyond the bound).
    never builds such an entry, and the host should surface it.
 2. **Pull.** From the saved cursor (0 when there is none), pull pages of 200 with the
    device's own id. Each page is one store transaction: receive every entry's clock,
-   merge, write each changed record, hand each entry of an unknown type to
+   merge, write each changed record and hand its conflicts about this device's own
+   values to `recordConflicts`, hand each entry of an unknown type to
    `holdUnknownType`, then save the clock and the cursor. Repeat until `hasMore` is
    false. `pulled` counts both kinds; `applied` and `changed` only the known ones.
    **Unknown types**: `mergeUnknownType` folds an unknown type's entries by the same rules
@@ -331,6 +384,10 @@ The app's side of these is `sync-app.md`.
   Surface drift refusals (this device's clock is ahead) and `clamped` (it is behind),
   and any rejection that is not drift, and let a user or a log inspect the entries the
   store kept as rejected.
+- **Keep and show the conflicts** `recordConflicts` hands over, decide when one stops
+  mattering, and resolve one by a local edit ("keep this") or by forgetting it.
+- **Hold back what is not ready to push** through `beforePush`, never by leaving an
+  entry out of a push the relay sees.
 - **Handle a relay whose log was reset.** If the relay was wiped (for example a
   development server deleted), a pull from a cursor past the end of its log throws
   `SyncCursorInvalidException`, which carries `since` and the relay's last `seq`. The dev
@@ -344,10 +401,11 @@ The app's side of these is `sync-app.md`.
 | Suite | What it proves |
 |---|---|
 | `test/hlc_clock_test.dart` | Every branch of Figure 5 with hand-computed values; the Figure 4 loop, where `c` resets once `pt` passes `l`; Theorems 1 and 2 on seeded random traces; counter overflow; a backwards wall clock; the clock bound: one constant for the clock and the relays, a remote exactly at the bound adopted and one past it clamped (the counter bumped when `pt` is behind `l`, the wall advanced at the counter's limit), a remote behind never clamped, `sendAfter` past a clock beyond the bound, and seeded traces with skews of hours in which the clock strictly increases and never adopts a wall beyond the bound. Figure 6's printed values are inside the figure graphic and are not reproduced. |
+| `test/merge_conflict_test.dart` | The conflict rule: inside the window, exactly ten minutes, one millisecond past it, the same clock time from another node; equal values, flat and nested; only the fields the entry wins; a value a create set; a node's own later edit; an entry that loses; a create, a delete, a restore, an edit of a tombstoned record, `deleted_at`, a field with no clock and an update into nothing report none; the merged record is unchanged. |
 | `test/diff_test.dart`, `test/merge_test.dart` | Classification; a create carries no `deleted_at`, and empty or deleted creates are refused; nested values replaced whole; delete versus edit in both orders; delete versus restore; a create concurrent with a delete, which stays deleted; a create carrying `deleted_at` from another producer, which is ignored; a create arriving after its own updates; duplicate creates; idempotent reapplication. |
-| `test/merge_property_test.dart` | Random entry sets folded in random orders, duplications and groupings all equal a brute-force oracle (`test/support/oracle.dart`), and agree with the tombstone rule checked on its own, 5000 cases. |
+| `test/merge_property_test.dart` | Random entry sets folded in random orders, duplications and groupings all equal a brute-force oracle (`test/support/oracle.dart`), and agree with the tombstone rule checked on its own, 5000 cases; along any fold, the losers each merge reports are exactly the overwrites the rule names, each one's remote value is the merged value, and the fold is the one that ignores them. |
 | `test/in_memory_sync_store_test.dart`, `test/in_memory_sync_relay_test.dart` | The store and relay contracts. |
-| `test/local_editor_test.dart`, `test/sync_session_test.dart` | The edit path, an edit after a value beyond the bound stamped past it and winning, also over a store that reads values from the host's rows as the app's does; batching; the three fates of a pushed entry (permanently rejected entries leave the outbox and do not block the good ones; drift waits); a create on an offline device after another device's delete, which stays deleted everywhere; a relay reset, recovered by resetting the cursor; push failures before storing and after storing; a pull failing on a later page; a crash between pages; a re-pulled page; an entry beyond the bound applied with the clock clamped, and a later edit of its field winning everywhere; own entries excluded, or harmless when a relay does not filter them. |
+| `test/local_editor_test.dart`, `test/sync_session_test.dart` | The edit path, an edit after a value beyond the bound stamped past it and winning, also over a store that reads values from the host's rows as the app's does; batching; the three fates of a pushed entry (permanently rejected entries leave the outbox and do not block the good ones; drift waits); a create on an offline device after another device's delete, which stays deleted everywhere; a relay reset, recovered by resetting the cursor; a conflict kept by the device whose value lost and by no other, keeping the lost value winning everywhere, a conflict rolled back with a failed page, edits more than ten minutes apart; entries `beforePush` holds back staying unsynced and going next run, never holding up the ones behind them, each offered once a run; push failures before storing and after storing; a pull failing on a later page; a crash between pages; a re-pulled page; an entry beyond the bound applied with the clock clamped, and a later edit of its field winning everywhere; own entries excluded, or harmless when a relay does not filter them. |
 | `test/unknown_type_test.dart` | An unknown type's entries fold under its raw name in any order, idempotently, to what `merge` gives once the type is known; a page holding one applies the rest, holds it, receives its clock and advances the cursor; one beyond the bound clamps the clock like any other. |
 | `test/simulation/` | The multi-device simulation and the chaos simulation, below; `shrink_test.dart` checks the shrinker against a planted failure. |
 
@@ -391,7 +449,11 @@ five ids each; a batch size) and a list of steps generated up front from its see
 - bursts: two devices up to all of them editing one record at once, often one field;
 - partitions (a device's requests fail until it heals), restarts (the clock and session
   rebuilt from the store) and skews set to hours ahead or behind;
-- injected lost requests, lost responses and failed store operations.
+- injected lost requests, lost responses and failed store operations;
+- in faulty sessions, a random part of each batch held back by `beforePush`;
+- in an edit of a record with a pending conflict of its device, sometimes its
+  resolution instead: the lost value written again as an ordinary edit ("keep this"),
+  or the conflict dismissed.
 
 Every step carries its own seed, so a step behaves the same whatever runs around it. The
 end is fixed: every partition heals, every clock is set right, time passes every clock
@@ -399,8 +461,11 @@ that was ahead plus the bound, then two rounds without faults and a quiet run. C
 during the run: a device's issued clocks strictly increase and its persisted clock never
 goes back, across restarts too; its clock is never further ahead than the greater of its
 physical time plus the bound and the greatest received clock one of its edits came
-after; a local edit is visible at once; a push is refused only for drift. Checked at
-the end:
+after; a local edit is visible at once; a push is refused only for drift; every
+conflict a device keeps follows the rule (its own value, another device's different
+value at most ten minutes later, never `deleted_at`) and names a value the device wrote
+and one the relay holds. Resolutions are ordinary entries, so the end's checks prove
+conflicts never change convergence. Checked at the end:
 
 - every device is byte-identical to every other and to the relay's fold, which equals
   the oracle (no acknowledged write is lost: each field holds the value of the greatest
@@ -415,7 +480,8 @@ A failure prints the seed, the scenario, its steps and the smallest failing scen
 `shrink` finds by dropping chunks of steps (halves down to single steps), members of
 groups, and whole devices with every step naming them, while the failure persists. A
 run prints one line of what it exercised: bursts, partitions, restarts, reshaped pages,
-drift refusals and clamps.
+drift refusals, clamps, conflicts (kept and dismissed) and entries held back; at the
+gate's budget a test checks each of the last three happened.
 
 ## Commands
 

@@ -48,6 +48,7 @@ key by key. An empty value counts as unset.
 | `PORT` | 8080 | 1 to 65535 |
 | `HOST` | `127.0.0.1` | an IP address |
 | `DATABASE_PATH` | `data/finance_tracker.db` | relative to `server/` |
+| `RECEIPTS_PATH` | `data/receipts` | the receipt photos' directory, relative to `server/`, created on the first upload (**Receipts**) |
 | `JWT_SECRET` | required | base64, at least 32 bytes |
 | `JWT_SECRET_PREVIOUS` | unset | base64, at least 32 bytes; still verifies during a rotation |
 | `TOKEN_ENCRYPTION_KEY` | required | base64, exactly 32 bytes |
@@ -139,7 +140,7 @@ the schema to version `i + 1`, applied in its own transaction and recorded in
 the server knows is refused at startup. Tests open in-memory databases through the same
 migrator.
 
-Schema v4 (v1, v2 adding three `items` columns, v3 adding `items.investments_synced_at`, v4 adding `recurring_streams.plaid_transaction_ids`). Instants are INTEGER milliseconds UTC; dates are ISO TEXT; amounts are
+Schema v5 (v1, v2 adding three `items` columns, v3 adding `items.investments_synced_at`, v4 adding `recurring_streams.plaid_transaction_ids`, v5 adding `receipts`). Instants are INTEGER milliseconds UTC; dates are ISO TEXT; amounts are
 `*_minor` INTEGER beside a currency code; `Decimal` values are TEXT. Every row a user owns
 reaches `users` through `ON DELETE CASCADE`, which a test checks for every table.
 
@@ -154,6 +155,7 @@ reaches `users` through `ON DELETE CASCADE`, which a test checks for every table
 | `recurring_streams`, `liabilities` (the contract's JSON per account and kind), `securities`, `holdings`, `investment_transactions` | the other Plaid products, each with `source`; a stream's `plaid_transaction_ids` (v4) are Plaid's `transaction_ids`, a JSON array of Plaid's ids |
 | `change_log` | the sync relay's entries: global `seq` (AUTOINCREMENT), user_id, device_id, hlc, entity, operation, payload JSON, received_at; unique per (user_id, device_id, hlc) |
 | `user_versions` | the per-user change counter |
+| `receipts` | who stored each receipt photo (v5): one row per (user_id, sha256), with the size and created_at, and an index by hash; the bytes are a file per hash under `RECEIPTS_PATH`, shared by every owner (**Receipts**) |
 
 ## Passwords
 
@@ -243,9 +245,44 @@ for another user's device), and **`DELETE /me`**:
    at most three rounds in all; an Item still appearing after that is 502 `plaid_error`,
    with nothing deleted.
 
+The user's receipt photos go with them: the deletion's transaction reads the user's
+hashes before the cascade takes their `receipts` rows, and once it has committed, each
+file no other user also stored is deleted. A deletion that fails at Plaid keeps every
+file; a file whose removal fails is logged (`receipt_file_not_deleted`, the error's type)
+and, with no owner left, no request can reach it.
+
 The app's side of these routes, the deletion screen, the local wipe after the 204 and
 the devices screen, is `auth.md`, **Deleting the account and erasing this device** and
 **Devices**.
+
+## Receipts
+
+`lib/src/receipts/receipt_routes.dart`, contract 0.7.0 (`PLAN.md` §12, "Conflicts and
+receipt blobs" and "7d plan rulings"). Receipt photos by content hash, for the app's
+receipt sync (`sync-app.md`, **Receipts**):
+
+- **`PUT /receipts/{sha256}`.** The path's hash must match `^[0-9a-f]{64}$` (else 400),
+  checked before any path is built from it. The content type must be `image/jpeg` or
+  `image/png` (else 415 `unsupported_media_type`). The body is read under a 5 MiB cap
+  (5,242,880 bytes): a declared `Content-Length` over it is refused before a byte is
+  read, and a body that grows past it while read (413 `payload_too_large`). The bytes
+  must not be empty and must hash to the path (else a 400 `ValidationProblem`). Then the
+  file, whenever it is missing (whoever owns the hash, so a store repairs a row whose
+  file a racing deletion removed), is written under a temporary name and renamed to
+  `<RECEIPTS_PATH>/<sha256>`, and only then is the user's row added if missing. The
+  answer is 200 with `{sha256, size}` either way, so a retry after a lost answer is
+  harmless.
+- **One hash at a time.** A store's check, write and row insert, and a deletion's
+  ownership check and unlink of each hash it removes, run under a lock per hash
+  (`ReceiptService.locked`, a chain of futures keyed by hash), so a store and a removal
+  of the same hash never interleave: a deletion can never take a file between another
+  user's check and its row. The lock is per process; the dev server is one process.
+- **`GET /receipts/{sha256}`.** The bytes the user stored under the hash, typed by their
+  signature (`image/png` for a PNG, else `image/jpeg`), or 404 when the user has no row
+  for it, whoever else does; a row whose file is gone is a 404 too, logged as
+  `receipt_file_missing`.
+
+Nothing about a photo is logged but those two events.
 
 ## The sync relay
 
@@ -806,13 +843,14 @@ router's 404.
 
 | Suite | What it proves |
 |---|---|
-| `unit/config_test.dart` | defaults, every key, missing and malformed keys named without their values, `sandbox` needing both keys, `PLAID_ENV`, `PLAID_WEBHOOK_URL` and the poll interval checked, the seed pair and the seed email's shape, the `.env` reader |
+| `unit/config_test.dart` | defaults (`RECEIPTS_PATH` included), every key, missing and malformed keys named without their values, `sandbox` needing both keys, `PLAID_ENV`, `PLAID_WEBHOOK_URL` and the poll interval checked, the seed pair and the seed email's shape, the `.env` reader |
 | `unit/password_hasher_test.dart` | the RFC 9106 vector, the PHC round trip, wrong and tampered passwords, the parameters read from the hash |
 | `unit/access_tokens_test.dart` | claims and `kid`, expiry on the server clock, foreign and forged tokens, `HS512` and `none` refused, the `iat` and lifetime bounds, the previous key |
 | `unit/token_cipher_test.dart` | the round trip, fresh nonces, tampered ciphertext, tag or nonce, another Item, another key |
 | `unit/plaid_money_test.dart` | decimal text and ints to minor units, no double, no rounding when strict, malformed text; with a mode, sub-cent and float-noise text rounded (every mode, ties, the range edge) and exponent forms expanded; `#rrggbb` to ARGB |
 | `unit/plaid_json_test.dart` | numbers as ints or their text, never a double; everything else as `jsonDecode`; malformed text |
-| `unit/migrations_test.dart` | an empty database migrated, a v1 database with an Item migrated to v2, a v2 database with an Item migrated to v3, a v3 database with a stream migrated to v4, an idempotent rerun, a newer schema refused, a cascade on every table |
+| `unit/migrations_test.dart` | an empty database migrated, a v1 database with an Item migrated to v2, a v2 database with an Item migrated to v3, a v3 database with a stream migrated to v4, a v4 database migrated to v5 with an empty `receipts` table that cascades, an idempotent rerun, a newer schema refused, a cascade on every table |
+| `receipts_test.dart` | a JPEG and a PNG stored and served with their types (the type from the bytes, not the upload's label); a repeat answered 200 with nothing written; an empty body 400; a row whose file went missing repaired by the next store; bytes that do not hash to the path a 400 leaving nothing; the 5 MiB cap by the bytes and by a declared length, exactly 5 MiB accepted; another content type 415; a path that is not a hash 400 and no path built from it; another user's hash 404 until they store it, sharing the one file; another device of the user reading it; the bearer on both routes |
 | `auth_test.dart` | register and login, every documented error, the rehash on login, rotation, reuse detection, expiry of both tokens, logout, device removal, the rate limit |
 | `sync_relay_test.dart` | each rejection code, idempotent resends (`1` resent as `1.0` included), conflicting duplicates, own-entry filtering, paging, isolation between users, the 409, 400s |
 | `sync_convergence_test.dart` | two engine sessions through the server converge, identically to the reference relay |
@@ -820,7 +858,7 @@ router's 404.
 | `item_operations_test.dart` | refresh (Plaid called, `started`, the background run applied), login required on refresh and balances (409, `error_code`, cleared by a sync), balances stored and answered (the card's current negative, its available credit and limit as reported), unlinking with history kept (data visible, `removed`, 409s, no further Plaid call) and deleted, a login-required answer to a sync in flight not undoing a kept unlink, a bad `history`, account deletion after a kept unlink, the logo route and `logo_url`, other users' Items |
 | `sandbox_test.dart` | reset-login then login required on sync, every webhook code and the refused ones, created transactions arriving `demo` in our sign on the named account, every refused body, date and currency, the window's edges (the UTC date minus 730 refused and minus 729 accepted, Plaid's today accepted and the day after refused, at 09:30 and at 13:00 UTC), a login-required Item, other users' Items 404, a removed Item 409, a server that cannot drive Sandbox 409 |
 | `provisioning_test.dart` | on a clock the job's waits move: the queued answer, the counters (batches 0 of 0), every custom-user transaction arriving once with the one shift and nothing injected, the accounts by name and mask, the `NOT_READY` wait and the second sync's as the only waits; a 730-day family job carrying the newest history that fits, its left-out rows never sent; rate-limit retries and their limit; a history Sandbox delivers late stored by the second sync; Plaid 5xx retries 15 s apart and their limit on every step (custom user, exchange, `/item/get`, first and second sync), a 4xx on the exchange failing at once, and which failures count as one; a rate-limited `/item/get` retried with a fresh custom user, one Item kept; the family persona's investment-only Tartan Bank Item linked and the job completed; a failure recorded with no token logged; rows skipped from a later Item's custom user when the job stalls past Plaid's window; one job per user (finished and failed ones do not block); foreign and unknown jobs 404; bodies outside the contract 400; a server that cannot drive Sandbox 409; the fake refusing a custom user it cannot read |
-| `account_deletion_test.dart` | every row gone and nobody else's touched, retries, a permanent failure deleting nothing, then a retry finishing; an Item linked during the retries removed too; Items that keep appearing giving 502; `ITEM_NOT_FOUND` not blocking; a sync whose user is deleted while Plaid is called (404); an exchange still at Plaid when the user is deleted (401, no Item left) |
+| `account_deletion_test.dart` | the user's receipt files gone and one another user also stored kept and still served, a failed deletion keeping the files; every row gone and nobody else's touched, retries, a permanent failure deleting nothing, then a retry finishing; an Item linked during the retries removed too; Items that keep appearing giving 502; `ITEM_NOT_FOUND` not blocking; a sync whose user is deleted while Plaid is called (404); an exchange still at Plaid when the user is deleted (401, no Item left) |
 | `contract_routes_test.dart` | one route per operation and none outside the contract, mounted with its security; the problem and rejection codes equal the contract's enums and the engine's reasons; every body the contract rejects is a 400; the contract's examples are accepted |
 | `logging_test.dart` | request lines and no secrets; a 500 with the request id, and on a forced SQLite failure a log line with the error's type and codes but no SQL, parameters or operation; the text format |
 | `http_plaid_client_test.dart` | over the recorded fixtures: every call's request (path, version header, keys, options) and mapping, every persona's 730-day custom user in a body under Plaid's 100,000 bytes, the errors (Plaid's, a non-JSON 500, a bare 429, unreadable answers, a timeout, a network failure), the 316-row page with no double (281 amounts round-tripping to Plaid's text, 35 sub-cent ones half-even), the accounts list, balances, liabilities, recurring currencies, investments paging, institutions, the Sandbox controls; through the server, every row of the seven Plaid tables `source: plaid`, a buy's amount stored and served in our sign, and a full flow (link token, exchange, update-mode token, sync) logging no key, secret or token |

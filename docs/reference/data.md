@@ -13,14 +13,14 @@ The entities and `Money` are `shared_models` (`core.md`); the providers and star
 
 ## The database
 
-Drift on SQLite, at schema version 12 (`core/db/app_database.dart`; one file per table under
+Drift on SQLite, at schema version 13 (`core/db/app_database.dart`; one file per table under
 `core/db/tables/`). `app_database.dart` and the tables import no Flutter, so `drift_dev`
 can run them in the Dart VM to dump the schema.
 
 | Table | What |
 |---|---|
 | `accounts` | One row per account |
-| `transactions` | One row per transaction; `hidden` (schema 6, a boolean, default false) is the user's hidden override |
+| `transactions` | One row per transaction; `hidden` (schema 6, a boolean, default false) is the user's hidden override; `receipt_sha256` (schema 13) the hash of its receipt photo (**Receipts**) |
 | `transaction_tags` | A transaction's tags, `(transaction_id, position)` primary key, in list order |
 | `transaction_splits` | A transaction's splits, `(transaction_id, position)` primary key, in list order |
 | `categories` | The system categories and the user's |
@@ -46,6 +46,7 @@ can run them in the Dart VM to dump the schema.
 | `securities` | The securities the linked investment accounts hold (schema 11, `investments.md`): `id` primary key, `name`, `ticker_symbol`, `type` (Plaid's, no CHECK), `is_cash_equivalent`, `close_price` (a `Decimal` as TEXT), `close_price_as_of`, `currency_code`, `source` (`plaid` or `demo`), `pulled_at`; replaced whole with the holdings, never recorded |
 | `holdings` | The linked investment accounts' positions (schema 11, `investments.md`): `(account_id, security_id)` primary key (no foreign keys), `quantity` and `institution_price` (`Decimal`s as TEXT), `institution_price_as_of`, `institution_value_minor` and `cost_basis_minor` in `currency`, `source` (`plaid` or `demo`), `pulled_at`; replaced whole by each pull, never recorded |
 | `investment_transactions` | The linked investment accounts' buys, sells and contributions (schema 11, `investments.md`): `id` primary key, `account_id`, `security_id`, `date`, `name`, `type` and `subtype` (Plaid's, no CHECK), `quantity` and `price` (`Decimal`s as TEXT), `amount_minor` (the app's sign) and `fees_minor` in `currency`, `deleted_at` (the server's tombstone), `sync_version` (the server's), `source` (`plaid` or `demo`), `pulled_at`; an `(account_id, date)` index; upserted page by page, never recorded |
+| `conflicts` | This device's own values a pulled change overwrote within ten minutes (schema 13, `sync-app.md`, **Conflicts**): `(entity_type, entity_id, field)` primary key, `local_value` and `remote_value` (JSON), `local_hlc` and `remote_hlc` (packed clocks), `entity_label`, `seen_at`; local to the device, never recorded or synced; settled by the sync store's writes and swept after thirty days at open |
 | `balance_snapshots` | Each account's balances on each local day this device observed (schema 11, `net-worth.md`): `(account_id, date)` primary key (no foreign key), `current_minor`, `available_minor`, `limit_minor` in `currency`, `source` (a CHECK over the five provenances), `written_at`; a `date` index; local to the device, never recorded or synced |
 
 The full-text index (**Full-text search** below) adds a view, two tables and five triggers
@@ -286,7 +287,7 @@ The rules every implementation keeps:
   (the in-memory store checks every one before writing any), each through `upsert`'s
   checks and recorded as `upsert` records it: one entry per transaction that changes, none
   for one written unchanged. A `plaid` transaction in a batch must already be stored and
-  may change only the six fields the user owns and `updatedAt`
+  may change only the seven fields the user owns and `updatedAt`
   (`checkPlaidOverridesOnly` in `repository_support.dart`). `deleteAll(ids)` deletes as
   `delete` does, in one write. A repeated id in `upsertAll` is an `ArgumentError` before
   anything is read; any transaction a batch refuses makes it write and record nothing and
@@ -317,9 +318,9 @@ authoritative.
   is written.
 - `TransactionRepository.applyPlaid(page)` takes one page of `GET /transactions`. Each
   transaction is stored as sent, `source`, `created_at`, `updated_at`, `deleted_at` and
-  `sync_version` included, its currency its amount's; one already stored keeps the six
+  `sync_version` included, its currency its amount's; one already stored keeps the seven
   fields the user owns (`user_category_id`, `notes`, `tags`, `splits`, `receipt_path`,
-  `hidden`, `withPlaidOverrides` in `repository_support.dart`; splits in another currency than the
+  `receipt_sha256`, `hidden`, `withPlaidOverrides` in `repository_support.dart`; splits in another currency than the
   new amount are dropped, only their count logged) and its `deleted_with_account`. A
   tombstone for a transaction the device never had is skipped. It returns the live rows
   it inserted, for the arrival seam.
@@ -446,9 +447,16 @@ Drift and an in-memory implementation, the demo flavor using the in-memory one;
 
 `core/db/receipt_store.dart`, no Flutter import. A transaction's receipt photo is a file,
 never a database row: `receiptPath` holds its relative name, `receipts/<transaction
-id>.jpg` (`receiptPathFor`), and the photo never syncs (`PLAN.md` §12), so on another
-device the path names nothing and the editor says the receipt is kept on another device.
-The repositories hold no files; `TransactionActions` (`transactions.md`) writes them.
+id>.jpg` (`receiptPathFor`), the same on every device, and `receiptSha256` (schema 13) the
+SHA-256 of its bytes. The file is device-local; the photo travels between devices as a
+blob by its hash (`PLAN.md` §12, "Conflicts and receipt blobs" and "7d plan rulings";
+`sync-app.md`, **Receipts**): uploaded before the change that names it, and on another
+device fetched on its first view, checked against the hash and stored here under the
+same name (`receiptProvider`, `transactions.md`, **Receipts**). A photo attached before
+hashes existed has none until its device fills it after a launch
+(`TransactionActions.fillReceiptHashes`); on another device such a receipt shows as kept
+there. The repositories hold no files; `TransactionActions` (`transactions.md`) writes
+them.
 
 - **`FileReceiptStore`** (dev and prod, `receiptStoreProvider` through `overridesFor`)
   keeps them under `getApplicationSupportDirectory()`, Android's private `files/`
@@ -473,9 +481,10 @@ The repositories hold no files; `TransactionActions` (`transactions.md`) writes 
   keeps their receipt paths, so a delete that became final while the app was not
   watching (killed during the undo, synced from another device, an account's delete, a
   pending Plaid transaction replaced by its posted one) loses its photo, and a photo
-  saved while the sweep runs stays. A deleted transaction restored later by sync shows
-  its receipt as kept on another device. `deleteAll()` removes the folder, staged
-  photos included: the local wipe's (**The local wipe**).
+  saved while the sweep runs stays. A deleted transaction restored later by sync fetches
+  its photo again on its next view. The hash fill runs just before the sweep.
+  `deleteAll()` removes the folder, staged photos included: the local wipe's (**The
+  local wipe**).
 
 No path is logged anywhere; a failure is logged by its type.
 

@@ -11,7 +11,7 @@ implement the contract; none of them defines a shape of its own (`PLAN.md` §6.5
 OpenAPI **3.0.3**, `info.version` `0.7.0`, every path under `/v1`. The servers are the dev
 server from the emulator (`http://10.0.2.2:8080/v1`) and from the machine
 (`http://localhost:8080/v1`). Operations are grouped by tag: `auth`, `me`, `devices`,
-`plaid`, `institutions`, `data`, `sync`, `webhooks`, `sandbox`, `health`; each has a camelCase `operationId`, which is
+`plaid`, `institutions`, `data`, `sync`, `receipts`, `webhooks`, `sandbox`, `health`; each has a camelCase `operationId`, which is
 the generated client's method name, a summary and a description that states its behaviour.
 
 **Security.** `bearerAuth` (HTTP bearer, a JWT access token) is declared for the whole
@@ -21,9 +21,10 @@ instead and answers `401` to a delivery it cannot verify.
 
 **Conventions.**
 
-- JSON throughout, snake_case properties, enums as their snake_case names. Two
+- JSON throughout, snake_case properties, enums as their snake_case names. The
   exceptions: `getInstitutionLogo` answers `image/png` bytes (`type: string, format:
-  binary`), and `WebhookCode` keeps Plaid's spelling (`SYNC_UPDATES_AVAILABLE`), with
+  binary`); `putReceipt` takes and `getReceipt` answers a receipt photo's bytes, as
+  `image/jpeg` or `image/png` (**Receipts** below); and `WebhookCode` keeps Plaid's spelling (`SYNC_UPDATES_AVAILABLE`), with
   `x-enum-varnames` giving the generated client camelCase constants.
 - **`Money`** is `{minor_units: int64, currency: ^[A-Z]{3}$}`, `minor_units` at least
   `-(2^63 - 1)`. Every amount, balance, limit and total is `Money`; no amount is ever a JSON
@@ -60,7 +61,8 @@ same name is its JSON exactly, except the investment entities below: `Money`, `U
 documented differences: the API's `Item` embeds its `Institution` (`shared_models` keeps it
 apart, by `institution_id`); `ChangeLogEntry` travels without `synced`, which is local
 state; `PulledChangeLogEntry` is the same fields plus the server's `seq`. `Transaction`'s
-user-owned fields (`user_category_id`, `notes`, `tags`, `splits`, `receipt_path`, `hidden`)
+user-owned fields (`user_category_id`, `notes`, `tags`, `splits`, `receipt_path`,
+`receipt_sha256`, `hidden`)
 are in the schema because the entity has them, but they reach other devices through the
 change log: the server serves them empty, `hidden` as `false`. The two entry
 schemas are flat rather than composed with `allOf`, because the generator makes a composed
@@ -135,6 +137,30 @@ outbox; `reason` is free text for logs. `/accounts`, `/transactions`, `/liabilit
   and `error`). Each is `409` `conflict` on a server that cannot drive
   Sandbox, `404` for another user's Item or job.
 
+## Receipts
+
+Contract 0.7.0 (`PLAN.md` §12, "Conflicts and receipt blobs" and "7d plan rulings"):
+receipt photos as blobs by content hash, for the app's receipt sync (`sync-app.md`,
+**Receipts**).
+
+- `PUT /receipts/{sha256}` (`putReceipt`): the photo's bytes, `image/jpeg` or
+  `image/png`, at most 5 MiB (5,242,880 bytes), stored for the calling user under their
+  SHA-256 (the `Sha256` path parameter, `^[0-9a-f]{64}$`). Idempotent: bytes the user
+  already stored answer `200` without being stored again. An empty body, or bytes that
+  do not hash to the path, are `400`; over the cap `413` `payload_too_large`; another content type `415`
+  `unsupported_media_type`. The answer is `Receipt` (`sha256`, `size`).
+- `GET /receipts/{sha256}` (`getReceipt`): the bytes, `image/jpeg` or `image/png` by
+  their signature, or `404` when the user stored none under that hash, whoever else did.
+- `Transaction.receipt_sha256`, the hash of the transaction's receipt photo (null
+  without one), beside `receipt_path`; both reach other devices through the change log
+  and the server serves both null.
+
+The app uploads through a hand-written request in `HttpFinanceApi.putReceipt` (`Uint8List`
+data with the type the bytes' signature gives), not the generated method, which sends a
+`MultipartFile` stream under a fixed `image/jpeg`: a PNG cannot use it, and the auth
+interceptor's retry after a token refresh cannot resend a stream. The fake's contract test
+exercises that request.
+
 ## Errors
 
 Every 4xx and 5xx answer is `application/problem+json` (RFC 9457): `type`
@@ -149,6 +175,8 @@ machine-readable reason. `ValidationProblem` is always `status` 400 with `code`
 | `Unauthorized` | 401 | `invalid_credentials`, `token_expired`, `token_revoked`; `webhook_unverified` for an unverified webhook |
 | `NotFound` | 404 | `not_found` |
 | `Conflict` | 409 | `email_taken`, `conflict` (a `removed` Item, a server that cannot drive Sandbox, a provisioning job already running), `item_login_required` |
+| `PayloadTooLarge` | 413 | `payload_too_large` (a receipt over 5 MiB) |
+| `UnsupportedMediaType` | 415 | `unsupported_media_type` (a receipt that is not `image/jpeg` or `image/png`) |
 | `RateLimited` | 429 | `rate_limited`, with `Retry-After` in seconds |
 | `Internal` | 500 | `internal` |
 | `PlaidError` | 502 | `plaid_error` |
@@ -233,10 +261,12 @@ expect(entry.toJson(), conformsToSchema(contract, 'Account'));
 ```
 
 Paths are the document's templates. A response declared without a body (a 204) matches
-only null or an empty string, and an `image/png` one only non-empty bytes (a
-`List<int>`). `OpenApiDocument` also answers `schema(name)`,
-`requestSchema(path, method)`, `responseSchema(path, method, status)` and
-`responseMediaType(path, method, status)`; `JsonValidator`
+only null or an empty string, and an image one (`image/png`, `image/jpeg`) only non-empty
+bytes (a `List<int>`); so does an image request body. `OpenApiDocument` also answers
+`schema(name)`, `requestSchema(path, method)`, `requestMediaType(path, method)`,
+`responseSchema(path, method, status)`, `responseMediaType(path, method, status)` and
+`responseMediaTypes(path, method, status)` (every type a status declares: a receipt
+answer may be either); `JsonValidator`
 returns the errors as readable lines (`/current_balance: ...`).
 
 The validator translates OAS 3.0 to JSON Schema draft 7 (the rules are in the header of
@@ -268,8 +298,8 @@ the gate, reports every violation and exits 1:
 
 - the document parses and is OpenAPI 3.0.x; every path starts with `/`;
 - every operation has a unique `operationId`, a summary and at least one 2xx response; a
-  2xx response has an `application/json` schema or is only `image/png` bytes
-  (`type: string, format: binary`), and a 204 has no body;
+  2xx response has an `application/json` schema or is only image bytes (`image/png`
+  or `image/jpeg`, each `type: string, format: binary`), and a 204 has no body;
 - every 4xx and 5xx response is `application/problem+json` with `Problem` or
   `ValidationProblem`;
 - every `$ref` resolves, and every `required` name is a declared property;
@@ -278,7 +308,8 @@ the gate, reports every violation and exits 1:
 - `bearerAuth` is an HTTP bearer scheme, the five public operations declare
   `security: []`, every other operation requires `bearerAuth`, and the webhook receiver
   requires the `Plaid-Verification` header;
-- every request body is closed, except the free-form webhook body.
+- every request body is closed, except the free-form webhook body and an image body
+  (bytes, as `putReceipt` takes), which has nothing to close.
 
 CI adds what needs Java: `openapi-generator validate` and `tools/gen_api_client.sh
 --check` (`.github/workflows/ci.yml`, job `contract`).

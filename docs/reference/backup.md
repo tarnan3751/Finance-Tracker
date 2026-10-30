@@ -125,7 +125,9 @@ The plaintext is UTF-8 NDJSON, one JSON value per line:
    column beside a `currency`. A table with no primary key, or a column of another type
    (a REAL, a Drift `dateTime()`), makes the dump throw, and the gate dumps every table
    of the current schema, so a schema change cannot break export unnoticed. The full-text objects and
-   `sqlite_sequence` are not Drift tables and do not travel.
+   `sqlite_sequence` are not Drift tables and do not travel; `conflicts`, this device's
+   sync conflicts (`sync-app.md`, **Conflicts**), is device-local and left out
+   (`backupExcludedTables`), and ignored if a backup carries it.
 3. **The receipts**, in path order: `{"receipt": "receipts/<id>.jpg", "sha256", "bytes"
    (base64)}`, for every path a transaction row (live or deleted) references whose file
    exists.

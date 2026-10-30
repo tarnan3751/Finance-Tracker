@@ -255,7 +255,8 @@ split"), a running line, "Add split" and "Distribute evenly".
 ## Receipts
 
 A receipt photo is attached in the editor's last section (`receipt_view.dart`), saved
-with Save, and kept on the device only (`data.md`, **Receipts**).
+with Save, and kept as a file on each device that has it; it travels between devices as
+a blob by its hash (`data.md`, **Receipts**; `sync-app.md`, **Receipts**).
 
 - **Adding.** "Take photo" and "Choose photo" ask the image source (`app-core.md`,
   **The image source**): the camera or the gallery through `image_picker` in dev and
@@ -267,18 +268,28 @@ with Save, and kept on the device only (`data.md`, **Receipts**).
   route of its own), zoomable. Photos are shown from their bytes, so a replaced one,
   which keeps its path, never shows the old picture.
 - **Replace** (camera or gallery, from a sheet) and **Remove receipt** change the form;
-  Save writes them. A new photo is committed only once the transaction's write has
-  succeeded, so a failed save leaves the receipt as it was; a removed one's file goes
-  after the write.
-- **Another device's receipt.** A `receiptPath` whose photo this device does not have
-  (receipts never sync) shows "Receipt kept on another device", with Replace and Remove.
-- A Plaid transaction takes a receipt like its category: `receipt_path` is one of the
-  fields the user owns on it (`sync-app.md`).
+  Save writes them. A new photo is saved with its hash (`receiptSha256`, the SHA-256 of
+  its bytes) and committed only once the transaction's write has succeeded, so a failed
+  save leaves the receipt as it was; a removed one's file and hash go with it.
+- **Another device's receipt.** On first view of a receipt whose photo is not here, or
+  whose file here is not the photo the hash names (replaced elsewhere), the view fetches
+  it (`GET /receipts/{sha256}`) behind the placeholder, saying "Downloading the
+  receipt" only while it fetches (a matching file here shows at once), checks it against the hash and stores it under the usual path, so the next
+  view is local. A failed fetch says why ("The receipt has not reached the server yet"
+  while the device that took it has not synced it, else "The receipt could not be
+  downloaded") with Try again, which shows the placeholder again while it retries, Replace
+  and Remove. A file here that cannot be read, when the hash is known, shows the same
+  failure with Try again. A receipt with no hash (attached
+  before hashes existed, on a device that has not filled it yet) whose photo is not here
+  shows "Receipt kept on another device", with Replace and Remove.
+- A Plaid transaction takes a receipt like its category: `receipt_path` and
+  `receipt_sha256` are among the fields the user owns on it (`sync-app.md`).
 
 `transactionUsageProvider` (`TransactionRepository.watchUsage`, `data.md`: limited and
 distinct queries, never a scan of every transaction) gives the editor and the filter sheet
-the tags in use and the recently used categories and accounts; `receiptProvider(path)`
-the bytes of a receipt photo, or null when this device has none;
+the tags in use and the recently used categories and accounts; `localReceiptProvider(id,
+sha256)` the photo as this device has it (null for no file, or a file that is another
+photo) and `receiptProvider(id, sha256)` the photo fetched as above;
 `transactionActionsProvider` makes the writes, the bulk ones included (`setCategory`,
-`addTag`, `setHidden`, `deleteAll`, which also deletes the receipt photos), and the
-receipt sweep (`sweepReceipts`).
+`addTag`, `setHidden`, `deleteAll`, which also deletes the receipt photos), the hash
+fill (`fillReceiptHashes`) and the receipt sweep (`sweepReceipts`).
