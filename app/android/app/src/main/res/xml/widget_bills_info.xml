@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The bills home screen widget (widgets/BillsWidgetProvider.kt): 2 by 2 cells to start,
+     resizable. updatePeriodMillis is 0: the app and its background cycle write the
+     snapshot and ask for a redraw (features/widgets/); the widget never wakes the device. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_bills_description"
+    android:initialLayout="@layout/widget_setup"
+    android:minWidth="110dp"
+    android:minHeight="110dp"
+    android:minResizeWidth="110dp"
+    android:minResizeHeight="110dp"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellWidth="2"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen" />

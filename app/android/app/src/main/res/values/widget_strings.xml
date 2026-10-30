@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The home screen widgets' fixed texts: the names and descriptions the launcher's widget
+     picker shows, the titles, and the set-up message a widget shows before the app has
+     written anything (it may be placed before the app first runs). Everything else a
+     widget shows, amounts and dates included, is written and formatted by the app from
+     its ARB (features/widgets/). -->
+<resources>
+    <string name="widget_balances_label">Balances</string>
+    <string name="widget_balances_description">Your net worth and your largest accounts</string>
+    <string name="widget_budgets_label">Budgets</string>
+    <string name="widget_budgets_description">This period\'s budgets and how much of each is spent</string>
+    <string name="widget_bills_label">Upcoming bills</string>
+    <string name="widget_bills_description">The next bills to pay, overdue ones first</string>
+    <string name="widget_net_worth">Net worth</string>
+    <string name="widget_setup">Open Finance Tracker to set up</string>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The home screen widgets' colours (features/widgets/, Kotlin under widgets/): the app's
+     Material 3 baseline from its seed, light. values-night has the dark ones; on Android 12
+     and later values-v31 and values-night-v31 take the launcher's dynamic colours instead.
+     The error colour is the baseline's everywhere: the system palette has none. -->
+<resources>
+    <color name="widget_surface">#FFFEF7FF</color>
+    <color name="widget_on_surface">#FF1D1B20</color>
+    <color name="widget_on_surface_variant">#FF49454F</color>
+    <color name="widget_primary">#FF6750A4</color>
+    <color name="widget_track">#FFE7E0EC</color>
+    <color name="widget_error">#FFB3261E</color>
+</resources>

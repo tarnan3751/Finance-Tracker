@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The home screen widgets' fixed texts in Spanish, beside the English in
+     values/widget_strings.xml: the launcher reads them without the app, so they live here
+     rather than in the ARB. -->
+<resources>
+    <string name="widget_balances_label">Saldos</string>
+    <string name="widget_balances_description">Tu patrimonio neto y tus cuentas principales</string>
+    <string name="widget_budgets_label">Presupuestos</string>
+    <string name="widget_budgets_description">Los presupuestos de este periodo y cuánto se ha gastado de cada uno</string>
+    <string name="widget_bills_label">Próximas facturas</string>
+    <string name="widget_bills_description">Las próximas facturas por pagar, primero las vencidas</string>
+    <string name="widget_net_worth">Patrimonio neto</string>
+    <string name="widget_setup">Abre Finance Tracker para configurarlo</string>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The home screen widgets' colours, dark (values/widget_colors.xml). -->
+<resources>
+    <color name="widget_surface">#FF141218</color>
+    <color name="widget_on_surface">#FFE6E0E9</color>
+    <color name="widget_on_surface_variant">#FFCAC4D0</color>
+    <color name="widget_primary">#FFD0BCFF</color>
+    <color name="widget_track">#FF49454F</color>
+    <color name="widget_error">#FFF2B8B5</color>
+</resources>

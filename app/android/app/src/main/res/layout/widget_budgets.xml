@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Budgets widget at 4 by 2: this period's budgets, over-limit ones first, each with its bar (the error colour when over), what is left or over and the percent spent; then when it was written. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:orientation="vertical"
+    android:padding="12dp">
+    <TextView
+        android:id="@+id/title"
+        android:text="@string/widget_budgets_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textColor="@color/widget_primary"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+    <LinearLayout
+        android:id="@+id/budget_0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="4dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/budget_name_0"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_on_surface"
+                android:textSize="13sp" />
+            <TextView
+                android:id="@+id/budget_detail_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_on_surface_variant"
+                android:textSize="12sp"
+                android:layout_marginStart="8dp" />
+            <TextView
+                android:id="@+id/budget_detail_over_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_error"
+                android:textSize="12sp"
+                android:visibility="gone"
+                android:layout_marginStart="8dp" />
+            <TextView
+                android:id="@+id/budget_percent_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_on_surface_variant"
+                android:textSize="12sp"
+                android:layout_marginStart="8dp" />
+            <TextView
+                android:id="@+id/budget_percent_over_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_error"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+        <ProgressBar
+            android:id="@+id/budget_bar_0"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginTop="2dp"
+            android:max="10000"
+            android:progressTint="@color/widget_primary"
+            android:progressBackgroundTint="@color/widget_track" />
+        <ProgressBar
+            android:id="@+id/budget_bar_over_0"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginTop="2dp"
+            android:max="10000"
+            android:progressTint="@color/widget_error"
+            android:progressBackgroundTint="@color/widget_track"
+            android:visibility="gone" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/budget_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="4dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/budget_name_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_on_surface"
+                android:textSize="13sp" />
+            <TextView
+                android:id="@+id/budget_detail_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_on_surface_variant"
+                android:textSize="12sp"
+                android:layout_marginStart="8dp" />
+            <TextView
+                android:id="@+id/budget_detail_over_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_error"
+                android:textSize="12sp"
+                android:visibility="gone"
+                android:layout_marginStart="8dp" />
+            <TextView
+                android:id="@+id/budget_percent_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_on_surface_variant"
+                android:textSize="12sp"
+                android:layout_marginStart="8dp" />
+            <TextView
+                android:id="@+id/budget_percent_over_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_error"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+        <ProgressBar
+            android:id="@+id/budget_bar_1"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginTop="2dp"
+            android:max="10000"
+            android:progressTint="@color/widget_primary"
+            android:progressBackgroundTint="@color/widget_track" />
+        <ProgressBar
+            android:id="@+id/budget_bar_over_1"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginTop="2dp"
+            android:max="10000"
+            android:progressTint="@color/widget_error"
+            android:progressBackgroundTint="@color/widget_track"
+            android:visibility="gone" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/budget_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="4dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/budget_name_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_on_surface"
+                android:textSize="13sp" />
+            <TextView
+                android:id="@+id/budget_detail_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_on_surface_variant"
+                android:textSize="12sp"
+                android:layout_marginStart="8dp" />
+            <TextView
+                android:id="@+id/budget_detail_over_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_error"
+                android:textSize="12sp"
+                android:visibility="gone"
+                android:layout_marginStart="8dp" />
+            <TextView
+                android:id="@+id/budget_percent_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_on_surface_variant"
+                android:textSize="12sp"
+                android:layout_marginStart="8dp" />
+            <TextView
+                android:id="@+id/budget_percent_over_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_error"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+        <ProgressBar
+            android:id="@+id/budget_bar_2"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginTop="2dp"
+            android:max="10000"
+            android:progressTint="@color/widget_primary"
+            android:progressBackgroundTint="@color/widget_track" />
+        <ProgressBar
+            android:id="@+id/budget_bar_over_2"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginTop="2dp"
+            android:max="10000"
+            android:progressTint="@color/widget_error"
+            android:progressBackgroundTint="@color/widget_track"
+            android:visibility="gone" />
+    </LinearLayout>
+    <!-- A spacer: RemoteViews inflates layouts and views of an allowed set only, which
+         has no plain View. -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+    <TextView
+        android:id="@+id/updated"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textColor="@color/widget_on_surface_variant"
+        android:textSize="11sp" />
+</LinearLayout>
