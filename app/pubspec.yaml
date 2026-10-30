@@ -43,6 +43,11 @@ dependencies:
   flutter_timezone: ^5.1.1
   go_router: ^17.5.0
   # Receipt photos (BSD-3), behind core/platform/image_source.dart, used by dev and prod.
+  # The home screen widgets (BSD-3), behind features/widgets/domain/widget_writer.dart and
+  # core/platform/launch_intent.dart, in every flavor: the snapshot store, the update
+  # broadcast and the widget taps. RemoteViews only; the plugin carries Glance for its own
+  # code, the app adds no Compose. Pinned exactly.
+  home_widget: 0.10.0
   image_picker: ^1.2.4
   intl: ^0.20.3
   # The app lock's biometric or device-credential prompt (BSD-3), behind
@@ -60,6 +65,9 @@ dependencies:
     path: ../tools/persona_engine
   # Plaid Link (MIT), behind the items feature's LinkLauncher, used by dev and prod.
   plaid_flutter: 5.2.1
+  # The app shortcuts (BSD-3), dynamic ones set from Dart with ARB titles, behind
+  # core/platform/app_shortcuts.dart and core/platform/launch_intent.dart. Pinned exactly.
+  quick_actions: 1.1.1
   riverpod_annotation: 4.0.7
   # The export's Share (BSD-3), behind core/platform/file_exporter.dart, used by dev and
   # prod. Pinned exactly.
