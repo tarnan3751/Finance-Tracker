@@ -42,6 +42,7 @@ import 'package:finance_tracker/core/platform/fake_image_source.dart';
 import 'package:finance_tracker/core/platform/file_exporter_provider.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
 import 'package:finance_tracker/core/platform/launch_intent_provider.dart';
+import 'package:finance_tracker/core/platform/local_notifications_provider.dart';
 import 'package:finance_tracker/core/platform/local_notifications_scheduler.dart';
 import 'package:finance_tracker/core/platform/monotonic_clock_provider.dart';
 import 'package:finance_tracker/core/platform/platform_backup_picker.dart';
@@ -139,7 +140,6 @@ import 'package:finance_tracker/features/widgets/application/widget_providers.da
 import 'package:finance_tracker/features/widgets/data/home_widget_writer.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart' show basicLocaleListResolution;
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:persona_engine/persona_engine.dart' show DemoSeed, PersonaId;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -735,7 +735,7 @@ final List<Override> _driftOverrides = [
       ),
     );
     return LocalNotificationsScheduler(
-      FlutterLocalNotificationsPlugin(),
+      ref.watch(localNotificationsProvider),
       channelName: l10n.billRemindersChannelName,
       channelDescription: l10n.billRemindersChannelDescription,
     );

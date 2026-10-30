@@ -15,6 +15,7 @@ import 'package:finance_tracker/bootstrap.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/in_app_notifications.dart';
+import 'package:finance_tracker/core/platform/local_notifications.dart';
 import 'package:finance_tracker/core/platform/local_notifications_scheduler.dart';
 import 'package:finance_tracker/core/platform/notifier.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler.dart';
@@ -133,7 +134,7 @@ void main() {
     'the plugin holds a reminder a minute ahead until it is cancelled',
     (tester) async {
       final LocalNotificationsScheduler scheduler = LocalNotificationsScheduler(
-        FlutterLocalNotificationsPlugin(),
+        LocalNotifications(FlutterLocalNotificationsPlugin()),
         channelName: 'Bill reminders',
         channelDescription: 'Reminders before your bills are due',
       );

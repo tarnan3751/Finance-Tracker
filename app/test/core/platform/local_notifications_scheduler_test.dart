@@ -4,6 +4,7 @@
 // that a reminder which launched the app is replayed to the first listener.
 import 'dart:async';
 
+import 'package:finance_tracker/core/platform/local_notifications.dart';
 import 'package:finance_tracker/core/platform/local_notifications_scheduler.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler.dart';
 import 'package:flutter/services.dart';
@@ -52,7 +53,7 @@ void main() {
   );
 
   LocalNotificationsScheduler scheduler() => LocalNotificationsScheduler(
-    FlutterLocalNotificationsPlugin(),
+    LocalNotifications(FlutterLocalNotificationsPlugin()),
     channelName: 'Bill reminders',
     channelDescription: 'Reminders before bills are due',
     now: () => DateTime.utc(2026, 10, 27),

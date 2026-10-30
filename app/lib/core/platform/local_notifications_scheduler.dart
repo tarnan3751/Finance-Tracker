@@ -5,14 +5,13 @@
 /// Reminders are scheduled with `zonedSchedule` in inexact mode with idle allowed (no
 /// exact-alarm permission: Android 14 denies it by default; a reminder may come up to
 /// about an hour late), on the one channel `bill_reminders` (Phase 8 adds the others and
-/// their settings), with the small icon `ic_stat_bill`. The payload is
+/// their settings), through the app's one plugin initialization
+/// (`local_notifications.dart`, with the small icon `ic_stat_bill`). The payload is
 /// [ScheduledReminder.payload]: the pending set is read back from it, and a tap opens its
-/// bill. The plugin is initialized on first use; a reminder that launched the app is
-/// replayed into [openedBillIds].
+/// bill; a reminder that launched the app is replayed into [openedBillIds].
 library;
 
-import 'dart:async';
-
+import 'package:finance_tracker/core/platform/local_notifications.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -21,17 +20,17 @@ const String billRemindersChannelId = 'bill_reminders';
 
 /// Bill reminders through the platform's notifications.
 final class LocalNotificationsScheduler implements ReminderScheduler {
-  /// The scheduler over [_plugin], posting on a channel named [channelName] and
+  /// The scheduler over [_notifications], posting on a channel named [channelName] and
   /// described by [channelDescription] (localized); `now` is the clock past reminders
   /// are checked against.
   LocalNotificationsScheduler(
-    this._plugin, {
+    this._notifications, {
     required this.channelName,
     required this.channelDescription,
     this._now = DateTime.now,
   });
 
-  final FlutterLocalNotificationsPlugin _plugin;
+  final LocalNotifications _notifications;
   final DateTime Function() _now;
 
   /// The channel's name in the system settings.
@@ -40,40 +39,12 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
   /// The channel's description in the system settings.
   final String channelDescription;
 
-  // Not broadcast: a tap that launched the app waits for the first listener.
-  final StreamController<String> _opened = StreamController<String>();
-  Future<void>? _initialized;
+  FlutterLocalNotificationsPlugin get _plugin => _notifications.plugin;
 
-  Future<void> _ready() => _initialized ??= _initialize();
+  Future<void> _ready() => _notifications.ready();
 
-  Future<void> _initialize() async {
-    await _plugin.initialize(
-      settings: const InitializationSettings(
-        android: AndroidInitializationSettings('ic_stat_bill'),
-      ),
-      onDidReceiveNotificationResponse: (response) => _open(response.payload),
-    );
-    final NotificationAppLaunchDetails? launch = await _plugin
-        .getNotificationAppLaunchDetails();
-    if (launch != null && launch.didNotificationLaunchApp) {
-      _open(launch.notificationResponse?.payload);
-    }
-  }
-
-  void _open(String? payload) {
-    final ScheduledReminder? reminder = ScheduledReminder.fromPayload(
-      0,
-      null,
-      null,
-      payload,
-    );
-    if (reminder != null && !_opened.isClosed) _opened.add(reminder.billId);
-  }
-
-  AndroidFlutterLocalNotificationsPlugin? get _android => _plugin
-      .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin
-      >();
+  AndroidFlutterLocalNotificationsPlugin? get _android =>
+      _notifications.android;
 
   @override
   Future<bool> ensurePermission({required bool request}) async {
@@ -145,8 +116,7 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
   }
 
   @override
-  Stream<String> get openedBillIds {
-    unawaited(_ready());
-    return _opened.stream;
-  }
+  Stream<String> get openedBillIds => _notifications.reminderPayloads.map(
+    (payload) => ScheduledReminder.fromPayload(0, null, null, payload)!.billId,
+  );
 }
