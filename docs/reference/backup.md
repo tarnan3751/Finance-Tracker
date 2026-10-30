@@ -197,6 +197,9 @@ must find nothing; any failure rolls the whole import back; then foreign keys on
 - It drops the device bookkeeping keys `reminders_zone`, `reminders_scheduled_at` and
   `snapshots_written_on`, so the new device plans its reminders and writes its snapshots
   itself, and `fts_definition`, which the first open writes again.
+- It drops the app lock's settings `lock_enabled`, `lock_timeout_seconds` and
+  `secure_screen`, which describe the device they were chosen on (`lock.md`): the restored
+  device starts with the lock off and its flavor's screenshot default.
 - It resets the device's sync identity, in the import's transaction:
   `DriftSyncStore.substituteNode(provisionalNodeId())` moves every unsynced, unrejected
   outbox entry, the field clocks equal to theirs, the persisted clock and `device_id` to

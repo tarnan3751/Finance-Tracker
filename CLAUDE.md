@@ -132,6 +132,7 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | Reports: transaction classification, periods, comparisons, movers, anomaly flags and their harness, the weekly summary, the Reports segment | `app/lib/features/reports/` | `docs/reference/reports.md` |
 | Goals: the goal and contribution entities and their sync records, progress and suggestions, the Goals segment and its editors | `app/lib/features/goals/` | `docs/reference/goals.md` |
 | Export: the PDF monthly report, the CSV, the `FileExporter` boundary, the export screen | `app/lib/features/export/`, `app/lib/core/platform/file_exporter.dart` | `docs/reference/export.md` |
+| Lock: the app lock, its gate above the router, the Security settings, the screen-security and monotonic-clock seams | `app/lib/features/lock/`, `app/lib/core/platform/screen_security.dart`, `app/lib/core/platform/monotonic_clock.dart` | `docs/reference/lock.md` |
 | Bills: schedule, status and the payment assignment, reminders behind the scheduler boundary, the list, calendar and editor | `app/lib/features/bills/`, `app/lib/core/platform/reminder_scheduler.dart`, `app/lib/core/time/` | `docs/reference/bills.md` |
 | Forecast: the projection, its band and allowance, the screen and table | `app/lib/features/forecast/` | `docs/reference/forecast.md` |
 | The Plan tab: the shell, `PlanScaffold`, the editors' `OwnPage` closer | `app/lib/core/router/` | `docs/reference/app-core.md` |
@@ -261,7 +262,8 @@ PLAN.md          the plan: gitignored, read from the main tree
   currency and direction; the user's overrides and bill links are keyed by it.
 - `app_meta` holds device-local state (`reminders_zone`, `reminders_scheduled_at`,
   `forecast_selection`, `bill_suggestions_dismissed`, `snapshots_written_on`,
-  `dismissed_anomalies`, `weekly_summary_raised`, `payoff_entries`) and never syncs;
+  `dismissed_anomalies`, `weekly_summary_raised`, `payoff_entries`, `lock_enabled`,
+  `lock_timeout_seconds`, `secure_screen`) and never syncs;
   `app_settings` syncs.
 - A pulled change-log entry whose `entity_type` this build does not know is held under its raw
   type name and released, at a schema step or at any later open, by a build that knows it; a pull

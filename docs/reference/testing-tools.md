@@ -221,6 +221,41 @@ seat only. A lane points it at a fake-mode server started from its own clone (fo
 `PORT=18080 tools/run_server.sh`, then `--server http://127.0.0.1:18080/v1`), where the
 whole job runs against the fake client with `source: demo` data, paced in real time.
 
+## `tools/secrets_sweep.sh`: the secrets sweep
+
+`tools/secrets_sweep.sh [<logcat-capture>]` checks the release hardening that files can
+show (`PLAN.md` §12, "Release hardening"), reading files only:
+
+- **manifest**: the main manifest sets `android:allowBackup="false"`,
+  `android:fullBackupContent="false"` and
+  `android:dataExtractionRules="@xml/data_extraction_rules"`, and no other source set's
+  manifest sets `allowBackup` to true;
+- **rules**: `data_extraction_rules.xml` excludes `domain="root" path="."` from
+  `<cloud-backup>` and `<device-transfer>`, and has no `<cross-platform-transfer>`
+  section (`build.md`, **Android**);
+- **logcat**, given a capture of the app's log: no line holds a bearer token, a JWT, a
+  Plaid access, public or link token (`access-`, `public-`, `link-` with `sandbox`,
+  `development` or `production`), a refresh token or base64 key (a run of 40 or more
+  base64url or base64 characters holding an uppercase letter, a lowercase letter and a
+  digit, which a stack frame, an API path or a snake_case name does not), a hex database
+  key (`x'` and 16 or more hex digits) or an email address. A hit prints the pattern's
+  name and the line number, never the text.
+
+`tools/secrets_sweep.sh --self-test` runs the logcat check on a clean capture (a stack
+frame, an API path, a long snake_case name), which must pass, and on one dirty line per
+pattern, each of which must fail.
+
+It then prints the steps for the coordinator: capturing the app's log with `adb logcat -d
+--pid`, `adb backup -noapk` of the app with the archive listed (no file of the app's
+expected), and `dumpsys backup`. Agents run the file checks; a device is the
+coordinator's. One line per check; exit 1 when any fails.
+
+The prod flavor's in-memory log is held to the same rule in Dart: the sink keeps a
+sanitised copy of each record (`app-core.md`, **Logging**), proven by
+`app/test/core/logging/app_log_test.dart`. That test drives the wired prod sink under
+`flutter test`, chosen by flavor (`setUpLogging(Flavor.prod)`) and not by `kReleaseMode`,
+so it proves the sink, not a release-mode run; the release smoke is the coordinator's.
+
 ## `tools/emulator_tests.sh`: the emulator harness
 
 Runs the app on the harness's own headless Android Virtual Device, `ft-lane`, under a

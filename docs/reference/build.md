@@ -77,12 +77,28 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   (23+) with headroom.
 - **Package.** Namespace and application id `dev.tarnan.financetracker`; `MainActivity` is
   `app/android/app/src/main/kotlin/dev/tarnan/financetracker/MainActivity.kt`.
+- **The activity and the lock.** `MainActivity` is a `FlutterFragmentActivity`, because
+  `local_auth` (BSD-3, pinned exactly at 3.0.2 in `app/pubspec.yaml`; its Android
+  implementation `local_auth_android` 2.3.0, minSdk 24) shows the biometric prompt as a
+  fragment and fails with `NOT_FRAGMENT_ACTIVITY` otherwise. `LaunchTheme` and
+  `NormalTheme` (`res/values/styles.xml` and `res/values-night/styles.xml`) inherit
+  `Theme.AppCompat.DayNight.NoActionBar`, without which the prompt crashes on Android 8
+  and below; AppCompat comes into the build through the plugins' dependencies (none is
+  declared in `app/build.gradle.kts`). The main manifest declares `USE_BIOMETRIC` (the
+  plugin's merged manifest brings it too). `MainActivity` also answers two channels of the
+  app's own in `configureFlutterEngine`: `dev.tarnan.financetracker/screen_security`
+  (`setSecure`, `FLAG_SECURE` on the window) and `dev.tarnan.financetracker/clock`
+  (`elapsedRealtime`) (`app-core.md`, **Screen security** and **The monotonic clock**;
+  `lock.md`).
 - **Backup.** The `<application>` element sets `android:allowBackup="false"`,
   `android:fullBackupContent="false"` and
   `android:dataExtractionRules="@xml/data_extraction_rules"`, which excludes everything
-  (`domain="root"`) from cloud backup and device transfer. A Keystore-bound database key
-  cannot follow a system backup; the app's own encrypted backup (`backup.md`) is the only
-  path.
+  (`domain="root"`) from cloud backup and device transfer. There is deliberately no
+  `<cross-platform-transfer>` section: on API 36.1 it opts in to transfers with a named iOS
+  app (`platform-specific-params` with its bundle and team ids), and this app has no iOS
+  counterpart to name. A Keystore-bound database key cannot follow a system backup; the
+  app's own encrypted backup (`backup.md`) is the only path. `tools/secrets_sweep.sh`
+  checks these attributes and rules (`testing-tools.md`).
 - **Receipt photos.** `image_picker` (BSD-3, behind `core/platform/image_source.dart`)
   needs nothing in the app's manifest: the plugin's own manifest, merged at build time,
   declares its `FileProvider` (`io.flutter.plugins.imagepicker.ImagePickerFileProvider`,

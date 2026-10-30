@@ -31,7 +31,10 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
    app, with a message for a missing cipher, a wrong key, a lost key, or anything else;
    for a lost key it also offers "Restore from a backup" (`backup.md`);
 8. the stored session is read (`sessionControllerProvider`'s `restored()`, `auth.md`),
-   so the first frame is already signed in or out; then the sync controller starts
+   so the first frame is already signed in or out; the lock's settings are read
+   (`lockControllerProvider`'s `restored()`, `lock.md`), so with the lock on the first
+   frame is the lock screen and the window is secure before anything is drawn; then the
+   sync controller starts
    (`sync-app.md`, **The controller**) and, in every flavor, the budget alert watcher is
    listened to (`budgets.md`, **Alerts**);
 9. `runApp(UncontrolledProviderScope(container: container, child: FinanceTrackerApp()))`;
@@ -60,8 +63,10 @@ wipe was cut short, finishes it the same way first (`data.md`, **The local wipe*
 
 `FinanceTrackerApp` (`app.dart`) is a `ConsumerWidget` returning `MaterialApp.router` with
 the router, both themes inside a `DynamicColorBuilder`, the theme mode from settings, the
-localization delegates and supported locales, the title from `AppConfig.appName`, and, in
-dev and demo, the flavor banner from its `builder`.
+localization delegates and supported locales, the title from `AppConfig.appName`, and a
+`builder` that puts the lock's gate (`LockGate`, `lock.md`, **The gate**) above
+everything, around the flavor banner in dev and demo and the router, so the lock screen
+covers every route and dialog.
 
 ## Dependency injection
 
@@ -107,6 +112,8 @@ the scope's `retry` says otherwise (the tests turn it off).
 | `localWipeProvider`, `wipeLocalDataProvider` | `core/di/providers.dart` | The local wipe (`data.md`, **The local wipe**): the stores only by default, the database files too in dev and prod; and the stop, wipe, confirm and start again that `startApp` supplies (unavailable elsewhere unless overridden) |
 | `imageSourceProvider` | `core/platform/image_source_provider.dart` | The camera and gallery for receipt photos: `image_picker` by default, the fake in demo (**The image source**) |
 | `fileExporterProvider` | `core/platform/file_exporter_provider.dart` | Where exported files go (**The file exporter**): the fake by default and in demo, the "Save as" dialog and the share sheet in dev and prod |
+| `screenSecurityProvider`, `monotonicClockProvider` | `core/platform/screen_security_provider.dart`, `monotonic_clock_provider.dart` | The window's secure flag and the clock the lock measures the time away with (**Screen security**, **The monotonic clock**): the fakes by default, `MainActivity`'s channels in every flavor |
+| `lockControllerProvider`, `lockHoldProvider`, `deviceAuthProvider`, `deviceAuthSupportedProvider` | `features/lock/application/` | The app lock, its settings and the secure flag; the count of external activities that keeps it open; the device's check (the fake by default, `local_auth` in every flavor); whether the device can check (`lock.md`) |
 | `linkLauncherProvider`, `linkControllerProvider`, `linkPollIntervalProvider`, `linkedBanksProvider` | `features/items/application/` | Plaid Link (plaid_flutter by default, the fake launcher wherever the fake server runs), the Item actions and their state, and the stored Items (`items.md`) |
 | `settingsControllerProvider` | `features/settings/application/settings_controller.dart` | The settings as `AsyncValue<Settings>`, with `setThemeMode` and `setUseDynamicColor` |
 | `packageInfoProvider` | `features/settings/application/package_info.dart` | `PackageInfo.fromPlatform()` for About |
@@ -124,10 +131,13 @@ server, takes the first alone): the Drift repositories and the Plaid pull's `syn
 store for dev and prod with the receipt files and the notification plugin's reminder
 scheduler, the demo ones for demo with the fake image source (and the fake scheduler),
 the API's (`apiOverridesFor`: the in-app fake server, with the fake
-Link launcher over it, for demo, and for dev under `FT_FAKE_SERVER`), and the system's
+Link launcher over it, for demo, and for dev under `FT_FAKE_SERVER`), the system's
 file dialogs (`filePickerOverridesFor`: the platform file exporter and backup picker in
 dev and prod, the fakes otherwise, so a test on the dev wiring through
-`localDataOverridesFor` keeps the fakes); later phases add theirs there.
+`localDataOverridesFor` keeps the fakes), and in every flavor the platform seams that
+behave the same in all three (the secure flag and the monotonic clock through
+`MainActivity`'s channels, the device's check through `local_auth`); later phases add
+theirs there.
 
 ## The image source
 
@@ -182,6 +192,34 @@ or the platform fails.
   nothing leaves the app; every call is recorded as an `ExportCall` (kind, bytes, name,
   type), "Save as" answers its `outcome` (saved by default), and a set `failure` is
   thrown after the call is recorded.
+
+## Screen security
+
+`core/platform/screen_security.dart` is the platform boundary for the window's secure
+flag, pure Dart: `ScreenSecurity.set(bool secure)`. While it is set Android blanks the app
+in screenshots, screen recordings and the task switcher's thumbnail (`FLAG_SECURE`; an
+OEM may differ, and a thumbnail taken before the flag was set stays). The lock controller
+sets it whenever the lock is enabled or "Block screenshots" is on (`lock.md`).
+
+- **`ChannelScreenSecurity`** (`channel_screen_security.dart`, every flavor): the
+  `dev.tarnan.financetracker/screen_security` channel's `setSecure(bool)`, which
+  `MainActivity` answers by adding or clearing `WindowManager.LayoutParams.FLAG_SECURE`
+  on its window. Plaid Link and the other activities the app starts have windows of
+  their own, which the flag does not reach.
+- **`FakeScreenSecurity`** (`fake_screen_security.dart`, the tests): records every call.
+
+## The monotonic clock
+
+`core/platform/monotonic_clock.dart`, pure Dart: `MonotonicClock.elapsed()`, time since
+a fixed point that never goes back and that the user cannot change. The lock measures the
+time in the background with it (`lock.md`).
+
+- **`ChannelMonotonicClock`** (`channel_monotonic_clock.dart`, every flavor): the
+  `dev.tarnan.financetracker/clock` channel's `elapsedRealtime`, which `MainActivity`
+  answers with `SystemClock.elapsedRealtime()` in milliseconds. That clock counts deep
+  sleep; a Dart `Stopwatch` (`CLOCK_MONOTONIC`) stops in it and would undercount a phone
+  that slept in a pocket.
+- **`FakeMonotonicClock`** (the same file, the tests): stands still until `advance`.
 
 riverpod_lint runs as an analyzer plugin declared in the workspace root's
 `analysis_options.yaml` and enabled for the app by including that file from
@@ -520,11 +558,29 @@ rescheduling rules are `bills.md`, **Reminders**.
 ## Logging
 
 `core/logging/app_log.dart`, on `package:logging`. Each area logs through its own
-`Logger('<area>')`. dev and demo print every record with `debugPrint`; prod keeps the last
-500 records in memory (`recentLogRecords()`), for the local crash log Phase 7 exports at the
-user's request. `forwardUncaughtErrors()` sends `FlutterError.onError` and
-`PlatformDispatcher.instance.onError` to the `app` logger. **Never log an amount, a
-merchant, a description or a token** (`PLAN.md` §6.6).
+`Logger('<area>')`. dev and demo print every record with `debugPrint`; prod keeps a
+sanitised copy of the last 500 records in memory (`recentLogRecords()`), for the local crash
+log Phase 7 exports at the user's request. `forwardUncaughtErrors()` sends
+`FlutterError.onError` and `PlatformDispatcher.instance.onError` to the `app` logger.
+**Never log an amount, a merchant, a description or a token** (`PLAN.md` §6.6).
+
+The prod sink is the second line of defence (`sanitizedRecord`, `PLAN.md` §12): the copy
+keeps the level, the logger, the zone and the stack trace; its message has every bearer
+token, JWT (padded or not), Plaid `access-*`, `public-*` and `link-*` token, email address
+(Unicode letters included), `x'` hex key literal, run of 32 or more hex digits and run of
+40 or more base64url or base64 characters holding an uppercase letter, a lowercase letter
+and a digit (the server's refresh tokens, base64 keys; a stack frame, a path or a
+snake_case name lacks one and is kept) replaced by `[redacted]` (`scrubLogText`), and a
+message that was a logged object's `toString` becomes that object's type; its error is
+reduced to the error's runtime type (an exception's text can carry an amount or a
+merchant, which no pattern can find); it carries no object. A merchant or an amount written into a message by hand is not caught:
+the call-site rule above is the defence there. The mixed-run rule has a residual too: a
+run of 40 or more with no digit or no uppercase letter is kept, which is about 1 in 1,400
+random base64url refresh tokens; it is accepted because the call-site rule is the first
+defence and a looser rule redacts paths. `app/test/core/logging/app_log_test.dart`
+feeds the sink a token, an email and a key in messages and errors and an amount and a
+merchant through an exception's text, and checks that none is kept while the stack trace
+is. The dev sink prints records unchanged.
 
 ## Localization
 
@@ -544,7 +600,7 @@ the only locale.
 | data | `data/drift_settings_repository.dart` | The Drift implementation (dev and prod): one `app_settings` row per field |
 | data | `data/in_memory_settings_repository.dart`, `data/demo_settings_repository.dart` | The in-memory implementation (tests) and the demo one (the demo flavor) |
 | application | `application/settings_controller.dart` | `SettingsController`, following `watch()`; each change reads, changes and saves, and changes run one after another so two issued together both land |
-| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Data (Categories, opening category management, `categories.md`; Rules, `rules.md`; Export, `export.md`; Backup, `backup.md`, which in the demo flavor only says that the demo's data is not kept or backed up), About (app name, version and build, flavor, time zone), Demo data (demo only, `demo_data_section.dart`: the persona the demo shows) and Developer (dev only, `features/developer/presentation/developer_section.dart`: diagnostics, Pull now and the Sandbox controls, `developer.md`); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
+| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Security (`features/lock/presentation/security_section.dart`: Require unlock, Lock after and Block screenshots, kept in `app_meta`, `lock.md`), Data (Categories, opening category management, `categories.md`; Rules, `rules.md`; Export, `export.md`; Backup, `backup.md`, which in the demo flavor only says that the demo's data is not kept or backed up), About (app name, version and build, flavor, time zone), Demo data (demo only, `demo_data_section.dart`: the persona the demo shows) and Developer (dev only, `features/developer/presentation/developer_section.dart`: diagnostics, Pull now and the Sandbox controls, `developer.md`); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
 
 The repository contract is `test/contract/settings_repository_contract.dart`,
 `runSettingsRepositoryContract(create, {dispose})`; the three implementations each run it
