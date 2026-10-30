@@ -33,7 +33,8 @@ final class SyncReport {
   /// third fate, acceptance, is counted in [pushed].
   final List<PushRejection> rejected;
 
-  /// Entries pulled and merged.
+  /// Entries pulled and merged, those of types this build does not know (held by the
+  /// store) included.
   final int pulled;
 
   /// Pulled entries that changed a record.
@@ -90,7 +91,9 @@ final class SyncSession {
   /// `clockDrift` rejection stays unsynced and ends the push phase for this run. Then
   /// pulls from the saved
   /// cursor until the relay has no more, each page in one store transaction that
-  /// receives every entry's clock, merges it, and saves the clock and the cursor.
+  /// receives every entry's clock, merges it (an entry of a type this build does not
+  /// know is held by the store under its raw type, `SyncStore.holdUnknownType`), and
+  /// saves the clock and the cursor.
   ///
   /// A call while a run is in flight returns that run. A store or relay error propagates;
   /// what was saved before it stays saved. That includes [SyncCursorInvalidException]
@@ -143,11 +146,16 @@ final class SyncSession {
         for (final e in page.entries) {
           clock.checkDrift(e.hlc, now);
         }
+        for (final e in page.unknownTypes) {
+          clock.checkDrift(e.hlc, now);
+        }
       } on ClockDriftException catch (e) {
         blocked = e;
         break;
       }
-      if (page.entries.isNotEmpty || page.nextSince != cursor) {
+      if (page.entries.isNotEmpty ||
+          page.unknownTypes.isNotEmpty ||
+          page.nextSince != cursor) {
         applied += await store.transaction(() async {
           var n = 0;
           for (final e in page.entries) {
@@ -158,12 +166,16 @@ final class SyncSession {
             changed.add(out.record.key);
             n++;
           }
+          for (final e in page.unknownTypes) {
+            clock.receive(e.hlc, now);
+            await store.holdUnknownType(e);
+          }
           await store.saveClock(clock.last);
           await store.savePullCursor(page.nextSince);
           return n;
         });
       }
-      pulled += page.entries.length;
+      pulled += page.entries.length + page.unknownTypes.length;
       cursor = page.nextSince;
       if (!page.hasMore) break;
     }

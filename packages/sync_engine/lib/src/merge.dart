@@ -54,30 +54,60 @@ MergeOutcome merge(EntityRecord? local, ChangeLogEntry remote) {
       'is not a change to ${base.key}',
     );
   }
-  final hlc = remote.hlc;
-  final changed = <String>{};
-  final isCreate = remote.operation == ChangeOperation.create;
-  for (final field in remote.payload.keys) {
-    if (isCreate && field == deletedAtField) continue;
-    final clock = base.fieldClocks[field];
-    if (clock == null || clock.compareTo(hlc) < 0) changed.add(field);
-  }
-  var createdAt = base.createdAt;
-  if (isCreate && (createdAt == null || hlc.compareTo(createdAt) < 0)) {
-    createdAt = hlc;
-  }
-  if (changed.isEmpty && createdAt == base.createdAt) {
-    return MergeOutcome(base, const {}, false);
-  }
+  final joined = joinChange(
+    fields: base.fields,
+    fieldClocks: base.fieldClocks,
+    createdAt: base.createdAt,
+    operation: remote.operation,
+    payload: remote.payload,
+    hlc: remote.hlc,
+  );
+  if (joined == null) return MergeOutcome(base, const {}, false);
   final record = EntityRecord(
     type: base.type,
     id: base.id,
-    fields: {
-      ...base.fields,
-      for (final f in changed) f: remote.payload[f] as Object?,
-    },
-    fieldClocks: {...base.fieldClocks, for (final f in changed) f: hlc},
-    createdAt: createdAt,
+    fields: joined.fields,
+    fieldClocks: joined.fieldClocks,
+    createdAt: joined.createdAt,
   );
-  return MergeOutcome(record, changed, true);
+  return MergeOutcome(record, joined.changed, true);
+}
+
+/// The registers of one entity after a change ([operation] of [payload] at [hlc]) is
+/// joined into [fields], [fieldClocks] and [createdAt], as [merge] joins it; null when
+/// the change sets nothing. [merge] and `mergeUnknownType` share it, so a record held
+/// under a type this build does not know folds exactly as it will once the type is
+/// known.
+({
+  Map<String, Object?> fields,
+  Map<String, Hlc> fieldClocks,
+  Hlc? createdAt,
+  Set<String> changed,
+})?
+joinChange({
+  required Map<String, Object?> fields,
+  required Map<String, Hlc> fieldClocks,
+  required Hlc? createdAt,
+  required ChangeOperation operation,
+  required Map<String, dynamic> payload,
+  required Hlc hlc,
+}) {
+  final changed = <String>{};
+  final isCreate = operation == ChangeOperation.create;
+  for (final field in payload.keys) {
+    if (isCreate && field == deletedAtField) continue;
+    final clock = fieldClocks[field];
+    if (clock == null || clock.compareTo(hlc) < 0) changed.add(field);
+  }
+  var created = createdAt;
+  if (isCreate && (created == null || hlc.compareTo(created) < 0)) {
+    created = hlc;
+  }
+  if (changed.isEmpty && created == createdAt) return null;
+  return (
+    fields: {...fields, for (final f in changed) f: payload[f] as Object?},
+    fieldClocks: {...fieldClocks, for (final f in changed) f: hlc},
+    createdAt: created,
+    changed: changed,
+  );
 }

@@ -170,7 +170,11 @@ server ship together). `GET /health` reports the contract version the server imp
 so the app can tell a mismatch. Clients ignore response properties they do not know.
 Enums are closed: the generated client has no unknown-value fallback, so the server maps
 Plaid values it does not know before it answers (`unknown`, `other`), and an added enum
-value is a contract change like any other.
+value is a contract change like any other. One exception: the app reads a `GET
+/sync/pull` page from its JSON itself, not through the generated `PullPage`, so an
+`entity_type` a newer version added is kept with its raw name rather than failing the
+page (`sync-app.md`, **Unknown types**); the generated enum is left as generated, since
+the generator's unknown-default case would drop the raw name.
 
 ## Changing the contract
 

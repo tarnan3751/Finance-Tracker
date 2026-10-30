@@ -2,6 +2,7 @@
 // reference), records round-tripping through the entity tables, the held records, the
 // node substitution and the ledger.
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:drift/drift.dart' hide isNotNull, isNull;
@@ -1019,4 +1020,89 @@ void main() {
       ));
     },
   );
+
+  group('a type this build does not know', () {
+    UnknownTypeEntry change(
+      String type,
+      int wall,
+      ChangeOperation operation,
+      Map<String, dynamic> payload,
+    ) => UnknownTypeEntry(
+      entityType: type,
+      entityId: 'x1',
+      operation: operation,
+      payload: payload,
+      hlc: Hlc(wall, 0, 'dev-b'),
+      deviceId: 'dev-b',
+    );
+
+    test('is held under its raw type with its field clocks, folded in any '
+        'order', () async {
+      final List<UnknownTypeEntry> changes = [
+        change('future_type', 10, ChangeOperation.create, {
+          'id': 'x1',
+          'name': 'a',
+        }),
+        change('future_type', 20, ChangeOperation.update, {'name': 'b'}),
+        change('future_type', 15, ChangeOperation.update, {'note': 'n'}),
+      ];
+      for (final UnknownTypeEntry c in [...changes.reversed, ...changes]) {
+        await store.holdUnknownType(c);
+      }
+      final HeldRecordRow held = await database
+          .select(database.heldRecords)
+          .getSingle();
+      expect(
+        (held.entityType, held.entityId, held.reason),
+        ('future_type', 'x1', 'unsupported_type'),
+      );
+      expect(jsonDecode(held.fields), {'id': 'x1', 'name': 'b', 'note': 'n'});
+      expect(
+        {
+          for (final RecordClockRow r
+              in await database.select(database.recordClocks).get())
+            r.field: r.hlc,
+        },
+        {
+          'id': Hlc(10, 0, 'dev-b').pack(),
+          'name': Hlc(20, 0, 'dev-b').pack(),
+          'note': Hlc(15, 0, 'dev-b').pack(),
+          '_create': Hlc(10, 0, 'dev-b').pack(),
+        },
+      );
+    });
+
+    test('is released, whole, by a version that knows the type', () async {
+      // As a build that did not know categories held them; this one stores them.
+      final Map<String, Object?> fields = categoryRecordJson(
+        const Category(
+          id: 'x1',
+          name: 'Pets',
+          isSystem: false,
+          icon: 'pets',
+          color: 0xFF00FF00,
+        ),
+      )..remove(deletedAtField);
+      await store.holdUnknownType(
+        change('category', 10, ChangeOperation.create, fields),
+      );
+      await store.holdUnknownType(
+        change('category', 20, ChangeOperation.update, {'name': 'Animals'}),
+      );
+      expect(await store.heldIds(EntityType.category), ['x1']);
+
+      await releaseHeldRecords(store, EntityType.category);
+      expect(await database.select(database.heldRecords).get(), isEmpty);
+      final CategoryRow row = await database
+          .select(database.categories)
+          .getSingle();
+      expect((row.id, row.name, row.icon), ('x1', 'Animals', 'pets'));
+      final EntityRecord record = (await store.read(
+        EntityType.category,
+        'x1',
+      ))!;
+      expect(record.createdAt, Hlc(10, 0, 'dev-b'));
+      expect(record.fieldClocks['name'], Hlc(20, 0, 'dev-b'));
+    });
+  });
 }

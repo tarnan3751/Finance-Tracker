@@ -15,3 +15,4 @@ export 'src/merge.dart';
 export 'src/sync_relay.dart';
 export 'src/sync_session.dart';
 export 'src/sync_store.dart';
+export 'src/unknown_type.dart';

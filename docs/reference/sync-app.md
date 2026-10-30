@@ -16,7 +16,8 @@ schema 2 tables under `app/lib/core/db/tables/`, the repositories' writes
 
 Sync covers the user-authored data the app stores now: accounts, transactions,
 categories, rules, budgets, the overrides of recurring streams and the settings. Other entity types arrive with their phases; a record of one
-pulled before then is kept (**The store**, held records).
+pulled before then is kept (**The store**, held records), and so is a record of a type
+this build does not know at all, a newer version's (**Unknown types**).
 
 ## Records
 
@@ -80,7 +81,8 @@ keep.
     devices holding the same record show the same row and balances; a record that does
     not decode at all leaves the row as it was;
   - `incomplete`: only updates merged, and no row yet;
-  - `unsupported_type`: an entity the app does not store yet.
+  - `unsupported_type`: an entity the app does not store yet, or of a type this build
+    does not know at all (**Unknown types**), kept under its raw type name.
 
   A later merge the table can hold exactly writes the row and deletes the held one.
   `materializeHeld(type, ids)` writes the held records of those entities again: the
@@ -92,6 +94,19 @@ A live transaction can sit on an account this device does not show (another devi
 recorded it while this one deleted the account, a Phase 7 conflict; or it arrived before
 its account): the Transactions tab labels it by its category alone, and its editor says
 the account no longer exists.
+
+**Unknown types.** A pulled page may carry an entry of a type a newer version added. The
+client reads the page's JSON itself (`HttpFinanceApi.pullChanges`, not the generated
+model, whose closed enum would fail the whole page) and returns such an entry apart, in
+`PullPage.unknownTypes`, with its raw `entity_type`. The session receives its clock and
+hands it to `DriftSyncStore.holdUnknownType` in the page's transaction, which folds it
+into the field clocks (`record_clocks`) and fields (`held_records`, `unsupported_type`)
+kept under the raw name, exactly as `merge` would fold them; the rest of the page applies
+and the cursor advances, so a device on an older build keeps receiving every other change.
+Its outbox never holds one: a build only records types it knows. The version that knows
+the type releases these records in its schema step as for any held type
+(`releaseHeldRecords` finds them under the type's JSON name). The server refuses a push of
+a type it does not know.
 
 Pulled changes reach the screens through Drift's watchers on the tables the store writes.
 
@@ -268,7 +283,8 @@ never re-reads rows; `arrivalProcessorProvider` is the rules' `RuleRunner` (`rul
 | Suite | What it proves |
 |---|---|
 | `test/drift/migration_test.dart` | A schema 10 database keeps its rows and gains the four empty investment and snapshot tables, and the step runs again at version 10; a schema 1 database with data migrates: rows kept, one create per user-authored row and a delete per deleted one, clocks increasing on one node, the stored records equal to the fold of the entries; a schema 3 database's held rule records become rows, or stay held for the reason that now applies; a schema 5 database's held transaction records carrying `hidden` land in their rows; a schema 8 database's held `recurring_stream` records become overrides, or stay held; a schema 9 database's held `bill_reminder` records become bills (a complete one), or stay held `incomplete` (updates only), `unknown_fields` (a newer field, the rest landing) or `unrepresentable` (a cadence this version lacks), and the step runs again at version 9 |
-| `test/core/db/drift_sync_store_test.dart` | The engine's store contract cases; records round-tripping through the tables (randomized transactions and rules included, a stream override of updates only, live and cleared; a bill, live and deleted, and one recorded before its new fields landing with their defaults); the held reasons (a bill that does not decode held with its row left as it was, a bill field this version does not know held with the rest landing), the row each leaves and their release; unknown fields surviving a local edit; the node substitution; the ledger |
+| `test/core/db/drift_sync_store_test.dart` | The engine's store contract cases; records round-tripping through the tables (randomized transactions and rules included, a stream override of updates only, live and cleared; a bill, live and deleted, and one recorded before its new fields landing with their defaults); the held reasons (a bill that does not decode held with its row left as it was, a bill field this version does not know held with the rest landing), the row each leaves and their release; unknown fields surviving a local edit; a type this build does not know held under its raw name, folded in any order, and released whole by a version that knows the type; the node substitution; the ledger |
+| `test/core/api/pull_unknown_types_test.dart`, `test/core/sync/unknown_types_session_test.dart` | A pulled page read by the client: an unknown `entity_type` kept apart with its raw name, the rest as before, a malformed page still a server error; a session over the Drift store applying the rest of such a page, advancing the cursor and holding the entry |
 | `test/contract/recording_contract.dart` | Exactly the entries each write records, in the Drift and in-memory implementations; a refused write records nothing; a Drift write and its entry roll back together |
 | `test/core/sync/sync_controller_test.dart` | The triggers, the debounce (none on top of the start), single flight with one coalesced rerun, a sign-out and sign-in during a held push (one push at a time, each entry once on the relay), the cursor reset, failures in the status, persistence, demo, in-memory data and signed-out, the Plaid pull after a session and its failure kept apart |
 | `test/core/plaid/plaid_pull_test.dart` | Over the fake server into the Drift repositories: everything applied as sent and nothing recorded, the streams, the liabilities and the holdings replaced and the investment transactions paged from their cursor with tombstones and a restart, a failure of any list leaving the run and the others whole, each whole run announced, paging with the cursor per page, a failed page rolled back and its cursor kept, the cursor reset, an unlinked Item's data going, an override pulled before its row landing on it, single flight; and the in-memory repositories |

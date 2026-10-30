@@ -23,7 +23,10 @@
 ///   store, in another currency than the amount or not decoding: every other field lands
 ///   and the row has no splits, so devices with the same record show the same row; or
 ///   fields that do not decode at all, when the row stays as it was), `incomplete` (only
-///   updates, and no row yet), `unsupported_type` (an entity the app does not store yet).
+///   updates, and no row yet), `unsupported_type` (an entity the app does not store yet,
+///   or of a type this build does not know at all, a newer version's: held under its raw
+///   type name by [DriftSyncStore.holdUnknownType], with its field clocks, so the version
+///   that knows the type releases it as it releases any held record of that type).
 ///   A later write the table can hold exactly deletes the held row.
 ///
 /// Pure Dart, no Flutter import.
@@ -150,6 +153,73 @@ final class DriftSyncStore implements SyncStore {
           );
     }
   });
+
+  @override
+  Future<void> holdUnknownType(UnknownTypeEntry entry) => _database.transaction(
+    () async {
+      final String type = entry.entityType;
+      final String id = entry.entityId;
+      final List<RecordClockRow> rows = await (_database.select(
+        _database.recordClocks,
+      )..where((c) => c.entityType.equals(type) & c.entityId.equals(id))).get();
+      final HeldRecordRow? held = await _held(type, id);
+      final Map<String, Object?> values = held == null
+          ? const {}
+          : jsonDecode(held.fields) as Map<String, Object?>;
+      Hlc? createdAt;
+      final Map<String, Hlc> clocks = {};
+      for (final RecordClockRow row in rows) {
+        if (row.field == createClockField) {
+          createdAt = Hlc.parse(row.hlc);
+        } else {
+          clocks[row.field] = Hlc.parse(row.hlc);
+        }
+      }
+      final UnknownTypeRecord merged = mergeUnknownType(
+        rows.isEmpty
+            ? null
+            : UnknownTypeRecord(
+                type: type,
+                id: id,
+                fields: {for (final String f in clocks.keys) f: values[f]},
+                fieldClocks: clocks,
+                createdAt: createdAt,
+              ),
+        entry,
+      );
+      await (_database.delete(
+        _database.recordClocks,
+      )..where((c) => c.entityType.equals(type) & c.entityId.equals(id))).go();
+      await _database.batch(
+        (batch) => batch.insertAll(_database.recordClocks, [
+          for (final MapEntry<String, Hlc> e in merged.fieldClocks.entries)
+            RecordClocksCompanion.insert(
+              entityType: type,
+              entityId: id,
+              field: e.key,
+              hlc: e.value.pack(),
+            ),
+          if (merged.createdAt case final Hlc created)
+            RecordClocksCompanion.insert(
+              entityType: type,
+              entityId: id,
+              field: createClockField,
+              hlc: created.pack(),
+            ),
+        ]),
+      );
+      await _database
+          .into(_database.heldRecords)
+          .insertOnConflictUpdate(
+            HeldRecordsCompanion.insert(
+              entityType: type,
+              entityId: id,
+              fields: jsonEncode(merged.fields),
+              reason: snakeName(HeldReason.unsupportedType),
+            ),
+          );
+    },
+  );
 
   /// Writes again each held record of the entities [ids] of [type], so one that waited
   /// for its row (`incomplete`: a Plaid transaction's overrides pulled before the Plaid

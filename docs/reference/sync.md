@@ -24,7 +24,8 @@ refuses, as `invalid`, any pushed entry whose payload says `source: plaid`
 | `EntityRecord` | One entity's field-level state: its JSON fields, a clock per field, and the clock of its create. |
 | `diff` | Turns a local edit (before and after JSON) into a `ChangeLogEntry`. |
 | `merge` | Applies an entry to a record, last-writer-wins per field. |
-| `SyncStore` | What the host stores: records, outbox, pull cursor, clock, transactions. `InMemorySyncStore` is the reference implementation. |
+| `UnknownTypeEntry`, `mergeUnknownType` | A pulled entry of a type this build does not know, with its raw type name, and its fold under that name by `merge`'s rules (**The session**, Unknown types). |
+| `SyncStore` | What the host stores: records, records of unknown types, outbox, pull cursor, clock, transactions. `InMemorySyncStore` is the reference implementation. |
 | `SyncRelay` | The server as the engine sees it: push entries, pull by `seq`. `InMemorySyncRelay` is the reference implementation. |
 | `LocalEditor` | The local edit path: diff, stamp, store and outbox in one transaction. |
 | `SyncSession` | One sync: push the outbox, then pull and merge. |
@@ -156,6 +157,7 @@ SQLite, and `InMemorySyncStore` for tests and the simulation.
 | `unsynced({limit})` | Up to `limit` unsynced outbox entries, in clock order. |
 | `markSynced(hlcs)` | Marks the entries the relay accepted. Clocks are unique per device, so a clock identifies an outbox entry. |
 | `markRejected(hlcs, reason)` | Takes entries the relay refused for good (`invalid`, `conflictingDuplicate`) out of the outbox. The store keeps them with the reason, for the host to inspect, and `unsynced` never returns them again. |
+| `holdUnknownType(entry)` | Merges a pulled `UnknownTypeEntry` (a type this build does not know) into the record kept under its raw type name, by `mergeUnknownType` (**Unknown types**). |
 | `pullCursor()` / `savePullCursor(seq)` | The relay `seq` pulled up to (null before the first pull). |
 | `lastClock()` / `saveClock(hlc)` | The persisted `HlcClock.last`. |
 
@@ -200,6 +202,11 @@ reference behaviour for any implementation. Drift's `transaction` meets the cont
   The server relay (lane 2d) is held to this rule. The cursor is a `seq`, never a clock, because device clocks do not
   order the stream (`GET /sync/pull?since=<seq>` in the contract). Merge tolerates a device
   receiving its own entries anyway: they are idempotent.
+- **Unknown types.** `PullPage.unknownTypes` carries the page's entries whose
+  `entity_type` this build does not know (a newer version's), as `UnknownTypeEntry`: the
+  raw type name, id, operation, payload, clock and device. The relay adapter puts them
+  there instead of failing the page (the app's `HttpFinanceApi.pullChanges`); the
+  in-memory relay never produces one.
 - **Wire form.** `InMemorySyncRelay` keeps entries as JSON text and decodes them on pull, so
   tests cross the same wire form as the server. `entries` and `fold()` (every entry merged
   in `seq` order) are its reference views.
@@ -240,9 +247,16 @@ for the host to react to) and `pullBlockedBy`.
    never builds such an entry, and the host should surface it.
 2. **Pull.** From the saved cursor (0 when there is none), pull pages of 200 with the
    device's own id. Each page is one store transaction: receive every entry's clock,
-   merge, write each changed record, then save the clock and the cursor. Repeat until
-   `hasMore` is false.
-3. **Drift.** Before applying a page, every entry is checked with `checkDrift`. If one is
+   merge, write each changed record, hand each entry of an unknown type to
+   `holdUnknownType`, then save the clock and the cursor. Repeat until `hasMore` is
+   false. `pulled` counts both kinds; `applied` and `changed` only the known ones.
+   **Unknown types**: `mergeUnknownType` folds an unknown type's entries by the same rules
+   as `merge` (both go through `joinChange`), so the record a store holds under the raw
+   name is the one `merge` would have built; a later version that knows the type reads
+   it back as that type's record. A device on an older build therefore keeps syncing
+   when another device pushes a type added after its build: the rest of every page
+   applies and its cursor advances.
+3. **Drift.** Before applying a page, every entry, of a known type or not, is checked with `checkDrift`. If one is
    too far ahead of the device's clock, none of the page is applied, the cursor stays
    before it, and the report carries the `ClockDriftException`. A later run applies the
    page once the device's clock has caught up.
@@ -287,6 +301,7 @@ The app's side of these is `sync-app.md`.
 | `test/merge_property_test.dart` | Random entry sets folded in random orders, duplications and groupings all equal a brute-force oracle (`test/support/oracle.dart`), and agree with the tombstone rule checked on its own, 5000 cases. |
 | `test/in_memory_sync_store_test.dart`, `test/in_memory_sync_relay_test.dart` | The store and relay contracts. |
 | `test/local_editor_test.dart`, `test/sync_session_test.dart` | The edit path; batching; the three fates of a pushed entry (permanently rejected entries leave the outbox and do not block the good ones; drift waits); a create on an offline device after another device's delete, which stays deleted everywhere; a relay reset, recovered by resetting the cursor; push failures before storing and after storing; a pull failing on a later page; a crash between pages; a re-pulled page; the drift block; own entries excluded, or harmless when a relay does not filter them. |
+| `test/unknown_type_test.dart` | An unknown type's entries fold under its raw name in any order, idempotently, to what `merge` gives once the type is known; a page holding one applies the rest, holds it, receives its clock and advances the cursor; one too far ahead blocks its page. |
 | `test/simulation/` | The multi-device simulation, below. |
 
 **The simulation** (`test/simulation/harness.dart`) runs 4000 scenarios in the normal test

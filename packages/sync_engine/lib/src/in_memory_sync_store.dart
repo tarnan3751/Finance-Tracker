@@ -9,11 +9,13 @@ import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/src/entity_record.dart';
 import 'package:sync_engine/src/sync_relay.dart';
 import 'package:sync_engine/src/sync_store.dart';
+import 'package:sync_engine/src/unknown_type.dart';
 
 /// A [SyncStore] held in memory. A transaction snapshots the state and restores it when
 /// its body throws; transactions and standalone calls take one lock in turn.
 final class InMemorySyncStore implements SyncStore {
   Map<EntityKey, EntityRecord> _records = {};
+  Map<(String, String), UnknownTypeRecord> _unknown = {};
   List<ChangeLogEntry> _outbox = [];
   List<(ChangeLogEntry, PushRejectionReason)> _rejected = [];
   int? _cursor;
@@ -30,6 +32,10 @@ final class InMemorySyncStore implements SyncStore {
   /// Every record, by key.
   Map<EntityKey, EntityRecord> get records => Map.unmodifiable(_records);
 
+  /// The records of types this build does not know, by raw type name and id.
+  Map<(String, String), UnknownTypeRecord> get unknownTypeRecords =>
+      Map.unmodifiable(_unknown);
+
   /// Every outbox entry appended and not rejected, synced or not, in append order.
   List<ChangeLogEntry> get outbox => List.unmodifiable(_outbox);
 
@@ -42,16 +48,19 @@ final class InMemorySyncStore implements SyncStore {
     if (Zone.current[_inTransaction] == true) return body();
     return _locked(() async {
       final records = _records;
+      final unknown = _unknown;
       final outbox = _outbox;
       final rejected = _rejected;
       final cursor = _cursor;
       final clock = _clock;
       _records = {...records};
+      _unknown = {...unknown};
       _outbox = [...outbox];
       try {
         return await runZoned(body, zoneValues: {_inTransaction: true});
       } catch (_) {
         _records = records;
+        _unknown = unknown;
         _outbox = outbox;
         _rejected = rejected;
         _cursor = cursor;
@@ -83,6 +92,13 @@ final class InMemorySyncStore implements SyncStore {
   @override
   Future<void> write(EntityRecord record) =>
       _op('write', () => _records[record.key] = record);
+
+  @override
+  Future<void> holdUnknownType(UnknownTypeEntry entry) =>
+      _op('holdUnknownType', () {
+        final key = (entry.entityType, entry.entityId);
+        _unknown[key] = mergeUnknownType(_unknown[key], entry);
+      });
 
   @override
   Future<List<ChangeLogEntry>> unsynced({int limit = 200}) => _op(

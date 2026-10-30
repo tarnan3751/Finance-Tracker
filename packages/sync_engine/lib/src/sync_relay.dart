@@ -4,6 +4,7 @@ library;
 
 import 'package:meta/meta.dart';
 import 'package:shared_models/shared_models.dart';
+import 'package:sync_engine/src/unknown_type.dart';
 
 /// The relay every device pushes to and pulls from: the dev server's `/sync` endpoints
 /// (lane 2d) or [InMemorySyncRelay].
@@ -99,12 +100,17 @@ final class PullPage {
   /// A page.
   const PullPage({
     required this.entries,
+    this.unknownTypes = const [],
     required this.nextSince,
     required this.hasMore,
   });
 
   /// The entries, in `seq` order.
   final List<ChangeLogEntry> entries;
+
+  /// The page's entries of types this build does not know, kept apart from [entries]
+  /// (merge is order-free, so `seq` order across the two lists does not matter).
+  final List<UnknownTypeEntry> unknownTypes;
 
   /// The cursor for the next pull: the position just before the next entry the caller
   /// will receive. It can lie past the caller's own entries, which are never returned:

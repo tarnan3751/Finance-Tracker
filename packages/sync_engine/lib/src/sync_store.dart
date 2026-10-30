@@ -4,6 +4,7 @@ library;
 import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/src/entity_record.dart';
 import 'package:sync_engine/src/sync_relay.dart';
+import 'package:sync_engine/src/unknown_type.dart';
 
 /// Where one device keeps its records, its outbox, its pull cursor and its clock. The app
 /// implements it over Drift and the server over SQLite; [InMemorySyncStore] is the
@@ -22,6 +23,11 @@ abstract interface class SyncStore {
 
   /// Stores [record], replacing the one with its key.
   Future<void> write(EntityRecord record);
+
+  /// Merges [entry], a change to an entity of a type this build does not know, into the
+  /// record kept under its raw type name (`mergeUnknownType`), so a later version that
+  /// knows the type finds it whole.
+  Future<void> holdUnknownType(UnknownTypeEntry entry);
 
   /// Up to [limit] outbox entries not yet accepted by the relay, in clock order.
   Future<List<ChangeLogEntry>> unsynced({int limit = 200});

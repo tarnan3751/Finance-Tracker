@@ -28,6 +28,7 @@ import 'package:finance_tracker/core/api/auth_interceptor.dart';
 import 'package:finance_tracker/core/api/finance_api.dart';
 import 'package:finance_tracker/core/api/problems.dart';
 import 'package:finance_tracker/core/api/token_store.dart';
+import 'package:finance_tracker/core/sync/entity_codec.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart'
@@ -525,30 +526,63 @@ final class HttpFinanceApi implements FinanceApi {
         );
       });
 
+  /// The page read from the response's JSON itself rather than through the generated
+  /// model, whose closed `EntityType` would fail the whole page on a type a newer
+  /// version added: an entry of a type this build does not know comes back in
+  /// [PullPage.unknownTypes] with its raw type name, and the rest of the page applies
+  /// (`docs/reference/sync-app.md`, **Unknown types**).
   @override
   Future<PullPage> pullChanges({required int since, required int limit}) =>
       _call('/sync/pull', (extra) async {
-        final Map<String, dynamic> json = _json(
-          _data(
-            (await _client.getSyncApi().pullChanges(
-              since: since,
-              limit: limit,
-              extra: extra,
-            )).data,
-          ),
-        );
+        final Map<String, dynamic> json = _data(
+          (await _dio.get<Object>(
+            '/sync/pull',
+            queryParameters: {'since': since, 'limit': limit},
+            options: Options(
+              extra: {
+                'secure': const [
+                  {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
+                ],
+                ...extra,
+              },
+            ),
+          )).data,
+        ) as Map<String, dynamic>;
+        final List<ChangeLogEntry> entries = [];
+        final List<UnknownTypeEntry> unknown = [];
+        for (final Object? e in json['entries'] as List<dynamic>) {
+          final Map<String, dynamic> entry = {...e! as Map<String, dynamic>}
+            ..remove('seq');
+          final String type = entry['entity_type'] as String;
+          if (_entityTypeNames.contains(type)) {
+            entries.add(ChangeLogEntry.fromJson({...entry, 'synced': true}));
+          } else {
+            unknown.add(
+              UnknownTypeEntry(
+                entityType: type,
+                entityId: entry['entity_id'] as String,
+                operation: enumFromSnakeName(
+                  ChangeOperation.values,
+                  entry['operation'] as String,
+                ),
+                payload: entry['payload'] as Map<String, dynamic>,
+                hlc: Hlc.parse(entry['hlc'] as String),
+                deviceId: entry['device_id'] as String,
+              ),
+            );
+          }
+        }
         return PullPage(
-          entries: [
-            for (final Object? e in json['entries'] as List<dynamic>)
-              ChangeLogEntry.fromJson({
-                ...(e as Map<String, dynamic>)..remove('seq'),
-                'synced': true,
-              }),
-          ],
+          entries: entries,
+          unknownTypes: unknown,
           nextSince: json['next_since'] as int,
           hasMore: json['has_more'] as bool,
         );
       });
+
+  static final Set<String> _entityTypeNames = {
+    for (final EntityType t in EntityType.values) snakeName(t),
+  };
 
   // --- health ---------------------------------------------------------------------------
 
