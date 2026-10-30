@@ -5669,6 +5669,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Page {page} of {count}'**
   String exportPage(int page, int count);
+
+  /// Title of the export screen and its Settings entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get exportTitle;
+
+  /// Subtitle of the Export entry in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'The monthly report as a PDF, transactions as a CSV'**
+  String get exportSettingsSubtitle;
+
+  /// Heading of the export screen's monthly report part.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly report (PDF)'**
+  String get exportReportSection;
+
+  /// Heading of the export screen's transactions part.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions (CSV)'**
+  String get exportTransactionsSection;
+
+  /// Button that saves an exported file through the system's Save as dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as…'**
+  String get exportSaveAs;
+
+  /// Button that offers an exported file to the system's share sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Share…'**
+  String get exportShare;
+
+  /// Screen reader label of the Save as button of the monthly report.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the monthly report as a PDF'**
+  String get exportSaveReport;
+
+  /// Screen reader label of the Share button of the monthly report.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the monthly report as a PDF'**
+  String get exportShareReport;
+
+  /// Screen reader label of the Save as button of the transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the transactions as a CSV'**
+  String get exportSaveTransactions;
+
+  /// Screen reader label of the Share button of the transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the transactions as a CSV'**
+  String get exportShareTransactions;
+
+  /// Label of the export's date range for the transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates'**
+  String get exportDates;
+
+  /// Label of the export's account choice for the transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts'**
+  String get exportAccounts;
+
+  /// How many transactions the CSV will hold.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No transactions in these dates and accounts} =1{1 transaction} other{{count} transactions}}'**
+  String exportTransactionCount(int count);
+
+  /// The export's privacy note.
+  ///
+  /// In en, this message translates to:
+  /// **'A file you save or share leaves the app\'s encrypted storage. Anyone who has the file can read it.'**
+  String get exportPrivacyNote;
+
+  /// Added to the export's privacy note in the demo flavor, where files go nowhere.
+  ///
+  /// In en, this message translates to:
+  /// **'In the demo, nothing is saved or shared.'**
+  String get exportDemoNote;
+
+  /// Screen reader label of the progress bar while an exported file is made.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing the file'**
+  String get exportPreparing;
+
+  /// Shown after an exported file was saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {fileName}'**
+  String exportSaved(String fileName);
+
+  /// Shown when an exported file could not be saved or shared.
+  ///
+  /// In en, this message translates to:
+  /// **'The file could not be exported. Try again.'**
+  String get exportFailed;
+
+  /// The Reports screen's menu item that exports the period shown as a PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Export this month as PDF'**
+  String get exportReportMenu;
 }
 
 class _AppLocalizationsDelegate

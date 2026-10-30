@@ -5454,5 +5454,93 @@
         "example": "3"
       }
     }
+  },
+  "exportTitle": "Export",
+  "@exportTitle": {
+    "description": "Title of the export screen and its Settings entry."
+  },
+  "exportSettingsSubtitle": "The monthly report as a PDF, transactions as a CSV",
+  "@exportSettingsSubtitle": {
+    "description": "Subtitle of the Export entry in Settings."
+  },
+  "exportReportSection": "Monthly report (PDF)",
+  "@exportReportSection": {
+    "description": "Heading of the export screen's monthly report part."
+  },
+  "exportTransactionsSection": "Transactions (CSV)",
+  "@exportTransactionsSection": {
+    "description": "Heading of the export screen's transactions part."
+  },
+  "exportSaveAs": "Save as…",
+  "@exportSaveAs": {
+    "description": "Button that saves an exported file through the system's Save as dialog."
+  },
+  "exportShare": "Share…",
+  "@exportShare": {
+    "description": "Button that offers an exported file to the system's share sheet."
+  },
+  "exportSaveReport": "Save the monthly report as a PDF",
+  "@exportSaveReport": {
+    "description": "Screen reader label of the Save as button of the monthly report."
+  },
+  "exportShareReport": "Share the monthly report as a PDF",
+  "@exportShareReport": {
+    "description": "Screen reader label of the Share button of the monthly report."
+  },
+  "exportSaveTransactions": "Save the transactions as a CSV",
+  "@exportSaveTransactions": {
+    "description": "Screen reader label of the Save as button of the transactions."
+  },
+  "exportShareTransactions": "Share the transactions as a CSV",
+  "@exportShareTransactions": {
+    "description": "Screen reader label of the Share button of the transactions."
+  },
+  "exportDates": "Dates",
+  "@exportDates": {
+    "description": "Label of the export's date range for the transactions."
+  },
+  "exportAccounts": "Accounts",
+  "@exportAccounts": {
+    "description": "Label of the export's account choice for the transactions."
+  },
+  "exportTransactionCount": "{count, plural, =0{No transactions in these dates and accounts} =1{1 transaction} other{{count} transactions}}",
+  "@exportTransactionCount": {
+    "description": "How many transactions the CSV will hold.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "42"
+      }
+    }
+  },
+  "exportPrivacyNote": "A file you save or share leaves the app's encrypted storage. Anyone who has the file can read it.",
+  "@exportPrivacyNote": {
+    "description": "The export's privacy note."
+  },
+  "exportDemoNote": "In the demo, nothing is saved or shared.",
+  "@exportDemoNote": {
+    "description": "Added to the export's privacy note in the demo flavor, where files go nowhere."
+  },
+  "exportPreparing": "Preparing the file",
+  "@exportPreparing": {
+    "description": "Screen reader label of the progress bar while an exported file is made."
+  },
+  "exportSaved": "Saved {fileName}",
+  "@exportSaved": {
+    "description": "Shown after an exported file was saved.",
+    "placeholders": {
+      "fileName": {
+        "type": "String",
+        "example": "report-2026-10.pdf"
+      }
+    }
+  },
+  "exportFailed": "The file could not be exported. Try again.",
+  "@exportFailed": {
+    "description": "Shown when an exported file could not be saved or shared."
+  },
+  "exportReportMenu": "Export this month as PDF",
+  "@exportReportMenu": {
+    "description": "The Reports screen's menu item that exports the period shown as a PDF."
   }
 }

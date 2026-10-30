@@ -2,6 +2,8 @@
 /// report's data for a period, its fonts and texts, and the files' names and bytes.
 library;
 
+import 'dart:convert';
+
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
 import 'package:finance_tracker/features/bills/domain/bill_schedule.dart';
@@ -11,10 +13,13 @@ import 'package:finance_tracker/features/budgets/domain/budget_math.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/export/domain/monthly_report.dart';
 import 'package:finance_tracker/features/export/domain/monthly_report_pdf.dart';
+import 'package:finance_tracker/features/export/domain/transactions_csv.dart';
 import 'package:finance_tracker/features/reports/application/anomaly_providers.dart';
 import 'package:finance_tracker/features/reports/application/reports_providers.dart';
 import 'package:finance_tracker/features/reports/domain/report.dart';
+import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
+import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -30,6 +35,9 @@ const String reportBoldFontAsset = 'assets/fonts/Roboto-Bold.ttf';
 
 /// The PDF's MIME type.
 const String pdfMimeType = 'application/pdf';
+
+/// The CSV's MIME type.
+const String csvMimeType = 'text/csv';
 
 /// The fonts the monthly report embeds, loaded once from the assets.
 @Riverpod(keepAlive: true)
@@ -181,3 +189,50 @@ String monthlyReportFileName(LocalDateRange range) {
   final String iso = range.start.toIso();
   return 'report-${range.start.day == 1 ? iso.substring(0, 7) : iso}.pdf';
 }
+
+/// The CSV's file name for the dates [range]: `transactions-2026-01-01-to-2026-10-24.csv`.
+String transactionsFileName(LocalDateRange range) =>
+    'transactions-${range.start.toIso()}-to-${range.end.addDays(-1).toIso()}.csv';
+
+/// Above how many transactions the CSV is written off the UI isolate.
+const int csvIsolateThreshold = 2000;
+
+/// [transactionsCsvBytes], written on another isolate when there are more than
+/// [isolateThreshold] transactions, so a long ledger does not hold up the UI.
+Future<Uint8List> transactionsCsvFile(
+  List<Transaction> transactions, {
+  required List<Account> accounts,
+  required List<Category> categories,
+  required LocalDateRange range,
+  required Set<String> accountIds,
+  int isolateThreshold = csvIsolateThreshold,
+}) async {
+  Uint8List write() => transactionsCsvBytes(
+    transactions,
+    accounts: accounts,
+    categories: categories,
+    range: range,
+    accountIds: accountIds,
+  );
+  return transactions.length > isolateThreshold
+      ? compute((_) => write(), null)
+      : write();
+}
+
+/// The CSV of the live [transactions] in [range] on [accountIds], as UTF-8 bytes with no
+/// byte order mark.
+Uint8List transactionsCsvBytes(
+  List<Transaction> transactions, {
+  required List<Account> accounts,
+  required List<Category> categories,
+  required LocalDateRange range,
+  required Set<String> accountIds,
+}) => utf8.encode(
+  transactionsCsv(
+    transactions,
+    accounts: {for (final Account a in accounts) a.id: a},
+    lookup: categoryLookup(categories),
+    range: range,
+    accountIds: accountIds,
+  ),
+);

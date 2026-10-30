@@ -236,6 +236,11 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
                 ),
               ],
             ),
+            GoRouteData.$route(
+              path: 'export',
+              hasOverriddenOnExit: false,
+              factory: $ExportRoute._fromState,
+            ),
           ],
         ),
       ],
@@ -1026,6 +1031,26 @@ mixin $EditRuleRoute on GoRouteData {
   @override
   String get location =>
       GoRouteData.$location('/settings/rules/${Uri.encodeComponent(_self.id)}');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $ExportRoute on GoRouteData {
+  static ExportRoute _fromState(GoRouterState state) => const ExportRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings/export');
 
   @override
   void go(BuildContext context) => context.go(location);

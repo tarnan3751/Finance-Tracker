@@ -2,12 +2,13 @@
 // enough and labelled, text has enough contrast, and nothing overflows at twice the text
 // size. The shell's tabs and the linked banks are checked empty; every screen is also
 // checked on the demo seed (two accounts, twelve transactions, the system categories, two
-// rules, the three test budgets, the test streams, the test bills and the test goals) with the linked
-// test data (the three test banks, two linked accounts, Plaid transactions), and the
-// filter sheet, the category picker, the transaction list's menu and selection mode, the
-// transaction editor's menu, the budget alerts sheet, the rule editor's menu and the
-// apply confirmation, the subscriptions' folded sections, a stream's menu, the paused
-// bills and the bill calendar open over their screens, the archived goals unfolded, and the editor's receipt (a photo
+// rules, the three test budgets, the test streams, the test bills and the test goals)
+// with the linked test data (the three test banks, two linked accounts, Plaid
+// transactions), and the filter sheet, the category picker, the transaction list's menu
+// and selection mode, the transaction editor's menu, the budget alerts sheet, the rule
+// editor's menu and the apply confirmation, the subscriptions' folded sections, a
+// stream's menu, the paused bills and the bill calendar open over their screens, the
+// archived goals unfolded, the Reports' export sheet, and the editor's receipt (a photo
 // from the fake image source) and its full-screen view. The forecast's chart, table and
 // account sheet are checked on the forecast household through ForecastScreen, and the
 // investments' allocation, value table, holdings and transactions on the test investments
@@ -181,6 +182,15 @@ final Map<String, _Screen> _screens = {
     seeded: true,
     open: (tester) => _tapAndSettle(tester, find.text('Tables')),
   ),
+  'Reports export sheet': (
+    location: '/reports',
+    seeded: true,
+    open: (tester) async {
+      await _tapAndSettle(tester, find.byTooltip('Show menu'));
+      await _tapAndSettle(tester, find.text('Export this month as PDF'));
+    },
+  ),
+  'Export': (location: '/settings/export', seeded: true, open: null),
   'Subscriptions': (location: '/bills/subscriptions', seeded: true, open: null),
   'Subscriptions, folded sections open': (
     location: '/bills/subscriptions',

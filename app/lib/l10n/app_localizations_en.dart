@@ -3727,4 +3727,74 @@ class AppLocalizationsEn extends AppLocalizations {
   String exportPage(int page, int count) {
     return 'Page $page of $count';
   }
+
+  @override
+  String get exportTitle => 'Export';
+
+  @override
+  String get exportSettingsSubtitle =>
+      'The monthly report as a PDF, transactions as a CSV';
+
+  @override
+  String get exportReportSection => 'Monthly report (PDF)';
+
+  @override
+  String get exportTransactionsSection => 'Transactions (CSV)';
+
+  @override
+  String get exportSaveAs => 'Save as…';
+
+  @override
+  String get exportShare => 'Share…';
+
+  @override
+  String get exportSaveReport => 'Save the monthly report as a PDF';
+
+  @override
+  String get exportShareReport => 'Share the monthly report as a PDF';
+
+  @override
+  String get exportSaveTransactions => 'Save the transactions as a CSV';
+
+  @override
+  String get exportShareTransactions => 'Share the transactions as a CSV';
+
+  @override
+  String get exportDates => 'Dates';
+
+  @override
+  String get exportAccounts => 'Accounts';
+
+  @override
+  String exportTransactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions',
+      one: '1 transaction',
+      zero: 'No transactions in these dates and accounts',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get exportPrivacyNote =>
+      'A file you save or share leaves the app\'s encrypted storage. Anyone who has the file can read it.';
+
+  @override
+  String get exportDemoNote => 'In the demo, nothing is saved or shared.';
+
+  @override
+  String get exportPreparing => 'Preparing the file';
+
+  @override
+  String exportSaved(String fileName) {
+    return 'Saved $fileName';
+  }
+
+  @override
+  String get exportFailed => 'The file could not be exported. Try again.';
+
+  @override
+  String get exportReportMenu => 'Export this month as PDF';
 }

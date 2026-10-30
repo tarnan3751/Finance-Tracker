@@ -2,13 +2,17 @@
 // the reports' household: the report of the period chosen, the flags in it, the active
 // bills' occurrences due in it with their states (paid by a payment or a mark, missed,
 // due, upcoming; a paused bill left out; a bill without a name named by nothing), the
-// budgets in that period, and the PDF's file name.
+// budgets in that period, the PDF's file name, and the CSV written alike on this
+// isolate and on another.
+import 'dart:typed_data';
+
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/features/bills/domain/bill_status.dart';
 import 'package:finance_tracker/features/export/application/export_providers.dart';
 import 'package:finance_tracker/features/export/domain/monthly_report.dart';
+import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
@@ -125,6 +129,42 @@ void main() {
     );
     expect(data.budgets.single.status.period.start, LocalDate(2026, 9, 1));
     expect(data.budgets.single.status.period.end, LocalDate(2026, 10, 1));
+  });
+
+  test('the CSV is the same written here or on another isolate', () async {
+    final InMemoryStore store = reportStore();
+    final ProviderContainer c = ProviderContainer(
+      overrides: [
+        appConfigProvider.overrideWithValue(AppConfig.demo()),
+        clockProvider.overrideWithValue(testClock),
+        inMemoryStoreProvider.overrideWithValue(store),
+      ],
+    );
+    addTearDown(c.dispose);
+    final List<Transaction> ledger = await c
+        .read(transactionRepositoryProvider)
+        .watch(TransactionQuery.all)
+        .first;
+    final List<Account> accounts = await c
+        .read(accountRepositoryProvider)
+        .watchAll()
+        .first;
+    final List<Category> categories = await c
+        .read(categoryRepositoryProvider)
+        .watchAll()
+        .first;
+    Future<Uint8List> csv(int threshold) => transactionsCsvFile(
+      ledger,
+      accounts: accounts,
+      categories: categories,
+      range: LocalDateRange(LocalDate(2025, 1, 1), LocalDate(2027, 1, 1)),
+      accountIds: {for (final Account a in accounts) a.id},
+      isolateThreshold: threshold,
+    );
+
+    expect(ledger.length, greaterThan(100));
+    // Above 0 rows: another isolate. Above the ledger's length: this one.
+    expect(await csv(0), await csv(ledger.length));
   });
 
   test('the file name names the period', () {

@@ -7,7 +7,7 @@
 /// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/duplicates`, `/transactions/:id` |
 /// | Plan | `/plan` (redirects to `/budgets`); `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new?stream-id=<id>`, `/bills/new?liability-account-id=<id>`, `/bills/subscriptions`, `/bills/:id`; `/forecast` |
 /// | Insights | `/insights` (redirects to `/reports`); `/reports`, `/reports/weekly`; `/net-worth`; `/investments`; `/goals`, `/goals/new`, `/goals/:id`, `/goals/:id/edit`, `/goals/:id/contribute` |
-/// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id` |
+/// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id`, `/settings/export` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
 /// user is sent in dev and prod. `/` redirects to `/accounts` (`app_router.dart`). Detail and editor routes are
@@ -42,6 +42,8 @@ import 'package:finance_tracker/features/budgets/presentation/budgets_screen.dar
 import 'package:finance_tracker/features/categories/presentation/categories_screen.dart';
 import 'package:finance_tracker/features/categories/presentation/category_editor_screen.dart';
 import 'package:finance_tracker/features/duplicates/presentation/duplicate_review_screen.dart';
+import 'package:finance_tracker/features/export/presentation/export_screen.dart';
+import 'package:finance_tracker/features/export/presentation/report_export_menu.dart';
 import 'package:finance_tracker/features/forecast/presentation/forecast_view.dart';
 import 'package:finance_tracker/features/goals/presentation/contribution_editor_screen.dart';
 import 'package:finance_tracker/features/goals/presentation/goal_detail_screen.dart';
@@ -173,6 +175,7 @@ part 'routes.g.dart';
                 TypedGoRoute<EditRuleRoute>(path: ':id'),
               ],
             ),
+            TypedGoRoute<ExportRoute>(path: 'export'),
           ],
         ),
       ],
@@ -447,8 +450,9 @@ class ReportsRoute extends GoRouteData with $ReportsRoute {
       const NoTransitionPage(
         child: InsightsScaffold(
           segment: InsightsSegment.reports,
-          // The weekly summary's notice is reached through the alerts.
-          actions: [BudgetAlertsButton()],
+          // The weekly summary's notice is reached through the alerts; the menu
+          // exports the period shown.
+          actions: [BudgetAlertsButton(), ReportExportMenu()],
           body: ReportsView(),
         ),
       );
@@ -529,6 +533,15 @@ class EditCategoryRoute extends GoRouteData with $EditCategoryRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       CategoryEditorScreen(categoryId: id);
+}
+
+/// `/settings/export`: the monthly report as a PDF, the transactions as a CSV.
+class ExportRoute extends GoRouteData with $ExportRoute {
+  const ExportRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const ExportScreen();
 }
 
 /// `/settings/rules`: the rules, in the order they are tried.
