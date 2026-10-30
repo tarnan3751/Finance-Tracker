@@ -44,7 +44,7 @@ final class SessionControllerProvider
   }
 }
 
-String _$sessionControllerHash() => r'fde5fcc784cf54050fab415ad6c49e55cf0d2411';
+String _$sessionControllerHash() => r'ab8659088c8ea1a8964bc2c8ff24384eda2c5154';
 
 /// The session.
 

@@ -1,5 +1,6 @@
-// The session gate's redirect rules, case by case; the widget tests drive them through
-// the router in each flavor (test/features/auth/auth_screens_test.dart).
+// The session gate's and the restore offer's redirect rules, case by case; the widget
+// tests drive them through the router in each flavor
+// (test/features/auth/auth_screens_test.dart, test/features/backup/presentation/).
 import 'package:finance_tracker/core/router/app_router.dart';
 import 'package:finance_tracker/features/auth/domain/session_state.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -36,5 +37,19 @@ void main() {
     expect(redirectFor('/register', signedIn), '/accounts');
     expect(redirectFor('/', signedIn), '/accounts');
     expect(redirectFor('/transactions', signedIn), isNull);
+  });
+
+  test('a pending restore offer holds a signed-in user at /restore', () {
+    expect(redirectFor('/accounts', signedIn, restoreOffer: true), '/restore');
+    expect(redirectFor('/sign-in', signedIn, restoreOffer: true), '/restore');
+    expect(redirectFor('/restore', signedIn, restoreOffer: true), isNull);
+    expect(
+      redirectFor('/accounts', const SignedOut(), restoreOffer: true),
+      '/sign-in',
+    );
+  });
+
+  test('an answered offer leaves /restore for the shell', () {
+    expect(redirectFor('/restore', signedIn), '/accounts');
   });
 }

@@ -35,6 +35,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_models/shared_models.dart';
 
 import 'support/editor.dart';
+import 'support/restore_offer.dart';
 
 Finder _field(String label) => find.widgetWithText(TextFormField, label);
 
@@ -105,6 +106,7 @@ void main() {
       await tester.enterText(_field('Email'), 'history@example.com');
       await tester.enterText(_field('Password'), 'correct horse battery');
       await _tap(tester, find.widgetWithText(FilledButton, 'Create account'));
+      await startFresh(tester);
 
       final ProviderContainer container = _container(tester);
       final GoRouter router = container.read(goRouterProvider);

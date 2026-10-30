@@ -154,22 +154,22 @@ final class DatabaseKeyStoreProvider
 String _$databaseKeyStoreHash() => r'6730b51f8d1f9e9580c0cb1074cf2a0271840203';
 
 /// The local database of the dev and prod flavors, opened lazily on its first query
-/// (`bootstrap` opens it at startup) and closed with the container. The demo flavor has
-/// none, and reading it there is a [StateError].
+/// (`bootstrap` opens it at startup) and closed with the container ([databaseClosing]).
+/// The demo flavor has none, and reading it there is a [StateError].
 
 @ProviderFor(database)
 final databaseProvider = DatabaseProvider._();
 
 /// The local database of the dev and prod flavors, opened lazily on its first query
-/// (`bootstrap` opens it at startup) and closed with the container. The demo flavor has
-/// none, and reading it there is a [StateError].
+/// (`bootstrap` opens it at startup) and closed with the container ([databaseClosing]).
+/// The demo flavor has none, and reading it there is a [StateError].
 
 final class DatabaseProvider
     extends $FunctionalProvider<AppDatabase, AppDatabase, AppDatabase>
     with $Provider<AppDatabase> {
   /// The local database of the dev and prod flavors, opened lazily on its first query
-  /// (`bootstrap` opens it at startup) and closed with the container. The demo flavor has
-  /// none, and reading it there is a [StateError].
+  /// (`bootstrap` opens it at startup) and closed with the container ([databaseClosing]).
+  /// The demo flavor has none, and reading it there is a [StateError].
   DatabaseProvider._()
     : super(
         from: null,
@@ -203,7 +203,7 @@ final class DatabaseProvider
   }
 }
 
-String _$databaseHash() => r'56a4e6e4b2bac9c19896f3c9420d5aec318ac5bf';
+String _$databaseHash() => r'fc8520e04f7c246856214b4b4eab9246f4fe5370';
 
 /// The state behind the in-memory and demo repositories: empty by default; the demo
 /// flavor's holds the system categories and the selected persona's demo seed.

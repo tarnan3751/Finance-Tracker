@@ -9,6 +9,7 @@ part of 'routes.dart';
 List<RouteBase> get $appRoutes => [
   $appShellRoute,
   $signInRoute,
+  $restoreOfferRoute,
   $registerRoute,
 ];
 
@@ -240,6 +241,11 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
               path: 'export',
               hasOverriddenOnExit: false,
               factory: $ExportRoute._fromState,
+            ),
+            GoRouteData.$route(
+              path: 'backup',
+              hasOverriddenOnExit: false,
+              factory: $BackupRoute._fromState,
             ),
           ],
         ),
@@ -1066,6 +1072,26 @@ mixin $ExportRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
+mixin $BackupRoute on GoRouteData {
+  static BackupRoute _fromState(GoRouterState state) => const BackupRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings/backup');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
 RouteBase get $signInRoute => GoRouteData.$route(
   path: '/sign-in',
   hasOverriddenOnExit: false,
@@ -1077,6 +1103,33 @@ mixin $SignInRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/sign-in');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $restoreOfferRoute => GoRouteData.$route(
+  path: '/restore',
+  hasOverriddenOnExit: false,
+  factory: $RestoreOfferRoute._fromState,
+);
+
+mixin $RestoreOfferRoute on GoRouteData {
+  static RestoreOfferRoute _fromState(GoRouterState state) =>
+      const RestoreOfferRoute();
+
+  @override
+  String get location => GoRouteData.$location('/restore');
 
   @override
   void go(BuildContext context) => context.go(location);

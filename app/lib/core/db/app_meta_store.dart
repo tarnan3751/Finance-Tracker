@@ -6,7 +6,8 @@
 /// (`forecast_selection`), the last day the balance snapshots were written
 /// (`snapshots_written_on`), the anomaly flags dismissed on this device
 /// (`dismissed_anomalies`), the last week whose summary was announced
-/// (`weekly_summary_raised`), and the payoff projections' entries (`payoff_entries`).
+/// (`weekly_summary_raised`), the payoff projections' entries (`payoff_entries`), and
+/// when the restore offer was answered (`restore_offer_answered`).
 library;
 
 import 'package:finance_tracker/core/db/app_database.dart';
@@ -57,6 +58,10 @@ abstract final class AppMetaKeys {
   /// The payments, rates and extras entered for the payoff projections on this device,
   /// a JSON object keyed by account id (`features/net_worth/`).
   static const String payoffEntries = 'payoff_entries';
+
+  /// When this install answered the restore offer, a UTC instant
+  /// (`features/backup/`).
+  static const String restoreOfferAnswered = 'restore_offer_answered';
 }
 
 /// The store over the database's `app_meta` table.

@@ -22,6 +22,7 @@ import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/time/time_zone_setup.dart';
 import 'package:finance_tracker/features/auth/application/device_name.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
+import 'package:finance_tracker/features/backup/application/backup_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -29,6 +30,8 @@ import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_models/shared_models.dart';
+
+import '../test/helpers/restore_offer.dart';
 
 const String _email = 'ada@example.com';
 const String _password = 'correct horse';
@@ -72,6 +75,8 @@ final class Instance {
         appVersionProvider.overrideWith((ref) async => '1.0.0'),
         // Sessions run when the test says so.
         syncDebounceProvider.overrideWithValue(const Duration(days: 1)),
+        // Installs past the restore offer, whose pending state holds sync.
+        restoreOfferProvider.overrideWith(AnsweredRestoreOffer.new),
       ],
     );
     await database.verifyOpen();

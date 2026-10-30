@@ -1,6 +1,7 @@
 /// The Settings tab: Account (`features/auth/presentation/account_section.dart`), Sync
 /// (when this build's data syncs: dev and prod, `sync_section.dart`), Appearance (theme
-/// mode, dynamic color), Data (category management, rules, export) and About (app name,
+/// mode, dynamic color), Data (category management, rules, export, backup; in the demo
+/// flavor the Backup entry says the demo's data is not backed up) and About (app name,
 /// version and build, flavor, the time zone dates are computed in), then Demo data (demo
 /// only, `demo_data_section.dart`) and Developer (dev only,
 /// `features/developer/presentation/developer_section.dart`).
@@ -104,6 +105,20 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => const ExportRoute().push<void>(context),
           ),
+          if (ref.watch(appConfigProvider).flavor == Flavor.demo)
+            ListTile(
+              leading: const Icon(Icons.settings_backup_restore),
+              title: Text(l10n.backupTitle),
+              subtitle: Text(l10n.backupDemoNote),
+            )
+          else
+            ListTile(
+              leading: const Icon(Icons.settings_backup_restore),
+              title: Text(l10n.backupTitle),
+              subtitle: Text(l10n.backupSettingsSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => const BackupRoute().push<void>(context),
+            ),
           SettingsSectionHeader(l10n.settingsAbout),
           ListTile(title: Text(l10n.aboutAppName), subtitle: Text(appName)),
           ListTile(

@@ -34,6 +34,8 @@ import 'package:persona_engine/persona_engine.dart' show DemoSeed;
 import 'package:shared_models/shared_models.dart' hide Liability;
 import 'package:shared_models/shared_models.dart' as models show Liability;
 
+import 'support/restore_offer.dart';
+
 Finder _field(String label) => find.widgetWithText(TextFormField, label);
 
 Finder _tab(String name) =>
@@ -195,6 +197,7 @@ void main() {
       await tester.enterText(_field('Email'), 'banks@example.com');
       await tester.enterText(_field('Password'), 'correct horse battery');
       await _tap(tester, find.widgetWithText(FilledButton, 'Create account'));
+      await startFresh(tester);
 
       await _tap(tester, _tab('Settings'));
       await _tap(tester, find.text('Linked banks'));

@@ -7,10 +7,10 @@
 /// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/duplicates`, `/transactions/:id` |
 /// | Plan | `/plan` (redirects to `/budgets`); `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new?stream-id=<id>`, `/bills/new?liability-account-id=<id>`, `/bills/subscriptions`, `/bills/:id`; `/forecast` |
 /// | Insights | `/insights` (redirects to `/reports`); `/reports`, `/reports/weekly`; `/net-worth`; `/investments`; `/goals`, `/goals/new`, `/goals/:id`, `/goals/:id/edit`, `/goals/:id/contribute` |
-/// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id`, `/settings/export` |
+/// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id`, `/settings/export`, `/settings/backup` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
-/// user is sent in dev and prod. `/` redirects to `/accounts` (`app_router.dart`). Detail and editor routes are
+/// user is sent in dev and prod, and `/restore` the restore offer of a fresh install. `/` redirects to `/accounts` (`app_router.dart`). Detail and editor routes are
 /// sub-routes of their branch, so each tab keeps its own stack; pushing a route of another
 /// branch (a transaction from an account's detail, category management from the category
 /// picker) opens it on top of the current tab's stack, and back returns there. Navigate
@@ -33,6 +33,8 @@ import 'package:finance_tracker/features/accounts/presentation/account_editor_sc
 import 'package:finance_tracker/features/accounts/presentation/accounts_screen.dart';
 import 'package:finance_tracker/features/auth/presentation/register_screen.dart';
 import 'package:finance_tracker/features/auth/presentation/sign_in_screen.dart';
+import 'package:finance_tracker/features/backup/presentation/backup_screen.dart';
+import 'package:finance_tracker/features/backup/presentation/restore_offer_screen.dart';
 import 'package:finance_tracker/features/bills/presentation/bill_editor_screen.dart';
 import 'package:finance_tracker/features/bills/presentation/bills_screen.dart';
 import 'package:finance_tracker/features/budgets/presentation/budget_alerts.dart';
@@ -176,6 +178,7 @@ part 'routes.g.dart';
               ],
             ),
             TypedGoRoute<ExportRoute>(path: 'export'),
+            TypedGoRoute<BackupRoute>(path: 'backup'),
           ],
         ),
       ],
@@ -544,6 +547,15 @@ class ExportRoute extends GoRouteData with $ExportRoute {
       const ExportScreen();
 }
 
+/// `/settings/backup`: export a backup, and restore one.
+class BackupRoute extends GoRouteData with $BackupRoute {
+  const BackupRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const BackupScreen();
+}
+
 /// `/settings/rules`: the rules, in the order they are tried.
 class RulesRoute extends GoRouteData with $RulesRoute {
   const RulesRoute();
@@ -581,6 +593,16 @@ class SignInRoute extends GoRouteData with $SignInRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const SignInScreen();
+}
+
+/// `/restore`: the restore offer of a fresh install, outside the shell.
+@TypedGoRoute<RestoreOfferRoute>(path: '/restore')
+class RestoreOfferRoute extends GoRouteData with $RestoreOfferRoute {
+  const RestoreOfferRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const RestoreOfferScreen();
 }
 
 /// `/register`: the registration screen, outside the shell.

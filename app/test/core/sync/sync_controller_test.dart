@@ -1,20 +1,24 @@
 // The sync controller: when sessions run (start, local changes after the debounce,
 // resume, Sync now), one at a time, the cursor reset, the node adoption, the status and
 // its persistence, the Plaid pull after each session (against the in-app fake server);
-// and that it never runs in demo or while signed out.
+// that it never runs in demo or while signed out; and that it holds while the restore
+// offer is pending, running once the offer is answered.
 import 'dart:async';
 
 import 'package:drift/native.dart';
 import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
+import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
+import 'package:finance_tracker/features/backup/application/backup_providers.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 
@@ -59,6 +63,16 @@ final class ScriptedRelay implements SyncRelay {
   }
 }
 
+/// A restore offer worked out by [_answer] at each build.
+final class _SlowOffer extends RestoreOffer {
+  _SlowOffer(this._answer);
+
+  final Future<bool> Function() _answer;
+
+  @override
+  Future<bool> build() => _answer();
+}
+
 /// The session's device id, changeable as a sign-out and sign-in change it.
 final class _Device extends Notifier<String?> {
   @override
@@ -78,8 +92,13 @@ void main() {
   late ScriptedRelay relay;
   late SteppingClock clock;
 
-  setUp(() {
+  setUp(() async {
     database = AppDatabase(NativeDatabase.memory());
+    // An install that answered the restore offer, as every install but a fresh one has.
+    await database.customStatement(
+      'INSERT INTO app_meta (key, value) VALUES (?, ?)',
+      [AppMetaKeys.restoreOfferAnswered, '2026-10-24T15:00:00.000Z'],
+    );
     clock = SteppingClock();
     relay = ScriptedRelay(
       InMemorySyncRelay(
@@ -182,6 +201,98 @@ void main() {
     final SyncStatus restored = await settled(again, pulls: 2);
     expect(restored.lastSyncAt, isNotNull);
   });
+
+  test('no session runs while the restore offer is pending; answering it runs '
+      'one', () async {
+    await database.customStatement('DELETE FROM app_meta WHERE key = ?', [
+      AppMetaKeys.restoreOfferAnswered,
+    ]);
+    final ProviderContainer c = device();
+    c.read(syncControllerProvider);
+    expect(await c.read(restoreOfferProvider.future), isTrue);
+    await c.read(syncControllerProvider.notifier).syncNow();
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+    expect(relay.pulls, 0);
+    expect(c.read(syncControllerProvider).lastSyncAt, isNull);
+
+    await c.read(restoreOfferProvider.notifier).answer();
+    final SyncStatus status = await settled(c);
+    expect(status.failure, isNull);
+    expect(
+      await DriftAppMetaStore(database).read(AppMetaKeys.restoreOfferAnswered),
+      isNotNull,
+    );
+  });
+
+  test(
+    'no session runs while the offer is worked out again (a sign-in rebuilds '
+    'it; what it was signed out says nothing)',
+    () async {
+      final List<Completer<bool>> answers = [
+        Completer<bool>()..complete(false),
+      ];
+      final ProviderContainer c = ProviderContainer.test(
+        overrides: [
+          ...overridesFor(AppConfig.dev()),
+          ...fakeApiOverrides(signedIn: true),
+          databaseProvider.overrideWithValue(database),
+          clockProvider.overrideWithValue(clock),
+          syncDeviceIdProvider.overrideWithValue('dev-a'),
+          syncRelayProvider.overrideWithValue(relay),
+          restoreOfferProvider.overrideWith(
+            () => _SlowOffer(() => answers.last.future),
+          ),
+        ],
+        retry: (_, _) => null,
+      );
+      c.read(syncControllerProvider);
+      await settled(c);
+
+      answers.add(Completer<bool>());
+      c.invalidate(restoreOfferProvider);
+      c.read(restoreOfferProvider);
+      await c.read(syncControllerProvider.notifier).syncNow();
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+      expect(relay.pulls, 1, reason: 'held while the offer is worked out');
+
+      answers.last.complete(false);
+      await settled(c, pulls: 2);
+    },
+  );
+
+  test(
+    'a session awaiting the network when the app stops (a restore) ends with a '
+    'logged error, nothing unhandled',
+    () async {
+      final ProviderContainer before = device(deviceId: null);
+      await before.read(accountRepositoryProvider).upsert(testAccount('a1'));
+      before.dispose();
+      final List<LogRecord> logged = [];
+      final StreamSubscription<LogRecord> logs = Logger.root.onRecord.listen(
+        logged.add,
+      );
+      addTearDown(logs.cancel);
+
+      relay.hold = Completer<void>();
+      final ProviderContainer c = device();
+      c.read(syncControllerProvider);
+      while (relay.pushing == 0) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
+      // What stopApp does: the container goes, then the database is closed.
+      c.dispose();
+      await database.close();
+      relay.hold!.complete();
+      relay.hold = null;
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      expect(
+        logged.where(
+          (r) => r.loggerName == 'sync' && r.message.startsWith('sync failed'),
+        ),
+        isNotEmpty,
+      );
+    },
+  );
 
   test('the Plaid pull runs after the session', () async {
     final ProviderContainer c = device();

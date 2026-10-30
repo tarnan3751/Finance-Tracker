@@ -81,11 +81,15 @@ class SessionController extends _$SessionController {
 
   /// `GET /me` for a restored session.
   Future<void> _confirm(Session stored) async {
+    // Read before the await: the container may be gone when it returns (a restore
+    // restarts the app), and a disposed ref cannot be read.
+    final FinanceApi api = _api;
+    final TokenStore store = _store;
     try {
-      final User user = await _api.getMe();
+      final User user = await api.getMe();
       // Applied to the latest session, so a refresh that landed meanwhile is kept.
       Session? updated;
-      await _store.update((latest) {
+      await store.update((latest) {
         if (latest == null || latest.deviceId != stored.deviceId) return latest;
         return updated = latest.withUser(user);
       });
@@ -98,7 +102,7 @@ class SessionController extends _$SessionController {
       if (e.status != 401) return;
       // A 401 for [stored] says nothing about a newer session signed in meanwhile.
       bool ended = false;
-      await _store.update((latest) {
+      await store.update((latest) {
         if (latest != null && latest.deviceId != stored.deviceId) return latest;
         ended = true;
         return null;

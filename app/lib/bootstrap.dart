@@ -4,7 +4,9 @@
 /// the app on a new Riverpod container; after the first frame, the bill reminders are
 /// planned (a tapped one opens its bill), and dev and prod sweep the receipt files no
 /// transaction references. [startApp] can run again in the same process, on a new
-/// container.
+/// container: a restore (`features/backup/`) stops the app, replaces its database on a
+/// plain screen showing its progress, and starts it again through the app restart
+/// [startApp] supplies (`appRestartProvider`).
 library;
 
 import 'dart:async';
@@ -25,6 +27,11 @@ import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/time/time_zone_setup.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
+import 'package:finance_tracker/features/backup/application/backup_providers.dart';
+import 'package:finance_tracker/features/backup/application/backup_service.dart';
+import 'package:finance_tracker/features/backup/presentation/backup_messages.dart';
+import 'package:finance_tracker/features/backup/presentation/restore_flow.dart';
+import 'package:finance_tracker/features/backup/presentation/restoring_app.dart';
 import 'package:finance_tracker/features/bills/application/reminder_planner.dart';
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
 import 'package:finance_tracker/features/net_worth/application/snapshot_writer.dart';
@@ -41,6 +48,10 @@ import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final Logger _log = Logger('app');
+
+// The running app's container and its reminder taps, which a restart stops.
+ProviderContainer? _running;
+StreamSubscription<String>? _reminderTaps;
 
 /// Starts the app for [config] ([startApp]) after the process's one-time setup. Throws a
 /// [StateError] before anything runs when the prod flavor is given a server URL that is
@@ -68,8 +79,12 @@ Future<void> bootstrap(AppConfig config) async {
 /// When the local data cannot be opened, for whatever reason, logs the failure's type
 /// and shows [DatabaseErrorApp] instead of the app.
 Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
+  final List<Override> base = overrides ?? overridesFor(config);
+  final Override restart = appRestartProvider.overrideWithValue(
+    (work) => _restart(config, overrides, work),
+  );
   final ProviderContainer container = ProviderContainer(
-    overrides: overrides ?? overridesFor(config),
+    overrides: [...base, restart],
   );
   if (config.flavor != Flavor.demo) {
     try {
@@ -81,11 +96,15 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
       // failure, and the process now only shows the error screen.
       _log.severe('the local database did not open: ${e.runtimeType}');
       runApp(
-        ProviderScope(child: DatabaseErrorApp(failure: databaseFailureOf(e))),
+        ProviderScope(
+          overrides: [...base, restart],
+          child: DatabaseErrorApp(failure: databaseFailureOf(e)),
+        ),
       );
       return;
     }
   }
+  _running = container;
   // The stored session, read before the first frame so the router never shows the
   // sign-in screen to a signed-in user; GET /me confirms it in the background.
   await container.read(sessionControllerProvider.notifier).restored();
@@ -111,7 +130,7 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
     // Today's balance snapshots, from the first frame on and after every pull and sync
     // session, in every flavor (snapshot_writer.dart).
     container.listen(snapshotWriterRunnerProvider, (_, _) {});
-    container
+    _reminderTaps = container
         .read(reminderSchedulerProvider)
         .openedBillIds
         .listen(
@@ -129,6 +148,55 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
       (_) => unawaited(sweepReceipts(container)),
     );
   }
+}
+
+// The app restart a restore runs under: the restoring screen, the running app stopped,
+// [work] with its progress shown, then the app started again on [config] and
+// [overrides]; a failure of [work] is shown, by type in the log, until the user goes on.
+Future<void> _restart(
+  AppConfig config,
+  List<Override>? overrides,
+  Future<void> Function(ProgressReport report) work,
+) async {
+  final ValueNotifier<RestoringState> state = ValueNotifier(
+    const RestoringState(),
+  );
+  runApp(ProviderScope(child: RestoringApp(state: state)));
+  await WidgetsBinding.instance.endOfFrame;
+  await stopApp();
+  final ProgressThrottle throttle = ProgressThrottle();
+  try {
+    await work((progress) {
+      if (throttle.admit(progress)) {
+        state.value = RestoringState(progress: progress);
+      }
+    });
+  } on Object catch (e) {
+    _log.severe('the restore failed: ${e.runtimeType}');
+    final Completer<void> resume = Completer<void>();
+    state.value = RestoringState(failure: e, onContinue: completeOnce(resume));
+    await resume.future;
+  }
+  await startApp(config, overrides: overrides);
+}
+
+/// Stops the running app: its reminder taps, its container (sync, the watchers), and its
+/// database, closed before this completes. Nothing happens when no app runs.
+@visibleForTesting
+Future<void> stopApp() async {
+  final ProviderContainer? container = _running;
+  _running = null;
+  await _reminderTaps?.cancel();
+  _reminderTaps = null;
+  if (container == null) return;
+  final AppDatabase? database =
+      container.read(appConfigProvider).flavor == Flavor.demo
+      ? null
+      : container.read(databaseProvider);
+  container.dispose();
+  // The close the container started (one close only: two at once race in Drift),
+  // awaited so the files can go.
+  if (database != null) await databaseClosing[database];
 }
 
 /// Deletes the receipt files no live transaction in [container] references. A failure
@@ -213,8 +281,8 @@ DatabaseFailure databaseFailureOf(Object error) => switch (error) {
 };
 
 /// What the app shows when its local data cannot be opened: a plain screen, not a crash
-/// loop, saying why when the cause is the key or encryption. Phase 7's restore flow
-/// replaces it for a lost key.
+/// loop, saying why when the cause is the key or encryption; for a lost key, with
+/// "Restore from a backup" beside the message (`features/backup/`).
 class DatabaseErrorApp extends StatelessWidget {
   const DatabaseErrorApp({required this.failure, super.key});
 
@@ -277,6 +345,10 @@ class _DatabaseErrorScreen extends StatelessWidget {
                   style: text.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
+                if (failure == DatabaseFailure.keyLost) ...[
+                  const SizedBox(height: 24),
+                  const RestoreFlow(entry: RestoreEntry.keyLost),
+                ],
               ],
             ),
           ),

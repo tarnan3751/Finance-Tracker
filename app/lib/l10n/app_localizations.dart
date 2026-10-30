@@ -5789,6 +5789,305 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Export this month as PDF'**
   String get exportReportMenu;
+
+  /// Title of the backup screen and its Settings entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get backupTitle;
+
+  /// Subtitle of the Backup entry in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything in one encrypted file, or restore one'**
+  String get backupSettingsSubtitle;
+
+  /// Subtitle of the Backup entry in the demo's Settings, which has no backup.
+  ///
+  /// In en, this message translates to:
+  /// **'The demo\'s generated data is not kept or backed up'**
+  String get backupDemoNote;
+
+  /// Header of the backup screen's export section.
+  ///
+  /// In en, this message translates to:
+  /// **'Export a backup'**
+  String get backupExportSection;
+
+  /// What a backup holds, above the passphrase fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything on this device in one file, encrypted with a passphrase you choose: accounts, transactions, budgets, bills, goals, settings and receipt photos. Keep it anywhere.'**
+  String get backupExportExplanation;
+
+  /// Label of the backup passphrase field.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase'**
+  String get backupPassphrase;
+
+  /// Label of the field confirming the backup passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase again'**
+  String get backupPassphraseConfirm;
+
+  /// Helper under the backup passphrase field before anything is typed.
+  ///
+  /// In en, this message translates to:
+  /// **'At least {count} characters'**
+  String backupPassphraseHelper(int count);
+
+  /// Error under the backup passphrase field when it is too short.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least {count} characters'**
+  String backupPassphraseTooShort(int count);
+
+  /// Error under the confirmation field when it differs from the passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'The two passphrases differ'**
+  String get backupPassphraseMismatch;
+
+  /// Strength hint of a long enough but weak backup passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength: weak. A longer passphrase is safer.'**
+  String get backupStrengthWeak;
+
+  /// Strength hint of a fair backup passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength: fair'**
+  String get backupStrengthFair;
+
+  /// Strength hint of a strong backup passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength: strong'**
+  String get backupStrengthStrong;
+
+  /// Warning under the backup passphrase fields.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no way to recover a forgotten passphrase: without it, the backup cannot be opened.'**
+  String get backupNoRecovery;
+
+  /// Button that makes a backup and saves it through the system's Save as dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as'**
+  String get backupSave;
+
+  /// Button that makes a backup and shares it through the share sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get backupShare;
+
+  /// Shown after a backup was saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {fileName}'**
+  String backupSaved(String fileName);
+
+  /// Shown when a backup could not be made, saved or shared.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup could not be made. Try again.'**
+  String get backupExportFailed;
+
+  /// Header of the backup screen's restore section.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from a backup'**
+  String get backupRestoreSection;
+
+  /// What a restore does, on the backup screen.
+  ///
+  /// In en, this message translates to:
+  /// **'A backup can be restored only onto a device with no data yet, such as a new install: a device that already has data refuses it.'**
+  String get backupRestoreExplanation;
+
+  /// Button that starts restoring a backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from a backup'**
+  String get backupRestoreButton;
+
+  /// Title of the dialog asking for a backup's passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup\'s passphrase'**
+  String get backupRestorePassphraseTitle;
+
+  /// Button of the passphrase dialog that opens the backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get backupOpen;
+
+  /// Progress label while a backup reads the database.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading your data'**
+  String get backupStageReading;
+
+  /// Progress label while the key is derived from the passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Securing with your passphrase'**
+  String get backupStageDeriving;
+
+  /// Progress label while a backup is encrypted.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypting'**
+  String get backupStageEncrypting;
+
+  /// Progress label while a backup file is opened and checked.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking the backup'**
+  String get backupStageChecking;
+
+  /// Progress label while a backup is restored.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring'**
+  String get backupStageRestoring;
+
+  /// Title of the dialog confirming a restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore this backup?'**
+  String get backupConfirmTitle;
+
+  /// What the backup about to be restored holds.
+  ///
+  /// In en, this message translates to:
+  /// **'Made {date} by version {version}: {records} records and {receipts} receipt photos.'**
+  String backupConfirmBody(
+    String date,
+    String version,
+    int records,
+    int receipts,
+  );
+
+  /// Warning of the restore confirmation on the screen of a lost database key.
+  ///
+  /// In en, this message translates to:
+  /// **'The data on this device that can no longer be opened will be deleted.'**
+  String get backupConfirmLostKey;
+
+  /// Button that confirms a restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get backupConfirmRestore;
+
+  /// A picked file is not a backup.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is not a Finance Tracker backup.'**
+  String get backupErrorNotABackup;
+
+  /// A picked file is over the backup size cap, so it was not read.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is too large to be a Finance Tracker backup (over 512 MB).'**
+  String get backupErrorTooLarge;
+
+  /// A backup's format or schema is newer than this app's.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup was made by a newer version of Finance Tracker. Update the app, then restore it.'**
+  String get backupErrorTooNew;
+
+  /// A backup's header has a KDF or cost the app refuses.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup asks for settings this app does not accept, so it was not opened.'**
+  String get backupErrorUnsafe;
+
+  /// A backup's first frame does not open with the passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'The passphrase is wrong, or the file is damaged.'**
+  String get backupErrorWrongPassphrase;
+
+  /// A backup's later frames or content do not check.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup is damaged or incomplete.'**
+  String get backupErrorDamaged;
+
+  /// A backup's user is not the signed-in one.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup belongs to another account.'**
+  String get backupErrorOtherAccount;
+
+  /// A restore onto an install that has data is refused.
+  ///
+  /// In en, this message translates to:
+  /// **'This device already has data. Delete the app\'s data first, then restore.'**
+  String get backupErrorHasData;
+
+  /// The picked file could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'The file could not be opened.'**
+  String get backupErrorPick;
+
+  /// Any other failure before a restore starts.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup could not be restored. Nothing was changed.'**
+  String get backupErrorFailed;
+
+  /// Headline of the screen shown while a restore runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring your backup'**
+  String get backupRestoringTitle;
+
+  /// Headline of the restoring screen when the restore failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup could not be restored'**
+  String get backupRestoreFailedTitle;
+
+  /// Supporting text when a restore failed after it started.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance Tracker will start with the data this device holds now.'**
+  String get backupRestoreFailedBody;
+
+  /// Button that starts the app after a failed restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get backupContinue;
+
+  /// Headline of the restore offer shown on a new install after sign-in.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from a backup?'**
+  String get restoreOfferTitle;
+
+  /// Supporting text of the restore offer.
+  ///
+  /// In en, this message translates to:
+  /// **'If you have a Finance Tracker backup, you can restore it now, before this device fetches your data. Your bank data and synced changes come back from the server either way; a backup also brings receipt photos and what was kept only on your old device.'**
+  String get restoreOfferBody;
+
+  /// Button that declines the restore offer.
+  ///
+  /// In en, this message translates to:
+  /// **'Start fresh'**
+  String get restoreOfferStartFresh;
 }
 
 class _AppLocalizationsDelegate

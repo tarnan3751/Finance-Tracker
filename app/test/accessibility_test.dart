@@ -191,6 +191,7 @@ final Map<String, _Screen> _screens = {
     },
   ),
   'Export': (location: '/settings/export', seeded: true, open: null),
+  'Backup': (location: '/settings/backup', seeded: false, open: null),
   'Subscriptions': (location: '/bills/subscriptions', seeded: true, open: null),
   'Subscriptions, folded sections open': (
     location: '/bills/subscriptions',

@@ -24,6 +24,8 @@ import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import 'support/restore_offer.dart';
+
 const String _email = 'flow@example.com';
 const String _password = 'correct horse battery';
 
@@ -76,6 +78,7 @@ void main() {
       await tester.enterText(_field('Email'), _email);
       await tester.enterText(_field('Password'), _password);
       await _tap(tester, find.widgetWithText(FilledButton, 'Create account'));
+      await startFresh(tester);
       expect(find.byType(NavigationBar), findsOneWidget);
 
       await _openSettings(tester);

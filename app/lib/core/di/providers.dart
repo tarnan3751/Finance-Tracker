@@ -31,10 +31,12 @@ import 'package:finance_tracker/core/db/legacy_import/import_summary.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/plaid/plaid_pull.dart';
+import 'package:finance_tracker/core/platform/backup_picker_provider.dart';
 import 'package:finance_tracker/core/platform/fake_image_source.dart';
 import 'package:finance_tracker/core/platform/file_exporter_provider.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
 import 'package:finance_tracker/core/platform/local_notifications_scheduler.dart';
+import 'package:finance_tracker/core/platform/platform_backup_picker.dart';
 import 'package:finance_tracker/core/platform/platform_file_exporter.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
@@ -143,9 +145,17 @@ Clock clock(Ref ref) => const SystemClock();
 @Riverpod(keepAlive: true)
 DatabaseKeyStore databaseKeyStore(Ref ref) => SecureDatabaseKeyStore();
 
+/// The close [databaseProvider] starts when its container is disposed, by database, for
+/// what must wait until the file is free (`bootstrap`'s `stopApp`, before a restore).
+/// Awaiting this close, rather than closing again, matters: two closes of one Drift
+/// database at once race in its stream query store ("concurrent modification during
+/// iteration"), and closing first, before the container is disposed, can hang while the
+/// container's providers still use the database.
+final Expando<Future<void>> databaseClosing = Expando('databaseClosing');
+
 /// The local database of the dev and prod flavors, opened lazily on its first query
-/// (`bootstrap` opens it at startup) and closed with the container. The demo flavor has
-/// none, and reading it there is a [StateError].
+/// (`bootstrap` opens it at startup) and closed with the container ([databaseClosing]).
+/// The demo flavor has none, and reading it there is a [StateError].
 @Riverpod(keepAlive: true)
 AppDatabase database(Ref ref) {
   final AppDatabase database = openAppDatabase(
@@ -154,11 +164,14 @@ AppDatabase database(Ref ref) {
   );
   // Closing a database that failed to open rethrows the open failure, which bootstrap
   // has already handled; any other close error still surfaces.
-  ref.onDispose(
-    () => unawaited(
-      database.close().catchError((Object _) {}, test: isDatabaseOpenFailure),
-    ),
-  );
+  ref.onDispose(() {
+    final Future<void> closing = database.close().catchError(
+      (Object _) {},
+      test: isDatabaseOpenFailure,
+    );
+    databaseClosing[database] = closing;
+    unawaited(closing);
+  });
   return database;
 }
 
@@ -473,7 +486,24 @@ class LegacyImportResult extends _$LegacyImportResult {
 List<Override> overridesFor(AppConfig config) => [
   ...localDataOverridesFor(config),
   ...apiOverridesFor(config),
+  ...filePickerOverridesFor(config),
 ];
+
+/// The system's file dialogs in dev and prod (`flutter_file_dialog` and `share_plus`):
+/// the file exporter and the backup picker; the fakes elsewhere. Apart from
+/// [localDataOverridesFor], so a test on the dev wiring keeps the fakes.
+List<Override> filePickerOverridesFor(AppConfig config) =>
+    switch (config.flavor) {
+      Flavor.dev || Flavor.prod => [
+        fileExporterProvider.overrideWith(
+          (ref) => PlatformFileExporter(getTemporaryDirectory),
+        ),
+        backupPickerProvider.overrideWith(
+          (ref) => const PlatformBackupPicker(),
+        ),
+      ],
+      Flavor.demo => const [],
+    };
 
 /// [overridesFor] without the API's: the flavor and its local data. For a test that
 /// supplies its own API (a fake server shared by several app instances), whatever
@@ -619,9 +649,6 @@ final List<Override> _driftOverrides = [
   ),
   receiptStoreProvider.overrideWith(
     (ref) => FileReceiptStore(getApplicationSupportDirectory),
-  ),
-  fileExporterProvider.overrideWith(
-    (ref) => PlatformFileExporter(getTemporaryDirectory),
   ),
   reminderSchedulerProvider.overrideWith((ref) {
     final AppLocalizations l10n = lookupAppLocalizations(

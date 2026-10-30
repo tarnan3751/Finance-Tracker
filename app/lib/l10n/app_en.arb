@@ -5546,5 +5546,237 @@
   "exportReportMenu": "Export this month as PDF",
   "@exportReportMenu": {
     "description": "The Reports screen's menu item that exports the period shown as a PDF."
+  },
+  "backupTitle": "Backup",
+  "@backupTitle": {
+    "description": "Title of the backup screen and its Settings entry."
+  },
+  "backupSettingsSubtitle": "Everything in one encrypted file, or restore one",
+  "@backupSettingsSubtitle": {
+    "description": "Subtitle of the Backup entry in Settings."
+  },
+  "backupDemoNote": "The demo's generated data is not kept or backed up",
+  "@backupDemoNote": {
+    "description": "Subtitle of the Backup entry in the demo's Settings, which has no backup."
+  },
+  "backupExportSection": "Export a backup",
+  "@backupExportSection": {
+    "description": "Header of the backup screen's export section."
+  },
+  "backupExportExplanation": "Everything on this device in one file, encrypted with a passphrase you choose: accounts, transactions, budgets, bills, goals, settings and receipt photos. Keep it anywhere.",
+  "@backupExportExplanation": {
+    "description": "What a backup holds, above the passphrase fields."
+  },
+  "backupPassphrase": "Passphrase",
+  "@backupPassphrase": {
+    "description": "Label of the backup passphrase field."
+  },
+  "backupPassphraseConfirm": "Passphrase again",
+  "@backupPassphraseConfirm": {
+    "description": "Label of the field confirming the backup passphrase."
+  },
+  "backupPassphraseHelper": "At least {count} characters",
+  "@backupPassphraseHelper": {
+    "description": "Helper under the backup passphrase field before anything is typed.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "backupPassphraseTooShort": "Use at least {count} characters",
+  "@backupPassphraseTooShort": {
+    "description": "Error under the backup passphrase field when it is too short.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "backupPassphraseMismatch": "The two passphrases differ",
+  "@backupPassphraseMismatch": {
+    "description": "Error under the confirmation field when it differs from the passphrase."
+  },
+  "backupStrengthWeak": "Strength: weak. A longer passphrase is safer.",
+  "@backupStrengthWeak": {
+    "description": "Strength hint of a long enough but weak backup passphrase."
+  },
+  "backupStrengthFair": "Strength: fair",
+  "@backupStrengthFair": {
+    "description": "Strength hint of a fair backup passphrase."
+  },
+  "backupStrengthStrong": "Strength: strong",
+  "@backupStrengthStrong": {
+    "description": "Strength hint of a strong backup passphrase."
+  },
+  "backupNoRecovery": "There is no way to recover a forgotten passphrase: without it, the backup cannot be opened.",
+  "@backupNoRecovery": {
+    "description": "Warning under the backup passphrase fields."
+  },
+  "backupSave": "Save as",
+  "@backupSave": {
+    "description": "Button that makes a backup and saves it through the system's Save as dialog."
+  },
+  "backupShare": "Share",
+  "@backupShare": {
+    "description": "Button that makes a backup and shares it through the share sheet."
+  },
+  "backupSaved": "Saved {fileName}",
+  "@backupSaved": {
+    "description": "Shown after a backup was saved.",
+    "placeholders": {
+      "fileName": {
+        "type": "String",
+        "example": "finance-tracker-2026-10-30.ftbk"
+      }
+    }
+  },
+  "backupExportFailed": "The backup could not be made. Try again.",
+  "@backupExportFailed": {
+    "description": "Shown when a backup could not be made, saved or shared."
+  },
+  "backupRestoreSection": "Restore from a backup",
+  "@backupRestoreSection": {
+    "description": "Header of the backup screen's restore section."
+  },
+  "backupRestoreExplanation": "A backup can be restored only onto a device with no data yet, such as a new install: a device that already has data refuses it.",
+  "@backupRestoreExplanation": {
+    "description": "What a restore does, on the backup screen."
+  },
+  "backupRestoreButton": "Restore from a backup",
+  "@backupRestoreButton": {
+    "description": "Button that starts restoring a backup."
+  },
+  "backupRestorePassphraseTitle": "This backup's passphrase",
+  "@backupRestorePassphraseTitle": {
+    "description": "Title of the dialog asking for a backup's passphrase."
+  },
+  "backupOpen": "Open",
+  "@backupOpen": {
+    "description": "Button of the passphrase dialog that opens the backup."
+  },
+  "backupStageReading": "Reading your data",
+  "@backupStageReading": {
+    "description": "Progress label while a backup reads the database."
+  },
+  "backupStageDeriving": "Securing with your passphrase",
+  "@backupStageDeriving": {
+    "description": "Progress label while the key is derived from the passphrase."
+  },
+  "backupStageEncrypting": "Encrypting",
+  "@backupStageEncrypting": {
+    "description": "Progress label while a backup is encrypted."
+  },
+  "backupStageChecking": "Checking the backup",
+  "@backupStageChecking": {
+    "description": "Progress label while a backup file is opened and checked."
+  },
+  "backupStageRestoring": "Restoring",
+  "@backupStageRestoring": {
+    "description": "Progress label while a backup is restored."
+  },
+  "backupConfirmTitle": "Restore this backup?",
+  "@backupConfirmTitle": {
+    "description": "Title of the dialog confirming a restore."
+  },
+  "backupConfirmBody": "Made {date} by version {version}: {records} records and {receipts} receipt photos.",
+  "@backupConfirmBody": {
+    "description": "What the backup about to be restored holds.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Oct 30, 2026 9:41 AM"
+      },
+      "version": {
+        "type": "String",
+        "example": "1.0.0+1"
+      },
+      "records": {
+        "type": "int",
+        "example": "5230"
+      },
+      "receipts": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "backupConfirmLostKey": "The data on this device that can no longer be opened will be deleted.",
+  "@backupConfirmLostKey": {
+    "description": "Warning of the restore confirmation on the screen of a lost database key."
+  },
+  "backupConfirmRestore": "Restore",
+  "@backupConfirmRestore": {
+    "description": "Button that confirms a restore."
+  },
+  "backupErrorNotABackup": "This file is not a Finance Tracker backup.",
+  "@backupErrorNotABackup": {
+    "description": "A picked file is not a backup."
+  },
+  "backupErrorTooLarge": "This file is too large to be a Finance Tracker backup (over 512 MB).",
+  "@backupErrorTooLarge": {
+    "description": "A picked file is over the backup size cap, so it was not read."
+  },
+  "backupErrorTooNew": "This backup was made by a newer version of Finance Tracker. Update the app, then restore it.",
+  "@backupErrorTooNew": {
+    "description": "A backup's format or schema is newer than this app's."
+  },
+  "backupErrorUnsafe": "This backup asks for settings this app does not accept, so it was not opened.",
+  "@backupErrorUnsafe": {
+    "description": "A backup's header has a KDF or cost the app refuses."
+  },
+  "backupErrorWrongPassphrase": "The passphrase is wrong, or the file is damaged.",
+  "@backupErrorWrongPassphrase": {
+    "description": "A backup's first frame does not open with the passphrase."
+  },
+  "backupErrorDamaged": "This backup is damaged or incomplete.",
+  "@backupErrorDamaged": {
+    "description": "A backup's later frames or content do not check."
+  },
+  "backupErrorOtherAccount": "This backup belongs to another account.",
+  "@backupErrorOtherAccount": {
+    "description": "A backup's user is not the signed-in one."
+  },
+  "backupErrorHasData": "This device already has data. Delete the app's data first, then restore.",
+  "@backupErrorHasData": {
+    "description": "A restore onto an install that has data is refused."
+  },
+  "backupErrorPick": "The file could not be opened.",
+  "@backupErrorPick": {
+    "description": "The picked file could not be read."
+  },
+  "backupErrorFailed": "The backup could not be restored. Nothing was changed.",
+  "@backupErrorFailed": {
+    "description": "Any other failure before a restore starts."
+  },
+  "backupRestoringTitle": "Restoring your backup",
+  "@backupRestoringTitle": {
+    "description": "Headline of the screen shown while a restore runs."
+  },
+  "backupRestoreFailedTitle": "The backup could not be restored",
+  "@backupRestoreFailedTitle": {
+    "description": "Headline of the restoring screen when the restore failed."
+  },
+  "backupRestoreFailedBody": "Finance Tracker will start with the data this device holds now.",
+  "@backupRestoreFailedBody": {
+    "description": "Supporting text when a restore failed after it started."
+  },
+  "backupContinue": "Continue",
+  "@backupContinue": {
+    "description": "Button that starts the app after a failed restore."
+  },
+  "restoreOfferTitle": "Restore from a backup?",
+  "@restoreOfferTitle": {
+    "description": "Headline of the restore offer shown on a new install after sign-in."
+  },
+  "restoreOfferBody": "If you have a Finance Tracker backup, you can restore it now, before this device fetches your data. Your bank data and synced changes come back from the server either way; a backup also brings receipt photos and what was kept only on your old device.",
+  "@restoreOfferBody": {
+    "description": "Supporting text of the restore offer."
+  },
+  "restoreOfferStartFresh": "Start fresh",
+  "@restoreOfferStartFresh": {
+    "description": "Button that declines the restore offer."
   }
 }

@@ -14,7 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/pump_app.dart';
 import '../../helpers/seed.dart';
 
-const Size _size = Size(412, 2600);
+const Size _size = Size(412, 2900);
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);

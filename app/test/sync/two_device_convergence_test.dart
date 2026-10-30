@@ -29,6 +29,7 @@ import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
+import 'package:finance_tracker/features/backup/application/backup_providers.dart';
 import 'package:finance_tracker/features/bills/domain/bill_repository.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_repository.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
@@ -50,6 +51,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../contract/repository_fixture.dart';
 import '../helpers/random_budgets.dart';
+import '../helpers/restore_offer.dart';
 
 /// The server the Plaid pull of every device asks: no bank linked.
 final FakeServer _bankless = FakeServer(dataset: FakeDataset.empty())
@@ -163,6 +165,8 @@ final class Device {
         ),
         appVersionProvider.overrideWith((ref) async => '1.0.0'),
         fakeFinanceApiOverride,
+        // Installs past the restore offer, whose pending state holds sync.
+        restoreOfferProvider.overrideWith(AnsweredRestoreOffer.new),
       ],
       retry: (_, _) => null,
     );

@@ -3801,4 +3801,181 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exportReportMenu => 'Export this month as PDF';
+
+  @override
+  String get backupTitle => 'Backup';
+
+  @override
+  String get backupSettingsSubtitle =>
+      'Everything in one encrypted file, or restore one';
+
+  @override
+  String get backupDemoNote =>
+      'The demo\'s generated data is not kept or backed up';
+
+  @override
+  String get backupExportSection => 'Export a backup';
+
+  @override
+  String get backupExportExplanation =>
+      'Everything on this device in one file, encrypted with a passphrase you choose: accounts, transactions, budgets, bills, goals, settings and receipt photos. Keep it anywhere.';
+
+  @override
+  String get backupPassphrase => 'Passphrase';
+
+  @override
+  String get backupPassphraseConfirm => 'Passphrase again';
+
+  @override
+  String backupPassphraseHelper(int count) {
+    return 'At least $count characters';
+  }
+
+  @override
+  String backupPassphraseTooShort(int count) {
+    return 'Use at least $count characters';
+  }
+
+  @override
+  String get backupPassphraseMismatch => 'The two passphrases differ';
+
+  @override
+  String get backupStrengthWeak =>
+      'Strength: weak. A longer passphrase is safer.';
+
+  @override
+  String get backupStrengthFair => 'Strength: fair';
+
+  @override
+  String get backupStrengthStrong => 'Strength: strong';
+
+  @override
+  String get backupNoRecovery =>
+      'There is no way to recover a forgotten passphrase: without it, the backup cannot be opened.';
+
+  @override
+  String get backupSave => 'Save as';
+
+  @override
+  String get backupShare => 'Share';
+
+  @override
+  String backupSaved(String fileName) {
+    return 'Saved $fileName';
+  }
+
+  @override
+  String get backupExportFailed => 'The backup could not be made. Try again.';
+
+  @override
+  String get backupRestoreSection => 'Restore from a backup';
+
+  @override
+  String get backupRestoreExplanation =>
+      'A backup can be restored only onto a device with no data yet, such as a new install: a device that already has data refuses it.';
+
+  @override
+  String get backupRestoreButton => 'Restore from a backup';
+
+  @override
+  String get backupRestorePassphraseTitle => 'This backup\'s passphrase';
+
+  @override
+  String get backupOpen => 'Open';
+
+  @override
+  String get backupStageReading => 'Reading your data';
+
+  @override
+  String get backupStageDeriving => 'Securing with your passphrase';
+
+  @override
+  String get backupStageEncrypting => 'Encrypting';
+
+  @override
+  String get backupStageChecking => 'Checking the backup';
+
+  @override
+  String get backupStageRestoring => 'Restoring';
+
+  @override
+  String get backupConfirmTitle => 'Restore this backup?';
+
+  @override
+  String backupConfirmBody(
+    String date,
+    String version,
+    int records,
+    int receipts,
+  ) {
+    return 'Made $date by version $version: $records records and $receipts receipt photos.';
+  }
+
+  @override
+  String get backupConfirmLostKey =>
+      'The data on this device that can no longer be opened will be deleted.';
+
+  @override
+  String get backupConfirmRestore => 'Restore';
+
+  @override
+  String get backupErrorNotABackup =>
+      'This file is not a Finance Tracker backup.';
+
+  @override
+  String get backupErrorTooLarge =>
+      'This file is too large to be a Finance Tracker backup (over 512 MB).';
+
+  @override
+  String get backupErrorTooNew =>
+      'This backup was made by a newer version of Finance Tracker. Update the app, then restore it.';
+
+  @override
+  String get backupErrorUnsafe =>
+      'This backup asks for settings this app does not accept, so it was not opened.';
+
+  @override
+  String get backupErrorWrongPassphrase =>
+      'The passphrase is wrong, or the file is damaged.';
+
+  @override
+  String get backupErrorDamaged => 'This backup is damaged or incomplete.';
+
+  @override
+  String get backupErrorOtherAccount =>
+      'This backup belongs to another account.';
+
+  @override
+  String get backupErrorHasData =>
+      'This device already has data. Delete the app\'s data first, then restore.';
+
+  @override
+  String get backupErrorPick => 'The file could not be opened.';
+
+  @override
+  String get backupErrorFailed =>
+      'The backup could not be restored. Nothing was changed.';
+
+  @override
+  String get backupRestoringTitle => 'Restoring your backup';
+
+  @override
+  String get backupRestoreFailedTitle => 'The backup could not be restored';
+
+  @override
+  String get backupRestoreFailedBody =>
+      'Finance Tracker will start with the data this device holds now.';
+
+  @override
+  String get backupContinue => 'Continue';
+
+  @override
+  String get restoreOfferTitle => 'Restore from a backup?';
+
+  @override
+  String get restoreOfferBody =>
+      'If you have a Finance Tracker backup, you can restore it now, before this device fetches your data. Your bank data and synced changes come back from the server either way; a backup also brings receipt photos and what was kept only on your old device.';
+
+  @override
+  String get restoreOfferStartFresh => 'Start fresh';
 }

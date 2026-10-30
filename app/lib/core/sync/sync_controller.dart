@@ -12,7 +12,8 @@
 /// reset (`SyncCursorInvalidException`) resets the pull cursor to 0 and runs again once.
 /// After each successful session the Plaid pull runs (`core/plaid/plaid_pull.dart`), so
 /// Sync now covers both; its time and failure are in the status apart from the
-/// session's. The demo flavor never syncs.
+/// session's. While the restore offer is pending, or not yet known (`RestoreOffer`), no
+/// session runs; one runs once it is answered (or fails to work itself out). The demo flavor never syncs.
 library;
 
 import 'dart:async';
@@ -26,6 +27,7 @@ import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/device_clock.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/time/clock.dart';
+import 'package:finance_tracker/features/backup/application/backup_providers.dart';
 import 'package:flutter/widgets.dart';
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -47,6 +49,8 @@ class SyncController extends _$SyncController {
   int? _pending;
   StreamSubscription<SyncLedger>? _ledger;
   AppLifecycleListener? _lifecycle;
+  // Whether a session was skipped while the restore offer was pending or unknown.
+  bool _held = false;
 
   @override
   SyncStatus build() {
@@ -63,6 +67,15 @@ class SyncController extends _$SyncController {
         if (ref.mounted) _deviceChanged(next);
       }),
     );
+    // A restore offer answered (or found not to apply) runs the session it held.
+    ref.listen<AsyncValue<bool>>(restoreOfferProvider, (_, next) {
+      if (_held && !_holds(next)) {
+        _held = false;
+        scheduleMicrotask(() {
+          if (ref.mounted) unawaited(syncNow());
+        });
+      }
+    });
     ref.onDispose(() {
       _debounce?.cancel();
       _lifecycle?.dispose();
@@ -157,6 +170,12 @@ class SyncController extends _$SyncController {
     );
   }
 
+  // Whether [offer] holds sync: pending, or being worked out (a sign-in rebuilds it, and
+  // the value it had signed out says nothing about the new session). An offer that
+  // failed to work itself out holds nothing.
+  static bool _holds(AsyncValue<bool> offer) =>
+      !offer.hasError && (offer.isLoading || offer.value == true);
+
   Future<void> _loop() async {
     do {
       _again = false;
@@ -172,6 +191,12 @@ class SyncController extends _$SyncController {
     final String? deviceId = ref.read(syncDeviceIdProvider);
     final Clock clock = ref.read(clockProvider);
     if (relay == null || deviceId == null) return;
+    // Held until the restore offer is answered: a restore must land before the server's
+    // copy of the data does.
+    if (_holds(ref.read(restoreOfferProvider))) {
+      _held = true;
+      return;
+    }
     state = state.copyWith(phase: SyncPhase.running, failure: state.failure);
     try {
       await deviceClock.adopt(deviceId);
