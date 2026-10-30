@@ -5513,6 +5513,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The entry could not be saved. Try again.'**
   String get netWorthEntryFailed;
+
+  /// Title at the top of the monthly report's PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly report'**
+  String get exportReportTitle;
+
+  /// Under the monthly report's title while its period is still running: the last day counted.
+  ///
+  /// In en, this message translates to:
+  /// **'Counted through {date}'**
+  String exportCountedThrough(String date);
+
+  /// Under the monthly report's title: the currency of every amount in it.
+  ///
+  /// In en, this message translates to:
+  /// **'Amounts in {currency}'**
+  String exportAmountsIn(String currency);
+
+  /// The monthly report's bar for the category groups beyond the first ten.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get exportOther;
+
+  /// A column heading in the monthly report's tables.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get exportColumnCategory;
+
+  /// A column heading in the monthly report's tables: the share of the period's spending.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get exportColumnShare;
+
+  /// A column heading in the monthly report's tables.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get exportColumnAmount;
+
+  /// A column heading in the monthly report's tables.
+  ///
+  /// In en, this message translates to:
+  /// **'Merchant'**
+  String get exportColumnMerchant;
+
+  /// A column heading in the monthly report's tables.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get exportColumnPeriod;
+
+  /// A column heading in the monthly report's tables: income less spending.
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get exportColumnNet;
+
+  /// A column heading in the monthly report's movers: the spending in the period before.
+  ///
+  /// In en, this message translates to:
+  /// **'Before'**
+  String get exportColumnBefore;
+
+  /// A column heading in the monthly report's movers: the spending in this period.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get exportColumnNow;
+
+  /// A column heading in the monthly report's movers.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get exportColumnChange;
+
+  /// A column heading in the monthly report's tables.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get exportColumnDate;
+
+  /// A column heading in the monthly report's "Worth a look": why the transaction stands out.
+  ///
+  /// In en, this message translates to:
+  /// **'Why'**
+  String get exportColumnWhy;
+
+  /// The monthly report's section of the bills due in the period.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills'**
+  String get exportBills;
+
+  /// A column heading in the monthly report's bills.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill'**
+  String get exportColumnBill;
+
+  /// A column heading in the monthly report's bills: the due date.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get exportColumnDue;
+
+  /// A column heading in the monthly report's bills.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get exportColumnStatus;
+
+  /// A bill occurrence in the monthly report that is due now and not yet paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get exportBillDue;
+
+  /// A bill occurrence in the monthly report that is still to come.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get exportBillUpcoming;
+
+  /// The monthly report's bills section when none was due.
+  ///
+  /// In en, this message translates to:
+  /// **'No bills due in this period.'**
+  String get exportNoBills;
+
+  /// A column heading in the monthly report's budgets.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget'**
+  String get exportColumnBudget;
+
+  /// A column heading in the monthly report's budgets: the amount plus what carried over.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get exportColumnAvailable;
+
+  /// A column heading in the monthly report's budgets: what is left, negative when over.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get exportColumnLeft;
+
+  /// The monthly report's page footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {count}'**
+  String exportPage(int page, int count);
 }
 
 class _AppLocalizationsDelegate

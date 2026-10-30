@@ -3643,4 +3643,88 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get netWorthEntryFailed => 'The entry could not be saved. Try again.';
+
+  @override
+  String get exportReportTitle => 'Monthly report';
+
+  @override
+  String exportCountedThrough(String date) {
+    return 'Counted through $date';
+  }
+
+  @override
+  String exportAmountsIn(String currency) {
+    return 'Amounts in $currency';
+  }
+
+  @override
+  String get exportOther => 'Other';
+
+  @override
+  String get exportColumnCategory => 'Category';
+
+  @override
+  String get exportColumnShare => 'Share';
+
+  @override
+  String get exportColumnAmount => 'Amount';
+
+  @override
+  String get exportColumnMerchant => 'Merchant';
+
+  @override
+  String get exportColumnPeriod => 'Period';
+
+  @override
+  String get exportColumnNet => 'Net';
+
+  @override
+  String get exportColumnBefore => 'Before';
+
+  @override
+  String get exportColumnNow => 'Now';
+
+  @override
+  String get exportColumnChange => 'Change';
+
+  @override
+  String get exportColumnDate => 'Date';
+
+  @override
+  String get exportColumnWhy => 'Why';
+
+  @override
+  String get exportBills => 'Bills';
+
+  @override
+  String get exportColumnBill => 'Bill';
+
+  @override
+  String get exportColumnDue => 'Due';
+
+  @override
+  String get exportColumnStatus => 'Status';
+
+  @override
+  String get exportBillDue => 'Due';
+
+  @override
+  String get exportBillUpcoming => 'Upcoming';
+
+  @override
+  String get exportNoBills => 'No bills due in this period.';
+
+  @override
+  String get exportColumnBudget => 'Budget';
+
+  @override
+  String get exportColumnAvailable => 'Available';
+
+  @override
+  String get exportColumnLeft => 'Left';
+
+  @override
+  String exportPage(int page, int count) {
+    return 'Page $page of $count';
+  }
 }

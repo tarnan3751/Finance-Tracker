@@ -5328,5 +5328,131 @@
   "netWorthEntryFailed": "The entry could not be saved. Try again.",
   "@netWorthEntryFailed": {
     "description": "Shown when a payoff entry could not be kept."
+  },
+  "exportReportTitle": "Monthly report",
+  "@exportReportTitle": {
+    "description": "Title at the top of the monthly report's PDF."
+  },
+  "exportCountedThrough": "Counted through {date}",
+  "@exportCountedThrough": {
+    "description": "Under the monthly report's title while its period is still running: the last day counted.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Oct 24, 2026"
+      }
+    }
+  },
+  "exportAmountsIn": "Amounts in {currency}",
+  "@exportAmountsIn": {
+    "description": "Under the monthly report's title: the currency of every amount in it.",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "USD"
+      }
+    }
+  },
+  "exportOther": "Other",
+  "@exportOther": {
+    "description": "The monthly report's bar for the category groups beyond the first ten."
+  },
+  "exportColumnCategory": "Category",
+  "@exportColumnCategory": {
+    "description": "A column heading in the monthly report's tables."
+  },
+  "exportColumnShare": "Share",
+  "@exportColumnShare": {
+    "description": "A column heading in the monthly report's tables: the share of the period's spending."
+  },
+  "exportColumnAmount": "Amount",
+  "@exportColumnAmount": {
+    "description": "A column heading in the monthly report's tables."
+  },
+  "exportColumnMerchant": "Merchant",
+  "@exportColumnMerchant": {
+    "description": "A column heading in the monthly report's tables."
+  },
+  "exportColumnPeriod": "Period",
+  "@exportColumnPeriod": {
+    "description": "A column heading in the monthly report's tables."
+  },
+  "exportColumnNet": "Net",
+  "@exportColumnNet": {
+    "description": "A column heading in the monthly report's tables: income less spending."
+  },
+  "exportColumnBefore": "Before",
+  "@exportColumnBefore": {
+    "description": "A column heading in the monthly report's movers: the spending in the period before."
+  },
+  "exportColumnNow": "Now",
+  "@exportColumnNow": {
+    "description": "A column heading in the monthly report's movers: the spending in this period."
+  },
+  "exportColumnChange": "Change",
+  "@exportColumnChange": {
+    "description": "A column heading in the monthly report's movers."
+  },
+  "exportColumnDate": "Date",
+  "@exportColumnDate": {
+    "description": "A column heading in the monthly report's tables."
+  },
+  "exportColumnWhy": "Why",
+  "@exportColumnWhy": {
+    "description": "A column heading in the monthly report's \"Worth a look\": why the transaction stands out."
+  },
+  "exportBills": "Bills",
+  "@exportBills": {
+    "description": "The monthly report's section of the bills due in the period."
+  },
+  "exportColumnBill": "Bill",
+  "@exportColumnBill": {
+    "description": "A column heading in the monthly report's bills."
+  },
+  "exportColumnDue": "Due",
+  "@exportColumnDue": {
+    "description": "A column heading in the monthly report's bills: the due date."
+  },
+  "exportColumnStatus": "Status",
+  "@exportColumnStatus": {
+    "description": "A column heading in the monthly report's bills."
+  },
+  "exportBillDue": "Due",
+  "@exportBillDue": {
+    "description": "A bill occurrence in the monthly report that is due now and not yet paid."
+  },
+  "exportBillUpcoming": "Upcoming",
+  "@exportBillUpcoming": {
+    "description": "A bill occurrence in the monthly report that is still to come."
+  },
+  "exportNoBills": "No bills due in this period.",
+  "@exportNoBills": {
+    "description": "The monthly report's bills section when none was due."
+  },
+  "exportColumnBudget": "Budget",
+  "@exportColumnBudget": {
+    "description": "A column heading in the monthly report's budgets."
+  },
+  "exportColumnAvailable": "Available",
+  "@exportColumnAvailable": {
+    "description": "A column heading in the monthly report's budgets: the amount plus what carried over."
+  },
+  "exportColumnLeft": "Left",
+  "@exportColumnLeft": {
+    "description": "A column heading in the monthly report's budgets: what is left, negative when over."
+  },
+  "exportPage": "Page {page} of {count}",
+  "@exportPage": {
+    "description": "The monthly report's page footer.",
+    "placeholders": {
+      "page": {
+        "type": "int",
+        "example": "1"
+      },
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
   }
 }
