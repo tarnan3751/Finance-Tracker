@@ -34,8 +34,14 @@ import 'package:timezone/timezone.dart' as tz;
 /// The phone size goldens and screen tests use, in logical pixels.
 const Size phoneSize = Size(412, 915);
 
-/// The tablet size of the tablet golden, in logical pixels.
+/// The tablet size of the tablet golden, in logical pixels (an expanded window).
 const Size tabletSize = Size(1024, 768);
+
+/// A medium window, in logical pixels: a Pixel Fold's inner display held upright.
+const Size mediumSize = Size(701, 841);
+
+/// An expanded window, in logical pixels: a Pixel Tablet held on its side.
+const Size expandedSize = Size(1280, 800);
 
 /// The package metadata tests see.
 final PackageInfo testPackageInfo = PackageInfo(

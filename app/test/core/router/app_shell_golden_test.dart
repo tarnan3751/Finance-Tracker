@@ -1,6 +1,9 @@
 // Goldens of the shell: each tab, and each segment of the Plan and Insights tabs, in light and dark at
-// phone size, the demo shell with its flavor strip below a status bar, and the settings
-// screen at tablet size. Tagged
+// phone size, the demo shell with its flavor strip below a status bar, the settings
+// screen at tablet size (1024 × 768, expanded), and the Accounts tab in each window size
+// class: compact at phone size (412 × 915, a Pixel 6), medium at 701 × 841 (a Pixel
+// Fold's inner display upright) and expanded at 1280 × 800 (a Pixel Tablet on its
+// side), on the seed. Tagged
 // `golden`; see test/flutter_test_config.dart for where the files go and how to update
 // them.
 import 'package:alchemist/alchemist.dart';
@@ -9,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/pump_app.dart';
+import '../../helpers/seed.dart';
 
 /// [child] laid out at [size] with [padding] as the system insets (a status bar).
 Widget _device(
@@ -68,6 +72,22 @@ void main() {
       padding: const EdgeInsets.only(top: 24),
     ),
   );
+
+  for (final (String sizeClass, Size size) in [
+    ('compact', phoneSize),
+    ('medium', mediumSize),
+    ('expanded', expandedSize),
+  ]) {
+    goldenTest(
+      'the accounts tab, light, $sizeClass',
+      fileName: 'shell_accounts_${sizeClass}_light',
+      constraints: BoxConstraints.tight(size),
+      builder: () => _device(
+        size,
+        buildTestApp(overrides: [storeOverride(seededStore())]),
+      ),
+    );
+  }
 
   goldenTest(
     'the settings screen, light, tablet',
