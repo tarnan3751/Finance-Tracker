@@ -96,6 +96,12 @@ void main() {
   testWidgets('Settings opens the export', (tester) async {
     await _open(tester, location: '/settings');
 
+    // Built only once scrolled to: the list builds lazily.
+    await tester.scrollUntilVisible(
+      find.text('Export'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     await _tap(tester, find.text('Export'));
 
     expect(find.text('Monthly report (PDF)'), findsOneWidget);

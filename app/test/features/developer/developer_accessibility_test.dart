@@ -40,6 +40,12 @@ Future<void> _open(
     textScale: textScale,
     overrides: [storeOverride(seededStore())],
   );
+  // Built only once scrolled to: the list builds lazily.
+  await tester.scrollUntilVisible(
+    find.text('Pull now'),
+    300,
+    scrollable: find.byType(Scrollable).first,
+  );
   await _tap(tester, find.text('Pull now'));
   if (!controls) return;
   await _tap(tester, find.text('Sandbox controls'));

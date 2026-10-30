@@ -4015,4 +4015,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get erasedDone => 'Done';
+
+  @override
+  String get settingsEraseDevice => 'Sign out and erase this device';
+
+  @override
+  String get settingsDeleteAccount => 'Delete account';
+
+  @override
+  String get deleteAccountTitle => 'Delete account';
+
+  @override
+  String get deleteAccountIntro => 'Deleting your account:';
+
+  @override
+  String get deleteAccountEffectBanks =>
+      'Disconnects every linked bank at Plaid';
+
+  @override
+  String get deleteAccountEffectServer =>
+      'Deletes every record of yours on the server';
+
+  @override
+  String get deleteAccountEffectDevice => 'Erases this device\'s data';
+
+  @override
+  String get deleteAccountEffectOthers => 'Signs out your other devices';
+
+  @override
+  String get deleteAccountPermanent =>
+      'This cannot be undone. Your other devices keep what they hold until you erase them.';
+
+  @override
+  String get deleteAccountConfirmLabel => 'Type your email to confirm';
+
+  @override
+  String deleteAccountConfirmHelper(String email) {
+    return 'Your account\'s email is $email';
+  }
+
+  @override
+  String get deleteAccountSubmit => 'Delete account';
+
+  @override
+  String get deleteAccountDeleting => 'Deleting your account';
+
+  @override
+  String deleteAccountFailed(String reason) {
+    return 'Your account was not deleted. $reason';
+  }
+
+  @override
+  String get deleteAccountFailedPlaid =>
+      'A linked bank could not be disconnected. Try again later.';
+
+  @override
+  String get deleteAccountFailedNetwork =>
+      'Can\'t reach the server. Check your connection and try again.';
+
+  @override
+  String get deleteAccountFailedOther => 'Something went wrong. Try again.';
+
+  @override
+  String get eraseDeviceTitle => 'Erase this device\'s data?';
+
+  @override
+  String get eraseDeviceBody =>
+      'This device signs out and everything it keeps is deleted from it. Changes not yet synced and receipt photos are lost. Your account stays: your bank data and everything that synced come back when you sign in again.';
+
+  @override
+  String eraseDevicePending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes not yet synced',
+      one: '1 change not yet synced',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get eraseDeviceConfirm => 'Erase';
 }

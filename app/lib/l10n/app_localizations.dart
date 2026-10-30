@@ -6142,6 +6142,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Done'**
   String get erasedDone;
+
+  /// Settings row that signs this device out and deletes its local data, the account kept.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out and erase this device'**
+  String get settingsEraseDevice;
+
+  /// Settings row that opens the account deletion screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get settingsDeleteAccount;
+
+  /// Title of the account deletion screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get deleteAccountTitle;
+
+  /// Lead-in to the list of what deleting the account does.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting your account:'**
+  String get deleteAccountIntro;
+
+  /// What deleting the account does: the linked banks.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnects every linked bank at Plaid'**
+  String get deleteAccountEffectBanks;
+
+  /// What deleting the account does: the server's data.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletes every record of yours on the server'**
+  String get deleteAccountEffectServer;
+
+  /// What deleting the account does: this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Erases this device\'s data'**
+  String get deleteAccountEffectDevice;
+
+  /// What deleting the account does: the user's other devices.
+  ///
+  /// In en, this message translates to:
+  /// **'Signs out your other devices'**
+  String get deleteAccountEffectOthers;
+
+  /// Warning on the account deletion screen.
+  ///
+  /// In en, this message translates to:
+  /// **'This cannot be undone. Your other devices keep what they hold until you erase them.'**
+  String get deleteAccountPermanent;
+
+  /// Label of the field where the user types the account's email to confirm the deletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your email to confirm'**
+  String get deleteAccountConfirmLabel;
+
+  /// Helper under the confirmation field.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account\'s email is {email}'**
+  String deleteAccountConfirmHelper(String email);
+
+  /// Button that deletes the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get deleteAccountSubmit;
+
+  /// Accessibility label of the progress indicator while the account is being deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting your account'**
+  String get deleteAccountDeleting;
+
+  /// Shown when the deletion failed; nothing on the device was changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account was not deleted. {reason}'**
+  String deleteAccountFailed(String reason);
+
+  /// Why the deletion failed: Plaid did not confirm an Item's removal.
+  ///
+  /// In en, this message translates to:
+  /// **'A linked bank could not be disconnected. Try again later.'**
+  String get deleteAccountFailedPlaid;
+
+  /// Why the deletion failed: no connection.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reach the server. Check your connection and try again.'**
+  String get deleteAccountFailedNetwork;
+
+  /// Why the deletion failed: anything else.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Try again.'**
+  String get deleteAccountFailedOther;
+
+  /// Title of the confirmation before this device's data is erased.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase this device\'s data?'**
+  String get eraseDeviceTitle;
+
+  /// Body of the erase confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'This device signs out and everything it keeps is deleted from it. Changes not yet synced and receipt photos are lost. Your account stays: your bank data and everything that synced come back when you sign in again.'**
+  String get eraseDeviceBody;
+
+  /// How many changes the erase would lose, from the sync ledger.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change not yet synced} other{{count} changes not yet synced}}'**
+  String eraseDevicePending(int count);
+
+  /// Button that confirms erasing this device's data.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase'**
+  String get eraseDeviceConfirm;
 }
 
 class _AppLocalizationsDelegate

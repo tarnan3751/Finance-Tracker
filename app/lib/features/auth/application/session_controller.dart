@@ -15,8 +15,12 @@
 ///   recorded (it would always create another user); a sign-in that yields another user is
 ///   logged out best-effort and refused. Both throw `OtherAccountOnDeviceException`. The
 ///   marker is read before any network call, and a failure to read it propagates.
-/// - **Sign-out** calls logout best-effort (after one refresh if the access token had
-///   expired) and clears the stored session whatever the answer. The install's user stays.
+/// - **Sign-out** has two halves. [logOutOnServer] calls logout best-effort (after one
+///   refresh if the access token had expired) and changes nothing here; [signOut], which
+///   Settings' Sign out calls, runs it and then clears the stored session and signs out,
+///   whatever the answer. The install's user stays. Erasing the device
+///   (`AccountActions.eraseDevice`) calls [logOutOnServer] alone and leaves the clearing to
+///   the local wipe, which runs with the app stopped.
 library;
 
 import 'dart:async';
@@ -182,6 +186,15 @@ class SessionController extends _$SessionController {
 
   /// Signs this device out.
   Future<void> signOut() async {
+    await logOutOnServer();
+    await _store.clear();
+    _signedOut();
+  }
+
+  /// Logs this device out on the server, best effort, and keeps the stored session and
+  /// the state: [signOut]'s first half, and the erase's, whose wipe then clears the store
+  /// with the app stopped, so nothing moves to the sign-in screen meanwhile.
+  Future<void> logOutOnServer() async {
     final Session? session = await _store.read();
     if (session != null) {
       try {
@@ -200,8 +213,6 @@ class SessionController extends _$SessionController {
         // Best effort: offline, or the server already ended the session.
       }
     }
-    await _store.clear();
-    _signedOut();
   }
 
   void _signedOut() {

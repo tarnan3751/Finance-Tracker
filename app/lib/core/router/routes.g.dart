@@ -247,6 +247,11 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
               hasOverriddenOnExit: false,
               factory: $BackupRoute._fromState,
             ),
+            GoRouteData.$route(
+              path: 'delete-account',
+              hasOverriddenOnExit: false,
+              factory: $DeleteAccountRoute._fromState,
+            ),
           ],
         ),
       ],
@@ -1077,6 +1082,27 @@ mixin $BackupRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/settings/backup');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $DeleteAccountRoute on GoRouteData {
+  static DeleteAccountRoute _fromState(GoRouterState state) =>
+      const DeleteAccountRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings/delete-account');
 
   @override
   void go(BuildContext context) => context.go(location);

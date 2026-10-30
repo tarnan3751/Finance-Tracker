@@ -1,6 +1,7 @@
-/// The Settings screen's Account section: who is signed in, the linked banks, Sign out
-/// (not in demo, which is always the demo user), and in dev the server the app talks to. Nothing while signed
-/// out, which outside demo the router never shows.
+/// The Settings screen's Account section: who is signed in, the linked banks, Sign out,
+/// Sign out and erase this device, and Delete account (none of the three in demo, which
+/// is always the demo user), and in dev the server the app talks to. Nothing while
+/// signed out, which outside demo the router never shows.
 library;
 
 import 'package:finance_tracker/core/api/api_config.dart';
@@ -10,6 +11,7 @@ import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
 import 'package:finance_tracker/features/auth/domain/session_state.dart';
+import 'package:finance_tracker/features/auth/presentation/erase_device_dialog.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +49,22 @@ class AccountSection extends ConsumerWidget {
             title: Text(l10n.settingsSignOut),
             onTap: () => ref.read(sessionControllerProvider.notifier).signOut(),
           ),
+        if (config.flavor != Flavor.demo) ...[
+          ListTile(
+            leading: const Icon(Icons.phonelink_erase),
+            title: Text(l10n.settingsEraseDevice),
+            onTap: () => confirmAndEraseDevice(context, ref),
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.delete_forever_outlined,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            title: Text(l10n.settingsDeleteAccount),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => const DeleteAccountRoute().push<void>(context),
+          ),
+        ],
         if (config.flavor == Flavor.dev)
           ListTile(
             leading: const Icon(Icons.dns_outlined),

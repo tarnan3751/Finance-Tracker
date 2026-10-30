@@ -5820,5 +5820,107 @@
   "erasedDone": "Done",
   "@erasedDone": {
     "description": "Button on the wipe's confirmation that starts the app again, at sign-in."
+  },
+  "settingsEraseDevice": "Sign out and erase this device",
+  "@settingsEraseDevice": {
+    "description": "Settings row that signs this device out and deletes its local data, the account kept."
+  },
+  "settingsDeleteAccount": "Delete account",
+  "@settingsDeleteAccount": {
+    "description": "Settings row that opens the account deletion screen."
+  },
+  "deleteAccountTitle": "Delete account",
+  "@deleteAccountTitle": {
+    "description": "Title of the account deletion screen."
+  },
+  "deleteAccountIntro": "Deleting your account:",
+  "@deleteAccountIntro": {
+    "description": "Lead-in to the list of what deleting the account does."
+  },
+  "deleteAccountEffectBanks": "Disconnects every linked bank at Plaid",
+  "@deleteAccountEffectBanks": {
+    "description": "What deleting the account does: the linked banks."
+  },
+  "deleteAccountEffectServer": "Deletes every record of yours on the server",
+  "@deleteAccountEffectServer": {
+    "description": "What deleting the account does: the server's data."
+  },
+  "deleteAccountEffectDevice": "Erases this device's data",
+  "@deleteAccountEffectDevice": {
+    "description": "What deleting the account does: this device."
+  },
+  "deleteAccountEffectOthers": "Signs out your other devices",
+  "@deleteAccountEffectOthers": {
+    "description": "What deleting the account does: the user's other devices."
+  },
+  "deleteAccountPermanent": "This cannot be undone. Your other devices keep what they hold until you erase them.",
+  "@deleteAccountPermanent": {
+    "description": "Warning on the account deletion screen."
+  },
+  "deleteAccountConfirmLabel": "Type your email to confirm",
+  "@deleteAccountConfirmLabel": {
+    "description": "Label of the field where the user types the account's email to confirm the deletion."
+  },
+  "deleteAccountConfirmHelper": "Your account's email is {email}",
+  "@deleteAccountConfirmHelper": {
+    "description": "Helper under the confirmation field.",
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "ada@example.com"
+      }
+    }
+  },
+  "deleteAccountSubmit": "Delete account",
+  "@deleteAccountSubmit": {
+    "description": "Button that deletes the account."
+  },
+  "deleteAccountDeleting": "Deleting your account",
+  "@deleteAccountDeleting": {
+    "description": "Accessibility label of the progress indicator while the account is being deleted."
+  },
+  "deleteAccountFailed": "Your account was not deleted. {reason}",
+  "@deleteAccountFailed": {
+    "description": "Shown when the deletion failed; nothing on the device was changed.",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "A linked bank could not be disconnected. Try again later."
+      }
+    }
+  },
+  "deleteAccountFailedPlaid": "A linked bank could not be disconnected. Try again later.",
+  "@deleteAccountFailedPlaid": {
+    "description": "Why the deletion failed: Plaid did not confirm an Item's removal."
+  },
+  "deleteAccountFailedNetwork": "Can't reach the server. Check your connection and try again.",
+  "@deleteAccountFailedNetwork": {
+    "description": "Why the deletion failed: no connection."
+  },
+  "deleteAccountFailedOther": "Something went wrong. Try again.",
+  "@deleteAccountFailedOther": {
+    "description": "Why the deletion failed: anything else."
+  },
+  "eraseDeviceTitle": "Erase this device's data?",
+  "@eraseDeviceTitle": {
+    "description": "Title of the confirmation before this device's data is erased."
+  },
+  "eraseDeviceBody": "This device signs out and everything it keeps is deleted from it. Changes not yet synced and receipt photos are lost. Your account stays: your bank data and everything that synced come back when you sign in again.",
+  "@eraseDeviceBody": {
+    "description": "Body of the erase confirmation."
+  },
+  "eraseDevicePending": "{count, plural, =1{1 change not yet synced} other{{count} changes not yet synced}}",
+  "@eraseDevicePending": {
+    "description": "How many changes the erase would lose, from the sync ledger.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "eraseDeviceConfirm": "Erase",
+  "@eraseDeviceConfirm": {
+    "description": "Button that confirms erasing this device's data."
   }
 }
