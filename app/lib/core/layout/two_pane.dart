@@ -25,7 +25,9 @@
 /// shell keeps its rail narrow then (`app_shell.dart`), so the list has the room left of
 /// the fold. A folded foldable shows its outer display, a compact window, with no
 /// fold and one pane. A horizontal fold (a foldable on its side, half open like a
-/// laptop) leaves the panes as they are, side by side across it.
+/// laptop) leaves the panes as they are, side by side across it, and so does a fold
+/// that would leave either pane narrower than [TwoPane.minFoldPaneWidth] (the rail's
+/// labels at a large text size can take most of the room before it).
 library;
 
 import 'dart:math' as math;
@@ -76,7 +78,7 @@ Rect? verticalFold(BuildContext context) {
 }
 
 /// [start] and [end] side by side: split on the window's [verticalFold] when it falls
-/// inside the panes, else [start] taking two fifths of the width within
+/// inside the panes with room for a list on either side, else [start] taking two fifths of the width within
 /// [minStartWidth] and [maxStartWidth], a divider between them.
 ///
 /// Laid out flush with the window's end edge, as the shell's body is (the rail is at
@@ -84,8 +86,16 @@ Rect? verticalFold(BuildContext context) {
 class TwoPane extends StatelessWidget {
   const TwoPane({super.key, required this.start, required this.end});
 
+  /// The narrowest room two panes are laid out in: a list and a detail of
+  /// [minFoldPaneWidth]. The shell shows one pane in less.
+  static const double minWidth = minStartWidth + minFoldPaneWidth;
+
   /// The narrowest the start pane gets.
   static const double minStartWidth = 320;
+
+  /// The narrowest a pane split on a fold gets; a fold that would leave less keeps
+  /// the usual split.
+  static const double minFoldPaneWidth = 240;
 
   /// The widest the start pane gets.
   static const double maxStartWidth = 440;
@@ -113,8 +123,14 @@ class TwoPane extends StatelessWidget {
               : 0;
           final double left = fold.left - origin;
           final double right = fold.right - origin;
-          if (left > 0 && right < width) {
-            startWidth = direction == TextDirection.ltr ? left : width - right;
+          final double before = direction == TextDirection.ltr
+              ? left
+              : width - right;
+          final double after = width - before - (right - left);
+          // Only where the fold leaves each pane room for a list: at a large text
+          // size the rail's labels can take most of the room before the fold.
+          if (before >= minFoldPaneWidth && after >= minFoldPaneWidth) {
+            startWidth = before;
             gap = math.max(right - left, 1);
           }
         }

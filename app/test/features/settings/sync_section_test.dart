@@ -1,5 +1,6 @@
 // The settings screen's Sync section: what each status shows (the bank data's pull
-// included), "Sync now", and that the demo flavor has no Sync section.
+// included), "Sync now", the status announced as it changes, and that the demo flavor
+// has no Sync section.
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
@@ -221,5 +222,29 @@ void main() {
       config: AppConfig.demo(),
     );
     expect(find.text('Sync'), findsNothing);
+  });
+
+  testWidgets('the status is a live region, announced as it changes', (
+    tester,
+  ) async {
+    final SemanticsHandle semantics = tester.ensureSemantics();
+    try {
+      await pumpApp(
+        tester,
+        initialLocation: '/settings',
+        overrides: [
+          syncControllerProvider.overrideWith(
+            () => _FixedSync(const SyncStatus(phase: SyncPhase.running)),
+          ),
+        ],
+      );
+
+      expect(
+        tester.getSemantics(find.text('Syncing…')),
+        isSemantics(isLiveRegion: true),
+      );
+    } finally {
+      semantics.dispose();
+    }
   });
 }

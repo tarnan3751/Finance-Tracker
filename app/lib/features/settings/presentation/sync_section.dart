@@ -51,10 +51,14 @@ class SyncSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SettingsSectionHeader(l10n.settingsSync),
-        ListTile(
-          leading: const Icon(Icons.sync),
-          title: Text(l10n.syncStatus),
-          subtitle: Text(summary),
+        // Announced as it changes (syncing, synced, failed) under the user.
+        Semantics(
+          liveRegion: true,
+          child: ListTile(
+            leading: const Icon(Icons.sync),
+            title: Text(l10n.syncStatus),
+            subtitle: Text(summary),
+          ),
         ),
         if (signedIn)
           ListTile(

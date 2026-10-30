@@ -173,7 +173,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       // Tapping the current tab again returns it to its first screen.
       initialLocation: index == current,
     );
-    final Widget branches = IndexedStack(
+    Widget branches({required bool twoPanes}) => IndexedStack(
       index: current,
       children: [
         for (int i = 0; i < widget.children.length; i++)
@@ -181,14 +181,17 @@ class _AppShellState extends ConsumerState<AppShell> {
             enabled: i == current,
             child: ScaffoldMessenger(
               key: _messengers[i],
-              child: ListKeys(keys: _lists, child: _branch(i, size)),
+              child: ListKeys(
+                keys: _lists,
+                child: _branch(i, twoPanes: twoPanes),
+              ),
             ),
           ),
       ],
     );
     if (size == WindowSizeClass.compact) {
       return Scaffold(
-        body: branches,
+        body: branches(twoPanes: false),
         bottomNavigationBar: NavigationBar(
           selectedIndex: current,
           onDestinationSelected: select,
@@ -227,6 +230,11 @@ class _AppShellState extends ConsumerState<AppShell> {
                     icon: d.icon,
                     selectedIcon: d.selectedIcon,
                     label: Text(d.label),
+                    // An extended destination is 44 dp tall; this makes it the 48 dp
+                    // a tap target needs.
+                    padding: extended
+                        ? const EdgeInsets.symmetric(vertical: 2)
+                        : null,
                   ),
               ],
             ),
@@ -236,7 +244,15 @@ class _AppShellState extends ConsumerState<AppShell> {
             child: Semantics(
               container: true,
               sortKey: const OrdinalSortKey(0),
-              child: branches,
+              // Two panes on an expanded window, while the rail (whose labels grow
+              // with the text size) leaves them room.
+              child: LayoutBuilder(
+                builder: (context, constraints) => branches(
+                  twoPanes:
+                      size == WindowSizeClass.expanded &&
+                      constraints.maxWidth >= TwoPane.minWidth,
+                ),
+              ),
             ),
           ),
         ],
@@ -244,16 +260,14 @@ class _AppShellState extends ConsumerState<AppShell> {
     );
   }
 
-  /// Branch [i]'s navigator, beside the branch's list when [size] is expanded and the
-  /// branch's stack starts at a list that has a detail.
-  Widget _branch(int i, WindowSizeClass size) {
+  /// Branch [i]'s navigator, beside the branch's list when [twoPanes] and the branch's
+  /// stack starts at a list that has a detail.
+  Widget _branch(int i, {required bool twoPanes}) {
     final Widget navigator = KeyedSubtree(
       key: _navigators[i],
       child: widget.children[i],
     );
-    final Widget? list = size == WindowSizeClass.expanded
-        ? _listBesideDetail(_roots[i])
-        : null;
+    final Widget? list = twoPanes ? _listBesideDetail(_roots[i]) : null;
     if (list == null) return navigator;
     return TwoPane(start: ListKeys.wrapIn(_lists, list), end: navigator);
   }

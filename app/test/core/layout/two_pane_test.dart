@@ -238,7 +238,6 @@ void main() {
     final ScrollableState list = tester.state(_rows);
     list.position.jumpTo(40);
     await tester.pump();
-    await tester.pump();
     final State<StatefulWidget> before = tester.state(
       find.byType(TransactionsScreen),
     );
@@ -339,6 +338,24 @@ void main() {
     await tester.tap(_inEnd(find.byType(BackButton)));
     await tester.pumpAndSettle();
     expect(_location(tester), '/settings', reason: 'the page was pushed once');
+  });
+
+  testWidgets('a rail that leaves too little room shows one pane', (
+    tester,
+  ) async {
+    // An expanded window just wide enough, the rail's labels at twice the text size.
+    await pumpApp(
+      tester,
+      initialLocation: '/accounts/$checkingId',
+      size: foldSize,
+      textScale: 2,
+      overrides: [storeOverride(seededStore())],
+    );
+
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.byType(PaneScope), findsNothing);
+    expect(find.byType(AccountDetailScreen), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('a window that changes class keeps the detail open', (

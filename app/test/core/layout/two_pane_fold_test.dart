@@ -1,7 +1,8 @@
 // The panes on a foldable: split on a vertical fold or hinge that is flat or half open
 // (the start pane ends where it starts, the end pane starts where it ends), in either
-// text direction, with the rail kept narrow; a horizontal fold, a folded foldable or a
-// fold outside the panes leaves the usual split.
+// text direction, with the rail kept narrow; a horizontal fold, a folded foldable, a
+// fold outside the panes or one leaving a pane too narrow for a list leaves the usual
+// split.
 import 'dart:ui' show DisplayFeature, DisplayFeatureState, DisplayFeatureType;
 
 import 'package:finance_tracker/core/layout/two_pane.dart';
@@ -110,6 +111,10 @@ void main() {
       ],
     ),
     ('a fold under the rail', [_fold(const Rect.fromLTWH(100, 0, 0, 800))]),
+    (
+      'a fold too close to the start for a list',
+      [_fold(const Rect.fromLTWH(450, 0, 0, 800))],
+    ),
     (
       'a cutout',
       [

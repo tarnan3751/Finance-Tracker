@@ -1,7 +1,11 @@
-// The accessibility baseline for every screen, in light and dark: tap targets are large
-// enough and labelled, text has enough contrast, and nothing overflows at twice the text
-// size. The shell's tabs and the linked banks are checked empty; every screen is also
-// checked on the demo seed (two accounts, twelve transactions, the system categories, two
+// The accessibility baseline for every screen, in light and dark and at text scales 1
+// and 2: tap targets are large enough and labelled, text has enough contrast, and nothing
+// overflows at twice the text size. The large-screen layouts are checked the same way:
+// the list beside its detail on an expanded window (accounts, transactions, bills,
+// settings), the rail on a medium one, and the panes split on a foldable's fold. The
+// shell's tabs, the linked banks and the conflicts are checked empty (the conflicts also
+// with one, on the seed's Starbucks transaction); every screen is also checked on the
+// demo seed (two accounts, twelve transactions, the system categories, two
 // rules, the three test budgets, the test streams, the test bills and the test goals)
 // with the linked test data (the three test banks, two linked accounts, Plaid
 // transactions), and the filter sheet, the category picker, the transaction list's menu
@@ -19,6 +23,7 @@
 // and registration screens are checked signed out; their text scale is checked with their
 // errors showing, in test/features/auth/auth_screens_test.dart.
 import 'dart:io';
+import 'dart:ui' show DisplayFeature, DisplayFeatureState, DisplayFeatureType;
 
 import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
@@ -27,6 +32,9 @@ import 'package:finance_tracker/core/platform/image_source.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/bills/data/in_memory_bill_repository.dart';
+import 'package:finance_tracker/features/conflicts/application/conflicts_providers.dart';
+import 'package:finance_tracker/features/conflicts/data/in_memory_conflict_store.dart';
+import 'package:finance_tracker/features/conflicts/domain/sync_conflict.dart';
 import 'package:finance_tracker/features/lock/application/device_auth_provider.dart';
 import 'package:finance_tracker/features/lock/data/fake_device_auth.dart';
 import 'package:finance_tracker/features/transactions/presentation/receipt_view.dart';
@@ -34,6 +42,7 @@ import 'package:finance_tracker/features/transactions/presentation/transaction_t
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_models/shared_models.dart';
 
 import 'helpers/bill_seed.dart';
 import 'helpers/budget_seed.dart';
@@ -53,6 +62,17 @@ typedef _Screen = ({
   bool seeded,
   Future<void> Function(WidgetTester)? open,
 });
+
+/// The text scales every screen meets the guidelines at.
+const List<double> _scales = [1, 2];
+
+/// The three Flutter guidelines: tap targets large enough and labelled, and text with
+/// enough contrast.
+Future<void> _meetsGuidelines(WidgetTester tester) async {
+  await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+  await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+  await expectLater(tester, meetsGuideline(textContrastGuideline));
+}
 
 Future<void> _tapAndSettle(WidgetTester tester, Finder finder) async {
   await tester.tap(finder);
@@ -178,6 +198,7 @@ final Map<String, _Screen> _screens = {
     open: (tester) => _tapAndSettle(tester, find.byTooltip('Calendar')),
   ),
   'New bill': (location: '/bills/new', seeded: true, open: null),
+  'Edit bill': (location: '/bills/phone', seeded: true, open: null),
   'Forecast': (location: '/forecast', seeded: true, open: null),
   'Net worth': (location: '/net-worth', seeded: true, open: null),
   'Reports': (location: '/reports', seeded: true, open: null),
@@ -198,6 +219,12 @@ final Map<String, _Screen> _screens = {
   'Export': (location: '/settings/export', seeded: true, open: null),
   'Backup': (location: '/settings/backup', seeded: false, open: null),
   'Devices': (location: '/settings/devices', seeded: false, open: null),
+  'Conflicts (empty)': (
+    location: '/settings/conflicts',
+    seeded: false,
+    open: null,
+  ),
+  'Conflicts': (location: '/settings/conflicts', seeded: true, open: null),
   'Delete account': (
     location: '/settings/delete-account',
     seeded: false,
@@ -319,8 +346,40 @@ final Map<String, _Screen> _screens = {
   ),
 };
 
+/// One conflict on the seed's Starbucks transaction, its notes written on two devices.
+List<Override> _conflictOverrides() => [
+  conflictStoreProvider.overrideWithValue(
+    InMemoryConflictStore()..add(
+      SyncConflict(
+        entityType: EntityType.transaction,
+        entityId: 'demo-txn-04',
+        field: 'notes',
+        localValue: 'Team lunch',
+        localClock: Hlc(
+          DateTime.utc(2026, 10, 24, 14).millisecondsSinceEpoch,
+          0,
+          'dev-a',
+        ),
+        remoteValue: 'Lunch with Ana',
+        remoteClock: Hlc(
+          DateTime.utc(2026, 10, 24, 14, 5).millisecondsSinceEpoch,
+          0,
+          'dev-b',
+        ),
+        entityLabel: 'Starbucks',
+        seenAt: DateTime.utc(2026, 10, 24, 14, 10),
+      ),
+    ),
+  ),
+  syncDeviceIdProvider.overrideWithValue('dev-a'),
+  conflictDeviceNamesProvider.overrideWith(
+    (ref) async => {'dev-a': 'Pixel 6', 'dev-b': 'Pixel Tablet'},
+  ),
+];
+
 List<Override> _overrides(_Screen screen) => screen.seeded
     ? [
+        if (screen.location == '/settings/conflicts') ..._conflictOverrides(),
         storeOverride(linkedStore(manual: true)),
         rulesOverride(seededRules()),
         budgetsOverride(seededBudgets()),
@@ -456,6 +515,52 @@ _lockViews = {
   ),
 };
 
+/// The large-screen layouts: where each opens, at what size, and with what fold.
+final Map<String, ({String location, Size size, List<DisplayFeature> fold})>
+_largeScreens = {
+  'Account beside the accounts, expanded': (
+    location: '/accounts/$checkingId',
+    size: expandedSize,
+    fold: const [],
+  ),
+  'Transaction beside the transactions, expanded': (
+    location: '/transactions/demo-txn-04',
+    size: expandedSize,
+    fold: const [],
+  ),
+  'Bill beside the bills, expanded': (
+    location: '/bills/phone',
+    size: expandedSize,
+    fold: const [],
+  ),
+  'Categories beside the settings, expanded': (
+    location: '/settings/categories',
+    size: expandedSize,
+    fold: const [],
+  ),
+  'Budgets with the rail, medium': (
+    location: '/budgets',
+    size: mediumSize,
+    fold: const [],
+  ),
+  'Reports with the rail, medium': (
+    location: '/reports',
+    size: mediumSize,
+    fold: const [],
+  ),
+  'Account beside the accounts, on a fold': (
+    location: '/accounts/$checkingId',
+    size: foldSize,
+    fold: const [
+      DisplayFeature(
+        bounds: foldBounds,
+        type: DisplayFeatureType.fold,
+        state: DisplayFeatureState.postureFlat,
+      ),
+    ],
+  ),
+};
+
 /// The auth screens, which only a signed-out user sees.
 const Map<String, String> _authScreens = {
   'Sign in': '/sign-in',
@@ -463,27 +568,57 @@ const Map<String, String> _authScreens = {
 };
 
 void main() {
+  for (final MapEntry(key: String name, value: view) in _largeScreens.entries) {
+    const _Screen seeded = (location: '', seeded: true, open: null);
+    for (final Brightness brightness in Brightness.values) {
+      for (final double scale in _scales) {
+        testWidgets('$name (${brightness.name}, text scale $scale) meets the '
+            'Android and contrast guidelines', (tester) async {
+          tester.view.displayFeatures = view.fold;
+          addTearDown(tester.view.resetDisplayFeatures);
+          final SemanticsHandle semantics = tester.ensureSemantics();
+          try {
+            await pumpApp(
+              tester,
+              initialLocation: view.location,
+              brightness: brightness,
+              textScale: scale,
+              size: view.size,
+              overrides: _overrides(seeded),
+            );
+
+            expect(tester.takeException(), isNull);
+            await _meetsGuidelines(tester);
+          } finally {
+            semantics.dispose();
+          }
+        });
+      }
+    }
+  }
+
   for (final MapEntry(key: String name, value: view) in _lockViews.entries) {
     for (final Brightness brightness in Brightness.values) {
-      testWidgets('$name (${brightness.name}) meets the Android and contrast '
-          'guidelines', (tester) async {
-        final SemanticsHandle semantics = tester.ensureSemantics();
-        try {
-          await pumpApp(
-            tester,
-            initialLocation: view.location,
-            brightness: brightness,
-            overrides: view.overrides(),
-          );
-          await view.open?.call(tester);
+      for (final double scale in _scales) {
+        testWidgets('$name (${brightness.name}, text scale $scale) meets the '
+            'Android and contrast guidelines', (tester) async {
+          final SemanticsHandle semantics = tester.ensureSemantics();
+          try {
+            await pumpApp(
+              tester,
+              initialLocation: view.location,
+              brightness: brightness,
+              textScale: scale,
+              overrides: view.overrides(),
+            );
+            await view.open?.call(tester);
 
-          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(textContrastGuideline));
-        } finally {
-          semantics.dispose();
-        }
-      });
+            await _meetsGuidelines(tester);
+          } finally {
+            semantics.dispose();
+          }
+        });
+      }
     }
 
     testWidgets('$name lays out at text scale 2.0 without overflow', (
@@ -504,48 +639,50 @@ void main() {
   for (final MapEntry(key: String name, value: String location)
       in _authScreens.entries) {
     for (final Brightness brightness in Brightness.values) {
-      testWidgets('$name (${brightness.name}) meets the Android and contrast '
-          'guidelines', (tester) async {
-        final SemanticsHandle semantics = tester.ensureSemantics();
-        try {
-          await pumpApp(
-            tester,
-            initialLocation: location,
-            brightness: brightness,
-            signedIn: false,
-          );
-          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(textContrastGuideline));
-        } finally {
-          semantics.dispose();
-        }
-      });
+      for (final double scale in _scales) {
+        testWidgets('$name (${brightness.name}, text scale $scale) meets the '
+            'Android and contrast guidelines', (tester) async {
+          final SemanticsHandle semantics = tester.ensureSemantics();
+          try {
+            await pumpApp(
+              tester,
+              initialLocation: location,
+              brightness: brightness,
+              textScale: scale,
+              signedIn: false,
+            );
+            await _meetsGuidelines(tester);
+          } finally {
+            semantics.dispose();
+          }
+        });
+      }
     }
   }
 
   for (final MapEntry(key: String name, value: open)
       in _forecastViews.entries) {
     for (final Brightness brightness in Brightness.values) {
-      testWidgets('$name (${brightness.name}) meets the Android and contrast '
-          'guidelines', (tester) async {
-        final SemanticsHandle semantics = tester.ensureSemantics();
-        try {
-          await pumpApp(
-            tester,
-            brightness: brightness,
-            overrides: forecastOverrides(),
-            router: forecastRouter,
-          );
-          await open?.call(tester);
+      for (final double scale in _scales) {
+        testWidgets('$name (${brightness.name}, text scale $scale) meets the '
+            'Android and contrast guidelines', (tester) async {
+          final SemanticsHandle semantics = tester.ensureSemantics();
+          try {
+            await pumpApp(
+              tester,
+              brightness: brightness,
+              textScale: scale,
+              overrides: forecastOverrides(),
+              router: forecastRouter,
+            );
+            await open?.call(tester);
 
-          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(textContrastGuideline));
-        } finally {
-          semantics.dispose();
-        }
-      });
+            await _meetsGuidelines(tester);
+          } finally {
+            semantics.dispose();
+          }
+        });
+      }
     }
 
     testWidgets('$name lays out at text scale 2.0 without overflow', (
@@ -566,25 +703,26 @@ void main() {
   for (final MapEntry(key: String name, value: view)
       in _investmentsViews.entries) {
     for (final Brightness brightness in Brightness.values) {
-      testWidgets('$name (${brightness.name}) meets the Android and contrast '
-          'guidelines', (tester) async {
-        final SemanticsHandle semantics = tester.ensureSemantics();
-        try {
-          await pumpApp(
-            tester,
-            brightness: brightness,
-            overrides: view.overrides(),
-            router: investmentsRouter,
-          );
-          await view.open?.call(tester);
+      for (final double scale in _scales) {
+        testWidgets('$name (${brightness.name}, text scale $scale) meets the '
+            'Android and contrast guidelines', (tester) async {
+          final SemanticsHandle semantics = tester.ensureSemantics();
+          try {
+            await pumpApp(
+              tester,
+              brightness: brightness,
+              textScale: scale,
+              overrides: view.overrides(),
+              router: investmentsRouter,
+            );
+            await view.open?.call(tester);
 
-          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(textContrastGuideline));
-        } finally {
-          semantics.dispose();
-        }
-      });
+            await _meetsGuidelines(tester);
+          } finally {
+            semantics.dispose();
+          }
+        });
+      }
     }
 
     testWidgets('$name lays out at text scale 2.0 without overflow', (
@@ -605,25 +743,26 @@ void main() {
   for (final MapEntry(key: String name, value: open)
       in _netWorthViews.entries) {
     for (final Brightness brightness in Brightness.values) {
-      testWidgets('$name (${brightness.name}) meets the Android and contrast '
-          'guidelines', (tester) async {
-        final SemanticsHandle semantics = tester.ensureSemantics();
-        try {
-          await pumpApp(
-            tester,
-            brightness: brightness,
-            overrides: netWorthOverrides(),
-            router: netWorthRouter,
-          );
-          await open?.call(tester);
+      for (final double scale in _scales) {
+        testWidgets('$name (${brightness.name}, text scale $scale) meets the '
+            'Android and contrast guidelines', (tester) async {
+          final SemanticsHandle semantics = tester.ensureSemantics();
+          try {
+            await pumpApp(
+              tester,
+              brightness: brightness,
+              textScale: scale,
+              overrides: netWorthOverrides(),
+              router: netWorthRouter,
+            );
+            await open?.call(tester);
 
-          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(textContrastGuideline));
-        } finally {
-          semantics.dispose();
-        }
-      });
+            await _meetsGuidelines(tester);
+          } finally {
+            semantics.dispose();
+          }
+        });
+      }
     }
 
     testWidgets('$name lays out at text scale 2.0 without overflow', (
@@ -644,28 +783,29 @@ void main() {
   for (final MapEntry(key: String name, value: _Screen screen)
       in _screens.entries) {
     for (final Brightness brightness in Brightness.values) {
-      testWidgets('$name (${brightness.name}) meets the Android and contrast '
-          'guidelines', (tester) async {
-        final SemanticsHandle semantics = tester.ensureSemantics();
-        // Disposed in `finally`, not through addTearDown: flutter_test checks for live
-        // semantics handles before tear-downs run, so a failing guideline would add a
-        // leak failure on top of its own.
-        try {
-          await pumpApp(
-            tester,
-            initialLocation: screen.location,
-            brightness: brightness,
-            overrides: _overrides(screen),
-          );
-          await screen.open?.call(tester);
+      for (final double scale in _scales) {
+        testWidgets('$name (${brightness.name}, text scale $scale) meets the '
+            'Android and contrast guidelines', (tester) async {
+          final SemanticsHandle semantics = tester.ensureSemantics();
+          // Disposed in `finally`, not through addTearDown: flutter_test checks for live
+          // semantics handles before tear-downs run, so a failing guideline would add a
+          // leak failure on top of its own.
+          try {
+            await pumpApp(
+              tester,
+              initialLocation: screen.location,
+              brightness: brightness,
+              textScale: scale,
+              overrides: _overrides(screen),
+            );
+            await screen.open?.call(tester);
 
-          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(textContrastGuideline));
-        } finally {
-          semantics.dispose();
-        }
-      });
+            await _meetsGuidelines(tester);
+          } finally {
+            semantics.dispose();
+          }
+        });
+      }
     }
 
     testWidgets('$name lays out at text scale 2.0 without overflow', (
