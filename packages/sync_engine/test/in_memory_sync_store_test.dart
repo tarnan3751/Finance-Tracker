@@ -148,4 +148,31 @@ void main() {
       expect(store.outbox, hasLength(2));
     },
   );
+
+  test(
+    'recordConflicts keeps conflicts, rolled back with a transaction',
+    () async {
+      final store = InMemorySyncStore();
+      FieldConflict conflict(String field) => FieldConflict(
+        entityType: EntityType.category,
+        entityId: 'c1',
+        field: field,
+        localValue: 'mine',
+        localClock: Hlc(1, 0, 'a'),
+        remoteValue: 'theirs',
+        remoteClock: Hlc(2, 0, 'b'),
+      );
+      await store.recordConflicts([conflict('name')]);
+      await expectLater(
+        store.transaction(() async {
+          await store.recordConflicts([conflict('color')]);
+          throw StateError('crash');
+        }),
+        throwsStateError,
+      );
+      expect(store.conflicts, [conflict('name')]);
+      store.dismissConflicts([conflict('name')]);
+      expect(store.conflicts, isEmpty);
+    },
+  );
 }

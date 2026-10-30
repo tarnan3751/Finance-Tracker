@@ -334,12 +334,16 @@ final class ChaosStats {
   int restarts = 0;
   int bursts = 0;
   int reshapedPages = 0;
+  int conflicts = 0;
+  int kept = 0;
+  int dismissed = 0;
 
   @override
   String toString() =>
       '$scenarios scenarios, $steps steps: $bursts bursts, $partitions partitions, '
       '$restarts restarts, $reshapedPages pages reordered, duplicated or early, '
-      '$driftRefused pushes refused for drift, $clamped received clocks clamped';
+      '$driftRefused pushes refused for drift, $clamped received clocks clamped, '
+      '$conflicts conflicts ($kept kept, $dismissed dismissed)';
 }
 
 class _Fault implements Exception {
@@ -485,6 +489,7 @@ final class _Device {
 
   Future<void> sync(Sync step) async {
     relay.deliver = (page) => _deliver(page, step.delivery);
+    final known = store.conflicts.toSet();
     try {
       final report = await session.run();
       run.log(
@@ -493,6 +498,7 @@ final class _Device {
         'clamped ${report.clamped}',
       );
       run.stats.clamped += report.clamped;
+      run.stats.conflicts += report.conflicts;
       for (final x in report.rejected) {
         run.check(
           x.reason == PushRejectionReason.clockDrift,
@@ -505,6 +511,52 @@ final class _Device {
     } finally {
       relay.deliver = null;
     }
+    for (final c in store.conflicts) {
+      if (!known.contains(c)) _checkConflict(c);
+    }
+  }
+
+  /// A conflict a session kept: one of this device's own non-null values, overwritten by
+  /// another device's different value at most the window later, never the tombstone.
+  void _checkConflict(FieldConflict c) {
+    final gap = c.remoteClock.wallMillis - c.localClock.wallMillis;
+    run.check(
+      c.localDevice == id &&
+          c.remoteDevice != id &&
+          c.localClock.compareTo(c.remoteClock) < 0 &&
+          gap >= 0 &&
+          gap <= conflictWindow.inMilliseconds &&
+          c.field != 'deleted_at' &&
+          c.localValue != null &&
+          !const DeepCollectionEquality().equals(c.localValue, c.remoteValue),
+      '$id kept a malformed conflict $c',
+    );
+    bool wrote(ChangeLogEntry e, Hlc hlc, Object? value) =>
+        e.hlc == hlc &&
+        e.entityType == c.entityType &&
+        e.entityId == c.entityId &&
+        e.payload.containsKey(c.field) &&
+        const DeepCollectionEquality().equals(e.payload[c.field], value);
+    run.check(
+      produced.any((e) => wrote(e, c.localClock, c.localValue)),
+      "$id's conflict $c names a value it never wrote",
+    );
+    run.check(
+      run.relay.entries.any((e) => wrote(e, c.remoteClock, c.remoteValue)),
+      "$id's conflict $c names a value the relay never held",
+    );
+    run.log('$id conflict $c');
+  }
+
+  /// A conflict of [key] for an edit to resolve instead of editing, drawn from [r], or null
+  /// (none, or the draw says edit).
+  FieldConflict? _conflictOf(EntityKey key, Random r) {
+    final pending = [
+      for (final c in store.conflicts)
+        if (c.key == key) c,
+    ];
+    if (pending.isEmpty || r.nextBool()) return null;
+    return pending[r.nextInt(pending.length)];
   }
 
   Future<void> edit(Edit step) async {
@@ -526,6 +578,19 @@ final class _Device {
       };
     } else if (!existing.isComplete) {
       return; // the host shows no incomplete record, so it cannot be edited
+    } else if (_conflictOf(key, r) case final FieldConflict c) {
+      // Resolving a conflict: "keep the other" forgets it, "keep this device's value"
+      // writes the lost value again as an ordinary edit.
+      store.dismissConflicts([c]);
+      if (existing.isDeleted || r.nextBool()) {
+        run.stats.dismissed++;
+        run.log('$id dismisses $c');
+        return;
+      }
+      run.stats.kept++;
+      what = 'keep';
+      before = existing.fields;
+      after = {...before, c.field: c.localValue};
     } else {
       final stale = snapshots[key];
       before = stale != null && r.nextInt(4) == 0 ? stale : existing.fields;

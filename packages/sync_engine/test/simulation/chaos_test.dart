@@ -1,6 +1,7 @@
 // The chaos simulation (`docs/reference/sync.md`, **Testing**): seeded scenarios of
 // partitions, restarts, reordered, duplicated and early deliveries, clock skews of hours
-// and bursts of edits to one record (chaos.dart), after which every invariant must hold.
+// and bursts of edits to one record (chaos.dart), with the conflicts each device keeps
+// resolved by later edits (kept or dismissed), after which every invariant must hold.
 //
 // Deterministic. SYNC_CHAOS_SEED overrides the base seed (default 20261030),
 // SYNC_CHAOS_SCENARIOS the scenario count (default below, the gate's budget), and
@@ -79,6 +80,16 @@ void main() {
       for (var i = start; i < end; i++) {
         await runScenario(i);
       }
+    });
+  }
+
+  // Conflicts and their resolutions run through the invariants above; this keeps that
+  // check from being vacuous at the gate's budget.
+  if (scenarios >= defaultScenarios) {
+    test('the scenarios kept conflicts and resolved them both ways', () {
+      expect(stats.conflicts, greaterThan(0));
+      expect(stats.kept, greaterThan(0));
+      expect(stats.dismissed, greaterThan(0));
     });
   }
 }

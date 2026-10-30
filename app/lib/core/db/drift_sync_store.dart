@@ -615,6 +615,13 @@ final class DriftSyncStore implements SyncStore {
     }
   }
 
+  // Conflicts ---------------------------------------------------------------------------
+
+  // Not kept yet: the `conflicts` table arrives with schema v13, in the commit "Keep sync
+  // conflicts and review them in Settings", which replaces this.
+  @override
+  Future<void> recordConflicts(List<FieldConflict> conflicts) async {}
+
   // The outbox --------------------------------------------------------------------------
 
   @override

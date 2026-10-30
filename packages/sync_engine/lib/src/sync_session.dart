@@ -20,6 +20,7 @@ final class SyncReport {
     required this.applied,
     required this.changed,
     required this.clamped,
+    required this.conflicts,
   });
 
   /// Outbox entries the relay accepted.
@@ -48,6 +49,10 @@ final class SyncReport {
   /// wall time ([HlcClock.receive]). Only a device whose clock is behind the relay's can
   /// see one, since the relay refuses entries more than the bound ahead of its own.
   final int clamped;
+
+  /// Overwrites of this device's own values that were conflicts ([MergeOutcome.losers]
+  /// whose old value this device wrote), handed to [SyncStore.recordConflicts].
+  final int conflicts;
 }
 
 /// Syncs one device. Safe to rerun after any failure: a failed push leaves its entries
@@ -93,7 +98,9 @@ final class SyncSession {
   /// pulls from the saved cursor until the relay has no more, each page in one store
   /// transaction that receives every entry's clock (clamping one beyond the bound),
   /// merges it (an entry of a type this build does not know is held by the store under
-  /// its raw type, `SyncStore.holdUnknownType`), and saves the clock and the cursor.
+  /// its raw type, `SyncStore.holdUnknownType`), hands the conflicts the merge reports
+  /// about this device's own values to [SyncStore.recordConflicts], and saves the clock
+  /// and the cursor.
   ///
   /// A call while a run is in flight returns that run. A store or relay error propagates;
   /// what was saved before it stays saved. That includes [SyncCursorInvalidException]
@@ -134,6 +141,7 @@ final class SyncSession {
     var applied = 0;
     final changed = <EntityKey>{};
     var clamped = 0;
+    var conflicts = 0;
     var cursor = await store.pullCursor() ?? 0;
     while (true) {
       final page = await relay.pull(
@@ -149,13 +157,24 @@ final class SyncSession {
           for (final e in page.entries) e.hlc,
           for (final e in page.unknownTypes) e.hlc,
         ].where((hlc) => clock.beyondBound(hlc, now)).length;
-        applied += await store.transaction(() async {
+        final (pageApplied, pageConflicts) = await store.transaction(() async {
           var n = 0;
+          var lost = 0;
           for (final e in page.entries) {
             clock.receive(e.hlc, now);
             final out = merge(await store.read(e.entityType, e.entityId), e);
             if (!out.applied) continue;
             await store.write(out.record);
+            // Only this device's own values: the device whose edit lost is the one to
+            // ask, and the others would show a dispute they took no part in.
+            final mine = [
+              for (final c in out.losers)
+                if (c.localDevice == clock.nodeId) c,
+            ];
+            if (mine.isNotEmpty) {
+              await store.recordConflicts(mine);
+              lost += mine.length;
+            }
             changed.add(out.record.key);
             n++;
           }
@@ -165,8 +184,10 @@ final class SyncSession {
           }
           await store.saveClock(clock.last);
           await store.savePullCursor(page.nextSince);
-          return n;
+          return (n, lost);
         });
+        applied += pageApplied;
+        conflicts += pageConflicts;
         clamped += pageClamped;
       }
       pulled += page.entries.length + page.unknownTypes.length;
@@ -180,6 +201,7 @@ final class SyncSession {
       applied: applied,
       changed: changed,
       clamped: clamped,
+      conflicts: conflicts,
     );
   }
 }

@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/src/entity_record.dart';
+import 'package:sync_engine/src/merge.dart';
 import 'package:sync_engine/src/sync_relay.dart';
 import 'package:sync_engine/src/sync_store.dart';
 import 'package:sync_engine/src/unknown_type.dart';
@@ -18,6 +19,7 @@ final class InMemorySyncStore implements SyncStore {
   Map<(String, String), UnknownTypeRecord> _unknown = {};
   List<ChangeLogEntry> _outbox = [];
   List<(ChangeLogEntry, PushRejectionReason)> _rejected = [];
+  List<FieldConflict> _conflicts = [];
   int? _cursor;
   Hlc? _clock;
 
@@ -43,6 +45,18 @@ final class InMemorySyncStore implements SyncStore {
   List<(ChangeLogEntry, PushRejectionReason)> get rejected =>
       List.unmodifiable(_rejected);
 
+  /// Every conflict [recordConflicts] kept, in order.
+  List<FieldConflict> get conflicts => List.unmodifiable(_conflicts);
+
+  /// Forgets [dismissed], as a host's dismissal would (for tests and the simulation).
+  void dismissConflicts(Iterable<FieldConflict> dismissed) {
+    final gone = dismissed.toSet();
+    _conflicts = [
+      for (final c in _conflicts)
+        if (!gone.contains(c)) c,
+    ];
+  }
+
   @override
   Future<T> transaction<T>(Future<T> Function() body) {
     if (Zone.current[_inTransaction] == true) return body();
@@ -51,6 +65,7 @@ final class InMemorySyncStore implements SyncStore {
       final unknown = _unknown;
       final outbox = _outbox;
       final rejected = _rejected;
+      final conflicts = _conflicts;
       final cursor = _cursor;
       final clock = _clock;
       _records = {...records};
@@ -63,6 +78,7 @@ final class InMemorySyncStore implements SyncStore {
         _unknown = unknown;
         _outbox = outbox;
         _rejected = rejected;
+        _conflicts = conflicts;
         _cursor = cursor;
         _clock = clock;
         rethrow;
@@ -133,6 +149,10 @@ final class InMemorySyncStore implements SyncStore {
             if (!set.contains(e.hlc)) e,
         ];
       });
+
+  @override
+  Future<void> recordConflicts(List<FieldConflict> conflicts) =>
+      _op('recordConflicts', () => _conflicts = [..._conflicts, ...conflicts]);
 
   @override
   Future<void> append(ChangeLogEntry entry) => _op(

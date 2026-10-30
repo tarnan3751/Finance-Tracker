@@ -3,6 +3,7 @@ library;
 
 import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/src/entity_record.dart';
+import 'package:sync_engine/src/merge.dart';
 import 'package:sync_engine/src/sync_relay.dart';
 import 'package:sync_engine/src/unknown_type.dart';
 
@@ -40,6 +41,12 @@ abstract interface class SyncStore {
   /// `conflictingDuplicate`). The store keeps them, with the reason, for the host to
   /// inspect; [unsynced] never returns them again.
   Future<void> markRejected(Iterable<Hlc> hlcs, PushRejectionReason reason);
+
+  /// Keeps [conflicts], the overwrites a pulled entry made of this device's own values
+  /// (`SyncSession.run`), for the host to show. Called inside the page's transaction,
+  /// right after the merged record is written, so they commit or roll back with it; how
+  /// long they are kept, and when one stops mattering, is the host's policy.
+  Future<void> recordConflicts(List<FieldConflict> conflicts);
 
   /// Adds a local change to the outbox, unsynced.
   Future<void> append(ChangeLogEntry entry);

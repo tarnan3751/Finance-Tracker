@@ -455,4 +455,79 @@ void main() {
       expect(a.state(), b.state());
     },
   );
+
+  group('conflicts', () {
+    // a and b rename c1 a minute apart; c only watches.
+    Future<(Device, Device, Device)> race({int delay = 60 * 1000}) async {
+      final a = Device('a', relay), b = Device('b', relay);
+      final c = Device('c', relay);
+      await a.create('c1', 'A');
+      await a.session.run();
+      await b.session.run();
+      await c.session.run();
+      await a.rename('c1', 'from a');
+      b.now = a.now + delay;
+      await b.rename('c1', 'from b');
+      return (a, b, c);
+    }
+
+    test('the device whose own edit lost keeps the conflict', () async {
+      final (a, b, c) = await race();
+      final rb = await b.session.run();
+      expect(rb.conflicts, 0);
+      final ra = await a.session.run();
+      expect(ra.conflicts, 1);
+      final conflict = a.store.conflicts.single;
+      expect(conflict.field, 'name');
+      expect(conflict.localValue, 'from a');
+      expect(conflict.localDevice, 'a');
+      expect(conflict.remoteValue, 'from b');
+      expect(conflict.remoteDevice, 'b');
+      expect(a.store.records.values.single.fields['name'], 'from b');
+      // b's value won: b merges a's older entry without overwriting anything.
+      expect((await b.session.run()).conflicts, 0);
+      expect(b.store.conflicts, isEmpty);
+      // c overwrote a's value with b's too, but neither was c's own.
+      expect((await c.session.run()).conflicts, 0);
+      expect(c.store.conflicts, isEmpty);
+      expect(a.state(), b.state());
+      expect(c.state(), b.state());
+    });
+
+    test('keeping the lost value is an edit that wins everywhere', () async {
+      final (a, b, _) = await race();
+      await b.session.run();
+      await a.session.run();
+      final lost = a.store.conflicts.single;
+      await a.rename('c1', lost.localValue! as String);
+      await a.session.run();
+      final rb = await b.session.run();
+      // b's value lost within ten minutes in turn, so b is asked now.
+      expect(rb.conflicts, 1);
+      expect(b.store.conflicts.single.localValue, 'from b');
+      expect(a.state(), b.state());
+      expect(b.store.records.values.single.fields['name'], 'from a');
+    });
+
+    test('conflicts roll back with a page that fails', () async {
+      final (a, b, _) = await race();
+      await b.session.run();
+      a.store.failBefore = (op) {
+        if (op == 'savePullCursor') throw StateError('crash');
+      };
+      await expectLater(a.session.run(), throwsStateError);
+      expect(a.store.conflicts, isEmpty);
+      a.store.failBefore = null;
+      expect((await a.session.run()).conflicts, 1);
+      expect(a.store.conflicts, hasLength(1));
+    });
+
+    test('edits more than ten minutes apart are not conflicts', () async {
+      final (a, b, _) = await race(delay: 11 * 60 * 1000);
+      await b.session.run();
+      final ra = await a.session.run();
+      expect(ra.conflicts, 0);
+      expect(a.store.conflicts, isEmpty);
+    });
+  });
 }

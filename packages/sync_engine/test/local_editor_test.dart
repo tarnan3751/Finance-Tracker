@@ -50,6 +50,9 @@ final class RowStore implements SyncStore {
   Future<void> markRejected(Iterable<Hlc> hlcs, PushRejectionReason reason) =>
       inner.markRejected(hlcs, reason);
   @override
+  Future<void> recordConflicts(List<FieldConflict> conflicts) =>
+      inner.recordConflicts(conflicts);
+  @override
   Future<void> append(ChangeLogEntry entry) => inner.append(entry);
   @override
   Future<int?> pullCursor() => inner.pullCursor();
