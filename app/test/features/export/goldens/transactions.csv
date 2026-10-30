@@ -1,0 +1,11 @@
+date,account,merchant,name,amount,currency,category,parent_category,pending,hidden,tags,notes,source,id
+2026-10-01,Everyday Checking,Acme Corp,ACME PAYROLL,4000.00,USD,Wages,,false,false,,,plaid,tx-01
+2026-10-01,Everyday Checking,,Rent,-1650.00,USD,,,false,false,,"October
+late fee waived",manual,tx-02
+2026-10-05,Everyday Checking,Safeway,SAFEWAY #1234,-60.42,USD,Groceries,Food,false,false,household;weekly,"Milk, eggs and ""the good bread""",manual,tx-03
+2026-10-07,"Rewards Card, Visa",Café Olé,CAFE OLE,-12.99,USD,Food,,true,true,,,demo,tx-04
+2026-10-08,"Rewards Card, Visa",,Refund,25.00,USD,,,false,false,,"line one
+line two",manual,tx-05
+2026-10-09,Tokyo Wallet,,Ramen,-1500,JPY,,,false,false,,,manual,tx-06
+2026-10-09,Everyday Checking,,Dinar test,-12.345,KWD,,,false,false,,,manual,tx-07
+2026-10-10,Everyday Checking,+cmd,=SUM(A1:A2),-1.00,USD,,,false,false,,,import,tx-09

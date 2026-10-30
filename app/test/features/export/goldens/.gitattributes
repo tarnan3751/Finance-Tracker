@@ -1,0 +1,3 @@
+# The CSV goldens hold CRLF record ends and a bare LF inside a field, byte for byte:
+# never normalized, and carried in a patch as binary.
+*.csv binary
