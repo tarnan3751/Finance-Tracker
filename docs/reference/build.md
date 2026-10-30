@@ -81,7 +81,8 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   `android:fullBackupContent="false"` and
   `android:dataExtractionRules="@xml/data_extraction_rules"`, which excludes everything
   (`domain="root"`) from cloud backup and device transfer. A Keystore-bound database key
-  cannot follow a system backup; the app's own encrypted backup (Phase 7) is the only path.
+  cannot follow a system backup; the app's own encrypted backup (`backup.md`) is the only
+  path.
 - **Receipt photos.** `image_picker` (BSD-3, behind `core/platform/image_source.dart`)
   needs nothing in the app's manifest: the plugin's own manifest, merged at build time,
   declares its `FileProvider` (`io.flutter.plugins.imagepicker.ImagePickerFileProvider`,

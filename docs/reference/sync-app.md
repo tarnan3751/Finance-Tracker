@@ -163,6 +163,12 @@ last-writer-wins), and of every field clock equal to one of those clocks, the pe
 clock and `device_id`. Synced and rejected entries keep their node. Clocks stay unique:
 every substituted clock shares the substitution and the new id is unused.
 
+A restored install (`backup.md`, **Restore**) gets a new provisional node in the
+import's transaction (`substituteNode(provisionalNodeId())`), so it never stamps with the
+node of the device the backup came from; its first session's `adopt` moves the unsynced
+outbox on to its own server device, which the relay requires (an entry naming another
+device is refused as `invalid`).
+
 Every login is a new server device (`server.md`), so a re-login substitutes again. An
 entry accepted before a re-login whose response was lost is sent again under the new
 node with the same wall and counter: the relay stores both, and merge converges on the
@@ -223,6 +229,8 @@ the outbox moves to the new one, so each entry reaches the relay once. Each sess
 adopts the device id, then runs `SyncSession` with the shared clock. A
 `SyncCursorInvalidException` (the relay's log was reset) saves cursor 0 and runs again once.
 The demo flavor never syncs, and nothing runs, or opens the database, while signed out.
+While the restore offer is pending or not yet known (`restoreOfferProvider`, `backup.md`,
+**Restore**), no session runs; once it is answered (or found not to apply) one runs.
 A failed session is classified: a `NetworkError` is offline, any other `ApiException`
 the server's, anything else other. After each successful session the Plaid pull runs
 (**The Plaid pull**), so Sync now covers both; a device change during the pull (a

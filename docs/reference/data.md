@@ -25,7 +25,7 @@ can run them in the Dart VM to dump the schema.
 | `transaction_splits` | A transaction's splits, `(transaction_id, position)` primary key, in list order |
 | `categories` | The system categories and the user's |
 | `app_settings` | The app preferences: `key` is the field name, `value` its JSON |
-| `app_meta` | Facts about the install: `legacy_import_done`, `install_date`, `fts_definition` (**Full-text search**), `reminders_zone` and `reminders_scheduled_at` (the zone and time the bill reminders were last planned in, `bills.md`), `bill_suggestions_dismissed` (the bill suggestions dismissed on this device, `bills.md`, **Screens**), `forecast_selection` (the forecast's account selection on this device, the JSON of its changes from the default, `forecast.md`), `snapshots_written_on` (the last local date the balance snapshots were written, `net-worth.md`), `dismissed_anomalies` (the transaction ids whose anomaly flags were dismissed on this device, `reports.md`, **Anomalies**), `weekly_summary_raised` (the Monday of the last week whose summary notice was raised, `reports.md`, **The weekly summary**), `payoff_entries` (the payments, rates and extras entered for the payoff projections on this device, `net-worth.md`, **Payoff**) |
+| `app_meta` | Facts about the install: `legacy_import_done`, `install_date`, `fts_definition` (**Full-text search**), `reminders_zone` and `reminders_scheduled_at` (the zone and time the bill reminders were last planned in, `bills.md`), `bill_suggestions_dismissed` (the bill suggestions dismissed on this device, `bills.md`, **Screens**), `forecast_selection` (the forecast's account selection on this device, the JSON of its changes from the default, `forecast.md`), `snapshots_written_on` (the last local date the balance snapshots were written, `net-worth.md`), `dismissed_anomalies` (the transaction ids whose anomaly flags were dismissed on this device, `reports.md`, **Anomalies**), `weekly_summary_raised` (the Monday of the last week whose summary notice was raised, `reports.md`, **The weekly summary**), `payoff_entries` (the payments, rates and extras entered for the payoff projections on this device, `net-worth.md`, **Payoff**), `restore_offer_answered` (when this install answered the restore offer, `backup.md`, **Restore**) |
 | `change_log` | The sync outbox (schema 2): one row per local change-log entry (`sync-app.md`) |
 | `record_clocks` | The sync clock of each field of each synced entity, `_create` holding its create's (schema 2) |
 | `sync_meta` | The device's sync state: `pull_cursor`, `last_clock`, `device_id`, `last_sync_at`, `last_report` (schema 2); the Plaid pull's `plaid_transactions_since`, `plaid_accounts_pulled_at`, `plaid_items_pulled_at`, `plaid_pulled_at`, and from schema 11 `plaid_investment_transactions_since` (`sync-app.md`) |
@@ -207,8 +207,10 @@ stored value when one fails to decrypt. A read that fails (`PlatformException`) 
 `SqliteException`, the `onUpgrade` error after a downgrade), `bootstrap` logs the
 exception's type only and shows `DatabaseErrorApp`, a plain localized screen, instead of
 the app; nothing is deleted. `databaseFailureOf` picks its message: one each for no
-cipher, a wrong key and a lost key, and a generic one for the rest. Phase 7's restore flow
-handles a lost key. Closing a database whose open failed rethrows the failure (Drift's
+cipher, a wrong key and a lost key, and a generic one for the rest. For a lost key the
+screen also offers "Restore from a backup" (`backup.md`, **Restore**): once the user
+confirms, the unreadable files are deleted, a new key created and the backup restored
+into a new database. Closing a database whose open failed rethrows the failure (Drift's
 `LazyDatabase.close`), so `bootstrap` leaves the container open on that path, and
 `databaseProvider`'s dispose ignores the three typed failures (`isDatabaseOpenFailure`).
 
@@ -449,7 +451,8 @@ The repositories hold no files; `TransactionActions` (`transactions.md`) writes 
 
 - **`FileReceiptStore`** (dev and prod, `receiptStoreProvider` through `overridesFor`)
   keeps them under `getApplicationSupportDirectory()`, Android's private `files/`
-  directory, which no backup or device transfer carries (`build.md`, **Backup**).
+  directory, which no system backup or device transfer carries (`build.md`, **Backup**);
+  the app's own backup does (`backup.md`).
   **`MemoryReceiptStore`** is the default: the tests' and the demo flavor's.
 - **Writes.** `stage(id, bytes)` writes the photo under a temporary name
   (`<id>.jpg.staged`); `commit` renames it over `<id>.jpg` in one step; `discard`
@@ -544,6 +547,16 @@ package id changed (`PLAN.md` §12), it only serves an install that shares the o
 app's data directory.
 
 ## Changing the schema
+
+**Every change keeps the backup working** (`backup.md`). The dump covers every table, so
+a new table needs a primary key and every new column a type with a backup form (INTEGER,
+BOOLEAN, TEXT, BLOB, or an instant through `UtcMillisColumnConverter`): a REAL or a Drift
+`dateTime()` column, or a table without a primary key, makes `dumpDatabase` throw, and
+`database_dump_test.dart` dumps every table of the current schema in the gate. A restore
+of an older backup is a tolerant import, not a migration: the rows land in today's
+tables with the SQL defaults for the columns they lack, and a step's data backfill (as
+schema 2's change log, or a step that materializes held records) does not run on them;
+a step whose data the restored rows would need says how a restore gets it.
 
 **Schema 12** adds `goals` and `goal_contributions`. Its step, in one transaction,
 creates both tables and the `goal_contributions(goal_id)` index (only when `sqlite_master`

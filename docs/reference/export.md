@@ -3,7 +3,7 @@
 The monthly report as a PDF whose bytes are the same on any device, and the transactions
 as a CSV, each saved through the system's "Save as" dialog or shared. The decisions are
 in `PLAN.md` §12: "Export" and "6f plan rulings". CSV import is Phase 9's; the encrypted
-backup is Phase 7's.
+backup is `backup.md`'s, handed over through the same file exporter.
 
 Code:
 - `app/lib/features/export/domain/` (pure Dart, integer `Money` only):

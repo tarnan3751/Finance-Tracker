@@ -29,6 +29,7 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
    seeded and the legacy importer runs once. Any failure to open is logged by type and
    `runApp(DatabaseErrorApp(failure: ...))` shows a plain error screen instead of the
    app, with a message for a missing cipher, a wrong key, a lost key, or anything else;
+   for a lost key it also offers "Restore from a backup" (`backup.md`);
 8. the stored session is read (`sessionControllerProvider`'s `restored()`, `auth.md`),
    so the first frame is already signed in or out; then the sync controller starts
    (`sync-app.md`, **The controller**) and, in every flavor, the budget alert watcher is
@@ -41,6 +42,14 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
 11. in dev and prod, after the first frame, `sweepReceipts(container)`: the receipt files
     no live transaction references are deleted (`data.md`, **Receipts**), a failure
     logged by type only.
+
+**Starting again.** `startApp` gives its container `appRestartProvider`, the restart a
+restore runs under (`backup.md`, **Restore**): `runApp` of the plain restoring screen,
+then `stopApp()` (the reminder taps cancelled, the container disposed, and the close its
+`databaseProvider` started awaited through `databaseClosing`, so the files are free),
+then the restore's work with its progress on that screen (a failure shown with a
+Continue button), then `startApp` again with the same configuration and overrides, so
+the app opens the new database exactly as at launch.
 
 `FinanceTrackerApp` (`app.dart`) is a `ConsumerWidget` returning `MaterialApp.router` with
 the router, both themes inside a `DynamicColorBuilder`, the theme mode from settings, the
@@ -104,11 +113,13 @@ the bill statuses and the reminder watcher, which it listens to from the first f
 `localDataOverridesFor(config)`, the flavor and its local data, then `apiOverridesFor`;
 a test that brings its own API, such as the two-device integration test sharing one fake
 server, takes the first alone): the Drift repositories and the Plaid pull's `sync_meta`
-store for dev and prod with the receipt files, the notification plugin's reminder
-scheduler and the platform file exporter, the demo ones for demo with the fake image
-source (and the fake scheduler and exporter), and the API's (`apiOverridesFor`: the in-app fake server, with the fake
-Link launcher over it, for demo, and for dev under `FT_FAKE_SERVER`); later phases add
-theirs there.
+store for dev and prod with the receipt files and the notification plugin's reminder
+scheduler, the demo ones for demo with the fake image source (and the fake scheduler),
+the API's (`apiOverridesFor`: the in-app fake server, with the fake
+Link launcher over it, for demo, and for dev under `FT_FAKE_SERVER`), and the system's
+file dialogs (`filePickerOverridesFor`: the platform file exporter and backup picker in
+dev and prod, the fakes otherwise, so a test on the dev wiring through
+`localDataOverridesFor` keeps the fakes); later phases add theirs there.
 
 ## The image source
 
@@ -168,6 +179,25 @@ riverpod_lint runs as an analyzer plugin declared in the workspace root's
 `analysis_options.yaml` and enabled for the app by including that file from
 `app/analysis_options.yaml`. `dart analyze` reports its diagnostics and `flutter analyze` does
 not, so the gate runs both (`testing-tools.md`).
+
+## The backup picker
+
+`core/platform/backup_picker.dart` is the platform boundary for opening a backup file
+(`backup.md`), pure Dart: a `BackupPicker` has `pick()`, a `PickedFile` for the file the
+user chose (its `length`, its bytes by `read(start, end)`, and `close()`) or null when
+they chose none, so a caller can look at a file's start and refuse it before reading it
+whole; the dialog failing, or a file that cannot be read, is a
+`BackupPickFailedException`.
+
+- **`PlatformBackupPicker`** (`platform_backup_picker.dart`, dev and prod):
+  `flutter_file_dialog`'s `pickFile`, the Storage Access Framework's "open document" (no
+  permission), with no MIME filter (the system does not know `.ftbk`; the header's magic
+  tells a backup from any other file). The plugin copies the file into
+  `<cache>/file_dialog-<uuid>/`; the copy is read in the ranges asked for and its
+  directory deleted on `close`. A platform error is logged by its code alone.
+- **`FakeBackupPicker`** (`fake_backup_picker.dart`, the demo flavor and the tests):
+  answers its `file` (none by default) with an optional `length` to report, throws a
+  set `failure`, records the ranges read and counts the calls and closes.
 
 ## The API client
 
@@ -331,6 +361,7 @@ keeping its own navigation stack.
 | | `NewRuleRoute` | `/settings/rules/new` | `rule_editor_screen.dart` |
 | | `EditRuleRoute` | `/settings/rules/:id` | `rule_editor_screen.dart` |
 | | `ExportRoute` | `/settings/export` | `features/export/presentation/export_screen.dart` (`export.md`): the monthly report as a PDF, the transactions as a CSV |
+| | `BackupRoute` | `/settings/backup` | `features/backup/presentation/backup_screen.dart` (`backup.md`): export a backup, restore one |
 
 - The router opens at `/accounts`, and `/` redirects there (`createRouter` in
   `app_router.dart`; `routerFor(ref, initialLocation:)` builds the flavor's router, which
@@ -339,6 +370,10 @@ keeping its own navigation stack.
   `RegisterRoute` (`/register`) are the auth screens. In dev and prod the router follows
   the session (`refreshListenable`): a signed-out user goes to `/sign-in`, a signed-in one
   on an auth screen to `/accounts` (`auth.md`, **The gate**). The demo flavor has no gate.
+- **The restore offer.** Outside the shell, `RestoreOfferRoute` (`/restore`) is the fresh
+  install's offer (`backup.md`, **Restore**). In dev and prod the router also follows
+  `restoreOfferProvider`: while it is pending a signed-in user is held at `/restore`;
+  once it is answered `/restore` goes to `/accounts`.
 - Navigate with the route classes (`const SettingsRoute().go(context)`,
   `AccountDetailRoute(id).push(context)`), never with path strings. Detail and editor
   routes are sub-routes of their branch, so each tab keeps its own stack. `/accounts/new`
@@ -500,7 +535,7 @@ the only locale.
 | data | `data/drift_settings_repository.dart` | The Drift implementation (dev and prod): one `app_settings` row per field |
 | data | `data/in_memory_settings_repository.dart`, `data/demo_settings_repository.dart` | The in-memory implementation (tests) and the demo one (the demo flavor) |
 | application | `application/settings_controller.dart` | `SettingsController`, following `watch()`; each change reads, changes and saves, and changes run one after another so two issued together both land |
-| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Data (Categories, opening category management, `categories.md`; Rules, `rules.md`; Export, `export.md`), About (app name, version and build, flavor, time zone), Demo data (demo only, `demo_data_section.dart`: the persona the demo shows) and Developer (dev only, `features/developer/presentation/developer_section.dart`: diagnostics, Pull now and the Sandbox controls, `developer.md`); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
+| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color), Data (Categories, opening category management, `categories.md`; Rules, `rules.md`; Export, `export.md`; Backup, `backup.md`, which in the demo flavor only says that the demo's data is not kept or backed up), About (app name, version and build, flavor, time zone), Demo data (demo only, `demo_data_section.dart`: the persona the demo shows) and Developer (dev only, `features/developer/presentation/developer_section.dart`: diagnostics, Pull now and the Sandbox controls, `developer.md`); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
 
 The repository contract is `test/contract/settings_repository_contract.dart`,
 `runSettingsRepositoryContract(create, {dispose})`; the three implementations each run it

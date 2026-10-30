@@ -93,8 +93,12 @@ compare-and-clear and the restore's user write all go through `update`.
 | unknown | stays | stays (`/` goes to `/accounts`) |
 | signed out | stays | `/sign-in` |
 | signed in | `/accounts` | stays (`/` goes to `/accounts`) |
+| signed in, the restore offer pending | `/restore` | `/restore` |
 
-The demo flavor has no gate: it is always the demo user, signed in by its fake server.
+The restore offer is pending on a signed-in install whose database is empty until it is
+answered (`backup.md`, **Restore**), so the first sign-in or registration of a new
+install lands on `/restore` first. The demo flavor has no gate: it is always the demo
+user, signed in by its fake server.
 
 ## Screens
 
