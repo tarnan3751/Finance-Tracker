@@ -7,8 +7,9 @@
 /// (`snapshots_written_on`), the anomaly flags dismissed on this device
 /// (`dismissed_anomalies`), the last week whose summary was announced
 /// (`weekly_summary_raised`), the payoff projections' entries (`payoff_entries`), when
-/// the restore offer was answered (`restore_offer_answered`), and the app lock's settings
-/// (`lock_enabled`, `lock_timeout_seconds`, `secure_screen`).
+/// the restore offer was answered (`restore_offer_answered`), the app lock's settings
+/// (`lock_enabled`, `lock_timeout_seconds`, `secure_screen`), and the language the app is
+/// shown in (`app_language`).
 library;
 
 import 'package:finance_tracker/core/db/app_database.dart';
@@ -75,6 +76,10 @@ abstract final class AppMetaKeys {
   /// Whether "Block screenshots" is on, `true` or `false`; absent until the user chooses,
   /// when the flavor's default holds (`features/lock/`).
   static const String secureScreen = 'secure_screen';
+
+  /// The language the app is shown in on this device, an `AppLanguage` name; absent
+  /// until chosen, when the device's language holds (`features/settings/`).
+  static const String appLanguage = 'app_language';
 }
 
 /// The store over the database's `app_meta` table.

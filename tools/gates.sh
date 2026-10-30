@@ -25,7 +25,13 @@
 #   7. contract   tools/check_contract.sh, once it exists (Phase 2): the OpenAPI document
 #                 passes the structural check and the generated client is current (the
 #                 fakes and the server are checked against it by their own tests)
-#   8. commits    tools/check_commits.sh origin/main: the messages of the commits beyond
+#   8. strings    dart run tools/check_strings.dart: no prose string literal in the app's
+#                 presentation code outside the ARB and tools/check_strings_allowlist.txt,
+#                 every template key described and its placeholders typed, no other locale
+#                 with a key or a placeholder the template lacks, no join of text pieces
+#                 in code, and the pseudo-locale current with the template; prints each
+#                 translated locale's untranslated count, which never fails it
+#   9. commits    tools/check_commits.sh origin/main: the messages of the commits beyond
 #                 origin/main have the shape the map requires, as tools/land_series.sh
 #                 checks at landing; skipped on a detached HEAD (CI's pull request
 #                 checkout), with no origin/main, or outside a git checkout
@@ -223,7 +229,18 @@ else
   report contract ok "no contract checker yet"
 fi
 
-# 8. Commit messages ---------------------------------------------------------------------
+# 8. Strings ----------------------------------------------------------------------------
+if [ -f tools/check_strings.dart ]; then
+  if $DART run tools/check_strings.dart >"$scratch/strings.txt" 2>&1; then
+    report strings ok "$(grep -E 'untranslated|current' "$scratch/strings.txt" | sed 's/^strings: app\/lib\/l10n\///; s/ keys untranslated (shown in English)/ untranslated/' | paste -sd ';' -)"
+  else
+    report strings FAILED "dart run tools/check_strings.dart" "$scratch/strings.txt"
+  fi
+else
+  report strings ok "no strings checker yet"
+fi
+
+# 9. Commit messages ---------------------------------------------------------------------
 if ! git symbolic-ref -q HEAD >/dev/null 2>&1 || ! git rev-parse -q --verify origin/main >/dev/null; then
   report commits ok "skipped: detached HEAD, no origin/main or no git checkout"
 elif [ "$(git rev-list --count origin/main..HEAD)" -eq 0 ]; then

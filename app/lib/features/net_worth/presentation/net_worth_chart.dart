@@ -10,6 +10,7 @@
 /// tooltip and the summary format the point's own `Money`.
 library;
 
+import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/features/net_worth/domain/net_worth_series.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -82,7 +83,7 @@ class NetWorthChart extends StatelessWidget {
     ];
     final NetWorthPoint first = points.first;
     final NetWorthPoint last = points.last;
-    final String summary = [
+    final String summary = sentenceLine(l10n, [
       l10n.netWorthChartSummary(
         date.format(first.date.toDateTime()),
         date.format(last.date.toDateTime()),
@@ -95,7 +96,7 @@ class NetWorthChart extends StatelessWidget {
         l10n.netWorthChartEstimated(
           date.format(points[join].date.toDateTime()),
         ),
-    ].join(' ');
+    ]);
     return Semantics(
       container: true,
       label: summary,

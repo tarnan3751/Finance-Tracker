@@ -1,7 +1,9 @@
 /// The root widget: `MaterialApp.router` with the router, the light and dark themes (from
 /// the device's dynamic colors when it has them and the setting is on), the theme mode
-/// from settings, the localizations, the flavor banner in dev and demo, and above them
-/// all the app lock's gate (`features/lock/presentation/lock_gate.dart`).
+/// from settings, the localizations in the language chosen on this device (the device's
+/// own unless English or, in dev and demo only, the pseudo-locale is chosen), the flavor
+/// banner in dev and demo, and above them all the app lock's gate
+/// (`features/lock/presentation/lock_gate.dart`).
 library;
 
 import 'package:dynamic_color/dynamic_color.dart';
@@ -11,7 +13,9 @@ import 'package:finance_tracker/core/router/app_router.dart';
 import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/widgets/flavor_banner.dart';
 import 'package:finance_tracker/features/lock/presentation/lock_gate.dart';
+import 'package:finance_tracker/features/settings/application/app_language_controller.dart';
 import 'package:finance_tracker/features/settings/application/settings_controller.dart';
+import 'package:finance_tracker/features/settings/domain/app_language.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +33,11 @@ class FinanceTrackerApp extends ConsumerWidget {
         ref.watch(settingsControllerProvider).value ??
         const Settings.defaults();
     final router = ref.watch(goRouterProvider);
+    // The pseudo-locale is a developer's check, never offered in prod.
+    final bool pseudoAllowed = config.flavor != Flavor.prod;
+    final AppLanguage language = pseudoAllowed
+        ? ref.watch(appLanguageControllerProvider).value ?? AppLanguage.system
+        : AppLanguage.system;
 
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) {
@@ -50,7 +59,15 @@ class FinanceTrackerApp extends ConsumerWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: AppLocalizations.supportedLocales,
+          supportedLocales: [
+            for (final Locale locale in AppLocalizations.supportedLocales)
+              if (pseudoAllowed || locale != pseudoLocale) locale,
+          ],
+          locale: switch (language) {
+            AppLanguage.system => null,
+            AppLanguage.english => const Locale('en'),
+            AppLanguage.pseudo => pseudoLocale,
+          },
           routerConfig: router,
           // The lock's gate sits above the router, so the lock screen covers every
           // route and dialog.
@@ -74,3 +91,6 @@ ThemeMode _themeMode(AppThemeMode mode) => switch (mode) {
   AppThemeMode.light => ThemeMode.light,
   AppThemeMode.dark => ThemeMode.dark,
 };
+
+/// The pseudo-locale (`tools/pseudo_locale.dart`): Android's own name for it.
+const Locale pseudoLocale = Locale('en', 'XA');

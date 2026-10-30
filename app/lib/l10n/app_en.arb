@@ -566,6 +566,26 @@
   "@settingsDynamicColorSubtitle": {
     "description": "Explanation under the dynamic color switch."
   },
+  "settingsLanguage": "Language",
+  "@settingsLanguage": {
+    "description": "In Settings → Appearance (development and demo builds only), the title of the choice of the language the app is shown in."
+  },
+  "settingsLanguageSubtitle": "Pseudo lengthens and brackets every string, to find text that would not fit a translation",
+  "@settingsLanguageSubtitle": {
+    "description": "Under the Language choice in Settings (development and demo builds only): what the pseudo-language is for."
+  },
+  "languageSystem": "System",
+  "@languageSystem": {
+    "description": "The Language choice that shows the app in the device's language."
+  },
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "The Language choice that shows the app in English. The name of the language in itself, not translated."
+  },
+  "languagePseudo": "Pseudo",
+  "@languagePseudo": {
+    "description": "The Language choice that shows the app in the pseudo-language, every string lengthened and bracketed to check layouts."
+  },
   "settingsAbout": "About",
   "@settingsAbout": {
     "description": "Heading of the settings section with the app's name, version, flavor and time zone."
@@ -643,6 +663,34 @@
   "loadFailed": "Something went wrong loading this. Try again later.",
   "@loadFailed": {
     "description": "Shown in place of a list when its data could not be read."
+  },
+  "sentencePair": "{first} {second}",
+  "@sentencePair": {
+    "description": "Two sentences shown one after the other in one paragraph.",
+    "placeholders": {
+      "first": {
+        "type": "String",
+        "example": "Nothing leaves this device."
+      },
+      "second": {
+        "type": "String",
+        "example": "The demo's data is made up."
+      }
+    }
+  },
+  "listPair": "{first}, {second}",
+  "@listPair": {
+    "description": "Two items of a list on one line, such as two account names; a longer list repeats it, the first item being the list so far.",
+    "placeholders": {
+      "first": {
+        "type": "String",
+        "example": "Everyday Checking"
+      },
+      "second": {
+        "type": "String",
+        "example": "Savings"
+      }
+    }
   },
   "captionPair": "{first} · {second}",
   "@captionPair": {
@@ -4334,6 +4382,20 @@
   "@forecastTitle": {
     "description": "Title of the forecast screen."
   },
+  "forecastEventAmount": "{name} {amount}",
+  "@forecastEventAmount": {
+    "description": "A bill or stream in the forecast's table with its amount, such as Rent $1,500.00.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Rent"
+      },
+      "amount": {
+        "type": "String",
+        "example": "$1,500.00"
+      }
+    }
+  },
   "forecastHorizon": "{days} days",
   "@forecastHorizon": {
     "description": "A segment of the forecast's horizon control.",
@@ -5774,7 +5836,7 @@
   "@backupConfirmTitle": {
     "description": "Title of the dialog confirming a restore."
   },
-  "backupConfirmBody": "Made {date} by version {version}: {records} records and {receipts} receipt photos.",
+  "backupConfirmBody": "Made {date} by version {version}: {records, plural, =1{1 record} other{{records} records}} and {receipts, plural, =1{1 receipt photo} other{{receipts} receipt photos}}.",
   "@backupConfirmBody": {
     "description": "What the backup about to be restored holds.",
     "placeholders": {

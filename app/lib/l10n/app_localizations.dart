@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
+import 'app_localizations_es.dart';
 
 // ignore_for_file: type=lint
 
@@ -92,7 +93,11 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('en', 'XA'),
+    Locale('es'),
+  ];
 
   /// Label of the Accounts tab in the bottom navigation bar, and the title of the Accounts screen.
   ///
@@ -638,6 +643,36 @@ abstract class AppLocalizations {
   /// **'Use colors from your wallpaper when the device provides them'**
   String get settingsDynamicColorSubtitle;
 
+  /// In Settings → Appearance (development and demo builds only), the title of the choice of the language the app is shown in.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguage;
+
+  /// Under the Language choice in Settings (development and demo builds only): what the pseudo-language is for.
+  ///
+  /// In en, this message translates to:
+  /// **'Pseudo lengthens and brackets every string, to find text that would not fit a translation'**
+  String get settingsLanguageSubtitle;
+
+  /// The Language choice that shows the app in the device's language.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get languageSystem;
+
+  /// The Language choice that shows the app in English. The name of the language in itself, not translated.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// The Language choice that shows the app in the pseudo-language, every string lengthened and bracketed to check layouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Pseudo'**
+  String get languagePseudo;
+
   /// Heading of the settings section with the app's name, version, flavor and time zone.
   ///
   /// In en, this message translates to:
@@ -739,6 +774,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong loading this. Try again later.'**
   String get loadFailed;
+
+  /// Two sentences shown one after the other in one paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} {second}'**
+  String sentencePair(String first, String second);
+
+  /// Two items of a list on one line, such as two account names; a longer list repeats it, the first item being the list so far.
+  ///
+  /// In en, this message translates to:
+  /// **'{first}, {second}'**
+  String listPair(String first, String second);
 
   /// Two pieces of information on one caption line, such as an account name and a category name.
   ///
@@ -4720,6 +4767,12 @@ abstract class AppLocalizations {
   /// **'Forecast'**
   String get forecastTitle;
 
+  /// A bill or stream in the forecast's table with its amount, such as Rent $1,500.00.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} {amount}'**
+  String forecastEventAmount(String name, String amount);
+
   /// A segment of the forecast's horizon control.
   ///
   /// In en, this message translates to:
@@ -6099,7 +6152,7 @@ abstract class AppLocalizations {
   /// What the backup about to be restored holds.
   ///
   /// In en, this message translates to:
-  /// **'Made {date} by version {version}: {records} records and {receipts} receipt photos.'**
+  /// **'Made {date} by version {version}: {records, plural, =1{1 record} other{{records} records}} and {receipts, plural, =1{1 receipt photo} other{{receipts} receipt photos}}.'**
   String backupConfirmBody(
     String date,
     String version,
@@ -6695,17 +6748,31 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en'].contains(locale.languageCode);
+      <String>['en', 'es'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when language+country codes are specified.
+  switch (locale.languageCode) {
+    case 'en':
+      {
+        switch (locale.countryCode) {
+          case 'XA':
+            return AppLocalizationsEnXa();
+        }
+        break;
+      }
+  }
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();
+    case 'es':
+      return AppLocalizationsEs();
   }
 
   throw FlutterError(

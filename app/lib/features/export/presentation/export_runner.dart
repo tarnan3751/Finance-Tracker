@@ -128,7 +128,10 @@ class ExportPrivacyNote extends StatelessWidget {
           Expanded(
             child: Text(
               demo
-                  ? '${l10n.exportPrivacyNote} ${l10n.exportDemoNote}'
+                  ? l10n.sentencePair(
+                      l10n.exportPrivacyNote,
+                      l10n.exportDemoNote,
+                    )
                   : l10n.exportPrivacyNote,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,

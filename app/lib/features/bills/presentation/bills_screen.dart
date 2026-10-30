@@ -14,6 +14,7 @@ library;
 
 import 'dart:async';
 
+import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/plan_scaffold.dart';
 import 'package:finance_tracker/core/router/routes.dart';
@@ -615,7 +616,7 @@ class _BillCalendarState extends ConsumerState<_BillCalendar> {
           label: l10n.billsCalendarDay(
             DateFormat.MMMd().format(d.toDateTime()),
             byDay[d]?.length ?? 0,
-            (byDay[d] ?? const <BillReminder>[]).map(nameOf).join(', '),
+            listLine(l10n, (byDay[d] ?? const <BillReminder>[]).map(nameOf)),
           ),
           onTap: () => setState(() => _day = d),
         ),

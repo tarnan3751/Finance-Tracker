@@ -1,0 +1,8 @@
+# String literals in the app's presentation code that tools/check_strings.dart lets
+# through although they read as prose: one per line as `path|literal`, each under a
+# comment saying why it is not in the ARB; a literal that is or ends in a space is
+# JSON-quoted (`path|" "`). An entry allows every occurrence of its literal in its file,
+# so a join goes in a file of its own. Lines starting with # are comments.
+# titleCase joins the words of a security type Plaid names in English (`mutual_fund`),
+# shown only when the app has no translated name for it.
+app/lib/core/l10n/title_case.dart|" "

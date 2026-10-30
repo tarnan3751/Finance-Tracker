@@ -10,6 +10,7 @@
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
@@ -161,10 +162,10 @@ class _ConflictCardState extends ConsumerState<_ConflictCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              c.entityLabel == null ? kind : '$kind · ${c.entityLabel}',
-              style: theme.textTheme.titleMedium,
-            ),
+            Text(switch (c.entityLabel) {
+              final String label => l10n.captionPair(kind, label),
+              null => kind,
+            }, style: theme.textTheme.titleMedium),
             Text(
               fieldName,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -249,7 +250,9 @@ String conflictValueText(
     splits.length,
   ),
   final List<Object?> list =>
-    list.isEmpty ? l10n.conflictNoValue : list.join(', '),
+    list.isEmpty
+        ? l10n.conflictNoValue
+        : listLine(l10n, [for (final Object? item in list) '$item']),
   _ => '$value',
 };
 

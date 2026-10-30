@@ -50,6 +50,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -76,8 +77,10 @@ Future<void> bootstrap(AppConfig config) async {
   setUpLogging(config.flavor);
   forwardUncaughtErrors();
   await setUpTimeZones();
-  // intl's default locale is en_US until set; Money.format and Money.parse use it.
+  // intl's default locale is en_US until set; Money.format and Money.parse use it. Its
+  // date symbols are loaded for every locale, since a device's need not be English.
   Intl.defaultLocale = deviceLocale();
+  await initializeDateFormatting();
   await startApp(config);
 }
 

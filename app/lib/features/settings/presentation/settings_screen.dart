@@ -1,6 +1,7 @@
 /// The Settings tab: Account (`features/auth/presentation/account_section.dart`), Sync
 /// (when this build's data syncs: dev and prod, `sync_section.dart`), Appearance (theme
-/// mode, dynamic color), Security (the app lock and screenshot blocking,
+/// mode, dynamic color, and in dev and demo the language: System, English or Pseudo),
+/// Security (the app lock and screenshot blocking,
 /// `features/lock/presentation/security_section.dart`), Data (category management, rules,
 /// export, backup; in the demo flavor the Backup entry says the demo's data is not backed
 /// up) and About (app name, version and build, flavor, the time zone dates are computed
@@ -17,8 +18,10 @@ import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/features/auth/presentation/account_section.dart';
 import 'package:finance_tracker/features/developer/presentation/developer_section.dart';
 import 'package:finance_tracker/features/lock/presentation/security_section.dart';
+import 'package:finance_tracker/features/settings/application/app_language_controller.dart';
 import 'package:finance_tracker/features/settings/application/package_info.dart';
 import 'package:finance_tracker/features/settings/application/settings_controller.dart';
+import 'package:finance_tracker/features/settings/domain/app_language.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
 import 'package:finance_tracker/features/settings/presentation/demo_data_section.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
@@ -88,6 +91,8 @@ class SettingsScreen extends ConsumerWidget {
               onChanged: controller.setUseDynamicColor,
             ),
           ],
+          if (ref.watch(appConfigProvider).flavor != Flavor.prod)
+            const _LanguageTile(),
           const SecuritySection(),
           SettingsSectionHeader(l10n.settingsData),
           ListTile(
@@ -142,6 +147,50 @@ class SettingsScreen extends ConsumerWidget {
             const DemoDataSection(),
           if (ref.watch(appConfigProvider).flavor == Flavor.dev)
             const DeveloperSection(),
+        ],
+      ),
+    );
+  }
+}
+
+/// The language the app is shown in on this device (dev and demo only).
+class _LanguageTile extends ConsumerWidget {
+  const _LanguageTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final AppLanguage? language = ref
+        .watch(appLanguageControllerProvider)
+        .value;
+    if (language == null) return const SizedBox.shrink();
+    return ListTile(
+      title: Text(l10n.settingsLanguage),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.settingsLanguageSubtitle),
+          const SizedBox(height: 8),
+          SegmentedButton<AppLanguage>(
+            segments: [
+              ButtonSegment(
+                value: AppLanguage.system,
+                label: Text(l10n.languageSystem),
+              ),
+              ButtonSegment(
+                value: AppLanguage.english,
+                label: Text(l10n.languageEnglish),
+              ),
+              ButtonSegment(
+                value: AppLanguage.pseudo,
+                label: Text(l10n.languagePseudo),
+              ),
+            ],
+            selected: {language},
+            onSelectionChanged: (selection) => ref
+                .read(appLanguageControllerProvider.notifier)
+                .set(selection.single),
+          ),
         ],
       ),
     );

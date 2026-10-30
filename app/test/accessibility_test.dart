@@ -2,7 +2,9 @@
 // and 2: tap targets are large enough and labelled, text has enough contrast, and nothing
 // overflows at twice the text size. The large-screen layouts are checked the same way:
 // the list beside its detail on an expanded window (accounts, transactions, bills,
-// settings), the rail on a medium one, and the panes split on a foldable's fold. The
+// settings), the rail on a medium one, and the panes split on a foldable's fold. Every
+// screen that opens without a tap also lays out without overflow in the pseudo-locale
+// (in the demo flavor, which offers it), its strings lengthened by 40 percent. The
 // shell's tabs, the linked banks and the conflicts are checked empty (the conflicts also
 // with one, on the seed's Starbucks transaction); every screen is also checked on the
 // demo seed (two accounts, twelve transactions, the system categories, two
@@ -25,6 +27,8 @@
 import 'dart:io';
 import 'dart:ui' show DisplayFeature, DisplayFeatureState, DisplayFeatureType;
 
+import 'package:finance_tracker/app.dart';
+import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/fake_image_source.dart';
@@ -37,6 +41,7 @@ import 'package:finance_tracker/features/conflicts/data/in_memory_conflict_store
 import 'package:finance_tracker/features/conflicts/domain/sync_conflict.dart';
 import 'package:finance_tracker/features/lock/application/device_auth_provider.dart';
 import 'package:finance_tracker/features/lock/data/fake_device_auth.dart';
+import 'package:finance_tracker/features/settings/domain/app_language.dart';
 import 'package:finance_tracker/features/transactions/presentation/receipt_view.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_tile.dart';
 import 'package:flutter/material.dart';
@@ -466,6 +471,11 @@ _investmentsViews = {
 InMemoryAppMetaStore _lockedMeta() =>
     InMemoryAppMetaStore()..write(AppMetaKeys.lockEnabled, 'true');
 
+/// The app_meta of a device showing the pseudo-locale.
+InMemoryAppMetaStore _pseudoMeta() =>
+    InMemoryAppMetaStore()
+      ..write(AppMetaKeys.appLanguage, AppLanguage.pseudo.name);
+
 /// The lock's views: where each opens, its overrides, and what to do after it opens.
 final Map<
   String,
@@ -806,6 +816,28 @@ void main() {
           }
         });
       }
+    }
+
+    if (screen.open == null) {
+      testWidgets('$name lays out in the pseudo-locale without overflow', (
+        tester,
+      ) async {
+        await pumpApp(
+          tester,
+          config: AppConfig.demo(),
+          initialLocation: screen.location,
+          overrides: [
+            ..._overrides(screen),
+            appMetaStoreProvider.overrideWithValue(_pseudoMeta()),
+          ],
+        );
+
+        expect(tester.takeException(), isNull);
+        expect(
+          Localizations.localeOf(tester.element(find.byType(Scaffold).last)),
+          pseudoLocale,
+        );
+      });
     }
 
     testWidgets('$name lays out at text scale 2.0 without overflow', (

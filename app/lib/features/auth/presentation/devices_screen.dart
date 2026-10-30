@@ -117,7 +117,9 @@ class _DeviceTile extends ConsumerWidget {
     return ListTile(
       leading: Icon(current ? Icons.smartphone : Icons.devices_outlined),
       title: Text(device.name),
-      subtitle: Text(current ? '${l10n.devicesThisDevice} · $seen' : seen),
+      subtitle: Text(
+        current ? l10n.captionPair(l10n.devicesThisDevice, seen) : seen,
+      ),
       trailing: PopupMenuButton<void>(
         tooltip: l10n.devicesActions(device.name),
         itemBuilder: (_) => [

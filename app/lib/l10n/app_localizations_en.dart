@@ -364,6 +364,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Use colors from your wallpaper when the device provides them';
 
   @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsLanguageSubtitle =>
+      'Pseudo lengthens and brackets every string, to find text that would not fit a translation';
+
+  @override
+  String get languageSystem => 'System';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languagePseudo => 'Pseudo';
+
+  @override
   String get settingsAbout => 'About';
 
   @override
@@ -420,6 +436,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get loadFailed =>
       'Something went wrong loading this. Try again later.';
+
+  @override
+  String sentencePair(String first, String second) {
+    return '$first $second';
+  }
+
+  @override
+  String listPair(String first, String second) {
+    return '$first, $second';
+  }
 
   @override
   String captionPair(String first, String second) {
@@ -3103,6 +3129,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forecastTitle => 'Forecast';
 
   @override
+  String forecastEventAmount(String name, String amount) {
+    return '$name $amount';
+  }
+
+  @override
   String forecastHorizon(int days) {
     return '$days days';
   }
@@ -3987,7 +4018,19 @@ class AppLocalizationsEn extends AppLocalizations {
     int records,
     int receipts,
   ) {
-    return 'Made $date by version $version: $records records and $receipts receipt photos.';
+    String _temp0 = intl.Intl.pluralLogic(
+      records,
+      locale: localeName,
+      other: '$records records',
+      one: '1 record',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      receipts,
+      locale: localeName,
+      other: '$receipts receipt photos',
+      one: '1 receipt photo',
+    );
+    return 'Made $date by version $version: $_temp0 and $_temp1.';
   }
 
   @override
@@ -4397,4 +4440,4534 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get conflictPhotoGone => 'This photo is no longer on this device';
+}
+
+/// The translations for English (`en_XA`).
+class AppLocalizationsEnXa extends AppLocalizationsEn {
+  AppLocalizationsEnXa() : super('en_XA');
+
+  @override
+  String get navAccounts => '[Åççöûñţš ~~~~]';
+
+  @override
+  String get navTransactions => '[Ţŕåñšåçţîöñš ~~~~~]';
+
+  @override
+  String get navPlan => '[Þļåñ ~~]';
+
+  @override
+  String get planBudgets => '[Ɓûðĝéţš ~~~]';
+
+  @override
+  String get planBills => '[Ɓîļļš ~~]';
+
+  @override
+  String get planForecast => '[Ƒöŕéçåšţ ~~~~]';
+
+  @override
+  String get navInsights => '[Îñšîĝĥţš ~~~~]';
+
+  @override
+  String get insightsReports => '[Ŕéþöŕţš ~~~]';
+
+  @override
+  String get insightsNetWorth => '[Ñéţ ŵöŕţĥ ~~~~]';
+
+  @override
+  String get insightsInvestments => '[Îñṽéšţɱéñţš ~~~~~]';
+
+  @override
+  String get insightsGoals => '[Ĝöåļš ~~]';
+
+  @override
+  String get insightsComingHeadline => '[Çöɱîñĝ šööñ ~~~~]';
+
+  @override
+  String get insightsComingBody =>
+      '[Ţĥîš þåŕţ öƒ Îñšîĝĥţš îš öñ îţš ŵåý. ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String reportsPercent(int percent) {
+    return '[$percent %]';
+  }
+
+  @override
+  String reportsPercentUp(int percent) {
+    return '[+$percent %]';
+  }
+
+  @override
+  String reportsChange(String amount, String percent) {
+    return '[$amount ($percent)]';
+  }
+
+  @override
+  String reportsChangeNew(String amount) {
+    return '[$amount (ñéŵ) ~~]';
+  }
+
+  @override
+  String get reportsShowTables => '[Ţåƀļéš ~~~]';
+
+  @override
+  String get reportsShowCharts => '[Çĥåŕţš ~~~]';
+
+  @override
+  String get reportsSpending => '[Šþéñðîñĝ ~~~~]';
+
+  @override
+  String get reportsIncome => '[Îñçöɱé ~~~]';
+
+  @override
+  String reportsSpendingAmount(String amount) {
+    return '[Šþéñţ $amount ~~]';
+  }
+
+  @override
+  String reportsIncomeAmount(String amount) {
+    return '[Îñçöɱé $amount ~~~]';
+  }
+
+  @override
+  String reportsNetAmount(String amount) {
+    return '[Ñéţ $amount ~~]';
+  }
+
+  @override
+  String get reportsNoIncome => '[Ñö îñçöɱé îñ ţĥîš þéŕîöð ~~~~~ ~~~]';
+
+  @override
+  String reportsSavingsRate(String percent) {
+    return '[Ķéþţ $percent öƒ îñçöɱé ~~~~~]';
+  }
+
+  @override
+  String get reportsVsPrevious => '[Åĝåîñšţ ţĥé þéŕîöð ƀéƒöŕé ~~~~~ ~~~~]';
+
+  @override
+  String get reportsVsYearAgo => '[Åĝåîñšţ å ýéåŕ ƀéƒöŕé ~~~~~ ~~~]';
+
+  @override
+  String reportsSpendingChange(String change) {
+    return '[Šþéñðîñĝ $change ~~~~]';
+  }
+
+  @override
+  String reportsIncomeChange(String change) {
+    return '[Îñçöɱé $change ~~~]';
+  }
+
+  @override
+  String reportsSameElapsed(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days ðåýš ~~',
+      one: 'ðåý ~~',
+    );
+    return '[Çöɱþåŕéð öṽéŕ ţĥé ƒîŕšţ $_temp0 öƒ éåçĥ þéŕîöð ~~~~~ ~~~~~ ~~~]';
+  }
+
+  @override
+  String get reportsByCategory => '[Ɓý çåţéĝöŕý ~~~~]';
+
+  @override
+  String get reportsAllCategories => '[Åļļ çåţéĝöŕîéš ~~~~~ ~]';
+
+  @override
+  String reportsGroupOwn(String name) {
+    return '[$name îţšéļƒ ~~~]';
+  }
+
+  @override
+  String get reportsNothingInPeriod => '[Ñöţĥîñĝ îñ ţĥîš þéŕîöð. ~~~~~ ~~~]';
+
+  @override
+  String reportsDonutSummary(
+    String scope,
+    String total,
+    String name,
+    String amount,
+  ) {
+    return '[$scope ƀý çåţéĝöŕý: $total îñ åļļ. Ţĥé ļåŕĝéšţ îš $name, $amount. ~~~~~ ~~~~~ ~]';
+  }
+
+  @override
+  String reportsCategoryRow(String name, String amount, String share) {
+    return '[$name: $amount, $share öƒ ţĥé ţöţåļ ~~~~]';
+  }
+
+  @override
+  String get reportsIncomeAndSpending => '[Îñçöɱé åñð šþéñðîñĝ ~~~~~ ~~]';
+
+  @override
+  String reportsBarsSummary(int count, String income, String spending) {
+    return '[Îñçöɱé åñð šþéñðîñĝ öṽéŕ ţĥé ļåšţ $count þéŕîöðš. Ţĥîš þéŕîöð: îñçöɱé $income, šþéñðîñĝ $spending. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+  }
+
+  @override
+  String reportsTrend(int count) {
+    return '[Ţŕéñð öṽéŕ $count þéŕîöðš ~~~~~ ~~]';
+  }
+
+  @override
+  String reportsTrendSummary(
+    int count,
+    String fromSpending,
+    String toSpending,
+    String fromIncome,
+    String toIncome,
+  ) {
+    return '[Öṽéŕ ţĥé ļåšţ $count þéŕîöðš, šþéñðîñĝ ŵéñţ ƒŕöɱ $fromSpending ţö $toSpending åñð îñçöɱé ƒŕöɱ $fromIncome ţö $toIncome. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+  }
+
+  @override
+  String reportsPeriodRow(
+    String period,
+    String income,
+    String spending,
+    String net,
+  ) {
+    return '[$period: îñçöɱé $income, šþéñðîñĝ $spending, ñéţ $net ~~~~~ ~~]';
+  }
+
+  @override
+  String get reportsTopMerchants => '[Ţöþ ɱéŕçĥåñţš ~~~~~]';
+
+  @override
+  String reportsMerchantCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count þûŕçĥåšéš ~~~~',
+      one: '1 þûŕçĥåšé ~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get reportsTopMovers => '[Ţöþ ɱöṽéŕš ~~~~]';
+
+  @override
+  String get reportsMoversCategories => '[Çåţéĝöŕîéš ~~~~]';
+
+  @override
+  String get reportsMoversMerchants => '[Ṁéŕçĥåñţš ~~~~]';
+
+  @override
+  String get reportsNoMovers =>
+      '[Ñöţĥîñĝ çĥåñĝéð ƒŕöɱ ţĥé þéŕîöð ƀéƒöŕé. ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String reportsMoverAmounts(String before, String now) {
+    return '[$before ƀéƒöŕé, $now ñöŵ ~~~~]';
+  }
+
+  @override
+  String get anomaliesTitle => '[Ŵöŕţĥ å ļööķ ~~~~]';
+
+  @override
+  String get anomaliesNone =>
+      '[Ñöţĥîñĝ šţåñðš öûţ îñ ţĥîš þéŕîöð. ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String anomalyUsualMerchant(String amount) {
+    return '[Ûšûåļļý åƀöûţ $amount ĥéŕé ~~~~~ ~~]';
+  }
+
+  @override
+  String anomalyUsualCategory(String amount) {
+    return '[Ûšûåļļý åƀöûţ $amount îñ ţĥîš çåţéĝöŕý ~~~~~ ~~~~~ ~]';
+  }
+
+  @override
+  String get anomalyNewMerchant =>
+      '[Ñéŵ: ñöţ šééñ îñ ţĥé ļåšţ šîẋ ɱöñţĥš ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get anomalyDismissed =>
+      '[Ðîšɱîššéð. Îţ ŵöñ\'ţ ƀé ƒļåĝĝéð åĝåîñ öñ ţĥîš ðéṽîçé. ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String anomalyDismissTooltip(String name) {
+    return '[Ðîšɱîšš $name ~~~]';
+  }
+
+  @override
+  String get reportsWeeklySummary => '[Ŵééķļý šûɱɱåŕý ~~~~~ ~]';
+
+  @override
+  String get weeklyTitle => '[Ŵééķļý šûɱɱåŕý ~~~~~ ~]';
+
+  @override
+  String weeklyRange(String start, String end) {
+    return '[$start – $end]';
+  }
+
+  @override
+  String weeklyLastWeek(String range) {
+    return '[Ļåšţ ŵééķ, $range ~~~~]';
+  }
+
+  @override
+  String get weeklyThisWeek => '[Ţĥîš ŵééķ šö ƒåŕ ~~~~~ ~]';
+
+  @override
+  String get weeklyTopCategories => '[Šþéñţ ɱöšţ öñ ~~~~~]';
+
+  @override
+  String weeklyCategoryLine(String name, String amount) {
+    return '[$name: $amount]';
+  }
+
+  @override
+  String weeklyTopMerchant(String name, String amount) {
+    return '[Šþéñţ ɱöšţ åţ $name: $amount ~~~~~]';
+  }
+
+  @override
+  String get weeklyNoSpending => '[Ñö šþéñðîñĝ ţĥîš ŵééķ. ~~~~~ ~~~]';
+
+  @override
+  String get weeklyBillsNextWeek => '[Ɓîļļš ðûé ñéẋţ ŵééķ ~~~~~ ~~]';
+
+  @override
+  String get weeklyNoBills => '[Ñö ƀîļļš ðûé ñéẋţ ŵééķ. ~~~~~ ~~~]';
+
+  @override
+  String get weeklyBudgets => '[Ɓûðĝéţš ~~~]';
+
+  @override
+  String get weeklyNoBudgets => '[Ñö ƀûðĝéţš ýéţ. ~~~~~]';
+
+  @override
+  String weeklyBudgetLeft(String spent, String available, String left) {
+    return '[$spent öƒ $available šþéñţ, $left ļéƒţ ~~~~~]';
+  }
+
+  @override
+  String weeklyBudgetOver(String spent, String available, String over) {
+    return '[$spent öƒ $available šþéñţ, öṽéŕ ƀý $over ~~~~~ ~]';
+  }
+
+  @override
+  String get alertWeeklySummary => '[Ýöûŕ ŵééķļý šûɱɱåŕý îš ŕéåðý ~~~~~ ~~~~~]';
+
+  @override
+  String get navSettings => '[Šéţţîñĝš ~~~~]';
+
+  @override
+  String get paneAccountsEmpty =>
+      '[Çĥööšé åñ åççöûñţ ţö šéé îţ ĥéŕé ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get paneTransactionsEmpty =>
+      '[Çĥööšé å ţŕåñšåçţîöñ ţö šéé îţ ĥéŕé ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get paneBillsEmpty => '[Çĥööšé å ƀîļļ ţö éðîţ îţ ĥéŕé ~~~~~ ~~~~~]';
+
+  @override
+  String get paneSettingsEmpty =>
+      '[Çĥööšé å šéţţîñĝ ţö öþéñ îţ ĥéŕé ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get accountsEmptyHeadline => '[Ñö åççöûñţš ýéţ ~~~~~ ~]';
+
+  @override
+  String get accountsEmptyBody =>
+      '[Åççöûñţš ýöû åðð öŕ çöññéçţ ŵîļļ åþþéåŕ ĥéŕé. ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get transactionsEmptyHeadline => '[Ñö ţŕåñšåçţîöñš ýéţ ~~~~~ ~~]';
+
+  @override
+  String get transactionsEmptyBody =>
+      '[Ţŕåñšåçţîöñš ýöû åðð öŕ šýñç ŵîļļ åþþéåŕ ĥéŕé. ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get settingsAppearance => '[Åþþéåŕåñçé ~~~~]';
+
+  @override
+  String get settingsThemeMode => '[Ţĥéɱé ~~]';
+
+  @override
+  String get themeModeSystem => '[Šýšţéɱ ~~~]';
+
+  @override
+  String get themeModeLight => '[Ļîĝĥţ ~~]';
+
+  @override
+  String get themeModeDark => '[Ðåŕķ ~~]';
+
+  @override
+  String get settingsDynamicColor => '[Ðýñåɱîç çöļöŕ ~~~~~]';
+
+  @override
+  String get settingsDynamicColorSubtitle =>
+      '[Ûšé çöļöŕš ƒŕöɱ ýöûŕ ŵåļļþåþéŕ ŵĥéñ ţĥé ðéṽîçé þŕöṽîðéš ţĥéɱ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get settingsLanguage => '[Ļåñĝûåĝé ~~~~]';
+
+  @override
+  String get settingsLanguageSubtitle =>
+      '[Þšéûðö ļéñĝţĥéñš åñð ƀŕåçķéţš éṽéŕý šţŕîñĝ, ţö ƒîñð ţéẋţ ţĥåţ ŵöûļð ñöţ ƒîţ å ţŕåñšļåţîöñ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get languageSystem => '[Šýšţéɱ ~~~]';
+
+  @override
+  String get languageEnglish => '[Éñĝļîšĥ ~~~]';
+
+  @override
+  String get languagePseudo => '[Þšéûðö ~~~]';
+
+  @override
+  String get settingsAbout => '[Åƀöûţ ~~]';
+
+  @override
+  String get aboutAppName => '[Åþþ ~~]';
+
+  @override
+  String get aboutVersion => '[Ṽéŕšîöñ ~~~]';
+
+  @override
+  String aboutVersionValue(String version, String buildNumber) {
+    return '[$version (ƀûîļð $buildNumber) ~~]';
+  }
+
+  @override
+  String get aboutFlavor => '[Ƒļåṽöŕ ~~~]';
+
+  @override
+  String get aboutTimeZone => '[Ţîɱé žöñé ~~~~]';
+
+  @override
+  String get databaseErrorTitle => '[Ýöûŕ ðåţå çåñ\'ţ ƀé öþéñéð ~~~~~ ~~~]';
+
+  @override
+  String get databaseErrorBody =>
+      '[Ƒîñåñçé Ţŕåçķéŕ çöûļð ñöţ öþéñ îţš ðåţå öñ ţĥîš ðéṽîçé. Ñöţĥîñĝ ĥåš ƀééñ ðéļéţéð. Çļöšé ţĥé åþþ åñð öþéñ îţ åĝåîñ; îƒ ţĥîš ķééþš ĥåþþéñîñĝ, ýöûŕ ðåţå çåññöţ ƀé ŕéåð öñ ţĥîš ðéṽîçé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get databaseErrorKeyLost =>
+      '[Ţĥé ķéý ţĥåţ ûñļöçķš ýöûŕ ðåţå öñ ţĥîš ðéṽîçé îš ɱîššîñĝ öŕ ûñŕéåðåƀļé, šö ýöûŕ ðåţå çåññöţ ƀé öþéñéð. Ñöţĥîñĝ ĥåš ƀééñ ðéļéţéð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get databaseErrorKeyMismatch =>
+      '[Ýöûŕ ðåţå öñ ţĥîš ðéṽîçé ðöéš ñöţ öþéñ ŵîţĥ îţš ķéý. Ñöţĥîñĝ ĥåš ƀééñ ðéļéţéð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get databaseErrorNoEncryption =>
+      '[Ţĥîš ṽéŕšîöñ öƒ Ƒîñåñçé Ţŕåçķéŕ çåññöţ éñçŕýþţ ðåţå, šö îţ ŵîļļ ñöţ öþéñ ýöûŕš. Ñöţĥîñĝ ĥåš ƀééñ ðéļéţéð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get save => '[Šåṽé ~~]';
+
+  @override
+  String get cancel => '[Çåñçéļ ~~~]';
+
+  @override
+  String get delete => '[Ðéļéţé ~~~]';
+
+  @override
+  String get edit => '[Éðîţ ~~]';
+
+  @override
+  String get undo => '[Ûñðö ~~]';
+
+  @override
+  String get loadFailed =>
+      '[Šöɱéţĥîñĝ ŵéñţ ŵŕöñĝ ļöåðîñĝ ţĥîš. Ţŕý åĝåîñ ļåţéŕ. ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String sentencePair(String first, String second) {
+    return '[$first $second]';
+  }
+
+  @override
+  String listPair(String first, String second) {
+    return '[$first, $second]';
+  }
+
+  @override
+  String captionPair(String first, String second) {
+    return '[$first · $second]';
+  }
+
+  @override
+  String amountNegative(String amount) {
+    return '[ɱîñûš $amount ~~]';
+  }
+
+  @override
+  String get balanceFromTransactions => '[ƒŕöɱ ţŕåñšåçţîöñš ~~~~~ ~~]';
+
+  @override
+  String runningBalance(String amount) {
+    return '[Ŕûññîñĝ ƀåļåñçé $amount ~~~~~ ~]';
+  }
+
+  @override
+  String runningBalanceFromReported(String amount) {
+    return '[Ŕûññîñĝ ƀåļåñçé $amount, ƒŕöɱ ţĥé ŕéþöŕţéð ƀåļåñçé ~~~~~ ~~~~~ ~~~~~]';
+  }
+
+  @override
+  String get balanceReported => '[ŕéþöŕţéð ~~~~]';
+
+  @override
+  String balanceReportedBy(String institution) {
+    return '[ŕéþöŕţéð ƀý $institution ~~~~]';
+  }
+
+  @override
+  String get balanceReportedByBank => '[ŕéþöŕţéð ƀý ýöûŕ ƀåñķ ~~~~~ ~~~]';
+
+  @override
+  String balanceAsOf(String time) {
+    return '[åš öƒ $time ~~]';
+  }
+
+  @override
+  String get balanceReportedAndFromTransactions =>
+      '[ŕéþöŕţéð åñð ƒŕöɱ ţŕåñšåçţîöñš ~~~~~ ~~~~~ ~]';
+
+  @override
+  String accountAvailableBalance(String amount) {
+    return '[Åṽåîļåƀļé $amount ~~~~]';
+  }
+
+  @override
+  String accountCreditLimit(String amount) {
+    return '[Çŕéðîţ ļîɱîţ $amount ~~~~~]';
+  }
+
+  @override
+  String accountMask(String mask) {
+    return '[•••• $mask]';
+  }
+
+  @override
+  String accountMaskSemantics(String mask) {
+    return '[éñðîñĝ îñ $mask ~~~~]';
+  }
+
+  @override
+  String get uncategorized => '[Ûñçåţéĝöŕîžéð ~~~~~ ~]';
+
+  @override
+  String get accountAdd => '[Åðð åççöûñţ ~~~~]';
+
+  @override
+  String get accountsTotals => '[Ţöţåļš ~~~]';
+
+  @override
+  String accountsHidden(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ĥîððéñ åççöûñţš ~~~~~ ~',
+      one: '1 ĥîððéñ åççöûñţ ~~~~~ ~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get accountNotFound => '[Ţĥîš åççöûñţ ñö ļöñĝéŕ éẋîšţš. ~~~~~ ~~~~~]';
+
+  @override
+  String get accountNoTransactions =>
+      '[Ñö ţŕåñšåçţîöñš öñ ţĥîš åççöûñţ ýéţ. ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get accountHide => '[Ĥîðé åççöûñţ ~~~~~]';
+
+  @override
+  String get accountShow => '[Šĥöŵ åççöûñţ ~~~~~]';
+
+  @override
+  String get accountHiddenLabel => '[Ĥîððéñ ~~~]';
+
+  @override
+  String accountDeleteTitle(String name) {
+    return '[Ðéļéţé “$name”? ~~~]';
+  }
+
+  @override
+  String accountDeleteBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Ţĥé åççöûñţ åñð îţš $count ţŕåñšåçţîöñš ŵîļļ ƀé ðéļéţéð. ~~~~~ ~~~~~ ~~~~~ ~~',
+      one: 'Ţĥé åççöûñţ åñð îţš 1 ţŕåñšåçţîöñ ŵîļļ ƀé ðéļéţéð. ~~~~~ ~~~~~ ~~~~~ ~',
+      zero: 'Ţĥé åççöûñţ ŵîļļ ƀé ðéļéţéð. ~~~~~ ~~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get accountNewTitle => '[Ñéŵ åççöûñţ ~~~~]';
+
+  @override
+  String get accountEditTitle => '[Éðîţ åççöûñţ ~~~~~]';
+
+  @override
+  String get accountName => '[Ñåɱé ~~]';
+
+  @override
+  String get accountNameRequired => '[Éñţéŕ å ñåɱé ~~~~]';
+
+  @override
+  String get accountType => '[Ţýþé ~~]';
+
+  @override
+  String get accountTypeDepository => '[Çĥéçķîñĝ öŕ šåṽîñĝš ~~~~~ ~~]';
+
+  @override
+  String get accountTypeCredit => '[Çŕéðîţ çåŕð ~~~~]';
+
+  @override
+  String get accountTypeLoan => '[Ļöåñ ~~]';
+
+  @override
+  String get accountTypeInvestment => '[Îñṽéšţɱéñţ ~~~~]';
+
+  @override
+  String get accountTypeOther => '[Öţĥéŕ ~~]';
+
+  @override
+  String get accountCurrency => '[Çûŕŕéñçý ~~~~]';
+
+  @override
+  String currencyValue(String code, String symbol) {
+    return '[$code ($symbol)]';
+  }
+
+  @override
+  String accountCurrencyFixed(String currency) {
+    return '[$currency. Îţ çåñ\'ţ çĥåñĝé öñçé ţĥé åççöûñţ ĥåš ţŕåñšåçţîöñš. ~~~~~ ~~~~~ ~~~~~ ~~]';
+  }
+
+  @override
+  String get accountCurrencyLocked =>
+      '[Ţĥé çûŕŕéñçý çåñ\'ţ çĥåñĝé: ţĥîš åççöûñţ ĥåš ţŕåñšåçţîöñš. ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get accountDeleted => '[Ţĥîš åççöûñţ ŵåš ðéļéţéð. ~~~~~ ~~~~]';
+
+  @override
+  String get openingBalance => '[Öþéñîñĝ ƀåļåñçé (öþţîöñåļ) ~~~~~ ~~~~]';
+
+  @override
+  String get openingBalanceHelper =>
+      '[Ñéĝåţîṽé ƒöŕ ɱöñéý öŵéð. Šåṽéð åš å ţŕåñšåçţîöñ. ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get openingBalanceDate => '[Öþéñîñĝ ƀåļåñçé ðåţé ~~~~~ ~~~]';
+
+  @override
+  String get openingBalanceName => '[Öþéñîñĝ ƀåļåñçé ~~~~~ ~]';
+
+  @override
+  String get currencyPickerTitle => '[Çûŕŕéñçý ~~~~]';
+
+  @override
+  String get currencyPickerSearch => '[Šéåŕçĥ çûŕŕéñçîéš ~~~~~ ~~]';
+
+  @override
+  String get amountRequired => '[Éñţéŕ åñ åɱöûñţ ~~~~~ ~]';
+
+  @override
+  String amountInvalid(String example) {
+    return '[Éñţéŕ åñ åɱöûñţ šûçĥ åš $example ~~~~~ ~~~]';
+  }
+
+  @override
+  String get amountUnsigned =>
+      '[Éñţéŕ ţĥé åɱöûñţ ŵîţĥöûţ å šîĝñ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get transactionAdd => '[Åðð ţŕåñšåçţîöñ ~~~~~ ~]';
+
+  @override
+  String get transactionPending => '[Þéñðîñĝ ~~~]';
+
+  @override
+  String get dateToday => '[Ţöðåý ~~]';
+
+  @override
+  String get dateYesterday => '[Ýéšţéŕðåý ~~~~]';
+
+  @override
+  String get transactionsSearch => '[Šéåŕçĥ ~~~]';
+
+  @override
+  String get transactionsSearchHint => '[Šéåŕçĥ ţŕåñšåçţîöñš ~~~~~ ~~~]';
+
+  @override
+  String get transactionsSearchClose => '[Çļöšé šéåŕçĥ ~~~~~]';
+
+  @override
+  String get transactionsFilter => '[Ƒîļţéŕš ~~~]';
+
+  @override
+  String get transactionsNoMatchHeadline =>
+      '[Ñö ɱåţçĥîñĝ ţŕåñšåçţîöñš ~~~~~ ~~~~]';
+
+  @override
+  String transactionsNoMatchText(String text) {
+    return '[Ñö ɱåţçĥéš ƒöŕ “$text” ~~~~~]';
+  }
+
+  @override
+  String get transactionsNoMatchBody =>
+      '[Ţŕý öţĥéŕ ŵöŕðš öŕ ŕéɱöṽé å ƒîļţéŕ. ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String filterRemove(String label) {
+    return '[Ŕéɱöṽé ƒîļţéŕ $label ~~~~~]';
+  }
+
+  @override
+  String get filterClear => '[Çļéåŕ ~~]';
+
+  @override
+  String get filterSaved => '[Šåṽéð ~~]';
+
+  @override
+  String get filterSaveThese => '[Šåṽé ţĥéšé ƒîļţéŕš ~~~~~ ~~]';
+
+  @override
+  String get savedFilterSaveTitle => '[Šåṽé ƒîļţéŕš ~~~~~]';
+
+  @override
+  String get savedFilterNameLabel => '[Ñåɱé ~~]';
+
+  @override
+  String get savedFilterRenameTitle => '[Ŕéñåɱé šåṽéð ƒîļţéŕ ~~~~~ ~~]';
+
+  @override
+  String get savedFilterRename => '[Ŕéñåɱé ~~~]';
+
+  @override
+  String savedFilterOptions(String name) {
+    return '[Öþţîöñš ƒöŕ $name ~~~~]';
+  }
+
+  @override
+  String savedFilterDeleteTitle(String name) {
+    return '[Ðéļéţé “$name”? ~~~]';
+  }
+
+  @override
+  String get savedFilterDeleteBody =>
+      '[Öñļý ţĥé šåṽéð ƒîļţéŕ ĝöéš; ñö ţŕåñšåçţîöñ çĥåñĝéš. ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get filterApply => '[Åþþļý ~~]';
+
+  @override
+  String get filterCategories => '[Çåţéĝöŕîéš ~~~~]';
+
+  @override
+  String get filterAddCategory => '[Åðð çåţéĝöŕý ~~~~~]';
+
+  @override
+  String get filterDate => '[Ðåţé ~~]';
+
+  @override
+  String get filterAmount => '[Åɱöûñţ ~~~]';
+
+  @override
+  String get filterAmountMin => '[Åţ ļéåšţ ~~~]';
+
+  @override
+  String get filterAmountMax => '[Åţ ɱöšţ ~~~]';
+
+  @override
+  String get filterTags => '[Ţåĝš ~~]';
+
+  @override
+  String get filterNoTags => '[Ñö ţåĝš ýéţ. ~~~~]';
+
+  @override
+  String get datePresetAny => '[Åñý ţîɱé ~~~]';
+
+  @override
+  String get datePresetThisMonth => '[Ţĥîš ɱöñţĥ ~~~~]';
+
+  @override
+  String get datePresetLastMonth => '[Ļåšţ ɱöñţĥ ~~~~]';
+
+  @override
+  String get datePresetLast90Days => '[Ļåšţ 90 ðåýš ~~~~]';
+
+  @override
+  String get datePresetThisYear => '[Ţĥîš ýéåŕ ~~~~]';
+
+  @override
+  String get datePresetCustom => '[Çûšţöɱ… ~~~]';
+
+  @override
+  String dateRangeValue(String start, String end) {
+    return '[$start – $end]';
+  }
+
+  @override
+  String amountRangeBetween(String min, String max) {
+    return '[$min – $max]';
+  }
+
+  @override
+  String amountRangeAtLeast(String min) {
+    return '[Åţ ļéåšţ $min ~~~]';
+  }
+
+  @override
+  String amountRangeAtMost(String max) {
+    return '[Åţ ɱöšţ $max ~~~]';
+  }
+
+  @override
+  String get amountRangeInverted =>
+      '[Åţ ɱöšţ ɱûšţ ñöţ ƀé ļéšš ţĥåñ åţ ļéåšţ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String tagLabel(String tag) {
+    return '[#$tag]';
+  }
+
+  @override
+  String tagRemove(String tag) {
+    return '[Ŕéɱöṽé ţåĝ $tag ~~~~]';
+  }
+
+  @override
+  String tagAdd(String tag) {
+    return '[Åðð ţåĝ $tag ~~~]';
+  }
+
+  @override
+  String get transactionNewTitle => '[Ñéŵ ţŕåñšåçţîöñ ~~~~~ ~]';
+
+  @override
+  String get transactionTitle => '[Ţŕåñšåçţîöñ ~~~~~]';
+
+  @override
+  String get transactionNotFound =>
+      '[Ţĥîš ţŕåñšåçţîöñ ñö ļöñĝéŕ éẋîšţš. ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get transactionNeedsAccountHeadline =>
+      '[Åðð åñ åççöûñţ ƒîŕšţ ~~~~~ ~~]';
+
+  @override
+  String get transactionNeedsAccountBody =>
+      '[Éṽéŕý ţŕåñšåçţîöñ ƀéļöñĝš ţö åñ åççöûñţ. ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get transactionExpense => '[Éẋþéñšé ~~~]';
+
+  @override
+  String get transactionIncome => '[Îñçöɱé ~~~]';
+
+  @override
+  String get transactionAmount => '[Åɱöûñţ ~~~]';
+
+  @override
+  String get transactionAccount => '[Åççöûñţ ~~~]';
+
+  @override
+  String get transactionDate => '[Ðåţé ~~]';
+
+  @override
+  String get transactionDescription => '[Ðéšçŕîþţîöñ ~~~~~]';
+
+  @override
+  String get transactionDescriptionRequired => '[Éñţéŕ å ðéšçŕîþţîöñ ~~~~~ ~~]';
+
+  @override
+  String get transactionCategory => '[Çåţéĝöŕý ~~~~]';
+
+  @override
+  String get transactionCategoryFromBank =>
+      '[Ƒŕöɱ ýöûŕ ƀåñķ\'š çåţéĝöŕý ~~~~~ ~~~~]';
+
+  @override
+  String get transactionNotes => '[Ñöţéš ~~]';
+
+  @override
+  String get transactionTags => '[Ţåĝš ~~]';
+
+  @override
+  String get transactionTagsHelper =>
+      '[Þŕéšš éñţéŕ öŕ ţýþé å çöɱɱå ţö åðð å ţåĝ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get transactionCurrencyMismatch =>
+      '[Ţĥé åɱöûñţ ɱûšţ ƀé îñ ţĥé åççöûñţ\'š çûŕŕéñçý. ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get transactionDeleted => '[Ţŕåñšåçţîöñ ðéļéţéð ~~~~~ ~~~]';
+
+  @override
+  String get transactionRestoreNoAccount =>
+      '[Ţĥé ţŕåñšåçţîöñ çåñ\'ţ çöɱé ƀåçķ: îţš åççöûñţ ŵåš ðéļéţéð. ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get settingsSecurity => '[Šéçûŕîţý ~~~~]';
+
+  @override
+  String get lockRequireUnlock => '[Ŕéǫûîŕé ûñļöçķ ~~~~~ ~]';
+
+  @override
+  String get lockRequireUnlockSubtitle =>
+      '[Åšķ ƒöŕ ýöûŕ ƒîñĝéŕþŕîñţ, ƒåçé öŕ šçŕééñ ļöçķ ŵĥéñ ţĥé åþþ öþéñš ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get lockAfterTitle => '[Ļöçķ åƒţéŕ ~~~~]';
+
+  @override
+  String get lockAfterOff => '[Öñļý ŵĥéñ ţĥé åþþ šţåŕţš ~~~~~ ~~~]';
+
+  @override
+  String get lockAfterImmediately => '[Îɱɱéðîåţéļý ~~~~~]';
+
+  @override
+  String get lockBlockScreenshots => '[Ɓļöçķ šçŕééñšĥöţš ~~~~~ ~~]';
+
+  @override
+  String get lockBlockScreenshotsSubtitle =>
+      '[Ĥîðé ţĥé åþþ îñ šçŕééñšĥöţš, ŕéçöŕðîñĝš åñð ŕéçéñţ åþþš. Åļŵåýš öñ ŵĥîļé ûñļöçķ îš ŕéǫûîŕéð ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get lockUnlock => '[Ûñļöçķ ~~~]';
+
+  @override
+  String get lockTryAgain => '[Ţŕý åĝåîñ ~~~~]';
+
+  @override
+  String get lockPromptReason => '[Ûñļöçķ ţö šéé ýöûŕ ƒîñåñçéš ~~~~~ ~~~~~]';
+
+  @override
+  String get lockEnablePromptReason =>
+      '[Çöñƒîŕɱ îţ\'š ýöû ţö ţûŕñ öñ ţĥé åþþ ļöçķ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get lockFailed => '[Ñöţ ŕéçöĝñîžéð. Ţŕý åĝåîñ. ~~~~~ ~~~~]';
+
+  @override
+  String get lockCancelled => '[Ûñļöçķ ŵåš çåñçéļļéð. ~~~~~ ~~~]';
+
+  @override
+  String get lockNoScreenLock =>
+      '[Šéţ å šçŕééñ ļöçķ öñ ţĥîš ðéṽîçé ƒîŕšţ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get lockLockedOut =>
+      '[Ţöö ɱåñý åţţéɱþţš. Ŵåîţ å ɱöɱéñţ, ţĥéñ ţŕý åĝåîñ. ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get lockUnavailable =>
+      '[Ţĥé ðéṽîçé çöûļð ñöţ çĥéçķ îţ\'š ýöû. Ţŕý åĝåîñ. ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String lockAfterMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes ɱîñûţéš ~~~',
+      one: '1 ɱîñûţé ~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get settingsData => '[Ðåţå ~~]';
+
+  @override
+  String get categoriesTitle => '[Çåţéĝöŕîéš ~~~~]';
+
+  @override
+  String get categoriesSearch => '[Šéåŕçĥ çåţéĝöŕîéš ~~~~~ ~~]';
+
+  @override
+  String get categoriesManage => '[Ṁåñåĝé ~~~]';
+
+  @override
+  String get categoryAdd => '[Åðð çåţéĝöŕý ~~~~~]';
+
+  @override
+  String get categorySystem => '[Ɓûîļţ-îñ çåţéĝöŕý ~~~~~ ~]';
+
+  @override
+  String categoryExpand(String name, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Šĥöŵ $count çåţéĝöŕîéš ûñðéŕ $name ~~~~~ ~~~',
+      one: 'Šĥöŵ 1 çåţéĝöŕý ûñðéŕ $name ~~~~~ ~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String categoryCollapse(String name) {
+    return '[Ĥîðé ţĥé çåţéĝöŕîéš ûñðéŕ $name ~~~~~ ~~~~]';
+  }
+
+  @override
+  String get categoryPickerTitle => '[Çåţéĝöŕý ~~~~]';
+
+  @override
+  String get categoryPickerRecent => '[Ŕéçéñţļý ûšéð ~~~~~]';
+
+  @override
+  String get categoryPickerAll => '[Åļļ çåţéĝöŕîéš ~~~~~ ~]';
+
+  @override
+  String get categoryNone => '[Ñöñé ~~]';
+
+  @override
+  String get categoryNotFound =>
+      '[Ţĥîš çåţéĝöŕý ñö ļöñĝéŕ éẋîšţš. ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get categoryNewTitle => '[Ñéŵ çåţéĝöŕý ~~~~~]';
+
+  @override
+  String get categoryEditTitle => '[Éðîţ çåţéĝöŕý ~~~~~]';
+
+  @override
+  String get categoryName => '[Ñåɱé ~~]';
+
+  @override
+  String get categoryNameRequired => '[Éñţéŕ å ñåɱé ~~~~]';
+
+  @override
+  String get categoryParent => '[Ûñðéŕ ~~]';
+
+  @override
+  String get categoryParentNone => '[Ñöţĥîñĝ (ţöþ ļéṽéļ) ~~~~~ ~]';
+
+  @override
+  String get categoryIcon => '[Îçöñ ~~]';
+
+  @override
+  String get categoryColor => '[Çöļöŕ ~~]';
+
+  @override
+  String get categorySystemNote =>
+      '[Å ƀûîļţ-îñ çåţéĝöŕý: öñļý îţš îçöñ åñð çöļöŕ çåñ çĥåñĝé. ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get categorySystemReadOnly =>
+      '[Ɓûîļţ-îñ çåţéĝöŕîéš çåñ öñļý çĥåñĝé ţĥéîŕ îçöñ åñð çöļöŕ. ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String categoryDeleteTitle(String name) {
+    return '[Ðéļéţé “$name”? ~~~]';
+  }
+
+  @override
+  String categoryDeleteBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ţŕåñšåçţîöñš ŵîļļ ƀéçöɱé ûñçåţéĝöŕîžéð. ~~~~~ ~~~~~ ~~~~',
+      one: '1 ţŕåñšåçţîöñ ŵîļļ ƀéçöɱé ûñçåţéĝöŕîžéð. ~~~~~ ~~~~~ ~~~~',
+      zero: 'Ñö ţŕåñšåçţîöñš ûšé îţ. ~~~~~ ~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String categoryDeleteWithChildrenBody(int children, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      children,
+      locale: localeName,
+      other: 'Ţĥé $children çåţéĝöŕîéš ûñðéŕ îţ ĝö ţöö. ~~~~~ ~~~~~',
+      one: 'Ţĥé 1 çåţéĝöŕý ûñðéŕ îţ ĝöéš ţöö. ~~~~~ ~~~~~',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ţŕåñšåçţîöñš ŵîļļ ƀéçöɱé ûñçåţéĝöŕîžéð. ~~~~~ ~~~~~ ~~~~',
+      one: '1 ţŕåñšåçţîöñ ŵîļļ ƀéçöɱé ûñçåţéĝöŕîžéð. ~~~~~ ~~~~~ ~~~~',
+      zero: 'Ñö ţŕåñšåçţîöñš ûšé ţĥéɱ. ~~~~~ ~~~~',
+    );
+    return '[$_temp0 $_temp1]';
+  }
+
+  @override
+  String get categoryIconPayments => '[Þåýɱéñţš ~~~~]';
+
+  @override
+  String get categoryIconAccountBalance => '[Ɓåñķ ~~]';
+
+  @override
+  String get categoryIconCreditScore => '[Çŕéðîţ šçöŕé ~~~~~]';
+
+  @override
+  String get categoryIconCallReceived => '[Ṁöñéý îñ ~~~]';
+
+  @override
+  String get categoryIconCallMade => '[Ṁöñéý öûţ ~~~~]';
+
+  @override
+  String get categoryIconReceiptLong => '[Ŕéçéîþţ ~~~]';
+
+  @override
+  String get categoryIconMovie => '[Ṁöṽîé ~~]';
+
+  @override
+  String get categoryIconRestaurant => '[Ŕéšţåûŕåñţ ~~~~]';
+
+  @override
+  String get categoryIconShoppingBag => '[Šĥöþþîñĝ ƀåĝ ~~~~~]';
+
+  @override
+  String get categoryIconHomeRepairService => '[Ţööļƀöẋ ~~~]';
+
+  @override
+  String get categoryIconMedicalServices => '[Ṁéðîçåļ ~~~]';
+
+  @override
+  String get categoryIconSpa => '[Šþå ~~]';
+
+  @override
+  String get categoryIconBuild => '[Ŵŕéñçĥ ~~~]';
+
+  @override
+  String get categoryIconVolunteerActivism => '[Çĥåŕîţý ~~~]';
+
+  @override
+  String get categoryIconDirectionsCar => '[Çåŕ ~~]';
+
+  @override
+  String get categoryIconFlight => '[Þļåñé ~~]';
+
+  @override
+  String get categoryIconHouse => '[Ĥöûšé ~~]';
+
+  @override
+  String get categoryIconCategory => '[Šĥåþéš ~~~]';
+
+  @override
+  String get categoryIconLocalGroceryStore => '[Ĝŕöçéŕîéš ~~~~]';
+
+  @override
+  String get categoryIconLocalCafe => '[Çöƒƒéé ~~~]';
+
+  @override
+  String get categoryIconLocalBar => '[Ɓåŕ ~~]';
+
+  @override
+  String get categoryIconFastfood => '[Ƒåšţ ƒööð ~~~~]';
+
+  @override
+  String get categoryIconLocalGasStation => '[Ƒûéļ ~~]';
+
+  @override
+  String get categoryIconDirectionsBus => '[Ɓûš ~~]';
+
+  @override
+  String get categoryIconTrain => '[Ţŕåîñ ~~]';
+
+  @override
+  String get categoryIconSchool => '[Šçĥööļ ~~~]';
+
+  @override
+  String get categoryIconChildCare => '[Çĥîļð çåŕé ~~~~]';
+
+  @override
+  String get categoryIconPets => '[Þéţš ~~]';
+
+  @override
+  String get categoryIconFitnessCenter => '[Ƒîţñéšš ~~~]';
+
+  @override
+  String get categoryIconSportsEsports => '[Ĝåɱéš ~~]';
+
+  @override
+  String get categoryIconMusicNote => '[Ṁûšîç ~~]';
+
+  @override
+  String get categoryIconMenuBook => '[Ɓööķš ~~]';
+
+  @override
+  String get categoryIconPhoneIphone => '[Þĥöñé ~~]';
+
+  @override
+  String get categoryIconWifi => '[Îñţéŕñéţ ~~~~]';
+
+  @override
+  String get categoryIconBolt => '[Éļéçţŕîçîţý ~~~~~]';
+
+  @override
+  String get categoryIconWaterDrop => '[Ŵåţéŕ ~~]';
+
+  @override
+  String get categoryIconSavings => '[Šåṽîñĝš ~~~]';
+
+  @override
+  String get categoryIconCardGiftcard => '[Ĝîƒţ ~~]';
+
+  @override
+  String get categoryIconCheckroom => '[Çļöţĥîñĝ ~~~~]';
+
+  @override
+  String get categoryIconCelebration => '[Çéļéƀŕåţîöñ ~~~~~]';
+
+  @override
+  String get colorRed => '[Ŕéð ~~]';
+
+  @override
+  String get colorPink => '[Þîñķ ~~]';
+
+  @override
+  String get colorPurple => '[Þûŕþļé ~~~]';
+
+  @override
+  String get colorViolet => '[Ṽîöļéţ ~~~]';
+
+  @override
+  String get colorIndigo => '[Îñðîĝö ~~~]';
+
+  @override
+  String get colorBlue => '[Ɓļûé ~~]';
+
+  @override
+  String get colorCyan => '[Çýåñ ~~]';
+
+  @override
+  String get colorTeal => '[Ţéåļ ~~]';
+
+  @override
+  String get colorGreen => '[Ĝŕééñ ~~]';
+
+  @override
+  String get colorOrange => '[Öŕåñĝé ~~~]';
+
+  @override
+  String get colorBrown => '[Ɓŕöŵñ ~~]';
+
+  @override
+  String get colorGrey => '[Ĝŕéý ~~]';
+
+  @override
+  String legacyImported(int count, String total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Îɱþöŕţéð $count éñţŕîéš îñţö “Îɱþöŕţéð”, ţöţåļļîñĝ $total. ~~~~~ ~~~~~ ~~~~~',
+      one:
+          'Îɱþöŕţéð 1 éñţŕý îñţö “Îɱþöŕţéð”, ţöţåļļîñĝ $total. ~~~~~ ~~~~~ ~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String legacyImportSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count éñţŕîéš çöûļð ñöţ ƀé ŕéåð åñð ŵéŕé ļéƒţ îñ þļåçé. ~~~~~ ~~~~~ ~~~~~ ~',
+      one: '1 éñţŕý çöûļð ñöţ ƀé ŕéåð åñð ŵåš ļéƒţ îñ þļåçé. ~~~~~ ~~~~~ ~~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get signInTitle => '[Šîĝñ îñ ~~~]';
+
+  @override
+  String get signInSubmit => '[Šîĝñ îñ ~~~]';
+
+  @override
+  String get signInSubmitting => '[Šîĝñîñĝ îñ ~~~~]';
+
+  @override
+  String get signInCreateAccount => '[Çŕéåţé åñ åççöûñţ ~~~~~ ~]';
+
+  @override
+  String get registerTitle => '[Çŕéåţé åñ åççöûñţ ~~~~~ ~]';
+
+  @override
+  String get registerSubmit => '[Çŕéåţé åççöûñţ ~~~~~ ~]';
+
+  @override
+  String get registerSubmitting => '[Çŕéåţîñĝ ýöûŕ åççöûñţ ~~~~~ ~~~]';
+
+  @override
+  String get registerHaveAccount => '[Î åļŕéåðý ĥåṽé åñ åççöûñţ ~~~~~ ~~~~]';
+
+  @override
+  String registerDeviceName(String name) {
+    return '[Ţĥîš ðéṽîçé: $name ~~~~]';
+  }
+
+  @override
+  String get authEmailLabel => '[Éɱåîļ ~~]';
+
+  @override
+  String get authPasswordLabel => '[Þåššŵöŕð ~~~~]';
+
+  @override
+  String get authPasswordHelper => '[8 ţö 128 çĥåŕåçţéŕš ~~~~~]';
+
+  @override
+  String get authDisplayNameLabel => '[Ñåɱé (öþţîöñåļ) ~~~~~]';
+
+  @override
+  String get authShowPassword => '[Šĥöŵ þåššŵöŕð ~~~~~]';
+
+  @override
+  String get authHidePassword => '[Ĥîðé þåššŵöŕð ~~~~~]';
+
+  @override
+  String get authEmailInvalid => '[Éñţéŕ å ṽåļîð éɱåîļ åððŕéšš ~~~~~ ~~~~~]';
+
+  @override
+  String get authPasswordRequired => '[Éñţéŕ ýöûŕ þåššŵöŕð ~~~~~ ~~]';
+
+  @override
+  String get authPasswordLength => '[Ûšé 8 ţö 128 çĥåŕåçţéŕš ~~~~~ ~]';
+
+  @override
+  String get authDisplayNameLength => '[Ûšé åţ ɱöšţ 100 çĥåŕåçţéŕš ~~~~~ ~~~]';
+
+  @override
+  String get authErrorInvalidCredentials =>
+      '[Ţĥé éɱåîļ öŕ þåššŵöŕð îš îñçöŕŕéçţ. ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String authErrorRateLimited(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other:
+          'Ţöö ɱåñý åţţéɱþţš. Ţŕý åĝåîñ îñ $seconds šéçöñðš. ~~~~~ ~~~~~ ~~~',
+      one: 'Ţöö ɱåñý åţţéɱþţš. Ţŕý åĝåîñ îñ 1 šéçöñð. ~~~~~ ~~~~~ ~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get authErrorRateLimitedLater =>
+      '[Ţöö ɱåñý åţţéɱþţš. Ţŕý åĝåîñ ļåţéŕ. ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get authErrorEmailTaken =>
+      '[Åñ åççöûñţ ŵîţĥ ţĥîš éɱåîļ åļŕéåðý éẋîšţš. ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get authErrorNetwork =>
+      '[Çåñ\'ţ ŕéåçĥ ţĥé šéŕṽéŕ. Çĥéçķ ýöûŕ çöññéçţîöñ åñð ţŕý åĝåîñ. ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get authErrorValidation =>
+      '[Çĥéçķ ţĥé ĥîĝĥļîĝĥţéð ƒîéļðš åñð ţŕý åĝåîñ. ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get authErrorOtherAccount =>
+      '[Ţĥîš ðéṽîçé åļŕéåðý ĥöļðš åñöţĥéŕ åççöûñţ\'š ðåţå. Šîĝñ îñ ŵîţĥ ţĥåţ åççöûñţ, öŕ éŕåšé ţĥîš ðéṽîçé\'š ðåţå ţö šţåŕţ öṽéŕ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get authErrorGeneric =>
+      '[Šöɱéţĥîñĝ ŵéñţ ŵŕöñĝ. Ţŕý åĝåîñ. ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get settingsAccount => '[Åççöûñţ ~~~]';
+
+  @override
+  String settingsSignedInAs(String email) {
+    return '[Šîĝñéð îñ åš $email ~~~~]';
+  }
+
+  @override
+  String get settingsSignOut => '[Šîĝñ öûţ ~~~]';
+
+  @override
+  String get settingsServer => '[Šéŕṽéŕ ~~~]';
+
+  @override
+  String get settingsServerFake => '[Îñ-åþþ ƒåķé šéŕṽéŕ ~~~~~ ~]';
+
+  @override
+  String get settingsSync => '[Šýñç ~~]';
+
+  @override
+  String get syncStatus => '[Šţåţûš ~~~]';
+
+  @override
+  String get syncSignedOut =>
+      '[Šîĝñ îñ ţö šýñç ýöûŕ ðåţå ƀéţŵééñ ðéṽîçéš ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get syncRunning => '[Šýñçîñĝ… ~~~]';
+
+  @override
+  String get syncNever => '[Ñöţ šýñçéð ýéţ ~~~~~]';
+
+  @override
+  String syncLastAt(String time) {
+    return '[Ļåšţ šýñçéð $time ~~~~]';
+  }
+
+  @override
+  String get syncFailedOffline =>
+      '[Ţĥé ļåšţ šýñç çöûļð ñöţ ŕéåçĥ ţĥé šéŕṽéŕ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get syncFailedServer =>
+      '[Ţĥé šéŕṽéŕ çöûļð ñöţ çöɱþļéţé ţĥé ļåšţ šýñç ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get syncFailedOther => '[Ţĥé ļåšţ šýñç ðîð ñöţ ƒîñîšĥ ~~~~~ ~~~~~]';
+
+  @override
+  String get syncBankData => '[Ɓåñķ ðåţå ~~~~]';
+
+  @override
+  String syncBankDataPulledAt(String time) {
+    return '[Ûþðåţéð $time ~~~]';
+  }
+
+  @override
+  String get syncBankDataNever => '[Ñöţ ûþðåţéð ýéţ ~~~~~ ~]';
+
+  @override
+  String get syncBankDataFailedOffline =>
+      '[Ţĥé ļåšţ ûþðåţé çöûļð ñöţ ŕéåçĥ ţĥé šéŕṽéŕ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get syncBankDataFailedServer =>
+      '[Ţĥé šéŕṽéŕ çöûļð ñöţ çöɱþļéţé ţĥé ļåšţ ûþðåţé ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get syncBankDataFailedOther =>
+      '[Ţĥé ļåšţ ûþðåţé ðîð ñöţ ƒîñîšĥ ~~~~~ ~~~~~]';
+
+  @override
+  String syncPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count çĥåñĝéš ŵåîţîñĝ ţö šýñç ~~~~~ ~~~',
+      one: '1 çĥåñĝé ŵåîţîñĝ ţö šýñç ~~~~~ ~~~',
+      zero: 'Éṽéŕý çĥåñĝé îš šýñçéð ~~~~~ ~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get syncClockDrift =>
+      '[Çĥéçķ ýöûŕ ðéṽîçé\'š çļöçķ: îţ îš åĥéåð, šö šöɱé çĥåñĝéš ŵåîţ ţö šýñç ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get syncClockBehind =>
+      '[Çĥéçķ ýöûŕ ðéṽîçé\'š çļöçķ: îţ îš ƀéĥîñð, šö çĥåñĝéš ɱåðé ĥéŕé ɱåý ƀé öṽéŕŕîððéñ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String syncRejected(int count, String time) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count çĥåñĝéš ŵéŕé ŕéƒûšéð ƀý ţĥé šéŕṽéŕ, ţĥé ļåţéšţ ɱåðé $time ~~~~~ ~~~~~ ~~~~~ ~~',
+      one:
+          '1 çĥåñĝé ŵåš ŕéƒûšéð ƀý ţĥé šéŕṽéŕ, ţĥé ļåţéšţ ɱåðé $time ~~~~~ ~~~~~ ~~~~~ ~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String syncHeld(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count šýñçéð ŕéçöŕðš ţĥîš ṽéŕšîöñ öƒ ţĥé åþþ çåññöţ šĥöŵ ýéţ ~~~~~ ~~~~~ ~~~~~ ~~~',
+      one: '1 šýñçéð ŕéçöŕð ţĥîš ṽéŕšîöñ öƒ ţĥé åþþ çåññöţ šĥöŵ ýéţ ~~~~~ ~~~~~ ~~~~~ ~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get syncNow => '[Šýñç ñöŵ ~~~]';
+
+  @override
+  String get settingsDeveloper => '[Ðéṽéļöþéŕ ~~~~]';
+
+  @override
+  String get developerDevice => '[Ðéṽîçé ~~~]';
+
+  @override
+  String get developerDeviceNone => '[Ñöţ šîĝñéð îñ ~~~~~]';
+
+  @override
+  String get developerLastSync => '[Ļåšţ šýñç ~~~~]';
+
+  @override
+  String get developerBankData => '[Ɓåñķ ðåţå þûļļéð ~~~~~ ~]';
+
+  @override
+  String get developerNever => '[Ñéṽéŕ ~~]';
+
+  @override
+  String get developerLedger => '[Öûţƀöẋ ~~~]';
+
+  @override
+  String developerLedgerValue(int pending, int held) {
+    return '[$pending ŵåîţîñĝ, $held ĥéļð ~~~~~]';
+  }
+
+  @override
+  String get developerLedgerUnknown => '[Ñöţ ŕéåð ýéţ ~~~~]';
+
+  @override
+  String get developerPullNow => '[Þûļļ ñöŵ ~~~]';
+
+  @override
+  String developerPulled(String time) {
+    return '[Þûļļéð; ƀåñķ ðåţå ûþðåţéð $time ~~~~~ ~~~~]';
+  }
+
+  @override
+  String developerPullFailed(String error) {
+    return '[Þûļļ ƒåîļéð: $error ~~~~]';
+  }
+
+  @override
+  String get developerCopy => '[Çöþý ðîåĝñöšţîçš ~~~~~ ~]';
+
+  @override
+  String get developerCopied => '[Ðîåĝñöšţîçš çöþîéð ~~~~~ ~~]';
+
+  @override
+  String get developerOpenSandbox => '[Šåñðƀöẋ çöñţŕöļš ~~~~~ ~]';
+
+  @override
+  String get developerOpenSandboxDetail =>
+      '[Ŕéƒŕéšĥ, ŕéšéţ ļöĝîñ, ŵéƀĥööķš, îñĵéçţéð ţŕåñšåçţîöñš, þéŕšöñå þŕöṽîšîöñîñĝ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get developerItemSection => '[Îţéɱ ~~]';
+
+  @override
+  String get developerItem => '[Îţéɱ ~~]';
+
+  @override
+  String developerItemOption(String institution, String id) {
+    return '[$institution ($id)]';
+  }
+
+  @override
+  String get developerNoItems =>
+      '[Ñö ļîñķéð ƀåñķš ýéţ. Ļîñķ öñé, öŕ þûļļ, ƒîŕšţ. ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get developerRefreshTransactions => '[Ŕéƒŕéšĥ ţŕåñšåçţîöñš ~~~~~ ~~~]';
+
+  @override
+  String get developerRefreshBalances => '[Ŕéƒŕéšĥ ƀåļåñçéš ~~~~~ ~]';
+
+  @override
+  String get developerResetLogin => '[Ŕéšéţ ļöĝîñ ~~~~]';
+
+  @override
+  String get developerWebhookCode => '[Ŵéƀĥööķ çöðé ~~~~~]';
+
+  @override
+  String get developerFireWebhook => '[Ƒîŕé ŵéƀĥööķ ~~~~~]';
+
+  @override
+  String get developerRunning => '[Ŕûññîñĝ… ~~~]';
+
+  @override
+  String developerRefreshed(
+    String status,
+    int added,
+    int modified,
+    int removed,
+  ) {
+    return '[Ŕéƒŕéšĥ $status: $added åððéð, $modified ɱöðîƒîéð, $removed ŕéɱöṽéð ~~~~~ ~~~~~ ~]';
+  }
+
+  @override
+  String developerBalancesRefreshed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ɓåļåñçéš ŕéƒŕéšĥéð ƒöŕ $count åççöûñţš ~~~~~ ~~~~~ ~~',
+      one: 'Ɓåļåñçéš ŕéƒŕéšĥéð ƒöŕ 1 åççöûñţ ~~~~~ ~~~~~ ~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get developerLoginReset =>
+      '[Ļöĝîñ ŕéšéţ; ţĥé Îţéɱ ñééðš îţš çöññéçţîöñ ƒîẋéð ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get developerWebhookFired => '[Ŵéƀĥööķ ƒîŕéð ~~~~~]';
+
+  @override
+  String developerInjected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Îñĵéçţéð $count ţŕåñšåçţîöñš ~~~~~ ~~~',
+      one: 'Îñĵéçţéð 1 ţŕåñšåçţîöñ ~~~~~ ~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String developerFailed(String error) {
+    return '[Ƒåîļéð: $error ~~~]';
+  }
+
+  @override
+  String developerThenPullFailed(String result, String error) {
+    return '[$result; ţĥé þûļļ åƒţéŕ îţ ƒåîļéð: $error ~~~~~ ~~~]';
+  }
+
+  @override
+  String get developerInjectSection => '[Îñĵéçţ ţŕåñšåçţîöñš ~~~~~ ~~~]';
+
+  @override
+  String get developerAccount => '[Åççöûñţ ~~~]';
+
+  @override
+  String get developerNoAccounts =>
+      '[Ţĥîš Îţéɱ ĥåš ñö åççöûñţš öñ ţĥé ðéṽîçé ýéţ. ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get developerCount => '[Ĥöŵ ɱåñý (1 ţö 10) ~~~~]';
+
+  @override
+  String get developerCountInvalid =>
+      '[Éñţéŕ å ŵĥöļé ñûɱƀéŕ ƒŕöɱ 1 ţö 10 ~~~~~ ~~~~~]';
+
+  @override
+  String get developerDescription => '[Ðéšçŕîþţîöñ ~~~~~]';
+
+  @override
+  String get developerDescriptionDefault => '[Ðéṽéļöþéŕ ţéšţ ~~~~~ ~]';
+
+  @override
+  String get developerDescriptionInvalid =>
+      '[Éñţéŕ 1 ţö 196 çĥåŕåçţéŕš ~~~~~ ~~]';
+
+  @override
+  String get developerAmount => '[Åɱöûñţ ~~~]';
+
+  @override
+  String get developerAmountHelper =>
+      '[Ñéĝåţîṽé îš ɱöñéý öûţ öƒ ţĥé åççöûñţ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get developerDaysBack =>
+      '[Ðåýš ƀéƒöŕé Þļåîð\'š ţöðåý (0 ţö 728) ~~~~~ ~~~~~]';
+
+  @override
+  String get developerDaysBackInvalid =>
+      '[Éñţéŕ å ŵĥöļé ñûɱƀéŕ ƒŕöɱ 0 ţö 728 ~~~~~ ~~~~~]';
+
+  @override
+  String developerDate(String date) {
+    return '[Ðåţéð $date ~~]';
+  }
+
+  @override
+  String get developerInject => '[Îñĵéçţ ~~~]';
+
+  @override
+  String get developerProvisionSection => '[Þŕöṽîšîöñ å þéŕšöñå ~~~~~ ~~]';
+
+  @override
+  String get developerPersona => '[Þéŕšöñå ~~~]';
+
+  @override
+  String get developerSeed => '[Šééð ~~]';
+
+  @override
+  String get developerSeedInvalid =>
+      '[Éñţéŕ å ŵĥöļé ñûɱƀéŕ öƒ åţ ļéåšţ 1 ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get developerDays => '[Ðåýš öƒ ĥîšţöŕý (30 ţö 730) ~~~~~ ~]';
+
+  @override
+  String get developerDaysInvalid =>
+      '[Éñţéŕ å ŵĥöļé ñûɱƀéŕ ƒŕöɱ 30 ţö 730 ~~~~~ ~~~~~]';
+
+  @override
+  String get developerProvision => '[Šţåŕţ ~~]';
+
+  @override
+  String developerJobStatus(String status) {
+    return '[Ĵöƀ $status ~~]';
+  }
+
+  @override
+  String developerJobItems(int linked, int total) {
+    return '[Îţéɱš ļîñķéð: $linked öƒ $total ~~~~~ ~]';
+  }
+
+  @override
+  String developerJobBatches(int sent, int total) {
+    return '[Ɓåţçĥéš šéñţ: $sent öƒ $total ~~~~~ ~]';
+  }
+
+  @override
+  String developerJobSkipped(int count) {
+    return '[Ţŕåñšåçţîöñš šķîþþéð: $count ~~~~~ ~~~]';
+  }
+
+  @override
+  String developerJobError(String error) {
+    return '[Éŕŕöŕ: $error ~~]';
+  }
+
+  @override
+  String get developerJobProgress => '[Þŕöṽîšîöñîñĝ þŕöĝŕéšš ~~~~~ ~~~]';
+
+  @override
+  String get settingsDemoData => '[Ðéɱö ðåţå ~~~~]';
+
+  @override
+  String get demoDataNote =>
+      '[Çĥööšîñĝ åñöţĥéŕ ĥöûšéĥöļð šţåŕţš ţĥé ðéɱö öṽéŕ; çĥåñĝéš ɱåðé îñ ţĥé ðéɱö åŕé ñöţ ķéþţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get demoPersonaRenter => '[Ŕéñţéŕ ~~~]';
+
+  @override
+  String get demoPersonaRenterDetail =>
+      '[Ĝîĝ îñçöɱé, šûƀšçŕîþţîöñš åñð å çŕéðîţ çåŕð ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get demoPersonaFamily => '[Ƒåɱîļý ~~~]';
+
+  @override
+  String get demoPersonaFamilyDetail =>
+      '[Ţŵö šåļåŕîéš, å ɱöŕţĝåĝé, çåŕ ļöåñš åñð å 401(ķ) ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get demoPersonaStudent => '[Šţûðéñţ ~~~]';
+
+  @override
+  String get demoPersonaStudentDetail =>
+      '[Šţûðéñţ ļöåñš, å çåɱþûš ĵöƀ åñð ĥéļþ ƒŕöɱ å þåŕéñţ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get demoPersonaSmallBusiness => '[Šɱåļļ ƀûšîñéšš öŵñéŕ ~~~~~ ~~~]';
+
+  @override
+  String get demoPersonaSmallBusinessDetail =>
+      '[Ɓûšîñéšš åñð þéŕšöñåļ åççöûñţš, åñð ǫûåŕţéŕļý ţåẋéš ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get itemsTitle => '[Ļîñķéð ƀåñķš ~~~~~]';
+
+  @override
+  String get itemsLink => '[Ļîñķ å ƀåñķ ~~~~]';
+
+  @override
+  String get itemsEmptyHeadline => '[Ñö ļîñķéð ƀåñķš ~~~~~ ~]';
+
+  @override
+  String get itemsEmptyBody =>
+      '[Ļîñķ å ƀåñķ ţö šéé îţš åççöûñţš åñð ţŕåñšåçţîöñš ĥéŕé. ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get itemsStatusConnected => '[Çöññéçţéð ~~~~]';
+
+  @override
+  String get itemsStatusNeedsAttention => '[Ñééðš åţţéñţîöñ ~~~~~ ~]';
+
+  @override
+  String get itemsStatusError => '[Éŕŕöŕ ~~]';
+
+  @override
+  String get itemsStatusUnlinked => '[Ûñļîñķéð ~~~~]';
+
+  @override
+  String itemsStatusLabel(String status) {
+    return '[Šţåţûš: $status ~~~]';
+  }
+
+  @override
+  String itemsLastSynced(String time) {
+    return '[Ļåšţ šýñçéð $time ~~~~]';
+  }
+
+  @override
+  String get itemsNeverSynced => '[Ñöţ šýñçéð ýéţ ~~~~~]';
+
+  @override
+  String get itemsSyncNow => '[Šýñç ñöŵ ~~~]';
+
+  @override
+  String get itemsFix => '[Ƒîẋ çöññéçţîöñ ~~~~~ ~]';
+
+  @override
+  String get itemsUnlink => '[Ûñļîñķ ~~~]';
+
+  @override
+  String get itemsStepLinking => '[Öþéñîñĝ Þļåîð Ļîñķ… ~~~~~ ~~]';
+
+  @override
+  String get itemsStepExchanging => '[Çöññéçţîñĝ ýöûŕ ƀåñķ… ~~~~~ ~~~]';
+
+  @override
+  String get itemsStepSyncing => '[Ŵåîţîñĝ ƒöŕ ýöûŕ ƀåñķ\'š ðåţå… ~~~~~ ~~~~~]';
+
+  @override
+  String get itemsStepPulling => '[Ûþðåţîñĝ ýöûŕ åççöûñţš… ~~~~~ ~~~]';
+
+  @override
+  String get itemsStepUnlinking => '[Ûñļîñķîñĝ… ~~~~]';
+
+  @override
+  String get itemsFailedOffline =>
+      '[Çöûļðñ\'ţ ŕéåçĥ ţĥé šéŕṽéŕ. Ţŕý åĝåîñ ŵĥéñ ýöû\'ŕé öñļîñé. ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get itemsFailedLoginRequired =>
+      '[Ýöûŕ ƀåñķ ñééðš ýöû ţö šîĝñ îñ åĝåîñ. Ûšé Ƒîẋ çöññéçţîöñ. ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get itemsFailedRateLimited =>
+      '[Ţöö ɱåñý ŕéǫûéšţš. Ţŕý åĝåîñ îñ å ɱîñûţé. ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get itemsFailedNotFound =>
+      '[Ţĥîš ƀåñķ îš ñö ļöñĝéŕ ļîñķéð. ~~~~~ ~~~~~]';
+
+  @override
+  String get itemsFailedPlaid =>
+      '[Þļåîð çöûļðñ\'ţ çöɱþļéţé ţĥé ŕéǫûéšţ. Ţŕý åĝåîñ ļåţéŕ. ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get itemsFailedOther =>
+      '[Šöɱéţĥîñĝ ŵéñţ ŵŕöñĝ. Ţŕý åĝåîñ. ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get itemsFailedLink =>
+      '[Þļåîð Ļîñķ çļöšéð ŵîţĥ åñ éŕŕöŕ. ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get itemsStillPreparing =>
+      '[Ýöûŕ ƀåñķ îš šţîļļ þŕéþåŕîñĝ ýöûŕ ðåţå. Ûšé Šýñç ñöŵ îñ å ɱîñûţé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String itemsUnlinkTitle(String institution) {
+    return '[Ûñļîñķ $institution? ~~~]';
+  }
+
+  @override
+  String get itemsUnlinkKeep =>
+      '[Ķééþ ĥîšţöŕý öñ ţĥîš ðéṽîçé åñð öţĥéŕš ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get itemsUnlinkKeepDetail =>
+      '[Îţš åççöûñţš åñð ţŕåñšåçţîöñš šţåý öñ éṽéŕý ðéṽîçé, ñö ļöñĝéŕ ûþðåţéð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get itemsUnlinkDelete =>
+      '[Ðéļéţé îţš åççöûñţš åñð ţŕåñšåçţîöñš ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get itemsUnlinkDeleteDetail =>
+      '[Ţĥéý åŕé ŕéɱöṽéð ƒŕöɱ ţĥîš ðéṽîçé åñð éṽéŕý öţĥéŕ ðéṽîçé šîĝñéð îñ ţö ýöûŕ åççöûñţ. Ýöûŕ öŵñ ñöţéš åñð çåţéĝöŕîéš öñ ţĥéɱ ĝö ţöö. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get itemsUnlinkConfirm => '[Ûñļîñķ ~~~]';
+
+  @override
+  String itemsSyncNowLabel(String institution) {
+    return '[Šýñç ñöŵ, $institution ~~~]';
+  }
+
+  @override
+  String itemsFixLabel(String institution) {
+    return '[Ƒîẋ çöññéçţîöñ, $institution ~~~~~ ~]';
+  }
+
+  @override
+  String itemsUnlinkLabel(String institution) {
+    return '[Ûñļîñķ, $institution ~~~]';
+  }
+
+  @override
+  String get itemsDeleteHistory => '[Ðéļéţé ĥîšţöŕý ~~~~~ ~]';
+
+  @override
+  String itemsDeleteHistoryLabel(String institution) {
+    return '[Ðéļéţé ĥîšţöŕý, $institution ~~~~~ ~]';
+  }
+
+  @override
+  String itemsDeleteHistoryTitle(String institution) {
+    return '[Ðéļéţé ţĥé ĥîšţöŕý öƒ $institution? ~~~~~ ~~~]';
+  }
+
+  @override
+  String get itemsDeleteHistoryBody =>
+      '[Îţš åççöûñţš åñð ţŕåñšåçţîöñš åŕé ŕéɱöṽéð ƒŕöɱ ţĥîš ðéṽîçé åñð éṽéŕý öţĥéŕ ðéṽîçé šîĝñéð îñ ţö ýöûŕ åççöûñţ. Ýöûŕ öŵñ ñöţéš åñð çåţéĝöŕîéš öñ ţĥéɱ ĝö ţöö. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get itemsDeleteHistoryConfirm => '[Ðéļéţé ~~~]';
+
+  @override
+  String get itemsStepDeletingHistory => '[Ðéļéţîñĝ îţš ĥîšţöŕý… ~~~~~ ~~~]';
+
+  @override
+  String get itemsFailedServer =>
+      '[Ţĥé šéŕṽéŕ çöûļð ñöţ çöɱþļéţé ţĥé ŕéǫûéšţ. Ţŕý åĝåîñ ļåţéŕ. ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get transactionMoreOptions => '[Ṁöŕé öþţîöñš ~~~~~]';
+
+  @override
+  String get transactionRunRules =>
+      '[Ŕûñ ŕûļéš öñ ţĥîš ţŕåñšåçţîöñ ~~~~~ ~~~~~]';
+
+  @override
+  String transactionRulesApplied(String name) {
+    return '[Åþþļîéð ţĥé ŕûļé “$name”. Šåṽé ţö ķééþ îţ. ~~~~~ ~~~~~ ~]';
+  }
+
+  @override
+  String transactionRulesUnchanged(String name) {
+    return '[Ţĥé ŕûļé “$name” ɱåţçĥéš, ƀûţ ĥåš ñöţĥîñĝ ţö çĥåñĝé. ~~~~~ ~~~~~ ~~~~]';
+  }
+
+  @override
+  String get transactionRulesNoMatch =>
+      '[Ñö ŕûļé ɱåţçĥéš ţĥîš ţŕåñšåçţîöñ. ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get rulesTitle => '[Ŕûļéš ~~]';
+
+  @override
+  String get rulesEmptyHeadline => '[Ñö ŕûļéš ýéţ ~~~~]';
+
+  @override
+  String get rulesEmptyBody =>
+      '[Å ŕûļé ƒîļéš, ţåĝš öŕ ŕéñåɱéš ţŕåñšåçţîöñš åš ţĥéý åŕŕîṽé ƒŕöɱ ýöûŕ ƀåñķ. Ŕûļéš åŕé ţŕîéð ƒŕöɱ ţĥé ţöþ; ţĥé ƒîŕšţ öñé ţĥåţ ɱåţçĥéš åþþļîéš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get rulesOrderNote =>
+      '[Ŕûļéš åŕé ţŕîéð ƒŕöɱ ţĥé ţöþ; ţĥé ƒîŕšţ öñé ţĥåţ ɱåţçĥéš å ţŕåñšåçţîöñ åþþļîéš. Ðŕåĝ ţö ŕéöŕðéŕ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get ruleAdd => '[Åðð ŕûļé ~~~]';
+
+  @override
+  String get ruleNewTitle => '[Ñéŵ ŕûļé ~~~]';
+
+  @override
+  String get ruleEditTitle => '[Éðîţ ŕûļé ~~~~]';
+
+  @override
+  String get ruleNotFound => '[Ţĥîš ŕûļé ñö ļöñĝéŕ éẋîšţš. ~~~~~ ~~~~]';
+
+  @override
+  String get ruleName => '[Ñåɱé ~~]';
+
+  @override
+  String get ruleNameRequired => '[Éñţéŕ å ñåɱé ~~~~]';
+
+  @override
+  String get ruleConditionsHeader =>
+      '[Ŵĥéñ å ţŕåñšåçţîöñ ɱåţçĥéš åļļ öƒ ţĥéšé ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get ruleActionsHeader => '[Ţĥéñ ~~]';
+
+  @override
+  String get ruleAddCondition => '[Åðð çöñðîţîöñ ~~~~~]';
+
+  @override
+  String get ruleAddAction => '[Åðð åçţîöñ ~~~~]';
+
+  @override
+  String get ruleNeedsCondition =>
+      '[Å ŕûļé ñééðš åţ ļéåšţ öñé çöñðîţîöñ. ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get ruleNeedsAction =>
+      '[Å ŕûļé ñééðš åţ ļéåšţ öñé åçţîöñ. ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get ruleRemoveCondition => '[Ŕéɱöṽé çöñðîţîöñ ~~~~~ ~]';
+
+  @override
+  String get ruleRemoveAction => '[Ŕéɱöṽé åçţîöñ ~~~~~]';
+
+  @override
+  String get ruleConditionMerchant =>
+      '[Ṁéŕçĥåñţ öŕ ðéšçŕîþţîöñ çöñţåîñš ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get ruleConditionAmount => '[Åɱöûñţ ƀéţŵééñ ~~~~~ ~]';
+
+  @override
+  String get ruleConditionAccount => '[Åççöûñţ îš ~~~~]';
+
+  @override
+  String get ruleConditionBankCategory => '[Ɓåñķ çåţéĝöŕý îš ~~~~~ ~]';
+
+  @override
+  String get ruleText => '[Ţéẋţ ~~]';
+
+  @override
+  String get ruleTextRequired => '[Éñţéŕ šöɱé ţéẋţ ~~~~~ ~]';
+
+  @override
+  String get ruleAmountRequired => '[Éñţéŕ åţ ļéåšţ öñé åɱöûñţ ~~~~~ ~~~~]';
+
+  @override
+  String get ruleAmountOrder =>
+      '[Ţĥé ɱîñîɱûɱ îš åƀöṽé ţĥé ɱåẋîɱûɱ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get ruleAccountRequired => '[Çĥööšé åñ åççöûñţ ~~~~~ ~]';
+
+  @override
+  String get ruleCategoryRequired => '[Çĥööšé å çåţéĝöŕý ~~~~~ ~]';
+
+  @override
+  String get ruleActionSetCategory => '[Šéţ ţĥé çåţéĝöŕý ~~~~~ ~]';
+
+  @override
+  String get ruleActionSetCategoryCaption =>
+      '[Öñļý ƒöŕ ţŕåñšåçţîöñš ŵîţĥöûţ å çåţéĝöŕý öƒ ýöûŕ öŵñ. ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get ruleActionAddTag => '[Åðð å ţåĝ ~~~]';
+
+  @override
+  String get ruleTag => '[Ţåĝ ~~]';
+
+  @override
+  String get ruleTagRequired => '[Éñţéŕ å ţåĝ ~~~~]';
+
+  @override
+  String get ruleActionRename => '[Ŕéñåɱé ~~~]';
+
+  @override
+  String get ruleNewDescription => '[Ñéŵ ðéšçŕîþţîöñ ~~~~~ ~]';
+
+  @override
+  String get ruleNewDescriptionRequired =>
+      '[Éñţéŕ ţĥé ñéŵ ðéšçŕîþţîöñ ~~~~~ ~~~~]';
+
+  @override
+  String get ruleActionRenameCaption =>
+      '[Ŕéñåɱéš ɱåñûåļ åñð îɱþöŕţéð ţŕåñšåçţîöñš. Ɓåñķ ţŕåñšåçţîöñš ķééþ ţĥé ðéšçŕîþţîöñ ýöûŕ ƀåñķ šéñðš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get ruleActionHide => '[Ĥîðé ~~]';
+
+  @override
+  String get ruleActionHideCaption =>
+      '[Ĥîððéñ ţŕåñšåçţîöñš ļéåṽé ţĥé ļîšţ, ƀûðĝéţš åñð ŕéþöŕţš, åñð šţîļļ çöûñţ ţöŵåŕð ţĥéîŕ åççöûñţ\'š ƀåļåñçé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get ruleChooseCategory => '[Çĥööšé å çåţéĝöŕý ~~~~~ ~]';
+
+  @override
+  String get ruleDeleted => '[Ŕûļé ðéļéţéð ~~~~~]';
+
+  @override
+  String ruleDeleteNamed(String name) {
+    return '[Ðéļéţé “$name” ~~~]';
+  }
+
+  @override
+  String ruleReorderNamed(String name) {
+    return '[Ðŕåĝ ţö ŕéöŕðéŕ “$name” ~~~~~ ~]';
+  }
+
+  @override
+  String ruleConditionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count çöñðîţîöñš ~~~~',
+      one: '1 çöñðîţîöñ ~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String ruleActionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count åçţîöñš ~~~',
+      one: '1 åçţîöñ ~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String ruleSummary(String conditions, String actions) {
+    return '[$conditions · $actions]';
+  }
+
+  @override
+  String get ruleReorderFailed =>
+      '[Ţĥé ŕûļéš çöûļð ñöţ ƀé ŕéöŕðéŕéð. ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get categoriesMoreOptions => '[Ṁöŕé öþţîöñš ~~~~~]';
+
+  @override
+  String get budgetsEmptyHeadline => '[Ñö ƀûðĝéţš ýéţ ~~~~~]';
+
+  @override
+  String get budgetsEmptyBody =>
+      '[Å ƀûðĝéţ šéţš ĥöŵ ɱûçĥ ţö šþéñð öñ å çåţéĝöŕý éåçĥ ɱöñţĥ åñð šĥöŵš ĥöŵ ƒåŕ åļöñĝ ýöû åŕé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get budgetAdd => '[Åðð ƀûðĝéţ ~~~~]';
+
+  @override
+  String get budgetPeriodPrevious => '[Þŕéṽîöûš þéŕîöð ~~~~~ ~]';
+
+  @override
+  String get budgetPeriodNext => '[Ñéẋţ þéŕîöð ~~~~]';
+
+  @override
+  String get budgetPeriodCurrent => '[Ţĥîš þéŕîöð ~~~~]';
+
+  @override
+  String budgetPeriodsAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count þéŕîöðš åĝö ~~~~',
+      one: 'Ļåšţ þéŕîöð ~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String budgetPeriodsAhead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Îñ $count þéŕîöðš ~~~~',
+      one: 'Ñéẋţ þéŕîöð ~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String budgetPeriodRange(String start, String end) {
+    return '[$start – $end]';
+  }
+
+  @override
+  String budgetPeriodShown(String period) {
+    return '[Šĥöŵîñĝ $period ~~~]';
+  }
+
+  @override
+  String get budgetDeletedCategory => '[Ðéļéţéð çåţéĝöŕý ~~~~~ ~]';
+
+  @override
+  String budgetGroupIncludes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Îñçļûðéš $count çåţéĝöŕîéš ~~~~~ ~~~',
+      one: 'Îñçļûðéš 1 çåţéĝöŕý ~~~~~ ~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String budgetAmountCarried(String amount, String carry) {
+    return '[$amount + $carry çåŕŕîéð ~~~]';
+  }
+
+  @override
+  String budgetAmountDeficit(String amount, String carry) {
+    return '[$amount − $carry çåŕŕîéð ~~~]';
+  }
+
+  @override
+  String budgetPercent(int percent) {
+    return '[$percent %]';
+  }
+
+  @override
+  String get budgetNothingAvailable => '[Ñöţĥîñĝ åṽåîļåƀļé ~~~~~ ~~]';
+
+  @override
+  String budgetSpent(String amount) {
+    return '[$amount šþéñţ ~~]';
+  }
+
+  @override
+  String budgetLeft(String amount) {
+    return '[$amount ļéƒţ ~~]';
+  }
+
+  @override
+  String budgetOver(String amount) {
+    return '[$amount öṽéŕ ~~]';
+  }
+
+  @override
+  String budgetOnPace(String amount) {
+    return '[Öñ þåçé: åƀöûţ $amount ƀý ţĥé éñð ~~~~~ ~~~]';
+  }
+
+  @override
+  String budgetProjectedOver(String amount) {
+    return '[Þŕöĵéçţéð öṽéŕ ƀý $amount ~~~~~ ~]';
+  }
+
+  @override
+  String budgetAvailable(String amount) {
+    return '[$amount åṽåîļåƀļé ~~~~]';
+  }
+
+  @override
+  String budgetThresholdReached(int percent) {
+    return '[$percent % ŕéåçĥéð ~~~]';
+  }
+
+  @override
+  String budgetProgressSemantics(
+    String name,
+    int percent,
+    String available,
+    String remaining,
+  ) {
+    return '[$name: $percent þéŕçéñţ öƒ $available šþéñţ, $remaining ļéƒţ ~~~~~ ~~~]';
+  }
+
+  @override
+  String budgetProgressOverSemantics(
+    String name,
+    int percent,
+    String available,
+    String over,
+  ) {
+    return '[$name: $percent þéŕçéñţ öƒ $available šþéñţ, $over öṽéŕ ~~~~~ ~~~]';
+  }
+
+  @override
+  String budgetProgressNothingSemantics(String name, String spent) {
+    return '[$name: $spent šþéñţ, ñöţĥîñĝ åṽåîļåƀļé ~~~~~ ~~~~]';
+  }
+
+  @override
+  String get budgetNewTitle => '[Ñéŵ ƀûðĝéţ ~~~~]';
+
+  @override
+  String get budgetEditTitle => '[Éðîţ ƀûðĝéţ ~~~~]';
+
+  @override
+  String get budgetNotFound => '[Ţĥîš ƀûðĝéţ ñö ļöñĝéŕ éẋîšţš. ~~~~~ ~~~~~]';
+
+  @override
+  String get budgetDeleted => '[Ɓûðĝéţ ðéļéţéð ~~~~~ ~]';
+
+  @override
+  String get budgetCategory => '[Çåţéĝöŕý ~~~~]';
+
+  @override
+  String get budgetChooseCategory => '[Çĥööšé å çåţéĝöŕý ~~~~~ ~]';
+
+  @override
+  String get budgetCategoryCaption =>
+      '[Å çåţéĝöŕý ŵîţĥ çåţéĝöŕîéš ûñðéŕ îţ ƀûðĝéţš îţš ŵĥöļé ĝŕöûþ. ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get budgetAmount => '[Åɱöûñţ þéŕ þéŕîöð ~~~~~ ~]';
+
+  @override
+  String get budgetStartDay => '[Þéŕîöð šţåŕţš öñ ðåý ~~~~~ ~~]';
+
+  @override
+  String get budgetStartDayHelper =>
+      '[1 ţö 28: éåçĥ þéŕîöð šţåŕţš öñ ţĥîš ðåý öƒ ţĥé ɱöñţĥ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get budgetStartDayInvalid => '[Éñţéŕ å ðåý ƒŕöɱ 1 ţö 28 ~~~~~ ~]';
+
+  @override
+  String get budgetRollover => '[Çåŕŕý öṽéŕ ~~~~]';
+
+  @override
+  String get budgetRolloverCaption =>
+      '[Ŵĥåţ îš ļéƒţ åţ ţĥé éñð öƒ å þéŕîöð, öŕ öṽéŕšþéñţ, çåŕŕîéš îñţö ţĥé ñéẋţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get budgetStartDate => '[Ƒîŕšţ þéŕîöð ~~~~~]';
+
+  @override
+  String get budgetStartDateCaption =>
+      '[Çåŕŕý-öṽéŕ çöûñţš ƒŕöɱ ţĥîš þéŕîöð. Îţ çåñ šţåŕţ éåŕļîéŕ, ƀûţ ñö ļåţéŕ ţĥåñ ţĥé çûŕŕéñţ þéŕîöð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get budgetTransactionsEmpty =>
+      '[Ñöţĥîñĝ çöûñţéð îñ ţĥîš þéŕîöð ~~~~~ ~~~~~ ~]';
+
+  @override
+  String alertsTooltip(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Åļéŕţš, $count ûñŕéåð ~~~~~',
+      one: 'Åļéŕţš, 1 ûñŕéåð ~~~~~',
+      zero: 'Åļéŕţš ~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get alertsTitle => '[Åļéŕţš ~~~]';
+
+  @override
+  String get alertsMarkAllRead => '[Ṁåŕķ åļļ ŕéåð ~~~~~]';
+
+  @override
+  String get alertsEmpty =>
+      '[Ñö åļéŕţš ýéţ. Å ƀûðĝéţ åļéŕţš ýöû ŵĥéñ îţš šþéñðîñĝ ŕéåçĥéš 80 % åñð 100 %. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get alertUnread => '[Ûñŕéåð ~~~]';
+
+  @override
+  String alertBudgetThreshold(
+    String category,
+    int percent,
+    String available,
+    String date,
+  ) {
+    return '[$category ŕéåçĥéð $percent % öƒ $available öñ $date ~~~~~]';
+  }
+
+  @override
+  String get transactionHidden => '[Ĥîððéñ ~~~]';
+
+  @override
+  String get transactionHiddenOption => '[Ĥîððéñ ~~~]';
+
+  @override
+  String get transactionSelect => '[Šéļéçţ ~~~]';
+
+  @override
+  String get transactionSplitLabel => '[Šþļîţ ~~]';
+
+  @override
+  String transactionSplitAcross(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Šþļîţ åçŕöšš $count çåţéĝöŕîéš ~~~~~ ~~~~',
+      one: 'Šþļîţ åçŕöšš 1 çåţéĝöŕý ~~~~~ ~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get splitsTitle => '[Šþļîţš ~~~]';
+
+  @override
+  String get splitAdd => '[Åðð šþļîţ ~~~~]';
+
+  @override
+  String get splitRemove => '[Ŕéɱöṽé šþļîţ ~~~~~]';
+
+  @override
+  String get splitDistribute => '[Ðîšţŕîƀûţé éṽéñļý ~~~~~ ~~]';
+
+  @override
+  String get splitAmount => '[Šþļîţ åɱöûñţ ~~~~~]';
+
+  @override
+  String get splitChooseCategory => '[Çĥööšé å çåţéĝöŕý ~~~~~ ~]';
+
+  @override
+  String get splitCategoryRequired =>
+      '[Çĥööšé å çåţéĝöŕý ƒöŕ éṽéŕý šþļîţ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String splitUnallocated(String amount) {
+    return '[Ûñåļļöçåţéð $amount ~~~~~]';
+  }
+
+  @override
+  String splitOverAllocated(String amount) {
+    return '[Öṽéŕ ƀý $amount ~~~]';
+  }
+
+  @override
+  String splitMustBalance(String amount) {
+    return '[Šþļîţš ɱûšţ åðð ûþ ţö $amount ~~~~~ ~~]';
+  }
+
+  @override
+  String get receiptTitle => '[Ŕéçéîþţ ~~~]';
+
+  @override
+  String get receiptTakePhoto => '[Ţåķé þĥöţö ~~~~]';
+
+  @override
+  String get receiptChoosePhoto => '[Çĥööšé þĥöţö ~~~~~]';
+
+  @override
+  String get receiptReplace => '[Ŕéþļåçé ~~~]';
+
+  @override
+  String get receiptReplaceLabel => '[Ŕéþļåçé ŕéçéîþţ ~~~~~ ~]';
+
+  @override
+  String get receiptRemove => '[Ŕéɱöṽé ŕéçéîþţ ~~~~~ ~]';
+
+  @override
+  String get receiptImage => '[Ŕéçéîþţ îɱåĝé ~~~~~]';
+
+  @override
+  String get receiptOpenHint => '[öþéñ ţĥé ŕéçéîþţ ƒûļļ šçŕééñ ~~~~~ ~~~~~]';
+
+  @override
+  String get receiptMissing => '[Ŕéçéîþţ ķéþţ öñ åñöţĥéŕ ðéṽîçé ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get receiptNoCamera => '[Ñö çåɱéŕå îš åṽåîļåƀļé ~~~~~ ~~~]';
+
+  @override
+  String get receiptPickFailed => '[Ţĥåţ îɱåĝé çåñ\'ţ ƀé ûšéð ~~~~~ ~~~]';
+
+  @override
+  String get receiptSaveFailed =>
+      '[Ţĥé ŕéçéîþţ çöûļð ñöţ ƀé šåṽéð ~~~~~ ~~~~~]';
+
+  @override
+  String get filterShowHidden => '[Šĥöŵ ĥîððéñ ~~~~]';
+
+  @override
+  String get filterShowHiddenCaption =>
+      '[Ĥîððéñ ţŕåñšåçţîöñš šţîļļ çöûñţ ţöŵåŕð ţĥéîŕ åççöûñţ\'š ƀåļåñçé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get filterIncludingHidden => '[Îñçļûðîñĝ ĥîððéñ ~~~~~ ~]';
+
+  @override
+  String transactionsSelected(int count) {
+    return '[$count šéļéçţéð ~~~~]';
+  }
+
+  @override
+  String get selectionCancel => '[Çåñçéļ šéļéçţîöñ ~~~~~ ~]';
+
+  @override
+  String get selectAll => '[Šéļéçţ åļļ ~~~~]';
+
+  @override
+  String get bulkSetCategory => '[Šéţ çåţéĝöŕý ~~~~~]';
+
+  @override
+  String get bulkAddTag => '[Åðð ţåĝ ~~~]';
+
+  @override
+  String get bulkTagLabel => '[Ţåĝ ~~]';
+
+  @override
+  String get bulkTagAdd => '[Åðð ~~]';
+
+  @override
+  String get bulkHide => '[Ĥîðé ~~]';
+
+  @override
+  String get bulkUnhide => '[Ûñĥîðé ~~~]';
+
+  @override
+  String bulkCategorySet(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Çåţéĝöŕý šéţ öñ $count ţŕåñšåçţîöñš ~~~~~ ~~~~~',
+      one: 'Çåţéĝöŕý šéţ öñ 1 ţŕåñšåçţîöñ ~~~~~ ~~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String bulkTagAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ţåĝ åððéð ţö $count ţŕåñšåçţîöñš ~~~~~ ~~~~',
+      one: 'Ţåĝ åððéð ţö 1 ţŕåñšåçţîöñ ~~~~~ ~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String bulkHidden(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ţŕåñšåçţîöñš ĥîððéñ ~~~~~ ~~~',
+      one: '1 ţŕåñšåçţîöñ ĥîððéñ ~~~~~ ~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String bulkUnhidden(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ţŕåñšåçţîöñš ûñĥîððéñ ~~~~~ ~~~',
+      one: '1 ţŕåñšåçţîöñ ûñĥîððéñ ~~~~~ ~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String bulkDeleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ţŕåñšåçţîöñš ðéļéţéð ~~~~~ ~~~',
+      one: '1 ţŕåñšåçţîöñ ðéļéţéð ~~~~~ ~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String bulkDeleteTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ðéļéţé $count ţŕåñšåçţîöñš? ~~~~~ ~~~',
+      one: 'Ðéļéţé 1 ţŕåñšåçţîöñ? ~~~~~ ~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get bulkDeleteBody =>
+      '[Ţĥéý ļéåṽé éṽéŕý ļîšţ åñð ţĥéîŕ åççöûñţš\' ƀåļåñçéš. ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get bulkFailed =>
+      '[Ñöţĥîñĝ çĥåñĝéð: ţĥé ţŕåñšåçţîöñš çöûļð ñöţ ƀé ûþðåţéð. ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get bulkFailedDeleted =>
+      '[Ñöţĥîñĝ çĥåñĝéð: öñé öƒ ţĥé ţŕåñšåçţîöñš ŵåš ðéļéţéð ɱéåñŵĥîļé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String rulePreviewCount(int changed, int total) {
+    final intl.NumberFormat changedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String changedString = changedNumberFormat.format(changed);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other:
+          'Ŵöûļð çĥåñĝé $changedString öƒ $totalString ţŕåñšåçţîöñš ~~~~~ ~~~~~',
+      one: 'Ŵöûļð çĥåñĝé $changedString öƒ 1 ţŕåñšåçţîöñ ~~~~~ ~~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get rulePreviewIncomplete =>
+      '[Ƒîñîšĥ ţĥé çöñðîţîöñš åñð åçţîöñš ţö šéé ŵĥåţ ţĥîš ŕûļé ŵöûļð çĥåñĝé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get rulePreviewChecking => '[Çĥéçķîñĝ ýöûŕ ţŕåñšåçţîöñš… ~~~~~ ~~~~~]';
+
+  @override
+  String get rulePreviewOpen => '[Þŕéṽîéŵ ~~~]';
+
+  @override
+  String get rulePreviewTitle => '[Ŵĥåţ ţĥîš ŕûļé ŵöûļð çĥåñĝé ~~~~~ ~~~~~]';
+
+  @override
+  String rulePreviewMore(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString ɱöŕé ţŕåñšåçţîöñš ñöţ šĥöŵñ ~~~~~ ~~~~~',
+      one: '1 ɱöŕé ţŕåñšåçţîöñ ñöţ šĥöŵñ ~~~~~ ~~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String rulePreviewCategory(String before, String after) {
+    return '[Çåţéĝöŕý: $before → $after ~~~~]';
+  }
+
+  @override
+  String rulePreviewTag(String tag) {
+    return '[Ţåĝ åððéð: $tag ~~~~]';
+  }
+
+  @override
+  String rulePreviewName(String before, String after) {
+    return '[Ðéšçŕîþţîöñ: $before → $after ~~~~~]';
+  }
+
+  @override
+  String get rulePreviewHidden => '[Ĥîððéñ ~~~]';
+
+  @override
+  String get ruleApplyToHistory =>
+      '[Åþþļý ţö éẋîšţîñĝ ţŕåñšåçţîöñš ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get ruleApplySaveFirst => '[Šåṽé ţĥé ŕûļé ƒîŕšţ ~~~~~ ~~]';
+
+  @override
+  String ruleApplyTitle(String name) {
+    return '[Åþþļý “$name” ţö éẋîšţîñĝ ţŕåñšåçţîöñš? ~~~~~ ~~~~~ ~]';
+  }
+
+  @override
+  String get ruleApplyBody =>
+      '[Ţĥé ŕûļé çĥåñĝéš ţĥé ţŕåñšåçţîöñš îţ ɱåţçĥéš ñöŵ, åš îţ ŵöûļð ñéŵ öñéš. Çåţéĝöŕîéš åñð ţåĝš ýöû ĥåṽé šéţ šţåý åš ţĥéý åŕé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get ruleApplyConfirm => '[Åþþļý ~~]';
+
+  @override
+  String ruleApplied(
+    int count,
+    int filed,
+    int tagged,
+    int renamed,
+    int hidden,
+  ) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+    final intl.NumberFormat filedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String filedString = filedNumberFormat.format(filed);
+    final intl.NumberFormat taggedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String taggedString = taggedNumberFormat.format(tagged);
+    final intl.NumberFormat renamedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String renamedString = renamedNumberFormat.format(renamed);
+    final intl.NumberFormat hiddenNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String hiddenString = hiddenNumberFormat.format(hidden);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$countString ţŕåñšåçţîöñš çĥåñĝéð: $filedString ƒîļéð, $taggedString ţåĝĝéð, $renamedString ŕéñåɱéð, $hiddenString ĥîððéñ ~~~~~ ~~~~~ ~~~~~ ~~~',
+      one:
+          '1 ţŕåñšåçţîöñ çĥåñĝéð: $filedString ƒîļéð, $taggedString ţåĝĝéð, $renamedString ŕéñåɱéð, $hiddenString ĥîððéñ ~~~~~ ~~~~~ ~~~~~ ~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get ruleAppliedNone => '[Ñö ţŕåñšåçţîöñš çĥåñĝéð. ~~~~~ ~~~~]';
+
+  @override
+  String get ruleApplyFailed =>
+      '[Ţĥé ŕûļé çöûļð ñöţ ƀé åþþļîéð. Ñöţĥîñĝ çĥåñĝéð. ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String ruleMoreOptions(String name) {
+    return '[Ṁöŕé öþţîöñš ƒöŕ “$name” ~~~~~ ~]';
+  }
+
+  @override
+  String get ruleEditorMoreOptions => '[Ṁöŕé öþţîöñš ~~~~~]';
+
+  @override
+  String get ruleApplying =>
+      '[Åþþļýîñĝ ţĥé ŕûļé ţö ýöûŕ ţŕåñšåçţîöñš ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get duplicatesTitle => '[Ŕéṽîéŵ ðûþļîçåţéš ~~~~~ ~~]';
+
+  @override
+  String duplicatesMenuItem(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ŕéṽîéŵ ðûþļîçåţéš ($countString) ~~~~~ ~~',
+      zero: 'Ŕéṽîéŵ ðûþļîçåţéš ~~~~~ ~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String transactionsMoreOptions(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ṁöŕé öþţîöñš, $countString ļîķéļý ðûþļîçåţéš ~~~~~ ~~~~~ ~',
+      one: 'Ṁöŕé öþţîöñš, 1 ļîķéļý ðûþļîçåţé ~~~~~ ~~~~~ ~',
+      zero: 'Ṁöŕé öþţîöñš ~~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String duplicatesBadge(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '[$countString]';
+  }
+
+  @override
+  String get duplicatesEmptyHeadline => '[Ñö ļîķéļý ðûþļîçåţéš ~~~~~ ~~~]';
+
+  @override
+  String get duplicatesEmptyBody =>
+      '[Ţŵö ţŕåñšåçţîöñš ŵîţĥ ţĥé šåɱé åɱöûñţ ŵîţĥîñ ţĥŕéé ðåýš, öñ ðîƒƒéŕéñţ åççöûñţš öŕ öñé ƒŕöɱ ýöûŕ ƀåñķ åñð öñé ýöû éñţéŕéð, šĥöŵ ûþ ĥéŕé ƒöŕ ýöû ţö çĥéçķ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get duplicatesIntro =>
+      '[Éåçĥ þåîŕ ɱåý ƀé öñé ţŕåñšåçţîöñ ŕéçöŕðéð ţŵîçé. Ñöţĥîñĝ îš ɱéŕĝéð öŕ ðéļéţéð: ĥîðé ţĥé éẋţŕå öñé, öŕ ɱåŕķ ţĥé þåîŕ åš ñöţ ðûþļîçåţéš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String duplicatesDaysApart(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Šåɱé åɱöûñţ, $days ðåýš åþåŕţ ~~~~~ ~~~',
+      one: 'Šåɱé åɱöûñţ, 1 ðåý åþåŕţ ~~~~~ ~~~',
+      zero: 'Šåɱé åɱöûñţ, šåɱé ðåý ~~~~~ ~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get duplicateHide => '[Ĥîðé ţĥîš öñé ~~~~~]';
+
+  @override
+  String duplicateHideNamed(String name) {
+    return '[Ĥîðé ţĥîš öñé: $name ~~~~~]';
+  }
+
+  @override
+  String get duplicateNotDuplicates => '[Ñöţ ðûþļîçåţéš ~~~~~ ~]';
+
+  @override
+  String get duplicateDismissed => '[Ṁåŕķéð åš ñöţ ðûþļîçåţéš ~~~~~ ~~~~]';
+
+  @override
+  String get duplicateHidden => '[Ţŕåñšåçţîöñ ĥîððéñ ~~~~~ ~~]';
+
+  @override
+  String get duplicateHideFailed =>
+      '[Ţĥé ţŕåñšåçţîöñ çöûļð ñöţ ƀé ĥîððéñ. ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get billRemindersChannelName => '[Ɓîļļ ŕéɱîñðéŕš ~~~~~ ~]';
+
+  @override
+  String get billRemindersChannelDescription =>
+      '[Ŕéɱîñðéŕš ƀéƒöŕé ýöûŕ ƀîļļš åŕé ðûé ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get billUnnamed => '[Ɓîļļ ~~]';
+
+  @override
+  String billReminderTitleToday(String name) {
+    return '[$name îš ðûé ţöðåý ~~~~]';
+  }
+
+  @override
+  String billReminderTitleTomorrow(String name) {
+    return '[$name îš ðûé ţöɱöŕŕöŵ ~~~~~ ~]';
+  }
+
+  @override
+  String billReminderTitleOn(String name, String date) {
+    return '[$name îš ðûé $date ~~]';
+  }
+
+  @override
+  String billReminderBody(String amount) {
+    return '[Éẋþéçţéð $amount ~~~~]';
+  }
+
+  @override
+  String get billReminderBodyNoAmount =>
+      '[Öþéñ ţĥé ƀîļļ ţö ɱåŕķ îţ þåîð ~~~~~ ~~~~~]';
+
+  @override
+  String alertBillDue(String name, String date) {
+    return '[$name îš ðûé $date ~~]';
+  }
+
+  @override
+  String get billNew => '[Ñéŵ ƀîļļ ~~~]';
+
+  @override
+  String get billNoNextDue => '[Ñö ûþçöɱîñĝ ðûé ðåţé ~~~~~ ~~]';
+
+  @override
+  String get billStatePaid => '[Þåîð ~~]';
+
+  @override
+  String get billStateMissed => '[Ṁîššéð ~~~]';
+
+  @override
+  String get billNotFound => '[Ţĥîš ƀîļļ ñö ļöñĝéŕ éẋîšţš. ~~~~~ ~~~~]';
+
+  @override
+  String get billNewTitle => '[Ñéŵ ƀîļļ ~~~]';
+
+  @override
+  String get billEditTitle => '[Éðîţ ƀîļļ ~~~~]';
+
+  @override
+  String get billDeleted => '[Ɓîļļ ðéļéţéð ~~~~~]';
+
+  @override
+  String get billName => '[Ñåɱé ~~]';
+
+  @override
+  String get billNameRequired => '[Éñţéŕ å ñåɱé ~~~~]';
+
+  @override
+  String get billAmount => '[Éẋþéçţéð åɱöûñţ ~~~~~ ~]';
+
+  @override
+  String get billAmountHelper =>
+      '[Öþţîöñåļ. Å þåýɱéñţ ŵîţĥîñ 10 % öƒ îţ ɱåŕķš ţĥé ƀîļļ þåîð. ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get billDueDate => '[Ƒîŕšţ ðûé ðåţé ~~~~~]';
+
+  @override
+  String get billChooseDueDate => '[Çĥööšé å ðûé ðåţé ~~~~~ ~]';
+
+  @override
+  String get billRepeats => '[Ŕéþéåţš ~~~]';
+
+  @override
+  String get billCadenceOnce => '[Öñçé ~~]';
+
+  @override
+  String get billCadenceWeekly => '[Éṽéŕý ŵééķ ~~~~]';
+
+  @override
+  String get billCadenceBiweekly => '[Éṽéŕý ţŵö ŵééķš ~~~~~ ~]';
+
+  @override
+  String get billCadenceSemiMonthly => '[Ţŵîçé å ɱöñţĥ ~~~~~]';
+
+  @override
+  String get billCadenceMonthly => '[Éṽéŕý ɱöñţĥ ~~~~]';
+
+  @override
+  String get billCadenceQuarterly => '[Éṽéŕý ţĥŕéé ɱöñţĥš ~~~~~ ~~]';
+
+  @override
+  String get billCadenceAnnually => '[Éṽéŕý ýéåŕ ~~~~]';
+
+  @override
+  String get billAccount => '[Þåîð ƒŕöɱ ~~~~]';
+
+  @override
+  String get billAnyAccount => '[Åñý åççöûñţ ~~~~]';
+
+  @override
+  String get billReminders => '[Ŕéɱîñð ɱé ~~~~]';
+
+  @override
+  String billReminderOffset(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days ðåýš ƀéƒöŕé ~~~~',
+      one: '1 ðåý ƀéƒöŕé ~~~~',
+      zero: 'Öñ ţĥé ðåý ~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get billReminderTime => '[Ŕéɱîñðéŕ ţîɱé ~~~~~]';
+
+  @override
+  String get billActive => '[Åçţîṽé ~~~]';
+
+  @override
+  String get billActiveCaption =>
+      '[Åñ îñåçţîṽé ƀîļļ îš ķéþţ ƀûţ ñéṽéŕ ŕéɱîñðéð. ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get billAutopay => '[Þåîð åûţöɱåţîçåļļý ~~~~~ ~~]';
+
+  @override
+  String get billAutopayCaption =>
+      '[Ñéṽéŕ šĥöŵñ åš ɱîššéð ŵĥéñ ñö þåýɱéñţ îš ƒöûñð. ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get billPermissionTitle => '[Ñöţîƒîçåţîöñš åŕé öƒƒ ~~~~~ ~~~]';
+
+  @override
+  String get billPermissionBody =>
+      '[Ɓîļļ ŕéɱîñðéŕš ñééð ñöţîƒîçåţîöñš. Ţĥé ƀîļļ îš šåṽéð; ţö ƀé ŕéɱîñðéð, åļļöŵ ñöţîƒîçåţîöñš ƒöŕ ţĥé åþþ îñ ţĥé šýšţéɱ šéţţîñĝš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get billPermissionNotNow => '[Ñöţ ñöŵ ~~~]';
+
+  @override
+  String get billPermissionOpenSettings => '[Öþéñ šéţţîñĝš ~~~~~]';
+
+  @override
+  String get subscriptionsTitle => '[Šûƀšçŕîþţîöñš ~~~~~ ~]';
+
+  @override
+  String subscriptionsTotal(String total, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count šûƀšçŕîþţîöñš ~~~~~ ~',
+      one: '1 šûƀšçŕîþţîöñ ~~~~~',
+    );
+    return '[$total å ýéåŕ åçŕöšš $_temp0 ~~~~~]';
+  }
+
+  @override
+  String get subscriptionsEmptyHeadline => '[Ñö šûƀšçŕîþţîöñš ýéţ ~~~~~ ~~~]';
+
+  @override
+  String get subscriptionsEmptyBody =>
+      '[Šûƀšçŕîþţîöñš ƒöûñð îñ ýöûŕ ţŕåñšåçţîöñš öŕ ŕéþöŕţéð ƀý ýöûŕ ƀåñķ ŵîļļ åþþéåŕ ĥéŕé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String subscriptionsMuted(int count) {
+    return '[Ṁûţéð ($count) ~~]';
+  }
+
+  @override
+  String subscriptionsOthers(int count) {
+    return '[Öţĥéŕ ŕéçûŕŕîñĝ ($count) ~~~~~ ~]';
+  }
+
+  @override
+  String streamCadence(String cadence) {
+    String _temp0 = intl.Intl.selectLogic(cadence, {
+      'weekly': 'Ŵééķļý ~~~',
+      'biweekly': 'Éṽéŕý ţŵö ŵééķš ~~~~~ ~',
+      'semiMonthly': 'Ţŵîçé å ɱöñţĥ ~~~~~',
+      'monthly': 'Ṁöñţĥļý ~~~',
+      'quarterly': 'Ǫûåŕţéŕļý ~~~~',
+      'annually': 'Ýéåŕļý ~~~',
+      'other': 'Îŕŕéĝûļåŕ ~~~~',
+    });
+    return '[$_temp0]';
+  }
+
+  @override
+  String streamAmountEach(String cadence, String amount) {
+    return '[$cadence, $amount éåçĥ ~~]';
+  }
+
+  @override
+  String streamYearly(String amount) {
+    return '[$amount å ýéåŕ ~~]';
+  }
+
+  @override
+  String get streamDetected =>
+      '[Ðéţéçţéð ƒŕöɱ ýöûŕ ţŕåñšåçţîöñš ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String streamActions(String name) {
+    return '[Åçţîöñš ƒöŕ $name ~~~~]';
+  }
+
+  @override
+  String get streamMute => '[Ṁûţé ~~]';
+
+  @override
+  String get streamUnmute => '[Ûñɱûţé ~~~]';
+
+  @override
+  String get streamNotSubscription => '[Ñöţ å šûƀšçŕîþţîöñ ~~~~~ ~~]';
+
+  @override
+  String get streamMarkSubscription => '[Ṁåŕķ åš šûƀšçŕîþţîöñ ~~~~~ ~~~]';
+
+  @override
+  String get streamRename => '[Ŕéñåɱé ~~~]';
+
+  @override
+  String get streamCreateBill => '[Çŕéåţé å ƀîļļ ~~~~~]';
+
+  @override
+  String streamMutedDone(String name) {
+    return '[$name ɱûţéð ~~]';
+  }
+
+  @override
+  String streamUnmutedDone(String name) {
+    return '[$name ûñɱûţéð ~~~]';
+  }
+
+  @override
+  String streamNotSubscriptionDone(String name) {
+    return '[$name îš ñö ļöñĝéŕ çöûñţéð åš å šûƀšçŕîþţîöñ ~~~~~ ~~~~~ ~~~]';
+  }
+
+  @override
+  String streamMarkSubscriptionDone(String name) {
+    return '[$name îš çöûñţéð åš å šûƀšçŕîþţîöñ ~~~~~ ~~~~~]';
+  }
+
+  @override
+  String streamRenamedDone(String name) {
+    return '[Ŕéñåɱéð ţö $name ~~~~]';
+  }
+
+  @override
+  String get streamRenameLabel => '[Ñåɱé ~~]';
+
+  @override
+  String streamRenameHelper(String merchant) {
+    return '[Ļéåṽé éɱþţý ţö ûšé $merchant ~~~~~ ~]';
+  }
+
+  @override
+  String navPlanMissed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ɱîššéð ƀîļļš ~~~~~',
+      one: '1 ɱîššéð ƀîļļ ~~~~',
+    );
+    return '[Þļåñ, $_temp0 ~~]';
+  }
+
+  @override
+  String get billsEmptyHeadline => '[Ñö ƀîļļš ýéţ ~~~~]';
+
+  @override
+  String get billsEmptyBody =>
+      '[Åðð å ƀîļļ ţö ƀé ŕéɱîñðéð ƀéƒöŕé îţ îš ðûé. ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get billsGroupOverdue => '[Öṽéŕðûé ~~~]';
+
+  @override
+  String get billsGroupDueSoon => '[Ðûé šööñ ~~~]';
+
+  @override
+  String get billsGroupLater => '[Ļåţéŕ ~~]';
+
+  @override
+  String billsGroupPaused(int count) {
+    return '[Þåûšéð ($count) ~~~]';
+  }
+
+  @override
+  String get billsSuggested => '[Šûĝĝéšţéð ~~~~]';
+
+  @override
+  String billSuggestionDetail(String cadence, String date) {
+    return '[$cadence, ñéẋţ ðûé $date ~~~]';
+  }
+
+  @override
+  String get billSuggestionAdd => '[Åðð ~~]';
+
+  @override
+  String billSuggestionAddLabel(String name) {
+    return '[Åðð $name åš å ƀîļļ ~~~~]';
+  }
+
+  @override
+  String get billSuggestionDismiss => '[Ðîšɱîšš ~~~]';
+
+  @override
+  String billSuggestionDismissLabel(String name) {
+    return '[Ðîšɱîšš ţĥé šûĝĝéšţîöñ $name ~~~~~ ~~~]';
+  }
+
+  @override
+  String get billStateAutopay => '[Åûţöþåý ~~~]';
+
+  @override
+  String get billMarkPaid => '[Ṁåŕķ þåîð ~~~~]';
+
+  @override
+  String billMarkPaidLabel(String name, String date) {
+    return '[Ṁåŕķ $name þåîð ƒöŕ $date ~~~~~]';
+  }
+
+  @override
+  String billMarkedPaid(String name) {
+    return '[$name ɱåŕķéð þåîð ~~~~]';
+  }
+
+  @override
+  String billDueIn(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Ðûé îñ $days ðåýš ~~~~',
+      one: 'Ðûé ţöɱöŕŕöŵ ~~~~~',
+      zero: 'Ðûé ţöðåý ~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String billDueAgo(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Ðûé $days ðåýš åĝö ~~~~',
+      one: 'Ðûé ýéšţéŕðåý ~~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String billDueOn(String date) {
+    return '[Ðûé $date ~~]';
+  }
+
+  @override
+  String get billPaused => '[Þåûšéð ~~~]';
+
+  @override
+  String get billsListView => '[Ļîšţ ~~]';
+
+  @override
+  String get billsCalendarView => '[Çåļéñðåŕ ~~~~]';
+
+  @override
+  String get billsPreviousMonth => '[Þŕéṽîöûš ɱöñţĥ ~~~~~ ~]';
+
+  @override
+  String get billsNextMonth => '[Ñéẋţ ɱöñţĥ ~~~~]';
+
+  @override
+  String billsCalendarDay(String date, int count, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ƀîļļš ðûé: $names ~~~~',
+      one: '1 ƀîļļ ðûé: $names ~~~',
+      zero: 'ñö ƀîļļš ðûé ~~~~',
+    );
+    return '[$date, $_temp0]';
+  }
+
+  @override
+  String billsCalendarNone(String date) {
+    return '[Ñö ƀîļļš ðûé $date ~~~~]';
+  }
+
+  @override
+  String billsSuggestedShowAll(int count) {
+    return '[Šĥöŵ åļļ ($count) ~~~]';
+  }
+
+  @override
+  String billsMissedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ɱîššéð ƀîļļš ~~~~~',
+      one: '1 ɱîššéð ƀîļļ ~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get forecastTitle => '[Ƒöŕéçåšţ ~~~~]';
+
+  @override
+  String forecastEventAmount(String name, String amount) {
+    return '[$name $amount]';
+  }
+
+  @override
+  String forecastHorizon(int days) {
+    return '[$days ðåýš ~~]';
+  }
+
+  @override
+  String get forecastShowTable => '[Ţåƀļé ~~]';
+
+  @override
+  String get forecastShowChart => '[Çĥåŕţ ~~]';
+
+  @override
+  String forecastLowest(String amount, String date) {
+    return '[Ļöŵéšţ þöîñţ $amount öñ $date ~~~~~ ~]';
+  }
+
+  @override
+  String forecastBelowZero(String date) {
+    return '[Ɓéļöŵ žéŕö öñ $date ~~~~~]';
+  }
+
+  @override
+  String get forecastChooseAccounts => '[Çĥööšé åççöûñţš ~~~~~ ~]';
+
+  @override
+  String get forecastEmptyHeadline => '[Ñö åççöûñţš ţö ƒöŕéçåšţ ~~~~~ ~~~]';
+
+  @override
+  String get forecastEmptyBody =>
+      '[Çĥööšé å çĥéçķîñĝ öŕ šåṽîñĝš åççöûñţ ţö šéé ŵĥéŕé îţš ƀåļåñçé îš ĥéåðîñĝ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String forecastChartSummary(
+    int days,
+    String start,
+    String end,
+    String endDate,
+    String lowest,
+    String lowestDate,
+  ) {
+    return '[$days-ðåý ƒöŕéçåšţ: $start ţöðåý, $end öñ $endDate. Ļöŵéšţ þöîñţ $lowest öñ $lowestDate. ~~~~~ ~~~~~ ~~~]';
+  }
+
+  @override
+  String forecastRange(String low, String high) {
+    return '[Ļöŵ $low · Ĥîĝĥ $high ~~~]';
+  }
+
+  @override
+  String forecastDaySemantics(
+    String date,
+    String balance,
+    String low,
+    String high,
+  ) {
+    return '[$date: ƀåļåñçé $balance, ļöŵ $low, ĥîĝĥ $high. ~~~~~ ~]';
+  }
+
+  @override
+  String forecastOverdue(String name, String date) {
+    return '[$name, ðûé $date ~~]';
+  }
+
+  @override
+  String get forecastAccountsTitle => '[Åççöûñţš îñ ţĥé ƒöŕéçåšţ ~~~~~ ~~~~]';
+
+  @override
+  String forecastAccountsHidden(String currency) {
+    return '[$currency · ĥîððéñ åççöûñţ ~~~~~ ~]';
+  }
+
+  @override
+  String get forecastCurrency => '[Çûŕŕéñçý ~~~~]';
+
+  @override
+  String get forecastSelectionFailed =>
+      '[Ţĥé ƒöŕéçåšţ\'š åççöûñţš çöûļð ñöţ ƀé šåṽéð. Ţŕý åĝåîñ. ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get goalsNew => '[Ñéŵ ĝöåļ ~~~]';
+
+  @override
+  String get goalsEmptyTitle => '[Ñö šåṽîñĝš ĝöåļš ýéţ ~~~~~ ~~]';
+
+  @override
+  String get goalsEmptyBody =>
+      '[Šéţ å ţåŕĝéţ åñð å ðåţé, åñð šéé ĥöŵ ɱûçĥ ţö šéţ åšîðé éåçĥ ɱöñţĥ. ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String goalsArchived(int count) {
+    return '[Åŕçĥîṽéð ($count) ~~~~]';
+  }
+
+  @override
+  String goalProgressOf(String progress, String target) {
+    return '[$progress öƒ $target ~]';
+  }
+
+  @override
+  String goalProgressPercent(int percent) {
+    return '[$percent þéŕçéñţ öƒ ţĥé ţåŕĝéţ ~~~~~ ~~~]';
+  }
+
+  @override
+  String get goalOnTrack => '[Öñ ţŕåçķ ~~~]';
+
+  @override
+  String goalBehind(String amount) {
+    return '[Ɓéĥîñð ƀý $amount ~~~~]';
+  }
+
+  @override
+  String get goalDone => '[Ðöñé ~~]';
+
+  @override
+  String goalSuggestion(String amount) {
+    return '[Šéţ åšîðé $amount å ɱöñţĥ ~~~~~ ~]';
+  }
+
+  @override
+  String goalTargetDateCaption(String date) {
+    return '[Ɓý $date ~]';
+  }
+
+  @override
+  String get goalNotFound => '[Ţĥîš ĝöåļ ñö ļöñĝéŕ éẋîšţš. ~~~~~ ~~~~]';
+
+  @override
+  String get goalNewTitle => '[Ñéŵ ĝöåļ ~~~]';
+
+  @override
+  String get goalEditTitle => '[Éðîţ ĝöåļ ~~~~]';
+
+  @override
+  String get goalName => '[Ñåɱé ~~]';
+
+  @override
+  String get goalNameRequired => '[Éñţéŕ å ñåɱé ~~~~]';
+
+  @override
+  String get goalTarget => '[Ţåŕĝéţ åɱöûñţ ~~~~~]';
+
+  @override
+  String get goalKind => '[Þŕöĝŕéšš ƒŕöɱ ~~~~~]';
+
+  @override
+  String get goalKindBalance => '[Åççöûñţ ƀåļåñçéš ~~~~~ ~]';
+
+  @override
+  String get goalKindContribution => '[Çöñţŕîƀûţîöñš ~~~~~ ~]';
+
+  @override
+  String get goalKindBalanceCaption =>
+      '[Þŕöĝŕéšš îš ţĥé ƀåļåñçé öƒ ţĥé åççöûñţš ýöû çĥööšé. ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get goalKindContributionCaption =>
+      '[Þŕöĝŕéšš îš ŵĥåţ ýöû åðð ţö ţĥé ĝöåļ ýöûŕšéļƒ. ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get goalAccounts => '[Åççöûñţš ~~~~]';
+
+  @override
+  String get goalAccountsRequired =>
+      '[Çĥööšé åţ ļéåšţ öñé åççöûñţ ~~~~~ ~~~~~]';
+
+  @override
+  String goalAccountOtherCurrency(String currency) {
+    return '[Îñ $currency, ñöţ çöûñţéð ~~~~~]';
+  }
+
+  @override
+  String get goalTargetDate => '[Ţåŕĝéţ ðåţé ~~~~]';
+
+  @override
+  String get goalNoTargetDate => '[Ñö ðåţé ~~~]';
+
+  @override
+  String get goalClearTargetDate => '[Çļéåŕ ðåţé ~~~~]';
+
+  @override
+  String get goalNote => '[Ñöţé ~~]';
+
+  @override
+  String get goalArchive => '[Åŕçĥîṽé ~~~]';
+
+  @override
+  String get goalUnarchive => '[Ûñåŕçĥîṽé ~~~~]';
+
+  @override
+  String get goalArchivedMessage => '[Ĝöåļ åŕçĥîṽéð ~~~~~]';
+
+  @override
+  String get goalDeleted => '[Ĝöåļ ðéļéţéð ~~~~~]';
+
+  @override
+  String get goalCountedAccounts => '[Çöûñţéð åççöûñţš ~~~~~ ~]';
+
+  @override
+  String goalNotCounted(String names) {
+    return '[Ñöţ çöûñţéð, åñöţĥéŕ çûŕŕéñçý: $names ~~~~~ ~~~~~]';
+  }
+
+  @override
+  String get goalContributions => '[Çöñţŕîƀûţîöñš ~~~~~ ~]';
+
+  @override
+  String get goalNoContributions => '[Ñö çöñţŕîƀûţîöñš ýéţ. ~~~~~ ~~~]';
+
+  @override
+  String get goalAddContribution => '[Åðð çöñţŕîƀûţîöñ ~~~~~ ~]';
+
+  @override
+  String get contributionDate => '[Ðåţé ~~]';
+
+  @override
+  String get contributionAmount => '[Åɱöûñţ ~~~]';
+
+  @override
+  String get contributionNote => '[Ñöţé ~~]';
+
+  @override
+  String get contributionWithdrawal => '[Ŵîţĥðŕåŵåļ ~~~~]';
+
+  @override
+  String get contributionWithdrawalCaption =>
+      '[Ţåķéš ţĥé åɱöûñţ öûţ öƒ ţĥé ĝöåļ. ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get contributionDelete => '[Ðéļéţé çöñţŕîƀûţîöñ ~~~~~ ~~~]';
+
+  @override
+  String get contributionDeleted => '[Çöñţŕîƀûţîöñ ðéļéţéð ~~~~~ ~~~]';
+
+  @override
+  String get goalTargetDatePast => '[Çĥööšé ţöðåý öŕ å ļåţéŕ ðåţé ~~~~~ ~~~~~]';
+
+  @override
+  String get goalCurrencyLocked =>
+      '[Ţĥé çûŕŕéñçý šţåýš åš îţ îš öñçé ţĥé ĝöåļ ĥåš çöñţŕîƀûţîöñš öŕ åççöûñţš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String contributionNotCounted(String currency) {
+    return '[Ñöţ çöûñţéð, îñ $currency ~~~~~]';
+  }
+
+  @override
+  String get contributionDateFuture =>
+      '[Çĥööšé ţöðåý öŕ åñ éåŕļîéŕ ðåţé ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get investmentsTitle => '[Îñṽéšţɱéñţš ~~~~~]';
+
+  @override
+  String get investmentsEmptyHeadline => '[Ñö îñṽéšţɱéñţ åççöûñţš ~~~~~ ~~~]';
+
+  @override
+  String get investmentsEmptyBody =>
+      '[Ļîñķ å ƀŕöķéŕåĝé öŕ ŕéţîŕéɱéñţ åççöûñţ ţö šéé îţš ĥöļðîñĝš, åļļöçåţîöñ åñð ṽåļûé ĥéŕé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get investmentsAllocation => '[Åļļöçåţîöñ ~~~~]';
+
+  @override
+  String investmentsAllocationIn(String currency) {
+    return '[Åļļöçåţîöñ îñ $currency ~~~~~]';
+  }
+
+  @override
+  String investmentsAllocationSummary(
+    String total,
+    int count,
+    String largest,
+    String share,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count šéçûŕîţý ţýþéš ~~~~~ ~',
+      one: 'öñé šéçûŕîţý ţýþé ~~~~~ ~',
+    );
+    return '[Ĥöļðîñĝš ŵöŕţĥ $total îñ $_temp0. Ţĥé ļåŕĝéšţ îš $largest åţ $share. ~~~~~ ~~~~~ ~~]';
+  }
+
+  @override
+  String investmentsAllocationRow(String type, String value, String share) {
+    return '[$type: $value, $share]';
+  }
+
+  @override
+  String get investmentsTypeCash => '[Çåšĥ ~~]';
+
+  @override
+  String get investmentsTypeOther => '[Öţĥéŕ ~~]';
+
+  @override
+  String get investmentsTypeEtf => '[ÉŢƑ ~~]';
+
+  @override
+  String investmentsPercent(int percent) {
+    return '[$percent %]';
+  }
+
+  @override
+  String investmentsPercentUp(int percent) {
+    return '[+$percent %]';
+  }
+
+  @override
+  String investmentsChange(String amount, String percent) {
+    return '[$amount ($percent)]';
+  }
+
+  @override
+  String investmentsPrice(String price, String currency) {
+    return '[$price $currency]';
+  }
+
+  @override
+  String investmentsQuantityAtPrice(String quantity, String price) {
+    return '[$quantity åţ $price ~]';
+  }
+
+  @override
+  String investmentsCostBasis(String cost) {
+    return '[Çöšţ ƀåšîš $cost ~~~~]';
+  }
+
+  @override
+  String investmentsGain(String gain) {
+    return '[Ĝåîñ $gain ~~]';
+  }
+
+  @override
+  String get investmentsCostBasisUnavailable =>
+      '[Çöšţ ƀåšîš ûñåṽåîļåƀļé ~~~~~ ~~~]';
+
+  @override
+  String investmentsPriceAsOf(String date) {
+    return '[Þŕîçé åš öƒ $date ~~~~]';
+  }
+
+  @override
+  String investmentsNameAmount(String name, String amount) {
+    return '[$name: $amount]';
+  }
+
+  @override
+  String investmentsDateAndType(String date, String type) {
+    return '[$date · $type]';
+  }
+
+  @override
+  String investmentsFees(String amount) {
+    return '[Ƒééš $amount ~~]';
+  }
+
+  @override
+  String investmentsAccountSemantics(
+    String name,
+    String balance,
+    String caption,
+  ) {
+    return '[$name, $balance, $caption]';
+  }
+
+  @override
+  String get investmentsValueTitle => '[Ṽåļûé öṽéŕ ţîɱé ~~~~~ ~]';
+
+  @override
+  String investmentsValueCaption(String date) {
+    return '[Ƒŕöɱ îñšţåļļ ðåý: ŕéçöŕðéð öñ ţĥîš ðéṽîçé šîñçé $date ~~~~~ ~~~~~ ~~~~~ ~]';
+  }
+
+  @override
+  String get investmentsValueNone => '[Ñö ṽåļûéš ŕéçöŕðéð ýéţ ~~~~~ ~~~]';
+
+  @override
+  String investmentsValueSummary(
+    String start,
+    String startDate,
+    String end,
+    String endDate,
+  ) {
+    return '[Ṽåļûé $start öñ $startDate, $end öñ $endDate. ~~~~]';
+  }
+
+  @override
+  String investmentsValueSummaryOne(String amount, String date) {
+    return '[Ṽåļûé $amount öñ $date. ~~~]';
+  }
+
+  @override
+  String investmentsValueRow(String date, String value) {
+    return '[$date: $value]';
+  }
+
+  @override
+  String get investmentsShowTable => '[Ţåƀļé ~~]';
+
+  @override
+  String get investmentsShowChart => '[Çĥåŕţ ~~]';
+
+  @override
+  String get investmentsHoldings => '[Ĥöļðîñĝš ~~~~]';
+
+  @override
+  String get investmentsNoHoldings => '[Ñö ĥöļðîñĝš ŕéþöŕţéð ~~~~~ ~~~]';
+
+  @override
+  String get investmentsUnknownSecurity => '[Ûñķñöŵñ šéçûŕîţý ~~~~~ ~]';
+
+  @override
+  String get investmentsTransactions => '[Îñṽéšţɱéñţ ţŕåñšåçţîöñš ~~~~~ ~~~~]';
+
+  @override
+  String get investmentsNoTransactions =>
+      '[Ñö îñṽéšţɱéñţ ţŕåñšåçţîöñš ~~~~~ ~~~~~]';
+
+  @override
+  String investmentsShowMore(int count) {
+    return '[Šĥöŵ ɱöŕé ($count ļéƒţ) ~~~~~]';
+  }
+
+  @override
+  String get netWorthTitle => '[Ñéţ ŵöŕţĥ ~~~~]';
+
+  @override
+  String netWorthHeadlineLabel(String date) {
+    return '[Ñéţ ŵöŕţĥ öñ $date ~~~~]';
+  }
+
+  @override
+  String netWorthChange(String amount) {
+    return '[$amount öṽéŕ 30 ðåýš ~~~~]';
+  }
+
+  @override
+  String netWorthChangeEstimated(String amount) {
+    return '[$amount öṽéŕ 30 ðåýš, åĝåîñšţ åñ éšţîɱåţé ~~~~~ ~~~~~]';
+  }
+
+  @override
+  String get netWorthRangeThreeMonths => '[3 ɱ ~]';
+
+  @override
+  String get netWorthRangeYear => '[1 ý ~]';
+
+  @override
+  String get netWorthRangeAll => '[Åļļ ~~]';
+
+  @override
+  String get netWorthShowTable => '[Ţåƀļé ~~]';
+
+  @override
+  String get netWorthShowChart => '[Çĥåŕţ ~~]';
+
+  @override
+  String get netWorthAssets => '[Åššéţš ~~~]';
+
+  @override
+  String get netWorthLiabilitiesLine => '[Ļîåƀîļîţîéš ~~~~~]';
+
+  @override
+  String get netWorthEstimatedLegend =>
+      '[Ðåšĥéð: éšţîɱåţéð ƒŕöɱ ţŕåñšåçţîöñš ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String netWorthChartSummary(
+    String startDate,
+    String endDate,
+    String start,
+    String end,
+    String assets,
+    String liabilities,
+  ) {
+    return '[Ñéţ ŵöŕţĥ ƒŕöɱ $startDate ţö $endDate: $start ţö $end. Öñ $endDate, åššéţš $assets åñð ļîåƀîļîţîéš $liabilities. ~~~~~ ~~~~~ ~~~~~ ~]';
+  }
+
+  @override
+  String netWorthChartEstimated(String date) {
+    return '[Ɓéƒöŕé $date, éšţîɱåţéð ƒŕöɱ ţŕåñšåçţîöñš. ~~~~~ ~~~~~ ~~~]';
+  }
+
+  @override
+  String netWorthRowSemantics(
+    String date,
+    String netWorth,
+    String assets,
+    String liabilities,
+  ) {
+    return '[$date: ñéţ ŵöŕţĥ $netWorth, åššéţš $assets, ļîåƀîļîţîéš $liabilities. ~~~~~ ~~~~~]';
+  }
+
+  @override
+  String netWorthRowDetail(String assets, String liabilities) {
+    return '[Åššéţš $assets · Ļîåƀîļîţîéš $liabilities ~~~~~ ~~]';
+  }
+
+  @override
+  String get netWorthEstimated => '[Éšţîɱåţéð ƒŕöɱ ţŕåñšåçţîöñš ~~~~~ ~~~~~]';
+
+  @override
+  String get netWorthCarried =>
+      '[Ñö šñåþšĥöţ ţĥîš ðåý: ţĥé ðåý ƀéƒöŕé\'š ṽåļûéš ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get netWorthEmptyHeadline => '[Ñö ñéţ ŵöŕţĥ ýéţ ~~~~~ ~]';
+
+  @override
+  String get netWorthEmptyBody =>
+      '[Ýöûŕ ñéţ ŵöŕţĥ îš ŕéçöŕðéð öñçé å ðåý ƒŕöɱ ýöûŕ åççöûñţš\' ƀåļåñçéš. Åðð öŕ ļîñķ åñ åççöûñţ ţö šţåŕţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get netWorthLiabilitiesHeading => '[Ļîåƀîļîţîéš ~~~~~]';
+
+  @override
+  String netWorthOwed(String amount) {
+    return '[$amount öŵéð ~~]';
+  }
+
+  @override
+  String get netWorthHiddenAccount => '[Ĥîððéñ åççöûñţ ~~~~~ ~]';
+
+  @override
+  String netWorthRate(String rate) {
+    return '[$rate % å ýéåŕ ~~]';
+  }
+
+  @override
+  String netWorthRateEntered(String rate) {
+    return '[$rate % å ýéåŕ, éñţéŕéð ~~~~~]';
+  }
+
+  @override
+  String get netWorthNoRate => '[Ñö îñţéŕéšţ ŕåţé ŕéþöŕţéð ~~~~~ ~~~~]';
+
+  @override
+  String netWorthPaymentMinimum(String amount) {
+    return '[Ṁîñîɱûɱ þåýɱéñţ $amount ~~~~~ ~]';
+  }
+
+  @override
+  String netWorthPaymentMonthly(String amount) {
+    return '[Ṁöñţĥļý þåýɱéñţ $amount ~~~~~ ~]';
+  }
+
+  @override
+  String netWorthPaymentEntered(String amount) {
+    return '[Ýöûŕ þåýɱéñţ $amount ~~~~~]';
+  }
+
+  @override
+  String get netWorthNoPayment => '[Ñö þåýɱéñţ ŕéþöŕţéð ~~~~~ ~~]';
+
+  @override
+  String get netWorthEnterRate => '[Éñţéŕ ŕåţé ~~~~]';
+
+  @override
+  String get netWorthEnterPayment => '[Éñţéŕ þåýɱéñţ ~~~~~]';
+
+  @override
+  String get netWorthEditRate => '[Çĥåñĝé ŕåţé ~~~~]';
+
+  @override
+  String get netWorthEditPayment => '[Çĥåñĝé þåýɱéñţ ~~~~~ ~]';
+
+  @override
+  String netWorthPaidOff(int months, String date, String interest) {
+    String _temp0 = intl.Intl.pluralLogic(
+      months,
+      locale: localeName,
+      other: '$months ɱöñţĥš ~~~',
+      one: '1 ɱöñţĥ ~~',
+    );
+    return '[Þåîð öƒƒ îñ $_temp0, $date; $interest îñ îñţéŕéšţ ~~~~~ ~~~]';
+  }
+
+  @override
+  String netWorthNever(String interest) {
+    return '[Ñéṽéŕ þåîð öƒƒ: ţĥé þåýɱéñţ ðöéšñ\'ţ çöṽéŕ ţĥé îñţéŕéšţ öƒ $interest å ɱöñţĥ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+  }
+
+  @override
+  String get netWorthBeyondCap => '[Öṽéŕ 50 ýéåŕš ţö þåý öƒƒ ~~~~~ ~~]';
+
+  @override
+  String get netWorthNothingOwed => '[Ñöţĥîñĝ öŵéð ~~~~~]';
+
+  @override
+  String netWorthExtra(String amount) {
+    return '[Éẋţŕå å ɱöñţĥ: $amount ~~~~~]';
+  }
+
+  @override
+  String netWorthExtraDifference(int months, String interest) {
+    String _temp0 = intl.Intl.pluralLogic(
+      months,
+      locale: localeName,
+      other: '$months ɱöñţĥš šööñéŕ ~~~~~',
+      one: '1 ɱöñţĥ šööñéŕ ~~~~~',
+      zero: 'ñö šööñéŕ ~~~~',
+    );
+    return '[$_temp0, $interest ļéšš îñţéŕéšţ ~~~~~]';
+  }
+
+  @override
+  String netWorthWithExtra(String extra, String result) {
+    return '[Ŵîţĥ $extra ɱöŕé å ɱöñţĥ: $result ~~~~~ ~]';
+  }
+
+  @override
+  String get netWorthRateLabel => '[Îñţéŕéšţ ŕåţé, % å ýéåŕ ~~~~~ ~~]';
+
+  @override
+  String get netWorthRateInvalid =>
+      '[Éñţéŕ å ŕåţé ƒŕöɱ 0 ţö 100, ŵîţĥ ûþ ţö ţŵö ðéçîɱåļš ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get netWorthPaymentLabel => '[Ṁöñţĥļý þåýɱéñţ ~~~~~ ~]';
+
+  @override
+  String get netWorthPaymentInvalid =>
+      '[Éñţéŕ åñ åɱöûñţ åƀöṽé žéŕö ~~~~~ ~~~~]';
+
+  @override
+  String get netWorthClearEntry => '[Çļéåŕ ~~]';
+
+  @override
+  String get netWorthEntryFailed =>
+      '[Ţĥé éñţŕý çöûļð ñöţ ƀé šåṽéð. Ţŕý åĝåîñ. ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get exportReportTitle => '[Ṁöñţĥļý ŕéþöŕţ ~~~~~ ~]';
+
+  @override
+  String exportCountedThrough(String date) {
+    return '[Çöûñţéð ţĥŕöûĝĥ $date ~~~~~ ~]';
+  }
+
+  @override
+  String exportAmountsIn(String currency) {
+    return '[Åɱöûñţš îñ $currency ~~~~]';
+  }
+
+  @override
+  String get exportOther => '[Öţĥéŕ ~~]';
+
+  @override
+  String get exportColumnCategory => '[Çåţéĝöŕý ~~~~]';
+
+  @override
+  String get exportColumnShare => '[Šĥåŕé ~~]';
+
+  @override
+  String get exportColumnAmount => '[Åɱöûñţ ~~~]';
+
+  @override
+  String get exportColumnMerchant => '[Ṁéŕçĥåñţ ~~~~]';
+
+  @override
+  String get exportColumnPeriod => '[Þéŕîöð ~~~]';
+
+  @override
+  String get exportColumnNet => '[Ñéţ ~~]';
+
+  @override
+  String get exportColumnBefore => '[Ɓéƒöŕé ~~~]';
+
+  @override
+  String get exportColumnNow => '[Ñöŵ ~~]';
+
+  @override
+  String get exportColumnChange => '[Çĥåñĝé ~~~]';
+
+  @override
+  String get exportColumnDate => '[Ðåţé ~~]';
+
+  @override
+  String get exportColumnWhy => '[Ŵĥý ~~]';
+
+  @override
+  String get exportBills => '[Ɓîļļš ~~]';
+
+  @override
+  String get exportColumnBill => '[Ɓîļļ ~~]';
+
+  @override
+  String get exportColumnDue => '[Ðûé ~~]';
+
+  @override
+  String get exportColumnStatus => '[Šţåţûš ~~~]';
+
+  @override
+  String get exportBillDue => '[Ðûé ~~]';
+
+  @override
+  String get exportBillUpcoming => '[Ûþçöɱîñĝ ~~~~]';
+
+  @override
+  String get exportNoBills => '[Ñö ƀîļļš ðûé îñ ţĥîš þéŕîöð. ~~~~~ ~~~~]';
+
+  @override
+  String get exportColumnBudget => '[Ɓûðĝéţ ~~~]';
+
+  @override
+  String get exportColumnAvailable => '[Åṽåîļåƀļé ~~~~]';
+
+  @override
+  String get exportColumnLeft => '[Ļéƒţ ~~]';
+
+  @override
+  String exportPage(int page, int count) {
+    return '[Þåĝé $page öƒ $count ~~~]';
+  }
+
+  @override
+  String get exportTitle => '[Éẋþöŕţ ~~~]';
+
+  @override
+  String get exportSettingsSubtitle =>
+      '[Ţĥé ɱöñţĥļý ŕéþöŕţ åš å ÞÐƑ, ţŕåñšåçţîöñš åš å ÇŠṼ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get exportReportSection => '[Ṁöñţĥļý ŕéþöŕţ (ÞÐƑ) ~~~~~ ~~]';
+
+  @override
+  String get exportTransactionsSection => '[Ţŕåñšåçţîöñš (ÇŠṼ) ~~~~~ ~]';
+
+  @override
+  String get exportSaveAs => '[Šåṽé åš… ~~~]';
+
+  @override
+  String get exportShare => '[Šĥåŕé… ~~]';
+
+  @override
+  String get exportSaveReport =>
+      '[Šåṽé ţĥé ɱöñţĥļý ŕéþöŕţ åš å ÞÐƑ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get exportShareReport =>
+      '[Šĥåŕé ţĥé ɱöñţĥļý ŕéþöŕţ åš å ÞÐƑ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get exportSaveTransactions =>
+      '[Šåṽé ţĥé ţŕåñšåçţîöñš åš å ÇŠṼ ~~~~~ ~~~~~]';
+
+  @override
+  String get exportShareTransactions =>
+      '[Šĥåŕé ţĥé ţŕåñšåçţîöñš åš å ÇŠṼ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get exportDates => '[Ðåţéš ~~]';
+
+  @override
+  String get exportAccounts => '[Åççöûñţš ~~~~]';
+
+  @override
+  String exportTransactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ţŕåñšåçţîöñš ~~~~~',
+      one: '1 ţŕåñšåçţîöñ ~~~~~',
+      zero: 'Ñö ţŕåñšåçţîöñš îñ ţĥéšé ðåţéš åñð åççöûñţš ~~~~~ ~~~~~ ~~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get exportPrivacyNote =>
+      '[Å ƒîļé ýöû šåṽé öŕ šĥåŕé ļéåṽéš ţĥé åþþ\'š éñçŕýþţéð šţöŕåĝé. Åñýöñé ŵĥö ĥåš ţĥé ƒîļé çåñ ŕéåð îţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get exportDemoNote =>
+      '[Îñ ţĥé ðéɱö, ñöţĥîñĝ îš šåṽéð öŕ šĥåŕéð. ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get exportPreparing => '[Þŕéþåŕîñĝ ţĥé ƒîļé ~~~~~ ~~]';
+
+  @override
+  String exportSaved(String fileName) {
+    return '[Šåṽéð $fileName ~~]';
+  }
+
+  @override
+  String get exportFailed =>
+      '[Ţĥé ƒîļé çöûļð ñöţ ƀé éẋþöŕţéð. Ţŕý åĝåîñ. ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get exportReportMenu => '[Éẋþöŕţ ţĥîš ɱöñţĥ åš ÞÐƑ ~~~~~ ~~~]';
+
+  @override
+  String get backupTitle => '[Ɓåçķûþ ~~~]';
+
+  @override
+  String get backupSettingsSubtitle =>
+      '[Éṽéŕýţĥîñĝ îñ öñé éñçŕýþţéð ƒîļé, öŕ ŕéšţöŕé öñé ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get backupDemoNote =>
+      '[Ţĥé ðéɱö\'š ĝéñéŕåţéð ðåţå îš ñöţ ķéþţ öŕ ƀåçķéð ûþ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get backupExportSection => '[Éẋþöŕţ å ƀåçķûþ ~~~~~ ~]';
+
+  @override
+  String get backupExportExplanation =>
+      '[Éṽéŕýţĥîñĝ öñ ţĥîš ðéṽîçé îñ öñé ƒîļé, éñçŕýþţéð ŵîţĥ å þåššþĥŕåšé ýöû çĥööšé: åççöûñţš, ţŕåñšåçţîöñš, ƀûðĝéţš, ƀîļļš, ĝöåļš, šéţţîñĝš åñð ŕéçéîþţ þĥöţöš. Ķééþ îţ åñýŵĥéŕé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get backupPassphrase => '[Þåššþĥŕåšé ~~~~]';
+
+  @override
+  String get backupPassphraseConfirm => '[Þåššþĥŕåšé åĝåîñ ~~~~~ ~]';
+
+  @override
+  String backupPassphraseHelper(int count) {
+    return '[Åţ ļéåšţ $count çĥåŕåçţéŕš ~~~~~ ~~]';
+  }
+
+  @override
+  String backupPassphraseTooShort(int count) {
+    return '[Ûšé åţ ļéåšţ $count çĥåŕåçţéŕš ~~~~~ ~~~]';
+  }
+
+  @override
+  String get backupPassphraseMismatch =>
+      '[Ţĥé ţŵö þåššþĥŕåšéš ðîƒƒéŕ ~~~~~ ~~~~~]';
+
+  @override
+  String get backupStrengthWeak =>
+      '[Šţŕéñĝţĥ: ŵéåķ. Å ļöñĝéŕ þåššþĥŕåšé îš šåƒéŕ. ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get backupStrengthFair => '[Šţŕéñĝţĥ: ƒåîŕ ~~~~~]';
+
+  @override
+  String get backupStrengthStrong => '[Šţŕéñĝţĥ: šţŕöñĝ ~~~~~ ~]';
+
+  @override
+  String get backupNoRecovery =>
+      '[Ţĥéŕé îš ñö ŵåý ţö ŕéçöṽéŕ å ƒöŕĝöţţéñ þåššþĥŕåšé: ŵîţĥöûţ îţ, ţĥé ƀåçķûþ çåññöţ ƀé öþéñéð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get backupSave => '[Šåṽé åš ~~~]';
+
+  @override
+  String get backupShare => '[Šĥåŕé ~~]';
+
+  @override
+  String backupSaved(String fileName) {
+    return '[Šåṽéð $fileName ~~]';
+  }
+
+  @override
+  String get backupExportFailed =>
+      '[Ţĥé ƀåçķûþ çöûļð ñöţ ƀé ɱåðé. Ţŕý åĝåîñ. ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get backupRestoreSection => '[Ŕéšţöŕé ƒŕöɱ å ƀåçķûþ ~~~~~ ~~~]';
+
+  @override
+  String get backupRestoreExplanation =>
+      '[Å ƀåçķûþ çåñ ƀé ŕéšţöŕéð öñļý öñţö å ðéṽîçé ŵîţĥ ñö ðåţå ýéţ, šûçĥ åš å ñéŵ îñšţåļļ: å ðéṽîçé ţĥåţ åļŕéåðý ĥåš ðåţå ŕéƒûšéš îţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get backupRestoreButton => '[Ŕéšţöŕé ƒŕöɱ å ƀåçķûþ ~~~~~ ~~~]';
+
+  @override
+  String get backupRestorePassphraseTitle =>
+      '[Ţĥîš ƀåçķûþ\'š þåššþĥŕåšé ~~~~~ ~~~~]';
+
+  @override
+  String get backupOpen => '[Öþéñ ~~]';
+
+  @override
+  String get backupStageReading => '[Ŕéåðîñĝ ýöûŕ ðåţå ~~~~~ ~]';
+
+  @override
+  String get backupStageDeriving =>
+      '[Šéçûŕîñĝ ŵîţĥ ýöûŕ þåššþĥŕåšé ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get backupStageEncrypting => '[Éñçŕýþţîñĝ ~~~~]';
+
+  @override
+  String get backupStageChecking => '[Çĥéçķîñĝ ţĥé ƀåçķûþ ~~~~~ ~~]';
+
+  @override
+  String get backupStageRestoring => '[Ŕéšţöŕîñĝ ~~~~]';
+
+  @override
+  String get backupConfirmTitle => '[Ŕéšţöŕé ţĥîš ƀåçķûþ? ~~~~~ ~~]';
+
+  @override
+  String backupConfirmBody(
+    String date,
+    String version,
+    int records,
+    int receipts,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      records,
+      locale: localeName,
+      other: '$records ŕéçöŕðš ~~~',
+      one: '1 ŕéçöŕð ~~~',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      receipts,
+      locale: localeName,
+      other: '$receipts ŕéçéîþţ þĥöţöš ~~~~~ ~',
+      one: '1 ŕéçéîþţ þĥöţö ~~~~~',
+    );
+    return '[Ṁåðé $date ƀý ṽéŕšîöñ $version: $_temp0 åñð $_temp1. ~~~~~ ~~]';
+  }
+
+  @override
+  String get backupConfirmLostKey =>
+      '[Ţĥé ðåţå öñ ţĥîš ðéṽîçé ţĥåţ çåñ ñö ļöñĝéŕ ƀé öþéñéð ŵîļļ ƀé ðéļéţéð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get backupConfirmRestore => '[Ŕéšţöŕé ~~~]';
+
+  @override
+  String get backupErrorNotABackup =>
+      '[Ţĥîš ƒîļé îš ñöţ å Ƒîñåñçé Ţŕåçķéŕ ƀåçķûþ. ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get backupErrorTooLarge =>
+      '[Ţĥîš ƒîļé îš ţöö ļåŕĝé ţö ƀé å Ƒîñåñçé Ţŕåçķéŕ ƀåçķûþ (öṽéŕ 512 ṀƁ). ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get backupErrorTooNew =>
+      '[Ţĥîš ƀåçķûþ ŵåš ɱåðé ƀý å ñéŵéŕ ṽéŕšîöñ öƒ Ƒîñåñçé Ţŕåçķéŕ. Ûþðåţé ţĥé åþþ, ţĥéñ ŕéšţöŕé îţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get backupErrorUnsafe =>
+      '[Ţĥîš ƀåçķûþ åšķš ƒöŕ šéţţîñĝš ţĥîš åþþ ðöéš ñöţ åççéþţ, šö îţ ŵåš ñöţ öþéñéð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get backupErrorWrongPassphrase =>
+      '[Ţĥé þåššþĥŕåšé îš ŵŕöñĝ, öŕ ţĥé ƒîļé îš ðåɱåĝéð. ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get backupErrorDamaged =>
+      '[Ţĥîš ƀåçķûþ îš ðåɱåĝéð öŕ îñçöɱþļéţé. ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get backupErrorOtherAccount =>
+      '[Ţĥîš ƀåçķûþ ƀéļöñĝš ţö åñöţĥéŕ åççöûñţ. ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get backupErrorHasData =>
+      '[Ţĥîš ðéṽîçé åļŕéåðý ĥåš ðåţå. Ðéļéţé ţĥé åþþ\'š ðåţå ƒîŕšţ, ţĥéñ ŕéšţöŕé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get backupErrorPick => '[Ţĥé ƒîļé çöûļð ñöţ ƀé öþéñéð. ~~~~~ ~~~~~]';
+
+  @override
+  String get backupErrorFailed =>
+      '[Ţĥé ƀåçķûþ çöûļð ñöţ ƀé ŕéšţöŕéð. Ñöţĥîñĝ ŵåš çĥåñĝéð. ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get backupRestoringTitle => '[Ŕéšţöŕîñĝ ýöûŕ ƀåçķûþ ~~~~~ ~~~]';
+
+  @override
+  String get backupRestoreFailedTitle =>
+      '[Ţĥé ƀåçķûþ çöûļð ñöţ ƀé ŕéšţöŕéð ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get backupRestoreFailedBody =>
+      '[Ƒîñåñçé Ţŕåçķéŕ ŵîļļ šţåŕţ ŵîţĥ ţĥé ðåţå ţĥîš ðéṽîçé ĥöļðš ñöŵ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get backupContinue => '[Çöñţîñûé ~~~~]';
+
+  @override
+  String get restoreOfferTitle => '[Ŕéšţöŕé ƒŕöɱ å ƀåçķûþ? ~~~~~ ~~~]';
+
+  @override
+  String get restoreOfferBody =>
+      '[Îƒ ýöû ĥåṽé å Ƒîñåñçé Ţŕåçķéŕ ƀåçķûþ, ýöû çåñ ŕéšţöŕé îţ ñöŵ, ƀéƒöŕé ţĥîš ðéṽîçé ƒéţçĥéš ýöûŕ ðåţå. Ýöûŕ ƀåñķ ðåţå åñð šýñçéð çĥåñĝéš çöɱé ƀåçķ ƒŕöɱ ţĥé šéŕṽéŕ éîţĥéŕ ŵåý; å ƀåçķûþ åļšö ƀŕîñĝš ŕéçéîþţ þĥöţöš åñð ŵĥåţ ŵåš ķéþţ öñļý öñ ýöûŕ öļð ðéṽîçé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get restoreOfferStartFresh => '[Šţåŕţ ƒŕéšĥ ~~~~]';
+
+  @override
+  String get erasingTitle => '[Éŕåšîñĝ ţĥîš ðéṽîçé\'š ðåţå… ~~~~~ ~~~~]';
+
+  @override
+  String get eraseFailedTitle =>
+      '[Ţĥîš ðéṽîçé\'š ðåţå çöûļð ñöţ ƀé éŕåšéð çöɱþļéţéļý ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String eraseFailedBody(String repeated) {
+    String _temp0 = intl.Intl.selectLogic(repeated, {
+      'true': 'Ţĥé åþþ ðöéš ñöţ šţåŕţ öñ ŵĥåţ îš ļéƒţ. Ţŕý åĝåîñ; ŵĥåţ îš åļŕéåðý éŕåšéð šţåýš éŕåšéð. Îƒ ţĥîš ķééþš ƒåîļîñĝ, çļéåŕ ţĥé åþþ\'š šţöŕåĝé îñ Åñðŕöîð\'š šéţţîñĝš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~',
+      'other': 'Ţĥé åþþ ðöéš ñöţ šţåŕţ öñ ŵĥåţ îš ļéƒţ. Ţŕý åĝåîñ; ŵĥåţ îš åļŕéåðý éŕåšéð šţåýš éŕåšéð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~',
+    });
+    return '[$_temp0]';
+  }
+
+  @override
+  String get eraseTryAgain => '[Ţŕý åĝåîñ ~~~~]';
+
+  @override
+  String get erasedAccountTitle =>
+      '[Ýöûŕ åççöûñţ åñð ţĥîš ðéṽîçé\'š ðåţå ŵéŕé ðéļéţéð ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get erasedAccountBody =>
+      '[Éṽéŕý ļîñķéð ƀåñķ ŵåš ðîšçöññéçţéð, éṽéŕý ŕéçöŕð öñ ţĥé šéŕṽéŕ ŵåš ðéļéţéð, åñð ýöûŕ öţĥéŕ ðéṽîçéš ŵéŕé šîĝñéð öûţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get erasedDeviceTitle =>
+      '[Ţĥîš ðéṽîçé\'š ðåţå ŵåš éŕåšéð ~~~~~ ~~~~~]';
+
+  @override
+  String get erasedDeviceBody =>
+      '[Ýöûŕ åççöûñţ îš ûñçĥåñĝéð. Šîĝñ îñ åĝåîñ ţö ƀŕîñĝ ƀåçķ ýöûŕ ƀåñķ ðåţå åñð éṽéŕýţĥîñĝ ţĥåţ ĥåð šýñçéð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get erasedDone => '[Ðöñé ~~]';
+
+  @override
+  String get settingsEraseDevice =>
+      '[Šîĝñ öûţ åñð éŕåšé ţĥîš ðéṽîçé ~~~~~ ~~~~~]';
+
+  @override
+  String get settingsDeleteAccount => '[Ðéļéţé åççöûñţ ~~~~~ ~]';
+
+  @override
+  String get deleteAccountTitle => '[Ðéļéţé åççöûñţ ~~~~~ ~]';
+
+  @override
+  String get deleteAccountIntro => '[Ðéļéţîñĝ ýöûŕ åççöûñţ: ~~~~~ ~~~]';
+
+  @override
+  String get deleteAccountEffectBanks =>
+      '[Ðîšçöññéçţš éṽéŕý ļîñķéð ƀåñķ åţ Þļåîð ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get deleteAccountEffectServer =>
+      '[Ðéļéţéš éṽéŕý ŕéçöŕð öƒ ýöûŕš öñ ţĥé šéŕṽéŕ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get deleteAccountEffectDevice =>
+      '[Éŕåšéš ţĥîš ðéṽîçé\'š ðåţå ~~~~~ ~~~~]';
+
+  @override
+  String get deleteAccountEffectOthers =>
+      '[Šîĝñš öûţ ýöûŕ öţĥéŕ ðéṽîçéš ~~~~~ ~~~~~]';
+
+  @override
+  String get deleteAccountPermanent =>
+      '[Ţĥîš çåññöţ ƀé ûñðöñé. Ýöûŕ öţĥéŕ ðéṽîçéš ķééþ ŵĥåţ ţĥéý ĥöļð ûñţîļ ýöû éŕåšé ţĥéɱ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get deleteAccountConfirmLabel =>
+      '[Ţýþé ýöûŕ éɱåîļ ţö çöñƒîŕɱ ~~~~~ ~~~~]';
+
+  @override
+  String deleteAccountConfirmHelper(String email) {
+    return '[Ýöûŕ åççöûñţ\'š éɱåîļ îš $email ~~~~~ ~~~]';
+  }
+
+  @override
+  String get deleteAccountSubmit => '[Ðéļéţé åççöûñţ ~~~~~ ~]';
+
+  @override
+  String get deleteAccountDeleting => '[Ðéļéţîñĝ ýöûŕ åççöûñţ ~~~~~ ~~~]';
+
+  @override
+  String deleteAccountFailed(String reason) {
+    return '[Ýöûŕ åççöûñţ ŵåš ñöţ ðéļéţéð. $reason ~~~~~ ~~~~~]';
+  }
+
+  @override
+  String get deleteAccountFailedPlaid =>
+      '[Å ļîñķéð ƀåñķ çöûļð ñöţ ƀé ðîšçöññéçţéð. Ţŕý åĝåîñ ļåţéŕ. ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get deleteAccountFailedNetwork =>
+      '[Çåñ\'ţ ŕéåçĥ ţĥé šéŕṽéŕ. Çĥéçķ ýöûŕ çöññéçţîöñ åñð ţŕý åĝåîñ. ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get deleteAccountFailedOther =>
+      '[Šöɱéţĥîñĝ ŵéñţ ŵŕöñĝ. Ţŕý åĝåîñ. ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get eraseDeviceTitle => '[Éŕåšé ţĥîš ðéṽîçé\'š ðåţå? ~~~~~ ~~~]';
+
+  @override
+  String get eraseDeviceBody =>
+      '[Ţĥîš ðéṽîçé šîĝñš öûţ åñð éṽéŕýţĥîñĝ îţ ķééþš îš ðéļéţéð ƒŕöɱ îţ. Çĥåñĝéš ñöţ ýéţ šýñçéð åñð ŕéçéîþţ þĥöţöš åŕé ļöšţ. Ýöûŕ åççöûñţ šţåýš: ýöûŕ ƀåñķ ðåţå åñð éṽéŕýţĥîñĝ ţĥåţ šýñçéð çöɱé ƀåçķ ŵĥéñ ýöû šîĝñ îñ åĝåîñ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String eraseDevicePending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count çĥåñĝéš ñöţ ýéţ šýñçéð ~~~~~ ~~~',
+      one: '1 çĥåñĝé ñöţ ýéţ šýñçéð ~~~~~ ~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get eraseDeviceConfirm => '[Éŕåšé ~~]';
+
+  @override
+  String get settingsDevices => '[Ðéṽîçéš ~~~]';
+
+  @override
+  String get devicesTitle => '[Ðéṽîçéš ~~~]';
+
+  @override
+  String get devicesThisDevice => '[Ţĥîš ðéṽîçé ~~~~]';
+
+  @override
+  String devicesLastSeen(String time) {
+    return '[Ļåšţ šééñ $time ~~~~]';
+  }
+
+  @override
+  String get devicesNeverSynced => '[Ñöţ šýñçéð ýéţ ~~~~~]';
+
+  @override
+  String devicesActions(String name) {
+    return '[Åçţîöñš ƒöŕ $name ~~~~]';
+  }
+
+  @override
+  String get devicesRemove => '[Ŕéɱöṽé ~~~]';
+
+  @override
+  String devicesRemoveTitle(String name) {
+    return '[Ŕéɱöṽé $name? ~~~]';
+  }
+
+  @override
+  String get devicesRemoveBody =>
+      '[Îţ îš šîĝñéð öûţ åñð ĥåš ţö šîĝñ îñ åĝåîñ. Ŵĥåţ îţ ķééþš šţåýš öñ îţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get devicesRemoveThisTitle => '[Ŕéɱöṽé ţĥîš ðéṽîçé? ~~~~~ ~~]';
+
+  @override
+  String get devicesRemoveThisBody =>
+      '[Ţĥîš ðéṽîçé šîĝñš öûţ. Îţš ðåţå šţåýš öñ îţ ûñţîļ ýöû éŕåšé îţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String devicesRemoveFailed(String name) {
+    return '[Çöûļðñ\'ţ ŕéɱöṽé $name. Ţŕý åĝåîñ. ~~~~~ ~~~~]';
+  }
+
+  @override
+  String get devicesSignOutOthers => '[Šîĝñ öûţ éṽéŕýŵĥéŕé éļšé ~~~~~ ~~~~]';
+
+  @override
+  String get devicesSignOutOthersTitle =>
+      '[Šîĝñ öûţ éṽéŕýŵĥéŕé éļšé? ~~~~~ ~~~~]';
+
+  @override
+  String get devicesSignOutOthersBody =>
+      '[Éṽéŕý öţĥéŕ ðéṽîçé šîĝñš öûţ åñð ĥåš ţö šîĝñ îñ åĝåîñ. Ţĥîš ðéṽîçé šţåýš šîĝñéð îñ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String devicesSignOutOthersDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Šîĝñéð öûţ $count ðéṽîçéš ~~~~~ ~~',
+      one: 'Šîĝñéð öûţ 1 ðéṽîçé ~~~~~ ~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String devicesSignOutOthersFailed(int failed) {
+    String _temp0 = intl.Intl.pluralLogic(
+      failed,
+      locale: localeName,
+      other:
+          '$failed ðéṽîçéš çöûļð ñöţ ƀé šîĝñéð öûţ. Ţŕý åĝåîñ. ~~~~~ ~~~~~ ~~~~',
+      one: '1 ðéṽîçé çöûļð ñöţ ƀé šîĝñéð öûţ. Ţŕý åĝåîñ. ~~~~~ ~~~~~ ~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get devicesLoadFailed => '[Çöûļðñ\'ţ ļöåð ýöûŕ ðéṽîçéš. ~~~~~ ~~~~]';
+
+  @override
+  String get devicesRetry => '[Ţŕý åĝåîñ ~~~~]';
+
+  @override
+  String get signInRemoteNotice =>
+      '[Ţĥîš ðéṽîçé ŵåš šîĝñéð öûţ ŕéɱöţéļý. Îţš ðåţå îš šţîļļ ĥéŕé. ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get signInEraseDevice => '[Éŕåšé ţĥîš ðéṽîçé\'š ðåţå ~~~~~ ~~~]';
+
+  @override
+  String syncConflicts(int count) {
+    return '[Çöñƒļîçţš ($count) ~~~~]';
+  }
+
+  @override
+  String get syncConflictsHint =>
+      '[Çĥåñĝéš ɱåðé öñ ţŵö ðéṽîçéš åţ åƀöûţ ţĥé šåɱé ţîɱé ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get conflictsTitle => '[Çöñƒļîçţš ~~~~]';
+
+  @override
+  String get conflictsIntro =>
+      '[Éåçĥ öƒ ţĥéšé îš å çĥåñĝé ɱåðé öñ ţĥîš ðéṽîçé ţĥåţ å çĥåñĝé ƒŕöɱ åñöţĥéŕ ðéṽîçé ŕéþļåçéð å ƒéŵ ɱîñûţéš ļåţéŕ. Çĥööšé ţĥé ṽåļûé ţö ķééþ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get conflictsEmptyHeadline => '[Ñö çöñƒļîçţš ~~~~~]';
+
+  @override
+  String get conflictsEmptyBody =>
+      '[Ŵĥéñ å çĥåñĝé ɱåðé ĥéŕé åñð öñé ƒŕöɱ åñöţĥéŕ ðéṽîçé ɱééţ ŵîţĥîñ ɱîñûţéš, ƀöţĥ åŕé šĥöŵñ ĥéŕé šö ýöû çåñ çĥööšé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String conflictEntityType(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'transaction': 'Ţŕåñšåçţîöñ ~~~~~',
+      'account': 'Åççöûñţ ~~~',
+      'category': 'Çåţéĝöŕý ~~~~',
+      'settings': 'Šéţţîñĝš ~~~~',
+      'rule': 'Ŕûļé ~~',
+      'budget': 'Ɓûðĝéţ ~~~',
+      'recurringStream': 'Šûƀšçŕîþţîöñ ~~~~~',
+      'billReminder': 'Ɓîļļ ~~',
+      'goal': 'Ĝöåļ ~~',
+      'goalContribution': 'Ĝöåļ çöñţŕîƀûţîöñ ~~~~~ ~~',
+      'other': 'Ŕéçöŕð ~~~',
+    });
+    return '[$_temp0]';
+  }
+
+  @override
+  String conflictField(String field) {
+    String _temp0 = intl.Intl.selectLogic(field, {
+      'name': 'Ñåɱé ~~',
+      'notes': 'Ñöţéš ~~',
+      'category': 'Çåţéĝöŕý ~~~~',
+      'tags': 'Ţåĝš ~~',
+      'splits': 'Šþļîţš ~~~',
+      'amount': 'Åɱöûñţ ~~~',
+      'day': 'Ðåţé ~~',
+      'hidden': 'Ĥîððéñ ~~~',
+      'receipt': 'Ŕéçéîþţ ~~~',
+      'account': 'Åççöûñţ ~~~',
+      'theme': 'Ţĥéɱé ~~',
+      'dynamicColor': 'Ðýñåɱîç çöļöûŕ ~~~~~ ~',
+      'muted': 'Ṁûţéð ~~',
+      'subscription': 'Šûƀšçŕîþţîöñ ~~~~~',
+      'target': 'Ţåŕĝéţ ~~~',
+      'targetDay': 'Ţåŕĝéţ ðåţé ~~~~',
+      'note': 'Ñöţé ~~',
+      'other': '',
+    });
+    return '[$_temp0]';
+  }
+
+  @override
+  String get conflictThisValue => '[Ţĥîš ðéṽîçé\'š ṽåļûé ~~~~~ ~~]';
+
+  @override
+  String get conflictOtherValue => '[Ţĥé öţĥéŕ ṽåļûé ~~~~~ ~]';
+
+  @override
+  String get conflictThisDevice => '[Ţĥîš ðéṽîçé ~~~~]';
+
+  @override
+  String conflictFrom(String device, String time) {
+    return '[$device, $time]';
+  }
+
+  @override
+  String get conflictKeepThis => '[Ķééþ ţĥîš ðéṽîçé\'š ṽåļûé ~~~~~ ~~~]';
+
+  @override
+  String get conflictKeepOther => '[Ķééþ ţĥé öţĥéŕ ~~~~~]';
+
+  @override
+  String get conflictNoValue => '[Ñöñé ~~]';
+
+  @override
+  String get conflictYes => '[Ýéš ~~]';
+
+  @override
+  String get conflictNo => '[Ñö ~]';
+
+  @override
+  String conflictSplits(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count šþļîţš ~~~',
+      one: '1 šþļîţ ~~',
+      zero: 'Ñö šþļîţš ~~~~',
+    );
+    return '[$_temp0]';
+  }
+
+  @override
+  String get conflictKeepFailed =>
+      '[Ţĥé ṽåļûé çöûļð ñöţ ƀé ķéþţ. Ţŕý åĝåîñ. ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get receiptDownloading => '[Ðöŵñļöåðîñĝ ţĥé ŕéçéîþţ ~~~~~ ~~~~]';
+
+  @override
+  String get receiptDownloadFailed =>
+      '[Ţĥé ŕéçéîþţ çöûļð ñöţ ƀé ðöŵñļöåðéð ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get receiptNotOnServer =>
+      '[Ţĥé ŕéçéîþţ ĥåš ñöţ ŕéåçĥéð ţĥé šéŕṽéŕ ýéţ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get receiptRetry => '[Ţŕý åĝåîñ ~~~~]';
+
+  @override
+  String get conflictPhotoHere => '[Þĥöţö, öñ ţĥîš ðéṽîçé ~~~~~ ~~]';
+
+  @override
+  String get conflictPhotoNotHere => '[Þĥöţö, ñöţ öñ ţĥîš ðéṽîçé ~~~~~ ~~~]';
+
+  @override
+  String get conflictPhotoGone =>
+      '[Ţĥîš þĥöţö îš ñö ļöñĝéŕ öñ ţĥîš ðéṽîçé ~~~~~ ~~~~~ ~~~]';
 }

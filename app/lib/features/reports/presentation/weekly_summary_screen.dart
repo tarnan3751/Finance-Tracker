@@ -5,6 +5,7 @@
 /// budgets stand.
 library;
 
+import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
 import 'package:finance_tracker/features/bills/domain/bill_status.dart';
@@ -171,11 +172,11 @@ class _BillsNextWeek extends ConsumerWidget {
             child: ListTile(
               title: Text(billName(s.bill.name, l10n)),
               subtitle: Text(
-                [
+                captionLine(l10n, [
                   DateFormat.MMMEd().format(s.nextDue!.toDateTime()),
                   if (s.bill.amount case final Money amount)
                     amount.abs().format(),
-                ].join(' · '),
+                ]),
               ),
             ),
           ),

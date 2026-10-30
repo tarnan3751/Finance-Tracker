@@ -4,6 +4,7 @@
 /// semantics node read as a sentence. A sliver, so a long history is built lazily.
 library;
 
+import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/features/net_worth/domain/net_worth_series.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -47,10 +48,10 @@ class NetWorthRow extends StatelessWidget {
     );
     return Semantics(
       container: true,
-      label: [
+      label: sentenceLine(l10n, [
         l10n.netWorthRowSemantics(date, netWorth, assets, liabilities),
         ?flag,
-      ].join(' '),
+      ]),
       child: ExcludeSemantics(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

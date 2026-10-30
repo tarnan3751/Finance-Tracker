@@ -3,6 +3,7 @@
 /// semantics node read as a sentence.
 library;
 
+import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/features/forecast/domain/cash_flow_forecast.dart';
 import 'package:finance_tracker/features/forecast/presentation/forecast_view.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -47,10 +48,10 @@ class _DayRow extends StatelessWidget {
     ];
     return Semantics(
       container: true,
-      label: [
+      label: sentenceLine(l10n, [
         l10n.forecastDaySemantics(date, balance, low, high),
         ...events,
-      ].join(' '),
+      ]),
       child: ExcludeSemantics(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

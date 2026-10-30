@@ -146,7 +146,7 @@ String forecastEventLabel(
         )
       : name;
   return switch (event.amount) {
-    final amount? => '$named ${amount.format()}',
+    final amount? => l10n.forecastEventAmount(named, amount.format()),
     null => named,
   };
 }

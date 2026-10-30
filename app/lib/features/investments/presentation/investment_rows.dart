@@ -9,6 +9,8 @@
 /// intl.
 library;
 
+import 'package:finance_tracker/core/l10n/joins.dart';
+import 'package:finance_tracker/core/l10n/title_case.dart';
 import 'package:finance_tracker/features/investments/domain/allocation.dart';
 import 'package:finance_tracker/features/investments/domain/holding_repository.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -24,13 +26,6 @@ String securityTypeLabel(String key, AppLocalizations l10n) => switch (key) {
   'etf' => l10n.investmentsTypeEtf,
   _ => titleCase(key),
 };
-
-/// [text]'s words with their first letters in upper case, joined by single spaces
-/// (`mutual fund` and `mutual_fund` give "Mutual Fund").
-String titleCase(String text) => [
-  for (final String word in text.trim().split(RegExp(r'[\s_]+')))
-    if (word.isNotEmpty) word[0].toUpperCase() + word.substring(1),
-].join(' ');
 
 /// [basisPoints] as a whole percent ("55 %", "+5 %" with [plus]), truncated toward zero.
 String percentLabel(
@@ -103,7 +98,10 @@ class HoldingRow extends StatelessWidget {
     );
     return Semantics(
       container: true,
-      label: [l10n.investmentsNameAmount(name, value), ...details].join(', '),
+      label: listLine(l10n, [
+        l10n.investmentsNameAmount(name, value),
+        ...details,
+      ]),
       child: ExcludeSemantics(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -142,13 +140,13 @@ class InvestmentTransactionRow extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final InvestmentTransaction t = transaction;
     final String amount = t.amount.format();
-    final String type = [
+    final String type = captionLine(l10n, [
       titleCase(t.type),
       if (t.subtype case final String subtype
           when titleCase(subtype).isNotEmpty &&
               titleCase(subtype) != titleCase(t.type))
         titleCase(subtype),
-    ].join(' · ');
+    ]);
     final List<String> details = [
       l10n.investmentsDateAndType(
         DateFormat.yMMMd().format(t.date.toDateTime()),
@@ -163,10 +161,10 @@ class InvestmentTransactionRow extends StatelessWidget {
     );
     return Semantics(
       container: true,
-      label: [
+      label: listLine(l10n, [
         l10n.investmentsNameAmount(t.name, amount),
         ...details,
-      ].join(', '),
+      ]),
       child: ExcludeSemantics(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

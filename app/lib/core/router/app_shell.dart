@@ -30,6 +30,7 @@ library;
 
 import 'package:finance_tracker/core/db/legacy_import/import_summary.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/layout/window_size_class.dart';
 import 'package:finance_tracker/core/router/routes.dart';
@@ -97,11 +98,11 @@ class _AppShellState extends ConsumerState<AppShell> {
         _messengers[widget.navigationShell.currentIndex].currentState;
     if (messenger == null) return;
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final String message = [
+    final String message = sentenceLine(l10n, [
       if (summary.transactions > 0)
         l10n.legacyImported(summary.transactions, summary.total.format()),
       if (summary.skipped > 0) l10n.legacyImportSkipped(summary.skipped),
-    ].join(' ');
+    ]);
     ref.read(legacyImportResultProvider.notifier).record(null);
     if (message.isEmpty) return;
     messenger.showSnackBar(SnackBar(content: Text(message)));

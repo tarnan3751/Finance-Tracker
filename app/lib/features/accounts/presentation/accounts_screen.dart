@@ -247,20 +247,27 @@ class _AccountCard extends StatelessWidget {
     final TextStyle? caption = theme.textTheme.bodySmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
+    final String label = balance.reported
+        ? l10n.balanceReported
+        : l10n.balanceFromTransactions;
     final Widget balanceColumn = Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         AmountText(balance.amount, style: theme.textTheme.titleMedium),
-        Text(
-          balance.reported
-              ? l10n.balanceReported
-              : l10n.balanceFromTransactions,
-          style: caption,
-        ),
+        Text(label, style: caption),
       ],
     );
-    // With large text, or in a narrow pane (beside a fold), the balance goes under
-    // the name, where it has the full width.
+    final TextPainter labelPainter = TextPainter(
+      text: TextSpan(text: label, style: caption),
+      textScaler: MediaQuery.textScalerOf(context),
+      textDirection: Directionality.of(context),
+      maxLines: 1,
+    )..layout();
+    final double labelWidth = labelPainter.width;
+    labelPainter.dispose();
+    // With large text, in a narrow pane (beside a fold), or when the label would take
+    // most of the card (a longer translation), the balance goes under the name, where
+    // it has the full width.
     return LayoutBuilder(
       builder: (context, constraints) => _card(
         context,
@@ -270,7 +277,8 @@ class _AccountCard extends StatelessWidget {
         balanceColumn,
         stacked:
             MediaQuery.textScalerOf(context).scale(1) > 1.5 ||
-            constraints.maxWidth < 360,
+            constraints.maxWidth < 360 ||
+            labelWidth > constraints.maxWidth * 0.6,
       ),
     );
   }

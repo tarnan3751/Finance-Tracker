@@ -6,6 +6,7 @@
 /// contribution. The app bar opens the editor.
 library;
 
+import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/features/goals/application/goals_providers.dart';
 import 'package:finance_tracker/features/goals/presentation/goal_card.dart';
@@ -143,7 +144,10 @@ class _GoalDetail extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
                 child: Text(
                   l10n.goalNotCounted(
-                    view.otherCurrencyAccounts.map((a) => a.name).join(', '),
+                    listLine(
+                      l10n,
+                      view.otherCurrencyAccounts.map((a) => a.name),
+                    ),
                   ),
                   style: caption,
                 ),
@@ -160,12 +164,12 @@ class _GoalDetail extends ConsumerWidget {
                 key: ValueKey('contribution/${c.id}'),
                 title: Text(c.amount.format()),
                 subtitle: Text(
-                  [
+                  captionLine(l10n, [
                     shortDateLabel(c.date),
                     ?c.note,
                     if (c.amount.currencyCode != goal.target.currencyCode)
                       l10n.contributionNotCounted(c.amount.currencyCode),
-                  ].join(' · '),
+                  ]),
                 ),
                 trailing: IconButton(
                   tooltip: l10n.contributionDelete,
