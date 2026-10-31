@@ -14,8 +14,9 @@
 // and selection mode, the transaction editor's menu, the budget alerts sheet, the rule
 // editor's menu and the apply confirmation, the subscriptions' folded sections, a
 // stream's menu, the paused bills and the bill calendar open over their screens, the
-// archived goals unfolded, the Reports' export sheet, and the editor's receipt (a photo
-// from the fake image source) and its full-screen view. The forecast's chart, table and
+// archived goals unfolded, the Reports' export sheet, the editor's receipt (a photo
+// from the fake image source) and its full-screen view, and the import's mapping and
+// review of the Chase fixture. The forecast's chart, table and
 // account sheet are checked on the forecast household through ForecastScreen, and the
 // investments' allocation, value table, holdings and transactions on the test investments
 // through InvestmentsScreen, with its empty state on the seed, and the net worth chart,
@@ -31,6 +32,8 @@ import 'package:finance_tracker/app.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/platform/csv_picker_provider.dart';
+import 'package:finance_tracker/core/platform/fake_backup_picker.dart';
 import 'package:finance_tracker/core/platform/fake_image_source.dart';
 import 'package:finance_tracker/core/platform/image_source.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
@@ -92,6 +95,37 @@ Future<void> _attachReceipt(WidgetTester tester) async {
     scrollable: find.byType(Scrollable).first,
   );
   await _tapAndSettle(tester, find.text('Take photo'));
+}
+
+// Picks the Chase fixture on the import screen, maps it and opens its review.
+Future<void> _openImportReview(WidgetTester tester) async {
+  await _tapAndSettle(tester, find.text('Choose a CSV file'));
+  Future<void> choose(String label, String option) async {
+    final Finder field = find.ancestor(
+      of: find.text(label),
+      matching: find.byWidgetPredicate((w) => w is DropdownButtonFormField),
+    );
+    await tester.scrollUntilVisible(
+      find.text(label),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(field);
+    await tester.pumpAndSettle();
+    await _tapAndSettle(tester, field);
+    await _tapAndSettle(tester, find.textContaining(option).last);
+  }
+
+  await choose('Date', 'Posting Date');
+  await choose('Description', 'Description');
+  await choose('Amount', 'Amount');
+  await choose('Import into', 'Everyday Checking');
+  await tester.scrollUntilVisible(
+    find.text('Review'),
+    200,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await _tapAndSettle(tester, find.text('Review'));
 }
 
 final Map<String, _Screen> _screens = {
@@ -222,6 +256,17 @@ final Map<String, _Screen> _screens = {
     },
   ),
   'Export': (location: '/settings/export', seeded: true, open: null),
+  'Import': (location: '/settings/import', seeded: true, open: null),
+  'Import mapping': (
+    location: '/settings/import',
+    seeded: true,
+    open: (tester) => _tapAndSettle(tester, find.text('Choose a CSV file')),
+  ),
+  'Import review': (
+    location: '/settings/import',
+    seeded: true,
+    open: _openImportReview,
+  ),
   'Backup': (location: '/settings/backup', seeded: false, open: null),
   'Devices': (location: '/settings/devices', seeded: false, open: null),
   'Conflicts (empty)': (
@@ -390,6 +435,14 @@ List<Override> _conflictOverrides() => [
 List<Override> _overrides(_Screen screen) => screen.seeded
     ? [
         if (screen.location == '/settings/conflicts') ..._conflictOverrides(),
+        if (screen.location == '/settings/import')
+          csvPickerProvider.overrideWithValue(
+            FakeBackupPicker(
+              file: File('test/features/import/fixtures/chase_checking.csv')
+                  .readAsBytesSync(),
+              name: 'chase_checking.csv',
+            ),
+          ),
         storeOverride(linkedStore(manual: true)),
         rulesOverride(seededRules()),
         budgetsOverride(seededBudgets()),

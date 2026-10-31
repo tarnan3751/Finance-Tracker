@@ -5,7 +5,10 @@ the file is read and parsed, its columns mapped once and the mapping remembered 
 header, and its rows land on one account as `source: import`, a user-entered source that
 syncs like a manual one (`PLAN.md` §7.1). Code: `app/lib/features/import/` (`domain/`, pure
 Dart; `application/import_providers.dart`, the work; `data/demo_csv_picker.dart`, the
-demo's sample) and `app/lib/core/platform/csv_picker_provider.dart`. Tests: `app/test/features/import/`, with the fixtures under `fixtures/` (the shapes of
+demo's sample; `presentation/`, the screen) and
+`app/lib/core/platform/csv_picker_provider.dart`. Tests: `app/test/features/import/` (the flow in
+`presentation/import_flow_test.dart`, the screens' accessibility in
+`test/accessibility_test.dart`), with the fixtures under `fixtures/` (the shapes of
 a Chase checking export, a Bank of America export with its summary preamble, a Monzo export,
 a European export with `;` and decimal commas, a UTF-16 and a Windows-1252 file, and the
 app's own export; every name in them is fictional).
@@ -193,3 +196,49 @@ importing device only, so another device that synced the rows has no Undo for th
 account the import created stays.
 
 Logs carry counts and exception types only, never a file name, a name or an amount.
+
+## The screen
+
+`presentation/import_screen.dart`, at `/settings/import` (Settings → Data → Import
+transactions) and `/transactions/import` (the transaction list's menu): one flow in steps
+on one page, back stepping back through them (review to mapping, mapping to the start)
+before it leaves.
+
+- **The start.** What the import does, "Choose a CSV file", and under **Imports** this
+  device's imports, newest first: the file's name ("Unnamed file" without one), how many
+  transactions and the local date, "undone" once undone, and "Undo this import", which asks
+  first ("This deletes the N transactions this import added, including any you have
+  edited since.") and says "Import undone". A file over the cap, one the dialog or the
+  read failed on, one that is not text (a byte order mark over bytes that do not decode),
+  or one with no table is told there, and nothing else changes.
+- **The mapping screen** (`import_mapping_view.dart`). The file's header row (the first
+  twenty rows offered, each as its row number and first fields) and field separator (a
+  change reads the file again and detects the header); the amount as one column or money
+  out and in; a column for each role (date, description, amount or money out and money
+  in, then merchant, notes, category and tags, "Not used" for the optional ones), each
+  column offered by its header with a sample value; the date format, detected from the
+  date column: when the order of day and month is ambiguous, each reading is offered with
+  the file's first three dates read that way ("03/10/2026 is Mar 10, 2026"), the one in
+  the device locale's order chosen to start with; otherwise a choice of every format,
+  saying so when none reads the column; the decimal separator, detected from the amount
+  columns and asked to be checked when they do not say (a comma to start with when the
+  fields are separated by `;`, else a point); "Money out is negative" for one amount
+  column; and the account, an existing one or "New manual account" with its name, type
+  and currency (the device locale's to start with). The preset for the header, when there
+  is one, fills it all ("Mapped as you mapped this layout last time."), the account only
+  while it is live. Review is enabled once the required columns, a date format and an
+  account are chosen; a review that cannot be prepared (the account's rows not read, say)
+  is told under the mapping, which stays as it was, back working again.
+- **The review screen** (`import_review_view.dart`). How many transactions will be
+  written, their date range, the money in and out; that the file was read in the 8-bit
+  fallback, or imported before; the rows skipped, folded, each with its row number and
+  reason; "Import N likely duplicates anyway" (off by default) when there are any; Import
+  (disabled with nothing to write); then every row (name, date, "Likely duplicate" where
+  it is one, amount), each read by a screen reader as one summary.
+- **The result.** How many were imported into which account and how many duplicates were
+  skipped (and, when the record could not be saved, that the rows are in but cannot be
+  undone from here), "View account" and "Import another file", above the imports.
+- **Leaving.** Back is held while a file is read or written (the progress bar shows), and
+  so is a second Undo while one runs. After every await the screen checks it is still
+  there, so a read or a write that ends after it is gone is dropped (the write itself
+  completes).

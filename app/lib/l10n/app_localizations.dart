@@ -7083,6 +7083,534 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not scheduled: it starts once you sign in'**
   String get backgroundSyncNotScheduled;
+
+  /// Title of the CSV import screen, its Settings entry and the transaction list menu item.
+  ///
+  /// In en, this message translates to:
+  /// **'Import transactions'**
+  String get importTitle;
+
+  /// Subtitle of the Import transactions entry in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring in a CSV export from your bank'**
+  String get importSettingsSubtitle;
+
+  /// Explanation at the top of the import screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a CSV file exported from your bank. You map its columns once; the next file with the same columns is mapped for you.'**
+  String get importIntro;
+
+  /// Button on the import screen that opens the system file dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a CSV file'**
+  String get importChooseFile;
+
+  /// Error on the import screen when the chosen file is too large.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is over 20 MB, more than an import reads.'**
+  String get importTooLarge;
+
+  /// Error on the import screen when the file dialog or the read failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The file could not be opened.'**
+  String get importPickFailed;
+
+  /// Error on the import screen when the file is not text in an encoding the import reads.
+  ///
+  /// In en, this message translates to:
+  /// **'The file could not be read as text.'**
+  String get importUnreadable;
+
+  /// Error on the import screen when no row of the file looks like a header.
+  ///
+  /// In en, this message translates to:
+  /// **'No table of transactions was found in this file.'**
+  String get importNoTable;
+
+  /// Section header of the list of past imports on the import screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Imports'**
+  String get importHistorySection;
+
+  /// Shown under Imports when no import is recorded on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing imported yet.'**
+  String get importHistoryEmpty;
+
+  /// Title of a past import whose file had no name.
+  ///
+  /// In en, this message translates to:
+  /// **'Unnamed file'**
+  String get importHistoryUnnamed;
+
+  /// Subtitle of a past import: how many transactions it added and when.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 transaction, {date}} other{{count} transactions, {date}}}'**
+  String importHistorySubtitle(int count, String date);
+
+  /// Subtitle of a past import that was undone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 transaction, {date}, undone} other{{count} transactions, {date}, undone}}'**
+  String importHistoryUndoneSubtitle(int count, String date);
+
+  /// Button on a past import that deletes the transactions it added.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo this import'**
+  String get importUndo;
+
+  /// Title of the confirmation before an import is undone.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo this import?'**
+  String get importUndoTitle;
+
+  /// Body of the confirmation before an import is undone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{This deletes the transaction this import added, even if you have edited it since.} other{This deletes the {count} transactions this import added, including any you have edited since.}}'**
+  String importUndoBody(int count);
+
+  /// Confirming button of the undo confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo import'**
+  String get importUndoConfirm;
+
+  /// Snack bar after an import was undone.
+  ///
+  /// In en, this message translates to:
+  /// **'Import undone'**
+  String get importUndone;
+
+  /// Snack bar when undoing an import failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The import could not be undone.'**
+  String get importUndoFailed;
+
+  /// Section header of the file settings (header row, separator) on the import screen.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get importFileSection;
+
+  /// Section header of the column mapping on the import screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Columns'**
+  String get importMappingSection;
+
+  /// Label of the choice of the row that holds the column names.
+  ///
+  /// In en, this message translates to:
+  /// **'Header row'**
+  String get importHeaderRow;
+
+  /// An option of the header row choice: the row number and its first fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row}: {preview}'**
+  String importHeaderRowOption(int row, String preview);
+
+  /// Label of the choice of the character that separates the fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Field separator'**
+  String get importDelimiter;
+
+  /// Field separator option.
+  ///
+  /// In en, this message translates to:
+  /// **'Comma'**
+  String get importDelimiterComma;
+
+  /// Field separator option.
+  ///
+  /// In en, this message translates to:
+  /// **'Semicolon'**
+  String get importDelimiterSemicolon;
+
+  /// Field separator option.
+  ///
+  /// In en, this message translates to:
+  /// **'Tab'**
+  String get importDelimiterTab;
+
+  /// Field separator option.
+  ///
+  /// In en, this message translates to:
+  /// **'Vertical bar'**
+  String get importDelimiterPipe;
+
+  /// Label of the choice between one amount column and money out and in columns.
+  ///
+  /// In en, this message translates to:
+  /// **'Amounts'**
+  String get importAmountMode;
+
+  /// Amount mode: one signed amount column.
+  ///
+  /// In en, this message translates to:
+  /// **'One column'**
+  String get importAmountOneColumn;
+
+  /// Amount mode: separate money out and money in columns.
+  ///
+  /// In en, this message translates to:
+  /// **'Money out and in'**
+  String get importAmountDebitCredit;
+
+  /// Column role on the import mapping.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get importRoleDate;
+
+  /// Column role on the import mapping.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get importRoleDescription;
+
+  /// Column role on the import mapping.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get importRoleAmount;
+
+  /// Column role on the import mapping: the column of money leaving the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Money out'**
+  String get importRoleDebit;
+
+  /// Column role on the import mapping: the column of money arriving.
+  ///
+  /// In en, this message translates to:
+  /// **'Money in'**
+  String get importRoleCredit;
+
+  /// Column role on the import mapping.
+  ///
+  /// In en, this message translates to:
+  /// **'Merchant'**
+  String get importRoleMerchant;
+
+  /// Column role on the import mapping.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get importRoleNotes;
+
+  /// Column role on the import mapping, matched to a category by name.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get importRoleCategory;
+
+  /// Column role on the import mapping, tags separated by semicolons.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get importRoleTags;
+
+  /// Helper text under a required column choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get importRequired;
+
+  /// The option of a column choice that maps no column.
+  ///
+  /// In en, this message translates to:
+  /// **'Not used'**
+  String get importColumnNone;
+
+  /// An option of a column choice: the column name and a sample value from the file.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (for example “{sample}”)'**
+  String importColumnOption(String name, String sample);
+
+  /// The name of a column whose header is blank.
+  ///
+  /// In en, this message translates to:
+  /// **'Column {number}'**
+  String importColumnUnnamed(int number);
+
+  /// Shown while a required column is not chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the date, the description and the amount columns.'**
+  String get importMappingIncomplete;
+
+  /// Label of the choice of how the file writes dates.
+  ///
+  /// In en, this message translates to:
+  /// **'Date format'**
+  String get importDateFormat;
+
+  /// Shown when the dates fit more than one format.
+  ///
+  /// In en, this message translates to:
+  /// **'These dates can be read two ways. Choose the one your bank uses.'**
+  String get importDateAmbiguous;
+
+  /// How a sample date of the file reads in a format.
+  ///
+  /// In en, this message translates to:
+  /// **'{text} is {date}'**
+  String importDateSample(String text, String date);
+
+  /// Shown when no date format reads the date column.
+  ///
+  /// In en, this message translates to:
+  /// **'The date column does not read in any format the import knows.'**
+  String get importDateNone;
+
+  /// Label of the choice of the decimal separator.
+  ///
+  /// In en, this message translates to:
+  /// **'Decimal separator'**
+  String get importDecimalSeparator;
+
+  /// Decimal separator option.
+  ///
+  /// In en, this message translates to:
+  /// **'Point, as in 1,234.56'**
+  String get importDecimalPoint;
+
+  /// Decimal separator option.
+  ///
+  /// In en, this message translates to:
+  /// **'Comma, as in 1.234,56'**
+  String get importDecimalComma;
+
+  /// Shown when the decimal separator could not be detected.
+  ///
+  /// In en, this message translates to:
+  /// **'The amounts do not show which decimal separator this file uses. Check it.'**
+  String get importSeparatorUnsure;
+
+  /// Switch: whether the file writes spending as negative amounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Money out is negative'**
+  String get importOutflowsNegative;
+
+  /// Subtitle of the money out is negative switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off when the file writes spending as positive amounts'**
+  String get importOutflowsNegativeSubtitle;
+
+  /// Section header of the choice of the account the transactions go into.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get importAccountSection;
+
+  /// Label of the choice of the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Import into'**
+  String get importAccount;
+
+  /// The option of the account choice that creates a manual account.
+  ///
+  /// In en, this message translates to:
+  /// **'New manual account'**
+  String get importNewAccount;
+
+  /// Shown when the mapping came from the preset saved for this header.
+  ///
+  /// In en, this message translates to:
+  /// **'Mapped as you mapped this layout last time.'**
+  String get importPresetApplied;
+
+  /// Button that moves from the mapping to the review.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get importReview;
+
+  /// Headline of the import review.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No transactions to import} =1{1 transaction to import} other{{count} transactions to import}}'**
+  String importReviewCount(int count);
+
+  /// The date range of the rows to import.
+  ///
+  /// In en, this message translates to:
+  /// **'From {start} to {end}'**
+  String importReviewRange(String start, String end);
+
+  /// Label of the total of the incoming amounts on the review.
+  ///
+  /// In en, this message translates to:
+  /// **'Money in'**
+  String get importReviewIn;
+
+  /// Label of the total of the outgoing amounts on the review.
+  ///
+  /// In en, this message translates to:
+  /// **'Money out'**
+  String get importReviewOut;
+
+  /// Warning on the review when the file was read in the 8-bit fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is not in UTF-8, so accented characters may be wrong.'**
+  String get importLossy;
+
+  /// Warning on the review when a file with the same contents is in the import history.
+  ///
+  /// In en, this message translates to:
+  /// **'You have imported this file before.'**
+  String get importImportedBefore;
+
+  /// Title of the list of rows that could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 row skipped} other{{count} rows skipped}}'**
+  String importSkippedRows(int count);
+
+  /// A row that could not be read, and why.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row}: {reason}'**
+  String importFailureRow(int row, String reason);
+
+  /// Reason a row is skipped.
+  ///
+  /// In en, this message translates to:
+  /// **'the date is not in the chosen format'**
+  String get importProblemBadDate;
+
+  /// Reason a row is skipped.
+  ///
+  /// In en, this message translates to:
+  /// **'no amount'**
+  String get importProblemNoAmount;
+
+  /// Reason a row is skipped.
+  ///
+  /// In en, this message translates to:
+  /// **'the amount is not a number'**
+  String get importProblemBadAmount;
+
+  /// Reason a row is skipped.
+  ///
+  /// In en, this message translates to:
+  /// **'both money out and money in'**
+  String get importProblemDebitAndCredit;
+
+  /// Reason a row is skipped.
+  ///
+  /// In en, this message translates to:
+  /// **'the amount is zero'**
+  String get importProblemZeroAmount;
+
+  /// Reason a row is skipped.
+  ///
+  /// In en, this message translates to:
+  /// **'no description'**
+  String get importProblemNoDescription;
+
+  /// Switch on the review that imports the likely duplicates too.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Import 1 likely duplicate anyway} other{Import {count} likely duplicates anyway}}'**
+  String importDuplicatesSwitch(int count);
+
+  /// Subtitle of the likely duplicates switch.
+  ///
+  /// In en, this message translates to:
+  /// **'They match transactions already on this account, so they are skipped unless this is on.'**
+  String get importDuplicatesSubtitle;
+
+  /// Label on a review row that matches a transaction already on the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Likely duplicate'**
+  String get importDuplicateLabel;
+
+  /// What a screen reader says for a review row.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {date}, {amount}'**
+  String importRowSemantics(String name, String date, String amount);
+
+  /// What a screen reader says for a review row that is a likely duplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {date}, {amount}, likely duplicate'**
+  String importDuplicateRowSemantics(String name, String date, String amount);
+
+  /// Button on the review that writes the transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Import 1 transaction} other{Import {count} transactions}}'**
+  String importButton(int count);
+
+  /// Error on the review when the write failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The transactions could not be imported.'**
+  String get importFailed;
+
+  /// Headline after an import.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing was imported into {account}.} =1{Imported 1 transaction into {account}.} other{Imported {count} transactions into {account}.}}'**
+  String importResult(int count, String account);
+
+  /// Line after an import when likely duplicates were left out.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 likely duplicate was skipped.} other{{count} likely duplicates were skipped.}}'**
+  String importResultSkipped(int count);
+
+  /// Button after an import that opens the account.
+  ///
+  /// In en, this message translates to:
+  /// **'View account'**
+  String get importViewAccount;
+
+  /// Button after an import that starts again.
+  ///
+  /// In en, this message translates to:
+  /// **'Import another file'**
+  String get importAnother;
+
+  /// Caption in the transaction editor of a transaction that came from a CSV import.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported from a file'**
+  String get transactionImportedCaption;
+
+  /// Line after an import whose rows were written but whose record could not be saved.
+  ///
+  /// In en, this message translates to:
+  /// **'The transactions are in, but this import could not be added to the list of imports, so it cannot be undone from here.'**
+  String get importHistoryNotSaved;
+
+  /// Error on the import mapping when preparing the review failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The rows could not be read for review. Try again, or go back and choose another file.'**
+  String get importReviewFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -60,6 +60,8 @@ labelled, since they count toward the balance.
 - **Duplicates.** Outside selection mode, the app bar's menu has "Review duplicates",
   with a badge on the menu button counting the likely duplicate pairs
   (`duplicateCandidatesProvider`); it opens the duplicate review (`duplicates.md`).
+- **Import.** The same menu has "Import transactions", the CSV import in this tab
+  (`/transactions/import`, `import.md`).
 
 `TransactionFilters` and `DateFilter` are in `application/transaction_filters.dart`;
 `toQuery(today, limit:)` makes the `TransactionQuery`, with `hidden: false` unless
@@ -196,6 +198,8 @@ rows (logo, dictionary hit, cleaned name, pending).
   across N categories" and is not tappable); the splits (**Splits**); notes; tags (typed,
   added on enter or a comma, with suggestions from the tags in use); the receipt
   (**Receipts**).
+- **Imported.** A transaction that came from a CSV import (`source: import`, `import.md`)
+  says "Imported from a file" above the form.
 - **Saving.** A new transaction is `source: manual`, `pending: false`, with `createdAt` and
   `updatedAt` from the clock. An edit changes only the fields above and `updatedAt`; the
   source, the merchant name, the Plaid fields and `createdAt` stay as they were, so an

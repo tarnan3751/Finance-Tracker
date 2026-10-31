@@ -796,6 +796,13 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (initial?.source == DataSource.import) ...[
+              Text(
+                l10n.transactionImportedCaption,
+                style: theme.textTheme.bodySmall,
+              ),
+              const SizedBox(height: 16),
+            ],
             SegmentedButton<bool>(
               segments: [
                 ButtonSegment(

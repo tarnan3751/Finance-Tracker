@@ -360,6 +360,13 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                         ),
                         child: Text(l10n.duplicatesMenuItem(duplicates)),
                       ),
+                      PopupMenuItem<void>(
+                        onTap: () => openDetail(
+                          context,
+                          const TransactionsImportRoute().location,
+                        ),
+                        child: Text(l10n.importTitle),
+                      ),
                     ],
                   ),
                 ],

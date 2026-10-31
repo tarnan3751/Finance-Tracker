@@ -415,6 +415,7 @@ keeping its own navigation stack.
 | Transactions | `TransactionsRoute` | `/transactions`, `/transactions?search=true` | `features/transactions/presentation/transactions_screen.dart`; with `search=true` (Search transactions) it starts searching, and closing that search goes to `/transactions` |
 | | `NewTransactionRoute` | `/transactions/new?account=<id>`, `/transactions/new?receipt=camera` | `transaction_editor_screen.dart`; with `receipt=camera` (Scan receipt) the camera opens for the receipt photo, under the lock once unlocked |
 | | `DuplicatesRoute` | `/transactions/duplicates` | `features/duplicates/presentation/duplicate_review_screen.dart` (`duplicates.md`) |
+| | `TransactionsImportRoute` | `/transactions/import` | `features/import/presentation/import_screen.dart` (`import.md`), the import from the transaction list's menu |
 | | `TransactionRoute` | `/transactions/:id` | `transaction_editor_screen.dart` |
 | Plan | `PlanRoute` | `/plan` | redirects to `/budgets` |
 | | `BudgetsRoute` | `/budgets` | `features/budgets/presentation/budgets_screen.dart` (`budgets.md`), the Budgets segment |
@@ -444,6 +445,7 @@ keeping its own navigation stack.
 | | `NewRuleRoute` | `/settings/rules/new` | `rule_editor_screen.dart` |
 | | `EditRuleRoute` | `/settings/rules/:id` | `rule_editor_screen.dart` |
 | | `ExportRoute` | `/settings/export` | `features/export/presentation/export_screen.dart` (`export.md`): the monthly report as a PDF, the transactions as a CSV |
+| | `ImportRoute` | `/settings/import` | `features/import/presentation/import_screen.dart` (`import.md`): a bank's CSV export into an account |
 | | `BackupRoute` | `/settings/backup` | `features/backup/presentation/backup_screen.dart` (`backup.md`): export a backup, restore one |
 
 - The router opens at `/accounts`, and `/` redirects there (`createRouter` in
@@ -461,7 +463,8 @@ keeping its own navigation stack.
   `AccountDetailRoute(id).push(context)`), never with path strings. Detail and editor
   routes are sub-routes of their branch, so each tab keeps its own stack. `/accounts/new`
   and `/accounts/linked-banks` are declared before `/accounts/:id`, and
-  `/transactions/new` and `/transactions/duplicates` before `/transactions/:id`, and
+  `/transactions/new`, `/transactions/duplicates` and `/transactions/import` before
+  `/transactions/:id`, and
   `/bills/new` and `/bills/subscriptions` before `/bills/:id`, and `/goals/new` before
   `/goals/:id`, so none is read as an id.
 - Pushing a route of another branch (a transaction from an account's detail or a
@@ -804,7 +807,7 @@ committed. Read strings with `AppLocalizations.of(context)`. `flutter pub get`, 
 | data | `data/in_memory_settings_repository.dart`, `data/demo_settings_repository.dart` | The in-memory implementation (tests) and the demo one (the demo flavor) |
 | application | `application/settings_controller.dart` | `SettingsController`, following `watch()`; each change reads, changes and saves, and changes run one after another so two issued together both land |
 | domain, application | `domain/app_language.dart`, `application/app_language_controller.dart` | `AppLanguage` (`system`, `english`, `pseudo`) and `AppLanguageController`, kept in `app_meta` (`app_language`), device-local (**Localization**) |
-| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color, and in dev and demo a `SegmentedButton` for the language), Security (`features/lock/presentation/security_section.dart`: Require unlock, Lock after and Block screenshots, kept in `app_meta`, `lock.md`), Notifications (the row opening `notifications_screen.dart`, Settings → Notifications, `background.md`), Data (Categories, opening category management, `categories.md`; Rules, `rules.md`; Export, `export.md`; Backup, `backup.md`, which in the demo flavor only says that the demo's data is not kept or backed up), About (app name, version and build, flavor, time zone), Demo data (demo only, `demo_data_section.dart`: the persona the demo shows) and Developer (dev only, `features/developer/presentation/developer_section.dart`: diagnostics, Pull now and the Sandbox controls, `developer.md`); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
+| presentation | `presentation/settings_screen.dart` | Account (`features/auth/presentation/account_section.dart`, `auth.md`, with Linked banks), Sync (when the local data syncs: dev and prod, `sync_section.dart`, `sync-app.md`), Appearance (a `SegmentedButton` for the theme mode, a `SwitchListTile` for dynamic color, and in dev and demo a `SegmentedButton` for the language), Security (`features/lock/presentation/security_section.dart`: Require unlock, Lock after and Block screenshots, kept in `app_meta`, `lock.md`), Notifications (the row opening `notifications_screen.dart`, Settings → Notifications, `background.md`), Data (Categories, opening category management, `categories.md`; Rules, `rules.md`; Export, `export.md`; Import transactions, `import.md`; Backup, `backup.md`, which in the demo flavor only says that the demo's data is not kept or backed up), About (app name, version and build, flavor, time zone), Demo data (demo only, `demo_data_section.dart`: the persona the demo shows) and Developer (dev only, `features/developer/presentation/developer_section.dart`: diagnostics, Pull now and the Sandbox controls, `developer.md`); each section starts with a `SettingsSectionHeader` (`presentation/settings_section_header.dart`) |
 
 The repository contract is `test/contract/settings_repository_contract.dart`,
 `runSettingsRepositoryContract(create, {dispose})`; the three implementations each run it

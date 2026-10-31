@@ -6674,5 +6674,507 @@
   "backgroundSyncNotScheduled": "Not scheduled: it starts once you sign in",
   "@backgroundSyncNotScheduled": {
     "description": "The background sync's schedule line when it is on but not scheduled, as when signed out."
+  },
+  "importTitle": "Import transactions",
+  "@importTitle": {
+    "description": "Title of the CSV import screen, its Settings entry and the transaction list menu item."
+  },
+  "importSettingsSubtitle": "Bring in a CSV export from your bank",
+  "@importSettingsSubtitle": {
+    "description": "Subtitle of the Import transactions entry in Settings."
+  },
+  "importIntro": "Choose a CSV file exported from your bank. You map its columns once; the next file with the same columns is mapped for you.",
+  "@importIntro": {
+    "description": "Explanation at the top of the import screen."
+  },
+  "importChooseFile": "Choose a CSV file",
+  "@importChooseFile": {
+    "description": "Button on the import screen that opens the system file dialog."
+  },
+  "importTooLarge": "This file is over 20 MB, more than an import reads.",
+  "@importTooLarge": {
+    "description": "Error on the import screen when the chosen file is too large."
+  },
+  "importPickFailed": "The file could not be opened.",
+  "@importPickFailed": {
+    "description": "Error on the import screen when the file dialog or the read failed."
+  },
+  "importUnreadable": "The file could not be read as text.",
+  "@importUnreadable": {
+    "description": "Error on the import screen when the file is not text in an encoding the import reads."
+  },
+  "importNoTable": "No table of transactions was found in this file.",
+  "@importNoTable": {
+    "description": "Error on the import screen when no row of the file looks like a header."
+  },
+  "importHistorySection": "Imports",
+  "@importHistorySection": {
+    "description": "Section header of the list of past imports on the import screen."
+  },
+  "importHistoryEmpty": "Nothing imported yet.",
+  "@importHistoryEmpty": {
+    "description": "Shown under Imports when no import is recorded on this device."
+  },
+  "importHistoryUnnamed": "Unnamed file",
+  "@importHistoryUnnamed": {
+    "description": "Title of a past import whose file had no name."
+  },
+  "importHistorySubtitle": "{count, plural, =1{1 transaction, {date}} other{{count} transactions, {date}}}",
+  "@importHistorySubtitle": {
+    "description": "Subtitle of a past import: how many transactions it added and when.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      },
+      "date": {
+        "type": "String",
+        "example": "Oct 24, 2026"
+      }
+    }
+  },
+  "importHistoryUndoneSubtitle": "{count, plural, =1{1 transaction, {date}, undone} other{{count} transactions, {date}, undone}}",
+  "@importHistoryUndoneSubtitle": {
+    "description": "Subtitle of a past import that was undone.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      },
+      "date": {
+        "type": "String",
+        "example": "Oct 24, 2026"
+      }
+    }
+  },
+  "importUndo": "Undo this import",
+  "@importUndo": {
+    "description": "Button on a past import that deletes the transactions it added."
+  },
+  "importUndoTitle": "Undo this import?",
+  "@importUndoTitle": {
+    "description": "Title of the confirmation before an import is undone."
+  },
+  "importUndoBody": "{count, plural, =1{This deletes the transaction this import added, even if you have edited it since.} other{This deletes the {count} transactions this import added, including any you have edited since.}}",
+  "@importUndoBody": {
+    "description": "Body of the confirmation before an import is undone.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "importUndoConfirm": "Undo import",
+  "@importUndoConfirm": {
+    "description": "Confirming button of the undo confirmation."
+  },
+  "importUndone": "Import undone",
+  "@importUndone": {
+    "description": "Snack bar after an import was undone."
+  },
+  "importUndoFailed": "The import could not be undone.",
+  "@importUndoFailed": {
+    "description": "Snack bar when undoing an import failed."
+  },
+  "importFileSection": "File",
+  "@importFileSection": {
+    "description": "Section header of the file settings (header row, separator) on the import screen."
+  },
+  "importMappingSection": "Columns",
+  "@importMappingSection": {
+    "description": "Section header of the column mapping on the import screen."
+  },
+  "importHeaderRow": "Header row",
+  "@importHeaderRow": {
+    "description": "Label of the choice of the row that holds the column names."
+  },
+  "importHeaderRowOption": "Row {row}: {preview}",
+  "@importHeaderRowOption": {
+    "description": "An option of the header row choice: the row number and its first fields.",
+    "placeholders": {
+      "row": {
+        "type": "int",
+        "example": "7"
+      },
+      "preview": {
+        "type": "String",
+        "example": "Date, Description, Amount"
+      }
+    }
+  },
+  "importDelimiter": "Field separator",
+  "@importDelimiter": {
+    "description": "Label of the choice of the character that separates the fields."
+  },
+  "importDelimiterComma": "Comma",
+  "@importDelimiterComma": {
+    "description": "Field separator option."
+  },
+  "importDelimiterSemicolon": "Semicolon",
+  "@importDelimiterSemicolon": {
+    "description": "Field separator option."
+  },
+  "importDelimiterTab": "Tab",
+  "@importDelimiterTab": {
+    "description": "Field separator option."
+  },
+  "importDelimiterPipe": "Vertical bar",
+  "@importDelimiterPipe": {
+    "description": "Field separator option."
+  },
+  "importAmountMode": "Amounts",
+  "@importAmountMode": {
+    "description": "Label of the choice between one amount column and money out and in columns."
+  },
+  "importAmountOneColumn": "One column",
+  "@importAmountOneColumn": {
+    "description": "Amount mode: one signed amount column."
+  },
+  "importAmountDebitCredit": "Money out and in",
+  "@importAmountDebitCredit": {
+    "description": "Amount mode: separate money out and money in columns."
+  },
+  "importRoleDate": "Date",
+  "@importRoleDate": {
+    "description": "Column role on the import mapping."
+  },
+  "importRoleDescription": "Description",
+  "@importRoleDescription": {
+    "description": "Column role on the import mapping."
+  },
+  "importRoleAmount": "Amount",
+  "@importRoleAmount": {
+    "description": "Column role on the import mapping."
+  },
+  "importRoleDebit": "Money out",
+  "@importRoleDebit": {
+    "description": "Column role on the import mapping: the column of money leaving the account."
+  },
+  "importRoleCredit": "Money in",
+  "@importRoleCredit": {
+    "description": "Column role on the import mapping: the column of money arriving."
+  },
+  "importRoleMerchant": "Merchant",
+  "@importRoleMerchant": {
+    "description": "Column role on the import mapping."
+  },
+  "importRoleNotes": "Notes",
+  "@importRoleNotes": {
+    "description": "Column role on the import mapping."
+  },
+  "importRoleCategory": "Category",
+  "@importRoleCategory": {
+    "description": "Column role on the import mapping, matched to a category by name."
+  },
+  "importRoleTags": "Tags",
+  "@importRoleTags": {
+    "description": "Column role on the import mapping, tags separated by semicolons."
+  },
+  "importRequired": "Required",
+  "@importRequired": {
+    "description": "Helper text under a required column choice."
+  },
+  "importColumnNone": "Not used",
+  "@importColumnNone": {
+    "description": "The option of a column choice that maps no column."
+  },
+  "importColumnOption": "{name} (for example “{sample}”)",
+  "@importColumnOption": {
+    "description": "An option of a column choice: the column name and a sample value from the file.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Posting Date"
+      },
+      "sample": {
+        "type": "String",
+        "example": "10/28/2026"
+      }
+    }
+  },
+  "importColumnUnnamed": "Column {number}",
+  "@importColumnUnnamed": {
+    "description": "The name of a column whose header is blank.",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "importMappingIncomplete": "Choose the date, the description and the amount columns.",
+  "@importMappingIncomplete": {
+    "description": "Shown while a required column is not chosen."
+  },
+  "importDateFormat": "Date format",
+  "@importDateFormat": {
+    "description": "Label of the choice of how the file writes dates."
+  },
+  "importDateAmbiguous": "These dates can be read two ways. Choose the one your bank uses.",
+  "@importDateAmbiguous": {
+    "description": "Shown when the dates fit more than one format."
+  },
+  "importDateSample": "{text} is {date}",
+  "@importDateSample": {
+    "description": "How a sample date of the file reads in a format.",
+    "placeholders": {
+      "text": {
+        "type": "String",
+        "example": "03/10/2026"
+      },
+      "date": {
+        "type": "String",
+        "example": "Oct 3, 2026"
+      }
+    }
+  },
+  "importDateNone": "The date column does not read in any format the import knows.",
+  "@importDateNone": {
+    "description": "Shown when no date format reads the date column."
+  },
+  "importDecimalSeparator": "Decimal separator",
+  "@importDecimalSeparator": {
+    "description": "Label of the choice of the decimal separator."
+  },
+  "importDecimalPoint": "Point, as in 1,234.56",
+  "@importDecimalPoint": {
+    "description": "Decimal separator option."
+  },
+  "importDecimalComma": "Comma, as in 1.234,56",
+  "@importDecimalComma": {
+    "description": "Decimal separator option."
+  },
+  "importSeparatorUnsure": "The amounts do not show which decimal separator this file uses. Check it.",
+  "@importSeparatorUnsure": {
+    "description": "Shown when the decimal separator could not be detected."
+  },
+  "importOutflowsNegative": "Money out is negative",
+  "@importOutflowsNegative": {
+    "description": "Switch: whether the file writes spending as negative amounts."
+  },
+  "importOutflowsNegativeSubtitle": "Turn off when the file writes spending as positive amounts",
+  "@importOutflowsNegativeSubtitle": {
+    "description": "Subtitle of the money out is negative switch."
+  },
+  "importAccountSection": "Account",
+  "@importAccountSection": {
+    "description": "Section header of the choice of the account the transactions go into."
+  },
+  "importAccount": "Import into",
+  "@importAccount": {
+    "description": "Label of the choice of the account."
+  },
+  "importNewAccount": "New manual account",
+  "@importNewAccount": {
+    "description": "The option of the account choice that creates a manual account."
+  },
+  "importPresetApplied": "Mapped as you mapped this layout last time.",
+  "@importPresetApplied": {
+    "description": "Shown when the mapping came from the preset saved for this header."
+  },
+  "importReview": "Review",
+  "@importReview": {
+    "description": "Button that moves from the mapping to the review."
+  },
+  "importReviewCount": "{count, plural, =0{No transactions to import} =1{1 transaction to import} other{{count} transactions to import}}",
+  "@importReviewCount": {
+    "description": "Headline of the import review.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "importReviewRange": "From {start} to {end}",
+  "@importReviewRange": {
+    "description": "The date range of the rows to import.",
+    "placeholders": {
+      "start": {
+        "type": "String",
+        "example": "Oct 1, 2026"
+      },
+      "end": {
+        "type": "String",
+        "example": "Oct 28, 2026"
+      }
+    }
+  },
+  "importReviewIn": "Money in",
+  "@importReviewIn": {
+    "description": "Label of the total of the incoming amounts on the review."
+  },
+  "importReviewOut": "Money out",
+  "@importReviewOut": {
+    "description": "Label of the total of the outgoing amounts on the review."
+  },
+  "importLossy": "This file is not in UTF-8, so accented characters may be wrong.",
+  "@importLossy": {
+    "description": "Warning on the review when the file was read in the 8-bit fallback."
+  },
+  "importImportedBefore": "You have imported this file before.",
+  "@importImportedBefore": {
+    "description": "Warning on the review when a file with the same contents is in the import history."
+  },
+  "importSkippedRows": "{count, plural, =1{1 row skipped} other{{count} rows skipped}}",
+  "@importSkippedRows": {
+    "description": "Title of the list of rows that could not be read.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "importFailureRow": "Row {row}: {reason}",
+  "@importFailureRow": {
+    "description": "A row that could not be read, and why.",
+    "placeholders": {
+      "row": {
+        "type": "int",
+        "example": "7"
+      },
+      "reason": {
+        "type": "String",
+        "example": "no amount"
+      }
+    }
+  },
+  "importProblemBadDate": "the date is not in the chosen format",
+  "@importProblemBadDate": {
+    "description": "Reason a row is skipped."
+  },
+  "importProblemNoAmount": "no amount",
+  "@importProblemNoAmount": {
+    "description": "Reason a row is skipped."
+  },
+  "importProblemBadAmount": "the amount is not a number",
+  "@importProblemBadAmount": {
+    "description": "Reason a row is skipped."
+  },
+  "importProblemDebitAndCredit": "both money out and money in",
+  "@importProblemDebitAndCredit": {
+    "description": "Reason a row is skipped."
+  },
+  "importProblemZeroAmount": "the amount is zero",
+  "@importProblemZeroAmount": {
+    "description": "Reason a row is skipped."
+  },
+  "importProblemNoDescription": "no description",
+  "@importProblemNoDescription": {
+    "description": "Reason a row is skipped."
+  },
+  "importDuplicatesSwitch": "{count, plural, =1{Import 1 likely duplicate anyway} other{Import {count} likely duplicates anyway}}",
+  "@importDuplicatesSwitch": {
+    "description": "Switch on the review that imports the likely duplicates too.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "importDuplicatesSubtitle": "They match transactions already on this account, so they are skipped unless this is on.",
+  "@importDuplicatesSubtitle": {
+    "description": "Subtitle of the likely duplicates switch."
+  },
+  "importDuplicateLabel": "Likely duplicate",
+  "@importDuplicateLabel": {
+    "description": "Label on a review row that matches a transaction already on the account."
+  },
+  "importRowSemantics": "{name}, {date}, {amount}",
+  "@importRowSemantics": {
+    "description": "What a screen reader says for a review row.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "CONTOSO COFFEE"
+      },
+      "date": {
+        "type": "String",
+        "example": "Oct 24, 2026"
+      },
+      "amount": {
+        "type": "String",
+        "example": "minus $4.75"
+      }
+    }
+  },
+  "importDuplicateRowSemantics": "{name}, {date}, {amount}, likely duplicate",
+  "@importDuplicateRowSemantics": {
+    "description": "What a screen reader says for a review row that is a likely duplicate.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "CONTOSO COFFEE"
+      },
+      "date": {
+        "type": "String",
+        "example": "Oct 24, 2026"
+      },
+      "amount": {
+        "type": "String",
+        "example": "minus $4.75"
+      }
+    }
+  },
+  "importButton": "{count, plural, =1{Import 1 transaction} other{Import {count} transactions}}",
+  "@importButton": {
+    "description": "Button on the review that writes the transactions.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "importFailed": "The transactions could not be imported.",
+  "@importFailed": {
+    "description": "Error on the review when the write failed."
+  },
+  "importResult": "{count, plural, =0{Nothing was imported into {account}.} =1{Imported 1 transaction into {account}.} other{Imported {count} transactions into {account}.}}",
+  "@importResult": {
+    "description": "Headline after an import.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      },
+      "account": {
+        "type": "String",
+        "example": "Checking"
+      }
+    }
+  },
+  "importResultSkipped": "{count, plural, =1{1 likely duplicate was skipped.} other{{count} likely duplicates were skipped.}}",
+  "@importResultSkipped": {
+    "description": "Line after an import when likely duplicates were left out.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "importViewAccount": "View account",
+  "@importViewAccount": {
+    "description": "Button after an import that opens the account."
+  },
+  "importAnother": "Import another file",
+  "@importAnother": {
+    "description": "Button after an import that starts again."
+  },
+  "transactionImportedCaption": "Imported from a file",
+  "@transactionImportedCaption": {
+    "description": "Caption in the transaction editor of a transaction that came from a CSV import."
+  },
+  "importHistoryNotSaved": "The transactions are in, but this import could not be added to the list of imports, so it cannot be undone from here.",
+  "@importHistoryNotSaved": {
+    "description": "Line after an import whose rows were written but whose record could not be saved."
+  },
+  "importReviewFailed": "The rows could not be read for review. Try again, or go back and choose another file.",
+  "@importReviewFailed": {
+    "description": "Error on the import mapping when preparing the review failed."
   }
 }

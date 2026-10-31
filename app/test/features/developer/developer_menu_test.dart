@@ -49,7 +49,7 @@ Future<FakeServer> _openControls(
     tester,
     config: AppConfig.dev(),
     initialLocation: '/settings',
-    size: const Size(412, 2400),
+    size: const Size(412, 2600),
     clock: clock,
     overrides: [storeOverride(store)],
   );
@@ -75,7 +75,7 @@ void main() {
         tester,
         config: config,
         initialLocation: '/settings',
-        size: const Size(412, 2400),
+        size: const Size(412, 2600),
       );
       expect(find.text('Developer'), findsNothing);
       expect(find.text('Sandbox controls'), findsNothing);
@@ -84,7 +84,7 @@ void main() {
       tester,
       config: AppConfig.dev(),
       initialLocation: '/settings',
-      size: const Size(412, 2400),
+      size: const Size(412, 2600),
     );
     expect(find.text('Developer'), findsOneWidget);
     expect(find.text('Sandbox controls'), findsOneWidget);
@@ -114,7 +114,7 @@ void main() {
         tester,
         config: AppConfig.dev(),
         initialLocation: '/settings',
-        size: const Size(412, 2400),
+        size: const Size(412, 2600),
         overrides: [storeOverride(store)],
       );
       final ProviderContainer c = _container(tester);

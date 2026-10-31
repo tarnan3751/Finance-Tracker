@@ -4,10 +4,10 @@
 /// | Tab | Paths |
 /// |---|---|
 /// | Accounts | `/accounts`, `/accounts/new`, `/accounts/linked-banks`, `/accounts/:id`, `/accounts/:id/edit` |
-/// | Transactions | `/transactions?search=true`, `/transactions/new?account=<id>&receipt=camera`, `/transactions/duplicates`, `/transactions/:id` |
+/// | Transactions | `/transactions?search=true`, `/transactions/new?account=<id>&receipt=camera`, `/transactions/duplicates`, `/transactions/import`, `/transactions/:id` |
 /// | Plan | `/plan` (redirects to `/budgets`); `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new?stream-id=<id>`, `/bills/new?liability-account-id=<id>`, `/bills/subscriptions`, `/bills/:id`; `/forecast` |
 /// | Insights | `/insights` (redirects to `/reports`); `/reports`, `/reports/weekly`; `/net-worth`; `/investments`; `/goals`, `/goals/new`, `/goals/:id`, `/goals/:id/edit`, `/goals/:id/contribute` |
-/// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id`, `/settings/export`, `/settings/backup`, `/settings/devices`, `/settings/delete-account` |
+/// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id`, `/settings/export`, `/settings/import`, `/settings/backup`, `/settings/devices`, `/settings/delete-account` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
 /// user is sent in dev and prod, and `/restore` the restore offer of a fresh install. `/` redirects to `/accounts` (`app_router.dart`). Detail and editor routes are
@@ -55,6 +55,7 @@ import 'package:finance_tracker/features/goals/presentation/contribution_editor_
 import 'package:finance_tracker/features/goals/presentation/goal_detail_screen.dart';
 import 'package:finance_tracker/features/goals/presentation/goal_editor_screen.dart';
 import 'package:finance_tracker/features/goals/presentation/goals_screen.dart';
+import 'package:finance_tracker/features/import/presentation/import_screen.dart';
 import 'package:finance_tracker/features/investments/presentation/investments_view.dart';
 import 'package:finance_tracker/features/items/presentation/items_screen.dart';
 import 'package:finance_tracker/features/net_worth/presentation/net_worth_view.dart';
@@ -103,6 +104,7 @@ part 'routes.g.dart';
             // Before `:id`, so neither is read as a transaction id.
             TypedGoRoute<NewTransactionRoute>(path: 'new'),
             TypedGoRoute<DuplicatesRoute>(path: 'duplicates'),
+            TypedGoRoute<TransactionsImportRoute>(path: 'import'),
             TypedGoRoute<TransactionRoute>(path: ':id'),
           ],
         ),
@@ -184,6 +186,7 @@ part 'routes.g.dart';
               ],
             ),
             TypedGoRoute<ExportRoute>(path: 'export'),
+            TypedGoRoute<ImportRoute>(path: 'import'),
             TypedGoRoute<BackupRoute>(path: 'backup'),
             TypedGoRoute<DevicesRoute>(path: 'devices'),
             TypedGoRoute<DeleteAccountRoute>(path: 'delete-account'),
@@ -343,6 +346,17 @@ class DuplicatesRoute extends GoRouteData with $DuplicatesRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const DuplicateReviewScreen();
+}
+
+/// `/transactions/import`: the CSV import, opened from the transaction list's menu; the
+/// same flow as [ImportRoute], in this tab.
+class TransactionsImportRoute extends GoRouteData
+    with $TransactionsImportRoute {
+  const TransactionsImportRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const ImportScreen();
 }
 
 /// `/transactions/:id`: an existing transaction, in the editor that is also its detail.
@@ -597,6 +611,15 @@ class ExportRoute extends GoRouteData with $ExportRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const ExportScreen();
+}
+
+/// `/settings/import`: the CSV import of transactions (`docs/reference/import.md`).
+class ImportRoute extends GoRouteData with $ImportRoute {
+  const ImportRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const ImportScreen();
 }
 
 /// `/settings/backup`: export a backup, and restore one.

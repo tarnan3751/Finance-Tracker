@@ -4655,4 +4655,372 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get backgroundSyncNotScheduled =>
       'Not scheduled: it starts once you sign in';
+
+  @override
+  String get importTitle => 'Import transactions';
+
+  @override
+  String get importSettingsSubtitle => 'Bring in a CSV export from your bank';
+
+  @override
+  String get importIntro =>
+      'Choose a CSV file exported from your bank. You map its columns once; the next file with the same columns is mapped for you.';
+
+  @override
+  String get importChooseFile => 'Choose a CSV file';
+
+  @override
+  String get importTooLarge =>
+      'This file is over 20 MB, more than an import reads.';
+
+  @override
+  String get importPickFailed => 'The file could not be opened.';
+
+  @override
+  String get importUnreadable => 'The file could not be read as text.';
+
+  @override
+  String get importNoTable =>
+      'No table of transactions was found in this file.';
+
+  @override
+  String get importHistorySection => 'Imports';
+
+  @override
+  String get importHistoryEmpty => 'Nothing imported yet.';
+
+  @override
+  String get importHistoryUnnamed => 'Unnamed file';
+
+  @override
+  String importHistorySubtitle(int count, String date) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions, $date',
+      one: '1 transaction, $date',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importHistoryUndoneSubtitle(int count, String date) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions, $date, undone',
+      one: '1 transaction, $date, undone',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importUndo => 'Undo this import';
+
+  @override
+  String get importUndoTitle => 'Undo this import?';
+
+  @override
+  String importUndoBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'This deletes the $count transactions this import added, including any you have edited since.',
+      one: 'This deletes the transaction this import added, even if you have edited it since.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importUndoConfirm => 'Undo import';
+
+  @override
+  String get importUndone => 'Import undone';
+
+  @override
+  String get importUndoFailed => 'The import could not be undone.';
+
+  @override
+  String get importFileSection => 'File';
+
+  @override
+  String get importMappingSection => 'Columns';
+
+  @override
+  String get importHeaderRow => 'Header row';
+
+  @override
+  String importHeaderRowOption(int row, String preview) {
+    return 'Row $row: $preview';
+  }
+
+  @override
+  String get importDelimiter => 'Field separator';
+
+  @override
+  String get importDelimiterComma => 'Comma';
+
+  @override
+  String get importDelimiterSemicolon => 'Semicolon';
+
+  @override
+  String get importDelimiterTab => 'Tab';
+
+  @override
+  String get importDelimiterPipe => 'Vertical bar';
+
+  @override
+  String get importAmountMode => 'Amounts';
+
+  @override
+  String get importAmountOneColumn => 'One column';
+
+  @override
+  String get importAmountDebitCredit => 'Money out and in';
+
+  @override
+  String get importRoleDate => 'Date';
+
+  @override
+  String get importRoleDescription => 'Description';
+
+  @override
+  String get importRoleAmount => 'Amount';
+
+  @override
+  String get importRoleDebit => 'Money out';
+
+  @override
+  String get importRoleCredit => 'Money in';
+
+  @override
+  String get importRoleMerchant => 'Merchant';
+
+  @override
+  String get importRoleNotes => 'Notes';
+
+  @override
+  String get importRoleCategory => 'Category';
+
+  @override
+  String get importRoleTags => 'Tags';
+
+  @override
+  String get importRequired => 'Required';
+
+  @override
+  String get importColumnNone => 'Not used';
+
+  @override
+  String importColumnOption(String name, String sample) {
+    return '$name (for example “$sample”)';
+  }
+
+  @override
+  String importColumnUnnamed(int number) {
+    return 'Column $number';
+  }
+
+  @override
+  String get importMappingIncomplete =>
+      'Choose the date, the description and the amount columns.';
+
+  @override
+  String get importDateFormat => 'Date format';
+
+  @override
+  String get importDateAmbiguous =>
+      'These dates can be read two ways. Choose the one your bank uses.';
+
+  @override
+  String importDateSample(String text, String date) {
+    return '$text is $date';
+  }
+
+  @override
+  String get importDateNone =>
+      'The date column does not read in any format the import knows.';
+
+  @override
+  String get importDecimalSeparator => 'Decimal separator';
+
+  @override
+  String get importDecimalPoint => 'Point, as in 1,234.56';
+
+  @override
+  String get importDecimalComma => 'Comma, as in 1.234,56';
+
+  @override
+  String get importSeparatorUnsure =>
+      'The amounts do not show which decimal separator this file uses. Check it.';
+
+  @override
+  String get importOutflowsNegative => 'Money out is negative';
+
+  @override
+  String get importOutflowsNegativeSubtitle =>
+      'Turn off when the file writes spending as positive amounts';
+
+  @override
+  String get importAccountSection => 'Account';
+
+  @override
+  String get importAccount => 'Import into';
+
+  @override
+  String get importNewAccount => 'New manual account';
+
+  @override
+  String get importPresetApplied =>
+      'Mapped as you mapped this layout last time.';
+
+  @override
+  String get importReview => 'Review';
+
+  @override
+  String importReviewCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions to import',
+      one: '1 transaction to import',
+      zero: 'No transactions to import',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importReviewRange(String start, String end) {
+    return 'From $start to $end';
+  }
+
+  @override
+  String get importReviewIn => 'Money in';
+
+  @override
+  String get importReviewOut => 'Money out';
+
+  @override
+  String get importLossy =>
+      'This file is not in UTF-8, so accented characters may be wrong.';
+
+  @override
+  String get importImportedBefore => 'You have imported this file before.';
+
+  @override
+  String importSkippedRows(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rows skipped',
+      one: '1 row skipped',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importFailureRow(int row, String reason) {
+    return 'Row $row: $reason';
+  }
+
+  @override
+  String get importProblemBadDate => 'the date is not in the chosen format';
+
+  @override
+  String get importProblemNoAmount => 'no amount';
+
+  @override
+  String get importProblemBadAmount => 'the amount is not a number';
+
+  @override
+  String get importProblemDebitAndCredit => 'both money out and money in';
+
+  @override
+  String get importProblemZeroAmount => 'the amount is zero';
+
+  @override
+  String get importProblemNoDescription => 'no description';
+
+  @override
+  String importDuplicatesSwitch(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Import $count likely duplicates anyway',
+      one: 'Import 1 likely duplicate anyway',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importDuplicatesSubtitle =>
+      'They match transactions already on this account, so they are skipped unless this is on.';
+
+  @override
+  String get importDuplicateLabel => 'Likely duplicate';
+
+  @override
+  String importRowSemantics(String name, String date, String amount) {
+    return '$name, $date, $amount';
+  }
+
+  @override
+  String importDuplicateRowSemantics(String name, String date, String amount) {
+    return '$name, $date, $amount, likely duplicate';
+  }
+
+  @override
+  String importButton(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Import $count transactions',
+      one: 'Import 1 transaction',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importFailed => 'The transactions could not be imported.';
+
+  @override
+  String importResult(int count, String account) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Imported $count transactions into $account.',
+      one: 'Imported 1 transaction into $account.',
+      zero: 'Nothing was imported into $account.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importResultSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count likely duplicates were skipped.',
+      one: '1 likely duplicate was skipped.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importViewAccount => 'View account';
+
+  @override
+  String get importAnother => 'Import another file';
+
+  @override
+  String get transactionImportedCaption => 'Imported from a file';
+
+  @override
+  String get importHistoryNotSaved =>
+      'The transactions are in, but this import could not be added to the list of imports, so it cannot be undone from here.';
+
+  @override
+  String get importReviewFailed =>
+      'The rows could not be read for review. Try again, or go back and choose another file.';
 }

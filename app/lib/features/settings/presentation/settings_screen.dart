@@ -123,6 +123,13 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => openDetail(context, const ExportRoute().location),
           ),
+          ListTile(
+            leading: const Icon(Icons.upload_file),
+            title: Text(l10n.importTitle),
+            subtitle: Text(l10n.importSettingsSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => openDetail(context, const ImportRoute().location),
+          ),
           if (ref.watch(appConfigProvider).flavor == Flavor.demo)
             ListTile(
               leading: const Icon(Icons.settings_backup_restore),

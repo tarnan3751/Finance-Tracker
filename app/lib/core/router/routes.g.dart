@@ -68,6 +68,11 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
               factory: $DuplicatesRoute._fromState,
             ),
             GoRouteData.$route(
+              path: 'import',
+              hasOverriddenOnExit: false,
+              factory: $TransactionsImportRoute._fromState,
+            ),
+            GoRouteData.$route(
               path: ':id',
               hasOverriddenOnExit: false,
               factory: $TransactionRoute._fromState,
@@ -241,6 +246,11 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
               path: 'export',
               hasOverriddenOnExit: false,
               factory: $ExportRoute._fromState,
+            ),
+            GoRouteData.$route(
+              path: 'import',
+              hasOverriddenOnExit: false,
+              factory: $ImportRoute._fromState,
             ),
             GoRouteData.$route(
               path: 'backup',
@@ -458,6 +468,27 @@ mixin $DuplicatesRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/transactions/duplicates');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $TransactionsImportRoute on GoRouteData {
+  static TransactionsImportRoute _fromState(GoRouterState state) =>
+      const TransactionsImportRoute();
+
+  @override
+  String get location => GoRouteData.$location('/transactions/import');
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -1095,6 +1126,26 @@ mixin $ExportRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/settings/export');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $ImportRoute on GoRouteData {
+  static ImportRoute _fromState(GoRouterState state) => const ImportRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings/import');
 
   @override
   void go(BuildContext context) => context.go(location);
