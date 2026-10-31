@@ -1,8 +1,9 @@
 // The bill editor: what it refuses before saving, a new bill saved with its reminders,
 // the permission asked when reminders are on and the sheet when it is refused (Open
 // settings, the bill saved first), an edit that keeps the paid marks, and a delete with
-// undo, also from an editor pushed on another tab, and a new bill for a stream with no
-// suggestion, or whose suggestions fail to load, starting empty (the prefill is in
+// undo, also from an editor pushed on another tab, a delete under a page pushed over the
+// editor closing no page, and a new bill for a stream with no suggestion, or whose
+// suggestions fail to load, starting empty (the prefill is in
 // subscriptions_screen_test.dart).
 import 'dart:async';
 
@@ -196,6 +197,28 @@ void main() {
       expect(await live(tester), [rent]);
     },
   );
+
+  testWidgets('a delete under a page pushed over the editor closes neither', (
+    tester,
+  ) async {
+    await open(tester, '/bills/rent', initial: [rent]);
+    final Finder button = find.ancestor(
+      of: find.byTooltip('Delete'),
+      matching: find.byType(IconButton),
+    );
+    final IconButton delete = tester.widget(button);
+    unawaited(GoRouter.of(tester.element(button)).push<void>('/bills/new'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'New bill'), findsOneWidget);
+
+    delete.onPressed!();
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'New bill'), findsOneWidget);
+    expect(await live(tester), isEmpty);
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(await live(tester), [rent]);
+  });
 
   testWidgets('a deleted bill says so', (tester) async {
     await open(tester, '/bills/missing');

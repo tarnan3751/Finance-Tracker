@@ -53,7 +53,6 @@ import 'package:finance_tracker/features/transactions/presentation/transaction_d
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:shared_models/shared_models.dart';
 
 /// How long the undo of a delete is offered.
@@ -563,7 +562,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
     final TransactionActions actions = ref.read(transactionActionsProvider);
     final String id = _initial!.id;
     final bool hasReceipt = _initial!.receiptPath != null;
-    context.pop();
+    OwnPage.of(context).close();
     await actions.delete(id);
     final ScaffoldFeatureController<SnackBar, SnackBarClosedReason> undo =
         messenger.afterClose.showSnackBar(

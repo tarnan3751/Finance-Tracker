@@ -471,8 +471,8 @@ keeping its own navigation stack.
   budget's, category management from the category picker) puts it on top of the current tab's stack: the
   selected tab does not change, and back returns where the user was.
 - **Editors close their own page.** A screen that closes after an await (the account,
-  transaction, budget, bill, goal, contribution, category and rule editors' Save, the category editor's and
-  the account detail's Delete) takes its page with `OwnPage.of` (`core/router/own_page.dart`)
+  transaction, budget, bill, goal, contribution, category and rule editors' Save, the transaction,
+  bill, rule and category editors' and the account detail's Delete) takes its page with `OwnPage.of` (`core/router/own_page.dart`)
   before the await: `close()` pops only while that page is still the router's top page
   (`isTop`), and otherwise does nothing, so a page opened meanwhile (on another tab, or
   pushed over the editor) is never the one closed. An editor left open that way stays

@@ -2,13 +2,16 @@
 // account (else the only one, else the last used), dated today; amounts parse in the
 // account's currency and are never rounded; tags and categories; an edit keeps the
 // source, its splits and what the editor does not show; Hidden in the menu is saved
-// with Save; delete offers an undo for five seconds, and a Plaid transaction has no
-// Delete.
+// with Save; delete offers an undo for five seconds, a delete under a page pushed over
+// the editor closes no page, and a Plaid transaction has no Delete.
+import 'dart:async';
+
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/features/categories/data/category_defaults.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_models/shared_models.dart';
 
 import '../../../helpers/pump_app.dart';
@@ -351,6 +354,31 @@ void main() {
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();
     expect(store.transaction('demo-txn-12'), isNotNull);
+  });
+
+  testWidgets('a delete under a page pushed over the editor closes neither', (
+    tester,
+  ) async {
+    final InMemoryStore store = seededStore();
+    await _pumpEditor(tester, store, '/transactions/demo-txn-07');
+    final Finder button = find.ancestor(
+      of: find.byTooltip('Delete'),
+      matching: find.byType(IconButton),
+    );
+    final IconButton delete = tester.widget(button);
+    unawaited(
+      GoRouter.of(tester.element(button)).push<void>('/transactions/new'),
+    );
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'New transaction'), findsOneWidget);
+
+    delete.onPressed!();
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'New transaction'), findsOneWidget);
+    expect(store.transaction('demo-txn-07'), isNull);
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(store.transaction('demo-txn-07'), isNotNull);
   });
 
   testWidgets('without undo the delete stands and the offer goes in 5 s', (

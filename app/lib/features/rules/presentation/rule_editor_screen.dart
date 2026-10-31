@@ -30,7 +30,6 @@ import 'package:finance_tracker/features/transactions/presentation/transaction_e
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:shared_models/shared_models.dart';
 
 /// The editor of rule [ruleId], or of a new rule when it is null.
@@ -335,7 +334,7 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
     final VisibleMessenger messenger = VisibleMessenger.of(context);
     final RuleActions actions = ref.read(ruleActionsProvider);
     final String id = _initial!.id;
-    context.pop();
+    OwnPage.of(context).close();
     await actions.delete(id);
     messenger.afterClose.showSnackBar(
       SnackBar(

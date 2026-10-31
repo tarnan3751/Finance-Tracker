@@ -310,10 +310,10 @@ class _BillFormState extends ConsumerState<_BillForm> {
     final BillActions actions = ref.read(billActionsProvider);
     final String id = _initial!.id;
     // Back where the editor was opened from (the bills, or the screen a reminder's tap
-    // left), whose messenger is the one on screen, so the Undo shows; a pushed editor
-    // can sit on another tab's stack, whose messenger `go` would leave offstage.
+    // left): a pushed editor can sit on another tab's stack, which `go` would leave.
+    // Closed through its page, so a page pushed over it is never the one popped.
     if (context.canPop()) {
-      context.pop();
+      OwnPage.of(context).close();
     } else {
       const BillsRoute().go(context);
     }

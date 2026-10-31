@@ -1,14 +1,17 @@
 // The rule editor: a rule needs a name, a condition and an action, and each row its
 // value; every condition and action kind round-trips, hide included; an edited rule keeps
 // every action; the bank category picker offers only the built-in categories; delete
-// offers an undo; the preview counts and lists what the rule as edited would change, once
+// offers an undo, and a delete under a page pushed over the editor closes no page; the preview counts and lists what the rule as edited would change, once
 // every row has a value; a saved, unchanged rule applies to the existing transactions
 // behind a confirmation, once.
+import 'dart:async';
+
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/features/rules/data/in_memory_rule_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_models/shared_models.dart';
 
 import '../../../helpers/pump_app.dart';
@@ -251,6 +254,34 @@ void main() {
     await tester.tap(find.byTooltip('Delete'));
     await tester.pumpAndSettle();
     expect(find.text('Rule deleted'), findsOneWidget);
+    expect(await _live(tester, rules), hasLength(1));
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(await _live(tester, rules), hasLength(2));
+  });
+
+  testWidgets('a delete under a page pushed over the editor closes neither', (
+    tester,
+  ) async {
+    final InMemoryRuleRepository rules = await _pump(tester, '/settings/rules');
+    await tester.tap(find.text('Groceries'));
+    await tester.pumpAndSettle();
+    final IconButton delete = tester.widget(
+      find.ancestor(
+        of: find.byTooltip('Delete'),
+        matching: find.byType(IconButton),
+      ),
+    );
+    unawaited(
+      GoRouter.of(tester.element(find.byTooltip('Delete')))
+          .push<void>('/settings/rules/new'),
+    );
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'New rule'), findsOneWidget);
+
+    delete.onPressed!();
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'New rule'), findsOneWidget);
     expect(await _live(tester, rules), hasLength(1));
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();
