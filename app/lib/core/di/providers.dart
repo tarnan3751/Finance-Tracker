@@ -34,6 +34,7 @@ import 'package:finance_tracker/core/db/local_wipe.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/plaid/plaid_pull.dart';
+import 'package:finance_tracker/core/platform/app_shortcuts_provider.dart';
 import 'package:finance_tracker/core/platform/backup_picker_provider.dart';
 import 'package:finance_tracker/core/platform/channel_monotonic_clock.dart';
 import 'package:finance_tracker/core/platform/channel_screen_security.dart';
@@ -46,6 +47,7 @@ import 'package:finance_tracker/core/platform/monotonic_clock_provider.dart';
 import 'package:finance_tracker/core/platform/platform_backup_picker.dart';
 import 'package:finance_tracker/core/platform/platform_file_exporter.dart';
 import 'package:finance_tracker/core/platform/platform_launch_intent.dart';
+import 'package:finance_tracker/core/platform/quick_actions_app_shortcuts.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:finance_tracker/core/platform/screen_security_provider.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
@@ -537,13 +539,15 @@ List<Override> overridesFor(AppConfig config) => [
 /// Every flavor: the platform seams that behave the same in all three, through the app's
 /// own channels to `MainActivity`, through `local_auth`, and through `home_widget` (the
 /// home screen widgets, rendered from the demo seed in demo and from the database in dev
-/// and prod, and the launch links of their taps, one process-wide instance).
+/// and prod) and `quick_actions` (the app shortcuts), with the launch links of both, one
+/// process-wide instance.
 final List<Override> _platformOverrides = [
   screenSecurityProvider.overrideWithValue(const ChannelScreenSecurity()),
   monotonicClockProvider.overrideWithValue(const ChannelMonotonicClock()),
   deviceAuthProvider.overrideWith((ref) => LocalAuthDeviceAuth()),
   widgetWriterProvider.overrideWithValue(const HomeWidgetWriter()),
   launchIntentProvider.overrideWithValue(_platformLaunchIntent),
+  appShortcutsProvider.overrideWithValue(const QuickActionsAppShortcuts()),
 ];
 
 final PlatformLaunchIntent _platformLaunchIntent = PlatformLaunchIntent();

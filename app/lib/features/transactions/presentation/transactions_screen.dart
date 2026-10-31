@@ -9,6 +9,8 @@
 /// bulk (set the category, add a tag, hide or unhide, delete when no row is the bank's),
 /// each action one recorded batch with a snack bar of the count. Outside selection, the
 /// menu opens the duplicate review, its badge counting the likely duplicate pairs.
+/// Opened with `search` (the Search transactions shortcut), it starts searching; closing
+/// that search returns to the plain location, so the next shortcut starts it again.
 library;
 
 import 'dart:async';
@@ -40,7 +42,10 @@ class TransactionsScreen extends ConsumerStatefulWidget {
   /// How long the search waits after a keystroke before it queries.
   static const Duration searchDebounce = Duration(milliseconds: 250);
 
-  const TransactionsScreen({super.key});
+  const TransactionsScreen({super.key, this.search = false});
+
+  /// Whether the list starts with the search field open.
+  final bool search;
 
   @override
   ConsumerState<TransactionsScreen> createState() => _TransactionsScreenState();
@@ -48,13 +53,19 @@ class TransactionsScreen extends ConsumerStatefulWidget {
 
 class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   final TextEditingController _search = TextEditingController();
-  bool _searching = false;
+  late bool _searching = widget.search;
 
   // The search text waiting for [TransactionsScreen.searchDebounce] to pass.
   Timer? _searchDebounce;
 
   // The selected transactions' ids in selection mode; null outside it.
   Set<String>? _selection;
+
+  @override
+  void didUpdateWidget(TransactionsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.search && !oldWidget.search) setState(() => _searching = true);
+  }
 
   @override
   void dispose() {
@@ -79,6 +90,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     _search.clear();
     _controller.setText('');
     setState(() => _searching = false);
+    if (widget.search) const TransactionsRoute().go(context);
   }
 
   Future<void> _openFilters(TransactionFilters current) async {

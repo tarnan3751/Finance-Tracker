@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Resources the release build's shrinker must keep although no compiled code names
-     them: the notification icons, which flutter_local_notifications looks up by name. -->
+     them: the notification icons, which flutter_local_notifications looks up by name, and
+     the app shortcuts' icons, which quick_actions looks up by name. -->
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@drawable/ic_stat_*" />
+    tools:keep="@drawable/ic_stat_*,@drawable/ic_shortcut_*" />

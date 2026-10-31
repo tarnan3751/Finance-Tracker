@@ -6461,5 +6461,21 @@
         "example": "Due tomorrow"
       }
     }
+  },
+  "shortcutAddTransaction": "Add transaction",
+  "@shortcutAddTransaction": {
+    "description": "The app shortcut (long-press on the app's icon) that opens a new transaction. About 25 characters at most."
+  },
+  "shortcutScanReceipt": "Scan receipt",
+  "@shortcutScanReceipt": {
+    "description": "The app shortcut that opens a new transaction with the camera ready for its receipt photo. About 25 characters at most."
+  },
+  "shortcutSearch": "Search transactions",
+  "@shortcutSearch": {
+    "description": "The app shortcut that opens the transactions with the search field. About 25 characters at most."
+  },
+  "shortcutSync": "Sync now",
+  "@shortcutSync": {
+    "description": "The app shortcut that starts a sync and opens Settings. About 25 characters at most."
   }
 }

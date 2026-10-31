@@ -4492,6 +4492,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String widgetBillSpokenHidden(String name, String due) {
     return '$name, $due, amount hidden while the app is locked';
   }
+
+  @override
+  String get shortcutAddTransaction => 'Add transaction';
+
+  @override
+  String get shortcutScanReceipt => 'Scan receipt';
+
+  @override
+  String get shortcutSearch => 'Search transactions';
+
+  @override
+  String get shortcutSync => 'Sync now';
 }
 
 /// The translations for English (`en_XA`).
@@ -9074,4 +9086,16 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
   String widgetBillSpokenHidden(String name, String due) {
     return '[$name, $due, åɱöûñţ ĥîððéñ ŵĥîļé ţĥé åþþ îš ļöçķéð ~~~~~ ~~~~~ ~~~]';
   }
+
+  @override
+  String get shortcutAddTransaction => '[Åðð ţŕåñšåçţîöñ ~~~~~ ~]';
+
+  @override
+  String get shortcutScanReceipt => '[Šçåñ ŕéçéîþţ ~~~~~]';
+
+  @override
+  String get shortcutSearch => '[Šéåŕçĥ ţŕåñšåçţîöñš ~~~~~ ~~~]';
+
+  @override
+  String get shortcutSync => '[Šýñç ñöŵ ~~~]';
 }

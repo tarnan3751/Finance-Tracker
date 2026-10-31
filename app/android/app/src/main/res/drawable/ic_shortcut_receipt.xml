@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Scan receipt app shortcut's icon, an adaptive icon the launcher masks: the app icon's
+     purple behind a white glyph. Referenced by name from Dart (core/router/launch_links.dart,
+     'ic_shortcut_receipt'), so res/raw/keep.xml keeps it from the release build's resource
+     shrinking. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground>
+        <vector
+            android:width="108dp"
+            android:height="108dp"
+            android:viewportWidth="108"
+            android:viewportHeight="108">
+            <group
+                android:scaleX="2"
+                android:scaleY="2"
+                android:translateX="30"
+                android:translateY="30">
+            <path android:fillColor="#FFFFFFFF" android:pathData="M12,12m-3.2,0a3.2,3.2 0,1 1,6.4 0a3.2,3.2 0,1 1,-6.4 0" />
+            <path android:fillColor="#FFFFFFFF" android:pathData="M9,2L7.17,4H4c-1.1,0 -2,0.9 -2,2v12c0,1.1 0.9,2 2,2h16c1.1,0 2,-0.9 2,-2V6c0,-1.1 -0.9,-2 -2,-2h-3.17L15,2H9zM12,17c-2.76,0 -5,-2.24 -5,-5s2.24,-5 5,-5 5,2.24 5,5 -2.24,5 -5,5z" />
+            </group>
+        </vector>
+    </foreground>
+</adaptive-icon>

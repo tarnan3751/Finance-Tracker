@@ -4,7 +4,7 @@
 /// | Tab | Paths |
 /// |---|---|
 /// | Accounts | `/accounts`, `/accounts/new`, `/accounts/linked-banks`, `/accounts/:id`, `/accounts/:id/edit` |
-/// | Transactions | `/transactions`, `/transactions/new?account=<id>`, `/transactions/duplicates`, `/transactions/:id` |
+/// | Transactions | `/transactions?search=true`, `/transactions/new?account=<id>&receipt=camera`, `/transactions/duplicates`, `/transactions/:id` |
 /// | Plan | `/plan` (redirects to `/budgets`); `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new?stream-id=<id>`, `/bills/new?liability-account-id=<id>`, `/bills/subscriptions`, `/bills/:id`; `/forecast` |
 /// | Insights | `/insights` (redirects to `/reports`); `/reports`, `/reports/weekly`; `/net-worth`; `/investments`; `/goals`, `/goals/new`, `/goals/:id`, `/goals/:id/edit`, `/goals/:id/contribute` |
 /// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id`, `/settings/export`, `/settings/backup`, `/settings/devices`, `/settings/delete-account` |
@@ -293,13 +293,17 @@ class EditAccountRoute extends GoRouteData with $EditAccountRoute {
 }
 
 /// `/transactions`: the transaction list, or beside it on an expanded window
-/// (`TwoPane`) what to choose there.
+/// (`TwoPane`) what to choose there; `/transactions?search=true` opens the list searching
+/// (the Search transactions shortcut).
 class TransactionsRoute extends GoRouteData with $TransactionsRoute {
-  const TransactionsRoute();
+  const TransactionsRoute({this.search = false});
+
+  /// Whether the list opens with the search field.
+  final bool search;
 
   @override
   Widget build(BuildContext context, GoRouterState state) => ListPane(
-    list: const TransactionsScreen(),
+    list: TransactionsScreen(search: search),
     placeholder: DetailPlaceholder(
       icon: Icons.receipt_long_outlined,
       text: AppLocalizations.of(context).paneTransactionsEmpty,
@@ -307,16 +311,27 @@ class TransactionsRoute extends GoRouteData with $TransactionsRoute {
   );
 }
 
-/// `/transactions/new`: the editor of a new transaction, on [account] when given.
+/// `/transactions/new`: the editor of a new transaction, on [account] when given; with
+/// `receipt=camera` ([receiptCamera], the Scan receipt shortcut) it opens the camera for
+/// the receipt photo first.
 class NewTransactionRoute extends GoRouteData with $NewTransactionRoute {
-  const NewTransactionRoute({this.account});
+  const NewTransactionRoute({this.account, this.receipt});
+
+  /// The [receipt] that opens the camera.
+  static const String receiptCamera = 'camera';
 
   /// The id of the account the new transaction starts on.
   final String? account;
 
+  /// How the receipt photo starts: [receiptCamera], or null for none.
+  final String? receipt;
+
   @override
   Widget build(BuildContext context, GoRouterState state) =>
-      TransactionEditorScreen(initialAccountId: account);
+      TransactionEditorScreen(
+        initialAccountId: account,
+        takeReceiptPhoto: receipt == receiptCamera,
+      );
 }
 
 /// `/transactions/duplicates`: the review of the likely duplicate transactions.

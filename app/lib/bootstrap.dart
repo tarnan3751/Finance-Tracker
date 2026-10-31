@@ -4,8 +4,8 @@
 /// securing its window before the first frame when they say so), starts sync and the
 /// budget alerts, and runs the app on a new Riverpod container; after the first frame,
 /// the bill reminders are planned (a tapped one opens its bill), the home screen widgets
-/// are kept current, a launch link that reaches the running app opens its location (a
-/// cold start at one opens there), and dev and prod sweep the receipt files no
+/// are kept current, the app shortcuts are set, a launch link that reaches the running
+/// app opens its location (a cold start at one opens there), and dev and prod sweep the receipt files no
 /// transaction references. [startApp] can run again in the same
 /// process, on a new container: a restore (`features/backup/`) stops the app, replaces
 /// its database on a plain screen showing its progress, and starts it again through the
@@ -27,9 +27,11 @@ import 'package:finance_tracker/core/db/legacy_import/legacy_importer.dart';
 import 'package:finance_tracker/core/db/local_wipe.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/logging/app_log.dart';
+import 'package:finance_tracker/core/platform/app_shortcuts_provider.dart';
 import 'package:finance_tracker/core/platform/launch_intent_provider.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:finance_tracker/core/router/app_router.dart';
+import 'package:finance_tracker/core/router/launch_links.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/theme/app_theme.dart';
@@ -139,8 +141,8 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
   // The lock's settings, read before the first frame: a locked app never shows its content,
   // and a secure window is secure before anything is drawn in it.
   await container.read(lockControllerProvider.notifier).restored();
-  // A start at a launch link (a home screen widget's tap) opens the router there, behind
-  // the session gate and the lock.
+  // A start at a launch link (a home screen widget's tap or an app shortcut) opens the
+  // router there, behind the session gate and the lock.
   container
       .read(launchLocationProvider.notifier)
       .startAt(await _initialLaunchLink(container));
@@ -169,12 +171,20 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
     // The home screen widgets follow what they show, in every flavor
     // (features/widgets/).
     container.listen(widgetRefreshRunnerProvider, (_, _) {});
-    // A launch link that reaches the running app opens its location.
+    // A launch link that reaches the running app opens its location (Sync now's starts a
+    // session too, which does nothing in demo).
     _launchLinks = container.read(launchIntentProvider).opened.listen((link) {
-      if (!openLaunchLink(container.read(goRouterProvider), link)) {
-        _log.info('an unknown launch link was ignored');
-      }
+      final bool opened = openLaunchLink(
+        container.read(goRouterProvider),
+        link,
+        sync: () => unawaited(
+          container.read(syncControllerProvider.notifier).syncNow(),
+        ),
+      );
+      if (!opened) _log.info('an unknown launch link was ignored');
     });
+    // The launcher's shortcuts, titled in the device's language, in every flavor.
+    unawaited(_setAppShortcuts(container));
     _reminderTaps = container
         .read(reminderSchedulerProvider)
         .openedBillIds
@@ -281,6 +291,18 @@ Future<Uri?> _initialLaunchLink(ProviderContainer container) async {
   } on Object catch (e) {
     _log.warning('the launch link could not be read: ${e.runtimeType}');
     return null;
+  }
+}
+
+// Sets the app shortcuts; a platform failure is logged by type and leaves the launcher's
+// as they were.
+Future<void> _setAppShortcuts(ProviderContainer container) async {
+  try {
+    await container
+        .read(appShortcutsProvider)
+        .set(appShortcutsFor(container.read(widgetLocalizationsProvider)));
+  } on Object catch (e) {
+    _log.warning('the app shortcuts were not set: ${e.runtimeType}');
   }
 }
 

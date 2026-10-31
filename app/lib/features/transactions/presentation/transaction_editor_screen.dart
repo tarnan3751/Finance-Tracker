@@ -16,7 +16,8 @@
 /// removes one. "Run rules on this transaction" (the overflow menu) applies the user's
 /// rules to the values in the form, which Save then keeps like any edit. "Hidden" (the
 /// overflow menu, checked when on) hides the transaction from the list, budgets and
-/// reports, saved with Save.
+/// reports, saved with Save. Opened to take a receipt photo (the Scan receipt shortcut), a
+/// new transaction's editor opens the camera at once, or once the app is unlocked.
 library;
 
 import 'dart:async';
@@ -37,6 +38,7 @@ import 'package:finance_tracker/features/accounts/domain/account_not_found_excep
 import 'package:finance_tracker/features/accounts/presentation/currency_picker.dart';
 import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
 import 'package:finance_tracker/features/categories/presentation/category_picker.dart';
+import 'package:finance_tracker/features/lock/application/lock_controller.dart';
 import 'package:finance_tracker/features/lock/application/lock_hold.dart';
 import 'package:finance_tracker/features/rules/application/rules_providers.dart';
 import 'package:finance_tracker/features/rules/domain/rules_engine.dart';
@@ -57,16 +59,19 @@ import 'package:shared_models/shared_models.dart';
 const Duration undoDuration = Duration(seconds: 5);
 
 /// The editor of transaction [transactionId], or of a new transaction (on
-/// [initialAccountId] when given) when it is null.
+/// [initialAccountId] when given, opening the camera for its receipt photo with
+/// [takeReceiptPhoto]) when it is null.
 class TransactionEditorScreen extends ConsumerWidget {
   const TransactionEditorScreen({
     super.key,
     this.transactionId,
     this.initialAccountId,
+    this.takeReceiptPhoto = false,
   });
 
   final String? transactionId;
   final String? initialAccountId;
+  final bool takeReceiptPhoto;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -134,6 +139,7 @@ class TransactionEditorScreen extends ConsumerWidget {
     return _TransactionForm(
       initial: null,
       accounts: accounts,
+      takeReceiptPhoto: takeReceiptPhoto,
       accountId: live(initialAccountId)
           ? initialAccountId!
           : accounts.length == 1
@@ -151,6 +157,7 @@ class _TransactionForm extends ConsumerStatefulWidget {
     required this.initial,
     required this.accounts,
     required this.accountId,
+    this.takeReceiptPhoto = false,
   });
 
   /// The transaction being edited, or null for a new one.
@@ -159,6 +166,9 @@ class _TransactionForm extends ConsumerStatefulWidget {
 
   /// The account the form starts on.
   final String accountId;
+
+  /// Whether the form opens the camera for a receipt photo when it opens.
+  final bool takeReceiptPhoto;
 
   @override
   ConsumerState<_TransactionForm> createState() => _TransactionFormState();
@@ -203,6 +213,42 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
   bool _saving = false;
 
   bool get _isNew => _initial == null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.takeReceiptPhoto) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _takePhotoOnOpen());
+    }
+  }
+
+  @override
+  void didUpdateWidget(_TransactionForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Scan receipt while this editor is open (from Add transaction): the same page.
+    if (widget.takeReceiptPhoto && !oldWidget.takeReceiptPhoto) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _takePhotoOnOpen());
+    }
+  }
+
+  // Opens the camera for the receipt photo, at once or, under the lock, once the app is
+  // unlocked: the camera is an activity of its own, which the lock screen does not cover.
+  void _takePhotoOnOpen() {
+    if (!mounted) return;
+    if (!ref.read(lockControllerProvider).shown) {
+      unawaited(_pickReceipt(camera: true));
+      return;
+    }
+    ProviderSubscription<bool>? lock;
+    lock = ref.listenManual(lockControllerProvider.select((s) => s.shown), (
+      _,
+      shown,
+    ) {
+      if (shown) return;
+      lock?.close();
+      if (mounted) unawaited(_pickReceipt(camera: true));
+    });
+  }
 
   String get _currency => widget.accounts
       .firstWhere(

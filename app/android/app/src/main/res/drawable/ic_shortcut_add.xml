@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Add transaction app shortcut's icon, an adaptive icon the launcher masks: the app icon's
+     purple behind a white glyph. Referenced by name from Dart (core/router/launch_links.dart,
+     'ic_shortcut_add'), so res/raw/keep.xml keeps it from the release build's resource
+     shrinking. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground>
+        <vector
+            android:width="108dp"
+            android:height="108dp"
+            android:viewportWidth="108"
+            android:viewportHeight="108">
+            <group
+                android:scaleX="2"
+                android:scaleY="2"
+                android:translateX="30"
+                android:translateY="30">
+            <path android:fillColor="#FFFFFFFF" android:pathData="M19,13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </group>
+        </vector>
+    </foreground>
+</adaptive-icon>

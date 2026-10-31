@@ -268,17 +268,31 @@ class _AppShellState extends ConsumerState<AppShell> {
       key: _navigators[i],
       child: widget.children[i],
     );
-    final Widget? list = twoPanes ? _listBesideDetail(_roots[i]) : null;
+    // The current branch's list opens with its search field when the location asks
+    // (`/transactions?search=true`, the Search transactions shortcut).
+    final bool search =
+        i == widget.navigationShell.currentIndex &&
+        widget
+                .navigationShell
+                .shellRouteContext
+                .routerState
+                .uri
+                .queryParameters['search'] ==
+            'true';
+    final Widget? list = twoPanes
+        ? _listBesideDetail(_roots[i], search: search)
+        : null;
     if (list == null) return navigator;
     return TwoPane(start: ListKeys.wrapIn(_lists, list), end: navigator);
   }
 }
 
-/// The list shown beside the pages of a stack that starts at [root], or null.
-Widget? _listBesideDetail(String? root) {
+/// The list shown beside the pages of a stack that starts at [root], or null; the
+/// transactions with their search field when [search].
+Widget? _listBesideDetail(String? root, {bool search = false}) {
   if (root == const AccountsRoute().location) return const AccountsScreen();
   if (root == const TransactionsRoute().location) {
-    return const TransactionsScreen();
+    return TransactionsScreen(search: search);
   }
   if (root == const BillsRoute().location) return const BillsScreen();
   if (root == const SettingsRoute().location) return const SettingsScreen();

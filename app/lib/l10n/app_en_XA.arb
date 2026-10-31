@@ -1103,5 +1103,9 @@
   "widgetNetWorthSpokenHidden": "[Ñéţ ŵöŕţĥ, ĥîððéñ ŵĥîļé ţĥé åþþ îš ļöçķéð ~~~~~ ~~~~~ ~~~~]",
   "widgetAccountSpokenHidden": "[{name}, ƀåļåñçé ĥîððéñ ŵĥîļé ţĥé åþþ îš ļöçķéð ~~~~~ ~~~~~ ~~~]",
   "widgetBudgetSpokenHidden": "[{name}, šþéñðîñĝ ĥîððéñ ŵĥîļé ţĥé åþþ îš ļöçķéð ~~~~~ ~~~~~ ~~~~]",
-  "widgetBillSpokenHidden": "[{name}, {due}, åɱöûñţ ĥîððéñ ŵĥîļé ţĥé åþþ îš ļöçķéð ~~~~~ ~~~~~ ~~~]"
+  "widgetBillSpokenHidden": "[{name}, {due}, åɱöûñţ ĥîððéñ ŵĥîļé ţĥé åþþ îš ļöçķéð ~~~~~ ~~~~~ ~~~]",
+  "shortcutAddTransaction": "[Åðð ţŕåñšåçţîöñ ~~~~~ ~]",
+  "shortcutScanReceipt": "[Šçåñ ŕéçéîþţ ~~~~~]",
+  "shortcutSearch": "[Šéåŕçĥ ţŕåñšåçţîöñš ~~~~~ ~~~]",
+  "shortcutSync": "[Šýñç ñöŵ ~~~]"
 }

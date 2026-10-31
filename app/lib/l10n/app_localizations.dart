@@ -6801,6 +6801,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}, {due}, amount hidden while the app is locked'**
   String widgetBillSpokenHidden(String name, String due);
+
+  /// The app shortcut (long-press on the app's icon) that opens a new transaction. About 25 characters at most.
+  ///
+  /// In en, this message translates to:
+  /// **'Add transaction'**
+  String get shortcutAddTransaction;
+
+  /// The app shortcut that opens a new transaction with the camera ready for its receipt photo. About 25 characters at most.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan receipt'**
+  String get shortcutScanReceipt;
+
+  /// The app shortcut that opens the transactions with the search field. About 25 characters at most.
+  ///
+  /// In en, this message translates to:
+  /// **'Search transactions'**
+  String get shortcutSearch;
+
+  /// The app shortcut that starts a sync and opens Settings. About 25 characters at most.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get shortcutSync;
 }
 
 class _AppLocalizationsDelegate

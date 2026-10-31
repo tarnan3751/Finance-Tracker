@@ -383,11 +383,23 @@ mixin $EditAccountRoute on GoRouteData {
 }
 
 mixin $TransactionsRoute on GoRouteData {
-  static TransactionsRoute _fromState(GoRouterState state) =>
-      const TransactionsRoute();
+  static TransactionsRoute _fromState(GoRouterState state) => TransactionsRoute(
+    search:
+        _$convertMapValue(
+          'search',
+          state.uri.queryParameters,
+          _$boolConverter,
+        ) ??
+        false,
+  );
+
+  TransactionsRoute get _self => this as TransactionsRoute;
 
   @override
-  String get location => GoRouteData.$location('/transactions');
+  String get location => GoRouteData.$location(
+    '/transactions',
+    queryParams: {if (_self.search != false) 'search': _self.search.toString()},
+  );
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -405,14 +417,20 @@ mixin $TransactionsRoute on GoRouteData {
 
 mixin $NewTransactionRoute on GoRouteData {
   static NewTransactionRoute _fromState(GoRouterState state) =>
-      NewTransactionRoute(account: state.uri.queryParameters['account']);
+      NewTransactionRoute(
+        account: state.uri.queryParameters['account'],
+        receipt: state.uri.queryParameters['receipt'],
+      );
 
   NewTransactionRoute get _self => this as NewTransactionRoute;
 
   @override
   String get location => GoRouteData.$location(
     '/transactions/new',
-    queryParams: {if (_self.account != null) 'account': _self.account},
+    queryParams: {
+      if (_self.account != null) 'account': _self.account,
+      if (_self.receipt != null) 'receipt': _self.receipt,
+    },
   );
 
   @override
@@ -1167,6 +1185,26 @@ mixin $ConflictsRoute on GoRouteData {
 
   @override
   void replace(BuildContext context) => context.replace(location);
+}
+
+T? _$convertMapValue<T>(
+  String key,
+  Map<String, String> map,
+  T? Function(String) converter,
+) {
+  final value = map[key];
+  return value == null ? null : converter(value);
+}
+
+bool _$boolConverter(String value) {
+  switch (value) {
+    case 'true':
+      return true;
+    case 'false':
+      return false;
+    default:
+      throw UnsupportedError('Cannot convert "$value" into a bool.');
+  }
 }
 
 RouteBase get $signInRoute => GoRouteData.$route(

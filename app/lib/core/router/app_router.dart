@@ -11,10 +11,11 @@
 ///   empty database, the offer never answered), a signed-in user is held at `/restore`;
 ///   once it is answered, `/restore` is sent to `/accounts`.
 /// - The demo flavor has no gate: it is always signed in as the demo user.
-/// - A cold start at a launch link (a home screen widget's tap, `launch_links.dart`)
-///   opens at its location ([LaunchLocation], set by `bootstrap` before the router is
-///   built), behind the session gate and the lock like any other location; a link that
-///   reaches the running app goes there ([openLaunchLink]).
+/// - A cold start at a launch link (a home screen widget's tap or an app shortcut,
+///   `launch_links.dart`) opens at its location ([LaunchLocation], set by `bootstrap`
+///   before the router is built), behind the session gate and the lock like any other
+///   location (a cold start syncs anyway, so Sync now's link only opens Settings then); a
+///   link that reaches the running app goes there ([openLaunchLink]).
 library;
 
 import 'package:finance_tracker/core/config/app_config.dart';
@@ -48,12 +49,17 @@ class LaunchLocation extends _$LaunchLocation {
       state = link == null ? null : launchTargetOf(link)?.location;
 }
 
-/// Goes to [link]'s location in [router], when it is a launch link the app knows;
-/// returns whether it did.
-bool openLaunchLink(GoRouter router, Uri link) {
+/// Goes to [link]'s location in [router], when it is a launch link the app knows, and
+/// calls [sync] when the link asks for a sync session; returns whether it went.
+bool openLaunchLink(
+  GoRouter router,
+  Uri link, {
+  required void Function() sync,
+}) {
   final LaunchTarget? target = launchTargetOf(link);
   if (target == null) return false;
   router.go(target.location);
+  if (target.syncs) sync();
   return true;
 }
 
