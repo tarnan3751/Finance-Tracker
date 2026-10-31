@@ -7,6 +7,20 @@ the app works offline and catches up later. Bank data comes from Plaid Sandbox t
 small development server in this repository, so the app itself never holds a Plaid key. A
 demo flavor runs with no server and no account at all.
 
+## Screenshots
+
+The demo flavor on its seeded household: Accounts, Transactions, the Plan tab's Budgets and
+the Insights tab's Reports, then a walk through the five tabs.
+
+<p>
+  <img src="docs/media/accounts.png" width="200" alt="Accounts: three accounts with their reported balances">
+  <img src="docs/media/transactions.png" width="200" alt="Transactions: today's and yesterday's transactions by merchant and category">
+  <img src="docs/media/plan.png" width="200" alt="Plan, Budgets: two budgets with progress, rollover and a projection">
+  <img src="docs/media/insights.png" width="200" alt="Insights, Reports: the period's spending and income with comparisons and a category chart">
+</p>
+
+<img src="docs/media/tour.gif" width="270" alt="A walk through the Accounts, Transactions, Plan, Insights and Settings tabs">
+
 ## Status
 
 The app is usable for day-to-day tracking. It signs in, links banks and pulls their accounts and
