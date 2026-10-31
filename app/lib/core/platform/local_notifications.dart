@@ -5,10 +5,12 @@
 /// the first's, so everything that posts through the plugin (the bill reminders,
 /// `local_notifications_scheduler.dart`) shares this initialization: the small icon
 /// `ic_stat_bill`, and the tapped payloads, the one that launched the app first, handed to
-/// [reminderPayloads] when they are a reminder's ([ScheduledReminder.fromPayload]).
+/// [reminderPayloads] when they are a reminder's ([ScheduledReminder.fromPayload]) and to
+/// [routes] when they name a route ([routePayload]: the system notifications').
 library;
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:finance_tracker/core/platform/reminder_scheduler.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -23,6 +25,7 @@ final class LocalNotifications {
 
   // Not broadcast: a tap that launched the app waits for the first listener.
   final StreamController<String> _reminders = StreamController<String>();
+  final StreamController<String> _routes = StreamController<String>();
   Future<void>? _initialized;
 
   /// Initializes the plugin, once; every use awaits it first.
@@ -46,7 +49,15 @@ final class LocalNotifications {
     if (payload == null) return;
     if (ScheduledReminder.fromPayload(0, null, null, payload) != null) {
       if (!_reminders.isClosed) _reminders.add(payload);
+    } else if (routeOfPayload(payload) case final String route) {
+      if (!_routes.isClosed) _routes.add(route);
     }
+  }
+
+  /// The routes of the system notifications tapped, the one that launched the app first.
+  Stream<String> get routes {
+    unawaited(ready());
+    return _routes.stream;
   }
 
   /// The payloads of the bill reminders tapped, the one that launched the app first.
@@ -60,4 +71,17 @@ final class LocalNotifications {
       .resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin
       >();
+}
+
+/// The payload of a notification whose tap opens [route]: `{"route": route}`.
+String routePayload(String route) => jsonEncode({'route': route});
+
+/// The route [payload] names, or null when it names none.
+String? routeOfPayload(String payload) {
+  try {
+    if (jsonDecode(payload) case {'route': final String route}) return route;
+  } on FormatException {
+    // Not ours.
+  }
+  return null;
 }

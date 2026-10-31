@@ -35,6 +35,9 @@ void main() {
 
     // Below the Security section, past what the list builds at first.
     await tester.scrollUntilVisible(find.text('Categories'), 100);
+    // Clear of the navigation bar too, which covers the list's last pixels.
+    await tester.ensureVisible(find.text('Categories'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Categories'));
     await tester.pumpAndSettle();
 

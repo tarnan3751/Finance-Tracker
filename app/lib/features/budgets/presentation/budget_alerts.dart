@@ -8,6 +8,7 @@ library;
 
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/in_app_notifications.dart';
+import 'package:finance_tracker/core/platform/notification_providers.dart';
 import 'package:finance_tracker/core/platform/notifier.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/clock.dart';
@@ -78,6 +79,10 @@ class BudgetAlertsButton extends ConsumerWidget {
             Navigator.of(sheetContext).pop();
             _openSummary(context, ref, notification);
           },
+          onOpenProblem: (notification) {
+            Navigator.of(sheetContext).pop();
+            _openProblem(context, ref, notification);
+          },
         ),
       ),
     );
@@ -129,6 +134,21 @@ class BudgetAlertsButton extends ConsumerWidget {
     ref.read(inAppNotificationsProvider.notifier).markRead(notification.key);
     const WeeklySummaryRoute().push<void>(context);
   }
+
+  // Marks [notification] read and opens where it is fixed: the linked banks for a bank
+  // that needs its sign-in, Settings (and its Sync section) otherwise.
+  void _openProblem(
+    BuildContext context,
+    WidgetRef ref,
+    SyncProblemNotification notification,
+  ) {
+    ref.read(inAppNotificationsProvider.notifier).markRead(notification.key);
+    if (notification.problem == SyncProblem.bankNeedsAttention) {
+      const ItemsRoute().push<void>(context);
+    } else {
+      const SettingsRoute().go(context);
+    }
+  }
 }
 
 class _AlertsSheet extends ConsumerWidget {
@@ -136,11 +156,13 @@ class _AlertsSheet extends ConsumerWidget {
     required this.onOpen,
     required this.onOpenBill,
     required this.onOpenSummary,
+    required this.onOpenProblem,
   });
 
   final ValueChanged<BudgetThresholdNotification> onOpen;
   final ValueChanged<BillDueNotification> onOpenBill;
   final ValueChanged<WeeklySummaryNotification> onOpenSummary;
+  final ValueChanged<SyncProblemNotification> onOpenProblem;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -224,6 +246,12 @@ class _AlertsSheet extends ConsumerWidget {
                       full: false,
                       read: n.read,
                       onTap: () => onOpenSummary(summary),
+                    ),
+                    final SyncProblemNotification problem => _AlertTile(
+                      text: syncProblemText(problem, l10n, clock.location),
+                      full: false,
+                      read: n.read,
+                      onTap: () => onOpenProblem(problem),
                     ),
                   },
               ],

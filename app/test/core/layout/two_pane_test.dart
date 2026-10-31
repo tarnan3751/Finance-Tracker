@@ -200,6 +200,8 @@ void main() {
       200,
       scrollable: _inStart(find.byType(Scrollable)).first,
     );
+    await tester.ensureVisible(_inStart(find.text('Categories')));
+    await tester.pumpAndSettle();
     await tester.tap(_inStart(find.text('Categories')));
     await tester.pumpAndSettle();
     expect(_inEnd(find.byType(CategoriesScreen)), findsOneWidget);

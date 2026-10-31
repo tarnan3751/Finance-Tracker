@@ -5,10 +5,12 @@
 /// budget alerts, and runs the app on a new Riverpod container; after the first frame,
 /// the bill reminders are planned (a tapped one opens its bill), the home screen widgets
 /// are kept current, the app shortcuts are set, a launch link that reaches the running
-/// app opens its location (a cold start at one opens there), and dev and prod sweep the receipt files no
-/// transaction references. [startApp] can run again in the same
-/// process, on a new container: a restore (`features/backup/`) stops the app, replaces
-/// its database on a plain screen showing its progress, and starts it again through the
+/// app opens its location (a cold start at one opens there), the notification channels
+/// are created in the device's locale (in dev and prod a tapped notification opens its
+/// screen), and dev and prod sweep the receipt files no transaction references.
+/// [startApp] can run again in the same process, on a new container: a restore
+/// (`features/backup/`) stops the app, replaces its database on a plain screen showing
+/// its progress, and starts it again through the
 /// app restart [startApp] supplies (`appRestartProvider`); the local wipe
 /// (`core/db/local_wipe.dart`, `wipeLocalDataProvider`) stops it the same way, wipes,
 /// confirms on a plain screen and starts it again on the fresh install; a wipe cut short
@@ -42,6 +44,8 @@ import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/logging/app_log.dart';
 import 'package:finance_tracker/core/platform/app_shortcuts_provider.dart';
 import 'package:finance_tracker/core/platform/launch_intent_provider.dart';
+import 'package:finance_tracker/core/platform/local_notifications_provider.dart';
+import 'package:finance_tracker/core/platform/notification_providers.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:finance_tracker/core/router/app_router.dart';
 import 'package:finance_tracker/core/router/launch_links.dart';
@@ -82,6 +86,7 @@ final Logger _log = Logger('app');
 ProviderContainer? _running;
 StreamSubscription<String>? _reminderTaps;
 StreamSubscription<Uri>? _launchLinks;
+StreamSubscription<String>? _notificationTaps;
 // The process's `ft.app` port, registered once.
 AppSyncPort? _appPort;
 AppLifecycleListener? _appPortLifecycle;
@@ -252,6 +257,18 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
                 .push<void>(EditBillRoute(id).location),
           ),
         );
+    // The notification channels, named in the device's locale, at every start; in dev
+    // and prod a tapped notification opens its screen.
+    unawaited(_ensureChannels(container));
+    if (config.flavor != Flavor.demo) {
+      _notificationTaps = container
+          .read(localNotificationsProvider)
+          .routes
+          .listen(
+            (route) =>
+                unawaited(container.read(goRouterProvider).push<void>(route)),
+          );
+    }
   });
   if (config.flavor != Flavor.demo) {
     // Once per launch, off the first frame: the photos attached before receipt hashes
@@ -277,6 +294,20 @@ Future<void> _takeBackgroundSignOut(ProviderContainer container) async {
     await meta.write(AppMetaKeys.sessionEndedInBackground, '');
   } on Object catch (e) {
     _log.warning('the background sign-out was not read: ${e.runtimeType}');
+  }
+}
+
+// Creates the notification channels, or renames them into the current locale. A failure
+// is logged by type.
+Future<void> _ensureChannels(ProviderContainer container) async {
+  try {
+    await container
+        .read(notificationChannelsProvider)
+        .ensure(container.read(channelTextsProvider));
+  } on Object catch (e) {
+    _log.warning(
+      'the notification channels were not created: ${e.runtimeType}',
+    );
   }
 }
 
@@ -409,6 +440,8 @@ Future<void> stopApp() async {
   _reminderTaps = null;
   await _launchLinks?.cancel();
   _launchLinks = null;
+  await _notificationTaps?.cancel();
+  _notificationTaps = null;
   if (container == null) return;
   final AppDatabase? database =
       container.read(appConfigProvider).flavor == Flavor.demo

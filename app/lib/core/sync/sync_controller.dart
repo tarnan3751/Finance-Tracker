@@ -16,7 +16,10 @@
 /// (`httpConnectionsProvider`), so a request after a network change never goes out on
 /// what the old network left. Leaving the app while changes wait after a failed session
 /// queues a one-off background sync (`backgroundWorkProvider`), which WorkManager runs
-/// once a network is connected. One session runs at a time; a
+/// once a network is connected. Sessions failing for a day since the last that worked,
+/// and a linked bank that needs its sign-in after a Plaid pull, are told once each through
+/// the notifier (the `sync_problems` channel), as `app_meta` records on this device
+/// (`SyncProblemsTold`), until the problem clears. One session runs at a time; a
 /// trigger during a run runs one more after it. A device change (sign-out, sign-in) lets
 /// a session in flight finish and discards its report. Before each session the device
 /// clock adopts the server's device id, moving the outbox to it. A relay whose log was
@@ -35,20 +38,25 @@ import 'dart:convert';
 import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/api/problems.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
+import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/db/tables/sync_meta.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/background_work_provider.dart';
 import 'package:finance_tracker/core/platform/connectivity.dart';
 import 'package:finance_tracker/core/platform/connectivity_provider.dart';
+import 'package:finance_tracker/core/platform/in_app_notifications.dart';
+import 'package:finance_tracker/core/platform/notifier.dart';
 import 'package:finance_tracker/core/sync/device_clock.dart';
 import 'package:finance_tracker/core/sync/receipt_uploader.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/backup/application/backup_providers.dart';
+import 'package:finance_tracker/features/items/domain/linked_bank.dart';
 import 'package:flutter/widgets.dart';
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 
 part 'sync_controller.g.dart';
@@ -381,6 +389,8 @@ class SyncController extends _$SyncController {
         failure: null,
       );
       _failures = 0;
+      // The problem is over: a later day of failures is told again.
+      await _told.forget((key) => key.startsWith(failingProblemPrefix));
       if (!await _pullPlaid(deviceId)) return;
       state = state.copyWith(phase: SyncPhase.idle, failure: null);
     } on Object catch (e) {
@@ -395,6 +405,53 @@ class SyncController extends _$SyncController {
         failure: classifySyncError(e),
       );
       _scheduleRetry();
+      await _tellIfFailingForADay();
+    }
+  }
+
+  // Sessions have failed for a day since the last one that worked: told once per last
+  // success (`sync_problems`), on this device, whichever container tells it (the app's or
+  // a background cycle's).
+  Future<void> _tellIfFailingForADay() async {
+    final DateTime? since = state.lastSyncAt;
+    if (since == null) return;
+    final DateTime now = ref.read(clockProvider).nowUtc();
+    if (now.difference(since) < const Duration(days: 1)) return;
+    final SyncProblemNotification problem = SyncProblemNotification(
+      problem: SyncProblem.failing,
+      since: since,
+      raisedAt: now,
+    );
+    if (!await _told.mark(problem.key)) return;
+    await ref.read(appNotifierProvider).notify(problem);
+  }
+
+  SyncProblemsTold get _told =>
+      SyncProblemsTold(ref.read(appMetaStoreProvider));
+
+  // A linked bank whose connection needs the user's sign-in: told once per bank while it
+  // needs it, on this device.
+  Future<void> _tellBanksNeedingAttention() async {
+    try {
+      for (final LinkedBank bank
+          in await ref.read(itemRepositoryProvider).watchAll().first) {
+        final bool needs =
+            bank.item.status == ItemStatus.loginRequired ||
+            bank.item.status == ItemStatus.pendingExpiration;
+        final SyncProblemNotification problem = SyncProblemNotification(
+          problem: SyncProblem.bankNeedsAttention,
+          itemId: bank.id,
+          raisedAt: ref.read(clockProvider).nowUtc(),
+        );
+        if (!needs) {
+          await _told.forget((key) => key == problem.key);
+          continue;
+        }
+        if (!await _told.mark(problem.key)) continue;
+        await ref.read(appNotifierProvider).notify(problem);
+      }
+    } on Object catch (e) {
+      _log.warning('the linked banks were not read: ${e.runtimeType}');
     }
   }
 
@@ -413,6 +470,8 @@ class SyncController extends _$SyncController {
     try {
       await ref.read(plaidPullProvider).run();
       final DateTime? at = await ref.read(plaidPullStoreProvider).pulledAt();
+      if (!stillOurs()) return false;
+      await _tellBanksNeedingAttention();
       if (!stillOurs()) return false;
       state = state.copyWith(
         failure: state.failure,
@@ -438,3 +497,46 @@ SyncFailure classifySyncError(Object error) => switch (error) {
   ApiException() => SyncFailure.server,
   _ => SyncFailure.other,
 };
+
+/// The `SyncProblemNotification` keys this device has told, kept in `app_meta`
+/// (`sync_problems_told`, a JSON list, device-local), so each problem is told once
+/// whichever container meets it, and again only once it has cleared ([forget]). A store
+/// that fails is logged by type and tells nothing twice it can help.
+final class SyncProblemsTold {
+  /// The record in [_meta].
+  const SyncProblemsTold(this._meta);
+
+  final AppMetaStore _meta;
+
+  Future<List<String>> _read() async {
+    try {
+      final String? json = await _meta.read(AppMetaKeys.syncProblemsTold);
+      if (json == null) return [];
+      return [
+        for (final Object? key in jsonDecode(json) as List) key! as String,
+      ];
+    } on Object catch (e) {
+      _log.warning('the told sync problems were not read: ${e.runtimeType}');
+      return [];
+    }
+  }
+
+  /// Records [key] as told; false when it already was.
+  Future<bool> mark(String key) async {
+    final List<String> told = await _read();
+    if (told.contains(key)) return false;
+    await _meta.write(AppMetaKeys.syncProblemsTold, jsonEncode([...told, key]));
+    return true;
+  }
+
+  /// Forgets the told keys [where] picks: their problems cleared.
+  Future<void> forget(bool Function(String key) where) async {
+    final List<String> told = await _read();
+    final List<String> kept = [
+      for (final String key in told)
+        if (!where(key)) key,
+    ];
+    if (kept.length == told.length) return;
+    await _meta.write(AppMetaKeys.syncProblemsTold, jsonEncode(kept));
+  }
+}

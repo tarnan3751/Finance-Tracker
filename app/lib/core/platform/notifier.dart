@@ -1,8 +1,8 @@
 /// The boundary between what the app wants to tell the user and how the platform shows
 /// it (`docs/reference/app-core.md`, **Notifications**). The application layer raises an
 /// [AppNotification] through a [Notifier]; the in-app implementation
-/// (`in_app_notifications.dart`) keeps it in a list the screens show, and Phase 8's
-/// Android implementation posts it to a notification channel. A notification is typed
+/// (`in_app_notifications.dart`) keeps it in a list the screens show, and the system one
+/// (`system_notifier.dart`) posts it to its notification channel. A notification is typed
 /// data, never text: whoever shows it localizes it.
 ///
 /// Pure Dart, no Flutter import.
@@ -114,4 +114,53 @@ final class WeeklySummaryNotification extends AppNotification {
 
   @override
   String get key => 'weekly/$weekStart';
+}
+
+/// The key prefix of a [SyncProblem.failing] notification.
+const String failingProblemPrefix = 'sync/failing/';
+
+/// What went wrong with sync, for [SyncProblemNotification].
+enum SyncProblem {
+  /// Every session has failed for a day.
+  failing,
+
+  /// The server ended the session (seen by the background sync).
+  signedOut,
+
+  /// A linked bank needs the user to sign in to it again.
+  bankNeedsAttention,
+}
+
+/// Sync needs the user: [problem], since the last successful sync at [since] (for
+/// [SyncProblem.failing]) or for the Item [itemId] (for
+/// [SyncProblem.bankNeedsAttention]).
+final class SyncProblemNotification extends AppNotification {
+  /// The notification.
+  const SyncProblemNotification({
+    required this.problem,
+    required this.raisedAt,
+    this.since,
+    this.itemId,
+  });
+
+  /// What went wrong.
+  final SyncProblem problem;
+
+  /// When sync last succeeded, UTC, for [SyncProblem.failing].
+  final DateTime? since;
+
+  /// The Item, for [SyncProblem.bankNeedsAttention].
+  final String? itemId;
+
+  @override
+  final DateTime raisedAt;
+
+  @override
+  String get key => switch (problem) {
+    SyncProblem.failing =>
+      '$failingProblemPrefix${since?.millisecondsSinceEpoch}',
+    SyncProblem.signedOut =>
+      'sync/signed-out/${raisedAt.millisecondsSinceEpoch}',
+    SyncProblem.bankNeedsAttention => 'sync/bank/$itemId',
+  };
 }

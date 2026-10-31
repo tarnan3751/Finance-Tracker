@@ -4504,6 +4504,137 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shortcutSync => 'Sync now';
+
+  @override
+  String get budgetAlertsChannelName => 'Budget alerts';
+
+  @override
+  String get budgetAlertsChannelDescription =>
+      'When a budget reaches 80 % or all of what it has';
+
+  @override
+  String get weeklySummaryChannelName => 'Weekly summary';
+
+  @override
+  String get weeklySummaryChannelDescription =>
+      'When last week\'s summary is ready';
+
+  @override
+  String get syncProblemsChannelName => 'Sync problems';
+
+  @override
+  String get syncProblemsChannelDescription =>
+      'When sync keeps failing, you are signed out, or a bank needs you to sign in again';
+
+  @override
+  String get notificationBudgetTitle => 'Budget alert';
+
+  @override
+  String get notificationWeeklySummaryText =>
+      'See what came in and went out last week';
+
+  @override
+  String get notificationSyncTitle => 'Sync needs you';
+
+  @override
+  String alertSyncFailing(String date) {
+    return 'Sync has not worked since $date';
+  }
+
+  @override
+  String get alertSyncSignedOut =>
+      'You were signed out. Sign in again to keep syncing';
+
+  @override
+  String get alertBankNeedsAttention =>
+      'A linked bank needs you to sign in to it again';
+
+  @override
+  String get settingsNotifications => 'Notifications';
+
+  @override
+  String get settingsNotificationsSubtitle =>
+      'Alerts, reminders and background sync';
+
+  @override
+  String get notificationsAppOff => 'Notifications are off for this app';
+
+  @override
+  String get notificationsTurnOn => 'Turn on notifications';
+
+  @override
+  String get notificationsChannelOn => 'On';
+
+  @override
+  String get notificationsChannelOff => 'Off';
+
+  @override
+  String get notificationsChannelAppOff =>
+      'Off: notifications are off for this app';
+
+  @override
+  String get notificationsChannelHint =>
+      'Opens this kind\'s settings in Android';
+
+  @override
+  String get backgroundSyncTitle => 'Background sync';
+
+  @override
+  String get backgroundSyncSchedule =>
+      'About every hour, when online and the battery isn\'t low';
+
+  @override
+  String backgroundSyncLastRun(String time, String result) {
+    return 'Last run $time: $result';
+  }
+
+  @override
+  String get backgroundSyncNever => 'Has not run yet';
+
+  @override
+  String get backgroundSyncUnavailable => 'Not available in the demo';
+
+  @override
+  String get backgroundResultSynced => 'synced';
+
+  @override
+  String get backgroundResultOffline => 'no network';
+
+  @override
+  String get backgroundResultFailed => 'the server failed';
+
+  @override
+  String get backgroundResultSessionEnded => 'signed out';
+
+  @override
+  String get backgroundResultSkipped => 'nothing to do';
+
+  @override
+  String get backgroundResultTimedOut => 'took too long';
+
+  @override
+  String get backgroundRestricted =>
+      'Android is limiting this app in the background, so background sync may not run. Allow background use in the app\'s battery settings.';
+
+  @override
+  String get backgroundOpenAppSettings => 'App settings';
+
+  @override
+  String get backgroundResultHeld => 'held until the restore offer is answered';
+
+  @override
+  String get notificationsLoadFailed =>
+      'The notification settings could not be read';
+
+  @override
+  String get notificationsTryAgain => 'Try again';
+
+  @override
+  String get backgroundSyncRunningNow => 'Running now';
+
+  @override
+  String get backgroundSyncNotScheduled =>
+      'Not scheduled: it starts once you sign in';
 }
 
 /// The translations for English (`en_XA`).
@@ -9098,4 +9229,138 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get shortcutSync => '[Šýñç ñöŵ ~~~]';
+
+  @override
+  String get budgetAlertsChannelName => '[Ɓûðĝéţ åļéŕţš ~~~~~]';
+
+  @override
+  String get budgetAlertsChannelDescription =>
+      '[Ŵĥéñ å ƀûðĝéţ ŕéåçĥéš 80 % öŕ åļļ öƒ ŵĥåţ îţ ĥåš ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get weeklySummaryChannelName => '[Ŵééķļý šûɱɱåŕý ~~~~~ ~]';
+
+  @override
+  String get weeklySummaryChannelDescription =>
+      '[Ŵĥéñ ļåšţ ŵééķ\'š šûɱɱåŕý îš ŕéåðý ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get syncProblemsChannelName => '[Šýñç þŕöƀļéɱš ~~~~~]';
+
+  @override
+  String get syncProblemsChannelDescription =>
+      '[Ŵĥéñ šýñç ķééþš ƒåîļîñĝ, ýöû åŕé šîĝñéð öûţ, öŕ å ƀåñķ ñééðš ýöû ţö šîĝñ îñ åĝåîñ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get notificationBudgetTitle => '[Ɓûðĝéţ åļéŕţ ~~~~~]';
+
+  @override
+  String get notificationWeeklySummaryText =>
+      '[Šéé ŵĥåţ çåɱé îñ åñð ŵéñţ öûţ ļåšţ ŵééķ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get notificationSyncTitle => '[Šýñç ñééðš ýöû ~~~~~]';
+
+  @override
+  String alertSyncFailing(String date) {
+    return '[Šýñç ĥåš ñöţ ŵöŕķéð šîñçé $date ~~~~~ ~~~~]';
+  }
+
+  @override
+  String get alertSyncSignedOut =>
+      '[Ýöû ŵéŕé šîĝñéð öûţ. Šîĝñ îñ åĝåîñ ţö ķééþ šýñçîñĝ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get alertBankNeedsAttention =>
+      '[Å ļîñķéð ƀåñķ ñééðš ýöû ţö šîĝñ îñ ţö îţ åĝåîñ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get settingsNotifications => '[Ñöţîƒîçåţîöñš ~~~~~ ~]';
+
+  @override
+  String get settingsNotificationsSubtitle =>
+      '[Åļéŕţš, ŕéɱîñðéŕš åñð ƀåçķĝŕöûñð šýñç ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get notificationsAppOff =>
+      '[Ñöţîƒîçåţîöñš åŕé öƒƒ ƒöŕ ţĥîš åþþ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get notificationsTurnOn => '[Ţûŕñ öñ ñöţîƒîçåţîöñš ~~~~~ ~~~]';
+
+  @override
+  String get notificationsChannelOn => '[Öñ ~]';
+
+  @override
+  String get notificationsChannelOff => '[Öƒƒ ~~]';
+
+  @override
+  String get notificationsChannelAppOff =>
+      '[Öƒƒ: ñöţîƒîçåţîöñš åŕé öƒƒ ƒöŕ ţĥîš åþþ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get notificationsChannelHint =>
+      '[Öþéñš ţĥîš ķîñð\'š šéţţîñĝš îñ Åñðŕöîð ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get backgroundSyncTitle => '[Ɓåçķĝŕöûñð šýñç ~~~~~ ~]';
+
+  @override
+  String get backgroundSyncSchedule =>
+      '[Åƀöûţ éṽéŕý ĥöûŕ, ŵĥéñ öñļîñé åñð ţĥé ƀåţţéŕý îšñ\'ţ ļöŵ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String backgroundSyncLastRun(String time, String result) {
+    return '[Ļåšţ ŕûñ $time: $result ~~~]';
+  }
+
+  @override
+  String get backgroundSyncNever => '[Ĥåš ñöţ ŕûñ ýéţ ~~~~~]';
+
+  @override
+  String get backgroundSyncUnavailable =>
+      '[Ñöţ åṽåîļåƀļé îñ ţĥé ðéɱö ~~~~~ ~~~~]';
+
+  @override
+  String get backgroundResultSynced => '[šýñçéð ~~~]';
+
+  @override
+  String get backgroundResultOffline => '[ñö ñéţŵöŕķ ~~~~]';
+
+  @override
+  String get backgroundResultFailed => '[ţĥé šéŕṽéŕ ƒåîļéð ~~~~~ ~]';
+
+  @override
+  String get backgroundResultSessionEnded => '[šîĝñéð öûţ ~~~~]';
+
+  @override
+  String get backgroundResultSkipped => '[ñöţĥîñĝ ţö ðö ~~~~~]';
+
+  @override
+  String get backgroundResultTimedOut => '[ţööķ ţöö ļöñĝ ~~~~~]';
+
+  @override
+  String get backgroundRestricted =>
+      '[Åñðŕöîð îš ļîɱîţîñĝ ţĥîš åþþ îñ ţĥé ƀåçķĝŕöûñð, šö ƀåçķĝŕöûñð šýñç ɱåý ñöţ ŕûñ. Åļļöŵ ƀåçķĝŕöûñð ûšé îñ ţĥé åþþ\'š ƀåţţéŕý šéţţîñĝš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get backgroundOpenAppSettings => '[Åþþ šéţţîñĝš ~~~~~]';
+
+  @override
+  String get backgroundResultHeld =>
+      '[ĥéļð ûñţîļ ţĥé ŕéšţöŕé öƒƒéŕ îš åñšŵéŕéð ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get notificationsLoadFailed =>
+      '[Ţĥé ñöţîƒîçåţîöñ šéţţîñĝš çöûļð ñöţ ƀé ŕéåð ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get notificationsTryAgain => '[Ţŕý åĝåîñ ~~~~]';
+
+  @override
+  String get backgroundSyncRunningNow => '[Ŕûññîñĝ ñöŵ ~~~~]';
+
+  @override
+  String get backgroundSyncNotScheduled =>
+      '[Ñöţ šçĥéðûļéð: îţ šţåŕţš öñçé ýöû šîĝñ îñ ~~~~~ ~~~~~ ~~~~]';
 }

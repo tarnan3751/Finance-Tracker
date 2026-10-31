@@ -6477,5 +6477,170 @@
   "shortcutSync": "Sync now",
   "@shortcutSync": {
     "description": "The app shortcut that starts a sync and opens Settings. About 25 characters at most."
+  },
+  "budgetAlertsChannelName": "Budget alerts",
+  "@budgetAlertsChannelName": {
+    "description": "Name of the system notification channel budget alerts are posted on, shown in the system's notification settings."
+  },
+  "budgetAlertsChannelDescription": "When a budget reaches 80 % or all of what it has",
+  "@budgetAlertsChannelDescription": {
+    "description": "Description of the budget alerts' notification channel in the system's notification settings."
+  },
+  "weeklySummaryChannelName": "Weekly summary",
+  "@weeklySummaryChannelName": {
+    "description": "Name of the system notification channel the weekly summary's notice is posted on."
+  },
+  "weeklySummaryChannelDescription": "When last week's summary is ready",
+  "@weeklySummaryChannelDescription": {
+    "description": "Description of the weekly summary's notification channel in the system's notification settings."
+  },
+  "syncProblemsChannelName": "Sync problems",
+  "@syncProblemsChannelName": {
+    "description": "Name of the system notification channel sync problems are posted on."
+  },
+  "syncProblemsChannelDescription": "When sync keeps failing, you are signed out, or a bank needs you to sign in again",
+  "@syncProblemsChannelDescription": {
+    "description": "Description of the sync problems' notification channel in the system's notification settings."
+  },
+  "notificationBudgetTitle": "Budget alert",
+  "@notificationBudgetTitle": {
+    "description": "Title of the system notification of a budget alert; its text is the alert."
+  },
+  "notificationWeeklySummaryText": "See what came in and went out last week",
+  "@notificationWeeklySummaryText": {
+    "description": "Text of the system notification that the weekly summary is ready; its title is the in-app notice."
+  },
+  "notificationSyncTitle": "Sync needs you",
+  "@notificationSyncTitle": {
+    "description": "Title of a system notification about a sync problem; its text says which."
+  },
+  "alertSyncFailing": "Sync has not worked since {date}",
+  "@alertSyncFailing": {
+    "description": "A notification: every sync has failed for a day; the date is when it last worked.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "alertSyncSignedOut": "You were signed out. Sign in again to keep syncing",
+  "@alertSyncSignedOut": {
+    "description": "A notification: the background sync found the session ended on the server."
+  },
+  "alertBankNeedsAttention": "A linked bank needs you to sign in to it again",
+  "@alertBankNeedsAttention": {
+    "description": "A notification: a linked bank's connection needs the user to sign in at the bank again."
+  },
+  "settingsNotifications": "Notifications",
+  "@settingsNotifications": {
+    "description": "Settings section header and the screen's title: the app's notifications and its background sync."
+  },
+  "settingsNotificationsSubtitle": "Alerts, reminders and background sync",
+  "@settingsNotificationsSubtitle": {
+    "description": "The Settings row that opens the Notifications screen."
+  },
+  "notificationsAppOff": "Notifications are off for this app",
+  "@notificationsAppOff": {
+    "description": "The Notifications screen's notice when the app may not notify (the permission denied, or turned off in the system's settings)."
+  },
+  "notificationsTurnOn": "Turn on notifications",
+  "@notificationsTurnOn": {
+    "description": "Button on the Notifications screen: asks for the permission, or opens the system's settings once it was refused."
+  },
+  "notificationsChannelOn": "On",
+  "@notificationsChannelOn": {
+    "description": "A notification channel's state on the Notifications screen."
+  },
+  "notificationsChannelOff": "Off",
+  "@notificationsChannelOff": {
+    "description": "A notification channel's state on the Notifications screen: turned off in the system's settings."
+  },
+  "notificationsChannelAppOff": "Off: notifications are off for this app",
+  "@notificationsChannelAppOff": {
+    "description": "A notification channel's state while the whole app may not notify."
+  },
+  "notificationsChannelHint": "Opens this kind's settings in Android",
+  "@notificationsChannelHint": {
+    "description": "The semantics hint of a notification channel's row, which opens the channel's system settings."
+  },
+  "backgroundSyncTitle": "Background sync",
+  "@backgroundSyncTitle": {
+    "description": "Title of the Notifications screen's background sync switch."
+  },
+  "backgroundSyncSchedule": "About every hour, when online and the battery isn't low",
+  "@backgroundSyncSchedule": {
+    "description": "When the background sync runs, under its switch."
+  },
+  "backgroundSyncLastRun": "Last run {time}: {result}",
+  "@backgroundSyncLastRun": {
+    "description": "The background sync's last run: when, and how it went.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "result": {
+        "type": "String"
+      }
+    }
+  },
+  "backgroundSyncNever": "Has not run yet",
+  "@backgroundSyncNever": {
+    "description": "The background sync's last run when it has never run."
+  },
+  "backgroundSyncUnavailable": "Not available in the demo",
+  "@backgroundSyncUnavailable": {
+    "description": "The background sync row in the demo flavor, which has no server."
+  },
+  "backgroundResultSynced": "synced",
+  "@backgroundResultSynced": {
+    "description": "How a background sync run went: it synced."
+  },
+  "backgroundResultOffline": "no network",
+  "@backgroundResultOffline": {
+    "description": "How a background sync run went: there was no network; it tries again."
+  },
+  "backgroundResultFailed": "the server failed",
+  "@backgroundResultFailed": {
+    "description": "How a background sync run went: the server or something else failed."
+  },
+  "backgroundResultSessionEnded": "signed out",
+  "@backgroundResultSessionEnded": {
+    "description": "How a background sync run went: the session had ended."
+  },
+  "backgroundResultSkipped": "nothing to do",
+  "@backgroundResultSkipped": {
+    "description": "How a background sync run went: it had nothing to do (signed out, a restore waiting, and the like)."
+  },
+  "backgroundResultTimedOut": "took too long",
+  "@backgroundResultTimedOut": {
+    "description": "How a background sync run went: it passed its time limit."
+  },
+  "backgroundRestricted": "Android is limiting this app in the background, so background sync may not run. Allow background use in the app's battery settings.",
+  "@backgroundRestricted": {
+    "description": "The Notifications screen's note when Android restricts the app's background work."
+  },
+  "backgroundOpenAppSettings": "App settings",
+  "@backgroundOpenAppSettings": {
+    "description": "Button under the background restriction note: opens the app's settings in Android."
+  },
+  "backgroundResultHeld": "held until the restore offer is answered",
+  "@backgroundResultHeld": {
+    "description": "How a background sync run went: it was held while the restore offer waits for an answer."
+  },
+  "notificationsLoadFailed": "The notification settings could not be read",
+  "@notificationsLoadFailed": {
+    "description": "The Notifications screen when the platform's notification or background state could not be read."
+  },
+  "notificationsTryAgain": "Try again",
+  "@notificationsTryAgain": {
+    "description": "Button under the Notifications screen's failure: reads the state again."
+  },
+  "backgroundSyncRunningNow": "Running now",
+  "@backgroundSyncRunningNow": {
+    "description": "The background sync's schedule line while a run is in progress."
+  },
+  "backgroundSyncNotScheduled": "Not scheduled: it starts once you sign in",
+  "@backgroundSyncNotScheduled": {
+    "description": "The background sync's schedule line when it is on but not scheduled, as when signed out."
   }
 }

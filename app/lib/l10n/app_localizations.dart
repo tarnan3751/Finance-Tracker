@@ -6825,6 +6825,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sync now'**
   String get shortcutSync;
+
+  /// Name of the system notification channel budget alerts are posted on, shown in the system's notification settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget alerts'**
+  String get budgetAlertsChannelName;
+
+  /// Description of the budget alerts' notification channel in the system's notification settings.
+  ///
+  /// In en, this message translates to:
+  /// **'When a budget reaches 80 % or all of what it has'**
+  String get budgetAlertsChannelDescription;
+
+  /// Name of the system notification channel the weekly summary's notice is posted on.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly summary'**
+  String get weeklySummaryChannelName;
+
+  /// Description of the weekly summary's notification channel in the system's notification settings.
+  ///
+  /// In en, this message translates to:
+  /// **'When last week\'s summary is ready'**
+  String get weeklySummaryChannelDescription;
+
+  /// Name of the system notification channel sync problems are posted on.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync problems'**
+  String get syncProblemsChannelName;
+
+  /// Description of the sync problems' notification channel in the system's notification settings.
+  ///
+  /// In en, this message translates to:
+  /// **'When sync keeps failing, you are signed out, or a bank needs you to sign in again'**
+  String get syncProblemsChannelDescription;
+
+  /// Title of the system notification of a budget alert; its text is the alert.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget alert'**
+  String get notificationBudgetTitle;
+
+  /// Text of the system notification that the weekly summary is ready; its title is the in-app notice.
+  ///
+  /// In en, this message translates to:
+  /// **'See what came in and went out last week'**
+  String get notificationWeeklySummaryText;
+
+  /// Title of a system notification about a sync problem; its text says which.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync needs you'**
+  String get notificationSyncTitle;
+
+  /// A notification: every sync has failed for a day; the date is when it last worked.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync has not worked since {date}'**
+  String alertSyncFailing(String date);
+
+  /// A notification: the background sync found the session ended on the server.
+  ///
+  /// In en, this message translates to:
+  /// **'You were signed out. Sign in again to keep syncing'**
+  String get alertSyncSignedOut;
+
+  /// A notification: a linked bank's connection needs the user to sign in at the bank again.
+  ///
+  /// In en, this message translates to:
+  /// **'A linked bank needs you to sign in to it again'**
+  String get alertBankNeedsAttention;
+
+  /// Settings section header and the screen's title: the app's notifications and its background sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotifications;
+
+  /// The Settings row that opens the Notifications screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts, reminders and background sync'**
+  String get settingsNotificationsSubtitle;
+
+  /// The Notifications screen's notice when the app may not notify (the permission denied, or turned off in the system's settings).
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off for this app'**
+  String get notificationsAppOff;
+
+  /// Button on the Notifications screen: asks for the permission, or opens the system's settings once it was refused.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on notifications'**
+  String get notificationsTurnOn;
+
+  /// A notification channel's state on the Notifications screen.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get notificationsChannelOn;
+
+  /// A notification channel's state on the Notifications screen: turned off in the system's settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get notificationsChannelOff;
+
+  /// A notification channel's state while the whole app may not notify.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: notifications are off for this app'**
+  String get notificationsChannelAppOff;
+
+  /// The semantics hint of a notification channel's row, which opens the channel's system settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens this kind\'s settings in Android'**
+  String get notificationsChannelHint;
+
+  /// Title of the Notifications screen's background sync switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Background sync'**
+  String get backgroundSyncTitle;
+
+  /// When the background sync runs, under its switch.
+  ///
+  /// In en, this message translates to:
+  /// **'About every hour, when online and the battery isn\'t low'**
+  String get backgroundSyncSchedule;
+
+  /// The background sync's last run: when, and how it went.
+  ///
+  /// In en, this message translates to:
+  /// **'Last run {time}: {result}'**
+  String backgroundSyncLastRun(String time, String result);
+
+  /// The background sync's last run when it has never run.
+  ///
+  /// In en, this message translates to:
+  /// **'Has not run yet'**
+  String get backgroundSyncNever;
+
+  /// The background sync row in the demo flavor, which has no server.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available in the demo'**
+  String get backgroundSyncUnavailable;
+
+  /// How a background sync run went: it synced.
+  ///
+  /// In en, this message translates to:
+  /// **'synced'**
+  String get backgroundResultSynced;
+
+  /// How a background sync run went: there was no network; it tries again.
+  ///
+  /// In en, this message translates to:
+  /// **'no network'**
+  String get backgroundResultOffline;
+
+  /// How a background sync run went: the server or something else failed.
+  ///
+  /// In en, this message translates to:
+  /// **'the server failed'**
+  String get backgroundResultFailed;
+
+  /// How a background sync run went: the session had ended.
+  ///
+  /// In en, this message translates to:
+  /// **'signed out'**
+  String get backgroundResultSessionEnded;
+
+  /// How a background sync run went: it had nothing to do (signed out, a restore waiting, and the like).
+  ///
+  /// In en, this message translates to:
+  /// **'nothing to do'**
+  String get backgroundResultSkipped;
+
+  /// How a background sync run went: it passed its time limit.
+  ///
+  /// In en, this message translates to:
+  /// **'took too long'**
+  String get backgroundResultTimedOut;
+
+  /// The Notifications screen's note when Android restricts the app's background work.
+  ///
+  /// In en, this message translates to:
+  /// **'Android is limiting this app in the background, so background sync may not run. Allow background use in the app\'s battery settings.'**
+  String get backgroundRestricted;
+
+  /// Button under the background restriction note: opens the app's settings in Android.
+  ///
+  /// In en, this message translates to:
+  /// **'App settings'**
+  String get backgroundOpenAppSettings;
+
+  /// How a background sync run went: it was held while the restore offer waits for an answer.
+  ///
+  /// In en, this message translates to:
+  /// **'held until the restore offer is answered'**
+  String get backgroundResultHeld;
+
+  /// The Notifications screen when the platform's notification or background state could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'The notification settings could not be read'**
+  String get notificationsLoadFailed;
+
+  /// Button under the Notifications screen's failure: reads the state again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get notificationsTryAgain;
+
+  /// The background sync's schedule line while a run is in progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Running now'**
+  String get backgroundSyncRunningNow;
+
+  /// The background sync's schedule line when it is on but not scheduled, as when signed out.
+  ///
+  /// In en, this message translates to:
+  /// **'Not scheduled: it starts once you sign in'**
+  String get backgroundSyncNotScheduled;
 }
 
 class _AppLocalizationsDelegate

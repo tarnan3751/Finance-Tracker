@@ -9,8 +9,10 @@
 /// (`weekly_summary_raised`), the payoff projections' entries (`payoff_entries`), when
 /// the restore offer was answered (`restore_offer_answered`), the app lock's settings
 /// (`lock_enabled`, `lock_timeout_seconds`, `secure_screen`), the language the app is shown
-/// in (`app_language`), and the background sync's switch, last run and remote sign-out
-/// (`background_sync_enabled`, `background_last_run`, `session_ended_in_background`).
+/// in (`app_language`), the background sync's switch, last run and remote sign-out
+/// (`background_sync_enabled`, `background_last_run`, `session_ended_in_background`), and
+/// whether the permission to notify was asked (`notification_permission_asked`) and which
+/// sync problems were told (`sync_problems_told`).
 library;
 
 import 'package:finance_tracker/core/db/app_database.dart';
@@ -93,6 +95,15 @@ abstract final class AppMetaKeys {
   /// When the background sync found the session ended on the server, a UTC instant, or
   /// empty once the app has told the user (`core/background/`).
   static const String sessionEndedInBackground = 'session_ended_in_background';
+
+  /// When this device asked for the permission to notify, a UTC instant; it is asked
+  /// once (`core/platform/notification_providers.dart`).
+  static const String notificationPermissionAsked =
+      'notification_permission_asked';
+
+  /// The sync problems this device has told the user, a JSON list of their
+  /// notification keys, each dropped once its problem clears (`core/sync/`).
+  static const String syncProblemsTold = 'sync_problems_told';
 }
 
 /// The store over the database's `app_meta` table.

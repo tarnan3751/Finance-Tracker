@@ -45,10 +45,13 @@ import 'package:finance_tracker/core/platform/connectivity_provider.dart';
 import 'package:finance_tracker/core/platform/fake_image_source.dart';
 import 'package:finance_tracker/core/platform/file_exporter_provider.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
+import 'package:finance_tracker/core/platform/in_app_notifications.dart';
 import 'package:finance_tracker/core/platform/launch_intent_provider.dart';
+import 'package:finance_tracker/core/platform/local_notification_channels.dart';
 import 'package:finance_tracker/core/platform/local_notifications_provider.dart';
 import 'package:finance_tracker/core/platform/local_notifications_scheduler.dart';
 import 'package:finance_tracker/core/platform/monotonic_clock_provider.dart';
+import 'package:finance_tracker/core/platform/notification_providers.dart';
 import 'package:finance_tracker/core/platform/platform_backup_picker.dart';
 import 'package:finance_tracker/core/platform/platform_connectivity.dart';
 import 'package:finance_tracker/core/platform/platform_file_exporter.dart';
@@ -56,6 +59,8 @@ import 'package:finance_tracker/core/platform/platform_launch_intent.dart';
 import 'package:finance_tracker/core/platform/quick_actions_app_shortcuts.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:finance_tracker/core/platform/screen_security_provider.dart';
+import 'package:finance_tracker/core/platform/system_notifier.dart';
+import 'package:finance_tracker/core/platform/system_settings.dart';
 import 'package:finance_tracker/core/platform/workmanager_background_work.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/core/sync/device_clock.dart';
@@ -759,6 +764,24 @@ final List<Override> _driftOverrides = [
     ),
   ),
   connectivityProvider.overrideWith((ref) => PlatformConnectivity()),
+  systemSettingsProvider.overrideWithValue(const ChannelSystemSettings()),
+  notificationChannelsProvider.overrideWith(
+    (ref) => LocalNotificationChannels(
+      ref.watch(localNotificationsProvider),
+      ref.watch(systemSettingsProvider),
+    ),
+  ),
+  // The in-app list and the tray (a bill due stays in-app: its reminder is in the tray).
+  appNotifierProvider.overrideWith(
+    (ref) => CompositeNotifier([
+      InAppNotifier(ref.watch(inAppNotificationsProvider.notifier)),
+      SystemNotifier(
+        ref.watch(localNotificationsProvider),
+        ref.watch(channelTextsProvider),
+        ref.watch(systemNoticeTextProvider),
+      ),
+    ]),
+  ),
   reminderSchedulerProvider.overrideWith((ref) {
     final AppLocalizations l10n = lookupAppLocalizations(
       basicLocaleListResolution(

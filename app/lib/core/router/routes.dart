@@ -63,6 +63,7 @@ import 'package:finance_tracker/features/reports/presentation/reports_view.dart'
 import 'package:finance_tracker/features/reports/presentation/weekly_summary_screen.dart';
 import 'package:finance_tracker/features/rules/presentation/rule_editor_screen.dart';
 import 'package:finance_tracker/features/rules/presentation/rules_screen.dart';
+import 'package:finance_tracker/features/settings/presentation/notifications_screen.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_editor_screen.dart';
 import 'package:finance_tracker/features/transactions/presentation/transactions_screen.dart';
@@ -187,6 +188,7 @@ part 'routes.g.dart';
             TypedGoRoute<DevicesRoute>(path: 'devices'),
             TypedGoRoute<DeleteAccountRoute>(path: 'delete-account'),
             TypedGoRoute<ConflictsRoute>(path: 'conflicts'),
+            TypedGoRoute<NotificationsRoute>(path: 'notifications'),
           ],
         ),
       ],
@@ -631,6 +633,15 @@ class ConflictsRoute extends GoRouteData with $ConflictsRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const ConflictsScreen();
+}
+
+/// `/settings/notifications`: the notification channels and the background sync.
+class NotificationsRoute extends GoRouteData with $NotificationsRoute {
+  const NotificationsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const NotificationsScreen();
 }
 
 /// `/settings/rules`: the rules, in the order they are tried.

@@ -8,6 +8,7 @@ library;
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/platform/notification_providers.dart';
 import 'package:finance_tracker/core/router/own_page.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
@@ -161,10 +162,17 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
       rollover: _rollover,
       startDate: _firstPeriodStart(ref.read(todayProvider)),
     );
+    final bool isNew = _initial == null;
+    final NotificationPermission permission = ref.read(
+      notificationPermissionProvider,
+    );
     setState(() => _saving = true);
     try {
       await repository.upsert(budget);
       if (mounted) setState(() => _initial = budget);
+      // A new budget turns its alerts on: the moment to ask, once, for the permission
+      // to notify, while the editor is what the user sees.
+      if (isNew && page.isTop) await permission.ask();
       page.close();
     } on EntityDeletedException {
       messenger.showSnackBar(SnackBar(content: Text(l10n.budgetNotFound)));

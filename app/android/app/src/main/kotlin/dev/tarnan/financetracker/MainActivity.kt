@@ -1,8 +1,14 @@
 package dev.tarnan.financetracker
 
+import android.app.ActivityManager
+import android.app.usage.UsageStatsManager
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.provider.Settings
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -11,12 +17,14 @@ import io.flutter.plugin.common.MethodChannel
 // A FlutterFragmentActivity, not a FlutterActivity: local_auth shows the biometric prompt as
 // a fragment (features/lock/), and fails with NOT_FRAGMENT_ACTIVITY otherwise.
 //
-// Two channels of the app's own, behind Dart seams in core/platform/:
+// Three channels of the app's own, behind Dart seams in core/platform/:
 // screen_security's setSecure(bool) adds or clears FLAG_SECURE on this window (no
-// screenshots, no recording, a blank task-switcher thumbnail; screen_security.dart), and
+// screenshots, no recording, a blank task-switcher thumbnail; screen_security.dart),
 // clock's elapsedRealtime answers SystemClock.elapsedRealtime(), milliseconds since boot
-// counting deep sleep, for the lock's timeout (monotonic_clock.dart). Method calls arrive on
-// the main thread, where the window's flags are set.
+// counting deep sleep, for the lock's timeout (monotonic_clock.dart), and system_settings
+// opens a notification channel's settings or the app's details in Android and says
+// whether Android restricts the app's background work (system_settings.dart). Method
+// calls arrive on the main thread, where the window's flags are set.
 //
 // The activity stays singleTop: a home screen widget's tap or an app shortcut while the app
 // runs arrives in onNewIntent, which the plugins behind the LaunchIntent seam
@@ -58,6 +66,28 @@ class MainActivity : FlutterFragmentActivity() {
                     else -> result.notImplemented()
                 }
             }
+        MethodChannel(messenger, "dev.tarnan.financetracker/system_settings")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "openChannelSettings" -> result.success(
+                        open(
+                            Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                                .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                                .putExtra(Settings.EXTRA_CHANNEL_ID, call.arguments as String),
+                        ),
+                    )
+                    "openAppDetails" -> result.success(
+                        open(
+                            Intent(
+                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.fromParts("package", packageName, null),
+                            ),
+                        ),
+                    )
+                    "backgroundRestricted" -> result.success(backgroundRestricted())
+                    else -> result.notImplemented()
+                }
+            }
         MethodChannel(messenger, "dev.tarnan.financetracker/clock")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -65,6 +95,26 @@ class MainActivity : FlutterFragmentActivity() {
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    // Starts [intent]; false when no activity answers it.
+    private fun open(intent: Intent): Boolean =
+        try {
+            startActivity(intent)
+            true
+        } catch (e: ActivityNotFoundException) {
+            false
+        }
+
+    // Whether the user restricted the app's background use (Android 9 and later) or
+    // Android put it in the restricted standby bucket (Android 11 and later).
+    private fun backgroundRestricted(): Boolean {
+        val byUser = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+            getSystemService(ActivityManager::class.java).isBackgroundRestricted
+        val byBucket = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+            getSystemService(UsageStatsManager::class.java).appStandbyBucket ==
+            UsageStatsManager.STANDBY_BUCKET_RESTRICTED
+        return byUser || byBucket
     }
 
     private companion object {

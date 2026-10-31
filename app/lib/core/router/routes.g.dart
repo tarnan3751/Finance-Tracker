@@ -262,6 +262,11 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
               hasOverriddenOnExit: false,
               factory: $ConflictsRoute._fromState,
             ),
+            GoRouteData.$route(
+              path: 'notifications',
+              hasOverriddenOnExit: false,
+              factory: $NotificationsRoute._fromState,
+            ),
           ],
         ),
       ],
@@ -1172,6 +1177,27 @@ mixin $ConflictsRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/settings/conflicts');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $NotificationsRoute on GoRouteData {
+  static NotificationsRoute _fromState(GoRouterState state) =>
+      const NotificationsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings/notifications');
 
   @override
   void go(BuildContext context) => context.go(location);

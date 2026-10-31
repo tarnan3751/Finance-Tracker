@@ -230,6 +230,11 @@ final Map<String, _Screen> _screens = {
     open: null,
   ),
   'Conflicts': (location: '/settings/conflicts', seeded: true, open: null),
+  'Notifications': (
+    location: '/settings/notifications',
+    seeded: false,
+    open: null,
+  ),
   'Delete account': (
     location: '/settings/delete-account',
     seeded: false,

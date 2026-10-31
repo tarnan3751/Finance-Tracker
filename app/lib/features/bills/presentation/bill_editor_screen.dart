@@ -9,6 +9,7 @@
 library;
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
+import 'package:finance_tracker/core/platform/notification_providers.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:finance_tracker/core/router/own_page.dart';
@@ -253,6 +254,9 @@ class _BillFormState extends ConsumerState<_BillForm> {
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final BillActions actions = ref.read(billActionsProvider);
     final ReminderScheduler scheduler = ref.read(reminderSchedulerProvider);
+    final NotificationPermission permission = ref.read(
+      notificationPermissionProvider,
+    );
     final BillReminder? initial = _initial;
     final Money? amount = _amount.text.trim().isEmpty
         ? null
@@ -282,10 +286,11 @@ class _BillFormState extends ConsumerState<_BillForm> {
       // user's action that asks for the permission.
       await actions.save(bill);
       if (mounted) setState(() => _initial = bill);
-      // Asked only while the editor is what the user sees; else the next save asks.
+      // Asked once on this device (`NotificationPermission`), and only while the editor is
+      // what the user sees; once refused, the sheet points to the system's settings.
       if (_reminds &&
           page.isTop &&
-          !await scheduler.ensurePermission(request: true) &&
+          !await permission.ask() &&
           mounted &&
           page.isTop) {
         await showNotificationPermissionSheet(context, scheduler);

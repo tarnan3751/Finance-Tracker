@@ -22,7 +22,7 @@
 ///    reminders are planned again, and [backgroundCycleHooksProvider]'s steps run.
 /// 7. The outcome is recorded in `app_meta` (`background_last_run`); a session the server
 ///    ended (the API cleared it on a 401) is recorded too (`session_ended_in_background`),
-///    for the app to tell the user.
+///    for the sign-in screen to say, and told in the tray (`sync_problems`).
 ///
 /// Steps 3 to 7 run under [backgroundCycleDeadline]: past it the cycle records
 /// [BackgroundResult.timedOut] if it can and returns. On every path the container is
@@ -48,6 +48,8 @@ import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/full_text_search.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/platform/in_app_notifications.dart';
+import 'package:finance_tracker/core/platform/notifier.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/time/clock.dart';
@@ -299,12 +301,19 @@ final class _Cycle {
     BackgroundResult result = resultOf(status);
     if (await tokens.read() == null) {
       result = BackgroundResult.sessionEnded;
+      final DateTime now = container.read(clockProvider).nowUtc();
       await container
           .read(appMetaStoreProvider)
           .write(
             AppMetaKeys.sessionEndedInBackground,
-            const UtcInstantConverter().toJson(
-              container.read(clockProvider).nowUtc(),
+            const UtcInstantConverter().toJson(now),
+          );
+      await container
+          .read(appNotifierProvider)
+          .notify(
+            SyncProblemNotification(
+              problem: SyncProblem.signedOut,
+              raisedAt: now,
             ),
           );
     }

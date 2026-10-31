@@ -9,6 +9,8 @@ import 'package:dio/dio.dart';
 import 'package:drift/native.dart';
 import 'package:finance_tracker/core/api/api_config.dart';
 import 'package:finance_tracker/core/api/api_providers.dart';
+import 'package:finance_tracker/core/api/fake/fake_dataset.dart';
+import 'package:finance_tracker/core/api/fake/fake_server.dart';
 import 'package:finance_tracker/core/api/problems.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
@@ -17,6 +19,9 @@ import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/connectivity_provider.dart';
 import 'package:finance_tracker/core/platform/fake_connectivity.dart';
+import 'package:finance_tracker/core/platform/in_app_notifications.dart';
+import 'package:finance_tracker/core/platform/notifier.dart'
+    show SyncProblem, SyncProblemNotification;
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/features/backup/application/backup_providers.dart';
@@ -123,12 +128,16 @@ void main() {
   ProviderContainer device({
     String? deviceId = 'dev-a',
     List<Override> extra = const [],
+    FakeServer? server,
   }) {
     final ProviderContainer container = ProviderContainer.test(
       overrides: [
         ...extra,
         ...devWiring(),
-        ...fakeApiOverrides(signedIn: true),
+        for (final Override o in fakeApiOverrides(signedIn: true))
+          // ignore: invalid_use_of_visible_for_testing_member
+          if (server == null || !identical(o.origin, fakeServerProvider)) o,
+        if (server != null) fakeServerProvider.overrideWithValue(server),
         databaseProvider.overrideWithValue(database),
         clockProvider.overrideWithValue(clock),
         connectivityProvider.overrideWithValue(network),
@@ -699,6 +708,122 @@ void main() {
     expect(
       [for (int n = 1; n <= 8; n++) syncBackoffAfter(n).inSeconds],
       [15, 30, 60, 120, 240, 300, 300, 300],
+    );
+  });
+
+  group('sync problems', () {
+    List<SyncProblemNotification> told(ProviderContainer c) => [
+      for (final InAppNotification n in c.read(inAppNotificationsProvider))
+        if (n.notification case final SyncProblemNotification p) p,
+    ];
+
+    test(
+      'sessions failing for a day since the last that worked are told once',
+      () async {
+        final ProviderContainer c = device(
+          extra: [
+            syncBackoffProvider.overrideWithValue(
+              (_) => const Duration(hours: 1),
+            ),
+          ],
+        );
+        c.read(syncControllerProvider);
+        final SyncStatus first = await settled(c);
+        const NetworkError offline = NetworkError(NetworkErrorKind.connection);
+        relay.failNextPull = offline;
+        await c.read(syncControllerProvider.notifier).syncNow();
+        expect(told(c), isEmpty, reason: 'not yet a day');
+        clock.advance(const Duration(days: 1, minutes: 1));
+        relay.failNextPull = offline;
+        await c.read(syncControllerProvider.notifier).syncNow();
+        relay.failNextPull = offline;
+        await c.read(syncControllerProvider.notifier).syncNow();
+        expect(told(c).map((p) => (p.problem, p.since)), [
+          (SyncProblem.failing, first.lastSyncAt),
+        ]);
+      },
+    );
+
+    test('a linked bank that needs its sign-in is told once', () async {
+      final ProviderContainer c = device();
+      c.read(syncControllerProvider);
+      await settled(c);
+      final String itemId =
+          (await c.read(itemRepositoryProvider).watchAll().first).first.id;
+      await c.read(financeApiProvider).sandboxResetLogin(itemId);
+      await c.read(syncControllerProvider.notifier).syncNow();
+      await c.read(syncControllerProvider.notifier).syncNow();
+      expect(told(c).map((p) => (p.problem, p.itemId)), [
+        (SyncProblem.bankNeedsAttention, itemId),
+      ]);
+    });
+
+    // Each container is a cycle of its own, as the background sync's are.
+    test(
+      'a problem is told once across containers, and again once it cleared',
+      () async {
+        const NetworkError offline = NetworkError(NetworkErrorKind.connection);
+        int toldInAll = 0;
+        Future<void> cycle({required bool fail}) async {
+          final ProviderContainer c = device(
+            extra: [
+              syncBackoffProvider.overrideWithValue(
+                (_) => const Duration(hours: 1),
+              ),
+            ],
+          );
+          if (fail) relay.failNextPull = offline;
+          c.read(syncControllerProvider);
+          await c.read(syncControllerProvider.notifier).firstSession();
+          toldInAll += told(c).length;
+          c.dispose();
+        }
+
+        await cycle(fail: false);
+        clock.advance(const Duration(days: 1, minutes: 1));
+        for (int i = 0; i < 3; i++) {
+          await cycle(fail: true);
+        }
+        expect(toldInAll, 1);
+        await cycle(fail: false);
+        clock.advance(const Duration(days: 1, minutes: 1));
+        await cycle(fail: true);
+        expect(toldInAll, 2, reason: 'a new day of failures after a success');
+      },
+    );
+
+    test(
+      'a bank that needs its sign-in is told once across containers',
+      () async {
+        final FakeServer server =
+            FakeServer(
+                dataset: FakeDataset.sample(clock.today()),
+                now: clock.nowUtc,
+              )
+              ..seedUser(
+                email: demoEmail,
+                password: demoPassword,
+                displayName: 'Demo',
+              )
+              ..seedLinkedItems(demoEmail);
+        int toldInAll = 0;
+        String? itemId;
+        for (int i = 0; i < 3; i++) {
+          final ProviderContainer c = device(server: server);
+          c.read(syncControllerProvider);
+          await c.read(syncControllerProvider.notifier).firstSession();
+          if (itemId == null) {
+            itemId = (await c.read(itemRepositoryProvider).watchAll().first)
+                .first
+                .id;
+            await c.read(financeApiProvider).sandboxResetLogin(itemId);
+            await c.read(syncControllerProvider.notifier).syncNow();
+          }
+          toldInAll += told(c).length;
+          c.dispose();
+        }
+        expect(toldInAll, 1);
+      },
     );
   });
 }

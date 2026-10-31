@@ -2,7 +2,8 @@
 /// (when this build's data syncs: dev and prod, `sync_section.dart`), Appearance (theme
 /// mode, dynamic color, and in dev and demo the language: System, English or Pseudo),
 /// Security (the app lock and screenshot blocking,
-/// `features/lock/presentation/security_section.dart`), Data (category management, rules,
+/// `features/lock/presentation/security_section.dart`), Notifications (the row that opens
+/// `notifications_screen.dart`), Data (category management, rules,
 /// export, backup; in the demo flavor the Backup entry says the demo's data is not backed
 /// up) and About (app name, version and build, flavor, the time zone dates are computed
 /// in), then Demo data (demo only, `demo_data_section.dart`) and Developer (dev only,
@@ -94,6 +95,14 @@ class SettingsScreen extends ConsumerWidget {
           if (ref.watch(appConfigProvider).flavor != Flavor.prod)
             const _LanguageTile(),
           const SecuritySection(),
+          SettingsSectionHeader(l10n.settingsNotifications),
+          ListTile(
+            leading: const Icon(Icons.notifications_outlined),
+            title: Text(l10n.settingsNotificationsSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () =>
+                openDetail(context, const NotificationsRoute().location),
+          ),
           SettingsSectionHeader(l10n.settingsData),
           ListTile(
             leading: const Icon(Icons.category_outlined),
