@@ -36,6 +36,7 @@ machine.
 - sync: Sync again after a network change and on demand (ca2f67e)
 - app: Run a sync cycle from a background isolate (484280f)
 - app: Own the notification channels and the Notifications settings (32eee8e)
+- developer: Run the background worker 20 seconds from now (57572be)
 
 ### Fixes
 
@@ -45,8 +46,8 @@ machine.
 - app: Accessibility pass (013cabd)
 - app: Close the database only after the old tree is gone (917aad3)
 - tools: Scale the gate's test ceiling with the load (c12967c)
-- app: Write today's balance snapshots before the worker's widgets
-- app: Wait out a held lock in wall time, not SQLite's busy timeout
+- app: Write today's balance snapshots before the worker's widgets (ad106b1)
+- app: Wait out a held lock in wall time, not SQLite's busy timeout (22f8350)
 
 ### Refactoring
 
@@ -68,6 +69,7 @@ machine.
 - app: Document layouts, localization and the strings check (bedc45b)
 - widgets: Document the home screen widgets and the launch links (6458655)
 - app: Document background sync and notifications (4936013)
+- map: Record Phase 8 in the map, the README and the changelog (7dc4f2f)
 
 ## v0.8.0-phase7 — 2026-10-30
 
