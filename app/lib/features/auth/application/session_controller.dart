@@ -246,6 +246,13 @@ class SessionController extends _$SessionController {
     return notice;
   }
 
+  /// Records that the session ended on the server's word while the app was not running
+  /// (the background sync met it, `core/background/`), so the sign-in screen says so
+  /// once. Nothing happens while someone is signed in.
+  void noteEndedRemotely() {
+    if (state is SignedOut) _endedRemotely = true;
+  }
+
   void _signedOutRemotely() {
     if (!_signingOut) _endedRemotely = true;
     _signedOut();

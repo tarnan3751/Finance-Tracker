@@ -65,6 +65,9 @@ final class _FailingStore implements TokenStore {
       failSession ? throw StateError('storage is broken') : inner.read();
 
   @override
+  Future<Session?> reload() => read();
+
+  @override
   Future<void> write(Session session) => inner.write(session);
 
   @override

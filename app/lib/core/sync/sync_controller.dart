@@ -14,7 +14,9 @@
 /// the start, resume, Sync now and a returning network run at once.
 /// Sync now and a returning network drop the API's idle connections first
 /// (`httpConnectionsProvider`), so a request after a network change never goes out on
-/// what the old network left. One session runs at a time; a
+/// what the old network left. Leaving the app while changes wait after a failed session
+/// queues a one-off background sync (`backgroundWorkProvider`), which WorkManager runs
+/// once a network is connected. One session runs at a time; a
 /// trigger during a run runs one more after it. A device change (sign-out, sign-in) lets
 /// a session in flight finish and discards its report. Before each session the device
 /// clock adopts the server's device id, moving the outbox to it. A relay whose log was
@@ -36,6 +38,7 @@ import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/db/tables/sync_meta.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/platform/background_work_provider.dart';
 import 'package:finance_tracker/core/platform/connectivity.dart';
 import 'package:finance_tracker/core/platform/connectivity_provider.dart';
 import 'package:finance_tracker/core/sync/device_clock.dart';
@@ -75,11 +78,13 @@ class SyncController extends _$SyncController {
   AppLifecycleListener? _lifecycle;
   // Whether a session was skipped while the restore offer was pending or unknown.
   bool _held = false;
+  final Completer<void> _first = Completer<void>();
 
   @override
   SyncStatus build() {
     if (ref.watch(appConfigProvider).flavor == Flavor.demo ||
         !ref.watch(localDataSyncsProvider)) {
+      _settleFirst();
       return SyncStatus.unavailable;
     }
     // The change can reach the controller while a widget builds (a screen watching a
@@ -107,9 +112,21 @@ class SyncController extends _$SyncController {
       _lifecycle?.dispose();
       unawaited(_ledger?.cancel());
     });
-    if (ref.read(syncDeviceIdProvider) == null) return SyncStatus.signedOut;
+    if (ref.read(syncDeviceIdProvider) == null) {
+      _settleFirst();
+      return SyncStatus.signedOut;
+    }
     _start();
     return const SyncStatus(phase: SyncPhase.idle);
+  }
+
+  /// Completes once the session the controller runs when it starts has run (at once
+  /// when none runs: signed out, or a build that does not sync); the background cycle
+  /// waits on it (`core/background/background_cycle.dart`).
+  Future<void> firstSession() => _first.future;
+
+  void _settleFirst() {
+    if (!_first.isCompleted) _first.complete();
   }
 
   /// Sync now: drops the API's idle connections, then runs a session now (whatever the
@@ -167,6 +184,7 @@ class SyncController extends _$SyncController {
         _resumed = false;
         _backoff?.cancel();
         _backoff = null;
+        _pausedWithChangesWaiting();
       },
     );
     // A platform that cannot say leaves the other triggers to it, and counts as online.
@@ -184,6 +202,22 @@ class SyncController extends _$SyncController {
           _log.fine('the network state is unknown: ${e.runtimeType}'),
     );
     unawaited(_restoreThenSync(store));
+  }
+
+  // Leaving the app with changes the last session could not send: WorkManager sends them
+  // once a network is connected, whether or not the app is still open then.
+  void _pausedWithChangesWaiting() {
+    if (state.failure == null || (state.ledger?.pending ?? 0) == 0) return;
+    unawaited(
+      ref
+          .read(backgroundWorkProvider)
+          .runSyncNow()
+          .catchError(
+            (Object e) => _log.warning(
+              'the one-off sync was not queued: ${e.runtimeType}',
+            ),
+          ),
+    );
   }
 
   // A network came back, or another type of network replaced it: after a failed session,
@@ -250,7 +284,11 @@ class SyncController extends _$SyncController {
           : SyncSummary.fromJson(jsonDecode(report) as Map<String, Object?>),
       failure: state.failure,
     );
-    await _run();
+    try {
+      await _run();
+    } finally {
+      _settleFirst();
+    }
   }
 
   // After a session whose device changed: the phase the current device gives.

@@ -18,8 +18,10 @@ library;
 import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:finance_tracker/core/api/api_models.dart' as wire;
 import 'package:finance_tracker/core/api/api_providers.dart';
+import 'package:finance_tracker/core/background/background_dispatcher.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
@@ -35,6 +37,7 @@ import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/plaid/plaid_pull.dart';
 import 'package:finance_tracker/core/platform/app_shortcuts_provider.dart';
+import 'package:finance_tracker/core/platform/background_work_provider.dart';
 import 'package:finance_tracker/core/platform/backup_picker_provider.dart';
 import 'package:finance_tracker/core/platform/channel_monotonic_clock.dart';
 import 'package:finance_tracker/core/platform/channel_screen_security.dart';
@@ -53,6 +56,7 @@ import 'package:finance_tracker/core/platform/platform_launch_intent.dart';
 import 'package:finance_tracker/core/platform/quick_actions_app_shortcuts.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:finance_tracker/core/platform/screen_security_provider.dart';
+import 'package:finance_tracker/core/platform/workmanager_background_work.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/core/sync/device_clock.dart';
 import 'package:finance_tracker/core/sync/http_sync_relay.dart';
@@ -468,6 +472,7 @@ LocalWipe localWipe(Ref ref) => InMemoryLocalWipe(
   keys: ref.watch(databaseKeyStoreProvider),
   tokens: ref.watch(tokenStoreProvider),
   reminders: ref.watch(reminderSchedulerProvider),
+  background: ref.watch(backgroundWorkProvider),
 );
 
 /// Stops the app, wipes its local data, confirms and starts it again: `bootstrap`
@@ -589,7 +594,17 @@ List<Override> filePickerOverridesFor(AppConfig config) =>
 List<Override> localDataOverridesFor(AppConfig config) => [
   appConfigProvider.overrideWithValue(config),
   ...switch (config.flavor) {
-    Flavor.dev || Flavor.prod => _driftOverrides,
+    Flavor.dev || Flavor.prod => [
+      ..._driftOverrides,
+      backgroundWorkProvider.overrideWith(
+        (ref) => WorkmanagerBackgroundWork(
+          dispatcher: backgroundDispatcher,
+          flavor: config.flavor.name,
+          sdkInt: () async =>
+              (await DeviceInfoPlugin().androidInfo).version.sdkInt,
+        ),
+      ),
+    ],
     Flavor.demo => _demoOverrides,
   },
 ];
@@ -740,6 +755,7 @@ final List<Override> _driftOverrides = [
       keys: ref.watch(databaseKeyStoreProvider),
       tokens: ref.watch(tokenStoreProvider),
       reminders: ref.watch(reminderSchedulerProvider),
+      background: ref.watch(backgroundWorkProvider),
     ),
   ),
   connectivityProvider.overrideWith((ref) => PlatformConnectivity()),

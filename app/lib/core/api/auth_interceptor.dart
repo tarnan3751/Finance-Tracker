@@ -9,7 +9,9 @@
 ///   detection and no grace window, so two refreshes with one token would end the
 ///   session: a refresh starts only when no other is in flight and the stored access token
 ///   is still the one the failing request carried (otherwise another request already
-///   refreshed, and the request is simply sent again with the new token).
+///   refreshed, and the request is simply sent again with the new token). The stored
+///   session is read again from storage first (`TokenStore.reload`), so a refresh the
+///   background sync's isolate made is seen rather than repeated with a spent token.
 /// - **A refused refresh** (any 401) and **401 `token_revoked`** clear the stored session
 ///   and fire `onSessionEnded`, but only while the store still holds the tokens the
 ///   failing call used, so a late answer to an old request cannot end a newer session.
@@ -149,7 +151,9 @@ final class AuthInterceptor extends Interceptor {
   }
 
   Future<Session?> _refreshFrom(String sent) async {
-    final Session? current = await _store.read();
+    // Read again from storage: another isolate (the background sync) may have refreshed
+    // the session, and its old refresh token is spent.
+    final Session? current = await _store.reload();
     if (current == null) return null;
     if (current.accessToken != sent) return current;
     final AuthResult result;

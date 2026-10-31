@@ -162,7 +162,11 @@ final class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => currentSchemaVersion;
+
+  /// The schema version this build opens; the background cycle opens nothing else
+  /// (`core/background/background_cycle.dart`).
+  static const int currentSchemaVersion = 13;
 
   /// Closes the database, its query streams first, through [closeAgainOnRace]. Drift's
   /// stream store iterates its streams while awaiting each one's close, and that

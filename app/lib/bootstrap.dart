@@ -13,11 +13,24 @@
 /// (`core/db/local_wipe.dart`, `wipeLocalDataProvider`) stops it the same way, wipes,
 /// confirms on a plain screen and starts it again on the fresh install; a wipe cut short
 /// is finished the same way before [startApp] opens anything local.
+///
+/// The background sync (`core/background/`, `docs/reference/background.md`): in dev and
+/// prod [bootstrap] registers the process's `ft.app` port once (and again on every resume,
+/// in case a worker took the app for gone), so the worker asks this
+/// app to sync while it runs (and finds it busy while a restore or a wipe has stopped
+/// it); [startApp] first waits, at most 45 s, for a cycle the worker runs on its own to
+/// finish, so two sessions never share the account's tokens; after the session is read
+/// it turns a remote sign-out the worker met into the sign-in screen's notice; and it
+/// keeps the periodic sync scheduled while someone is signed in
+/// (`BackgroundSyncWatcher`).
 library;
 
 import 'dart:async';
 
 import 'package:finance_tracker/app.dart';
+import 'package:finance_tracker/core/background/background_cycle.dart';
+import 'package:finance_tracker/core/background/background_ports.dart';
+import 'package:finance_tracker/core/background/background_sync_watcher.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
@@ -34,6 +47,7 @@ import 'package:finance_tracker/core/router/app_router.dart';
 import 'package:finance_tracker/core/router/launch_links.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
+import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/time/time_zone_setup.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
@@ -68,6 +82,9 @@ final Logger _log = Logger('app');
 ProviderContainer? _running;
 StreamSubscription<String>? _reminderTaps;
 StreamSubscription<Uri>? _launchLinks;
+// The process's `ft.app` port, registered once.
+AppSyncPort? _appPort;
+AppLifecycleListener? _appPortLifecycle;
 
 /// Starts the app for [config] ([startApp]) after the process's one-time setup. Throws a
 /// [StateError] before anything runs when the prod flavor is given a server URL that is
@@ -89,7 +106,42 @@ Future<void> bootstrap(AppConfig config) async {
   // date symbols are loaded for every locale, since a device's need not be English.
   Intl.defaultLocale = deviceLocale();
   await initializeDateFormatting();
+  if (config.flavor != Flavor.demo) {
+    final AppSyncPort port = _appPort ??= AppSyncPort(
+      () => _running != null,
+      _syncForBackground,
+    );
+    // Again on every resume: a worker that once took the app for gone removed it.
+    _appPortLifecycle ??= AppLifecycleListener(onResume: port.register);
+  }
   await startApp(config);
+}
+
+// A sync the worker asked for, run by the app (`ft.app`): Sync now, its outcome
+// recorded as the background run.
+Future<DelegatedResult> _syncForBackground() async {
+  final ProviderContainer container = _running!;
+  await container.read(syncControllerProvider.notifier).syncNow();
+  final SyncStatus status = container.read(syncControllerProvider);
+  // The controller runs no session while the restore offer is pending or not yet known.
+  final AsyncValue<bool> offer = container.read(restoreOfferProvider);
+  final bool held = !offer.hasError && (offer.isLoading || offer.value == true);
+  final BackgroundResult result = switch (status.phase) {
+    SyncPhase.idle || SyncPhase.running when held => BackgroundResult.held,
+    SyncPhase.idle || SyncPhase.running => resultOf(status),
+    _ => BackgroundResult.skipped,
+  };
+  await recordBackgroundRun(
+    container.read(appMetaStoreProvider),
+    BackgroundRun(
+      at: container.read(clockProvider).nowUtc(),
+      result: result,
+      delegated: true,
+    ),
+  );
+  return result == BackgroundResult.offline
+      ? DelegatedResult.retry
+      : DelegatedResult.success;
 }
 
 /// Runs the app for [config] on a new container over [overrides] (the flavor's,
@@ -106,6 +158,8 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
     (reason) =>
         _wipe(config, overrides, container.read(localWipeProvider), reason),
   );
+  // A cycle the background sync runs on its own finishes first.
+  if (config.flavor != Flavor.demo) await waitForBackgroundCycle();
   container = ProviderContainer(overrides: [...base, restart, wipe]);
   // A wipe cut short (the process killed part way) is finished before anything local
   // opens, so the app never starts on what is left of it.
@@ -138,6 +192,7 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
   // The stored session, read before the first frame so the router never shows the
   // sign-in screen to a signed-in user; GET /me confirms it in the background.
   await container.read(sessionControllerProvider.notifier).restored();
+  if (config.flavor != Flavor.demo) await _takeBackgroundSignOut(container);
   // The lock's settings, read before the first frame: a locked app never shows its content,
   // and a secure window is secure before anything is drawn in it.
   await container.read(lockControllerProvider.notifier).restored();
@@ -148,6 +203,8 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
       .startAt(await _initialLaunchLink(container));
   // Sync starts with the app: it runs a session when someone is signed in (never in demo).
   container.read(syncControllerProvider);
+  // The background sync is scheduled while someone is signed in (never in demo).
+  container.listen(backgroundSyncWatcherProvider, (_, _) {});
   // The budget alerts are evaluated whenever the statuses change, in every flavor.
   container.listen(budgetAlertWatcherProvider, (_, _) {});
   // The detected recurring streams follow the transactions, in every flavor.
@@ -206,6 +263,20 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
         fillReceiptHashes(container).then((_) => sweepReceipts(container)),
       ),
     );
+  }
+}
+
+// A session the background sync found ended on the server: the sign-in screen says so
+// once. A failure is logged by type.
+Future<void> _takeBackgroundSignOut(ProviderContainer container) async {
+  try {
+    final AppMetaStore meta = container.read(appMetaStoreProvider);
+    final String? ended = await meta.read(AppMetaKeys.sessionEndedInBackground);
+    if (ended == null || ended.isEmpty) return;
+    container.read(sessionControllerProvider.notifier).noteEndedRemotely();
+    await meta.write(AppMetaKeys.sessionEndedInBackground, '');
+  } on Object catch (e) {
+    _log.warning('the background sign-out was not read: ${e.runtimeType}');
   }
 }
 

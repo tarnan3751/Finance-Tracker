@@ -14,6 +14,8 @@ import 'package:finance_tracker/core/db/database_key_store.dart';
 import 'package:finance_tracker/core/db/local_wipe.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/db/receipt_store.dart';
+import 'package:finance_tracker/core/platform/background_work.dart';
+import 'package:finance_tracker/core/platform/fake_background_work.dart';
 import 'package:finance_tracker/core/platform/fake_reminder_scheduler.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler.dart';
 import 'package:finance_tracker/features/widgets/data/fake_widget_writer.dart';
@@ -81,6 +83,11 @@ final class _RemindersCut extends Fake implements ReminderScheduler {
   Future<void> clearAll() async => throw _cut;
 }
 
+final class _BackgroundCut extends Fake implements BackgroundWork {
+  @override
+  Future<void> cancelAll() async => throw _cut;
+}
+
 /// The steps in their order, as what each leaves on the install.
 const List<String> _steps = [
   'legacy',
@@ -91,6 +98,7 @@ const List<String> _steps = [
   'session',
   'marker',
   'reminders',
+  'background',
 ];
 
 void main() {
@@ -98,6 +106,7 @@ void main() {
   late Map<String, String> secure;
   late FakeReminderScheduler reminders;
   late FakeWidgetWriter widgets;
+  late FakeBackgroundWork background;
 
   setUpAll(tzdata.initializeTimeZones);
 
@@ -113,6 +122,7 @@ void main() {
     });
     reminders = FakeReminderScheduler();
     widgets = FakeWidgetWriter();
+    background = FakeBackgroundWork();
   });
   tearDown(() => directory.deleteSync(recursive: true));
 
@@ -133,6 +143,7 @@ void main() {
         ? _TokensCut(cut!)
         : SecureTokenStore(),
     reminders: cut == 'reminders' ? _RemindersCut() : reminders,
+    background: cut == 'background' ? _BackgroundCut() : background,
   );
 
   Future<AppDatabase> open() async => AppDatabase(
@@ -159,6 +170,10 @@ void main() {
       WidgetData.signedOut(updatedAt: DateTime.utc(2026), updatedText: ''),
     );
     await SecureTokenStore().writeInstallUserId('user-1');
+    await background.schedulePeriodicSync(
+      every: backgroundSyncEvery,
+      constraints: backgroundSyncConstraints,
+    );
     secure[SecureTokenStore.sessionKey] = '{}';
     await reminders.replaceAll([
       ScheduledReminder(
@@ -187,6 +202,7 @@ void main() {
       if (secure.containsKey(SecureTokenStore.sessionKey)) 'session',
       if (secure.containsKey(SecureTokenStore.installUserKey)) 'marker',
       if ((await reminders.pending()).isNotEmpty) 'reminders',
+      if (background.scheduled) 'background',
     };
   }
 
@@ -208,6 +224,7 @@ void main() {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
     expect(preferences.getKeys(), {'unrelated'});
     expect(reminders.cleared, 1);
+    expect(background.calls.last.method, 'cancel');
     expect(await wipe.pending(), isNull);
   });
 
@@ -283,6 +300,7 @@ void main() {
       keys: keys,
       tokens: tokens,
       reminders: reminders,
+      background: background,
     );
 
     await wipe.wipe(WipeReason.deviceErased);
@@ -294,6 +312,7 @@ void main() {
     expect(await tokens.read(), isNull);
     expect(tokens.installUserId, isNull);
     expect(reminders.cleared, 1);
+    expect(background.calls.map((c) => c.method), ['cancel']);
     expect(wipe.wipes, 1);
     expect(await wipe.pending(), isNull);
   });

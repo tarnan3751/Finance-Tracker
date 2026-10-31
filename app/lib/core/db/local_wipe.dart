@@ -23,7 +23,8 @@
 ///    user (`install_user_v1`): the marker goes last, so even outside a pending wipe the
 ///    account's data is never left on the device without the rule that keeps another
 ///    account from syncing it;
-/// 6. every pending reminder and every notification the app has shown;
+/// 6. every pending reminder and every notification the app has shown, then the
+///    background sync's schedule (`core/platform/background_work.dart`);
 ///
 /// then the pending record goes. No path, key or value is logged.
 library;
@@ -35,6 +36,7 @@ import 'package:finance_tracker/core/db/database_key_store.dart';
 import 'package:finance_tracker/core/db/legacy_import/legacy_importer.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/db/receipt_store.dart';
+import 'package:finance_tracker/core/platform/background_work.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler.dart';
 import 'package:finance_tracker/features/widgets/domain/widget_writer.dart';
 import 'package:path/path.dart' as p;
@@ -78,6 +80,7 @@ final class DriftLocalWipe implements LocalWipe {
     required this.keys,
     required this.tokens,
     required this.reminders,
+    required this.background,
   });
 
   /// The key of the pending record in [preferences], its value the [WipeReason]'s name.
@@ -91,6 +94,7 @@ final class DriftLocalWipe implements LocalWipe {
   final DatabaseKeyStore keys;
   final TokenStore tokens;
   final ReminderScheduler reminders;
+  final BackgroundWork background;
 
   /// The suffixes of SQLite's files beside a database.
   static const List<String> databaseFileSuffixes = [
@@ -122,7 +126,7 @@ final class DriftLocalWipe implements LocalWipe {
         if (file.existsSync()) await file.delete();
       }
     }
-    await _wipeStores(receipts, widgets, keys, tokens, reminders);
+    await _wipeStores(receipts, widgets, keys, tokens, reminders, background);
     await prefs.remove(pendingKey);
   }
 }
@@ -137,6 +141,7 @@ final class InMemoryLocalWipe implements LocalWipe {
     required this.keys,
     required this.tokens,
     required this.reminders,
+    required this.background,
   });
 
   final ReceiptStore receipts;
@@ -144,6 +149,7 @@ final class InMemoryLocalWipe implements LocalWipe {
   final DatabaseKeyStore keys;
   final TokenStore tokens;
   final ReminderScheduler reminders;
+  final BackgroundWork background;
 
   /// The pending record.
   WipeReason? pendingReason;
@@ -157,7 +163,7 @@ final class InMemoryLocalWipe implements LocalWipe {
   @override
   Future<void> wipe(WipeReason reason) async {
     pendingReason = reason;
-    await _wipeStores(receipts, widgets, keys, tokens, reminders);
+    await _wipeStores(receipts, widgets, keys, tokens, reminders, background);
     pendingReason = null;
     wipes++;
   }
@@ -169,6 +175,7 @@ Future<void> _wipeStores(
   DatabaseKeyStore keys,
   TokenStore tokens,
   ReminderScheduler reminders,
+  BackgroundWork background,
 ) async {
   await receipts.deleteAll();
   await widgets.clear();
@@ -176,4 +183,5 @@ Future<void> _wipeStores(
   await tokens.clear();
   await tokens.clearInstallUserId();
   await reminders.clearAll();
+  await background.cancelAll();
 }

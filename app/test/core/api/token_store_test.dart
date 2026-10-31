@@ -1,11 +1,14 @@
 // The token store: the session round trip through secure storage, an unreadable value
-// read as signed out, and the install's user surviving sign-out.
+// read as signed out, the install's user surviving sign-out, and a reload that keeps the
+// session in memory when storage fails and discards only a value it cannot parse.
 import 'dart:convert';
 
 import 'package:finance_tracker/core/api/api_models.dart';
 import 'package:finance_tracker/core/api/token_store.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 import 'support/scripted_adapter.dart';
 
@@ -17,8 +20,60 @@ final Session _session = Session(
   device: testDevice,
 );
 
+class _MockStorage extends Mock implements FlutterSecureStorage {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  group('reload', () {
+    late _MockStorage storage;
+    late SecureTokenStore store;
+    String? value;
+    Object? failure;
+
+    setUp(() {
+      storage = _MockStorage();
+      value = jsonEncode(_session.toJson());
+      failure = null;
+      when(() => storage.read(key: SecureTokenStore.sessionKey))
+          .thenAnswer((_) async => failure == null ? value : throw failure!);
+      when(() => storage.delete(key: SecureTokenStore.sessionKey))
+          .thenAnswer((_) async {});
+      store = SecureTokenStore(storage);
+    });
+
+    test(
+      'a storage failure keeps the session in memory and deletes nothing',
+      () async {
+        expect((await store.read())!.accessToken, 'access-1');
+        failure = PlatformException(code: 'decryption failed');
+        expect((await store.reload())!.accessToken, 'access-1');
+        expect((await store.read())!.accessToken, 'access-1');
+        verifyNever(() => storage.delete(key: SecureTokenStore.sessionKey));
+      },
+    );
+
+    test('a value it cannot parse is discarded', () async {
+      await store.read();
+      value = '{"access_token": 1}';
+      expect(await store.reload(), isNull);
+      verify(() => storage.delete(key: SecureTokenStore.sessionKey)).called(1);
+    });
+
+    test('a session refreshed elsewhere is read', () async {
+      await store.read();
+      value = jsonEncode(
+        Session(
+          accessToken: 'access-2',
+          refreshToken: 'refresh-2',
+          accessExpiresAt: DateTime.utc(2026, 10, 24, 15, 30),
+          user: testUser,
+          device: testDevice,
+        ).toJson(),
+      );
+      expect((await store.reload())!.refreshToken, 'refresh-2');
+    });
+  });
 
   test('a written session reads back, from a fresh store too', () async {
     FlutterSecureStorage.setMockInitialValues({});

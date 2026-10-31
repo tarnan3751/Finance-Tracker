@@ -83,6 +83,10 @@ abstract interface class TokenStore {
   /// The stored session, or null when signed out.
   Future<Session?> read();
 
+  /// The stored session read again from where it is kept, past any copy in memory: the
+  /// background sync's isolate (`docs/reference/background.md`) may have refreshed it.
+  Future<Session?> reload();
+
   /// Stores [session], replacing any other.
   Future<void> write(Session session);
 
@@ -176,6 +180,37 @@ final class SecureTokenStore implements TokenStore {
   }
 
   @override
+  Future<Session?> reload() async {
+    Session? session;
+    await _queue.run(() async {
+      final String? text;
+      try {
+        text = await _storage.read(key: sessionKey);
+      } on PlatformException catch (e) {
+        // A storage that fails now says nothing about the session: the copy in memory
+        // stands. Only the type is logged.
+        _log.warning('the stored session was not read again: ${e.runtimeType}');
+        session = _loaded ? _session : null;
+        return;
+      }
+      if (text == null) {
+        _session = null;
+        _loaded = true;
+        return;
+      }
+      try {
+        _session = Session.fromJson(jsonDecode(text) as Map<String, dynamic>);
+        _loaded = true;
+        session = _session;
+      } on Object catch (e) {
+        // A value this build cannot parse is the one thing that is discarded.
+        session = await _discard(e);
+      }
+    });
+    return session;
+  }
+
+  @override
   Future<void> write(Session session) => _queue.run(() => _write(session));
 
   @override
@@ -227,6 +262,9 @@ final class InMemoryTokenStore implements TokenStore {
 
   @override
   Future<Session?> read() async => session;
+
+  @override
+  Future<Session?> reload() async => session;
 
   @override
   Future<void> write(Session session) =>

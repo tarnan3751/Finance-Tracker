@@ -29,6 +29,7 @@ import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 
 import '../../contract/repository_fixture.dart';
+import '../../helpers/dev_wiring.dart';
 
 /// A relay that counts and can hold or fail its calls.
 final class ScriptedRelay implements SyncRelay {
@@ -90,13 +91,6 @@ final class _Device extends Notifier<String?> {
 final NotifierProvider<_Device, String?> _device = NotifierProvider(
   _Device.new,
 );
-
-/// The dev flavor's wiring with the network left to each test's fake.
-List<Override> devWiring() => [
-  for (final Override o in overridesFor(AppConfig.dev()))
-    // ignore: invalid_use_of_visible_for_testing_member
-    if (!identical(o.origin, connectivityProvider)) o,
-];
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

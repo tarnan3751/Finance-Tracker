@@ -49,6 +49,9 @@ final class _SlowTokenStore implements TokenStore {
   }
 
   @override
+  Future<Session?> reload() => read();
+
+  @override
   Future<void> write(Session session) => inner.write(session);
 
   @override

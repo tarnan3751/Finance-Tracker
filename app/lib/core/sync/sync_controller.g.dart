@@ -44,7 +44,7 @@ final class SyncControllerProvider
   }
 }
 
-String _$syncControllerHash() => r'303454a2370e49d7416e2fbe8af9230070a0777a';
+String _$syncControllerHash() => r'cf0d04ec9e93e9cbc9619fd0a78bbec73c5f75e9';
 
 /// The device's sync status, and "Sync now".
 

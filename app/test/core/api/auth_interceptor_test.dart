@@ -56,6 +56,40 @@ final class _Harness {
   int get refreshes => adapter.count('POST', '/auth/refresh');
 }
 
+/// A store whose copy in memory is older than what storage holds, as after the background
+/// sync's isolate refreshed the session.
+final class _StaleStore implements TokenStore {
+  _StaleStore({required this.session, required this.stored});
+
+  Session? session;
+  final Session stored;
+
+  @override
+  Future<Session?> read() async => session;
+
+  @override
+  Future<Session?> reload() async => session = stored;
+
+  @override
+  Future<void> write(Session session) async => this.session = session;
+
+  @override
+  Future<void> clear() async => session = null;
+
+  @override
+  Future<void> update(Session? Function(Session? current) change) async =>
+      session = change(session);
+
+  @override
+  Future<String?> readInstallUserId() async => null;
+
+  @override
+  Future<void> writeInstallUserId(String userId) async {}
+
+  @override
+  Future<void> clearInstallUserId() async {}
+}
+
 void main() {
   test(
     'five concurrent expiries cause one refresh, and all five succeed',
@@ -259,5 +293,34 @@ void main() {
     });
     await expectLater(h.api.listTransactions(), throwsA(isA<ServerError>()));
     await expectLater(h.api.pushChanges(const []), throwsA(isA<ServerError>()));
+  });
+
+  test('an expiry after another isolate refreshed reuses its session, '
+      'never the spent refresh token', () async {
+    final ScriptedAdapter adapter = ScriptedAdapter((options, body) async {
+      if (options.uri.path == '/v1/auth/refresh') {
+        return problem(401, 'token_revoked');
+      }
+      return _bearer(options) == 'a2'
+          ? ok(testUser.toJson())
+          : problem(401, 'token_expired');
+    });
+    final _StaleStore store = _StaleStore(
+      session: _session('a1', 'r1'),
+      stored: _session('a2', 'r2'),
+    );
+    final HttpFinanceApi api = HttpFinanceApi(
+      buildDio(
+        AppConfig.prod(),
+        adapter: adapter,
+        baseUrl: Uri.parse('https://api.test'),
+        version: () async => '1.0.0',
+      ),
+      tokens: store,
+      clock: _clock,
+    );
+    await api.getMe();
+    expect(adapter.count('POST', '/auth/refresh'), 0);
+    expect(store.session!.refreshToken, 'r2');
   });
 }

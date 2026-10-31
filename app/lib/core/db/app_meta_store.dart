@@ -8,8 +8,9 @@
 /// (`dismissed_anomalies`), the last week whose summary was announced
 /// (`weekly_summary_raised`), the payoff projections' entries (`payoff_entries`), when
 /// the restore offer was answered (`restore_offer_answered`), the app lock's settings
-/// (`lock_enabled`, `lock_timeout_seconds`, `secure_screen`), and the language the app is
-/// shown in (`app_language`).
+/// (`lock_enabled`, `lock_timeout_seconds`, `secure_screen`), the language the app is shown
+/// in (`app_language`), and the background sync's switch, last run and remote sign-out
+/// (`background_sync_enabled`, `background_last_run`, `session_ended_in_background`).
 library;
 
 import 'package:finance_tracker/core/db/app_database.dart';
@@ -80,6 +81,18 @@ abstract final class AppMetaKeys {
   /// The language the app is shown in on this device, an `AppLanguage` name; absent
   /// until chosen, when the device's language holds (`features/settings/`).
   static const String appLanguage = 'app_language';
+
+  /// Whether the background sync is on, `true` or `false`; absent means on
+  /// (`core/background/`).
+  static const String backgroundSyncEnabled = 'background_sync_enabled';
+
+  /// The background sync's last run, a JSON object `{at, result, delegated}`: the UTC
+  /// instant, a `BackgroundResult` name, and whether the app ran it (`core/background/`).
+  static const String backgroundLastRun = 'background_last_run';
+
+  /// When the background sync found the session ended on the server, a UTC instant, or
+  /// empty once the app has told the user (`core/background/`).
+  static const String sessionEndedInBackground = 'session_ended_in_background';
 }
 
 /// The store over the database's `app_meta` table.
