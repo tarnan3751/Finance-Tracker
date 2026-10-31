@@ -3,7 +3,7 @@
 # and obfuscation canary, and the contract job: the OpenAPI document validated by
 # openapi-generator itself and the committed client proved current by regenerating it.
 # The Flutter version comes from .fvmrc, so CI runs the same SDK as every lane. The
-# signed release-on-tag workflow is Phase 9.
+# signed release on a v* tag is release.yml's; this prod build is debug-signed.
 name: CI
 
 on:
