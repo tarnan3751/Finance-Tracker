@@ -201,6 +201,14 @@ and Gradle warns `FT_RELEASE_KEYSTORE is not set: the release build is signed wi
 key.` (the Flutter tool shows Gradle warnings only with `-v`). That keeps the release-mode
 smoke run working on any machine. Keystores are gitignored (`*.jks`, `*.keystore`).
 
+The release key lives only in the repository's GitHub Actions secrets:
+`FT_RELEASE_KEYSTORE_BASE64` (the PKCS12 keystore, base64), `FT_RELEASE_KEYSTORE_PASSWORD`,
+`FT_RELEASE_KEY_ALIAS` (`finance-tracker`) and `FT_RELEASE_KEY_PASSWORD`. The release
+workflow decodes the first to a temporary file, sets `FT_RELEASE_KEYSTORE` to its path for the
+prod build step only, removes it at the end, and refuses to publish unless the APK's
+certificate SHA-256 is `tools/release/expected_cert_sha256.txt`'s (`testing-tools.md`,
+**Cutting a release**). CI's own prod build on every push has no secrets and is debug-signed.
+
 ## R8 and obfuscation
 
 - The release build type sets `isMinifyEnabled` and `isShrinkResources`, with

@@ -217,6 +217,59 @@ of the failing step (each `gate <step> FAILED` line and the output under it, the
 lines), the report's path and the exact `git reset --hard <base>` that undoes the landing,
 then exits 1. `--dry-run` stops after the tree check and resets to the base.
 
+## Cutting a release
+
+A release is a pushed `v*` tag; the workflow does the rest. In order:
+
+1. **The section.** `tools/changelog.sh <previous-tag>..HEAD` prints the Conventional Commit
+   log since the last tag grouped by type (Features, Fixes, … , Other for a subject that is
+   not a Conventional Commit); it reads git only. The coordinator puts it into `CHANGELOG.md`
+   under a `## <tag> — <date>` heading with a short paragraph above the groups.
+2. **The commit.** The changelog commit lands on `main` like any series, and CI passes on it.
+3. **The tag.** An annotated tag on that commit, `git tag -a <tag> -m <tag>`. A tag with a
+   `-` in it (`v0.9.0-phase8`, `v1.0.0-rc.1`) becomes a pre-release, a plain `vX.Y.Z` a
+   release.
+4. **The push.** `git push origin <tag>`, the tag alone.
+5. **The workflow.** `.github/workflows/release.yml` runs on the tag. Its `gate` job is
+   `ci.yml`'s gate, step for step, and nothing is published when it fails. The `release` job
+   writes the notes first, so a tag without its section fails before anything is built; builds
+   the demo debug APK; decodes the `FT_RELEASE_KEYSTORE_BASE64` secret to
+   `$RUNNER_TEMP/release.jks` (failing when the secret is empty) and builds the prod release APK
+   (`--obfuscate --split-debug-info=build/symbols`) with `FT_RELEASE_KEYSTORE` pointing at it
+   and the other three variables from their secrets, in that step only (`build.md`,
+   **Signing**); runs `tools/release/check_signature.sh` on the prod APK; collects the assets
+   under `dist/`; and runs `gh release create <tag> dist/* --verify-tag --title <tag>
+   --notes-file <notes>`, with `--prerelease` for a suffixed tag, on the job's own token
+   (`contents: write` on this job only, `contents: read` for the rest of the workflow; a
+   release made with it triggers no other workflow). A
+   final step removes the keystore file whatever happened. No step echoes a secret or turns on
+   `set -x`. `ci.yml` also runs on the tag push, as on every push.
+
+The assets are `finance-tracker-<tag>-prod-release.apk`, `finance-tracker-<tag>-demo-debug.apk`,
+`finance-tracker-<tag>-symbols.tar.gz` (the `build/symbols` directory, for
+`flutter symbolize` on an obfuscated stack trace) and `SHA256SUMS.txt` of the three.
+
+`tools/release/release_notes.sh <tag>` prints the release's body: the lines of the
+`CHANGELOG.md` section whose heading is `## <tag>` alone or followed by a space (so `v1.0.0`
+never takes `v1.0.0-rc.1`'s section), up to the next `## ` heading, without the heading and
+the blank lines around it; then an **Install** paragraph (the demo APK needs no server and no
+account, the prod APK expects your own server, both need Android 8.0) and a **Verify**
+paragraph with the certificate's SHA-256 and `sha256sum -c SHA256SUMS.txt`. With no such
+section it prints `release_notes: CHANGELOG.md has no section headed "## <tag>"; …`, and with
+a heading but nothing under it `release_notes: the CHANGELOG.md section headed "## <tag>" is
+empty; …`, and exits 1; 2 on a usage error. It reads files only.
+
+`tools/release/check_signature.sh <apk>` runs `apksigner verify --print-certs` (the newest
+under `$ANDROID_HOME/build-tools`, else `$ANDROID_SDK_ROOT`'s, else `~/Library/Android/sdk`'s)
+and requires it to succeed with exactly one signer whose certificate SHA-256, which apksigner
+prints as lower-case hex, upper-cased and colon-separated, equals
+`tools/release/expected_cert_sha256.txt` (one line, the release key's certificate). It prints
+the fingerprint it found and `check_signature ok`, or `check_signature FAILED: expected …` and
+exits 1; 2 on a usage error or with no apksigner. A prod APK built without the release
+variables is debug-signed and fails it, which is the guard: a missing secret can never publish
+a debug-signed APK. Rotating the key means a new app identity (`PLAN.md` §12, "Release
+signing"), and then a new expected value.
+
 ## `tools/run_server.sh`: the dev server
 
 `tools/run_server.sh` starts the development server with one command
