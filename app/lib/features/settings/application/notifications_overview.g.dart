@@ -53,4 +53,4 @@ final class NotificationsOverviewProvider
 }
 
 String _$notificationsOverviewHash() =>
-    r'a3f412af50bc33ae88afbe15e50017f9ae332877';
+    r'92e3bd5f6d77af7ada44e31b2c3bd25dabaa366c';

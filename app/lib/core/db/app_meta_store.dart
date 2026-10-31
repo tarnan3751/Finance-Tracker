@@ -10,10 +10,11 @@
 /// the restore offer was answered (`restore_offer_answered`), the app lock's settings
 /// (`lock_enabled`, `lock_timeout_seconds`, `secure_screen`), the language the app is shown
 /// in (`app_language`), the background sync's switch, last run and remote sign-out
-/// (`background_sync_enabled`, `background_last_run`, `session_ended_in_background`), and
-/// whether the permission to notify was asked (`notification_permission_asked`), which
-/// sync problems were told (`sync_problems_told`), and the transaction import's presets and
-/// history (`import_presets`, `import_history`).
+/// (`background_sync_enabled`, `background_last_run`, `background_last_unheld_run`,
+/// `session_ended_in_background`), and whether the permission to notify was asked
+/// (`notification_permission_asked`), which sync problems were told
+/// (`sync_problems_told`), and the transaction import's presets and history
+/// (`import_presets`, `import_history`).
 library;
 
 import 'package:finance_tracker/core/db/app_database.dart';
@@ -92,6 +93,10 @@ abstract final class AppMetaKeys {
   /// The background sync's last run, a JSON object `{at, result, delegated}`: the UTC
   /// instant, a `BackgroundResult` name, and whether the app ran it (`core/background/`).
   static const String backgroundLastRun = 'background_last_run';
+
+  /// The background sync's last run that the restore offer did not hold, as
+  /// [backgroundLastRun] holds a run (`core/background/`).
+  static const String backgroundLastUnheldRun = 'background_last_unheld_run';
 
   /// When the background sync found the session ended on the server, a UTC instant, or
   /// empty once the app has told the user (`core/background/`).

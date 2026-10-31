@@ -41,7 +41,9 @@ import 'package:sqlite3/sqlite3.dart' show SqliteException;
 
 /// The `app_meta` keys a restore drops, so the new device works them out itself; the app
 /// lock's settings describe the device they were chosen on (`features/lock/`), so the
-/// restored device starts with the lock off and its flavor's screenshot default.
+/// restored device starts with the lock off and its flavor's screenshot default; and the
+/// background sync's last runs are the source device's (`core/background/`), so the
+/// restored device's Notifications screen says it has not run yet.
 const Set<String> restoreDroppedMetaKeys = {
   AppMetaKeys.remindersZone,
   AppMetaKeys.remindersScheduledAt,
@@ -49,6 +51,8 @@ const Set<String> restoreDroppedMetaKeys = {
   AppMetaKeys.lockEnabled,
   AppMetaKeys.lockTimeoutSeconds,
   AppMetaKeys.secureScreen,
+  AppMetaKeys.backgroundLastRun,
+  AppMetaKeys.backgroundLastUnheldRun,
 };
 
 /// The tables a backup leaves out and a restore ignores: device-local state that means

@@ -3,7 +3,8 @@
 /// whole app), each opening that channel's settings in Android; "Turn on notifications"
 /// while the app may not notify (asking once, then opening Android's settings); the
 /// background sync's switch with where WorkManager has it and its last run (dev and
-/// prod; the demo has no server); and, when Android restricts the app's background work,
+/// prod; the demo has no server), a run held for the restore offer only while the offer
+/// is pending, else the last run it did not hold; and, when Android restricts the app's background work,
 /// a note with a button to the app's settings. Read again whenever the app resumes; a
 /// state that cannot be read says so, with Try again.
 library;
@@ -17,6 +18,7 @@ import 'package:finance_tracker/core/platform/background_work.dart';
 import 'package:finance_tracker/core/platform/notification_channels.dart';
 import 'package:finance_tracker/core/platform/notification_providers.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
+import 'package:finance_tracker/features/backup/application/backup_providers.dart';
 import 'package:finance_tracker/features/settings/application/notifications_overview.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -138,7 +140,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             title: Text(l10n.backgroundSyncTitle),
             subtitle: Text(
               '${_schedule(l10n, value)}\n'
-              '${_lastRun(l10n, value.lastRun)}',
+              '${_lastRun(l10n, _shownRun(value))}',
             ),
             isThreeLine: true,
             value: value.backgroundEnabled,
@@ -174,6 +176,17 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           l10n.backgroundSyncNotScheduled,
         BackgroundWorkState.none => l10n.backgroundSyncSchedule,
       };
+
+  // The last run, a held one only while the restore offer that held it is pending (or
+  // not yet known, as sync takes it); otherwise the last run it did not hold.
+  BackgroundRun? _shownRun(NotificationsOverview value) {
+    final BackgroundRun? last = value.lastRun;
+    if (last == null || last.result != BackgroundResult.held) return last;
+    final AsyncValue<bool> offer = ref.watch(restoreOfferProvider);
+    final bool pending =
+        !offer.hasError && (offer.isLoading || offer.value == true);
+    return pending ? last : value.lastUnheldRun;
+  }
 
   String _lastRun(AppLocalizations l10n, BackgroundRun? run) {
     if (run == null) return l10n.backgroundSyncNever;

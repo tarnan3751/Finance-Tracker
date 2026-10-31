@@ -153,7 +153,8 @@ retries on its backoff), in order:
 7. The outcome is recorded in `app_meta.background_last_run` as `{at, result,
    delegated}`: `synced`, `offline` (the one result that returns false), `failed` (the
    server's or another failure), `sessionEnded`, `skipped` (a guard), `held` (the restore
-   offer) or `timedOut`. A session the
+   offer) or `timedOut`; a run not `held` is also recorded in
+   `app_meta.background_last_unheld_run`. A session the
    server ended (the cycle's client cleared it on a 401) is recorded in
    `app_meta.session_ended_in_background`, which the app's next start turns into the
    sign-in screen's notice (`auth.md`), and told on `sync_problems`.
@@ -249,8 +250,10 @@ Settings) reads `notificationsOverviewProvider` again on every resume:
   channel's settings (`android.settings.CHANNEL_NOTIFICATION_SETTINGS`);
 - Background sync: a switch over `background_sync_enabled`, where WorkManager has the
   periodic sync (`BackgroundWork.periodicState()`: scheduled, with its cadence; running
-  now; or not scheduled while signed out), and the last run and its outcome, a held one
-  included (dev and prod; the demo says it has none);
+  now; or not scheduled while signed out), and the last run and its outcome (dev and
+  prod; the demo says it has none): a held run only while the restore offer is pending
+  (or not yet known), and once it is answered the last run not held
+  (`background_last_unheld_run`), or "Has not run yet" when there is none;
 - when Android restricts the app's background work (restricted by the user, or the
   restricted standby bucket), a note and a button to the app's settings in Android.
 
@@ -287,7 +290,8 @@ over the fakes' state.
   before a refresh, keeping the session on a storage failure.
 - `app/test/core/db/local_wipe_test.dart`: the background step among the wipe's cuts.
 - `app/test/features/settings/notifications_screen_test.dart` (the error state, the
-  schedule line, a held run) and the accessibility test.
+  schedule line, a held run while the offer is pending, the last run not held or none
+  once it is answered) and the accessibility test.
 - `app/integration_test/background_sync_test.dart` (the harness's `integration`): the
   cycle's body in the test isolate on an encrypted database on the device and the fake
   server with the family persona (a transaction another device added pulled, today's

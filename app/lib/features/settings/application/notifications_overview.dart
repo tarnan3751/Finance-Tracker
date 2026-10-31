@@ -2,7 +2,7 @@
 /// read from the platform each time the screen asks (it asks again on resume, since the
 /// user may have changed a channel in Android's settings): what the app and each channel
 /// may show, whether the permission was asked, the background sync's switch, where
-/// WorkManager has it and its last run, and whether Android restricts the app's
+/// WorkManager has it, its last run and its last run not held, and whether Android restricts the app's
 /// background work.
 library;
 
@@ -26,6 +26,7 @@ typedef NotificationsOverview = ({
   bool backgroundEnabled,
   BackgroundWorkState schedule,
   BackgroundRun? lastRun,
+  BackgroundRun? lastUnheldRun,
   bool restricted,
 });
 
@@ -33,6 +34,7 @@ typedef NotificationsOverview = ({
 @riverpod
 Future<NotificationsOverview> notificationsOverview(Ref ref) async {
   final bool available = ref.watch(localDataSyncsProvider);
+  final AppMetaStore meta = ref.read(appMetaStoreProvider);
   return (
     notifications: await ref.read(notificationChannelsProvider).state(),
     asked: await ref.read(notificationPermissionProvider).asked(),
@@ -42,7 +44,10 @@ Future<NotificationsOverview> notificationsOverview(Ref ref) async {
         .enabled(),
     schedule: await ref.read(backgroundWorkProvider).periodicState(),
     lastRun: BackgroundRun.parse(
-      await ref.read(appMetaStoreProvider).read(AppMetaKeys.backgroundLastRun),
+      await meta.read(AppMetaKeys.backgroundLastRun),
+    ),
+    lastUnheldRun: BackgroundRun.parse(
+      await meta.read(AppMetaKeys.backgroundLastUnheldRun),
     ),
     restricted: await ref.read(systemSettingsProvider).backgroundRestricted(),
   );

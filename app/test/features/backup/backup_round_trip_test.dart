@@ -6,8 +6,9 @@
 // saved filter, alerts, snapshots, device bookkeeping, a held record, an outbox with
 // synced, rejected and unsynced entries) is exported, restored into a new database and
 // dumped again: every table is equal, row for row, but for the device keys a restore
-// drops (the reminders' and snapshots' bookkeeping, and the app lock's settings, so a
-// restored device starts unlocked) and the device identity it resets, and the receipt files are equal byte
+// drops (the reminders' and snapshots' bookkeeping, the app lock's settings, so a
+// restored device starts unlocked, and the background sync's last runs, the source
+// device's) and the device identity it resets, and the receipt files are equal byte
 // for byte. Two exports of one database are byte-identical with the same instant, salt
 // and nonce, and differ only in the manifest's created_at otherwise. The restored
 // install's outbox pushes to the relay as a new device with nothing refused.
@@ -154,6 +155,16 @@ void main() {
   });
 
   test('restore gives every table back, row for row', () async {
+    // The source device's background runs, which describe it alone.
+    for (final String key in [
+      AppMetaKeys.backgroundLastRun,
+      AppMetaKeys.backgroundLastUnheldRun,
+    ]) {
+      await DriftAppMetaStore(source).write(
+        key,
+        '{"at":"2026-10-24T14:00:00.000Z","result":"synced","delegated":false}',
+      );
+    }
     final Uint8List file = await service().export(_passphrase, (_) {});
     final Directory target = Directory(p.join(dir.path, 'target'))
       ..createSync();
@@ -188,20 +199,22 @@ void main() {
       _restoredNode,
     );
     final List<BackupTable> after = await dumpDatabase(restored);
-    // The app lock's settings describe the device they were chosen on: the source has
-    // them, the restored database has none.
-    const List<String> lockKeys = [
+    // The app lock's settings and the background sync's last runs describe the device
+    // they were recorded on: the source has them, the restored database has none.
+    const List<String> deviceKeys = [
       AppMetaKeys.lockEnabled,
       AppMetaKeys.lockTimeoutSeconds,
       AppMetaKeys.secureScreen,
+      AppMetaKeys.backgroundLastRun,
+      AppMetaKeys.backgroundLastUnheldRun,
     ];
     List<Object?> metaKeys(List<BackupTable> tables) => [
       for (final List<Object?> r
           in tables.singleWhere((t) => t.name == 'app_meta').rows)
         r[0],
     ];
-    expect(metaKeys(await dumpDatabase(source)), containsAll(lockKeys));
-    for (final String key in lockKeys) {
+    expect(metaKeys(await dumpDatabase(source)), containsAll(deviceKeys));
+    for (final String key in deviceKeys) {
       expect(metaKeys(after), isNot(contains(key)), reason: key);
     }
     expect(after.map((t) => t.name), before.map((t) => t.name));

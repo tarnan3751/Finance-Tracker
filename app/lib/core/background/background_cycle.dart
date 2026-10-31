@@ -144,10 +144,14 @@ final class BackgroundRun {
   });
 }
 
-/// Records [run] in [meta]; a failure is logged by type.
+/// Records [run] in [meta], as the last run and, when the restore offer did not hold
+/// it, as the last run not held; a failure is logged by type.
 Future<void> recordBackgroundRun(AppMetaStore meta, BackgroundRun run) async {
   try {
     await meta.write(AppMetaKeys.backgroundLastRun, run.toJson());
+    if (run.result != BackgroundResult.held) {
+      await meta.write(AppMetaKeys.backgroundLastUnheldRun, run.toJson());
+    }
   } on Object catch (e) {
     _log.warning('the background run was not recorded: ${e.runtimeType}');
   }

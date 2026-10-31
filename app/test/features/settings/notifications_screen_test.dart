@@ -1,7 +1,8 @@
 // Settings → Notifications over the fakes: a row per channel with its state (on, off,
 // off with the whole app), each opening its channel's settings; "Turn on notifications"
 // asking once, then opening Android's settings; the background sync's switch with its
-// last run, cancelling and scheduling; the demo's note; the restriction note and its
+// last run, cancelling and scheduling, a held run said held only while the restore
+// offer is pending and the last run not held once it is answered; the demo's note; the restriction note and its
 // button; and the Settings row that opens the screen.
 import 'package:finance_tracker/core/background/background_cycle.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
@@ -15,10 +16,13 @@ import 'package:finance_tracker/core/platform/notification_channels.dart';
 import 'package:finance_tracker/core/platform/notification_providers.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:finance_tracker/core/platform/system_settings.dart';
+import 'package:finance_tracker/core/router/app_router.dart';
+import 'package:finance_tracker/features/backup/application/backup_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/pump_app.dart';
+import '../../helpers/restore_offer.dart';
 
 /// Channels whose state cannot be read until [readable].
 final class _FailingChannels implements NotificationChannels {
@@ -60,11 +64,17 @@ void main() {
   Future<void> open(
     WidgetTester tester, {
     bool syncs = true,
+    bool offerPending = false,
     NotificationChannels? using,
   }) async {
     await pumpApp(
       tester,
       initialLocation: '/settings/notifications',
+      // The gated router holds a pending offer at /restore; this one shows the screen
+      // the offer would cover.
+      router: offerPending
+          ? (ref) => createRouter(initialLocation: '/settings/notifications')
+          : null,
       overrides: [
         notificationChannelsProvider.overrideWithValue(using ?? channels),
         systemSettingsProvider.overrideWithValue(settings),
@@ -74,6 +84,9 @@ void main() {
         localDataSyncsProvider.overrideWithValue(syncs),
         // No session for the controller to run against the in-memory data.
         syncDeviceIdProvider.overrideWithValue(null),
+        restoreOfferProvider.overrideWith(
+          offerPending ? PendingRestoreOffer.new : AnsweredRestoreOffer.new,
+        ),
       ],
     );
     await tester.pumpAndSettle();
@@ -198,7 +211,7 @@ void main() {
         delegated: true,
       ).toJson(),
     );
-    await open(tester);
+    await open(tester, offerPending: true);
     await tester.scrollUntilVisible(find.byType(Switch), 100);
     expect(
       find.textContaining('Not scheduled: it starts once you sign in'),
@@ -218,4 +231,42 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('About every hour'), findsOneWidget);
   });
+
+  for (final bool before in [true, false]) {
+    testWidgets(
+      'a held run once the offer is answered shows the last run not held'
+      '${before ? '' : ', or none'}',
+      (tester) async {
+        final BackgroundRun offline = BackgroundRun(
+          at: DateTime.utc(2026, 10, 24, 12),
+          result: BackgroundResult.offline,
+          delegated: false,
+        );
+        if (before) await recordBackgroundRun(meta, offline);
+        await recordBackgroundRun(
+          meta,
+          BackgroundRun(
+            at: DateTime.utc(2026, 10, 24, 14),
+            result: BackgroundResult.held,
+            delegated: true,
+          ),
+        );
+        expect(
+          (await meta.read(AppMetaKeys.backgroundLastRun))!,
+          contains('held'),
+        );
+        await open(tester);
+        await tester.scrollUntilVisible(find.byType(Switch), 100);
+        expect(find.textContaining('held until'), findsNothing);
+        expect(
+          find.textContaining(': no network'),
+          before ? findsOneWidget : findsNothing,
+        );
+        expect(
+          find.textContaining('Has not run yet'),
+          before ? findsNothing : findsOneWidget,
+        );
+      },
+    );
+  }
 }
