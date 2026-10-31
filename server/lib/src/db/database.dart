@@ -1,13 +1,20 @@
 /// The server's SQLite database (`docs/reference/server.md`, **Storage**).
 ///
-/// One `sqlite3` connection with `foreign_keys = ON` (and `journal_mode = WAL` for a file),
-/// guarded by a [Mutex]: `sqlite3` is synchronous, but handlers await hashing and
+/// One `sqlite3` connection with `foreign_keys = ON`, a busy handler that waits five
+/// seconds of wall time ([busyWaiter]) and, for a file, `journal_mode = WAL`, guarded by a
+/// [Mutex]: `sqlite3` is synchronous, but handlers await hashing and
 /// encryption between statements, so every access goes through [transaction] or [read],
 /// which never interleave. Neither may be called from inside the other, and no Plaid call
 /// runs while one is open.
+///
+/// The wait is a handler of our own, not `PRAGMA busy_timeout`, as in the app
+/// (`app/lib/core/db/open_database.dart`): SQLite's own handler counts the sleeps it
+/// asked for, not the time they took, and a signal (the Dart VM profiler's `SIGPROF` on
+/// Linux) cuts each one short, so its five seconds can pass in a fraction of one.
 library;
 
 import 'dart:io';
+import 'dart:math';
 
 import 'package:finance_tracker_server/src/db/migrations.dart';
 import 'package:finance_tracker_server/src/db/mutex.dart';
@@ -17,7 +24,7 @@ import 'package:sqlite3/sqlite3.dart';
 final class AppDatabase {
   AppDatabase._(this._db) {
     _db.execute('PRAGMA foreign_keys = ON');
-    _db.execute('PRAGMA busy_timeout = 5000');
+    _db.busyHandler = busyWaiter();
   }
 
   /// Opens (creating it and its directory) the database file at [path] and migrates it.
@@ -60,6 +67,32 @@ final class AppDatabase {
 
   /// Closes the connection.
   Future<void> close() => _mutex.run(() async => _db.close());
+}
+
+/// How long a statement that meets another connection's lock waits for it.
+const int busyTimeoutMillis = 5000;
+
+/// The longest sleep between two attempts of [busyWaiter].
+const int _busyRetryMaxMillis = 20;
+
+/// A busy handler for one connection that has SQLite try again, sleeping a little more
+/// each time up to 20 ms, until [timeoutMillis] of wall time have passed since the lock
+/// was first met; measured on a stopwatch, so a sleep a signal cut short only means an
+/// earlier attempt.
+bool Function(int count) busyWaiter({int timeoutMillis = busyTimeoutMillis}) {
+  final Stopwatch waited = Stopwatch();
+  return (int count) {
+    if (count == 0) waited.reset();
+    waited.start();
+    final int left = timeoutMillis - waited.elapsedMilliseconds;
+    if (left <= 0) return false;
+    sleep(
+      Duration(
+        milliseconds: [count + 1, _busyRetryMaxMillis, left].reduce(min),
+      ),
+    );
+    return true;
+  };
 }
 
 /// The statements available inside [AppDatabase.transaction] and [AppDatabase.read].

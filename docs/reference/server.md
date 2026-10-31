@@ -124,8 +124,11 @@ both directions and checks each route's security against the document.
 
 ## Storage
 
-`lib/src/db/`. One `sqlite3` connection with `foreign_keys = ON`, `busy_timeout`, and
-`journal_mode = WAL` for a file. Every access goes through a FIFO mutex, because sqlite3
+`lib/src/db/`. One `sqlite3` connection with `foreign_keys = ON`, a busy handler, and
+`journal_mode = WAL` for a file. The busy handler (`busyWaiter`) has a statement that
+meets another connection's lock wait up to five seconds of wall time, as the app's does
+(`data.md`): not `PRAGMA busy_timeout`, whose wait counts the sleeps SQLite asked for,
+which a signal such as the Dart VM profiler's `SIGPROF` cuts short. Every access goes through a FIFO mutex, because sqlite3
 is synchronous but handlers await hashing and encryption between statements:
 
 - `transaction(body)` runs `BEGIN IMMEDIATE`, the body, then `COMMIT`, or `ROLLBACK` and
