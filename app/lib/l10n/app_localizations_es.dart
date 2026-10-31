@@ -1620,11 +1620,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get developerWorkerSection => 'Background worker';
 
   @override
-  String get developerRunWorker => 'Run the background worker in 20 seconds';
+  String get developerRunWorker =>
+      'Run the background worker after about 20 seconds';
 
   @override
   String get developerRunWorkerDetail =>
-      'Kill the app before then to run the worker alone';
+      'Kill the app before then to run the worker alone. Android\'s scheduler may add minutes to the delay.';
 
   @override
   String developerWorkerScheduled(String time) {

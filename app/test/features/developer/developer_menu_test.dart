@@ -365,7 +365,10 @@ void main() {
     tester,
   ) async {
     await _openControls(tester, seededStore());
-    await _tap(tester, find.text('Run the background worker in 20 seconds'));
+    await _tap(
+      tester,
+      find.text('Run the background worker after about 20 seconds'),
+    );
     final FakeBackgroundWork work =
         _container(tester).read(backgroundWorkProvider) as FakeBackgroundWork;
     expect(work.calls.last, (method: 'runLater', every: developerWorkerDelay));

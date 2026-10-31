@@ -2314,13 +2314,13 @@
   "@developerWorkerSection": {
     "description": "Heading of the developer control that runs the background sync worker on a delay."
   },
-  "developerRunWorker": "Run the background worker in 20 seconds",
+  "developerRunWorker": "Run the background worker after about 20 seconds",
   "@developerRunWorker": {
-    "description": "Developer row that schedules one background sync 20 seconds from now."
+    "description": "Developer row that schedules one background sync to run no sooner than 20 seconds from now."
   },
-  "developerRunWorkerDetail": "Kill the app before then to run the worker alone",
+  "developerRunWorkerDetail": "Kill the app before then to run the worker alone. Android's scheduler may add minutes to the delay.",
   "@developerRunWorkerDetail": {
-    "description": "Subtitle of the row: the delay is there so the app can be killed and the worker run without it."
+    "description": "Subtitle of the row: the delay is there so the app can be killed and the worker run without it; Android's job scheduler batches the one-off work and can start it minutes late."
   },
   "developerWorkerScheduled": "Scheduled to run after {time}",
   "@developerWorkerScheduled": {

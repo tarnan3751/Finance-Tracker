@@ -300,9 +300,11 @@ over the fakes' state.
   waiting for the other's transaction on the device's SQLite, and the
   periodic sync scheduled with the real plugin and read back from WorkManager.
 - The worker alone on a device (the dev flavor; the coordinator's acceptance): the
-  developer menu's Run the background worker in 20 seconds, then `adb shell run-as
-  dev.tarnan.financetracker kill -9 <pid>` inside the delay; the job then starts the
-  dispatcher's engine in a process with no app. Neither shortcut does it: a forced run
+  developer menu's Run the background worker after about 20 seconds, then `adb shell
+  run-as dev.tarnan.financetracker kill -9 <pid>` inside the delay; the job then starts
+  the dispatcher's engine in a process with no app. The 20 s are a floor, not a time:
+  JobScheduler batches a non-expedited one-off work with no deadline, so the job can
+  start minutes later (36 s and 3 min 10 s measured). Neither shortcut does it: a forced run
   of the periodic work (`cmd jobscheduler run -f`) that has just run is refused by
   WorkManager's own guard ("Delaying execution … because it is being executed before
   schedule"); a force-stop (`am force-stop`) cancels the app's jobs, which WorkManager's

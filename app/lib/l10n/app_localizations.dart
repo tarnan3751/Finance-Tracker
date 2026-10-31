@@ -2670,16 +2670,16 @@ abstract class AppLocalizations {
   /// **'Background worker'**
   String get developerWorkerSection;
 
-  /// Developer row that schedules one background sync 20 seconds from now.
+  /// Developer row that schedules one background sync to run no sooner than 20 seconds from now.
   ///
   /// In en, this message translates to:
-  /// **'Run the background worker in 20 seconds'**
+  /// **'Run the background worker after about 20 seconds'**
   String get developerRunWorker;
 
-  /// Subtitle of the row: the delay is there so the app can be killed and the worker run without it.
+  /// Subtitle of the row: the delay is there so the app can be killed and the worker run without it; Android's job scheduler batches the one-off work and can start it minutes late.
   ///
   /// In en, this message translates to:
-  /// **'Kill the app before then to run the worker alone'**
+  /// **'Kill the app before then to run the worker alone. Android\'s scheduler may add minutes to the delay.'**
   String get developerRunWorkerDetail;
 
   /// Result of the row; time is when the delay ends, in the device's time zone.

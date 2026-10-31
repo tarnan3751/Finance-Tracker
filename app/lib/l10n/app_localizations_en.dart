@@ -1620,11 +1620,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get developerWorkerSection => 'Background worker';
 
   @override
-  String get developerRunWorker => 'Run the background worker in 20 seconds';
+  String get developerRunWorker =>
+      'Run the background worker after about 20 seconds';
 
   @override
   String get developerRunWorkerDetail =>
-      'Kill the app before then to run the worker alone';
+      'Kill the app before then to run the worker alone. Android\'s scheduler may add minutes to the delay.';
 
   @override
   String developerWorkerScheduled(String time) {
@@ -6677,11 +6678,11 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get developerRunWorker =>
-      '[Ŕûñ ţĥé ƀåçķĝŕöûñð ŵöŕķéŕ îñ 20 šéçöñðš ~~~~~ ~~~~~ ~~~]';
+      '[Ŕûñ ţĥé ƀåçķĝŕöûñð ŵöŕķéŕ åƒţéŕ åƀöûţ 20 šéçöñðš ~~~~~ ~~~~~ ~~~~~ ~]';
 
   @override
   String get developerRunWorkerDetail =>
-      '[Ķîļļ ţĥé åþþ ƀéƒöŕé ţĥéñ ţö ŕûñ ţĥé ŵöŕķéŕ åļöñé ~~~~~ ~~~~~ ~~~~~ ~]';
+      '[Ķîļļ ţĥé åþþ ƀéƒöŕé ţĥéñ ţö ŕûñ ţĥé ŵöŕķéŕ åļöñé. Åñðŕöîð\'š šçĥéðûļéŕ ɱåý åðð ɱîñûţéš ţö ţĥé ðéļåý. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
 
   @override
   String developerWorkerScheduled(String time) {
