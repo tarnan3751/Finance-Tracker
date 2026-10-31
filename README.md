@@ -63,6 +63,11 @@ A few rules hold everywhere:
 
 ## Running
 
+The quickest look needs no toolchain: the newest release on the
+[Releases page](https://github.com/tarnan3751/Finance-Tracker/releases) carries a demo
+APK (`finance-tracker-<tag>-demo-debug.apk`) that runs on seeded data with no server, no
+account and no network. Install it on a phone or an emulator and open it.
+
 The app has three flavors, each with its own entry point. Run them from `app/`:
 
 ```sh
@@ -100,6 +105,22 @@ flutter build apk --release --flavor prod -t lib/main_prod.dart \
 APKs land in `app/build/app/outputs/flutter-apk/`. A release build is signed with the key
 named by `FT_RELEASE_KEYSTORE` and its companion variables, or with the debug key when they
 are unset. `docs/reference/build.md` has the details.
+
+Releases are built by CI, not by hand. Pushing a `v*` tag runs `.github/workflows/release.yml`:
+the gate, then the prod release APK signed with the release key held in the repository's
+secrets, checked against the release certificate before anything is published, and the demo
+debug APK; the release gets both APKs, the obfuscation symbols and a `SHA256SUMS.txt`, with the
+tag's `CHANGELOG.md` section as its notes. A tag with a suffix (`v1.0.0-rc.1`) is published as
+a pre-release. To cut one, generate the section with `tools/changelog.sh <previous-tag>..HEAD`,
+add it to `CHANGELOG.md` under `## <tag> — <date>` and commit it, then tag that commit and push
+the tag:
+
+```sh
+git tag -a v1.0.0 -m v1.0.0
+git push origin v1.0.0
+```
+
+`docs/reference/testing-tools.md` describes each step.
 
 ## Tests
 
