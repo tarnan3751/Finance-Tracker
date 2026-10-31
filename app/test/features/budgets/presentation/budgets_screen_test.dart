@@ -130,9 +130,8 @@ void main() {
     }
   });
 
-  testWidgets('a budget with nothing available says so instead of a percent', (
-    tester,
-  ) async {
+  testWidgets('a budget with nothing available says so instead of a percent, '
+      'and a future period below nothing says how far over', (tester) async {
     // September spent $1,536.40 on rent and utilities against $500.00.
     await pumpApp(
       tester,
@@ -156,6 +155,13 @@ void main() {
     expect(find.text('Nothing available'), findsOneWidget);
     expect(find.textContaining('%'), findsNothing);
     expect(find.text(r'$1,986.40 over'), findsOneWidget);
+
+    // The next period starts below nothing: how far over, not a negative available.
+    await tester.tap(find.byTooltip('Next period'));
+    await tester.pumpAndSettle();
+    expect(find.text(r'$500.00 − $1,986.40 carried'), findsOneWidget);
+    expect(find.text(r'$1,486.40 over'), findsOneWidget);
+    expect(find.textContaining('available'), findsNothing);
   });
 
   testWidgets('the selector moves across the month boundary in New York', (

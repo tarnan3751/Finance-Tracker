@@ -6,7 +6,8 @@
 ///   nothing is), styled as over past 100 %; spent and left (or over); the projection
 ///   to the period's end, in the error colour when it ends above what is available;
 /// - **past**: the same without the projection;
-/// - **future**: what will be available, with no spending.
+/// - **future**: what will be available, with no spending, or how far over when a
+///   carried deficit leaves less than nothing, worded and coloured as an overspend.
 ///
 /// A badge under the name names the highest alert threshold reached in the period. Built from plain
 /// values; the screen computes the status (`budget_math.dart`).
@@ -113,10 +114,15 @@ class BudgetCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(amount, style: theme.textTheme.bodyLarge),
                 if (offset > 0)
-                  Text(
-                    l10n.budgetAvailable(status.available.format()),
-                    style: caption,
-                  )
+                  status.available.isNegative
+                      ? Text(
+                          l10n.budgetOver((-status.available).format()),
+                          style: caption?.copyWith(color: colors.error),
+                        )
+                      : Text(
+                          l10n.budgetAvailable(status.available.format()),
+                          style: caption,
+                        )
                 else ...[
                   const SizedBox(height: 8),
                   _Progress(status: status, name: name),

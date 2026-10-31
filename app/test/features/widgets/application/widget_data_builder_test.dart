@@ -1,6 +1,7 @@
 // The home screen widgets' snapshot from fixed inputs: net worth from the observed series
 // in the device's currency when held, labelled observed or estimated; the three largest
-// visible accounts by their balance as shown; budgets over-limit first, then by fill;
+// visible accounts by their balance as shown; budgets over-limit first, then by fill,
+// one below nothing worded as the card words it;
 // the next unpaid bills missed first; every amount formatted in the device's locale, the
 // footer in the clock's zone; and the empty lists of an install with nothing yet.
 import 'dart:convert';
@@ -283,6 +284,16 @@ void main() {
     expect(most.over, isFalse);
     expect(most.fillBasisPoints, 9000);
     expect(most.detailText, r'$10.00 left');
+  });
+
+  test('a budget below nothing reads as the card reads it: how far over', () {
+    // Spent $100.00 with -$50.00 available, as a carried deficit leaves it.
+    final WidgetBudget deficit = _build(
+      budgets: [_budget('deficit', 10000, -5000)],
+    ).budgets.single;
+    expect(deficit.over, isTrue);
+    expect(deficit.percentText, 'Nothing available');
+    expect(deficit.detailText, r'$150.00 over');
   });
 
   test('bills: unpaid active ones, missed first, then by due date', () {

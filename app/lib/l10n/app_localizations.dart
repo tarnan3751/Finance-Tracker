@@ -3516,7 +3516,7 @@ abstract class AppLocalizations {
   /// **'{amount} left'**
   String budgetLeft(String amount);
 
-  /// How much spending is past what the budget had available.
+  /// How much spending is past what the budget had available; in a future period, how far a carried deficit leaves what will be available below nothing.
   ///
   /// In en, this message translates to:
   /// **'{amount} over'**

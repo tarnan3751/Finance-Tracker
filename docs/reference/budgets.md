@@ -231,7 +231,10 @@ shows:
   or over;
 - in the current period only: the projection, "On pace: about $410.00 by the end" or
   "Projected over by $60.00" in the error colour with a warning icon (`projectedOverspend`);
-- in a future period: what will be available, with no spending and no badge.
+- in a future period: what will be available, with no spending and no badge; when a
+  carried deficit leaves less than nothing, how far over instead ("$1,486.40 over", in
+  the error colour), the wording of an overspend in the current period, on the card and
+  on the home screen widget alike, rather than a negative amount available.
 
 The bar and its percent are read as one sentence ("Groceries: 82 percent of $500.00 spent,
 $90.00 left"). An empty list offers "Add budget"; otherwise a floating button does. Tapping a

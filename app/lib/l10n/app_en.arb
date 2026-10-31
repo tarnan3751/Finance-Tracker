@@ -3096,7 +3096,7 @@
   },
   "budgetOver": "{amount} over",
   "@budgetOver": {
-    "description": "How much spending is past what the budget had available.",
+    "description": "How much spending is past what the budget had available; in a future period, how far a carried deficit leaves what will be available below nothing.",
     "placeholders": {
       "amount": {
         "type": "String",
