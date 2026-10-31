@@ -11,6 +11,7 @@
 library;
 
 import 'package:finance_tracker/core/config/app_config.dart';
+import 'package:finance_tracker/core/config/dev_tools.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/routes.dart';
@@ -161,7 +162,8 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(title: Text(l10n.aboutTimeZone), subtitle: Text(timeZone)),
           if (ref.watch(appConfigProvider).flavor == Flavor.demo)
             const DemoDataSection(),
-          if (ref.watch(appConfigProvider).flavor == Flavor.dev)
+          // A constant first, so demo and prod builds leave the tools out.
+          if (kDevTools && ref.watch(appConfigProvider).flavor == Flavor.dev)
             const DeveloperSection(),
         ],
       ),

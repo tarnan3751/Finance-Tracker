@@ -2,8 +2,14 @@
 
 The dev flavor's tools for driving the development server's Plaid Sandbox controls from
 the emulator (`PLAN.md` §6.5, §8 Phase 3): diagnostics, the Plaid pull on demand, the
-Item operations of contract 0.3.0 and persona provisioning. Dev only: the settings screen
-lists the section only when `AppConfig.flavor` is `dev`, so demo and prod have none.
+Item operations of contract 0.3.0 and persona provisioning. Dev only, and compiled out of
+demo and prod: the settings screen lists the section under `if (kDevTools && flavor ==
+Flavor.dev)`, where `kDevTools` (`app/lib/core/config/dev_tools.dart`) is a constant built
+from Flutter's `appFlavor`, true for `--flavor dev`, for a build with no flavor (the host
+tests) and under `FT_FAKE_SERVER` (the harness's dev-configuration tests in its demo test
+app); a demo or prod build makes it false and the AOT compiler drops the section and
+`DeveloperScreen` (`build.md`, **Flavors and entry points**). `FT_FAKE_SERVER` is a
+test-only define that no release build passes.
 Code: `app/lib/features/developer/` (`application/`, `presentation/`). Tests:
 `app/test/features/developer/`, `app/integration_test/developer_menu_test.dart`. The
 operations themselves are `api.md`'s (**Items and the Sandbox controls**) and the

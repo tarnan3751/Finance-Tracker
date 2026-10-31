@@ -51,7 +51,17 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   the strip with no top inset, so the strip never covers an app bar action. When it is
   shown the debug banner is turned off, since it would cover the top-end app bar action.
 - The Android flavor and the `-t` entry point must agree; a mismatch runs the wrong
-  configuration under the wrong id. No flavor is named `release`, `debug` or `profile`:
+  configuration under the wrong id. A debug build asserts it in each entry point
+  (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`: Flutter's `appFlavor` is null or
+  that flavor's name) before `bootstrap`, which checks nothing about the flavor, so a
+  test that calls `bootstrap` with any configuration (the emulator harness's run every
+  configuration inside its demo-flavor test app) is unaffected.
+- The developer tools (`developer.md`) are compiled in only where `kDevTools`
+  (`app/lib/core/config/dev_tools.dart`) is true: `--flavor dev`, a build with no flavor,
+  or `FT_FAKE_SERVER`. The settings screen tests it as a constant before the run-time
+  flavor, so a demo or prod build leaves `DeveloperScreen` out, which the prod symbols
+  show. `FT_FAKE_SERVER` is a test-only define: no release build passes it, and the
+  release workflow does not. No flavor is named `release`, `debug` or `profile`:
   AGP refuses a flavor named like a build type.
 - The launcher label is the `app_name` string each flavor sets with `resValue`; AGP 9
   disables `resValue` by default, so `buildFeatures.resValues` turns it on.
