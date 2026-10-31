@@ -2664,6 +2664,36 @@ abstract class AppLocalizations {
   /// **'Inject'**
   String get developerInject;
 
+  /// Heading of the developer control that runs the background sync worker on a delay.
+  ///
+  /// In en, this message translates to:
+  /// **'Background worker'**
+  String get developerWorkerSection;
+
+  /// Developer row that schedules one background sync 20 seconds from now.
+  ///
+  /// In en, this message translates to:
+  /// **'Run the background worker in 20 seconds'**
+  String get developerRunWorker;
+
+  /// Subtitle of the row: the delay is there so the app can be killed and the worker run without it.
+  ///
+  /// In en, this message translates to:
+  /// **'Kill the app before then to run the worker alone'**
+  String get developerRunWorkerDetail;
+
+  /// Result of the row; time is when the delay ends, in the device's time zone.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled to run after {time}'**
+  String developerWorkerScheduled(String time);
+
+  /// Result of the row when scheduling failed; error names the exception's type.
+  ///
+  /// In en, this message translates to:
+  /// **'Not scheduled: {error}'**
+  String developerWorkerFailed(String error);
+
   /// Heading of the form that provisions a persona's banks into Plaid Sandbox.
   ///
   /// In en, this message translates to:

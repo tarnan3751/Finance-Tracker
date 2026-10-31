@@ -1617,6 +1617,26 @@ class AppLocalizationsEs extends AppLocalizations {
   String get developerInject => 'Inject';
 
   @override
+  String get developerWorkerSection => 'Background worker';
+
+  @override
+  String get developerRunWorker => 'Run the background worker in 20 seconds';
+
+  @override
+  String get developerRunWorkerDetail =>
+      'Kill the app before then to run the worker alone';
+
+  @override
+  String developerWorkerScheduled(String time) {
+    return 'Scheduled to run after $time';
+  }
+
+  @override
+  String developerWorkerFailed(String error) {
+    return 'Not scheduled: $error';
+  }
+
+  @override
   String get developerProvisionSection => 'Provision a persona';
 
   @override

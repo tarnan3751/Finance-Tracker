@@ -1,6 +1,7 @@
 // The background work seam: the workmanager implementation's calls (the unique names, the
 // tag, the policies, the constraints, the flavor handed to the dispatcher, expedited only
-// on Android 12 and later, a cancel by tag only), over a recording platform; and the fake.
+// on Android 12 and later, the developer menu's delayed run, a cancel by tag only), over a
+// recording platform; and the fake.
 import 'package:finance_tracker/core/platform/background_work.dart';
 import 'package:finance_tracker/core/platform/fake_background_work.dart';
 import 'package:finance_tracker/core/platform/workmanager_background_work.dart';
@@ -73,6 +74,7 @@ final class _Recording extends WorkmanagerPlatform {
       ..addAll({
         'name': uniqueName,
         'input': inputData,
+        'delay': initialDelay,
         'network': constraints?.networkType,
         'policy': existingWorkPolicy,
         'quota': outOfQuotaPolicy,
@@ -144,6 +146,7 @@ void main() {
     expect(platform.last, {
       'name': oneOffSyncName,
       'input': {flavorInputKey: 'prod'},
+      'delay': null,
       'network': NetworkType.connected,
       'policy': ExistingWorkPolicy.keep,
       'quota': OutOfQuotaPolicy.runAsNonExpeditedWorkRequest,
@@ -154,6 +157,21 @@ void main() {
     await work().runSyncNow();
     expect(platform.last['expedited'], isFalse);
     expect(platform.last['quota'], isNull);
+  });
+
+  test("the developer menu's delayed run: its own name, replaced, never "
+      'expedited', () async {
+    await work().runSyncLater(const Duration(seconds: 20));
+    expect(platform.last, {
+      'name': delayedSyncName,
+      'input': {flavorInputKey: 'prod'},
+      'delay': const Duration(seconds: 20),
+      'network': NetworkType.connected,
+      'policy': ExistingWorkPolicy.replace,
+      'quota': null,
+      'expedited': false,
+      'tag': syncTag,
+    });
   });
 
   test('cancelling cancels the tag, never all of WorkManager', () async {
@@ -178,18 +196,28 @@ void main() {
     expect(await w.periodicState(), BackgroundWorkState.running);
   });
 
-  test('the fake records schedules, one-offs and cancellations', () async {
-    final FakeBackgroundWork fake = FakeBackgroundWork();
-    await fake.schedulePeriodicSync(
-      every: backgroundSyncEvery,
-      constraints: backgroundSyncConstraints,
-    );
-    expect(await fake.periodicState(), BackgroundWorkState.scheduled);
-    await fake.runSyncNow();
-    await fake.cancelAll();
-    expect(fake.calls.map((c) => c.method), ['schedule', 'runNow', 'cancel']);
-    expect(fake.calls.first.every, backgroundSyncEvery);
-    expect(fake.constraints, backgroundSyncConstraints);
-    expect(await fake.periodicState(), BackgroundWorkState.none);
-  });
+  test(
+    'the fake records schedules, one-offs, delayed runs and cancellations',
+    () async {
+      final FakeBackgroundWork fake = FakeBackgroundWork();
+      await fake.schedulePeriodicSync(
+        every: backgroundSyncEvery,
+        constraints: backgroundSyncConstraints,
+      );
+      expect(await fake.periodicState(), BackgroundWorkState.scheduled);
+      await fake.runSyncNow();
+      await fake.runSyncLater(const Duration(seconds: 20));
+      await fake.cancelAll();
+      expect(fake.calls.map((c) => c.method), [
+        'schedule',
+        'runNow',
+        'runLater',
+        'cancel',
+      ]);
+      expect(fake.calls[2].every, const Duration(seconds: 20));
+      expect(fake.calls.first.every, backgroundSyncEvery);
+      expect(fake.constraints, backgroundSyncConstraints);
+      expect(await fake.periodicState(), BackgroundWorkState.none);
+    },
+  );
 }

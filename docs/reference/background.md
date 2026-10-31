@@ -33,7 +33,7 @@ Code:
 ## Scheduling
 
 `BackgroundWork` has `schedulePeriodicSync(every:, constraints:)`, `runSyncNow()`,
-`cancelAll()` and `periodicState()`. Over `workmanager` 0.10.10 (dev and prod):
+`runSyncLater(delay)`, `cancelAll()` and `periodicState()`. Over `workmanager` 0.10.10 (dev and prod):
 
 - The periodic sync is unique work `ft.sync.periodic`, every 60 minutes (WorkManager's
   window makes it 60 to 75), on a connected network with the battery not low,
@@ -44,7 +44,10 @@ Code:
   network: expedited on Android 12 and later, plain work when the quota is out; plain
   work below Android 12, where expedited work needs a foreground notification the
   plugin's worker does not give.
-- Both carry the tag `ft.sync`. `cancelAll()` cancels that tag, never WorkManager's
+- The developer menu's delayed sync (`runSyncLater`, `developer.md`) is unique work
+  `ft.sync.dev` with an initial delay on a connected network, replacing one that waits,
+  never expedited (WorkManager refuses a delay on expedited work).
+- All three carry the tag `ft.sync`. `cancelAll()` cancels that tag, never WorkManager's
   cancel-everything, which would also cancel the Plaid SDK's work.
 - The flavor travels in the input data, so one dispatcher serves dev and prod.
 
@@ -292,6 +295,16 @@ over the fakes' state.
   `HomeWidget.getWidgetData` with it in its net worth), a write on one connection
   waiting for the other's transaction on the device's SQLite, and the
   periodic sync scheduled with the real plugin and read back from WorkManager.
+- The worker alone on a device (the dev flavor; the coordinator's acceptance): the
+  developer menu's Run the background worker in 20 seconds, then `adb shell run-as
+  dev.tarnan.financetracker kill -9 <pid>` inside the delay; the job then starts the
+  dispatcher's engine in a process with no app. Neither shortcut does it: a forced run
+  of the periodic work (`cmd jobscheduler run -f`) that has just run is refused by
+  WorkManager's own guard ("Delaying execution … because it is being executed before
+  schedule"); a force-stop (`am force-stop`) cancels the app's jobs, which WorkManager's
+  `ForceStopRunnable` schedules again only at the next process start, the app's; and
+  `am kill` kills only a process that is safe to kill, so an app in front keeps running.
+  `kill -9` ends the process at once and leaves its jobs as they are.
 - `tools/scripts/background_doze_check.sh` (`testing-tools.md`) proves, on `ft-lane`,
   that WorkManager keeps the periodic sync's job, that Doze defers it while the device is
   idle (JobScheduler reports `readyNotDozing: false`) and that the job runs the

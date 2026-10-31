@@ -4,12 +4,14 @@ library;
 
 import 'package:finance_tracker/core/platform/background_work.dart';
 
-/// One call [FakeBackgroundWork] recorded.
+/// One call [FakeBackgroundWork] recorded: [every] is a schedule's period or a delayed
+/// run's delay.
 typedef BackgroundWorkCall = ({String method, Duration? every});
 
 /// Background work without a platform.
 final class FakeBackgroundWork implements BackgroundWork {
-  /// Every call, in order: `schedule` (with its period), `runNow`, `cancel`.
+  /// Every call, in order: `schedule` (with its period), `runNow`, `runLater` (with its
+  /// delay), `cancel`.
   final List<BackgroundWorkCall> calls = [];
 
   /// The constraints the last schedule was given.
@@ -32,6 +34,10 @@ final class FakeBackgroundWork implements BackgroundWork {
 
   @override
   Future<void> runSyncNow() async => calls.add((method: 'runNow', every: null));
+
+  @override
+  Future<void> runSyncLater(Duration delay) async =>
+      calls.add((method: 'runLater', every: delay));
 
   @override
   Future<void> cancelAll() async {

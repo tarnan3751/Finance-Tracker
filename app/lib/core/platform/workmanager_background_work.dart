@@ -11,7 +11,10 @@
 ///   network, expedited on Android 12 and later and run as plain work when the quota is
 ///   out; below Android 12 expedited work needs a foreground notification the plugin's
 ///   worker does not give, so it is plain work there.
-/// - Both carry the tag `ft.sync`, which [cancelAll] cancels: never WorkManager's own
+/// - The developer menu's delayed sync is unique work `ft.sync.dev` with an initial delay
+///   on a connected network, replacing one that waits, never expedited (WorkManager
+///   refuses a delay on expedited work).
+/// - All three carry the tag `ft.sync`, which [cancelAll] cancels: never WorkManager's own
 ///   cancel-everything, which would also cancel the Plaid SDK's work.
 /// - The flavor travels in the input data, so one dispatcher serves every flavor.
 library;
@@ -24,6 +27,9 @@ const String periodicSyncName = 'ft.sync.periodic';
 
 /// The unique name of the one-off sync.
 const String oneOffSyncName = 'ft.sync.once';
+
+/// The unique name of the developer menu's delayed sync.
+const String delayedSyncName = 'ft.sync.dev';
 
 /// The tag every sync carries.
 const String syncTag = 'ft.sync';
@@ -106,6 +112,20 @@ final class WorkmanagerBackgroundWork implements BackgroundWork {
           ? OutOfQuotaPolicy.runAsNonExpeditedWorkRequest
           : null,
       expedited: expedited,
+      tag: syncTag,
+    );
+  }
+
+  @override
+  Future<void> runSyncLater(Duration delay) async {
+    await _ready();
+    await _work.registerOneOffTask(
+      delayedSyncName,
+      syncTaskName,
+      inputData: _input,
+      initialDelay: delay,
+      constraints: Constraints(networkType: NetworkType.connected),
+      existingWorkPolicy: ExistingWorkPolicy.replace,
       tag: syncTag,
     );
   }

@@ -10,13 +10,17 @@
 /// - **Provision a persona**: persona, seed and days, Start, then the job's progress,
 ///   asked for every [provisionPollInterval] while this screen is open and the job runs
 ///   (the job id stays in the controller, so closing the screen stops the polling and
-///   opening it again resumes it), and Pull now once it has finished.
+///   opening it again resumes it), and Pull now once it has finished;
+/// - **Background worker**: Run the background worker in 20 seconds
+///   ([developerWorkerDelay], `BackgroundWork.runSyncLater`), with when it was scheduled
+///   for, so the app can be killed inside the delay and the worker run alone.
 library;
 
 import 'dart:async';
 
 import 'package:finance_tracker/core/api/api_models.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/platform/background_work_provider.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
 import 'package:finance_tracker/features/developer/application/developer_controller.dart';
 import 'package:finance_tracker/features/developer/application/developer_providers.dart';
@@ -29,6 +33,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_models/shared_models.dart';
+
+/// How long Run the background worker waits before the worker runs.
+const Duration developerWorkerDelay = Duration(seconds: 20);
 
 /// The Sandbox controls screen.
 class DeveloperScreen extends ConsumerStatefulWidget {
@@ -52,6 +59,9 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
   final TextEditingController _seed = TextEditingController(text: '1');
   final TextEditingController _days = TextEditingController(text: '730');
   Timer? _poll;
+  // When the delayed worker was last scheduled to run after, or why it was not.
+  DateTime? _workerAfter;
+  String? _workerFailure;
 
   @override
   void initState() {
@@ -216,6 +226,23 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
           ],
           SettingsSectionHeader(l10n.developerProvisionSection),
           _provision(l10n, state),
+          SettingsSectionHeader(l10n.developerWorkerSection),
+          ListTile(
+            leading: const Icon(Icons.schedule_outlined),
+            title: Text(l10n.developerRunWorker),
+            subtitle: Text(l10n.developerRunWorkerDetail),
+            onTap: _runWorker,
+          ),
+          if (_workerFailure case final String failure)
+            DeveloperResultLine(
+              text: l10n.developerWorkerFailed(failure),
+              failed: true,
+            )
+          else if (_workerAfter case final DateTime after)
+            DeveloperResultLine(
+              text: l10n.developerWorkerScheduled(_local(after)),
+              failed: false,
+            ),
         ],
       ),
     );
@@ -509,6 +536,24 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _runWorker() async {
+    final DateTime after = ref
+        .read(clockProvider)
+        .nowUtc()
+        .add(developerWorkerDelay);
+    String? failure;
+    try {
+      await ref.read(backgroundWorkProvider).runSyncLater(developerWorkerDelay);
+    } on Object catch (e) {
+      failure = '${e.runtimeType}';
+    }
+    if (!mounted) return;
+    setState(() {
+      _workerAfter = after;
+      _workerFailure = failure;
+    });
   }
 
   String _local(DateTime? utc) {

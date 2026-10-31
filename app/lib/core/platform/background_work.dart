@@ -1,6 +1,6 @@
 /// The platform boundary for work Android runs while the app is closed
-/// (`docs/reference/background.md`, **Scheduling**): the periodic background sync and a
-/// one-off sync on demand. `workmanager` is behind it in dev and prod
+/// (`docs/reference/background.md`, **Scheduling**): the periodic background sync, a
+/// one-off sync on demand, and the developer menu's delayed one. `workmanager` is behind it in dev and prod
 /// (`workmanager_background_work.dart`); a fake that records every call stands in for the
 /// demo flavor, which never schedules anything, and the tests
 /// (`fake_background_work.dart`). Pure Dart, no Flutter import.
@@ -61,7 +61,13 @@ abstract interface class BackgroundWork {
   /// Runs one sync as soon as a network is connected, whether or not the app is open.
   Future<void> runSyncNow();
 
-  /// Cancels the periodic sync and any one-off not yet run; a run in progress finishes.
+  /// Runs one sync [delay] from now on a connected network, replacing one this asked for
+  /// that has not run: the developer menu's, so the worker can be run with the app
+  /// killed meanwhile (`docs/reference/developer.md`).
+  Future<void> runSyncLater(Duration delay);
+
+  /// Cancels the periodic sync and any one-off or delayed sync not yet run; a run in
+  /// progress finishes.
   Future<void> cancelAll();
 
   /// Where the periodic sync stands.

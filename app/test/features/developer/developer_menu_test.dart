@@ -3,14 +3,18 @@
 // control answered for the Item and followed by the pull; a failure named on its line;
 // injected transactions dated from Plaid's today (UTC−12) on the chosen account; and the
 // provisioning job polled to completion, the polling stopping with the screen and
-// resuming on its return. The requests themselves are developer_controller_test.dart's.
+// resuming on its return; and the background worker scheduled 20 seconds out. The
+// requests themselves are developer_controller_test.dart's.
 import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/api/fake/fake_server.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/platform/background_work_provider.dart';
+import 'package:finance_tracker/core/platform/fake_background_work.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/developer/application/developer_controller.dart';
+import 'package:finance_tracker/features/developer/presentation/developer_screen.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -356,4 +360,16 @@ void main() {
       expect(linked, containsAll(state.job!.itemIds));
     },
   );
+
+  testWidgets('Run the background worker schedules one sync 20 seconds out', (
+    tester,
+  ) async {
+    await _openControls(tester, seededStore());
+    await _tap(tester, find.text('Run the background worker in 20 seconds'));
+    final FakeBackgroundWork work =
+        _container(tester).read(backgroundWorkProvider) as FakeBackgroundWork;
+    expect(work.calls.last, (method: 'runLater', every: developerWorkerDelay));
+    expect(developerWorkerDelay, const Duration(seconds: 20));
+    expect(find.textContaining('Scheduled to run after'), findsOneWidget);
+  });
 }

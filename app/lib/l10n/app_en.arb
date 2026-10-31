@@ -2310,6 +2310,38 @@
   "@developerInject": {
     "description": "Button that injects the transactions."
   },
+  "developerWorkerSection": "Background worker",
+  "@developerWorkerSection": {
+    "description": "Heading of the developer control that runs the background sync worker on a delay."
+  },
+  "developerRunWorker": "Run the background worker in 20 seconds",
+  "@developerRunWorker": {
+    "description": "Developer row that schedules one background sync 20 seconds from now."
+  },
+  "developerRunWorkerDetail": "Kill the app before then to run the worker alone",
+  "@developerRunWorkerDetail": {
+    "description": "Subtitle of the row: the delay is there so the app can be killed and the worker run without it."
+  },
+  "developerWorkerScheduled": "Scheduled to run after {time}",
+  "@developerWorkerScheduled": {
+    "description": "Result of the row; time is when the delay ends, in the device's time zone.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "Oct 31, 2026 9:30 AM"
+      }
+    }
+  },
+  "developerWorkerFailed": "Not scheduled: {error}",
+  "@developerWorkerFailed": {
+    "description": "Result of the row when scheduling failed; error names the exception's type.",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "PlatformException"
+      }
+    }
+  },
   "developerProvisionSection": "Provision a persona",
   "@developerProvisionSection": {
     "description": "Heading of the form that provisions a persona's banks into Plaid Sandbox."
