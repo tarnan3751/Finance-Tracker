@@ -1,0 +1,12 @@
+Description,,Summary Amt.
+Beginning balance as of 10/01/2026,,"1,234.56"
+Total credits,,"2,000.00"
+Total debits,,"-1,512.40"
+Ending balance as of 10/31/2026,,"1,722.16"
+
+Date,Description,Amount,Running Bal.
+10/01/2026,Beginning balance as of 10/01/2026,,"1,234.56"
+10/03/2026,"TAILSPIN TOYS ONLINE",-35.99,"1,198.57"
+10/09/2026,LITWARE UTILITIES BILL PAY,-112.41,"1,086.16"
+10/15/2026,FABRIKAM INC DES:PAYROLL,"2,000.00","3,086.16"
+10/30/2026,"MORTGAGE PMT, WOODGROVE BANK","-1,364.00","1,722.16"

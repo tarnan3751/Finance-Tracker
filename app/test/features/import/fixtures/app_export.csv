@@ -1,0 +1,4 @@
+date,account,merchant,name,amount,currency,category,parent_category,pending,hidden,tags,notes,source,id
+2026-10-02,Checking,Contoso Coffee,CONTOSO COFFEE 0193,-4.75,USD,Coffee,Food and drink,false,false,work;travel,,manual,1b7d2c55-0000-4000-8000-000000000001
+2026-10-03,Checking,,Rent October,-1500.00,USD,Rent,Housing,false,false,home,Paid early,manual,1b7d2c55-0000-4000-8000-000000000002
+2026-10-04,Checking,,Bonus,250.00,USD,,,false,false,,,manual,1b7d2c55-0000-4000-8000-000000000003

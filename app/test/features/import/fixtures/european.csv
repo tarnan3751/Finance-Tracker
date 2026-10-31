@@ -1,0 +1,5 @@
+Buchungstag;Valuta;Auftraggeber/Empfänger;Buchungstext;Verwendungszweck;Betrag;Währung
+28.10.2026;28.10.2026;Nordwind Markt;Lastschrift;Einkauf 4411;-82,17;EUR
+25.10.2026;25.10.2026;Fabrikam GmbH;Gutschrift;Gehalt Oktober;2.450,00;EUR
+20.10.2026;20.10.2026;Contoso Café;Kartenzahlung;Kaffee, groß;-4,50;EUR
+02.10.2026;02.10.2026;Woodgrove Immobilien;Dauerauftrag;Miete;-1.234,56;EUR

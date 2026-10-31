@@ -22,6 +22,9 @@ dependencies:
   # XChaCha20-Poly1305 (features/backup/domain/). Pinned exactly: the archive format rests
   # on its output, so a new release is taken deliberately.
   cryptography: 2.9.0
+  # CSV parsing for the transaction import (MIT, pure Dart): one row per stream event, every
+  # field kept as text (features/import/domain/csv_reader.dart). Pinned exactly.
+  csv: 8.0.0
   device_info_plus: ^13.3.0
   dio: ^5.11.0
   # drift, drift_dev and sqlite3 are held to releases at least two weeks old (the versions

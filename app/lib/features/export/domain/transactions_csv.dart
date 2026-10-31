@@ -10,8 +10,8 @@
 /// the app's sign as `Money.toDecimalString()` with the currency beside them, the
 /// account's name, the stored merchant name and name, the effective category's name and
 /// its live parent's (empty when uncategorized), the flags as `true`/`false`, the tags
-/// joined by `;` (a tag that itself holds `;` reads back as two: a known limit, which
-/// the Phase 9 import's escaping settles), the notes, the source and the id. A field
+/// joined by `;` (the import splits a tags column on `;`, so a tag that itself holds `;`
+/// reads back as two: a known limit), the notes, the source and the id. A field
 /// that starts with `=`, `+`, `-` or `@` is written as it is (a spreadsheet may read it
 /// as a formula). A transaction with splits is one record under its own effective
 /// category. Deleted rows are left out; hidden and pending rows are written, with their

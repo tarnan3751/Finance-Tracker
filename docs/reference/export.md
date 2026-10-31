@@ -41,8 +41,9 @@ per live transaction dated in the range on the chosen accounts, sorted by date, 
   one too). A field is quoted only when it holds a comma, a double quote, a CR or an LF,
   and its double quotes are doubled. UTF-8 with no byte order mark.
 - **Fields as stored.** Nothing is localized or rewritten, so the Phase 9 import reads
-  them back, with one known limit: the tags are joined by `;` without escaping, so a tag
-  that itself holds `;` reads back as two (the Phase 9 import defines the escaping). A
+  them back, with one known limit: the tags are joined by `;` without escaping, and the
+  import splits a mapped tags column on `;` (`import.md`), so a tag that itself holds `;`
+  reads back as two. A
   text field that starts with `=`, `+`, `-` or `@` is written as it
   is, by ruling: a spreadsheet may read such a field as a formula, and opening the file
   in one is the user's choice.
