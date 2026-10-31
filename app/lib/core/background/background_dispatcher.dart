@@ -4,7 +4,8 @@
 /// with every locale's date symbols too (`initializeDateFormatting`; the app gets them
 /// from flutter_localizations at its first frame, which this engine never draws); the
 /// database opener sets SQLite's temporary directory itself. Then one
-/// [runBackgroundCycle] on the flavor's own wiring (`overridesFor`). The flavor comes in
+/// [runBackgroundCycle] on the flavor's own wiring (`overridesFor`, with no window, so
+/// the lock never calls `MainActivity`'s channel, which this engine has not). The flavor comes in
 /// the task's input data (`workmanager_background_work.dart`).
 library;
 
@@ -45,7 +46,7 @@ void backgroundDispatcher() {
     return runBackgroundCycle(
       BackgroundEnvironment(
         config: config,
-        overrides: overridesFor(config),
+        overrides: overridesFor(config, window: false),
         databaseFile: () async => File(
           p.join(
             (await getApplicationSupportDirectory()).path,

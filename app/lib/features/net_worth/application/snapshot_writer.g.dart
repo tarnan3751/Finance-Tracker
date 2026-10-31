@@ -8,6 +8,52 @@ part of 'snapshot_writer.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// The writer over the flavor's repositories.
+
+@ProviderFor(snapshotWriter)
+final snapshotWriterProvider = SnapshotWriterProvider._();
+
+/// The writer over the flavor's repositories.
+
+final class SnapshotWriterProvider
+    extends $FunctionalProvider<SnapshotWriter, SnapshotWriter, SnapshotWriter>
+    with $Provider<SnapshotWriter> {
+  /// The writer over the flavor's repositories.
+  SnapshotWriterProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'snapshotWriterProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$snapshotWriterHash();
+
+  @$internal
+  @override
+  $ProviderElement<SnapshotWriter> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  SnapshotWriter create(Ref ref) {
+    return snapshotWriter(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SnapshotWriter value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SnapshotWriter>(value),
+    );
+  }
+}
+
+String _$snapshotWriterHash() => r'0e76d6ae408b4878ce2157bbe5aa88c051b038aa';
+
 /// Keeps today's snapshots written while listened to (see the library comment). Its
 /// state is the last day it wrote, null before its first write.
 
@@ -48,7 +94,7 @@ final class SnapshotWriterRunnerProvider
 }
 
 String _$snapshotWriterRunnerHash() =>
-    r'e0b38344e61bd30ba64177815e2f03a1fc868ab5';
+    r'b77cc73d45ef5774a6880f9cb247214199f84330';
 
 /// Keeps today's snapshots written while listened to (see the library comment). Its
 /// state is the last day it wrote, null before its first write.

@@ -45,6 +45,7 @@ machine.
 - app: Accessibility pass (013cabd)
 - app: Close the database only after the old tree is gone (917aad3)
 - tools: Scale the gate's test ceiling with the load (c12967c)
+- app: Write today's balance snapshots before the worker's widgets
 
 ### Refactoring
 

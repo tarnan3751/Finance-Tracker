@@ -2,13 +2,16 @@
 // first test runs the WorkManager task's body, `runBackgroundCycle`, in this isolate on
 // the dev flavor's wiring over an encrypted database on the device and the in-app fake
 // server holding the family persona: a change made here is pushed (another device of
-// the account pulls it), the reminders are planned again, the widgets' snapshot is
-// written once (the cycle's own `writeWidgetsNow` step), the run is recorded, and a
-// delta cycle stays inside its deadline. The second schedules the periodic sync afresh
+// the account pulls it), a change another device made is pulled, the reminders are
+// planned again, today's balance snapshots and the widgets' snapshot are written (the
+// cycle's own steps), the latter read back through `home_widget` with the pulled
+// transaction in its net worth, the run is recorded, and a delta cycle stays inside its
+// deadline. The second schedules the periodic sync afresh
 // with the real plugin and reads it back from WorkManager;
 // `tools/scripts/background_doze_check.sh` runs it with `--no-uninstall` and then runs
 // the task under Doze. Run on the harness's emulator with `tools/emulator_tests.sh
 // integration`.
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/drift.dart' show LazyDatabase;
@@ -36,11 +39,15 @@ import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/time/time_zone_setup.dart';
 import 'package:finance_tracker/features/auth/application/device_name.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
+import 'package:finance_tracker/features/net_worth/application/snapshot_writer.dart';
+import 'package:finance_tracker/features/net_worth/domain/net_worth_series.dart';
 import 'package:finance_tracker/features/widgets/application/widget_providers.dart';
-import 'package:finance_tracker/features/widgets/data/fake_widget_writer.dart';
+import 'package:finance_tracker/features/widgets/data/home_widget_writer.dart';
+import 'package:finance_tracker/features/widgets/domain/widget_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -61,151 +68,242 @@ final List<Object> _replaced = [
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets(
-    "the task's body syncs a change, plans the reminders and runs the "
-    'steps, inside its deadline',
-    (tester) async {
-      await setUpTimeZones();
-      final Directory dir = await getTemporaryDirectory();
-      final File file = File(p.join(dir.path, 'background-$databaseFileName'));
+  testWidgets("the task's body syncs a change, plans the reminders and runs the "
+      'steps, inside its deadline', (tester) async {
+    await setUpTimeZones();
+    final Directory dir = await getTemporaryDirectory();
+    final File file = File(p.join(dir.path, 'background-$databaseFileName'));
+    final File otherFile = File(
+      p.join(dir.path, 'background-b-$databaseFileName'),
+    );
+    for (final File db in [file, otherFile]) {
       for (final String suffix in const ['', '-wal', '-shm', '-journal']) {
-        final File f = File('${file.path}$suffix');
+        final File f = File('${db.path}$suffix');
         if (f.existsSync()) f.deleteSync();
       }
-      final DateTime start = DateTime.now().toUtc();
-      final FakeServer server =
-          FakeServer(
-              dataset: FakeDataset.fromDemoSeed(
-                demoSeedFor(PersonaId.family, LocalDate.fromDateTime(start)),
-              ),
-              now: () => DateTime.now().toUtc(),
-            )
-            ..seedUser(email: _email, password: _password, displayName: 'Ada')
-            ..seedLinkedItems(_email);
-      final Session session = server.seedSession(
-        email: _email,
-        password: _password,
-        deviceName: 'Phone A',
-      );
-      final InMemoryTokenStore tokens = InMemoryTokenStore(
-        session: session,
-        installUserId: session.user.id,
-      );
-      final InMemoryDatabaseKeyStore keys = InMemoryDatabaseKeyStore();
-      final FakeReminderScheduler reminders = FakeReminderScheduler();
-      addTearDown(reminders.close);
-      final FakeWidgetWriter widgets = FakeWidgetWriter();
+    }
+    final DateTime start = DateTime.now().toUtc();
+    final FakeServer server =
+        FakeServer(
+            dataset: FakeDataset.fromDemoSeed(
+              demoSeedFor(PersonaId.family, LocalDate.fromDateTime(start)),
+            ),
+            now: () => DateTime.now().toUtc(),
+          )
+          ..seedUser(email: _email, password: _password, displayName: 'Ada')
+          ..seedLinkedItems(_email);
+    final Session session = server.seedSession(
+      email: _email,
+      password: _password,
+      deviceName: 'Phone A',
+    );
+    final InMemoryTokenStore tokens = InMemoryTokenStore(
+      session: session,
+      installUserId: session.user.id,
+    );
+    final InMemoryDatabaseKeyStore keys = InMemoryDatabaseKeyStore();
+    final FakeReminderScheduler reminders = FakeReminderScheduler();
+    addTearDown(reminders.close);
+    await HomeWidget.saveWidgetData<String>(widgetSnapshotKey, null);
 
-      // The dev wiring with this test's server, session, database and fakes.
-      List<Override> overrides() => [
-        for (final Override o in localDataOverridesFor(AppConfig.dev()))
-          if (!_replaced.any(
-            // ignore: invalid_use_of_visible_for_testing_member
-            (r) => identical(o.origin, r),
-          ))
-            o,
-        databaseKeyStoreProvider.overrideWithValue(keys),
-        databaseProvider.overrideWith((ref) {
-          final AppDatabase database = AppDatabase(
-            LazyDatabase(() => openDatabaseExecutor(file, keyStore: keys)),
-          );
-          ref.onDispose(() => databaseClosing[database] = database.close());
-          return database;
-        }),
-        fakeServerProvider.overrideWithValue(server),
-        tokenStoreProvider.overrideWithValue(tokens),
-        fakeFinanceApiOverride,
-        deviceNameProvider.overrideWith((ref) async => 'Phone A'),
-        appVersionProvider.overrideWith((ref) async => '1.0.0'),
-        reminderSchedulerProvider.overrideWithValue(reminders),
-        backgroundWorkProvider.overrideWith((ref) => FakeBackgroundWork()),
-        widgetWriterProvider.overrideWithValue(widgets),
-      ];
+    // The dev wiring with this test's server, session, database and fakes, the
+    // widgets written through home_widget; [at] and [as] for the other device.
+    List<Override> overrides({File? at, TokenStore? as}) => [
+      for (final Override o in localDataOverridesFor(AppConfig.dev()))
+        if (!_replaced.any(
+          // ignore: invalid_use_of_visible_for_testing_member
+          (r) => identical(o.origin, r),
+        ))
+          o,
+      databaseKeyStoreProvider.overrideWithValue(keys),
+      databaseProvider.overrideWith((ref) {
+        final AppDatabase database = AppDatabase(
+          LazyDatabase(() => openDatabaseExecutor(at ?? file, keyStore: keys)),
+        );
+        ref.onDispose(() => databaseClosing[database] = database.close());
+        return database;
+      }),
+      fakeServerProvider.overrideWithValue(server),
+      tokenStoreProvider.overrideWithValue(as ?? tokens),
+      fakeFinanceApiOverride,
+      deviceNameProvider.overrideWith(
+        (ref) async => as == null ? 'Phone A' : 'Phone B',
+      ),
+      appVersionProvider.overrideWith((ref) async => '1.0.0'),
+      reminderSchedulerProvider.overrideWithValue(reminders),
+      backgroundWorkProvider.overrideWith((ref) => FakeBackgroundWork()),
+      widgetWriterProvider.overrideWithValue(const HomeWidgetWriter()),
+    ];
 
-      // The app's first start: the full pull of the family's banks, the offer answered.
-      final ProviderContainer app = ProviderContainer(overrides: overrides());
-      final AppDatabase appDatabase = app.read(databaseProvider);
-      await appDatabase.verifyOpen();
-      await app.read(categoryRepositoryProvider).ensureSeeded();
-      await app
+    // A device's first start: the full pull of the family's banks, the offer
+    // answered.
+    Future<void> firstStart(ProviderContainer c) async {
+      await c.read(databaseProvider).verifyOpen();
+      await c.read(categoryRepositoryProvider).ensureSeeded();
+      await c
           .read(appMetaStoreProvider)
           .write(AppMetaKeys.restoreOfferAnswered, start.toIso8601String());
-      await app.read(sessionControllerProvider.notifier).restored();
-      final Stopwatch full = Stopwatch()..start();
-      app.read(syncControllerProvider);
-      await app.read(syncControllerProvider.notifier).firstSession();
-      // ignore: avoid_print
-      print('BACKGROUND first full sync took ${full.elapsedMilliseconds} ms');
-      expect(app.read(syncControllerProvider).failure, isNull);
-      await app
+      await c.read(sessionControllerProvider.notifier).restored();
+      c.read(syncControllerProvider);
+      await c.read(syncControllerProvider.notifier).firstSession();
+      expect(c.read(syncControllerProvider).failure, isNull);
+    }
+
+    // The net worth today's stored snapshots give, in minor units.
+    Future<int> storedNetWorth(ProviderContainer c) async {
+      final List<Account> accounts = await c
           .read(accountRepositoryProvider)
-          .create(
-            const Account(
-              id: 'background-cash',
-              type: AccountType.depository,
-              name: 'Cash jar',
-              currencyCode: 'USD',
-              isHidden: false,
-              displayOrder: 99,
-            ),
-          );
-      app.dispose();
-      await databaseClosing[appDatabase];
+          .watchAll()
+          .first;
+      final List<BalanceSnapshot> snapshots = await c
+          .read(balanceSnapshotRepositoryProvider)
+          .watchAll()
+          .first;
+      return observedNetWorth(snapshots, {
+        for (final Account a in accounts) a.id: a.type,
+      })['USD']!.last.netWorth.minorUnits;
+    }
 
-      final Stopwatch cycle = Stopwatch()..start();
-      final bool done = await runBackgroundCycle(
-        BackgroundEnvironment(
-          config: AppConfig.dev(),
-          overrides: overrides(),
-          databaseFile: () async => file,
-          wipePending: () async => false,
-          registry: MapPortRegistry(),
-        ),
-      );
-      // ignore: avoid_print
-      print('BACKGROUND delta cycle took ${cycle.elapsedMilliseconds} ms');
-      expect(done, isTrue);
-      expect(cycle.elapsed, lessThan(backgroundCycleDeadline));
-      expect(reminders.replaced, isNotEmpty);
-      // The cycle's own step, the widgets' snapshot, was written once.
-      expect(widgets.writes, hasLength(1));
-
-      // Another device of the account pulls what the cycle pushed.
-      final Session other = server.seedSession(
-        email: _email,
-        password: _password,
-        deviceName: 'Phone B',
-      );
-      final ProviderContainer b = ProviderContainer(
-        overrides: [
-          appConfigProvider.overrideWithValue(AppConfig.dev()),
-          fakeServerProvider.overrideWithValue(server),
-          tokenStoreProvider.overrideWithValue(
-            InMemoryTokenStore(session: other),
+    // The app's first start, and today's snapshots as its writer leaves them.
+    final ProviderContainer app = ProviderContainer(overrides: overrides());
+    final AppDatabase appDatabase = app.read(databaseProvider);
+    final Stopwatch full = Stopwatch()..start();
+    await firstStart(app);
+    // ignore: avoid_print
+    print('BACKGROUND first full sync took ${full.elapsedMilliseconds} ms');
+    final LocalDate today = app.read(clockProvider).today();
+    await app.read(snapshotWriterProvider).write(today, firstOfDay: true);
+    await app
+        .read(accountRepositoryProvider)
+        .create(
+          const Account(
+            id: 'background-cash',
+            type: AccountType.depository,
+            name: 'Cash jar',
+            currencyCode: 'USD',
+            isHidden: false,
+            displayOrder: 99,
           ),
-          fakeFinanceApiOverride,
-          appVersionProvider.overrideWith((ref) async => '1.0.0'),
-        ],
-      );
-      addTearDown(b.dispose);
-      final PullPage page = await b
-          .read(financeApiProvider)
-          .pullChanges(since: 0, limit: 500);
-      expect(page.entries.map((e) => e.entityId), contains('background-cash'));
+        );
+    final int before = await storedNetWorth(app);
+    app.dispose();
+    await databaseClosing[appDatabase];
 
-      final ProviderContainer after = ProviderContainer(overrides: overrides());
-      final AppDatabase afterDatabase = after.read(databaseProvider);
-      final BackgroundRun? run = BackgroundRun.parse(
-        await after
-            .read(appMetaStoreProvider)
-            .read(AppMetaKeys.backgroundLastRun),
-      );
-      after.dispose();
-      await databaseClosing[afterDatabase];
-      expect(run?.result, BackgroundResult.synced);
-      expect(run?.delegated, isFalse);
-    },
-  );
+    // Meanwhile another device of the account adds a wallet with a transaction.
+    final Session other = server.seedSession(
+      email: _email,
+      password: _password,
+      deviceName: 'Phone B',
+    );
+    final ProviderContainer phoneB = ProviderContainer(
+      overrides: overrides(
+        at: otherFile,
+        as: InMemoryTokenStore(session: other, installUserId: other.user.id),
+      ),
+    );
+    final AppDatabase phoneBDatabase = phoneB.read(databaseProvider);
+    await firstStart(phoneB);
+    await phoneB
+        .read(accountRepositoryProvider)
+        .create(
+          const Account(
+            id: 'background-wallet',
+            type: AccountType.depository,
+            name: 'Wallet',
+            currencyCode: 'USD',
+            isHidden: false,
+            displayOrder: 98,
+          ),
+        );
+    await phoneB
+        .read(transactionRepositoryProvider)
+        .upsert(
+          Transaction(
+            id: 'background-coffee',
+            accountId: 'background-wallet',
+            amount: Money(600, 'USD'),
+            date: today,
+            pending: false,
+            name: 'Coffee',
+            source: DataSource.manual,
+            createdAt: start.copyWith(microsecond: 0),
+            updatedAt: start.copyWith(microsecond: 0),
+            syncVersion: 0,
+          ),
+        );
+    await phoneB.read(syncControllerProvider.notifier).syncNow();
+    expect(phoneB.read(syncControllerProvider).failure, isNull);
+    phoneB.dispose();
+    await databaseClosing[phoneBDatabase];
+
+    final Stopwatch cycle = Stopwatch()..start();
+    final bool done = await runBackgroundCycle(
+      BackgroundEnvironment(
+        config: AppConfig.dev(),
+        overrides: overrides(),
+        databaseFile: () async => file,
+        wipePending: () async => false,
+        registry: MapPortRegistry(),
+      ),
+    );
+    // ignore: avoid_print
+    print('BACKGROUND delta cycle took ${cycle.elapsedMilliseconds} ms');
+    expect(done, isTrue);
+    expect(cycle.elapsed, lessThan(backgroundCycleDeadline));
+    expect(reminders.replaced, isNotEmpty);
+
+    // Another device of the account pulls what the cycle pushed.
+    final ProviderContainer b = ProviderContainer(
+      overrides: [
+        appConfigProvider.overrideWithValue(AppConfig.dev()),
+        fakeServerProvider.overrideWithValue(server),
+        tokenStoreProvider.overrideWithValue(
+          InMemoryTokenStore(session: other),
+        ),
+        fakeFinanceApiOverride,
+        appVersionProvider.overrideWith((ref) async => '1.0.0'),
+      ],
+    );
+    addTearDown(b.dispose);
+    final PullPage page = await b
+        .read(financeApiProvider)
+        .pullChanges(since: 0, limit: 500);
+    expect(page.entries.map((e) => e.entityId), contains('background-cash'));
+
+    final ProviderContainer after = ProviderContainer(overrides: overrides());
+    final AppDatabase afterDatabase = after.read(databaseProvider);
+    final BackgroundRun? run = BackgroundRun.parse(
+      await after
+          .read(appMetaStoreProvider)
+          .read(AppMetaKeys.backgroundLastRun),
+    );
+    final Transaction? coffee = await after
+        .read(transactionRepositoryProvider)
+        .watchById('background-coffee')
+        .first;
+    final Money? wallet = (await after
+        .read(accountRepositoryProvider)
+        .watchDerivedBalances()
+        .first)['background-wallet'];
+    final int stored = await storedNetWorth(after);
+    after.dispose();
+    await databaseClosing[afterDatabase];
+    expect(run?.result, BackgroundResult.synced);
+    expect(run?.delegated, isFalse);
+    // The other device's transaction was pulled, and the widgets' snapshot, as
+    // home_widget holds it, has it in its net worth.
+    expect(coffee?.amount, Money(600, 'USD'));
+    expect(wallet, isNotNull);
+    expect(wallet, isNot(Money(0, 'USD')));
+    expect(stored, before + wallet!.minorUnits);
+    final String? raw = await HomeWidget.getWidgetData<String>(
+      widgetSnapshotKey,
+    );
+    expect(raw, isNotNull);
+    final Map<String, Object?> snapshot =
+        jsonDecode(raw!) as Map<String, Object?>;
+    expect((snapshot['net_worth']! as Map<String, Object?>)['minor'], stored);
+  });
 
   testWidgets('the periodic sync is scheduled with WorkManager and read back', (
     tester,

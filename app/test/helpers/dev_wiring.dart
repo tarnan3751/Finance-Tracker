@@ -9,9 +9,10 @@ import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
 /// `overridesFor(AppConfig.dev())` without the network, the background work, the
-/// reminder scheduler and the tray (the in-app list stays the notifier).
-List<Override> devWiring() => [
-  for (final Override o in overridesFor(AppConfig.dev()))
+/// reminder scheduler and the tray (the in-app list stays the notifier); [window] as
+/// `overridesFor` takes it.
+List<Override> devWiring({bool window = true}) => [
+  for (final Override o in overridesFor(AppConfig.dev(), window: window))
     if (!_platform.any(
       // ignore: invalid_use_of_visible_for_testing_member
       (p) => identical(o.origin, p),

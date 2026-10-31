@@ -58,6 +58,7 @@ import 'package:finance_tracker/core/platform/platform_file_exporter.dart';
 import 'package:finance_tracker/core/platform/platform_launch_intent.dart';
 import 'package:finance_tracker/core/platform/quick_actions_app_shortcuts.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
+import 'package:finance_tracker/core/platform/screen_security.dart';
 import 'package:finance_tracker/core/platform/screen_security_provider.dart';
 import 'package:finance_tracker/core/platform/system_notifier.dart';
 import 'package:finance_tracker/core/platform/system_settings.dart';
@@ -553,11 +554,16 @@ class LegacyImportResult extends _$LegacyImportResult {
   void record(ImportSummary? summary) => state = summary;
 }
 
-/// The provider overrides that make up the app for [config].
-List<Override> overridesFor(AppConfig config) => [
+/// The provider overrides that make up the app for [config]; with [window] false, for an
+/// engine with no window (the background task's), whose secure flag is not set: its
+/// engine has no `MainActivity` channel.
+List<Override> overridesFor(AppConfig config, {bool window = true}) => [
   ...localDataOverridesFor(config),
   ...apiOverridesFor(config),
   ...filePickerOverridesFor(config),
+  screenSecurityProvider.overrideWithValue(
+    window ? const ChannelScreenSecurity() : const NoWindowScreenSecurity(),
+  ),
   ..._platformOverrides,
 ];
 
@@ -567,7 +573,6 @@ List<Override> overridesFor(AppConfig config) => [
 /// and prod) and `quick_actions` (the app shortcuts), with the launch links of both, one
 /// process-wide instance.
 final List<Override> _platformOverrides = [
-  screenSecurityProvider.overrideWithValue(const ChannelScreenSecurity()),
   monotonicClockProvider.overrideWithValue(const ChannelMonotonicClock()),
   deviceAuthProvider.overrideWith((ref) => LocalAuthDeviceAuth()),
   widgetWriterProvider.overrideWithValue(const HomeWidgetWriter()),

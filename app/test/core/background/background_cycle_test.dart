@@ -28,10 +28,17 @@ import 'package:finance_tracker/core/platform/fake_background_work.dart';
 import 'package:finance_tracker/core/platform/fake_connectivity.dart';
 import 'package:finance_tracker/core/platform/fake_reminder_scheduler.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
+import 'package:finance_tracker/core/sync/sync_controller.dart';
+import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/features/bills/application/reminder_planner.dart';
+import 'package:finance_tracker/features/net_worth/application/snapshot_writer.dart';
+import 'package:finance_tracker/features/net_worth/domain/net_worth_series.dart';
+import 'package:finance_tracker/features/widgets/application/widget_providers.dart';
+import 'package:finance_tracker/features/widgets/data/fake_widget_writer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:sqlite3/sqlite3.dart' hide Row;
 import 'package:sync_engine/sync_engine.dart';
@@ -88,6 +95,7 @@ void main() {
   late List<String> hooks;
   late List<BackgroundCycleHook> extraHooks;
   late InMemoryTokenStore? tokens;
+  late FakeWidgetWriter widgets;
 
   setUp(() {
     directory = Directory.systemTemp.createTempSync('ft-cycle-');
@@ -104,14 +112,23 @@ void main() {
     hooks = [];
     extraHooks = [];
     tokens = null;
+    widgets = FakeWidgetWriter();
   });
   tearDown(() async {
     await reminders.close();
     directory.deleteSync(recursive: true);
   });
 
-  List<Override> overrides({String? deviceId = 'dev-a'}) => [
-    ...devWiring(),
+  List<Override> overrides({
+    String? deviceId = 'dev-a',
+    File? at,
+    bool window = true,
+    List<BackgroundCycleHook>? steps,
+  }) => [
+    for (final Override o in devWiring(window: window))
+      // ignore: invalid_use_of_visible_for_testing_member
+      if (!identical(o.origin, widgetWriterProvider)) o,
+    widgetWriterProvider.overrideWithValue(widgets),
     for (final Override o in fakeApiOverrides(signedIn: true))
       // ignore: invalid_use_of_visible_for_testing_member
       if (tokens == null || !identical(o.origin, tokenStoreProvider)) o,
@@ -121,7 +138,7 @@ void main() {
     databaseKeyStoreProvider.overrideWithValue(keys),
     databaseProvider.overrideWith((ref) {
       final AppDatabase database = AppDatabase(
-        LazyDatabase(() => openDatabaseExecutor(file, keyStore: keys)),
+        LazyDatabase(() => openDatabaseExecutor(at ?? file, keyStore: keys)),
       );
       ref.onDispose(() => databaseClosing[database] = database.close());
       return database;
@@ -132,14 +149,17 @@ void main() {
     backgroundWorkProvider.overrideWith((ref) => FakeBackgroundWork()),
     reminderSchedulerProvider.overrideWithValue(reminders),
     deviceZoneProvider.overrideWithValue(() async => 'America/Chicago'),
-    backgroundCycleHooksProvider.overrideWithValue([
-      (container) async {
-        hooks.add(
-          registry.lookup(backgroundPortName) == null ? 'unheld' : 'held',
-        );
-      },
-      ...extraHooks,
-    ]),
+    backgroundCycleHooksProvider.overrideWithValue(
+      steps ??
+          [
+            (container) async {
+              hooks.add(
+                registry.lookup(backgroundPortName) == null ? 'unheld' : 'held',
+              );
+            },
+            ...extraHooks,
+          ],
+    ),
   ];
 
   // An install that answered the restore offer, with one change waiting to sync.
@@ -399,4 +419,111 @@ void main() {
       await databaseClosing[database];
     },
   );
+
+  test('a transaction another device added is applied, and the widgets show '
+      'it in net worth, with no app running and no window', () async {
+    await install();
+    // The app's own day: today's snapshot written before it was killed.
+    final ProviderContainer app = ProviderContainer(overrides: overrides());
+    final LocalDate today = app.read(clockProvider).today();
+    expect(
+      await app.read(snapshotWriterProvider).write(today, firstOfDay: true),
+      isTrue,
+    );
+    final AppDatabase appDatabase = app.read(databaseProvider);
+    app.dispose();
+    await databaseClosing[appDatabase];
+    expect(await cycle(), isTrue);
+
+    // The other device pulls the account, then adds a transaction on it and pushes.
+    final File other = File('${directory.path}/other-$databaseFileName');
+    Future<void> otherSession(
+      Future<void> Function(ProviderContainer) edit,
+    ) async {
+      final ProviderContainer b = ProviderContainer(
+        overrides: overrides(deviceId: 'dev-b', at: other),
+      );
+      await b
+          .read(appMetaStoreProvider)
+          .write(AppMetaKeys.restoreOfferAnswered, '2026-10-24T15:00:00.000Z');
+      await edit(b);
+      final ProviderSubscription<SyncStatus> s = b.listen(
+        syncControllerProvider,
+        (_, _) {},
+      );
+      await b.read(syncControllerProvider.notifier).firstSession();
+      s.close();
+      final AppDatabase database = b.read(databaseProvider);
+      b.dispose();
+      await databaseClosing[database];
+    }
+
+    await otherSession((_) async {});
+    await otherSession(
+      (b) => b
+          .read(transactionRepositoryProvider)
+          .upsert(testTransaction('t1', 'a1', 600, date: today)),
+    );
+
+    final List<String> warnings = [];
+    final StreamSubscription<LogRecord> logs = Logger.root.onRecord
+        .where((r) => r.level >= Level.WARNING)
+        .listen((r) => warnings.add('${r.loggerName}: ${r.message}'));
+    addTearDown(logs.cancel);
+    final ProviderContainer defaults = ProviderContainer();
+    final List<BackgroundCycleHook> steps = defaults.read(
+      backgroundCycleHooksProvider,
+    );
+    defaults.dispose();
+    expect(
+      await runBackgroundCycle(
+        BackgroundEnvironment(
+          config: AppConfig.dev(),
+          overrides: overrides(window: false, steps: steps),
+          databaseFile: () async => file,
+          wipePending: () async => wipePending,
+          registry: registry,
+        ),
+      ),
+      isTrue,
+    );
+    expect(warnings, isEmpty);
+
+    final ProviderContainer c = ProviderContainer(overrides: overrides());
+    final AppDatabase database = c.read(databaseProvider);
+    final Transaction? pulled = await c
+        .read(transactionRepositoryProvider)
+        .watchById('t1')
+        .first;
+    final Money? derived = (await c
+        .read(accountRepositoryProvider)
+        .watchDerivedBalances()
+        .first)['a1'];
+    final List<Account> accounts = await c
+        .read(accountRepositoryProvider)
+        .watchAll()
+        .first;
+    final List<BalanceSnapshot> snapshots = await c
+        .read(balanceSnapshotRepositoryProvider)
+        .watchAll()
+        .first;
+    c.dispose();
+    await databaseClosing[database];
+    expect(pulled?.amount, Money(600, 'USD'));
+    expect(derived, isNot(Money(0, 'USD')));
+    // Today's row follows the pulled transaction, and the widgets' net worth is it.
+    expect(
+      snapshots
+          .singleWhere((s) => s.accountId == 'a1' && s.date == today)
+          .current,
+      derived,
+    );
+    expect(widgets.writes, hasLength(1));
+    expect(
+      widgets.last?.netWorth?.amount,
+      observedNetWorth(snapshots, {
+        for (final Account a in accounts) a.id: a.type,
+      })['USD']!.last.netWorth,
+    );
+  });
 }

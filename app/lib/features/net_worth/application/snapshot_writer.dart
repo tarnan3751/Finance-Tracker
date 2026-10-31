@@ -25,7 +25,8 @@
 /// ([PlaidPull.completed]) and after every sync session (a new `lastSyncAt`), one write
 /// at a time; a failed write is logged and never stops the next. Nothing runs unless
 /// something listens: `bootstrap` does, after the first frame, for the life of the app,
-/// in every flavor.
+/// in every flavor. The background cycle, which syncs with no app running, calls
+/// [writeSnapshotsNow] on its own container before the widgets read today's rows.
 library;
 
 import 'dart:async';
@@ -178,6 +179,27 @@ BalanceSnapshot snapshotOf(
   );
 }
 
+/// The writer over the flavor's repositories.
+@Riverpod(keepAlive: true)
+SnapshotWriter snapshotWriter(Ref ref) => SnapshotWriter(
+  accounts: ref.watch(accountRepositoryProvider),
+  transactions: ref.watch(transactionRepositoryProvider),
+  holdings: ref.watch(holdingRepositoryProvider),
+  liabilities: ref.watch(liabilityRepositoryProvider),
+  snapshots: ref.watch(balanceSnapshotRepositoryProvider),
+  meta: ref.watch(appMetaStoreProvider),
+  demo: ref.watch(appConfigProvider).flavor == Flavor.demo,
+);
+
+/// Replaces today's snapshots in [container] now, from what its sync left, and
+/// completes when they are written: the background cycle's hook, run before the widgets'
+/// (whose net worth is today's rows). A failure is the cycle's to log.
+Future<void> writeSnapshotsNow(ProviderContainer container) async {
+  await container
+      .read(snapshotWriterProvider)
+      .write(container.read(clockProvider).today(), firstOfDay: false);
+}
+
 /// Keeps today's snapshots written while listened to (see the library comment). Its
 /// state is the last day it wrote, null before its first write.
 @Riverpod(keepAlive: true)
@@ -186,15 +208,7 @@ class SnapshotWriterRunner extends _$SnapshotWriterRunner {
 
   @override
   LocalDate? build() {
-    final SnapshotWriter writer = SnapshotWriter(
-      accounts: ref.watch(accountRepositoryProvider),
-      transactions: ref.watch(transactionRepositoryProvider),
-      holdings: ref.watch(holdingRepositoryProvider),
-      liabilities: ref.watch(liabilityRepositoryProvider),
-      snapshots: ref.watch(balanceSnapshotRepositoryProvider),
-      meta: ref.watch(appMetaStoreProvider),
-      demo: ref.watch(appConfigProvider).flavor == Flavor.demo,
-    );
+    final SnapshotWriter writer = ref.watch(snapshotWriterProvider);
     final StreamSubscription<DateTime> pulls = ref
         .watch(plaidPullProvider)
         .completed

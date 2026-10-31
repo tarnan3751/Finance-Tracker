@@ -78,7 +78,10 @@ day, and a replacing write after every whole Plaid pull (`PlaidPull.completed`, 
 started it) and every sync session (a new `lastSyncAt`), one write at a time; a failure
 is logged by type and never stops the next write. Its state is the last
 day it wrote. Nothing runs unless something listens: `bootstrap` does, after the first
-frame, in every flavor. The demo's snapshots start empty with each persona and the
+frame, in every flavor. `snapshotWriterProvider` is the writer over the flavor's
+repositories, and `writeSnapshotsNow(container)` one replacing write now: the background
+cycle's step before the widgets' (`background.md`, **The cycle**), since a sync with no
+app running has no runner listening. The demo's snapshots start empty with each persona and the
 runner writes the launch day's, `demo` and `manual`.
 
 ## The series

@@ -139,8 +139,14 @@ retries on its backoff), in order:
    device id, push, pull, then the Plaid pull. The reminders are planned again
    (`reminderPlannerProvider` over `reminderInputsProvider`, in the device's zone), and
    `backgroundCycleHooksProvider`'s steps run in order, after the session, so the
-   session is restored and the stored tokens wired: the home screen widgets' snapshot
-   written once (`writeWidgetsNow`, `widgets.md`), a failing step logged by type.
+   session is restored and the stored tokens wired: today's balance snapshots written
+   again from what the session brought (`writeSnapshotsNow`, `net-worth.md`), since the
+   widgets' net worth is today's rows and no app's writer runs; then the home screen
+   widgets' snapshot written once (`writeWidgetsNow`, `widgets.md`); a failing step
+   logged by type. The cycle's container is built with `overridesFor(config, window:
+   false)`: the engine has no window and no `MainActivity` channel, so the lock
+   controller the widgets' snapshot reads sets no secure flag
+   (`NoWindowScreenSecurity`).
 7. The outcome is recorded in `app_meta.background_last_run` as `{at, result,
    delegated}`: `synced`, `offline` (the one result that returns false), `failed` (the
    server's or another failure), `sessionEnded`, `skipped` (a guard), `held` (the restore
@@ -270,7 +276,9 @@ over the fakes' state.
   schedule line, a held run) and the accessibility test.
 - `app/integration_test/background_sync_test.dart` (the harness's `integration`): the
   cycle's body in the test isolate on an encrypted database on the device and the fake
-  server with the family persona (the widgets' step writing its snapshot), and the
+  server with the family persona (a transaction another device added pulled, today's
+  snapshots written again, and the widgets' snapshot read back through
+  `HomeWidget.getWidgetData` with it in its net worth), and the
   periodic sync scheduled with the real plugin and read back from WorkManager.
 - `tools/scripts/background_doze_check.sh` (`testing-tools.md`) proves, on `ft-lane`,
   that WorkManager keeps the periodic sync's job, that Doze defers it while the device is

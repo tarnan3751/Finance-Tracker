@@ -59,4 +59,4 @@ final class BackgroundCycleHooksProvider
 }
 
 String _$backgroundCycleHooksHash() =>
-    r'0e545d43fc77f15d13c0187b5afc08970d942880';
+    r'3e1a37384fb3c940e6eb978e9e10dde3abe3aafe';
