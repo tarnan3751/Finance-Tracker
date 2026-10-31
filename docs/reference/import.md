@@ -8,7 +8,10 @@ Dart; `application/import_providers.dart`, the work; `data/demo_csv_picker.dart`
 demo's sample; `presentation/`, the screen) and
 `app/lib/core/platform/csv_picker_provider.dart`. Tests: `app/test/features/import/` (the flow in
 `presentation/import_flow_test.dart`, the screens' accessibility in
-`test/accessibility_test.dart`), with the fixtures under `fixtures/` (the shapes of
+`test/accessibility_test.dart`), and on a device `app/integration_test/import_test.dart`
+(the harness: the demo's sample into a new account and its undo, then a Chase export
+through the fake picker, each checked on the Accounts tab), with the fixtures under
+`fixtures/` (the shapes of
 a Chase checking export, a Bank of America export with its summary preamble, a Monzo export,
 a European export with `;` and decimal commas, a UTF-16 and a Windows-1252 file, and the
 app's own export; every name in them is fictional).
