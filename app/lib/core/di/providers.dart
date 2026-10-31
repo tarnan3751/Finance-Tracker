@@ -42,6 +42,7 @@ import 'package:finance_tracker/core/platform/backup_picker_provider.dart';
 import 'package:finance_tracker/core/platform/channel_monotonic_clock.dart';
 import 'package:finance_tracker/core/platform/channel_screen_security.dart';
 import 'package:finance_tracker/core/platform/connectivity_provider.dart';
+import 'package:finance_tracker/core/platform/csv_picker_provider.dart';
 import 'package:finance_tracker/core/platform/fake_image_source.dart';
 import 'package:finance_tracker/core/platform/file_exporter_provider.dart';
 import 'package:finance_tracker/core/platform/image_source_provider.dart';
@@ -104,6 +105,7 @@ import 'package:finance_tracker/features/goals/data/demo_goals.dart';
 import 'package:finance_tracker/features/goals/data/drift_goal_repository.dart';
 import 'package:finance_tracker/features/goals/data/in_memory_goal_repository.dart';
 import 'package:finance_tracker/features/goals/domain/goal_repository.dart';
+import 'package:finance_tracker/features/import/data/demo_csv_picker.dart';
 import 'package:finance_tracker/features/investments/data/demo_holding_repository.dart';
 import 'package:finance_tracker/features/investments/data/demo_investment_transaction_repository.dart';
 import 'package:finance_tracker/features/investments/data/drift_holding_repository.dart';
@@ -583,7 +585,8 @@ final List<Override> _platformOverrides = [
 final PlatformLaunchIntent _platformLaunchIntent = PlatformLaunchIntent();
 
 /// The system's file dialogs in dev and prod (`flutter_file_dialog` and `share_plus`):
-/// the file exporter and the backup picker; the fakes elsewhere. Apart from
+/// the file exporter, the backup picker and the CSV picker; the fakes elsewhere, the
+/// demo's CSV picker answering its sample export. Apart from
 /// [localDataOverridesFor], so a test on the dev wiring keeps the fakes.
 List<Override> filePickerOverridesFor(AppConfig config) =>
     switch (config.flavor) {
@@ -594,8 +597,15 @@ List<Override> filePickerOverridesFor(AppConfig config) =>
         backupPickerProvider.overrideWith(
           (ref) => const PlatformBackupPicker(),
         ),
+        csvPickerProvider.overrideWith(
+          (ref) => const PlatformBackupPicker(mimeTypesFilter: csvMimeTypes),
+        ),
       ],
-      Flavor.demo => const [],
+      Flavor.demo => [
+        csvPickerProvider.overrideWith(
+          (ref) => DemoCsvPicker(ref.watch(clockProvider)),
+        ),
+      ],
     };
 
 /// [overridesFor] without the API's: the flavor and its local data. For a test that

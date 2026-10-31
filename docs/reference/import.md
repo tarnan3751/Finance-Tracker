@@ -4,10 +4,29 @@ Transactions brought in from a bank's CSV export (`PLAN.md` §12, "CSV import de
 the file is read and parsed, its columns mapped once and the mapping remembered for that
 header, and its rows land on one account as `source: import`, a user-entered source that
 syncs like a manual one (`PLAN.md` §7.1). Code: `app/lib/features/import/` (`domain/`, pure
-Dart). Tests: `app/test/features/import/`, with the fixtures under `fixtures/` (the shapes of
+Dart; `application/import_providers.dart`, the work; `data/demo_csv_picker.dart`, the
+demo's sample) and `app/lib/core/platform/csv_picker_provider.dart`. Tests: `app/test/features/import/`, with the fixtures under `fixtures/` (the shapes of
 a Chase checking export, a Bank of America export with its summary preamble, a Monzo export,
 a European export with `;` and decimal commas, a UTF-16 and a Windows-1252 file, and the
 app's own export; every name in them is fictional).
+
+## Picking
+
+The file comes through the backup picker's seam (`app-core.md`, **The backup picker**):
+`csvPickerProvider`, the system's "open document" dialog showing `text/*`,
+`application/csv` and `application/vnd.ms-excel` (the type Drive and many banks give a
+CSV; a spreadsheet picked by mistake finds no table) in dev and prod. In the demo flavor it
+is `DemoCsvPicker`: whatever is picked, a sample export of a fictional bank (Lakeshore
+Mutual Bank, `lakeshore-mutual-checking.csv`: a title line, a blank line, then `Date`,
+`Description`, `Amount`, `Balance`, sixteen rows over the last four weeks in `MM/dd/yyyy`)
+built from the clock's today, so the same day gives the same file; its rows land as
+`import` like any file's, the demo being where synthesis is allowed (`PLAN.md` §7.1), under
+the demo banner.
+
+`ImportActions.pick` holds the lock open while the dialog is up (`lock.md`), refuses a file
+over 20 MB (`maxImportBytes`) unread, reads it in 1 MiB ranges into memory with its
+SHA-256, and closes it whatever happens. `read` parses it, in an isolate (`compute`) past
+256 KiB.
 
 ## Reading the file
 
@@ -113,8 +132,64 @@ twenty each, on this device only (never synced; they travel in a backup with `ap
   separator, the sign switch, the delimiter, the header row, the account and when it was
   saved; a preset for a header replaces the earlier one;
 - an `ImportBatch` per import (`import_history`): its id, when it was written (a UTC
-  instant), the file's name and SHA-256, the account, the count, the transaction ids, and
-  when it was undone.
+  instant), the file's name and SHA-256, the account, the count, the transaction ids,
+  whether it is still `pending` (**Writing**), and when it was undone. Twenty are kept: a
+  twenty-first import retires the oldest record, and with it that import's Undo.
 
 A stored value that does not decode is an `ImportRecordsFormatException`, which the caller
 logs by type and reads as an empty list.
+
+## Writing
+
+`ImportActions.review` reads the rows through the mapping into `Transaction`s on the target
+account (an existing one, or a new manual account by name, type and currency, whose
+currency is then the import's): new UUIDs, `source: import`, `pending: false`, the name,
+the merchant column as `merchantName` (an `import` row's merchant is the file's, not
+Plaid's), notes, tags, and the category matched by name ignoring case among the live
+categories (the first in their order when names repeat; an unmatched name leaves it
+uncategorized). It marks the likely duplicates against the target account's live rows,
+hidden ones included, from three days before the file's first date to three after its
+last (a new account has none), and says whether a live import of a file with the same
+SHA-256 is recorded. Past 256 KiB the conversion and the duplicate marking run in an
+isolate (`compute`), as the parse does, and the review's totals (count, dates, money in
+and out, with and without the duplicates) are summed once, when it is made.
+
+`write(review, includeDuplicates:)` then, in an order that never leaves rows without a
+record that undoes them:
+
+1. creates the new account when one was asked for (`AccountActions.create`);
+2. records the batch as `pending`, with the ids of its rows, which are known up front;
+3. writes the rows, without the duplicates unless asked, in one
+   `TransactionRepository.upsertAll` (all or nothing), stamped with the clock's now; the
+   change recorder records each for sync as it records a manual row (the demo records
+   nothing); a refused batch drops the pending record, soft-deletes the account it just
+   created and rethrows, and the screen says the import failed;
+4. runs the user's rules on them (`arrivalProcessorProvider`, `rules.md`, **On
+   arrival**), each change an upsert of its own after the batch;
+5. rewrites today's balance snapshots (`SnapshotWriterRunner.writeNow`, `net-worth.md`;
+   a failure is logged), and the widgets follow the data (`widgets.md`);
+6. marks the batch complete and saves the preset for the header (with the account). A
+   failure here leaves the rows in and is reported as imported, but with the history not
+   saved.
+
+`ImportActions.history` (behind `importHistoryProvider`) sorts out an import cut short
+between steps 2 and 6, by a kill or a failed write: a `pending` batch any of whose rows is
+stored is marked complete, one whose rows never landed is dropped once it is more than two
+minutes old by the clock (`pendingGrace`; a younger one may be a write still under way,
+read by the other route's screen, and stays pending), and the history is written back. The actions are made with every collaborator they use, the snapshot
+runner's `writeNow` included, so a write that outlives its provider, or the screen, still
+finishes.
+
+The write is all or nothing on purpose (`PLAN.md` §12, "9a plan rulings"): a bank export
+is hundreds to a few thousand rows, and 10,000 rows take about 12 s on the development
+Mac (Drift in memory, the change recorder on; the parse and review about a quarter of a
+second), most of it the one `upsertAll`. While it runs the screen shows its progress bar
+and back is held. A chunked import is later scope.
+
+`undo(batch)` deletes the batch's transactions still live, edited ones included, through
+`TransactionActions.deleteAll` (one write, tombstones that sync; their receipt photos
+go too), rewrites today's snapshots and marks the batch undone. The record is on the
+importing device only, so another device that synced the rows has no Undo for them, and an
+account the import created stays.
+
+Logs carry counts and exception types only, never a file name, a name or an amount.

@@ -94,7 +94,7 @@ final class SnapshotWriterRunnerProvider
 }
 
 String _$snapshotWriterRunnerHash() =>
-    r'b77cc73d45ef5774a6880f9cb247214199f84330';
+    r'f7920b9c911c540367a2423c7474f32f2c1a7d64';
 
 /// Keeps today's snapshots written while listened to (see the library comment). Its
 /// state is the last day it wrote, null before its first write.

@@ -144,7 +144,8 @@ A row's name and avatar come from `EnrichedMerchant.resolve(transaction)`
 (`domain/enrichment.dart`, pure Dart), the enrichment fallback of `PLAN.md` §7.1 Tier B
 and §12:
 
-- **Name.** Plaid's `merchantName` when present, never replaced; else, for a `manual`
+- **Name.** The stored `merchantName` when present (Plaid's, or an imported file's
+  merchant column, `import.md`), never replaced; else, for a `manual`
   transaction, its description as typed; else the dictionary's name for the raw `name`;
   else the raw name cleaned (`cleanMerchantName`: the leading noise skipped, then the words
   up to the first carrying a digit or masked digits or following a `#`, a `*` or a spaced

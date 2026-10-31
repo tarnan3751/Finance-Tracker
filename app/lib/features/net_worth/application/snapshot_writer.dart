@@ -23,7 +23,8 @@
 /// [SnapshotWriterRunner] runs it for the clock's date when the write runs: once when
 /// built, again when [todayProvider] moves to a new day, after every whole Plaid pull
 /// ([PlaidPull.completed]) and after every sync session (a new `lastSyncAt`), one write
-/// at a time; a failed write is logged and never stops the next. Nothing runs unless
+/// at a time, and when asked ([SnapshotWriterRunner.writeNow], after an import); a failed
+/// write is logged and never stops the next. Nothing runs unless
 /// something listens: `bootstrap` does, after the first frame, for the life of the app,
 /// in every flavor. The background cycle, which syncs with no app running, calls
 /// [writeSnapshotsNow] on its own container before the widgets read today's rows.
@@ -38,6 +39,7 @@ import 'package:finance_tracker/core/plaid/plaid_pull.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
+import 'package:finance_tracker/core/util/stream_current.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
 import 'package:finance_tracker/features/investments/domain/holding_repository.dart';
@@ -92,14 +94,15 @@ final class SnapshotWriter {
         await meta.read(AppMetaKeys.snapshotsWrittenOn) == today.toIso()) {
       return false;
     }
-    final List<Account> live = await accounts.watchAll().first;
-    final Map<String, Money?> derived = await accounts
-        .watchDerivedBalances()
-        .first;
+    final List<Account> live = await currentValue(accounts.watchAll());
+    final Map<String, Money?> derived = await currentValue(
+      accounts.watchDerivedBalances(),
+    );
     final List<Holding> held = [
-      for (final HoldingView v in await holdings.watchAll().first) v.holding,
+      for (final HoldingView v in await currentValue(holdings.watchAll()))
+        v.holding,
     ];
-    final List<Liability> owed = await liabilities.watchAll().first;
+    final List<Liability> owed = await currentValue(liabilities.watchAll());
     final List<BalanceSnapshot> rows = [
       for (final Account account in live)
         snapshotOf(
@@ -131,14 +134,11 @@ final class SnapshotWriter {
         owed.any((l) => l.accountId == account.id && isDemo(l.source))) {
       return DataSource.demo;
     }
-    final List<Transaction> recent = await transactions
-        .watch(
-          TransactionQuery(
-            accountIds: {account.id},
-            limit: snapshotSourceSample,
-          ),
-        )
-        .first;
+    final List<Transaction> recent = await currentValue(
+      transactions.watch(
+        TransactionQuery(accountIds: {account.id}, limit: snapshotSourceSample),
+      ),
+    );
     return recent.any((t) => isDemo(t.source))
         ? DataSource.demo
         : DataSource.plaid;
@@ -223,6 +223,14 @@ class SnapshotWriterRunner extends _$SnapshotWriterRunner {
     });
     _write(writer, firstOfDay: true);
     return null;
+  }
+
+  /// Replaces today's snapshots after the writes asked for so far, and completes when
+  /// that write has finished (a failure is logged): for a change outside a pull and a
+  /// sync session, such as an import.
+  Future<void> writeNow() {
+    _write(ref.read(snapshotWriterProvider), firstOfDay: false);
+    return _last;
   }
 
   /// Completes when every write asked for so far has finished.

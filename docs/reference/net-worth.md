@@ -75,7 +75,9 @@ day's pulls.
 pull that lands just after local midnight writes the new day, before `todayProvider`
 ticks): a first-of-day write when built and whenever `todayProvider` moves to a new local
 day, and a replacing write after every whole Plaid pull (`PlaidPull.completed`, whoever
-started it) and every sync session (a new `lastSyncAt`), one write at a time; a failure
+started it) and every sync session (a new `lastSyncAt`), and when asked (`writeNow()`,
+which completes once its write has run: after an import and its undo, `import.md`), one
+write at a time; a failure
 is logged by type and never stops the next write. Its state is the last
 day it wrote. Nothing runs unless something listens: `bootstrap` does, after the first
 frame, in every flavor. `snapshotWriterProvider` is the writer over the flavor's

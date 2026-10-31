@@ -105,6 +105,20 @@ final class ImportPreset {
   /// When it was saved, a UTC instant.
   final DateTime savedAt;
 
+  /// This preset, for account [id].
+  ImportPreset withAccount(String id) => ImportPreset(
+    signature: signature,
+    columns: columns,
+    debitCredit: debitCredit,
+    dateFormat: dateFormat,
+    separator: separator,
+    outflowsNegative: outflowsNegative,
+    delimiter: delimiter,
+    headerRow: headerRow,
+    accountId: id,
+    savedAt: savedAt,
+  );
+
   /// The mapping over [header]: each role at the column whose text it names.
   ImportMapping mappingFor(List<String> header) {
     final List<String> names = [for (final String f in header) f.trim()];

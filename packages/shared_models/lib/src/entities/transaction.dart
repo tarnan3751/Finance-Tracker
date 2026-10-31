@@ -16,7 +16,8 @@ part 'transaction.g.dart';
 /// opposite and is flipped at the server boundary.
 ///
 /// [name] is always present: Plaid's raw `name`, or the user's description for a manual
-/// entry. [merchantName] is Plaid's cleaned merchant name only, null when Plaid has none.
+/// entry. [merchantName] is Plaid's cleaned merchant name, or on an `import` transaction
+/// the merchant column of the imported file; null when neither gives one.
 /// The enrichment fallback is display-side: it reads [name] when [merchantName] is null
 /// and never writes [merchantName] or any other Plaid field.
 ///

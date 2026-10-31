@@ -164,7 +164,7 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | Forecast: the projection, its band and allowance, the screen and table | `app/lib/features/forecast/` | `docs/reference/forecast.md` |
 | The Plan tab: the shell, `PlanScaffold`, the editors' `OwnPage` closer | `app/lib/core/router/` | `docs/reference/app-core.md` |
 | The Insights tab: the shell, `InsightsScaffold`, the fifth destination | `app/lib/core/router/` | `docs/reference/app-core.md` |
-| Import: CSV decoding and parsing, the column mapping and its presets, duplicates, the import records | `app/lib/features/import/` | `docs/reference/import.md` |
+| Import: CSV decoding and parsing, the column mapping and its presets, duplicates, the write, the batch and its undo, the CSV picker and the demo's sample | `app/lib/features/import/`, `app/lib/core/platform/csv_picker_provider.dart` | `docs/reference/import.md` |
 | Export: the monthly report's PDF, the transactions' CSV, the file exporter | `app/lib/features/export/`, `app/lib/core/platform/file_exporter.dart` | `docs/reference/export.md` |
 | API client, in-app fake server, session and auth | `app/lib/core/api/`, `app/lib/features/auth/` | `docs/reference/app-core.md` (the API client), `docs/reference/auth.md` |
 | The generated API client | `packages/api_client/` | `docs/reference/api.md` (Phase 2) |

@@ -6,7 +6,9 @@ import 'dart:async';
 
 /// The first value of [stream], the repositories' current one. Unlike `Stream.first` it
 /// does not wait for the subscription's cancel, whose future a widget test's fake clock
-/// never completes for the in-memory repositories' streams.
+/// never completes for the in-memory repositories' streams. A stream that ends with
+/// nothing emitted (a Drift query stream closed with its database) completes it with a
+/// [StateError], as `Stream.first` does.
 Future<T> currentValue<T>(Stream<T> stream) {
   final Completer<T> value = Completer<T>();
   late final StreamSubscription<T> subscription;
@@ -18,6 +20,11 @@ Future<T> currentValue<T>(Stream<T> stream) {
     },
     onError: (Object e, StackTrace s) {
       if (!value.isCompleted) value.completeError(e, s);
+    },
+    onDone: () {
+      if (!value.isCompleted) {
+        value.completeError(StateError('the stream ended with no value'));
+      }
     },
   );
   return value.future;

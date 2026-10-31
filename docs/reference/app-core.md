@@ -271,6 +271,11 @@ cannot be read, is a `BackupPickFailedException`.
   answers its `file` (none by default) under its `name`, with an optional `length` to
   report, throws a set `failure`, records the ranges read and counts the calls and
   closes.
+- **The CSV picker** (`csv_picker_provider.dart`): `csvPickerProvider`, a `BackupPicker`
+  of its own for the transaction import (`import.md`, **Picking**):
+  `PlatformBackupPicker` with `csvMimeTypes` (`text/*`, `application/csv`,
+  `application/vnd.ms-excel`) in dev and prod, the demo's sample export
+  (`DemoCsvPicker`) in the demo flavor, and a `FakeBackupPicker` in the tests.
 
 ## The API client
 

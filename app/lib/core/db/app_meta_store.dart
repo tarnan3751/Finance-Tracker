@@ -11,8 +11,9 @@
 /// (`lock_enabled`, `lock_timeout_seconds`, `secure_screen`), the language the app is shown
 /// in (`app_language`), the background sync's switch, last run and remote sign-out
 /// (`background_sync_enabled`, `background_last_run`, `session_ended_in_background`), and
-/// whether the permission to notify was asked (`notification_permission_asked`) and which
-/// sync problems were told (`sync_problems_told`).
+/// whether the permission to notify was asked (`notification_permission_asked`), which
+/// sync problems were told (`sync_problems_told`), and the transaction import's presets and
+/// history (`import_presets`, `import_history`).
 library;
 
 import 'package:finance_tracker/core/db/app_database.dart';
@@ -104,6 +105,14 @@ abstract final class AppMetaKeys {
   /// The sync problems this device has told the user, a JSON list of their
   /// notification keys, each dropped once its problem clears (`core/sync/`).
   static const String syncProblemsTold = 'sync_problems_told';
+
+  /// The import's mappings saved per header signature, a JSON list, newest first
+  /// (`features/import/`).
+  static const String importPresets = 'import_presets';
+
+  /// The record of each import, a JSON list, newest first, with the ids of the
+  /// transactions it wrote (`features/import/`).
+  static const String importHistory = 'import_history';
 }
 
 /// The store over the database's `app_meta` table.

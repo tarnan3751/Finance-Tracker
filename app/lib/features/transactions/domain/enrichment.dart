@@ -23,7 +23,8 @@ final class EnrichedMerchant {
 
   /// The merchant of [transaction]:
   ///
-  /// - the name: Plaid's `merchantName` when present; else, for a `manual` transaction,
+  /// - the name: the stored `merchantName` (Plaid's, or an imported file's merchant
+  ///   column) when present; else, for a `manual` transaction,
   ///   its description as the user typed it; else the dictionary's name for the raw
   ///   `name`; else the raw name cleaned ([cleanMerchantName]);
   /// - the logo: Plaid's `merchantLogoUrl`, untouched (null when Plaid gave none);
