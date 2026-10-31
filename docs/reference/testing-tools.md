@@ -33,13 +33,17 @@ The definition of green. Run after every change, at every commit of a series, by
    `*.freezed.dart` files, schema dumps or helpers that are not committed fail the gate.
 6. **tests**: `flutter test` or `dart test` in every package with a `test/` directory; a
    package without one is skipped, and the gate fails if no package has tests. The
-   summary line gives each package's duration in seconds (`gate tests ok (<n> package(s):
-   app <s>s, server <s>s, ...)`), so a timeout under load can be put down to the package
-   that ran long (the convergence random run and the exhaustive tokenizer test are the
-   slow ones). Each package's run has a ceiling of `FT_TEST_TIMEOUT` seconds (default
-   1500, through `tools/with_ceiling.sh`, below), so a hung test cannot hold a lane for
-   hours (a gate sat idle for 9 h 37 min on 2026-10-30): past it, the package's test
-   processes are killed, the step fails with `== <package> FAILED: timed out after <n>s`
+   summary line gives each package's duration in seconds, then the ceiling and the load
+   (`gate tests ok (<n> package(s): app <s>s, server <s>s, ...) (ceiling <n>s at load
+   <l>)`), so a timeout under load can be put down to the package that ran long (the
+   convergence random run and the exhaustive tokenizer test are the slow ones). Each
+   package's run has a ceiling (through `tools/with_ceiling.sh`, below), so a hung test
+   cannot hold a lane for hours (a gate sat idle for 9 h 37 min on 2026-10-30): by default
+   1500 s scaled by the one-minute load read at the gate's start, 1500 × max(1, min(2,
+   load / 6)), so 1500 s up to a load of 6 and 3000 s from 12 on (the load is 0 when it
+   cannot be read); an explicit `FT_TEST_TIMEOUT` (whole seconds) is used as given, and
+   the line then reads `(ceiling <n>s from FT_TEST_TIMEOUT at load <l>)`. Past it, the
+   package's test processes are killed, the step fails with `== <package> FAILED: timed out after <n>s`
    and the last 40 lines of its output, the summary line marks the package `(timed out)`,
    and the gate goes on to the next step.
 7. **contract**: `tools/check_contract.sh` (below): the contract's structural check and
@@ -61,8 +65,10 @@ runs it only in its own clone.
 `tools/run_tests.sh` runs every package's tests; `tools/run_tests.sh app` runs one package
 (`app`, `server`, `packages/<name>`); `tools/run_tests.sh app "Money"` runs that package's
 tests whose name contains the text. It writes the same build output as the gate. Each
-package runs under the gate's `FT_TEST_TIMEOUT` ceiling; past it, its test processes are
-killed and the runner says which package timed out (its output is already above) and fails.
+package runs under the gate's ceiling, computed the same way from the load at its start (or
+`FT_TEST_TIMEOUT`) and printed first (`run_tests: ceiling <n>s at load <l>`); past it, its
+test processes are killed and the runner says which package timed out (its output is
+already above) and fails.
 
 ## `tools/with_ceiling.sh`: a run with a ceiling
 

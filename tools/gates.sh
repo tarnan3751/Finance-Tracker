@@ -18,10 +18,11 @@
 #                 package, and no untracked file in it (git status --porcelain), so a newly
 #                 generated file is caught too
 #   6. tests      flutter test (Flutter packages) or dart test (pure Dart packages), each
-#                 package under a ceiling of FT_TEST_TIMEOUT seconds (default 1500, through
-#                 tools/with_ceiling.sh): past it, the package's test processes are killed
-#                 and the package fails as timed out; the summary line gives each package's
-#                 duration
+#                 package under a ceiling of FT_TEST_TIMEOUT seconds (by default 1500 scaled
+#                 by the one-minute load at the gate's start, 1500 x max(1, min(2, load / 6)),
+#                 through tools/with_ceiling.sh): past it, the package's test processes are
+#                 killed and the package fails as timed out; the summary line gives each
+#                 package's duration, then the ceiling and the load
 #   7. contract   tools/check_contract.sh, once it exists (Phase 2): the OpenAPI document
 #                 passes the structural check and the generated client is current (the
 #                 fakes and the server are checked against it by their own tests)
@@ -54,7 +55,18 @@ if ! command -v "${FLUTTER%% *}" >/dev/null 2>&1; then
   exit 2
 fi
 
-TEST_TIMEOUT="${FT_TEST_TIMEOUT:-1500}"
+# The tests' ceiling: FT_TEST_TIMEOUT when set, else 1500 s scaled by the one-minute load
+# read now, 1500 x max(1, min(2, load / 6)), so a gate on a busy machine is not killed for
+# being slow (the load is 0 when it cannot be read).
+load="$(if [ -r /proc/loadavg ]; then cut -d' ' -f1 /proc/loadavg
+        else sysctl -n vm.loadavg 2>/dev/null | awk '{ print $2 }'; fi)"
+[[ "$load" =~ ^[0-9]+([.][0-9]+)?$ ]] || load=0
+if [ -n "${FT_TEST_TIMEOUT:-}" ]; then
+  TEST_TIMEOUT="$FT_TEST_TIMEOUT"; ceiling="ceiling ${TEST_TIMEOUT}s from FT_TEST_TIMEOUT at load $load"
+else
+  TEST_TIMEOUT="$(awk -v l="$load" 'BEGIN { f = l / 6; if (f < 1) f = 1; if (f > 2) f = 2; printf "%d", 1500 * f + 0.5 }')"
+  ceiling="ceiling ${TEST_TIMEOUT}s at load $load"
+fi
 if ! [[ "$TEST_TIMEOUT" =~ ^[0-9]+$ ]]; then
   echo "gates: FT_TEST_TIMEOUT must be a whole number of seconds, not '$TEST_TIMEOUT'" >&2
   exit 2
@@ -213,9 +225,9 @@ cat "$scratch/tests-ok.txt" "$scratch/tests-bad.txt" >"$scratch/tests.txt"
 if [ $ran -eq 0 ]; then
   report tests FAILED "no package has a test/ directory" "$scratch/tests.txt"
 elif [ $bad -eq 0 ]; then
-  report tests ok "$ran package(s): $durations"
+  report tests ok "$ran package(s): $durations) ($ceiling"
 else
-  report tests FAILED "$bad of $ran packages; $durations" "$scratch/tests.txt"
+  report tests FAILED "$bad of $ran packages; $durations) ($ceiling" "$scratch/tests.txt"
 fi
 
 # 7. Contract (Phase 2) -----------------------------------------------------------------
