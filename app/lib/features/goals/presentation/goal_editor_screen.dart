@@ -11,6 +11,7 @@ import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/router/own_page.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
+import 'package:finance_tracker/core/widgets/visible_messenger.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/presentation/currency_picker.dart';
 import 'package:finance_tracker/features/goals/application/goals_providers.dart';
@@ -151,7 +152,7 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
   Future<void> _save(LocalDate today) async {
     if (!_form.currentState!.validate()) return;
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState messenger = VisibleMessenger.of(context).pane;
     final GoalActions actions = ref.read(goalActionsProvider);
     final Goal? initial = _initial;
     final String note = _note.text.trim();
@@ -200,12 +201,12 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
     Future<void> Function(GoalActions actions, String id) undo,
   ) async {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final VisibleMessenger messenger = VisibleMessenger.of(context);
     final GoalActions actions = ref.read(goalActionsProvider);
     final String id = _initial!.id;
     const GoalsRoute().go(context);
     await write(actions, id);
-    messenger.showSnackBar(
+    messenger.afterClose.showSnackBar(
       SnackBar(
         content: Text(message),
         duration: undoDuration,

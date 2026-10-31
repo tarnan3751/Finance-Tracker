@@ -33,6 +33,7 @@ import 'package:finance_tracker/core/router/own_page.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
+import 'package:finance_tracker/core/widgets/visible_messenger.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/domain/account_not_found_exception.dart';
 import 'package:finance_tracker/features/accounts/presentation/currency_picker.dart';
@@ -395,7 +396,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
   // Takes or chooses a photo through the image source; it becomes the receipt on Save.
   Future<void> _pickReceipt({required bool camera}) async {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState messenger = VisibleMessenger.of(context).pane;
     final ImageSource source = ref.read(imageSourceProvider);
     try {
       // The camera and the picker are activities of their own: the lock stays open.
@@ -458,7 +459,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
   Future<void> _runRules() async {
     if (!_form.currentState!.validate()) return;
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState messenger = VisibleMessenger.of(context).pane;
     // Watched in build, so loaded unless the editor has only just opened.
     final List<Rule> rules = await ref.read(rulesProvider.future);
     if (!mounted) return;
@@ -521,7 +522,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState messenger = VisibleMessenger.of(context).pane;
     final TransactionActions actions = ref.read(transactionActionsProvider);
     final OwnPage page = OwnPage.of(context);
     final TransactionDraft draft = _draft();
@@ -558,14 +559,14 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
 
   Future<void> _delete() async {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final VisibleMessenger messenger = VisibleMessenger.of(context);
     final TransactionActions actions = ref.read(transactionActionsProvider);
     final String id = _initial!.id;
     final bool hasReceipt = _initial!.receiptPath != null;
     context.pop();
     await actions.delete(id);
     final ScaffoldFeatureController<SnackBar, SnackBarClosedReason> undo =
-        messenger.showSnackBar(
+        messenger.afterClose.showSnackBar(
           SnackBar(
             content: Text(l10n.transactionDeleted),
             duration: undoDuration,
@@ -577,7 +578,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
                 try {
                   await actions.restore(id);
                 } on AccountNotFoundException {
-                  messenger.showSnackBar(
+                  messenger.afterClose.showSnackBar(
                     SnackBar(content: Text(l10n.transactionRestoreNoAccount)),
                   );
                 }

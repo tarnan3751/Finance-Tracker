@@ -14,6 +14,7 @@ import 'dart:async';
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/router/own_page.dart';
+import 'package:finance_tracker/core/widgets/visible_messenger.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/presentation/currency_picker.dart';
 import 'package:finance_tracker/features/categories/presentation/category_picker.dart';
@@ -291,7 +292,7 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
     final bool valid = _form.currentState!.validate();
     if (!valid || _conditions.isEmpty || _actions.isEmpty) return;
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState messenger = VisibleMessenger.of(context).pane;
     final RuleActions actions = ref.read(ruleActionsProvider);
     final OwnPage page = OwnPage.of(context);
     final String name = _name.text.trim();
@@ -331,12 +332,12 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
 
   Future<void> _delete() async {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final VisibleMessenger messenger = VisibleMessenger.of(context);
     final RuleActions actions = ref.read(ruleActionsProvider);
     final String id = _initial!.id;
     context.pop();
     await actions.delete(id);
-    messenger.showSnackBar(
+    messenger.afterClose.showSnackBar(
       SnackBar(
         content: Text(l10n.ruleDeleted),
         duration: undoDuration,

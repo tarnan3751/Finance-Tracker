@@ -16,7 +16,9 @@
 /// navigation bar, lifting the screen's floating button instead of covering it, and
 /// carried over to the screen below when the one that showed it is popped. Beside a
 /// detail, the list has a messenger of its own (`TwoPane`), so a snack bar shows once,
-/// in the pane whose screen showed it.
+/// in the pane whose screen showed it. The selected tab's messenger is provided to the
+/// screens (`SelectedTabMessenger`) for a message raised once a screen has closed
+/// (`core/widgets/visible_messenger.dart`).
 ///
 /// The list beside a detail and the list as the navigator's first page are one element
 /// under one key (`ListKeys`), so it keeps its state when the window changes class.
@@ -34,6 +36,7 @@ import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/layout/window_size_class.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/widgets/visible_messenger.dart';
 import 'package:finance_tracker/features/accounts/presentation/accounts_screen.dart';
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
 import 'package:finance_tracker/features/bills/domain/bill_status.dart';
@@ -110,9 +113,13 @@ class _AppShellState extends ConsumerState<AppShell> {
 
   // The shell fills the window, so its width is the window's.
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) =>
-        _build(context, WindowSizeClass.fromWidth(constraints.maxWidth)),
+  Widget build(BuildContext context) => SelectedTabMessenger(
+    current: () =>
+        _messengers[widget.navigationShell.currentIndex].currentState,
+    child: LayoutBuilder(
+      builder: (context, constraints) =>
+          _build(context, WindowSizeClass.fromWidth(constraints.maxWidth)),
+    ),
   );
 
   Widget _build(BuildContext context, WindowSizeClass size) {

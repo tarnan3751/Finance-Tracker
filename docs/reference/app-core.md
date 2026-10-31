@@ -515,7 +515,12 @@ keeping its own navigation stack.
   `Scaffold`: above the navigation bar, lifting the screen's floating button rather than
   covering it, and still shown by the screen below when the one that showed it is popped
   (the transaction editor's Undo). Beside a detail the list has a messenger of its own
-  (`TwoPane`), so a snack bar shows once, in the pane whose screen showed it.
+  (`TwoPane`), so a snack bar shows once, in the pane whose screen showed it. A screen
+  that shows a message after an await takes `VisibleMessenger.of(context)`
+  (`core/widgets/visible_messenger.dart`) before it: `pane` while the screen stays (a
+  refused save), `afterClose` once it has closed (a delete's Undo), which is the
+  messenger of the tab selected when the message is shown, provided by the shell
+  (`SelectedTabMessenger`), so the message never lands on a tab or pane now offstage.
 - **The legacy import.** On its first frame `AppShell` reads `legacyImportResultProvider`:
   when the legacy importer brought anything in at this launch, a snack bar in the current
   tab says how many entries went into "Imported" and their total (and how many could not

@@ -15,6 +15,7 @@ import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
 import 'package:finance_tracker/core/router/own_page.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
+import 'package:finance_tracker/core/widgets/visible_messenger.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/presentation/currency_picker.dart';
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
@@ -251,7 +252,7 @@ class _BillFormState extends ConsumerState<_BillForm> {
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState messenger = VisibleMessenger.of(context).pane;
     final BillActions actions = ref.read(billActionsProvider);
     final ReminderScheduler scheduler = ref.read(reminderSchedulerProvider);
     final NotificationPermission permission = ref.read(
@@ -305,7 +306,7 @@ class _BillFormState extends ConsumerState<_BillForm> {
 
   Future<void> _delete() async {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final VisibleMessenger messenger = VisibleMessenger.of(context);
     final BillActions actions = ref.read(billActionsProvider);
     final String id = _initial!.id;
     // Back where the editor was opened from (the bills, or the screen a reminder's tap
@@ -317,7 +318,7 @@ class _BillFormState extends ConsumerState<_BillForm> {
       const BillsRoute().go(context);
     }
     await actions.delete(id);
-    messenger.showSnackBar(
+    messenger.afterClose.showSnackBar(
       SnackBar(
         content: Text(l10n.billDeleted),
         duration: undoDuration,

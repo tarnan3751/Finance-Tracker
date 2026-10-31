@@ -14,6 +14,7 @@ import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
+import 'package:finance_tracker/core/widgets/visible_messenger.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/conflicts/application/conflicts_providers.dart';
 import 'package:finance_tracker/features/conflicts/domain/sync_conflict.dart';
@@ -78,7 +79,7 @@ class _ConflictCardState extends ConsumerState<_ConflictCard> {
   bool _busy = false;
 
   Future<void> _run(Future<void> Function(ConflictActions) action) async {
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState messenger = VisibleMessenger.of(context).pane;
     final String failed = AppLocalizations.of(context).conflictKeepFailed;
     setState(() => _busy = true);
     try {
@@ -92,7 +93,7 @@ class _ConflictCardState extends ConsumerState<_ConflictCard> {
 
   // "Keep this device's value", saying so when its photo turned out to be gone.
   Future<void> _keep() {
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState messenger = VisibleMessenger.of(context).pane;
     final String gone = AppLocalizations.of(context).conflictPhotoGone;
     return _run((a) async {
       if (!await a.keepLocal(widget.conflict)) {

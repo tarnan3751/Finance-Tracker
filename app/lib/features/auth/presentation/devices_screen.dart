@@ -8,6 +8,7 @@ library;
 import 'package:finance_tracker/core/api/problems.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
+import 'package:finance_tracker/core/widgets/visible_messenger.dart';
 import 'package:finance_tracker/features/auth/application/devices_controller.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +77,7 @@ class DevicesScreen extends ConsumerWidget {
     DevicesController controller,
   ) async {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState messenger = VisibleMessenger.of(context).pane;
     final bool confirmed = await _confirm(
       context,
       title: l10n.devicesSignOutOthersTitle,
@@ -134,7 +135,7 @@ class _DeviceTile extends ConsumerWidget {
 
   Future<void> _remove(BuildContext context, WidgetRef ref) async {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState messenger = VisibleMessenger.of(context).pane;
     final DevicesController controller = ref.read(
       devicesControllerProvider.notifier,
     );
