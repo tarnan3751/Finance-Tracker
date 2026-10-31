@@ -52,14 +52,15 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
 
 **Starting again.** `startApp` gives its container `appRestartProvider`, the restart a
 restore runs under (`backup.md`, **Restore**): `runApp` of the plain restoring screen,
-then `stopApp()` (the reminder taps and the launch links cancelled, the container disposed, and the close its
+two frames (`runApp` attaches the new tree on a timer, so only after the second is the
+old one unmounted and its streams cancelled), then `stopApp()` (the reminder taps and the launch links cancelled, the container disposed, and the close its
 `databaseProvider` started awaited through `databaseClosing`, so the files are free),
 then the restore's work with its progress on that screen (a failure shown with a
 Continue button), then `startApp` again with the same configuration and overrides, so
 the app opens the new database exactly as at launch. It gives it `wipeLocalDataProvider`
 too, the local wipe (`data.md`, **The local wipe**) that account deletion and erasing the
 device run (`auth.md`): `runApp` of the plain erasing screen (`ErasingApp`), the same
-`stopApp()`, then the running container's `LocalWipe` until it succeeds (a failure shown
+two frames and `stopApp()`, then the running container's `LocalWipe` until it succeeds (a failure shown
 with Try again, never the app on half-wiped data), then the confirmation for the reason
 and, on Done, `startApp` again, which finds no database and no key and creates both.
 Before it opens anything local, `startApp` reads the wipe's pending record and, when a

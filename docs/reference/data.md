@@ -215,6 +215,13 @@ confirms, the unreadable files are deleted, a new key created and the backup res
 into a new database. Closing a database whose open failed rethrows the failure (Drift's
 `LazyDatabase.close`), so `bootstrap` leaves the container open on that path, and
 `databaseProvider`'s dispose ignores the three typed failures (`isDatabaseOpenFailure`).
+`AppDatabase.close` runs Drift's close again when its stream store fails with a
+`ConcurrentModificationError`: the store iterates its streams while awaiting each one's
+close, and a stream removed by Drift's own timer (its last listener left just before the
+close) or registered by a read still in flight (a job the stopped app started) changes
+the map under it while a paused listener holds the close back; it runs it again until it
+completes, at most five times (each retry logged by type, the fifth failure rethrown), and
+a second pass closes what is left.
 
 **Debugging.** `--dart-define=FT_PLAIN_DB=true` opens an unencrypted
 `finance_tracker.plain.db` instead, in the dev flavor only (other flavors log a warning and

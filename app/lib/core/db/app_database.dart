@@ -164,6 +164,17 @@ final class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 13;
 
+  /// Closes the database, its query streams first, through [closeAgainOnRace]. Drift's
+  /// stream store iterates its streams while awaiting each one's close, and that
+  /// iteration fails with a [ConcurrentModificationError] when the map changes under it:
+  /// a stream whose last listener left just before the close is removed by Drift's own
+  /// timer, and a read still in flight (a one-shot `.first` of a job the stopped app
+  /// started) registers a stream; either lands while a paused listener holds the close
+  /// back. The store is then shutting down and refuses new removals, so the close runs
+  /// again over what is left until it completes, at most five times.
+  @override
+  Future<void> close() => closeAgainOnRace(super.close);
+
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
@@ -357,6 +368,24 @@ final class AppDatabase extends _$AppDatabase {
 String provisionalNodeId() => 'local-${const Uuid().v4()}';
 
 int _systemWallMillis() => DateTime.now().millisecondsSinceEpoch;
+
+/// Runs [close] (Drift's close of a database) again after each
+/// [ConcurrentModificationError] its stream store fails with ([AppDatabase.close]), each
+/// retry logged by type; the fifth failure is rethrown, so a close that keeps being
+/// raced fails visibly rather than holding the restoring screen.
+Future<void> closeAgainOnRace(Future<void> Function() close) async {
+  for (int pass = 1; ; pass++) {
+    try {
+      await close();
+      return;
+    } on ConcurrentModificationError catch (e) {
+      if (pass == 5) rethrow;
+      _log.warning(
+        'closing the database raced, closing again: ${e.runtimeType}',
+      );
+    }
+  }
+}
 
 /// Writes again every record of [type] that [store] holds, so the ones a new table can
 /// now store (records pulled before this version had it, held as `unsupported_type`)

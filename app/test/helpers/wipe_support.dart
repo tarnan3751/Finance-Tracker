@@ -13,6 +13,7 @@ import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/features/auth/application/device_name.dart';
 import 'package:finance_tracker/features/backup/application/backup_providers.dart';
 import 'package:finance_tracker/features/settings/application/package_info.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show Ref;
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -48,12 +49,13 @@ final class TestWipe implements LocalWipe {
 
 /// The prod wiring of the tests over [server], [tokens] and [wipe], for the demo's
 /// startup path (no database to open), the database in memory if anything reads it
-/// ([onDatabase] is told when it is built).
+/// ([onDatabase] is told when it is built), or the one [database] builds.
 List<Override> wipeTestOverrides(
   FakeServer server,
   InMemoryTokenStore tokens,
   LocalWipe wipe, {
   void Function()? onDatabase,
+  AppDatabase Function(Ref ref)? database,
 }) => [
   appConfigProvider.overrideWithValue(AppConfig.prod()),
   clockProvider.overrideWithValue(testClock),
@@ -66,12 +68,15 @@ List<Override> wipeTestOverrides(
   localWipeProvider.overrideWithValue(wipe),
   restoreOfferProvider.overrideWith(AnsweredRestoreOffer.new),
   // What stopApp closes: the prod wiring reads it.
-  databaseProvider.overrideWith((ref) {
-    onDatabase?.call();
-    final AppDatabase database = AppDatabase(NativeDatabase.memory());
-    ref.onDispose(database.close);
-    return database;
-  }),
+  databaseProvider.overrideWith(
+    database ??
+        (ref) {
+          onDatabase?.call();
+          final AppDatabase database = AppDatabase(NativeDatabase.memory());
+          ref.onDispose(database.close);
+          return database;
+        },
+  ),
 ];
 
 // Frames enough for the app's startup, the stop and the wipe; the app shell keeps a

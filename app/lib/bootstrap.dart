@@ -221,6 +221,10 @@ Future<void> _restart(
     const RestoringState(),
   );
   runApp(ProviderScope(child: RestoringApp(state: state)));
+  // Two frames: runApp attaches the new tree on a timer, so the first frame may still
+  // hold the old one; after the second its widgets are unmounted and their streams
+  // cancelled, before stopApp closes the database under them.
+  await WidgetsBinding.instance.endOfFrame;
   await WidgetsBinding.instance.endOfFrame;
   await stopApp();
   final ProgressThrottle throttle = ProgressThrottle();
@@ -258,6 +262,8 @@ Future<void> _wipe(
       child: ErasingApp(state: state, reason: reason),
     ),
   );
+  // Two frames, as the restart waits: the old tree is gone before the database closes.
+  await WidgetsBinding.instance.endOfFrame;
   await WidgetsBinding.instance.endOfFrame;
   await stopApp();
   int failures = 0;
