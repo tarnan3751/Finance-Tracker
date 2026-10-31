@@ -1,5 +1,5 @@
 // The backup picker: the platform one asks flutter_file_dialog for a file with no MIME
-// filter, hands back the plugin's copy with its length, reads the ranges asked for and
+// filter (or the one it is given), hands back the plugin's copy with its name and length, reads the ranges asked for and
 // deletes the copy's directory on close, answers null when nothing was chosen, and turns
 // a platform error or an unreadable copy into BackupPickFailedException; the fake answers
 // its file, records the ranges read and counts the calls.
@@ -48,6 +48,7 @@ void main() {
         seen.single.arguments as Map<Object?, Object?>;
     expect(args['mimeTypesFilter'], isNull);
     expect(args['copyFileToCacheDir'], isTrue);
+    expect(picked.name, 'finance-tracker-2026-10-30.ftbk');
     expect(picked.length, 7);
     expect(await picked.read(0, 4), [0x46, 0x54, 0x42, 0x4b]);
     expect(await picked.read(4), [1, 2, 3]);
@@ -64,6 +65,16 @@ void main() {
     await picked.close();
     expect(file.existsSync(), isFalse);
     expect(temp.existsSync(), isTrue);
+  });
+
+  test('passes the MIME filter it is given', () async {
+    answer((_) => null);
+    await const PlatformBackupPicker(
+      mimeTypesFilter: ['text/*', 'application/csv'],
+    ).pick();
+    final Map<Object?, Object?> args =
+        seen.single.arguments as Map<Object?, Object?>;
+    expect(args['mimeTypesFilter'], ['text/*', 'application/csv']);
   });
 
   test('nothing chosen is null', () async {
@@ -87,8 +98,11 @@ void main() {
   test('the fake answers its file, records the reads and counts', () async {
     final FakeBackupPicker fake = FakeBackupPicker();
     expect(await fake.pick(), isNull);
-    fake.file = Uint8List.fromList([7, 8, 9]);
+    fake
+      ..file = Uint8List.fromList([7, 8, 9])
+      ..name = 'export.csv';
     final PickedFile picked = (await fake.pick())!;
+    expect(picked.name, 'export.csv');
     expect(await picked.read(0, 2), [7, 8]);
     expect(await picked.read(), [7, 8, 9]);
     await picked.close();

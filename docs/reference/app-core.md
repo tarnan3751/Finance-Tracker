@@ -255,20 +255,22 @@ not, so the gate runs both (`testing-tools.md`).
 
 `core/platform/backup_picker.dart` is the platform boundary for opening a backup file
 (`backup.md`), pure Dart: a `BackupPicker` has `pick()`, a `PickedFile` for the file the
-user chose (its `length`, its bytes by `read(start, end)`, and `close()`) or null when
-they chose none, so a caller can look at a file's start and refuse it before reading it
-whole; the dialog failing, or a file that cannot be read, is a
-`BackupPickFailedException`.
+user chose (its `name` as the system shows it, its `length`, its bytes by
+`read(start, end)`, and `close()`) or null when they chose none, so a caller can look at
+a file's start and refuse it before reading it whole; the dialog failing, or a file that
+cannot be read, is a `BackupPickFailedException`.
 
 - **`PlatformBackupPicker`** (`platform_backup_picker.dart`, dev and prod):
   `flutter_file_dialog`'s `pickFile`, the Storage Access Framework's "open document" (no
-  permission), with no MIME filter (the system does not know `.ftbk`; the header's magic
-  tells a backup from any other file). The plugin copies the file into
-  `<cache>/file_dialog-<uuid>/`; the copy is read in the ranges asked for and its
-  directory deleted on `close`. A platform error is logged by its code alone.
+  permission), with the `mimeTypesFilter` it is given: none for a backup (the system does
+  not know `.ftbk`; the header's magic tells a backup from any other file). The plugin
+  copies the file into `<cache>/file_dialog-<uuid>/` under its display name, which is the
+  picked file's `name`; the copy is read in the ranges asked for and its directory
+  deleted on `close`. A platform error is logged by its code alone.
 - **`FakeBackupPicker`** (`fake_backup_picker.dart`, the demo flavor and the tests):
-  answers its `file` (none by default) with an optional `length` to report, throws a
-  set `failure`, records the ranges read and counts the calls and closes.
+  answers its `file` (none by default) under its `name`, with an optional `length` to
+  report, throws a set `failure`, records the ranges read and counts the calls and
+  closes.
 
 ## The API client
 

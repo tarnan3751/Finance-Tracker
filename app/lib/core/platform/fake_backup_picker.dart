@@ -1,6 +1,6 @@
-/// The [BackupPicker] of the demo flavor and the tests: it hands back the file a test
-/// put in [FakeBackupPicker.file] (none by default), counts the calls, and records the
-/// ranges read.
+/// The [BackupPicker] of the demo flavor and the tests, for backups and CSV imports: it
+/// hands back the file a test put in [FakeBackupPicker.file] (none by default) under
+/// [FakeBackupPicker.name], counts the calls, and records the ranges read.
 library;
 
 import 'dart:typed_data';
@@ -11,10 +11,13 @@ import 'package:finance_tracker/core/platform/backup_picker.dart';
 final class FakeBackupPicker implements BackupPicker {
   /// A picker choosing [file]; with [failure] set, every call throws it; with [length]
   /// set, the file says it is that long (a test of a file too large to build).
-  FakeBackupPicker({this.file, this.failure, this.length});
+  FakeBackupPicker({this.file, this.name, this.failure, this.length});
 
   /// What the next pick returns; null is the user choosing nothing.
   Uint8List? file;
+
+  /// The chosen file's name.
+  String? name;
 
   /// What every call throws, when set.
   Exception? failure;
@@ -36,15 +39,18 @@ final class FakeBackupPicker implements BackupPicker {
     calls++;
     if (failure case final Exception e) throw e;
     final Uint8List? bytes = file;
-    return bytes == null ? null : _FakeFile(this, bytes);
+    return bytes == null ? null : _FakeFile(this, bytes, name);
   }
 }
 
 final class _FakeFile implements PickedFile {
-  _FakeFile(this._picker, this._bytes);
+  _FakeFile(this._picker, this._bytes, this.name);
 
   final FakeBackupPicker _picker;
   final Uint8List _bytes;
+
+  @override
+  final String? name;
 
   @override
   int get length => _picker.length ?? _bytes.length;

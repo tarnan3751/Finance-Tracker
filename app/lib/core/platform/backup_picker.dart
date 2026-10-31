@@ -1,6 +1,7 @@
 /// The platform boundary for opening a backup file (`docs/reference/app-core.md`, **The
-/// backup picker**; `docs/reference/backup.md`): the app asks a [BackupPicker] for a
-/// file the user chooses and gets back a [PickedFile], its length and its bytes read on
+/// backup picker**; `docs/reference/backup.md`), and through `csvPickerProvider` a CSV
+/// to import (`docs/reference/import.md`): the app asks a [BackupPicker] for a file the
+/// user chooses and gets back a [PickedFile], its name, its length and its bytes read on
 /// demand, so a caller can look at the start of a file and refuse it before reading it
 /// whole. `flutter_file_dialog`'s Storage Access Framework "open document" is behind it
 /// in dev and prod; a fake stands in for the demo flavor and the tests. Pure Dart, no
@@ -18,6 +19,9 @@ abstract interface class BackupPicker {
 
 /// A chosen file.
 abstract interface class PickedFile {
+  /// Its name as the system shows it, null when the system gives none.
+  String? get name;
+
   /// Its length, bytes.
   int get length;
 
