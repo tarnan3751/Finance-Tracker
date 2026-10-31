@@ -3,6 +3,70 @@
 Each release section is generated from the Conventional Commit log since the previous tag
 (`PLAN.md` §10). Tags are `vX.Y.Z`; a phase ends with a `vX.Y.Z-phaseN` pre-release.
 
+## v0.9.0-phase8 — 2026-10-31
+
+Phase 8 brings the Android platform features. The app syncs in the background on an hourly,
+battery-respecting WorkManager schedule that survives Doze, delegating to the app when it is alive
+so two isolates never race the server's token rotation, and it syncs again on its own when a network
+comes back. It owns its notification channels, posts budget alerts, the weekly summary and sync
+problems to the system tray beside the in-app list, asks for the notification permission only when a
+notifying feature is turned on, and has a Notifications settings screen with a background-sync row.
+Three home screen widgets (balances, budgets, upcoming bills) stay fresh within one background
+cycle, open the right screen when tapped and mask every amount while the app lock is on; four app
+shortcuts launch the common actions. Tablets get a navigation rail and list-and-detail panes,
+foldables split the panes on the hinge, every screen passes the accessibility guidelines at two text
+scales with TalkBack order checked, and the strings are ready for a second language with a generated
+pseudo-locale, a Spanish skeleton and a strings check in the gate. The harness boots a foldable or a
+tablet with posture control and every run and gate has a ceiling, so a hang can no longer hold the
+machine.
+
+### Features
+
+- tools: Boot a named AVD such as a foldable or a tablet (e5d0c2f)
+- app: Add window size classes and the rail (edec326)
+- app: Show two panes on expanded screens (bd2c1e5)
+- app: Split panes on a fold (6ce8270)
+- app: Add the localization scaffolding (68aa4de)
+- app: Harmonize custom colors with dynamic colors (88f5228)
+- app: Add the widget data writer and the launch intent seam (abeebc8)
+- widgets: Add the balances, budgets and bills widgets (ad4c2fb)
+- app: Add the app shortcuts (cdc5ac5)
+- app: Add the background work and connectivity seams (69b8539)
+- app: Open the database in WAL with a busy timeout (b2b621f)
+- sync: Sync again after a network change and on demand (ca2f67e)
+- app: Run a sync cycle from a background isolate (484280f)
+- app: Own the notification channels and the Notifications settings (32eee8e)
+
+### Fixes
+
+- tools: Put a ceiling on a harness run (88484d0)
+- tools: Put a ceiling on each package's tests in the gate (914c93d)
+- tools: Move the integration-test APK aside after a run (c2d3368)
+- app: Accessibility pass (013cabd)
+- app: Close the database only after the old tree is gone (917aad3)
+- tools: Scale the gate's test ceiling with the load (c12967c)
+
+### Refactoring
+
+- bills: Move the occurrence a bill row shows to the domain (4eadfd2)
+- app: Share one notifications plugin initialisation (8e2365e)
+
+### Tests
+
+- app: Cover the widget snapshot, the runner and the launch links (e00f226)
+- app: Prove background sync and Doze on the harness AVD (9a8777b)
+
+### Build and tooling
+
+- app: Add home_widget and quick_actions (365baf0)
+- app: Add workmanager and connectivity_plus (7e816ee)
+
+### Documentation
+
+- app: Document layouts, localization and the strings check (bedc45b)
+- widgets: Document the home screen widgets and the launch links (6458655)
+- app: Document background sync and notifications (4936013)
+
 ## v0.8.0-phase7 — 2026-10-30
 
 Phase 7 hardens sync and security. Everything the app holds can be exported into one file encrypted

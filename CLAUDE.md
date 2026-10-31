@@ -18,19 +18,19 @@ heading of this file or of a doc.
 
 ## Status
 
-**Phases 0 to 7 have landed and passed their gates; Phase 8 is next:** the app runs on its Riverpod
-and go_router core with manual accounts, transactions and categories on the encrypted Drift
-database (schema v13 with the change log, field clocks, Items, rules, budgets and their alerts,
-dismissed duplicate pairs, saved filters, a full-text index, recurring streams and their overrides,
+**Phases 0 to 8 have landed and passed their gates; Phase 9 is next:** the app runs on its Riverpod
+and go_router core with manual accounts, transactions and categories on the encrypted Drift database
+(schema v13 with the change log, field clocks, Items, rules, budgets and their alerts, dismissed
+duplicate pairs, saved filters, a full-text index, recurring streams and their overrides,
 liabilities, bills and bill alerts, securities, holdings, investment transactions, daily balance
 snapshots, goals and their contributions, the device-local conflicts and the transactions' receipt
 hashes); it signs in against the development server through the API client, syncs user data between
 devices through the sync engine (contract 0.7.0; a pulled record of a type this build does not know
-is held, not failed; a received clock more than an hour ahead is clamped), links banks through
-Plaid Link (real Sandbox Items through the server, which polls Plaid and verifies its webhooks),
-pulls their accounts and transactions with reported balances and institution logos, applies the
-user's rules on arrival and, on request, to the existing transactions; it budgets by category with
-periods, rollover, projection and in-app alerts, hides and bulk-edits transactions, reviews likely
+is held, not failed; a received clock more than an hour ahead is clamped), links banks through Plaid
+Link (real Sandbox Items through the server, which polls Plaid and verifies its webhooks), pulls
+their accounts and transactions with reported balances and institution logos, applies the user's
+rules on arrival and, on request, to the existing transactions; it budgets by category with periods,
+rollover, projection and in-app alerts, hides and bulk-edits transactions, reviews likely
 duplicates, searches by word prefixes, saves filters, splits transactions and attaches receipt
 photos; it pulls Plaid's recurring streams and liabilities, detects recurring streams in every
 transaction source with a measured detector and merges the two, classifies subscriptions and lists
@@ -40,26 +40,35 @@ band, all under a Plan tab with Budgets, Bills and Forecast segments; it pulls h
 investment transactions, records a balance snapshot per account per day and shows net worth over
 time with pre-install history reconstructed from transactions and labelled as derived, reports
 spending by category and merchant with comparisons, top movers and anomaly hints measured against
-the persona seeds, raises a weekly summary, tracks savings goals with contributions and
-suggestions, projects liability payoff, and exports a byte-identical PDF monthly report and a CSV,
-all under an Insights tab with Reports, Net worth, Investments and Goals segments; it backs
-everything up into one passphrase-encrypted file and restores it onto a fresh install or after a
-lost key, locks behind the device's biometrics or screen lock with a privacy screen and screenshot
-blocking, deletes the account or erases this device in an order a kill cannot leave half done,
-lists and removes the account's devices, shows the losing side of two edits made within ten minutes
-so the person can keep either, syncs receipt photos between devices through content-addressed
-blobs, survives a seeded chaos simulation of partitions, restarts and clock skew in the gate, and
-keeps a scrubbed copy of every log record in release builds; and it runs the demo flavor on the
-persona engine's seed against an in-process fake server with no network; the dev flavor carries a
-developer menu for the Sandbox controls. The repository is the pub workspace of **Folder layout**,
-Android only. The app runs in three flavors (`dev`, `demo`, `prod`) through
+the persona seeds, raises a weekly summary, tracks savings goals with contributions and suggestions,
+projects liability payoff, and exports a byte-identical PDF monthly report and a CSV, all under an
+Insights tab with Reports, Net worth, Investments and Goals segments; it backs everything up into
+one passphrase-encrypted file and restores it onto a fresh install or after a lost key, locks behind
+the device's biometrics or screen lock with a privacy screen and screenshot blocking, deletes the
+account or erases this device in an order a kill cannot leave half done, lists and removes the
+account's devices, shows the losing side of two edits made within ten minutes so the person can keep
+either, syncs receipt photos between devices through content-addressed blobs, survives a seeded
+chaos simulation of partitions, restarts and clock skew in the gate, and keeps a scrubbed copy of
+every log record in release builds; it syncs in the background on a battery-respecting hourly
+WorkManager schedule that survives Doze, delegating to the app when it is alive so two isolates
+never race the server's token rotation, and syncs again when a network returns; it owns its
+notification channels, posts budget alerts, the weekly summary and sync problems to the tray beside
+the in-app list, asks for the permission only when a notifying feature is turned on and has a
+Notifications settings screen; it keeps three home screen widgets (balances, budgets, upcoming
+bills) fresh within one background cycle and masked while the lock is on, and offers four app
+shortcuts; it fits a tablet and a foldable with a navigation rail and two panes that split on the
+hinge, passes the accessibility guidelines on every screen at two text scales, and carries a
+generated pseudo-locale and a Spanish skeleton behind a strings check in the gate; and it runs the
+demo flavor on the persona engine's seed against an in-process fake server with no network; the dev
+flavor carries a developer menu for the Sandbox controls. The repository is the pub workspace of
+**Folder layout**, Android only. The app runs in three flavors (`dev`, `demo`, `prod`) through
 `app/lib/bootstrap.dart`; `server/` is the development server implementing the contract with a fake
 Plaid client (`docs/reference/server.md`); `api/openapi.yaml` is the v1 contract, with
 `packages/api_client` generated from it and `packages/contract_test` checking against it; the
-Android build is Flutter 3.47's template with the package id, the flavors and the release
-hardening; CI runs the gate, builds the APKs and proves the generated client current. `PLAN.md` §4
-is the Plaid architecture with the verified Sandbox facts, §7.1 the data-coverage and synthesis
-policy, §8 the ten phases with sizes, §10 the process, §12 the decisions.
+Android build is Flutter 3.47's template with the package id, the flavors and the release hardening;
+CI runs the gate, builds the APKs and proves the generated client current. `PLAN.md` §4 is the Plaid
+architecture with the verified Sandbox facts, §7.1 the data-coverage and synthesis policy, §8 the
+ten phases with sizes, §10 the process, §12 the decisions.
 
 ## Stack (pinned)
 
@@ -104,6 +113,10 @@ scripts pick it the same way. Commands marked with a phase do not exist before i
 | Stop the harness emulator, even past a live lock | `tools/emulator_tests.sh stop [--force]` |
 | Run the sync chaos simulation with a seed and a budget | `SYNC_CHAOS_SEED=<n> SYNC_CHAOS_SCENARIOS=<k> dart test -t chaos` in `packages/sync_engine` |
 | Sweep the manifest, the extraction rules and a logcat capture for secrets | `tools/secrets_sweep.sh <capture>` (`--self-test` checks the patterns) |
+| Run one integration test file on the harness AVD | `tools/emulator_tests.sh integration -- integration_test/<file>.dart` |
+| Run the harness on the foldable or the tablet, and set the posture | `FT_EMULATOR_AVD=ft-fold FT_AVD_DEVICE=pixel_fold tools/emulator_tests.sh demo`, then `tools/emulator_tests.sh posture folded\|unfolded`; `ft-tablet` with `pixel_tablet` |
+| Check the background job is kept, deferred under Doze and run in its maintenance window | `tools/emulator_tests.sh run tools/scripts/background_doze_check.sh` |
+| Regenerate the pseudo-locale after adding strings | `dart run tools/pseudo_locale.dart`, then `flutter gen-l10n` in `app/` |
 
 **Any Flutter run writes files**: `build/` and `.dart_tool/` in the tree it runs in, and a `run`
 or `install` writes the app and its data onto whatever emulator or device is attached. The dev
@@ -127,6 +140,9 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | Sync engine (pure Dart, no Flutter): the merge, the session, the conflicts it reports, the chaos simulation under the `chaos` tag | `packages/sync_engine/` | `docs/reference/sync.md` |
 | Sync in the app: the Drift sync store, recording, the controller, the relay, the receipt upload before a push | `app/lib/core/sync/`, `app/lib/core/db/` | `docs/reference/sync-app.md` |
 | Background sync and notifications: the WorkManager seam and the cycle, the app and the worker in one process, the channels, the tray, Settings → Notifications | `app/lib/core/background/`, `app/lib/core/platform/`, `app/lib/features/settings/` | `docs/reference/background.md` |
+| Widgets and shortcuts: the snapshot and its writer, the refresh runner, the Kotlin providers, the launch intent seam and the launch links | `app/lib/features/widgets/`, `app/android/app/src/main/kotlin/dev/tarnan/financetracker/widgets/`, `app/lib/core/platform/launch_intent.dart`, `app/lib/core/router/launch_links.dart` | `docs/reference/widgets.md` |
+| Layout: window size classes, the rail, `TwoPane`, `openDetail`, the fold split | `app/lib/core/layout/` | `docs/reference/app-core.md` (Large screens and foldables) |
+| Localization: the ARB files and the generated localizations, the pseudo-locale generator, the strings check, the joins and title-case helpers | `app/lib/l10n/`, `app/lib/core/l10n/`, `tools/pseudo_locale.dart`, `tools/check_strings.dart` | `docs/reference/app-core.md` (Localization) |
 | Conflicts: the device-local table, the store, "Keep this device's value" and the Conflicts screen | `app/lib/features/conflicts/` | `docs/reference/sync-app.md` |
 | Backup: the `FTBK` archive and its cipher, the canonical dump and tolerant import, the restore offer and flow, the restart | `app/lib/features/backup/`, `app/lib/core/platform/backup_picker.dart`, `app/lib/bootstrap.dart` | `docs/reference/backup.md` |
 | The local wipe, account deletion, erasing this device, the devices list and the remote sign-out notice | `app/lib/core/db/local_wipe.dart`, `app/lib/features/auth/` | `docs/reference/auth.md`, `docs/reference/data.md` |
@@ -273,10 +289,11 @@ PLAN.md          the plan: gitignored, read from the main tree
 - A detected stream's id hashes its stable anchor (`L` for any day of the month of 28 or more),
   currency and direction; the user's overrides and bill links are keyed by it.
 - `app_meta` holds device-local state (`reminders_zone`, `reminders_scheduled_at`,
-  `forecast_selection`, `bill_suggestions_dismissed`, `snapshots_written_on`,
-  `dismissed_anomalies`, `weekly_summary_raised`, `payoff_entries`, `lock_enabled`,
-  `lock_timeout_seconds`, `secure_screen`) and never syncs;
-  `app_settings` syncs.
+  `forecast_selection`, `bill_suggestions_dismissed`, `snapshots_written_on`, `dismissed_anomalies`,
+  `weekly_summary_raised`, `payoff_entries`, `lock_enabled`, `lock_timeout_seconds`,
+  `secure_screen`, `app_language`, `background_sync_enabled`, `background_last_run`,
+  `session_ended_in_background`, `notification_permission_asked`, `sync_problems_told`) and never
+  syncs; `app_settings` syncs.
 - A pulled change-log entry whose `entity_type` this build does not know is held under its raw
   type name and released, at a schema step or at any later open, by a build that knows it; a pull
   never fails on an unknown type (`docs/reference/sync-app.md`, Unknown types). The first build
@@ -319,6 +336,34 @@ PLAN.md          the plan: gitignored, read from the main tree
   empty-archive check belongs to the release build. Device-to-device transfer ignores
   `allowBackup` for target 31+ too, so the `<device-transfer>` exclusion in
   `data_extraction_rules.xml` is what protects the data.
+- The database opens with `busy_timeout` 5 s and WAL on every connection: a second connection (the
+  background isolate) waits instead of failing, and Drift streams never see its writes, so the app
+  marks every table updated on resume when `background_last_run` moved.
+- The background isolate never syncs beside a live app: `ft.background` is a lock it takes before
+  asking the app through `ft.app`, the app registers `ft.app` before `startApp` waits on a worker's
+  cycle, and a holder that stops answering is removed; the auth interceptor re-reads the stored
+  session before a refresh because the server rotates refresh tokens with reuse detection. A
+  periodic work never runs before its schedule, forced or not (WorkManager reschedules it), and a
+  process ended by `am kill` or `am force-stop` counts as force-stopped, so the next job start
+  reschedules instead of running: end a test process with `run-as <package> kill -9 <pid>`.
+- `cancelByTag('ft.sync')`, never the plugin's `cancelAll` (the Plaid SDK has WorkManager work of
+  its own); a created notification channel's importance can never change, so a different behaviour
+  needs a new id.
+- `MainActivity` keeps `singleTop`; shortcut and widget launches reach go_router through the
+  `LaunchIntent` seam fed by `onNewIntent`, and Kotlin renders a widget only from the snapshot the
+  app wrote (money formatted in Dart, never in Kotlin).
+- The shell's size class comes from its own `LayoutBuilder` width; sub-screens open through
+  `openDetail`; the pane floors are 320 dp, 560 dp beside the extended rail and 240 dp per side on a
+  fold.
+- After adding strings run `dart run tools/pseudo_locale.dart` and `flutter gen-l10n`: the gate's
+  `strings` step fails on a stale `app_en_XA.arb`, on a prose literal in presentation code or on an
+  undescribed key; `initializeDateFormatting()` runs at startup, and a date formatted before it is
+  wrong in a non-English locale.
+- The harness: `FT_EMULATOR_RUN_TIMEOUT` (1800 s) ends a hung run with the screen's texts (emails
+  redacted) and frees the lock; `FT_TEST_TIMEOUT` (1500 s, scaled with the load) bounds each package
+  in the gate; `integration -- <file>` runs one file; `FT_EMULATOR_AVD=ft-fold
+  FT_AVD_DEVICE=pixel_fold` and `posture folded|unfolded` for the foldable, `ft-tablet` with
+  `pixel_tablet` for the tablet; booting one stops any other `ft-*` AVD.
 
 ## Seeing the app
 

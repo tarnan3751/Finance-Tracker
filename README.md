@@ -9,26 +9,34 @@ demo flavor runs with no server and no account at all.
 
 ## Status
 
-The app is usable for day-to-day tracking. It signs in, links banks and pulls their accounts
-and transactions, shows the balance each institution reports, and syncs manual changes
-between devices. Budgets follow a category for a monthly period with optional rollover,
-show progress and a projection, and raise alerts at 80 % and 100 %. Transactions can be
-searched by the first letters of any word, filtered and saved as named filters, hidden,
-edited in bulk, split across categories, tagged automatically by rules, checked for
-duplicates, and given a receipt photo. Recurring streams come from the bank and from a detector
-that runs over every transaction, subscriptions are listed with what they cost a year, bills
-have a calendar and local reminders that fire at the right local time across daylight-saving
-changes, and a forecast projects the next 30 or 90 days of balance with a confidence band.
-An Insights tab reports spending by category and merchant with comparisons, top movers and
-anomaly hints, raises a weekly summary, shows net worth over time with the history before
-install estimated from transactions and labelled as such, lists holdings with allocation and
-gains, tracks savings goals with contributions and suggestions, and projects when a loan or card
-is paid off; a monthly PDF report and a CSV export save through the system dialog or share.
-Everything can be exported into one file encrypted with a passphrase and restored onto a new
-install; the app locks behind the device's biometrics or screen lock and blocks screenshots;
-an account can be deleted outright or a device erased; the devices on an account are listed
-and can be signed out; two edits made within minutes of each other on different devices are
-shown side by side so either can be kept; receipt photos follow the transaction to every device.
+The app is usable for day-to-day tracking. It signs in, links banks and pulls their accounts and
+transactions, shows the balance each institution reports, and syncs manual changes between
+devices. Budgets follow a category for a monthly period with optional rollover, show progress
+and a projection, and raise alerts at 80 % and 100 %. Transactions can be searched by the first
+letters of any word, filtered and saved as named filters, hidden, edited in bulk, split across
+categories, tagged automatically by rules, checked for duplicates, and given a receipt photo.
+Recurring streams come from the bank and from a detector that runs over every transaction,
+subscriptions are listed with what they cost a year, bills have a calendar and local reminders
+that fire at the right local time across daylight-saving changes, and a forecast projects the
+next 30 or 90 days of balance with a confidence band. An Insights tab reports spending by
+category and merchant with comparisons, top movers and anomaly hints, raises a weekly summary,
+shows net worth over time with the history before install estimated from transactions and
+labelled as such, lists holdings with allocation and gains, tracks savings goals with
+contributions and suggestions, and projects when a loan or card is paid off; a monthly PDF
+report and a CSV export save through the system dialog or share. Everything can be exported into
+one file encrypted with a passphrase and restored onto a new install; the app locks behind the
+device's biometrics or screen lock and blocks screenshots; an account can be deleted outright or
+a device erased; the devices on an account are listed and can be signed out; two edits made
+within minutes of each other on different devices are shown side by side so either can be kept;
+receipt photos follow the transaction to every device. The app syncs in the background about
+every hour when online and the battery is not low, keeps doing so under Doze, and catches up as
+soon as a network returns; budget alerts, the weekly summary and sync problems reach the system
+tray through the app's own notification channels, and a Notifications settings screen asks for
+the permission only when it is needed; three home screen widgets show balances, budgets and
+upcoming bills and mask their amounts while the app is locked; four shortcuts launch the common
+actions; tablets get a navigation rail with list and detail side by side, foldables split on the
+hinge, every screen meets the accessibility guidelines at large text, and the strings are ready
+for translation.
 
 ## Layout
 
