@@ -5,6 +5,11 @@
 # go under "Other". The coordinator pastes the output under a "## <tag> — <date>" heading
 # with a short paragraph above the groups.
 #   tools/changelog.sh <range>        e.g. tools/changelog.sh v0.1.0-phase0..HEAD
+# A release (docs/reference/testing-tools.md, **Cutting a release**): generate the section
+# for <previous tag>..HEAD into CHANGELOG.md, commit it, put an annotated tag on that commit
+# (git tag -a <tag>), push the tag; .github/workflows/release.yml then runs the gate, builds
+# and checks the signed APKs and publishes the release with this section as its body
+# (tools/release/release_notes.sh).
 # Reads git only; writes nothing.
 set -uo pipefail
 [ $# -eq 1 ] || { echo "usage: tools/changelog.sh <git-range>" >&2; exit 2; }
