@@ -46,7 +46,8 @@ Tests:
   schema, through the app's own path too (opened in an isolate, restored over old
   database files under a new key), and the account rule;
 - `presentation/backup_screen_test.dart`: the export's rule, hint, progress and
-  hand-over, every refusal's message, the confirmation and the restart, the demo's
+  hand-over, every refusal's message, Back refused while the file is checked and allowed
+  again once the flow is done, the confirmation and the restart, the demo's
   entry, the offer, the lost-key screen;
 - `app/test/core/platform/backup_picker_test.dart`: the picker's boundary;
   `test/core/router/auth_redirect_test.dart`: the offer's redirect;
@@ -187,6 +188,13 @@ the confirmation; the lost-key screen has no data it can read.
    it. The app then starts as at launch: the full-text index is built at that open.
    A failure here is shown with a Continue button that starts the app on what the
    device holds.
+
+While the flow works, from the button to the restart (the file read, opened and checked
+in step 2, and the restart of step 5), Back cannot leave the screen that started it: a
+`PopScope` with `canPop` false while the flow is busy, on whichever screen hosts it
+(Settings → Backup, the offer, the lost-key screen), so a back gesture never abandons a
+restore half way. The passphrase and confirmation dialogs keep their own Back, which is
+their Cancel: nothing runs while either is open.
 
 **The import** (`importTables`), on a database just created at the current schema and
 opened without the full-text objects: foreign keys off; in one transaction, each table in

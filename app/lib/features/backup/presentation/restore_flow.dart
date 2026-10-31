@@ -16,6 +16,11 @@
 ///    the install's when none was recorded, so another account cannot sign in onto it.
 ///
 /// A failure before the restart is shown under the button and nothing has changed.
+///
+/// While the flow works, from the button to the restart (the file opening and checked,
+/// the restart running), Back cannot leave the screen it is on (a `PopScope` on that
+/// screen's route), so a back gesture never abandons a restore half way; the dialogs
+/// keep their own Back, which is their Cancel, and nothing runs while one is open.
 library;
 
 import 'dart:async';
@@ -217,24 +222,27 @@ class _RestoreFlowState extends ConsumerState<RestoreFlow> {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final BackupProgress? progress = _progress;
     final String? error = _error;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        FilledButton.icon(
-          icon: const Icon(Icons.settings_backup_restore),
-          label: Text(l10n.backupRestoreButton),
-          onPressed: _busy ? null : () => unawaited(_restore()),
-        ),
-        if (progress != null) ...[
-          const SizedBox(height: 16),
-          BackupProgressView(progress),
+    return PopScope(
+      canPop: !_busy,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FilledButton.icon(
+            icon: const Icon(Icons.settings_backup_restore),
+            label: Text(l10n.backupRestoreButton),
+            onPressed: _busy ? null : () => unawaited(_restore()),
+          ),
+          if (progress != null) ...[
+            const SizedBox(height: 16),
+            BackupProgressView(progress),
+          ],
+          if (error != null) ...[
+            const SizedBox(height: 16),
+            BackupErrorText(error),
+          ],
         ],
-        if (error != null) ...[
-          const SizedBox(height: 16),
-          BackupErrorText(error),
-        ],
-      ],
+      ),
     );
   }
 }

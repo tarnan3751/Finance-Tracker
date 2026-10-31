@@ -1,7 +1,7 @@
 // The backup screens: the export's passphrase rule, strength hint, progress and
 // hand-over; the restore's refusals, each with its own message (data on the install,
 // not a backup, too new, unsafe, a wrong passphrase, damage, another account), its
-// progress, its confirmation and the restart it runs under; the demo's Settings entry;
+// progress, Back held while it works, its confirmation and the restart it runs under; the demo's Settings entry;
 // the fresh install's offer; the restoring screen; and the lost-key screen's way in.
 import 'dart:async';
 import 'dart:io';
@@ -351,6 +351,31 @@ void main() {
       runner.gate!.complete();
       await tester.pumpAndSettle();
       expect(find.text(l10n.backupConfirmTitle), findsOneWidget);
+    });
+
+    testWidgets('Back cannot leave the screen while the file is checked', (
+      tester,
+    ) async {
+      runner.gate = Completer<void>();
+      await pumpBackup(tester);
+      runner.result = OpenedBackup(
+        manifest(userId: signedInUser(tester)),
+        Uint8List(32),
+      );
+      await start(tester);
+      expect(find.text(l10n.backupStageChecking), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.text(l10n.backupStageChecking), findsOneWidget);
+
+      runner.gate!.complete();
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l10n.cancel));
+      await tester.pumpAndSettle();
+      expect(find.byType(RestoreFlow), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(RestoreFlow), findsNothing);
     });
 
     testWidgets('confirms what it restores, then restarts around it', (
