@@ -190,12 +190,14 @@ caches them under `.dart_tool/hooks_runner/`, so a first build needs the network
    `NativeDatabase.createInBackground`:
    - `PRAGMA cipher;` must return a row, else `EncryptionUnavailableException`;
    - `PRAGMA key = "x'<64 hex>'"`: a raw 32-byte key, no key derivation;
-   - `PRAGMA busy_timeout = 5000;`, so the check below waits too;
+   - the busy handler (`busyWaiter`: SQLite retries for five seconds of wall time, not
+     `PRAGMA busy_timeout`, whose sleeps a signal cuts short; `background.md`, **The
+     database**), so the check below waits too;
    - `SELECT count(*) FROM sqlite_master;`: "file is not a database" (result code 26) is
      `DatabaseKeyMismatchException`;
    - `PRAGMA journal_mode = WAL;`.
 
-   The busy timeout and WAL are on every connection, idempotent at each open (a database
+   The busy handler and WAL are on every connection, idempotent at each open (a database
    kept with a rollback journal moves to WAL with its data): the background sync opens its
    own connection to the file the app may hold (`background.md`, **The database**), so a
    write that meets the other's waits up to five seconds rather than failing with

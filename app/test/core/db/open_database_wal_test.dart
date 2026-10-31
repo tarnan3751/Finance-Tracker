@@ -1,7 +1,8 @@
 // Two connections on one file (`docs/reference/background.md`, **The database**): every
-// connection opens in WAL with a five-second busy timeout, a database kept with a
-// rollback journal opens in WAL with its data, a write that meets the other
-// connection's transaction waits for it instead of failing, and a transaction its
+// connection opens in WAL, a database kept with a rollback journal opens in WAL with its
+// data, the busy handler waits its timeout in wall time (the VM's profiler, on in a
+// test, cuts SQLite's own sleeps short with signals on Linux), a write that meets the
+// other connection's transaction waits for it instead of failing, and a transaction its
 // connection never committed leaves nothing behind (what the background cycle's
 // deadline relies on when its engine goes).
 import 'dart:async';
@@ -35,7 +36,7 @@ void main() {
   Future<Object?> pragma(AppDatabase db, String name) async =>
       (await db.customSelect('PRAGMA $name').getSingle()).data.values.single;
 
-  test('every connection is in WAL with a five-second busy timeout', () async {
+  test('every connection is in WAL', () async {
     final AppDatabase first = await open();
     final AppDatabase second = await open();
     addTearDown(first.close);
@@ -43,9 +44,46 @@ void main() {
     for (final AppDatabase db in [first, second]) {
       await db.verifyOpen();
       expect(await pragma(db, 'journal_mode'), 'wal');
-      expect(await pragma(db, 'busy_timeout'), busyTimeoutMillis);
     }
   });
+
+  test(
+    'a write that meets a lock is retried for the timeout, in wall time',
+    () {
+      Database connection() => sqlite3.open('${directory.path}/raw.db')
+        ..busyHandler = busyWaiter(timeoutMillis: 400)
+        ..select('PRAGMA journal_mode = WAL;');
+      final Database holder = connection()
+        ..execute('CREATE TABLE t (k TEXT PRIMARY KEY)');
+      final Database waiter = connection();
+      addTearDown(holder.close);
+      addTearDown(waiter.close);
+      holder
+        ..execute('BEGIN IMMEDIATE')
+        ..execute("INSERT INTO t VALUES ('held')");
+      final Stopwatch watch = Stopwatch()..start();
+      expect(
+        () => waiter.execute("INSERT INTO t VALUES ('waiting')"),
+        throwsA(
+          isA<SqliteException>().having((e) => e.resultCode, 'resultCode', 5),
+        ),
+      );
+      expect(watch.elapsedMilliseconds, greaterThanOrEqualTo(400));
+      holder.execute('COMMIT');
+      // A second meeting waits its own timeout again.
+      holder
+        ..execute('BEGIN IMMEDIATE')
+        ..execute("INSERT INTO t VALUES ('held again')");
+      watch.reset();
+      expect(
+        () => waiter.execute("INSERT INTO t VALUES ('waiting')"),
+        throwsA(isA<SqliteException>()),
+      );
+      expect(watch.elapsedMilliseconds, greaterThanOrEqualTo(400));
+      holder.execute('COMMIT');
+      waiter.execute("INSERT INTO t VALUES ('waiting')");
+    },
+  );
 
   test(
     'a database kept with a rollback journal opens in WAL with its data',

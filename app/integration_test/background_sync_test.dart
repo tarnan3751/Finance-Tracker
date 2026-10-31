@@ -6,15 +6,18 @@
 // planned again, today's balance snapshots and the widgets' snapshot are written (the
 // cycle's own steps), the latter read back through `home_widget` with the pulled
 // transaction in its net worth, the run is recorded, and a delta cycle stays inside its
-// deadline. The second schedules the periodic sync afresh
+// deadline. The second has a write on one connection meet the other's open transaction
+// on the device's own SQLite and wait for it (`open_database.dart`'s busy handler). The
+// third schedules the periodic sync afresh
 // with the real plugin and reads it back from WorkManager;
 // `tools/scripts/background_doze_check.sh` runs it with `--no-uninstall` and then runs
 // the task under Doze. Run on the harness's emulator with `tools/emulator_tests.sh
 // integration`.
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:drift/drift.dart' show LazyDatabase;
+import 'package:drift/drift.dart' show LazyDatabase, driftRuntimeOptions;
 import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/api/fake/fake_dataset.dart';
 import 'package:finance_tracker/core/api/fake/fake_server.dart';
@@ -303,6 +306,56 @@ void main() {
     final Map<String, Object?> snapshot =
         jsonDecode(raw!) as Map<String, Object?>;
     expect((snapshot['net_worth']! as Map<String, Object?>)['minor'], stored);
+  });
+
+  testWidgets("a write that meets the other connection's transaction waits for it, on "
+      "the device's SQLite", (tester) async {
+    // Two connections to one file are the point here.
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+    final Directory dir = await getTemporaryDirectory();
+    final File file = File(
+      p.join(dir.path, 'background-wal-$databaseFileName'),
+    );
+    for (final String suffix in const ['', '-wal', '-shm', '-journal']) {
+      final File f = File('${file.path}$suffix');
+      if (f.existsSync()) f.deleteSync();
+    }
+    final InMemoryDatabaseKeyStore keys = InMemoryDatabaseKeyStore();
+    final AppDatabase app = AppDatabase(
+      await openDatabaseExecutor(file, keyStore: keys),
+    );
+    final AppDatabase worker = AppDatabase(
+      await openDatabaseExecutor(file, keyStore: keys),
+    );
+    addTearDown(app.close);
+    addTearDown(worker.close);
+    await app.verifyOpen();
+    await worker.verifyOpen();
+
+    final Completer<void> inside = Completer<void>();
+    final Completer<void> release = Completer<void>();
+    final Future<void> held = app.transaction(() async {
+      await DriftAppMetaStore(app).write('app', '1');
+      inside.complete();
+      await release.future;
+    });
+    await inside.future;
+    bool committed = false;
+    final Stopwatch waited = Stopwatch()..start();
+    final Future<void> waiting = DriftAppMetaStore(worker)
+        .write('worker', '1')
+        .then((_) => expect(committed, isTrue));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    committed = true;
+    release.complete();
+    await held;
+    await waiting;
+    // ignore: avoid_print
+    print(
+      'BACKGROUND the second connection waited ${waited.elapsedMilliseconds} ms',
+    );
+    expect(await DriftAppMetaStore(app).read('worker'), '1');
+    expect(await DriftAppMetaStore(worker).read('app'), '1');
   });
 
   testWidgets('the periodic sync is scheduled with WorkManager and read back', (

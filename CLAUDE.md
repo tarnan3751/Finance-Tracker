@@ -336,9 +336,11 @@ PLAN.md          the plan: gitignored, read from the main tree
   empty-archive check belongs to the release build. Device-to-device transfer ignores
   `allowBackup` for target 31+ too, so the `<device-transfer>` exclusion in
   `data_extraction_rules.xml` is what protects the data.
-- The database opens with `busy_timeout` 5 s and WAL on every connection: a second connection (the
-  background isolate) waits instead of failing, and Drift streams never see its writes, so the app
-  marks every table updated on resume when `background_last_run` moved.
+- The database opens with a busy handler that waits 5 s of wall time (not `PRAGMA busy_timeout`,
+  whose sleeps the VM profiler's signals cut short on Linux and Android) and WAL on every
+  connection: a second connection (the background isolate) waits instead of failing, and Drift
+  streams never see its writes, so the app marks every table updated on resume when
+  `background_last_run` moved.
 - The background isolate never syncs beside a live app: `ft.background` is a lock it takes before
   asking the app through `ft.app`, the app registers `ft.app` before `startApp` waits on a worker's
   cycle, and a holder that stops answering is removed; the auth interceptor re-reads the stored

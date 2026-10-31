@@ -10,13 +10,17 @@
 /// 2. `PRAGMA key = "x'<64 hex>'"`, a raw key with no key derivation;
 /// 3. `SELECT count(*) FROM sqlite_master`, where "file is not a database" means the key
 ///    is wrong: [DatabaseKeyMismatchException];
-/// 4. `PRAGMA busy_timeout = 5000` (set right after the key, so the check above waits
-///    too) and `PRAGMA journal_mode = WAL`, on every connection (both idempotent): the
-///    background sync's own connection
+/// 4. A busy handler that retries for five seconds of wall time ([busyWaiter], set right
+///    after the key, so the check above waits too) and `PRAGMA journal_mode = WAL`, on
+///    every connection (both idempotent): the background sync's own connection
 ///    (`docs/reference/background.md`) shares the file with the app's, so a write that
 ///    meets the other's write waits up to five seconds instead of failing with
-///    `SQLITE_BUSY` at once, and readers never block the writer. The local wipe and the
-///    restore already delete the `-wal` and `-shm` files with the database.
+///    `SQLITE_BUSY` at once, and readers never block the writer. Not
+///    `PRAGMA busy_timeout`: SQLite's own handler counts the sleeps it asked for, not the
+///    time they took, and a signal cuts each one short (the Dart VM's profiler samples
+///    with `SIGPROF` on Linux and Android in a debug build), so its five seconds can pass
+///    in under a tenth of one. The local wipe and the restore already delete the `-wal`
+///    and `-shm` files with the database.
 ///
 /// The sequence also runs once on the calling isolate, on a short-lived connection, before
 /// the background one opens, so the caller gets these exceptions as themselves rather than
@@ -30,6 +34,7 @@
 library;
 
 import 'dart:io';
+import 'dart:math';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -57,6 +62,9 @@ const int _sqliteNotADatabase = 26;
 
 /// How long a connection waits for another's lock before failing.
 const int busyTimeoutMillis = 5000;
+
+/// The longest sleep between two attempts of [busyWaiter].
+const int _busyRetryMaxMillis = 20;
 
 final RegExp _hexKey = RegExp(r'^[0-9a-f]{64}$');
 
@@ -140,7 +148,7 @@ DatabaseSetup databaseSetup({
     if (hexKey != null) {
       database.execute('PRAGMA key = "x\'$hexKey\'";');
     }
-    database.execute('PRAGMA busy_timeout = $busyTimeoutMillis;');
+    database.busyHandler = busyWaiter();
     try {
       database.select('SELECT count(*) FROM sqlite_master;');
     } on SqliteException catch (e) {
@@ -150,5 +158,25 @@ DatabaseSetup databaseSetup({
       rethrow;
     }
     database.select('PRAGMA journal_mode = WAL;');
+  };
+}
+
+/// A busy handler for one connection that has SQLite try again, sleeping a little more
+/// each time up to 20 ms, until [timeoutMillis] of wall time have passed since the lock
+/// was first met; measured on a stopwatch, so a sleep a signal cut short only means an
+/// earlier attempt.
+bool Function(int count) busyWaiter({int timeoutMillis = busyTimeoutMillis}) {
+  final Stopwatch waited = Stopwatch();
+  return (int count) {
+    if (count == 0) waited.reset();
+    waited.start();
+    final int left = timeoutMillis - waited.elapsedMilliseconds;
+    if (left <= 0) return false;
+    sleep(
+      Duration(
+        milliseconds: [count + 1, _busyRetryMaxMillis, left].reduce(min),
+      ),
+    );
+    return true;
   };
 }

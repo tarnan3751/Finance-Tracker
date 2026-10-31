@@ -46,6 +46,7 @@ machine.
 - app: Close the database only after the old tree is gone (917aad3)
 - tools: Scale the gate's test ceiling with the load (c12967c)
 - app: Write today's balance snapshots before the worker's widgets
+- app: Wait out a held lock in wall time, not SQLite's busy timeout
 
 ### Refactoring
 

@@ -170,11 +170,21 @@ delta cycle about 0.3 s.
 
 ## The database
 
-Every connection sets `PRAGMA busy_timeout = 5000` (right after the key) and
+Every connection installs a busy handler (`busyWaiter`, right after the key) and sets
 `journal_mode = WAL` at open (`data.md`, **Encryption and the key**). A write that meets
-the other connection's write waits up to five seconds; past that it fails with
-`SQLITE_BUSY` and the cycle's session fails as any session does. Readers never block the
-writer. Both connections load the one SQLite3 Multiple Ciphers library of the process, so
+the other connection's write, whether one statement or a Drift transaction (Drift begins
+them `IMMEDIATE`, so the lock is taken at the start, where the handler applies), retries
+for five seconds of wall time, measured on a stopwatch; past that it fails with
+`SQLITE_BUSY` and the cycle's session fails as any session does. It is not `PRAGMA
+busy_timeout`: SQLite's handler adds up the sleeps it asked for, and a signal ends each
+early (the Dart VM's profiler samples with `SIGPROF` on Linux and Android in debug
+builds), so its five seconds passed in about 0.1 s on the harness AVD and on the Linux
+CI runner; macOS samples without signals, which is why it held there. The handler sleeps
+on whichever isolate runs the statement that met the lock: for the database itself that is
+Drift's background isolate, never the caller's; the short-lived probe connections that run
+the open sequence on the calling isolate (the open's own check, `open_database.dart`, and
+the cycle's schema probe) only read, as `PRAGMA busy_timeout` slept on that thread before.
+Readers never block the writer. Both connections load the one SQLite3 Multiple Ciphers library of the process, so
 SQLite's in-process lock bookkeeping sees both. Drift streams never see another
 connection's writes: on resume, when `background_last_run` moved since the app last looked
 and the worker ran it (not delegated), the app calls `markTablesUpdated` on every table
@@ -251,9 +261,10 @@ over the fakes' state.
 - `app/test/core/platform/connectivity_test.dart`, `system_notifications_test.dart`: the
   connectivity fake; the channels, the tray notifier, the composite and the permission
   against the plugin's mocked channel.
-- `app/test/core/db/open_database_wal_test.dart`: WAL and the busy timeout on every
-  connection, a write waiting for the other connection's transaction, an uncommitted
-  transaction leaving nothing.
+- `app/test/core/db/open_database_wal_test.dart`: WAL on every connection, the busy
+  handler waiting its timeout in wall time (under the test's profiler, which on Linux cuts
+  SQLite's own sleeps short), a write waiting for the other connection's transaction, an
+  uncommitted transaction leaving nothing.
 - `app/test/core/background/`: the cycle on a real encrypted file (what it runs and
   records, its result, every guard, the full-text and key-less ones included, a session
   ended, a held run, two cycles at once of which one runs, the deadline, and a
@@ -278,7 +289,8 @@ over the fakes' state.
   cycle's body in the test isolate on an encrypted database on the device and the fake
   server with the family persona (a transaction another device added pulled, today's
   snapshots written again, and the widgets' snapshot read back through
-  `HomeWidget.getWidgetData` with it in its net worth), and the
+  `HomeWidget.getWidgetData` with it in its net worth), a write on one connection
+  waiting for the other's transaction on the device's SQLite, and the
   periodic sync scheduled with the real plugin and read back from WorkManager.
 - `tools/scripts/background_doze_check.sh` (`testing-tools.md`) proves, on `ft-lane`,
   that WorkManager keeps the periodic sync's job, that Doze defers it while the device is
