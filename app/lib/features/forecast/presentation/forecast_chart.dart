@@ -9,6 +9,8 @@
 /// tooltip and the summary format the point's own `Money`.
 library;
 
+import 'package:finance_tracker/core/theme/finance_colors.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/features/forecast/domain/cash_flow_forecast.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -26,6 +28,7 @@ class ForecastChart extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
     final ColorScheme colors = theme.colorScheme;
+    final FinanceColors inks = FinanceColors.of(context);
     final DateFormat date = DateFormat.MMMd();
     final List<ForecastPoint> points = series.points;
     final int lowest = points.indexOf(series.lowestPoint);
@@ -78,14 +81,14 @@ class ForecastChart extends StatelessWidget {
                   edge.copyWith(spots: spots((p) => p.upper.minorUnits)),
                   LineChartBarData(
                     spots: spots((p) => p.balance.minorUnits),
-                    color: colors.primary,
-                    barWidth: 2.5,
+                    color: inks.ink(0),
+                    barWidth: SpendthriftTokens.chartStroke,
                     dotData: FlDotData(
                       checkToShowDot: (spot, _) =>
                           spot.x == 0 || spot.x == lowest.toDouble(),
                       getDotPainter: (spot, _, _, _) => FlDotCirclePainter(
                         radius: 5,
-                        color: spot.x == 0 ? colors.primary : colors.tertiary,
+                        color: spot.x == 0 ? inks.ink(0) : inks.ink(2),
                         strokeColor: colors.surface,
                         strokeWidth: 2,
                       ),
@@ -96,7 +99,8 @@ class ForecastChart extends StatelessWidget {
                   BetweenBarsData(
                     fromIndex: 0,
                     toIndex: 1,
-                    color: colors.primary.withValues(alpha: 0.18),
+                    // The band in the pink ink's tint.
+                    color: inks.tint(1),
                   ),
                 ],
                 extraLinesData: ExtraLinesData(

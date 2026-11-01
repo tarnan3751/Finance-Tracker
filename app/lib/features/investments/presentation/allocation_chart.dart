@@ -8,20 +8,20 @@
 /// summary format the slices' own `Money`.
 library;
 
+import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/features/investments/domain/allocation.dart';
 import 'package:finance_tracker/features/investments/presentation/investment_rows.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-/// The colour of the slice at [index] in the donut and its table.
-Color allocationColor(ColorScheme colors, int index) {
+/// The colour of the slice at [index] in the donut and its table: the inks of [theme],
+/// then its containers.
+Color allocationColor(ThemeData theme, int index) {
+  final ColorScheme colors = theme.colorScheme;
   final List<Color> palette = [
-    colors.primary,
-    colors.tertiary,
-    colors.secondary,
     // Never the error colour: a slice is a share, not a loss.
-    colors.inversePrimary,
+    ...theme.extension<FinanceColors>()!.inks,
     colors.primaryContainer,
     colors.tertiaryContainer,
     colors.secondaryContainer,
@@ -69,7 +69,7 @@ class AllocationDonut extends StatelessWidget {
                         PieChartSectionData(
                           value: allocation.slices[i].value.minorUnits
                               .toDouble(),
-                          color: allocationColor(theme.colorScheme, i),
+                          color: allocationColor(theme, i),
                           radius: 36,
                           showTitle: false,
                         ),
@@ -131,7 +131,7 @@ class AllocationTable extends StatelessWidget {
                       Container(
                         width: 12,
                         height: 12,
-                        color: allocationColor(theme.colorScheme, i),
+                        color: allocationColor(theme, i),
                       ),
                       const SizedBox(width: 12),
                       Expanded(

@@ -11,6 +11,8 @@
 library;
 
 import 'package:finance_tracker/core/l10n/joins.dart';
+import 'package:finance_tracker/core/theme/finance_colors.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/features/net_worth/domain/net_worth_series.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -29,15 +31,17 @@ class NetWorthChart extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
     final ColorScheme colors = theme.colorScheme;
+    final FinanceColors inks = FinanceColors.of(context);
     final DateFormat date = DateFormat.yMMMd();
     // The first observed point: the derived span ends there and the solid one starts.
     final int join = points.indexWhere((p) => !p.derived);
     final bool estimated = points.first.derived;
     final List<(Money Function(NetWorthPoint), Color)> lines = [
-      ((p) => p.netWorth, colors.primary),
-      ((p) => p.assets, colors.tertiary),
-      // Grey, not the error colour, which is too close to the tertiary in dark.
-      ((p) => p.liabilities, colors.onSurfaceVariant),
+      // Net worth in blue, assets in the green of money in, liabilities in the pink of
+      // money out.
+      ((p) => p.netWorth, inks.ink(0)),
+      ((p) => p.assets, inks.ink(3)),
+      ((p) => p.liabilities, inks.ink(1)),
     ];
     int low = 0;
     int high = 0;
@@ -75,7 +79,7 @@ class NetWorthChart extends StatelessWidget {
           LineChartBarData(
             spots: spots(of, join, points.length),
             color: color,
-            barWidth: 2.5,
+            barWidth: SpendthriftTokens.chartStroke,
             // A lone observed point is a dot, so it shows.
             dotData: FlDotData(show: points.length - join == 1),
           ),
@@ -186,9 +190,9 @@ class NetWorthChart extends StatelessWidget {
                 spacing: 16,
                 runSpacing: 4,
                 children: [
-                  _Key(colors.primary, l10n.netWorthTitle),
-                  _Key(colors.tertiary, l10n.netWorthAssets),
-                  _Key(colors.onSurfaceVariant, l10n.netWorthLiabilitiesLine),
+                  _Key(inks.ink(0), l10n.netWorthTitle),
+                  _Key(inks.ink(3), l10n.netWorthAssets),
+                  _Key(inks.ink(1), l10n.netWorthLiabilitiesLine),
                   if (estimated)
                     _Key(
                       colors.outline,

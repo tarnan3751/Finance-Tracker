@@ -7,6 +7,8 @@
 /// tooltips and summaries format the amounts' own `Money`.
 library;
 
+import 'package:finance_tracker/core/theme/finance_colors.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/features/reports/domain/report.dart';
 import 'package:finance_tracker/features/reports/presentation/report_format.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -97,9 +99,15 @@ class CategoryDonut extends StatelessWidget {
   }
 }
 
-/// The colours for income and spending in the bars and the trend.
-({Color income, Color spending}) _seriesColors(ColorScheme colors) =>
-    (income: colors.tertiary, spending: colors.primary);
+/// The colours for income and spending in the bars and the trend: the green of money in
+/// and the blue ink.
+({Color income, Color spending}) _seriesColors(FinanceColors inks) =>
+    (income: inks.ink(3), spending: inks.ink(0));
+
+/// A bar's corners: flat, rounded only at the top.
+const BorderRadius _barTop = BorderRadius.vertical(
+  top: Radius.circular(SpendthriftTokens.barTopRadius),
+);
 
 /// A legend under a chart: a swatch and the name of each series.
 class SeriesLegend extends StatelessWidget {
@@ -109,7 +117,9 @@ class SeriesLegend extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
-    final ({Color income, Color spending}) c = _seriesColors(theme.colorScheme);
+    final ({Color income, Color spending}) c = _seriesColors(
+      FinanceColors.of(context),
+    );
     Widget item(Color color, String label) => Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -144,7 +154,9 @@ class IncomeSpendingBars extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
-    final ({Color income, Color spending}) c = _seriesColors(theme.colorScheme);
+    final ({Color income, Color spending}) c = _seriesColors(
+      FinanceColors.of(context),
+    );
     int high = 0;
     int low = 0;
     for (final TrendPoint p in points) {
@@ -201,11 +213,13 @@ class IncomeSpendingBars extends StatelessWidget {
                           toY: points[i].income.minorUnits.toDouble(),
                           color: c.income,
                           width: 10,
+                          borderRadius: _barTop,
                         ),
                         BarChartRodData(
                           toY: points[i].spend.minorUnits.toDouble(),
                           color: c.spending,
                           width: 10,
+                          borderRadius: _barTop,
                         ),
                       ],
                     ),
@@ -229,7 +243,9 @@ class TrendLines extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
-    final ({Color income, Color spending}) c = _seriesColors(theme.colorScheme);
+    final ({Color income, Color spending}) c = _seriesColors(
+      FinanceColors.of(context),
+    );
     List<FlSpot> spots(Money Function(TrendPoint) of) => [
       for (int i = 0; i < points.length; i++)
         FlSpot(i.toDouble(), of(points[i]).minorUnits.toDouble()),
@@ -297,13 +313,13 @@ class TrendLines extends StatelessWidget {
                   LineChartBarData(
                     spots: spots((p) => p.income),
                     color: c.income,
-                    barWidth: 2.5,
+                    barWidth: SpendthriftTokens.chartStroke,
                     dotData: const FlDotData(show: false),
                   ),
                   LineChartBarData(
                     spots: spots((p) => p.spend),
                     color: c.spending,
-                    barWidth: 2.5,
+                    barWidth: SpendthriftTokens.chartStroke,
                     dotData: const FlDotData(show: false),
                   ),
                 ],

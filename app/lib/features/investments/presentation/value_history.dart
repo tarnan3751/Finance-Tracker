@@ -10,6 +10,8 @@
 /// placement only: the tooltip, the summary and the table format the snapshots' `Money`.
 library;
 
+import 'package:finance_tracker/core/theme/finance_colors.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +29,7 @@ class ValueHistoryChart extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
     final ColorScheme colors = theme.colorScheme;
+    final Color ink = FinanceColors.of(context).ink(0);
     final DateFormat date = DateFormat.MMMd();
     final BalanceSnapshot first = snapshots.first;
     final BalanceSnapshot last = snapshots.last;
@@ -78,13 +81,13 @@ class ValueHistoryChart extends StatelessWidget {
                           value.current.minorUnits.toDouble(),
                         ),
                     ],
-                    color: colors.primary,
-                    barWidth: 2.5,
+                    color: ink,
+                    barWidth: SpendthriftTokens.chartStroke,
                     dotData: FlDotData(
                       checkToShowDot: (spot, _) => spot.x == span.toDouble(),
                       getDotPainter: (_, _, _, _) => FlDotCirclePainter(
                         radius: 5,
-                        color: colors.primary,
+                        color: ink,
                         strokeColor: colors.surface,
                         strokeWidth: 2,
                       ),

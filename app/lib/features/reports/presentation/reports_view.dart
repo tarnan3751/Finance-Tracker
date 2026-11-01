@@ -279,11 +279,9 @@ class _Categories extends ConsumerWidget {
     final List<CategoryTotal> totals = kind == TransactionKind.spend
         ? period.spendByCategory
         : period.incomeByCategory;
+    // The inks, then the containers.
     final List<Color> palette = [
-      colors.primary,
-      colors.tertiary,
-      colors.secondary,
-      colors.error,
+      ...FinanceColors.of(context).inks,
       colors.primaryContainer,
       colors.tertiaryContainer,
       colors.secondaryContainer,
