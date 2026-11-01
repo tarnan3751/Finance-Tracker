@@ -150,12 +150,11 @@ parses it: no database, no network, well inside a receiver's ten seconds.
   snapshot of another version, signed out, or nothing to show (no accounts, budgets or
   bills): the widget's title and "Open Spendthrift to set up" (`widget_setup.xml`),
   whose tap opens the app there. A widget with fewer than three rows hides the rest.
-- **Colours.** `widget_colors.xml`: the app's Material 3 baseline, light and dark by the
-  system's night mode; on Android 12 and later the launcher's dynamic palette
-  (`@android:color/system_neutral1_*`, `system_neutral2_*`, `system_accent1_*`), the error
-  colour staying the baseline's. A colour that changes with a value is two views styled
-  alike and shown one at a time, so the night mode and the palette resolve in the
-  launcher. The corner radius is the launcher's on Android 12 and later.
+- **Colours.** `widget_colors.xml`: the brand's paper and inks (`design.md`), light and
+  dark (the night print) by the system's night mode, on every API level: the launcher's
+  dynamic palette is not used. A colour that changes with a value is two views styled
+  alike and shown one at a time, so the night mode resolves in the launcher. The corner
+  radius is the brand's card radius, 8dp (`widget_dimens.xml`).
 - **Text.** Sizes in `sp`, so the system's font scale applies; one line each, ellipsized.
   The fixed texts (the picker's names and descriptions, the titles, the set-up message)
   are Android string resources (`res/values/widget_strings.xml`, with the Spanish in

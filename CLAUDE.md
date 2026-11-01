@@ -142,6 +142,7 @@ coordinator is the only seat that touches them. Agents use the fakes and the dem
 | Area | Code | Reference |
 |---|---|---|
 | Core: theme, routing, dependency injection, errors, utilities | `app/lib/core/` | `docs/reference/app-core.md` (Phase 1) |
+| Design system: the Spendthrift tokens, schemes, type, component themes, hero card, chart inks, fonts, icon and splash | `app/lib/core/theme/`, `app/lib/core/widgets/`, `app/assets/fonts/`, `app/android/app/src/main/res/` | `docs/reference/design.md` |
 | Shared domain: `Money`, `LocalDate`, entities, taxonomy | `packages/shared_models/` | `docs/reference/core.md` |
 | Features, one folder each with `presentation/ application/ domain/ data/` | `app/lib/features/<feature>/` | `docs/reference/<feature>.md` as each lands |
 | Local database: Drift schema, migrations, repositories in three implementations | `app/lib/features/*/data/`, `app/lib/core/db/` | `docs/reference/data.md` (Phase 1) |

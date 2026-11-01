@@ -48,12 +48,13 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   when `prod` is given a URL whose scheme is not `https`.
 - dev and prod share the id registered with Plaid; demo never touches Plaid and installs
   beside either.
-- The banner is a full-width strip, 16 dp tall, on the theme's error-container color with
-  the flavor's name centred in small capitals, drawn by `FlavorBanner`
-  (`app/lib/core/widgets/flavor_banner.dart`) from `MaterialApp.router`'s `builder`. It is
-  laid out between the status bar and the app, not over it: the app gets the height below
-  the strip with no top inset, so the strip never covers an app bar action. When it is
-  shown the debug banner is turned off, since it would cover the top-end app bar action.
+- The banner is a full-width strip, 16 dp tall, in the theme's inverse surface (ink, or
+  the night print's light ink; `design.md`, **Strips**) with the flavor's name centred
+  in small capitals, drawn by `FlavorBanner` (`app/lib/core/widgets/flavor_banner.dart`)
+  from `MaterialApp.router`'s `builder`. It is laid out between the status bar and the
+  app, not over it: the app gets the height below the strip with no top inset, so the
+  strip never covers an app bar action. When it is shown the debug banner is turned off,
+  since it would cover the top-end app bar action.
 - The Android flavor and the `-t` entry point must agree; a mismatch runs the wrong
   configuration under the wrong id. A debug build asserts it in each entry point
   (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`: Flutter's `appFlavor` is null or
@@ -200,10 +201,18 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   consult the network security config: the file governs platform networking only
   (WebViews, the Plaid SDK), and prod's HTTPS-only rule is enforced in Dart, by
   `bootstrap`'s check today and by the API client from Phase 2.
-- **Icon.** `res/mipmap-anydpi-v26/ic_launcher.xml` is a placeholder adaptive icon: the
-  vector `drawable/ic_launcher_foreground.xml` on `@color/ic_launcher_background`, the same
-  vector as the monochrome layer. There are no per-density PNGs; minSdk 26 reads the
-  adaptive icon everywhere.
+- **Icon and splash.** `res/mipmap-anydpi-v26/ic_launcher.xml` is the adaptive icon: the
+  duotone S (`drawable/ic_launcher_foreground.xml`, two stroked copies of one S, blue at
+  82 % under pink at 92 %, offset by 6 units, within the 66dp safe zone) on
+  `@color/ic_launcher_background`, the paper `F7F3EA`, with a one-ink S
+  (`drawable/ic_launcher_monochrome.xml`) as the monochrome layer for themed icons. There
+  are no per-density PNGs; minSdk 26 reads the adaptive icon everywhere. The splash
+  before Android 12 is `drawable*/launch_background.xml`, `@color/splash_background` (the
+  paper, the night paper `16151C` in `values-night`) with the S centred; Android 12 and
+  later draw their own splash from the launcher icon on `windowSplashScreenBackground`,
+  set to the same color in `values-v31/styles.xml` and `values-night-v31/styles.xml`
+  (both, since the night qualifier outranks the API level). The palette is in
+  `design.md`.
 
 ## Signing
 

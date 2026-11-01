@@ -47,9 +47,10 @@ running balance and is left out of the walk.
   the institution's avatar (`MerchantAvatar` with the stored logo bytes, else its initial on
   `institutionColor`, labelled with the institution's name, which the card does not
   write), for a manual one the type icon; name, type label, the balance as shown and its
-  caption. When the visible accounts hold more than one currency, a "Totals" row at the
-  top has one total per currency of the balances as shown, never converted (`PLAN.md` §3),
-  captioned "from transactions", "reported", or "reported and from transactions".
+  caption. Whenever an account is visible, the screen's hero card (`HeroCard`,
+  `design.md`) at the top, labelled "Totals", has one total per currency of the balances
+  as shown, never converted (`PLAN.md` §3), captioned "from transactions", "reported", or
+  "reported and from transactions".
   Hidden accounts are in a collapsed "N hidden accounts" section. A long press drags a
   card (`ReorderableListView`), and the drop writes `displayOrder` 0, 1, 2... to the
   visible accounts whose order changed. With large text the balance moves under the name.

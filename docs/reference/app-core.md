@@ -547,13 +547,19 @@ keeping its own navigation stack.
   when the legacy importer brought anything in at this launch, a snack bar in the current
   tab says how many entries went into "Imported" and their total (and how many could not
   be read), and the summary is cleared, so it is shown once.
-- `EmptyState` (`core/widgets/empty_state.dart`) is the body of an empty list: an icon, a
-  headline, a line of text and an optional action button.
+- `EmptyState` (`core/widgets/empty_state.dart`) is the body of an empty list: an icon
+  printed in blue over its pink copy, a Syne headline, a line of text and an optional
+  action button (`design.md`).
+- `HeroCard` (`core/widgets/hero_card.dart`) is a screen's one solid block: a label, a
+  figure, an optional caption and an optional trailing widget, in paper on blue over a
+  pink copy (`design.md`, **The hero card and misregistration**); the Accounts screen's
+  totals are one.
 - `MerchantAvatar` (`core/widgets/merchant_avatar.dart`) is the round avatar of a merchant
   or an institution: a logo URL through `Image.network` or stored bytes through
   `Image.memory`, shown on white once decoded, else (and while loading or when either
   fails) the name's first letter or digit on the given ARGB color, in black or white,
-  whichever contrasts more (always above WCAG AA). Decorative unless given a
+  whichever contrasts more (always above WCAG AA; the brand's ink and paper would not
+  be, so the avatar keeps the extremes). Decorative unless given a
   `semanticsLabel`. Its colors come from the enrichment fallback (`transactions.md`,
   **Merchants**).
 
@@ -674,19 +680,16 @@ and a link it does not know opens nothing (logged without the link).
 
 ## Theme
 
-`AppTheme` (`core/theme/app_theme.dart`): Material 3 light and dark `ThemeData` from
-`ColorScheme.fromSeed(seedColor: Color(0xFF6750A4))`, the baseline purple. When the device
-supplies dynamic color schemes (Android 12 and later) and `Settings.useDynamicColor` is on,
-those schemes are used instead. Both themes carry `FinanceColors`
-(`core/theme/finance_colors.dart`), a `ThemeExtension` with `outflow` (red) and `inflow`
-(green), each meeting text contrast on the light or dark surfaces; read it with
-`FinanceColors.of(context)`. With a dynamic scheme both are harmonized with the scheme's
-primary (`FinanceColors.harmonized`, dynamic_color's `harmonizeWith`: the hue moves
-toward the primary's by at most 15 degrees, the tone stays, so the contrast holds), and a
-color the user chose that a chart draws (a category's slice in the Reports donut) goes
-through `FinanceColors.custom`, harmonized the same way; every other chart color comes
-from the `ColorScheme`. With the baseline scheme nothing is harmonized. `AmountText` (`core/widgets/amount_text.dart`) draws a `Money`
-through `Money.format()` in the device locale, colored by direction when asked, with a
+`AppTheme` (`core/theme/app_theme.dart`): the Spendthrift light and dark `ThemeData`,
+their hand-built schemes, the Syne and Work Sans type and the component themes, with the
+tokens (`core/theme/tokens.dart`) and `FinanceColors` (`core/theme/finance_colors.dart`:
+inflow, outflow, warning, the accent and the chart inks, read with
+`FinanceColors.of(context)`), are described in `design.md`. When the device supplies
+dynamic color schemes (Android 12 and later) and `Settings.useDynamicColor` is on (it is
+off by default), those schemes are used instead and the finance colors are harmonized
+with their primary. `AmountText` (`core/widgets/amount_text.dart`) draws a `Money`
+through `Money.format()` in the device locale, in Work Sans with tabular figures,
+colored by direction when asked, with a
 semantics label that reads a negative amount as "minus" and its absolute value. The theme
 mode is `Settings.themeMode`. Text scale is never clamped. Everything imports
 `package:flutter/material.dart`; nothing uses `material_ui` (`PLAN.md` §12).
@@ -828,7 +831,7 @@ committed. Read strings with `AppLocalizations.of(context)`. `flutter pub get`, 
 
 | Layer | File | What |
 |---|---|---|
-| domain | `domain/settings.dart` | `Settings`: `themeMode` (`AppThemeMode.system`, `light`, `dark`) and `useDynamicColor`; `Settings.defaults()` is system and on |
+| domain | `domain/settings.dart` | `Settings`: `themeMode` (`AppThemeMode.system`, `light`, `dark`) and `useDynamicColor`; `Settings.defaults()` is system and off, so the brand shows |
 | domain | `domain/settings_repository.dart` | `SettingsRepository`: `watch()` (current value first, then each save), `read()`, `save()` |
 | data | `data/drift_settings_repository.dart` | The Drift implementation (dev and prod): one `app_settings` row per field |
 | data | `data/in_memory_settings_repository.dart`, `data/demo_settings_repository.dart` | The in-memory implementation (tests) and the demo one (the demo flavor) |

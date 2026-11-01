@@ -132,8 +132,9 @@ with the empty state ("No investment accounts") when there are none:
 The value history and the transactions show a progress indicator while their streams
 load and the shared "could not load" line when one fails, never their empty texts. Each
 account's section is keyed by the account, so its Table switch and its page follow it.
-The allocation's colours are the scheme's primary, tertiary, secondary, inverse primary
-the containers and the outline, never the error colour, so no slice reads as a loss.
+The allocation's colours are the brand's chart inks (`design.md`, **Charts**), then the
+scheme's containers and the outline, never the error colour, so no slice reads as a
+loss.
 
 fl_chart places marks by `double` values, which serve placement only: every amount on
 screen, in a tooltip or in a summary is the `Money` formatted through intl.

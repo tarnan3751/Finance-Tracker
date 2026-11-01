@@ -80,7 +80,8 @@ or `/welcome/demo` while no mode is chosen, and sends both to where `/` goes onc
 
 While the demo runs in dev or prod (`isDemo` and not the demo flavor), `DemoStrip`
 (`demo_strip.dart`) sits above `AppShell` at every size class: one line, "Demo data"
-with a Leave button, laid out between the status bar and the shell as the flavor banner
+with a Leave button, in ink on the brand's pink (`design.md`, **Strips**), laid out
+between the status bar and the shell as the flavor banner
 is. Both are in the semantics tree, read before the screen; the shell under it is a
 semantics container of its own, since a branch route's modal barrier blocks the semantics
 painted before it up to the nearest container. The demo flavor draws no strip (its DEMO
