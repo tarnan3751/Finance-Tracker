@@ -1,7 +1,8 @@
 // The full-text index (data.md, **Full-text search**): the host has FTS5, and after every
 // write path the index equals the view (expectIndexMatchesView); a database opened
 // without FTS5 drops the triggers and gains the index back, rebuilt, when FTS5 returns;
-// an index built with an older definition version is rebuilt at open.
+// an index built with an older definition version is rebuilt at open; a rewrite of a
+// row's text with the same values leaves its FTS row alone.
 import 'dart:io';
 
 import 'package:drift/drift.dart';
@@ -96,6 +97,32 @@ void main() {
     test('an edit that leaves the text alone', () async {
       await transactions.upsert(
         testTransaction('t2', 'a2', -1900, name: 'UBER', hidden: true),
+      );
+      await expectIndexMatchesView(database);
+    });
+
+    test('a rewrite with the same text leaves the FTS row alone', () async {
+      // The changes one UPDATE makes, those of its triggers included.
+      Future<int> changes(String set) async {
+        final int before = await _totalChanges(database);
+        await database.customStatement(
+          "UPDATE transactions SET $set WHERE id = 't1'",
+        );
+        return await _totalChanges(database) - before;
+      }
+
+      expect(
+        await changes(
+          'name = name, merchant_name = merchant_name, notes = notes',
+        ),
+        1,
+        reason: 'the row only',
+      );
+      expect(
+        await changes("notes = 'with Zoe'"),
+        greaterThan(1),
+        reason:
+            'the row, then its FTS row (and the FTS5 shadow tables) rewritten',
       );
       await expectIndexMatchesView(database);
     });
@@ -242,6 +269,35 @@ void main() {
       await again.close();
     });
 
+    test('an index built with definition 1 gets the update trigger of 2', () async {
+      final AppDatabase first = await open(fts: true);
+      await insert(first, 't1', 'Before');
+      // Definition 1's update trigger fired on every rewrite of the text columns.
+      await first.customStatement('DROP TRIGGER transactions_fts_update');
+      await first.customStatement(
+        'CREATE TRIGGER transactions_fts_update '
+        'AFTER UPDATE OF name, merchant_name, notes ON transactions BEGIN '
+        'DELETE FROM $ftsTable WHERE rowid = '
+        '(SELECT fts_rowid FROM $ftsKeysTable WHERE transaction_id = old.id); '
+        'INSERT INTO $ftsTable(rowid, name, merchant_name, notes, tags, '
+        'transaction_id) SELECT k.fts_rowid, s.name, s.merchant_name, s.notes, '
+        's.tags, s.id FROM $ftsSourceView s JOIN $ftsKeysTable k '
+        'ON k.transaction_id = s.id WHERE s.id = new.id; END',
+      );
+      await first.customStatement(
+        "UPDATE app_meta SET value = '1' WHERE key = '$ftsDefinitionKey'",
+      );
+      await first.close();
+
+      final AppDatabase again = await open(fts: true);
+      expect(
+        (await fullTextObjects(again)).values.toSet(),
+        ftsCreateStatements.toSet(),
+      );
+      await expectIndexMatchesView(again);
+      await again.close();
+    });
+
     test(
       'drops the triggers, writes, and is rebuilt when FTS5 returns',
       () async {
@@ -281,3 +337,8 @@ void main() {
     );
   });
 }
+
+/// The rows changed since [database]'s connection opened, by triggers too.
+Future<int> _totalChanges(AppDatabase database) async =>
+    (await database.customSelect('SELECT total_changes() AS n').getSingle())
+        .read<int>('n');

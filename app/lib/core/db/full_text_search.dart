@@ -11,9 +11,11 @@
 ///   KEY, so `VACUUM` keeps it (the implicit rowid of `transactions` it may renumber);
 /// - `transactions_fts`, a standalone FTS5 table (`unicode61 remove_diacritics 2`) of the
 ///   four columns and `transaction_id UNINDEXED`, each row at its key's rowid;
-/// - AFTER triggers by id on `transactions` (insert, update of the three text columns,
-///   delete) and on `transaction_tags` (insert, delete), which delete the transaction's
-///   FTS row through its key and insert it again from the view.
+/// - AFTER triggers by id on `transactions` (insert, update of the three text columns
+///   when one of them changed value, delete) and on `transaction_tags` (insert, delete),
+///   which delete the transaction's FTS row through its key and insert it again from the
+///   view. An upsert writes every column, so without the `WHEN` the update trigger would
+///   re-index a row whose text is what it was.
 ///
 /// [ensureFullTextSearch] runs in `beforeOpen`: with FTS5, when an object is missing or
 /// `app_meta.fts_definition` is not [ftsDefinitionVersion], it drops the objects, creates
@@ -35,7 +37,7 @@ const String ftsTable = 'transactions_fts';
 const String ftsSourceView = 'transactions_fts_source';
 
 /// The version of the statements below; bump it with any change to them.
-const int ftsDefinitionVersion = 1;
+const int ftsDefinitionVersion = 2;
 
 /// The `app_meta` key holding the [ftsDefinitionVersion] the index was built with.
 const String ftsDefinitionKey = 'fts_definition';
@@ -77,7 +79,9 @@ final List<String> ftsCreateStatements = [
       'INSERT INTO $ftsKeysTable(transaction_id) VALUES (new.id) '
       'ON CONFLICT DO NOTHING; ${_insertRow('new.id')} END',
   'CREATE TRIGGER transactions_fts_update '
-      'AFTER UPDATE OF name, merchant_name, notes ON transactions BEGIN '
+      'AFTER UPDATE OF name, merchant_name, notes ON transactions '
+      'WHEN old.name IS NOT new.name OR old.merchant_name IS NOT new.merchant_name '
+      'OR old.notes IS NOT new.notes BEGIN '
       '${_deleteRow('old.id')} ${_insertRow('new.id')} END',
   'CREATE TRIGGER transactions_fts_delete AFTER DELETE ON transactions BEGIN '
       '${_deleteRow('old.id')} '

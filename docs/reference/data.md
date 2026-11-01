@@ -110,7 +110,9 @@ Android (checked on the harness AVD by `transactions_search_test.dart`).
   query filters them as every query does.
 - **The triggers**, all AFTER and by id: on `transactions`, insert (adds the key with
   `ON CONFLICT DO NOTHING`, then the row from the view), update of `name`,
-  `merchant_name` or `notes`, and delete (removes the FTS row, then the key); on
+  `merchant_name` or `notes` when one of them changed value (`WHEN old.name IS NOT
+  new.name OR ...`, definition 2: an upsert writes every column, and a rewrite of the
+  same text re-indexed the row before), and delete (removes the FTS row, then the key); on
   `transaction_tags`, insert and delete. Each but the insert deletes the transaction's FTS
   row through its key and inserts it again from the view. A write that rewrites a row's
   tags runs the tag triggers once per tag.
