@@ -866,9 +866,11 @@ The repository contract is `test/contract/settings_repository_contract.dart`,
   run on zero-length timers, which only `pump` advances), but start it and
   `pumpAndSettle`.
 - **Goldens** use `alchemist`. `test/flutter_test_config.dart` runs every test with CI
-  goldens on (Ahem, text drawn as blocks, identical on every OS; written to `goldens/ci/`
-  next to the test, committed, compared by the gate and CI). A character neither Ahem nor
-  FlutterTest carries is borrowed from the host's fonts, so its width differs between macOS
+  goldens on (text drawn as blocks, no shadows; written to `goldens/ci/` next to the
+  test, committed, compared by the gate and CI with a tolerance for the anti-aliasing
+  noise between macOS and Linux, `testing-tools.md`, **Goldens**). A character neither
+  Ahem nor FlutterTest carries is borrowed from the host's fonts, so its width differs
+  between macOS
   and Linux: intl's U+202F before AM and PM did this, which is why times go through
   `formatDateTime` (**Time**); text in a CI golden must avoid such characters. Platform goldens (real fonts,
   `goldens/<os>/`, gitignored) are a local aid: written only by `--update-goldens` when the

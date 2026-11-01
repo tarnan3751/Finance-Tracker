@@ -190,3 +190,6 @@ and borders, and the faces' metrics too, since the obscured text blocks are laid
 with the bundled fonts): regenerate them on purpose with `CI=1 flutter test
 --update-goldens --tags golden` in `app/` and look at a sample (`testing-tools.md`,
 goldens). `hero_card_{light,dark}` and `empty_state_{light,dark}` are the system's own.
+CI checks them on Linux with a tolerance for the anti-aliasing of the block ends and the
+1.5 px ink lines (`testing-tools.md`, **Goldens**); a real change of colour or position
+still fails.

@@ -83,6 +83,35 @@ run exits 127; otherwise it returns the command's own status. The gate and the t
 use it for each package's tests, and refuse an `FT_TEST_TIMEOUT` that is not a whole number
 of seconds (exit 2); it writes nothing.
 
+## Goldens
+
+The CI goldens (`goldens/ci/` beside each golden test, alchemist's obscured text and no
+shadows) are generated on macOS with `CI=1 flutter test --update-goldens --tags golden`
+in `app/`, committed, and checked by the gate on macOS and by CI on Linux. The two
+machines anti-alias differently: alchemist lays its text blocks out with the bundled
+fonts' fractional advances, so the block ends fall on a pixel's edge, and the 1.5 px ink
+lines cover half a pixel; Linux shades those edge pixels a step apart from macOS.
+Nothing moves and no colour changes, but a byte comparison fails.
+
+So every golden is compared by `TolerantGoldenComparator`
+(`app/test/helpers/golden_comparator.dart`, installed for every test file by
+`test/flutter_test_config.dart`), which passes an image of the golden's exact size when
+
+1. at most 0.5 % of its pixels differ, and
+2. no 3×3 window of pixels differs entirely,
+
+a pixel differing when any channel does. Anti-aliasing is thin (single pixels and
+one-pixel lines); a real change of colour or position is solid, and caught by rule 2
+even when it is small. A different size always fails, and `--update-goldens` writes the
+images as before. A failure writes the usual `failures/` images (CI uploads them as
+`golden-failures`) and its message ends with both numbers, for example "9 of 589541
+pixels differ (0.002 %; at most 0.5 % passes), and the 3×3 block at (400, 400) differs
+entirely". A percentage over the limit with no solid block is widespread noise or a
+broad shift; a solid block names where the change is, to look for in the `isolatedDiff`
+image. (The worst real noise so far, `shell_accounts_medium_light`, is 1505 pixels,
+0.255 %.) `test/core/golden_comparator_test.dart` holds the rules to three pairs from a
+Linux CI run (`test/fixtures/golden_noise/`).
+
 ## Test tags and seeds
 
 Tags mark the measured and randomized suites so they can run alone; the gate runs every
