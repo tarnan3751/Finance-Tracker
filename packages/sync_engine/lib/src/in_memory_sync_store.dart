@@ -14,7 +14,7 @@ import 'package:sync_engine/src/unknown_type.dart';
 
 /// A [SyncStore] held in memory. A transaction snapshots the state and restores it when
 /// its body throws; transactions and standalone calls take one lock in turn.
-final class InMemorySyncStore implements SyncStore {
+final class InMemorySyncStore extends SyncStore {
   Map<EntityKey, EntityRecord> _records = {};
   Map<(String, String), UnknownTypeRecord> _unknown = {};
   List<ChangeLogEntry> _outbox = [];

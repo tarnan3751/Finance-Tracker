@@ -11,7 +11,7 @@ const hour = 3600 * 1000;
 /// A store shaped like the app's: the host writes an entity's row before recording the
 /// change, and [read] takes values from the rows under the stored clocks, so the record
 /// a recording reads already holds the edit's values.
-final class RowStore implements SyncStore {
+final class RowStore extends SyncStore {
   final inner = InMemorySyncStore();
   final rows = <EntityKey, Map<String, Object?>>{};
 

@@ -242,6 +242,7 @@ SQLite, and `InMemorySyncStore` for tests and the simulation.
 | `transaction(body)` | All-or-nothing and serialized. If `body` throws, every write made inside it is discarded and the error rethrown. No other transaction's reads or writes interleave with it. A call inside `body`, a nested `transaction` included, joins it. A call outside any transaction is atomic on its own. |
 | `read(type, id)` / `write(record)` | The device's records by `(type, id)`. |
 | `append(entry)` | Adds a local entry to the outbox, unsynced. |
+| `readAll(type, ids)` / `writeAll(records)` / `appendAll(entries)` | The batched forms of `read`, `write` and `append`: each does exactly what its single form does once per item, in order, in one transaction. `SyncStore` is an abstract class whose defaults loop over the single forms; an implementation extends it to take them, and the app's Drift store overrides them to spend a few statements per batch instead of several per record. |
 | `unsynced({limit})` | Up to `limit` unsynced outbox entries, in clock order. |
 | `markSynced(hlcs)` | Marks the entries the relay accepted. Clocks are unique per device, so a clock identifies an outbox entry. |
 | `markRejected(hlcs, reason)` | Takes entries the relay refused for good (`invalid`, `conflictingDuplicate`) out of the outbox. The store keeps them with the reason, for the host to inspect, and `unsynced` never returns them again. |
@@ -316,6 +317,17 @@ it:
 
 It returns the entry, or null when nothing changed. A failure leaves neither the record
 nor the entry.
+
+`recordChanges(type, changes, nowWallMillis)` records a batch of `LocalChange`s
+(`(id, before, after)`, distinct entities) in one store transaction, each exactly as
+`recordChange` would, in order, with `nowWallMillis` read once per change: the stored
+records come from one `readAll`, the records go out through one `writeAll` and the
+entries through one `appendAll`, and the clock is saved once, after the last stamp. It
+leaves the store, the outbox and the clock as the `recordChange` calls would, and
+returns the entries, null where nothing changed. Two changes to one entity are refused
+(`ArgumentError`), since each is stamped against the record as stored before the batch.
+`test/record_changes_property_test.dart` holds it to the one-at-a-time path over random
+histories, on the in-memory store and on a store that reads values from the host's rows.
 
 ## The session
 

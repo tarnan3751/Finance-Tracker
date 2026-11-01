@@ -15,7 +15,13 @@ import 'package:sync_engine/src/unknown_type.dart';
 /// inside it is discarded and the error is rethrown; no other transaction's reads or
 /// writes interleave with it; a call made inside `body` (a nested [transaction] included)
 /// joins it. Each call outside a transaction is atomic on its own.
-abstract interface class SyncStore {
+///
+/// [readAll], [writeAll] and [appendAll] are the batched forms of [read], [write] and
+/// [append], for the local edit path of a batch (`LocalEditor.recordChanges`). Each does
+/// exactly what its single form does once per item, in order, in one transaction; the
+/// defaults loop over the single forms, and a host whose round trips are costly
+/// overrides them. An implementation extends this class to take the defaults.
+abstract class SyncStore {
   /// Runs [body] as one transaction.
   Future<T> transaction<T>(Future<T> Function() body);
 
@@ -24,6 +30,27 @@ abstract interface class SyncStore {
 
   /// Stores [record], replacing the one with its key.
   Future<void> write(EntityRecord record);
+
+  /// The records of the entities [ids] of [type] that the device has, by id: [read] of
+  /// each.
+  Future<Map<String, EntityRecord>> readAll(
+    EntityType type,
+    Iterable<String> ids,
+  ) => transaction(() async {
+    final records = <String, EntityRecord>{};
+    for (final id in ids) {
+      final record = await read(type, id);
+      if (record != null) records[id] = record;
+    }
+    return records;
+  });
+
+  /// [write] of each of [records], in order.
+  Future<void> writeAll(List<EntityRecord> records) => transaction(() async {
+    for (final record in records) {
+      await write(record);
+    }
+  });
 
   /// Merges [entry], a change to an entity of a type this build does not know, into the
   /// record kept under its raw type name (`mergeUnknownType`), so a later version that
@@ -50,6 +77,13 @@ abstract interface class SyncStore {
 
   /// Adds a local change to the outbox, unsynced.
   Future<void> append(ChangeLogEntry entry);
+
+  /// [append] of each of [entries], in order.
+  Future<void> appendAll(List<ChangeLogEntry> entries) => transaction(() async {
+    for (final entry in entries) {
+      await append(entry);
+    }
+  });
 
   /// The relay `seq` pulled up to, or null before the first pull.
   Future<int?> pullCursor();

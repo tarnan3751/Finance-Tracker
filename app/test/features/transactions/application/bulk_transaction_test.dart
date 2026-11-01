@@ -20,7 +20,7 @@ import 'package:sync_engine/sync_engine.dart';
 import '../../../contract/repository_fixture.dart';
 
 /// A sync store that only logs its transactions.
-final class _LoggingStore implements SyncStore {
+final class _LoggingStore extends SyncStore {
   _LoggingStore(this.log);
 
   final List<String> log;

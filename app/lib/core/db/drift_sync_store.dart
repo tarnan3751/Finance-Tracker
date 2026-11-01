@@ -74,7 +74,7 @@ typedef SyncLedger = ({int pending, int rejected, Hlc? lastRejected, int held});
 /// rules, budgets, bills, goals and contributions carry no audit fields in their records,
 /// so materializing one stamps its
 /// `updated_at` (and `created_at` on insert) from [_clock].
-final class DriftSyncStore implements SyncStore {
+final class DriftSyncStore extends SyncStore {
   /// The store over [_database], stamping from [_clock].
   DriftSyncStore(this._database, this._clock);
 
