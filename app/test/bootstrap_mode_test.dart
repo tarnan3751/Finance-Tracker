@@ -70,7 +70,8 @@ void main() {
     expect(find.text('Everyday Checking'), findsOneWidget);
     expect(find.text('Savings'), findsOneWidget);
     expect(find.text('Platypus Rewards Card'), findsOneWidget);
-    expect(find.text('reported'), findsNWidgets(3));
+    // The three cards' and the hero card's.
+    expect(find.text('reported'), findsNWidgets(4));
     expect(find.text('from transactions'), findsNothing);
     expect(tester.takeException(), isNull);
 

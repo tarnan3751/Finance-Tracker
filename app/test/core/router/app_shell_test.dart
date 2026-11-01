@@ -5,6 +5,7 @@ import 'package:finance_tracker/core/router/app_shell.dart';
 import 'package:finance_tracker/core/widgets/flavor_banner.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/pump_app.dart';
@@ -118,7 +119,7 @@ void main() {
     );
     expect(
       strip.color,
-      Theme.of(tester.element(find.byType(AppBar))).colorScheme.errorContainer,
+      Theme.of(tester.element(find.byType(AppBar))).colorScheme.inverseSurface,
     );
     final MaterialApp app = tester.widget(find.byType(MaterialApp));
     expect(app.debugShowCheckedModeBanner, isFalse);
@@ -164,4 +165,27 @@ void main() {
       lessThanOrEqualTo(tester.getTopLeft(find.byType(NavigationBar)).dy),
     );
   });
+
+  for (final (Brightness brightness, Brightness icons) in const [
+    (Brightness.light, Brightness.light),
+    (Brightness.dark, Brightness.dark),
+  ]) {
+    testWidgets('the banner sets ${icons.name} status bar icons in the '
+        '${brightness.name} theme, and leaves the navigation bar alone', (
+      tester,
+    ) async {
+      await pumpApp(tester, config: AppConfig.demo(), brightness: brightness);
+      final AnnotatedRegion<SystemUiOverlayStyle> region = tester.widget(
+        find
+            .descendant(
+              of: find.byType(FlavorBanner),
+              matching: find.byType(AnnotatedRegion<SystemUiOverlayStyle>),
+            )
+            .first,
+      );
+      expect(region.value.statusBarIconBrightness, icons);
+      expect(region.value.systemNavigationBarColor, isNull);
+      expect(region.value.systemNavigationBarIconBrightness, isNull);
+    });
+  }
 }

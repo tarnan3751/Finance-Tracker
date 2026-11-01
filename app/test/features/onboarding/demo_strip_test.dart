@@ -14,6 +14,7 @@ import 'package:finance_tracker/features/settings/presentation/settings_screen.d
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderParagraph;
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:persona_engine/persona_engine.dart' show PersonaId;
@@ -175,6 +176,28 @@ void main() {
     );
     expect(label, findsNWidgets(2));
   });
+
+  for (final Brightness brightness in Brightness.values) {
+    testWidgets('the strip sets dark status bar icons on its pink in the '
+        '${brightness.name} theme', (tester) async {
+      await pumpApp(
+        tester,
+        config: _demoMode,
+        brightness: brightness,
+        overrides: _overrides([]),
+      );
+      final AnnotatedRegion<SystemUiOverlayStyle> region = tester.widget(
+        find
+            .descendant(
+              of: find.byType(DemoStrip),
+              matching: find.byType(AnnotatedRegion<SystemUiOverlayStyle>),
+            )
+            .first,
+      );
+      expect(region.value.statusBarIconBrightness, Brightness.dark);
+      expect(region.value.systemNavigationBarColor, isNull);
+    });
+  }
 }
 
 // The strip's label and button each take one line of their text.

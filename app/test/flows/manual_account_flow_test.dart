@@ -34,7 +34,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
-    expect(find.text(r'$1,000.00'), findsOneWidget);
+    // On its card and in the hero card's total.
+    expect(find.text(r'$1,000.00'), findsNWidgets(2));
 
     // Its detail: the balance and the opening balance's running balance.
     await tester.tap(find.text('Checking'));
@@ -69,9 +70,9 @@ void main() {
     expect(find.text('Groceries run'), findsOneWidget);
     expect(find.text(r'$974.50'), findsOneWidget);
 
-    // And the list agrees.
+    // And the list agrees, on the card and in the hero card's total.
     await tester.pageBack();
     await tester.pumpAndSettle();
-    expect(find.text(r'$974.50'), findsOneWidget);
+    expect(find.text(r'$974.50'), findsNWidgets(2));
   });
 }

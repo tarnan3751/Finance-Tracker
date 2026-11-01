@@ -1,16 +1,20 @@
 /// The strip that marks the demo while it runs in dev and prod
 /// (`docs/reference/onboarding.md`): one line above the shell's content on every tab and
-/// at every window size, "Demo data" with a Leave button (`leave_demo.dart`), laid out
-/// between the status bar and the shell as the flavor banner is, so it never covers an
-/// app bar. Both are read by screen readers, before the screen. The demo flavor is marked
-/// by its DEMO banner instead and draws no strip.
+/// at every window size, "Demo data" with a Leave button (`leave_demo.dart`), in ink on
+/// the brand's pink (the theme's secondary), laid out between the status bar and the
+/// shell as the flavor banner is, so it never covers an app bar, with the status bar's
+/// icons set to read on it as the banner sets them. Both are read by screen readers,
+/// before the screen. The demo flavor is marked by its DEMO banner instead and draws no
+/// strip.
 library;
 
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/widgets/flavor_banner.dart';
 import 'package:finance_tracker/features/onboarding/presentation/leave_demo.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// [child] under the demo's strip, when the demo runs in dev or prod.
@@ -25,44 +29,47 @@ class DemoStrip extends ConsumerWidget {
     if (!config.isDemo || config.flavor == Flavor.demo) return child;
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
-    final Color foreground = theme.colorScheme.onTertiaryContainer;
+    final Color foreground = theme.colorScheme.onSecondary;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Material(
-          color: theme.colorScheme.tertiaryContainer,
-          child: Padding(
-            padding: EdgeInsetsDirectional.only(
-              top: MediaQuery.paddingOf(context).top,
-              start: 16,
-              end: 4,
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.science_outlined, size: 18, color: foreground),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    l10n.demoStripLabel,
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: foreground,
+        AnnotatedRegion<SystemUiOverlayStyle>(
+          value: statusBarStyleOn(theme.colorScheme.secondary),
+          child: Material(
+            color: theme.colorScheme.secondary,
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(
+                top: MediaQuery.paddingOf(context).top,
+                start: 16,
+                end: 4,
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.science_outlined, size: 18, color: foreground),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      l10n.demoStripLabel,
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: foreground,
+                      ),
                     ),
                   ),
-                ),
-                TextButton(
-                  style: TextButton.styleFrom(foregroundColor: foreground),
-                  onPressed: () => confirmAndLeaveDemo(context, ref),
-                  child: Text(
-                    l10n.demoStripLeave,
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis,
+                  TextButton(
+                    style: TextButton.styleFrom(foregroundColor: foreground),
+                    onPressed: () => confirmAndLeaveDemo(context, ref),
+                    child: Text(
+                      l10n.demoStripLeave,
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

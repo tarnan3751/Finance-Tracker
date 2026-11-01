@@ -46,7 +46,7 @@ class MerchantAvatar extends StatelessWidget {
         frame == null
         ? letter
         : ClipOval(
-            child: ColoredBox(color: Colors.white, child: child),
+            child: ColoredBox(color: _logoBacking, child: child),
           );
     Widget failed(BuildContext context, Object error, StackTrace? stack) =>
         letter;
@@ -93,10 +93,19 @@ String avatarLetter(String name) {
 
 final RegExp _letterOrDigit = RegExp(r'^[\p{L}\p{N}]', unicode: true);
 
+/// The letter's dark and light colors: black and white, not the scheme's ink and paper.
+/// Only the extremes keep the letter at 4.5:1 or more on a background of any color (at
+/// least 4.58:1); ink and white bottom out near 4.06:1, black and paper near 4.36:1.
+const Color _letterDark = Color(0xFF000000);
+const Color _letterLight = Color(0xFFFFFFFF);
+
+/// The backing of a logo: white, which logos are drawn for, in both themes.
+const Color _logoBacking = Color(0xFFFFFFFF);
+
 /// Black or white, whichever has the higher contrast ratio against [background].
 Color avatarForeground(Color background) {
   final double luminance = background.computeLuminance();
   final double onBlack = (luminance + 0.05) / 0.05;
   final double onWhite = 1.05 / (luminance + 0.05);
-  return onBlack > onWhite ? Colors.black : Colors.white;
+  return onBlack > onWhite ? _letterDark : _letterLight;
 }

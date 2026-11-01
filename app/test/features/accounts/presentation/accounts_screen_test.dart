@@ -38,9 +38,11 @@ void main() {
     // The seed's checking sums to 4,925.91 and the card to -5.75.
     expect(find.text(r'$4,925.91'), findsOneWidget);
     expect(find.text(r'-$5.75'), findsOneWidget);
-    expect(find.text('from transactions'), findsNWidgets(2));
-    // One currency: no totals.
-    expect(find.text('Totals'), findsNothing);
+    // The two accounts' captions and the hero card's.
+    expect(find.text('from transactions'), findsNWidgets(3));
+    // One currency: the hero card holds its one total.
+    expect(find.text('TOTALS'), findsOneWidget);
+    expect(find.text(r'$4,920.16'), findsOneWidget);
   });
 
   testWidgets('a negative balance is read as minus', (tester) async {
@@ -65,10 +67,20 @@ void main() {
       );
     await pumpApp(tester, overrides: [storeOverride(store)]);
 
-    expect(find.text('Totals'), findsOneWidget);
+    expect(find.text('TOTALS'), findsOneWidget);
     // USD: 4,925.91 - 5.75; EUR: 100.00 (the account and the total).
     expect(find.text(r'$4,920.16'), findsOneWidget);
     expect(find.text('€100.00'), findsNWidgets(2));
+    // The hero card reads as one node with both totals.
+    final SemanticsHandle semantics = tester.ensureSemantics();
+    await tester.pump();
+    expect(
+      find.bySemanticsLabel(
+        RegExp(r'^Totals\n\$4,920\.16\n€100\.00\nfrom transactions$'),
+      ),
+      findsOneWidget,
+    );
+    semantics.dispose();
   });
 
   testWidgets('hidden accounts wait in a collapsed section', (tester) async {

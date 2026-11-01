@@ -12,6 +12,7 @@ import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/widgets/amount_text.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
+import 'package:finance_tracker/core/widgets/hero_card.dart';
 import 'package:finance_tracker/core/widgets/merchant_avatar.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_errors.dart';
@@ -162,9 +163,9 @@ class _AccountListState extends ConsumerState<_AccountList> {
     return ReorderableListView.builder(
       // Room under the last card for the floating button.
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 88),
-      header: totals.length > 1
-          ? _Totals(totals.values.toList(), reported: reported)
-          : null,
+      header: totals.isEmpty
+          ? null
+          : _Totals(totals.values.toList(), reported: reported),
       footer: hidden.isEmpty
           ? null
           : ExpansionTile(
@@ -181,9 +182,9 @@ class _AccountListState extends ConsumerState<_AccountList> {
   }
 }
 
-/// One total per currency, each the sum of the visible accounts' balances as shown;
-/// captioned by which kinds of balance it adds ([reported] holds true for reported ones
-/// and false for derived ones).
+/// The screen's hero card: one total per currency, each the sum of the visible accounts'
+/// balances as shown; captioned by which kinds of balance it adds ([reported] holds true
+/// for reported ones and false for derived ones).
 class _Totals extends StatelessWidget {
   const _Totals(this.totals, {required this.reported});
 
@@ -193,38 +194,26 @@ class _Totals extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ThemeData theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.accountsTotals,
-            style: theme.textTheme.titleSmall?.copyWith(
-              color: theme.colorScheme.primary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Wrap(
-            spacing: 24,
-            runSpacing: 4,
-            children: [
-              for (final Money total in totals)
-                AmountText(total, style: theme.textTheme.titleMedium),
-            ],
-          ),
-          Text(
-            switch ((reported.contains(true), reported.contains(false))) {
-              (true, true) => l10n.balanceReportedAndFromTransactions,
-              (true, false) => l10n.balanceReported,
-              _ => l10n.balanceFromTransactions,
-            },
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
+      // In line with the cards' margins.
+      padding: const EdgeInsets.fromLTRB(
+        SpendthriftTokens.space4,
+        SpendthriftTokens.space4,
+        SpendthriftTokens.space4,
+        SpendthriftTokens.space12,
+      ),
+      child: HeroCard(
+        label: l10n.accountsTotals,
+        figure: Wrap(
+          spacing: SpendthriftTokens.space24,
+          runSpacing: SpendthriftTokens.space4,
+          children: [for (final Money total in totals) AmountText(total)],
+        ),
+        caption: switch ((reported.contains(true), reported.contains(false))) {
+          (true, true) => l10n.balanceReportedAndFromTransactions,
+          (true, false) => l10n.balanceReported,
+          _ => l10n.balanceFromTransactions,
+        },
       ),
     );
   }

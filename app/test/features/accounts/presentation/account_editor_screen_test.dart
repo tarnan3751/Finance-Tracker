@@ -64,8 +64,8 @@ void main() {
     expect(opening.source, DataSource.manual);
     expect(opening.date, testClock.today());
     expect(opening.createdAt, testClock.nowUtc());
-    // Back on the list, with the derived balance.
-    expect(find.text(r'$1,250.50'), findsOneWidget);
+    // Back on the list, with the derived balance on the card and in the total.
+    expect(find.text(r'$1,250.50'), findsNWidgets(2));
   });
 
   testWidgets('no opening balance, no transaction', (tester) async {
