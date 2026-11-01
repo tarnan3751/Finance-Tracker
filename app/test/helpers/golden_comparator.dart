@@ -4,10 +4,13 @@
 // the one that checks them (Linux in CI). An image of the golden's exact size passes when
 //   (a) at most 0.5 % of its pixels differ, and
 //   (b) no 3×3 window of pixels differs entirely,
-// a pixel differing when any channel does. Anti-aliasing is thin (single pixels and
-// one-pixel lines at the ends of the obscured text blocks and along the 1.5 px ink lines);
-// a real change of colour or position is solid. A failure writes the same failures/ images
-// as the base class and names both numbers (`docs/reference/testing-tools.md`, Goldens).
+// a pixel differing when a channel differs by more than [noiseLevel] (three of 255: the
+// two platforms round a gradient a level apart over a whole block, and the smallest step
+// between two surface tiers of the palette is four). Anti-aliasing is thin (single pixels
+// and one-pixel lines at the ends of the obscured text blocks and along the 1.5 px ink
+// lines); a real change of colour or position is solid. A failure writes the same
+// failures/ images as the base class and names both numbers
+// (`docs/reference/testing-tools.md`, Goldens).
 // --update-goldens is the base class's.
 //
 // alchemist's own `diffThreshold` replaces the comparator only when it is exactly a
@@ -28,6 +31,11 @@ typedef GoldenNoise = ({
 /// The largest fraction of pixels that may differ.
 const double maxNoiseFraction = 0.005;
 
+/// The largest difference in one channel (of 255) that does not make a pixel differ: the
+/// rounding of a gradient, a level apart between the two platforms over a whole block,
+/// where the smallest step between two surface tiers of the palette is four.
+const int noiseLevel = 3;
+
 /// Whether [noise] is anti-aliasing noise: few pixels, none in a solid 3×3 block.
 bool isNoise(GoldenNoise noise) =>
     noise.differing <= noise.width * noise.height * maxNoiseFraction &&
@@ -42,20 +50,22 @@ String describeNoise(GoldenNoise noise) {
     (:final int x, :final int y) =>
       'the 3×3 block at ($x, $y) differs entirely',
   };
-  return '${noise.differing} of $total pixels differ ($percent %; at most '
-      '${(maxNoiseFraction * 100).toStringAsFixed(1)} % passes), and $solid.';
+  return '${noise.differing} of $total pixels differ by more than $noiseLevel '
+      'levels ($percent %; at most ${(maxNoiseFraction * 100).toStringAsFixed(1)} % '
+      'passes), and $solid.';
 }
 
-/// The noise between two RGBA buffers of [width] × [height].
+/// The noise between two RGBA buffers of [width] × [height]: the pixels where a channel
+/// differs by more than [noiseLevel], and the first 3×3 block of them.
 GoldenNoise measureNoise(Uint8List a, Uint8List b, int width, int height) {
   final Uint8List differs = Uint8List(width * height);
   int differing = 0;
   for (int i = 0; i < width * height; i++) {
     final int o = i * 4;
-    if (a[o] != b[o] ||
-        a[o + 1] != b[o + 1] ||
-        a[o + 2] != b[o + 2] ||
-        a[o + 3] != b[o + 3]) {
+    if ((a[o] - b[o]).abs() > noiseLevel ||
+        (a[o + 1] - b[o + 1]).abs() > noiseLevel ||
+        (a[o + 2] - b[o + 2]).abs() > noiseLevel ||
+        (a[o + 3] - b[o + 3]).abs() > noiseLevel) {
       differs[i] = 1;
       differing++;
     }

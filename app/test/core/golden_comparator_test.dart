@@ -1,8 +1,10 @@
-// The CI goldens' tolerance (helpers/golden_comparator.dart) on three real pairs from a
-// Linux CI run against the macOS goldens (test/fixtures/golden_noise/): each passes, as
-// does a golden against itself; a 3×3 ink square painted on a golden fails, as do 1 % of
-// its pixels flipped and an image one pixel narrower, each writing the failures/ images and
-// naming the numbers.
+// The CI goldens' tolerance (helpers/golden_comparator.dart) on four real pairs from Linux
+// CI runs against the macOS goldens (test/fixtures/golden_noise/; the fourth holds a
+// segment switcher's gradient fade, which Linux rounds a level apart over a whole block):
+// each passes, as does a golden against itself; a 3×3 ink square painted on a golden
+// fails, as do 1 % of its pixels flipped and an image one pixel narrower, each writing the
+// failures/ images and naming the numbers; a block a channel's four levels apart differs,
+// three levels apart does not.
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -17,6 +19,7 @@ const List<String> _pairs = [
   'shell_accounts_medium_light',
   'bills_list_dark',
   'forecast_chart_light',
+  'shell_insights_dark_phone',
 ];
 
 Uint8List _read(String name) => File('$_fixtures/$name.png').readAsBytesSync();
@@ -134,7 +137,10 @@ void main() {
       }),
     );
     final String message = await failure(tester, master, square!);
-    expect(message, contains('9 of 589541 pixels differ'));
+    expect(
+      message,
+      contains('9 of 589541 pixels differ by more than 3 levels'),
+    );
     expect(message, contains('the 3×3 block at (400, 400) differs entirely'));
   });
 
@@ -182,10 +188,10 @@ void main() {
     const int w = 8;
     const int h = 8;
     final Uint8List a = Uint8List(w * h * 4);
-    Uint8List b(Iterable<(int, int)> changed) {
+    Uint8List b(Iterable<(int, int)> changed, {int level = 255}) {
       final Uint8List out = Uint8List.fromList(a);
       for (final (int x, int y) in changed) {
-        out[(y * w + x) * 4] = 1;
+        out[(y * w + x) * 4] = level;
       }
       return out;
     }
@@ -211,5 +217,16 @@ void main() {
       h,
     );
     expect(block.solidAt, (x: 5, y: 5));
+    // The same block a channel's three levels apart is rounding, four is a difference.
+    final List<(int, int)> whole = [
+      for (int y = 0; y < h; y++)
+        for (int x = 0; x < w; x++) (x, y),
+    ];
+    final GoldenNoise rounding = measureNoise(a, b(whole, level: 3), w, h);
+    expect(rounding.differing, 0);
+    expect(rounding.solidAt, isNull);
+    final GoldenNoise step = measureNoise(a, b(whole, level: 4), w, h);
+    expect(step.differing, w * h);
+    expect(step.solidAt, (x: 0, y: 0));
   });
 }

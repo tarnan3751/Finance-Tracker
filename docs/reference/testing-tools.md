@@ -100,17 +100,21 @@ So every golden is compared by `TolerantGoldenComparator`
 1. at most 0.5 % of its pixels differ, and
 2. no 3×3 window of pixels differs entirely,
 
-a pixel differing when any channel does. Anti-aliasing is thin (single pixels and
-one-pixel lines); a real change of colour or position is solid, and caught by rule 2
-even when it is small. A different size always fails, and `--update-goldens` writes the
-images as before. A failure writes the usual `failures/` images (CI uploads them as
-`golden-failures`) and its message ends with both numbers, for example "9 of 589541
-pixels differ (0.002 %; at most 0.5 % passes), and the 3×3 block at (400, 400) differs
-entirely". A percentage over the limit with no solid block is widespread noise or a
-broad shift; a solid block names where the change is, to look for in the `isolatedDiff`
-image. (The worst real noise so far, `shell_accounts_medium_light`, is 1505 pixels,
-0.255 %.) `test/core/golden_comparator_test.dart` holds the rules to three pairs from a
-Linux CI run (`test/fixtures/golden_noise/`).
+a pixel differing when a channel differs by more than three levels of 255. The floor is
+for gradients: Linux rounds a `ShaderMask` fade (the segment switchers' trailing edge) a
+level apart from macOS over the whole block, which rule 2 would call solid; the smallest
+step between two surface tiers of the palette is four levels, so a card drawn on the wrong
+tier still differs. Anti-aliasing is thin (single pixels and one-pixel lines); a real
+change of colour or position is solid, and caught by rule 2 even when it is small. A
+different size always fails, and `--update-goldens` writes the images as before. A failure
+writes the usual `failures/` images (CI uploads them as `golden-failures`) and its message
+ends with both numbers, for example "9 of 589541 pixels differ by more than 3 levels
+(0.002 %; at most 0.5 % passes), and the 3×3 block at (400, 400) differs entirely". A
+percentage over the limit with no solid block is widespread noise or a broad shift; a
+solid block names where the change is, to look for in the `isolatedDiff` image. (The
+worst real noise so far, `shell_accounts_medium_light`, is 1505 pixels, 0.255 %.)
+`test/core/golden_comparator_test.dart` holds the rules to four pairs from Linux CI runs
+(`test/fixtures/golden_noise/`).
 
 ## Test tags and seeds
 
