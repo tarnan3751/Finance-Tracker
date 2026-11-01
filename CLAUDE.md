@@ -20,39 +20,39 @@ heading of this file or of a doc.
 
 **Phases 0 to 10 have landed and passed their gates; the project is at its second pre-release:** the
 app runs on its Riverpod and go_router core with manual accounts, transactions and categories on the
-encrypted Drift database (schema v13 with the change log, field clocks, Items, rules, budgets and
+encrypted Drift database (schema v14 with the change log, field clocks, Items, rules, budgets and
 their alerts, dismissed duplicate pairs, saved filters, a full-text index, recurring streams and
 their overrides, liabilities, bills and bill alerts, securities, holdings, investment transactions,
-daily balance snapshots, goals and their contributions, the device-local conflicts and the
-transactions' receipt hashes); it signs in against the development server through the API client,
-syncs user data between devices through the sync engine (contract 0.7.0; a pulled record of a type
-this build does not know is held, not failed; a received clock more than an hour ahead is clamped),
-links banks through Plaid Link (real Sandbox Items through the server, which polls Plaid and
-verifies its webhooks), pulls their accounts and transactions with reported balances and institution
-logos, applies the user's rules on arrival and, on request, to the existing transactions; it budgets
-by category with periods, rollover, projection and in-app alerts, hides and bulk-edits transactions,
-reviews likely duplicates, searches by word prefixes, saves filters, splits transactions and
-attaches receipt photos; it pulls Plaid's recurring streams and liabilities, detects recurring
-streams in every transaction source with a measured detector and merges the two, classifies
-subscriptions and lists them with annual totals, tracks bills with local reminders scheduled at the
-right wall-clock time across DST and flags missed payments, and projects 30 and 90 days of cash flow
-with a confidence band, all under a Plan tab with Budgets, Bills and Forecast segments; it pulls
-holdings and investment transactions, records a balance snapshot per account per day and shows net
-worth over time with pre-install history reconstructed from transactions and labelled as derived,
-reports spending by category and merchant with comparisons, top movers and anomaly hints measured
-against the persona seeds, raises a weekly summary, tracks savings goals with contributions and
-suggestions, projects liability payoff, and exports a byte-identical PDF monthly report and a CSV,
-all under an Insights tab with Reports, Net worth, Investments and Goals segments; it backs
-everything up into one passphrase-encrypted file and restores it onto a fresh install or after a
-lost key, locks behind the device's biometrics or screen lock with a privacy screen and screenshot
-blocking, deletes the account or erases this device in an order a kill cannot leave half done, lists
-and removes the account's devices, shows the losing side of two edits made within ten minutes so the
-person can keep either, syncs receipt photos between devices through content-addressed blobs,
-survives a seeded chaos simulation of partitions, restarts and clock skew in the gate, and keeps a
-scrubbed copy of every log record in release builds; it syncs in the background on a
-battery-respecting hourly WorkManager schedule that survives Doze, delegating to the app when it is
-alive so two isolates never race the server's token rotation, and syncs again when a network
-returns; it owns its notification channels, posts budget alerts, the weekly summary and sync
+daily balance snapshots, goals and their contributions, the device-local conflicts, the
+transactions' receipt hashes and their date index); it signs in against the development server
+through the API client, syncs user data between devices through the sync engine (contract 0.7.0; a
+pulled record of a type this build does not know is held, not failed; a received clock more than an
+hour ahead is clamped), links banks through Plaid Link (real Sandbox Items through the server, which
+polls Plaid and verifies its webhooks), pulls their accounts and transactions with reported balances
+and institution logos, applies the user's rules on arrival and, on request, to the existing
+transactions; it budgets by category with periods, rollover, projection and in-app alerts, hides and
+bulk-edits transactions, reviews likely duplicates, searches by word prefixes, saves filters, splits
+transactions and attaches receipt photos; it pulls Plaid's recurring streams and liabilities,
+detects recurring streams in every transaction source with a measured detector and merges the two,
+classifies subscriptions and lists them with annual totals, tracks bills with local reminders
+scheduled at the right wall-clock time across DST and flags missed payments, and projects 30 and 90
+days of cash flow with a confidence band, all under a Plan tab with Budgets, Bills and Forecast
+segments; it pulls holdings and investment transactions, records a balance snapshot per account per
+day and shows net worth over time with pre-install history reconstructed from transactions and
+labelled as derived, reports spending by category and merchant with comparisons, top movers and
+anomaly hints measured against the persona seeds, raises a weekly summary, tracks savings goals with
+contributions and suggestions, projects liability payoff, and exports a byte-identical PDF monthly
+report and a CSV, all under an Insights tab with Reports, Net worth, Investments and Goals segments;
+it backs everything up into one passphrase-encrypted file and restores it onto a fresh install or
+after a lost key, locks behind the device's biometrics or screen lock with a privacy screen and
+screenshot blocking, deletes the account or erases this device in an order a kill cannot leave half
+done, lists and removes the account's devices, shows the losing side of two edits made within ten
+minutes so the person can keep either, syncs receipt photos between devices through
+content-addressed blobs, survives a seeded chaos simulation of partitions, restarts and clock skew
+in the gate, and keeps a scrubbed copy of every log record in release builds; it syncs in the
+background on a battery-respecting hourly WorkManager schedule that survives Doze, delegating to the
+app when it is alive so two isolates never race the server's token rotation, and syncs again when a
+network returns; it owns its notification channels, posts budget alerts, the weekly summary and sync
 problems to the tray beside the in-app list, asks for the permission only when a notifying feature
 is turned on and has a Notifications settings screen; it keeps three home screen widgets (balances,
 budgets, upcoming bills) fresh within one background cycle and masked while the lock is on, and
@@ -120,7 +120,7 @@ scripts pick it the same way. Commands marked with a phase do not exist before i
 | Provision a persona into Sandbox (the owner only) | `tools/scripts/provision_persona.sh <persona>` |
 | Build a debug APK | `F build apk --debug --flavor dev -t lib/main_dev.dart` |
 | Build the release APK (R8, obfuscated) | `F build apk --release --flavor prod -t lib/main_prod.dart --obfuscate --split-debug-info=build/symbols` |
-| Land a delivered series | `tools/land_series.sh <patch-dir> <base-commit> <tree-hash>` |
+| Land a delivered series | `tools/land_series.sh <patch-dir> <base-commit> <tree-hash>`; with `--gated "<who> on <tree>"` when CI or the reviewer already ran the gate green on that exact tree, which skips the landing's own gate |
 | Lint the commits since a base (the gate runs it on `origin/main..HEAD`) | `tools/check_commits.sh <base>` |
 | Stop the harness emulator, even past a live lock | `tools/emulator_tests.sh stop [--force]` |
 | Run the sync chaos simulation with a seed and a budget | `SYNC_CHAOS_SEED=<n> SYNC_CHAOS_SCENARIOS=<k> dart test -t chaos` in `packages/sync_engine` |
@@ -142,7 +142,9 @@ with the real keys, never read either env file or `~/.finance-tracker-release/`,
 Plaid Sandbox: Sandbox rate limits are per Item and per client, Items are shared state, and the
 coordinator is the only seat that touches them. Agents use the fakes and the demo flavor.
 
-**Run the gate after every change.**
+**Run the gate at the tip of every series, before every landing and in CI; per commit, the tests of
+the packages the commit touches** (`tools/run_tests.sh <package>`), so a six-commit series costs one
+full gate, not six.
 
 ## Where things live
 
@@ -455,10 +457,12 @@ afford to hold.
   Plaid Sandbox, the dev server's real configuration and the owner's emulators. It does not read
   large files itself (the scout does), and does not write feature code in the main tree: trivial
   edits only, when spawning an agent would cost more than the edit.
-- **`developer`** (Opus) — works in a clone of its own (**Lanes**), implements the brief, runs
-  `tools/gates.sh` at every commit, verifies behaviour through the tests and the emulator harness
-  in its clone, updates the docs the change invalidates, and delivers a patch series on the
-  current `main` with the tree it reproduces. Never writes to the main working tree. Plans first
+- **`developer`** (Opus; Sonnet for a tier C batch of mechanical work such as renames, docs, media
+  and dead-code removal, with the gate as the net) — works in a clone of its own (**Lanes**),
+  implements the brief, runs the touched packages' tests at every commit and `tools/gates.sh` at the
+  tip, pushes the series to `lane/<name>` so CI gates it off the machine, verifies behaviour through
+  the tests and the emulator harness in its clone, updates the docs the change invalidates, and
+  delivers a patch series on the current `main` with the tree it reproduces and the green CI run. Never writes to the main working tree. Plans first
   only when the brief asks (tier A) or when it meets an open decision. **Continue the same agent
   from plan to implementation** (`SendMessage`); respawning loses what it learned planning.
 - **`reviewer`** (Opus) — independent review of the series, applied in a clone of its own: the
@@ -484,7 +488,9 @@ afford to hold.
 - **B** — feature UI, charts, widgets, notifications, the enrichment dictionary, persona
   content, rules and detectors within their frameworks, tooling and CI. No plan round trip: the
   brief carries the decisions and the developer stops only at an open decision. The targeted
-  review, about thirty minutes: the diff read, the gate run, the changed behaviour driven once.
+  review, about thirty minutes: the diff read, the changed behaviour driven once, the tests of the
+  touched packages run; no full gate when CI's run on the delivered tree is green (the reviewer names
+  that run).
 - **C** — docs, comments, config. No reviewer: the gate and the coordinator's own read.
 
 Small later-scope items are **batched** by area, up to about five a slice, one commit each, one
@@ -521,13 +527,20 @@ series onto `main` before delivery; a device run is wrapped in a ceiling (this M
 `timeout`; a `perl` `alarm` that sends SIGTERM does) so a hang never holds the lock; a lane's docs
 changes stay within its area's reference file, the map only where a status line changes. A lane
 never runs the dev flavor, the dev server with real keys, or anything against Plaid Sandbox: those
-are the coordinator's, and the keys are not in a clone. At most two or three lanes and reviews run
-gates at once, and every agent waits on a gate or a harness run with one bounded loop under its
-tool's timeout, leaving no polling shell behind (the agent definitions say so).
+are the coordinator's, and the keys are not in a clone. A lane pushes its branch to
+`origin` as `lane/<name>` (never `main`, never a tag) after each commit it wants gated, so CI runs the
+gate on GitHub's runners instead of this machine; the lane runs the touched packages' tests per
+commit and one full gate at the tip, and its delivery names the green CI run on the delivered tree.
+At most two or three lanes and reviews run local gates or the harness at once, and every agent waits
+on a gate or a harness run with one bounded loop under its tool's timeout, leaving no polling shell
+behind (the agent definitions say so). Before delivering, a developer walks the self-review checklist
+in the lane rules (contrast computed, semantics merges, strings and the pseudo-locale, docs that
+describe the new behaviour, generated files, `[verify]` gone, the measurement in the commit body).
 
 **Review routing.** The reviewer's findings go back to the **same** developer (`SendMessage`),
-which folds them into the series; the coordinator reads the fold's diff; then the reviewer
-re-reviews. A FAIL loops until it passes; PASS WITH FIXES is folded and read, re-reviewed when
+which folds them into the series; for tier B the reviewer sends them to the developer directly,
+with the coordinator's copy in its report, and the coordinator keeps the kept-or-vetoed call on
+adjacent changes; the coordinator reads the fold's diff; then the reviewer re-reviews. A FAIL loops until it passes; PASS WITH FIXES is folded and read, re-reviewed when
 the fold touched tier A ground. Anything the developer did outside the brief (**Adjacent
 changes**) is kept or vetoed by the coordinator, not the reviewer.
 
@@ -543,7 +556,9 @@ coordinator's own included. The series comes with the write-tree hash it reprodu
 gate's tail per commit. Once the review's findings are folded and the fold's diff read, the
 coordinator lands it with `tools/land_series.sh <patch-dir> <base-commit> <tree-hash>` (clean
 tree and HEAD at the base required; `git am`; the messages checked; the tree checked, with a
-rollback on mismatch; the gate run; the commits left in place). The coordinator pushes `main` to
+rollback on mismatch; the gate run, or skipped with `--gated "<who> on <tree>"` when CI or the
+reviewer ran it green on that exact tree, since the same tree gates the same; the commits left in
+place). The coordinator pushes `main` to
 `origin` after each landing. A series that passes its review lands promptly; delivered patches
 are never held back for a companion series. The owner reviews at phase gates and whenever they choose.
 
