@@ -325,6 +325,11 @@ abstract final class AppTheme {
       SegmentedButtonThemeData(
         style: ButtonStyle(
           shape: const WidgetStatePropertyAll(StadiumBorder()),
+          // 12 at the sides, so the Plan and Insights switchers fit a 360 dp phone at
+          // text scale 1 (`segment_switcher.dart`).
+          padding: const WidgetStatePropertyAll(
+            EdgeInsets.symmetric(horizontal: SpendthriftTokens.space12),
+          ),
           side: WidgetStatePropertyAll(_ink(scheme)),
           backgroundColor: WidgetStateProperty.resolveWith(
             (states) => states.contains(WidgetState.selected)

@@ -511,9 +511,11 @@ keeping its own navigation stack.
   Budgets and tapping it again returns there. Each segment's screen is a `PlanScaffold`
   (`core/router/plan_scaffold.dart`): the "Plan" app bar with that segment's actions (the
   alerts bell on Budgets, Subscriptions and Add bill on Bills, Choose accounts on
-  Forecast), then the Budgets | Bills | Forecast `SegmentedButton` at the top
-  of the body, where it grows with the text size (the selected check hidden to save
-  width), then the segment's body. Choosing a segment goes to its root; the roots are
+  Forecast) and one menu, which holds the segment's own entries (`menuEntries`) above a
+  divider and the help, then the Budgets | Bills | Forecast switcher at the top of the
+  body, where it grows with the text size (**The segment switcher**), then the segment's
+  body. An app bar never carries two menus: a segment's single action that is not a
+  menu is a button with an outlined icon. Choosing a segment goes to its root; the roots are
   `NoTransitionPage`s, so the switch reads as one screen changing its content. Every
   `/budgets...` and `/bills...` route opens inside the tab. The tab's icon carries a
   badge with the number of missed bills (`bills.md`, **Screens**).
@@ -521,17 +523,26 @@ keeping its own navigation stack.
   (`InsightsBranch`) has four roots, one per segment: `/reports`, `/net-worth`,
   `/investments` and `/goals`. Its first route, `/insights`, redirects to `/reports`.
   Each segment's screen is an `InsightsScaffold` (`core/router/insights_scaffold.dart`),
-  laid out as `PlanScaffold` is: the "Insights" app bar with the segment's actions, then
-  the Reports | Net worth | Investments | Goals `SegmentedButton` at the top of the body.
-  Four labels do not fit a phone's width, so the control scrolls sideways and opens
-  scrolled to the segment shown. Reports shows the reports (`reports.md`), with the
+  laid out as `PlanScaffold` is: the "Insights" app bar with the segment's actions and
+  the one menu, then the Reports | Net worth | Investments | Goals switcher at the top of
+  the body (**The segment switcher**). Reports shows the reports (`reports.md`), with the
   alerts bell (`BudgetAlertsButton`) in its app bar, since the weekly summary's notice is
-  reached through it; Net worth shows the history and the payoffs (`net-worth.md`);
+  reached through it, and "Export this month as PDF" in its menu above Help; Net worth shows the history and the payoffs (`net-worth.md`);
   Investments shows the investments (`investments.md`, **The segment**); Goals shows the
   goals (`goals.md`) with New goal in its app bar, and every `/goals...` route opens
   inside the tab; a segment whose feature has not landed shows
   `InsightsPlaceholder` ("Coming soon"). The roots are `NoTransitionPage`s. Settings is
   the fifth tab.
+- **The segment switcher** (`core/router/segment_switcher.dart`, `SegmentSwitcher`) is
+  both tabs' control: a `SegmentedButton` of pills with 12 at each segment's sides (the
+  theme's), its selected check hidden. It measures its labels at the current text size
+  in the theme's `labelLarge`: when every label fits an equal share of the width the row
+  fills the width (`expandedInsets: EdgeInsets.zero`), else it keeps its natural width
+  and scrolls sideways, with a 16 dp fade at the trailing edge while there is more past
+  it, and opens with the segment shown scrolled into view, as it does again whenever the
+  row turns from fitting to scrolling while the screen is open (a text size changed). On a 360 dp phone at text
+  scale 1 the Plan tab's three fit; the Insights tab's four do not ("Investments" is wider
+  than a quarter of the row in Work Sans), so they scroll; at text scale 2 both scroll.
 - **Snack bars.** Each branch has its own `ScaffoldMessenger`, so a snack bar shown from a
   tab (`ScaffoldMessenger.of(context)` in any of its screens) appears in that tab's screen
   `Scaffold`: above the navigation bar, lifting the screen's floating button rather than

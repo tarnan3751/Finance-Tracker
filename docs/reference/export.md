@@ -14,7 +14,7 @@ Code:
   texts from the ARB, the file names and the CSV's bytes.
 - `presentation/`:
   - `export_screen.dart`: the screen;
-  - `report_export_menu.dart`: the Reports segment's menu and sheet;
+  - `report_export_menu.dart`: the Reports segment's menu entry and sheet;
   - `export_runner.dart`: one export run, the buttons and the privacy note.
 - The platform boundary is `core/platform/file_exporter.dart` (`app-core.md`, **The file
   exporter**). The packages and the fonts are in `build.md`.
@@ -175,8 +175,9 @@ top:
   who has the file can read it." In the demo, where the exporter is the fake, it adds "In
   the demo, nothing is saved or shared."
 
-**The Reports menu.** The Reports segment's app bar has a menu after the alerts bell.
-"Export this month as PDF" opens a sheet for the period shown, with Save as…, Share… and
+**The Reports menu.** The Reports segment's app bar has one menu after the alerts bell,
+whose entry (`reportExportMenuItem`) sits above a divider and Help. "Export this month as
+PDF" opens a sheet for the period shown, with Save as…, Share… and
 the privacy note. A button runs the export: the sheet shows a progress bar with its
 buttons off until the run is done, then closes.
 

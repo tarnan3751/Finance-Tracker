@@ -1,5 +1,5 @@
-/// The Reports segment's menu (`docs/reference/export.md`, **Screens**): "Export this
-/// month as PDF" opens a sheet with the period shown, Save as and Share, and the
+/// The Reports segment's menu entry (`docs/reference/export.md`, **Screens**), which the
+/// app bar's one menu shows above the help: "Export this month as PDF" opens a sheet with the period shown, Save as and Share, and the
 /// privacy note. The sheet stays, its buttons off, while its export runs, and closes
 /// when it is done.
 library;
@@ -16,57 +16,46 @@ import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// The Reports segment's app bar menu.
-class ReportExportMenu extends ConsumerWidget {
-  const ReportExportMenu({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final AppLocalizations l10n = AppLocalizations.of(context);
-    return PopupMenuButton<void>(
-      itemBuilder: (_) => [
-        PopupMenuItem<void>(
-          onTap: () => _openSheet(context, ref),
-          child: ListTile(
-            leading: const Icon(Icons.picture_as_pdf_outlined),
-            title: Text(l10n.exportReportMenu),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _openSheet(BuildContext context, WidgetRef ref) {
-    // The page's messenger, which its scaffold shows snack bars through; the sheet sits
-    // above it, in the root navigator.
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
-    final AppLocalizations l10n = AppLocalizations.of(context);
-    final int offset = ref.read(reportPeriodOffsetProvider);
-    unawaited(
-      showModalBottomSheet<void>(
-        context: context,
-        showDragHandle: true,
-        // Scrolls, so the sheet fits at a large text size.
-        isScrollControlled: true,
-        builder: (sheet) => _ReportExportSheet(
-          offset: offset,
-          onExport: (data, {required share}) => runExport(
-            ref,
-            messenger: messenger,
-            l10n: l10n,
-            bytes: () async => monthlyReportPdf(
-              data,
-              l10n,
-              await ref.read(reportFontsProvider.future),
-            ),
-            fileName: monthlyReportFileName(data.report.current.range),
-            mimeType: pdfMimeType,
-            share: share,
-          ),
-        ),
+/// The Reports segment's menu entry, opening the export sheet over [context]'s page.
+PopupMenuItem<void> reportExportMenuItem(BuildContext context, WidgetRef ref) =>
+    PopupMenuItem<void>(
+      onTap: () => _openSheet(context, ref),
+      child: ListTile(
+        leading: const Icon(Icons.picture_as_pdf_outlined),
+        title: Text(AppLocalizations.of(context).exportReportMenu),
       ),
     );
-  }
+
+void _openSheet(BuildContext context, WidgetRef ref) {
+  // The page's messenger, which its scaffold shows snack bars through; the sheet sits
+  // above it, in the root navigator.
+  final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+  final AppLocalizations l10n = AppLocalizations.of(context);
+  final int offset = ref.read(reportPeriodOffsetProvider);
+  unawaited(
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      // Scrolls, so the sheet fits at a large text size.
+      isScrollControlled: true,
+      builder: (sheet) => _ReportExportSheet(
+        offset: offset,
+        onExport: (data, {required share}) => runExport(
+          ref,
+          messenger: messenger,
+          l10n: l10n,
+          bytes: () async => monthlyReportPdf(
+            data,
+            l10n,
+            await ref.read(reportFontsProvider.future),
+          ),
+          fileName: monthlyReportFileName(data.report.current.range),
+          mimeType: pdfMimeType,
+          share: share,
+        ),
+      ),
+    ),
+  );
 }
 
 class _ReportExportSheet extends ConsumerStatefulWidget {

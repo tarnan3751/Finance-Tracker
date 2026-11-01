@@ -1,15 +1,16 @@
 /// The screen frame of the Insights tab's four segments (`PLAN.md` §12 "Insights tab"),
 /// as `PlanScaffold` is the Plan tab's: the "Insights" app bar with the segment's own
-/// actions and the menu holding the help, then the Reports | Net worth | Investments | Goals control at the top of the
-/// body (in the body, so it grows with the text size; it scrolls sideways when four
-/// labels do not fit, which on a phone is the usual case, and opens scrolled to the
-/// segment shown), then the segment's body. Choosing a segment goes to its root
+/// actions and the one menu, holding the segment's entries above the help, then the
+/// Reports | Net worth | Investments | Goals control at the top of the body
+/// (`SegmentSwitcher`: in the body, so it grows with the text size; the four share the
+/// width when they fit, else the row scrolls sideways), then the segment's body. Choosing a segment goes to its root
 /// (`/reports`, `/net-worth`, `/investments`, `/goals`), whose page has no transition.
 ///
 /// [InsightsPlaceholder] is the body of a segment whose feature has not landed yet.
 library;
 
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/router/segment_switcher.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/features/help/domain/help_section.dart';
 import 'package:finance_tracker/features/help/presentation/help_menu.dart';
@@ -21,11 +22,12 @@ enum InsightsSegment { reports, netWorth, investments, goals }
 
 /// An Insights segment's screen: [body] under the app bar with [actions] and the segment
 /// control showing [segment].
-class InsightsScaffold extends StatefulWidget {
+class InsightsScaffold extends StatelessWidget {
   const InsightsScaffold({
     super.key,
     required this.segment,
     this.actions = const [],
+    this.menuEntries = const [],
     this.floatingActionButton,
     required this.body,
   });
@@ -33,8 +35,11 @@ class InsightsScaffold extends StatefulWidget {
   /// The segment this screen shows.
   final InsightsSegment segment;
 
-  /// The segment's app bar actions.
+  /// The segment's app bar actions: buttons, never a menu of their own.
   final List<Widget> actions;
+
+  /// The segment's menu entries, which the app bar's one menu shows above the help.
+  final List<PopupMenuEntry<void>> menuEntries;
 
   /// The segment's floating button, if any.
   final Widget? floatingActionButton;
@@ -42,30 +47,8 @@ class InsightsScaffold extends StatefulWidget {
   /// The segment's content, under the control.
   final Widget body;
 
-  @override
-  State<InsightsScaffold> createState() => _InsightsScaffoldState();
-}
-
-class _InsightsScaffoldState extends State<InsightsScaffold> {
-  final GlobalKey _selectedKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final BuildContext? selected = _selectedKey.currentContext;
-      if (selected != null) {
-        Scrollable.ensureVisible(selected, alignment: 0.5);
-      }
-    });
-  }
-
-  // [segment]'s label, keyed when it is the one shown so the control can scroll to it.
-  Widget _label(InsightsSegment segment, String text) =>
-      Text(text, key: segment == widget.segment ? _selectedKey : null);
-
   void _select(BuildContext context, InsightsSegment selected) {
-    if (selected == widget.segment) return;
+    if (selected == segment) return;
     switch (selected) {
       case InsightsSegment.reports:
         const ReportsRoute().go(context);
@@ -85,61 +68,26 @@ class _InsightsScaffoldState extends State<InsightsScaffold> {
       appBar: AppBar(
         title: Text(l10n.navInsights),
         actions: [
-          ...widget.actions,
-          const HelpMenuButton(section: HelpSection.insights),
+          ...actions,
+          HelpMenuButton(section: HelpSection.insights, entries: menuEntries),
         ],
         actionsPadding: const EdgeInsetsDirectional.only(end: 8),
       ),
-      floatingActionButton: widget.floatingActionButton,
+      floatingActionButton: floatingActionButton,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          LayoutBuilder(
-            builder: (context, constraints) => SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: constraints.maxWidth - 32,
-                ),
-                child: SegmentedButton<InsightsSegment>(
-                  segments: [
-                    ButtonSegment(
-                      value: InsightsSegment.reports,
-                      label: _label(
-                        InsightsSegment.reports,
-                        l10n.insightsReports,
-                      ),
-                    ),
-                    ButtonSegment(
-                      value: InsightsSegment.netWorth,
-                      label: _label(
-                        InsightsSegment.netWorth,
-                        l10n.insightsNetWorth,
-                      ),
-                    ),
-                    ButtonSegment(
-                      value: InsightsSegment.investments,
-                      label: _label(
-                        InsightsSegment.investments,
-                        l10n.insightsInvestments,
-                      ),
-                    ),
-                    ButtonSegment(
-                      value: InsightsSegment.goals,
-                      label: _label(InsightsSegment.goals, l10n.insightsGoals),
-                    ),
-                  ],
-                  selected: {widget.segment},
-                  // The check would take width the labels need.
-                  showSelectedIcon: false,
-                  onSelectionChanged: (selected) =>
-                      _select(context, selected.single),
-                ),
-              ),
-            ),
+          SegmentSwitcher<InsightsSegment>(
+            segments: [
+              (InsightsSegment.reports, l10n.insightsReports),
+              (InsightsSegment.netWorth, l10n.insightsNetWorth),
+              (InsightsSegment.investments, l10n.insightsInvestments),
+              (InsightsSegment.goals, l10n.insightsGoals),
+            ],
+            selected: segment,
+            onSelected: (selected) => _select(context, selected),
           ),
-          Expanded(child: widget.body),
+          Expanded(child: body),
         ],
       ),
     );

@@ -260,7 +260,7 @@ final Map<String, _Screen> _screens = {
     location: '/reports',
     seeded: true,
     open: (tester) async {
-      await _tapAndSettle(tester, find.byTooltip('Show menu'));
+      await _tapAndSettle(tester, find.byTooltip('More options'));
       await _tapAndSettle(tester, find.text('Export this month as PDF'));
     },
   ),

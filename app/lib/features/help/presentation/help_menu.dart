@@ -1,6 +1,7 @@
 /// The menu a tab's app bar carries for its help (`docs/reference/onboarding.md`,
 /// **Help**): "More options" holding "Help", which opens [HelpMenuButton.section] beside
-/// the tab (`openDetail`), on top of the tab's own stack. The transaction list's menu
+/// the tab (`openDetail`), on top of the tab's own stack. It is the app bar's one menu: a
+/// segment's own entries ([HelpMenuButton.entries]) come first, above a divider. The transaction list's menu
 /// carries the same item among its own ([helpMenuItem]).
 library;
 
@@ -19,13 +20,24 @@ PopupMenuItem<void> helpMenuItem(BuildContext context, HelpSection section) =>
 
 /// A tab's menu, holding Help for [section].
 class HelpMenuButton extends StatelessWidget {
-  const HelpMenuButton({super.key, required this.section});
+  const HelpMenuButton({
+    super.key,
+    required this.section,
+    this.entries = const [],
+  });
 
   final HelpSection section;
+
+  /// The screen's own entries, shown above the help.
+  final List<PopupMenuEntry<void>> entries;
 
   @override
   Widget build(BuildContext context) => PopupMenuButton<void>(
     tooltip: AppLocalizations.of(context).helpMoreOptions,
-    itemBuilder: (_) => [helpMenuItem(context, section)],
+    itemBuilder: (_) => [
+      ...entries,
+      if (entries.isNotEmpty) const PopupMenuDivider(),
+      helpMenuItem(context, section),
+    ],
   );
 }

@@ -131,8 +131,9 @@ dependency) from `help_content.dart`.
 - `/settings/help` (`help_screen.dart`, from Settings → About → Help) lists the eleven
   sections; `/settings/help/<slug>` (`help_section_screen.dart`) shows one; a slug no
   section has shows the list.
-- Each tab's app bar carries a "More options" menu with Help (`HelpMenuButton`,
-  `help_menu.dart`): Accounts opens `accounts`; the Plan scaffold opens `budgets`,
+- Each tab's app bar carries one "More options" menu with Help (`HelpMenuButton`,
+  `help_menu.dart`), the screen's own entries above it and a divider (the Reports
+  segment's export): Accounts opens `accounts`; the Plan scaffold opens `budgets`,
   `bills` or `forecast` by segment; the Insights scaffold opens `insights`; the
   transaction list's own menu carries the same item (`transactions`). Each opens its
   section through `openDetail`, on top of the current tab.

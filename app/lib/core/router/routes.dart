@@ -523,16 +523,21 @@ class ReportsRoute extends GoRouteData with $ReportsRoute {
   const ReportsRoute();
 
   @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      const NoTransitionPage(
-        child: InsightsScaffold(
-          segment: InsightsSegment.reports,
-          // The weekly summary's notice is reached through the alerts; the menu
-          // exports the period shown.
-          actions: [BudgetAlertsButton(), ReportExportMenu()],
-          body: ReportsView(),
-        ),
-      );
+  Page<void> buildPage(
+    BuildContext context,
+    GoRouterState state,
+  ) => NoTransitionPage(
+    child: Consumer(
+      builder: (context, ref, _) => InsightsScaffold(
+        segment: InsightsSegment.reports,
+        // The weekly summary's notice is reached through the alerts; the menu
+        // exports the period shown.
+        actions: const [BudgetAlertsButton()],
+        menuEntries: [reportExportMenuItem(context, ref)],
+        body: const ReportsView(),
+      ),
+    ),
+  );
 }
 
 /// `/reports/weekly`: the weekly summary, opened from the Reports segment and from its

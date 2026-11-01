@@ -19,7 +19,7 @@ _views = {
   'export_report_sheet': (
     location: '/reports',
     open: (tester) async {
-      await tester.tap(find.byTooltip('Show menu'));
+      await tester.tap(find.byTooltip('More options'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Export this month as PDF'));
       await tester.pumpAndSettle();

@@ -267,7 +267,7 @@ void main() {
       final _HeldExporter held = _HeldExporter();
       await _open(tester, location: '/reports', other: held);
 
-      await _tap(tester, find.byTooltip('Show menu'));
+      await _tap(tester, find.byTooltip('More options'));
       await _tap(tester, find.text('Export this month as PDF'));
       // Not settled: the progress bar runs until the export is done.
       await tester.tap(_button('Share the monthly report as a PDF'));
@@ -323,7 +323,7 @@ void main() {
     final FakeFileExporter fake = await _open(tester, location: '/reports');
 
     await _tap(tester, find.byTooltip('Previous period'));
-    await _tap(tester, find.byTooltip('Show menu'));
+    await _tap(tester, find.byTooltip('More options'));
     await _tap(tester, find.text('Export this month as PDF'));
     expect(find.text('Sep 1 – Sep 30, 2026'), findsWidgets);
     expect(find.text(_privacy), findsOneWidget);

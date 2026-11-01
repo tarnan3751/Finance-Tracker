@@ -1,7 +1,7 @@
 // The Insights tab: it opens on Reports, `/insights` redirects there, the segment control
 // switches between Reports, Net worth, Investments and Goals under the same "Insights"
-// app bar, each segment's root opens inside the tab, and the control survives text
-// scale 2 without overflow.
+// app bar, each segment's root opens inside the tab, Reports carries one menu, and the
+// control survives text scale 2 without overflow.
 import 'package:finance_tracker/core/router/insights_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -76,6 +76,26 @@ void main() {
       expect(find.text(shown), findsOneWidget);
     });
   }
+
+  testWidgets('Reports has one menu: its export above the help', (
+    tester,
+  ) async {
+    await pumpApp(tester, initialLocation: '/reports');
+    expect(
+      find.descendant(
+        of: find.byType(AppBar),
+        matching: find.byType(PopupMenuButton<void>),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.byTooltip('More options'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.getTopLeft(find.text('Export this month as PDF')).dy,
+      lessThan(tester.getTopLeft(find.text('Help')).dy),
+    );
+    expect(find.byType(PopupMenuDivider), findsOneWidget);
+  });
 
   testWidgets('a segment off the screen\'s edge opens scrolled into view', (
     tester,
