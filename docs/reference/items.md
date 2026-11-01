@@ -39,7 +39,7 @@ is open is a `StateError`. The public token is never logged (`toString` leaves i
 targets 36; it ships a consumer ProGuard file, and the app's `proguard-rules.pro` keeps
 `com.plaid.**` and every Room database's constructor (the SDK's WorkManager needs it;
 `build.md`). On Android, the link token is created with the app's package name
-(`PackageInfo.packageName`: `dev.tarnan.financetracker` for dev and prod), which must be
+(`PackageInfo.packageName`: `dev.tarnan.spendthrift` for dev and prod), which must be
 registered with Plaid (`PLAN.md` §4).
 
 **Known limitation.** `open` completes only when the plugin sends a success or an exit.

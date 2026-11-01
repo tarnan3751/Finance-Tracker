@@ -1,6 +1,6 @@
 /// The app's own channel to `MainActivity` for the system's settings screens and the
 /// background restriction (`docs/reference/background.md`, **Settings**):
-/// `dev.tarnan.financetracker/system_settings` with `openChannelSettings(channelId)`
+/// `dev.tarnan.spendthrift/system_settings` with `openChannelSettings(channelId)`
 /// (`android.settings.CHANNEL_NOTIFICATION_SETTINGS`), `openAppDetails()` (the app's
 /// details, where its battery use is set) and `backgroundRestricted()` (whether Android
 /// holds the app's background work back: restricted by the user, or in the restricted
@@ -27,7 +27,7 @@ final class ChannelSystemSettings implements SystemSettings {
   const ChannelSystemSettings();
 
   static const MethodChannel _channel = MethodChannel(
-    'dev.tarnan.financetracker/system_settings',
+    'dev.tarnan.spendthrift/system_settings',
   );
 
   @override

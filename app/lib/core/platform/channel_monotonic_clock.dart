@@ -1,5 +1,5 @@
 /// The [MonotonicClock] of every flavor on a device: `MainActivity`'s
-/// `dev.tarnan.financetracker/clock` channel, whose `elapsedRealtime` answers
+/// `dev.tarnan.spendthrift/clock` channel, whose `elapsedRealtime` answers
 /// `SystemClock.elapsedRealtime()`, milliseconds since boot, deep sleep included.
 library;
 
@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 final class ChannelMonotonicClock implements MonotonicClock {
   /// The clock through [channel] (the app's clock channel by default).
   const ChannelMonotonicClock([
-    this._channel = const MethodChannel('dev.tarnan.financetracker/clock'),
+    this._channel = const MethodChannel('dev.tarnan.spendthrift/clock'),
   ]);
 
   final MethodChannel _channel;

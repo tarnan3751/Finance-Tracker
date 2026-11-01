@@ -10,7 +10,7 @@ plugins {
 val releaseKeystore: String? = System.getenv("FT_RELEASE_KEYSTORE")?.takeIf { it.isNotEmpty() }
 
 android {
-    namespace = "dev.tarnan.financetracker"
+    namespace = "dev.tarnan.spendthrift"
     // SDK levels are explicit integers rather than the flutter.* properties, so a Flutter
     // upgrade cannot move them silently. minSdk 26 covers the Plaid Android SDK (25+) and
     // the biometric and secure-storage libraries (23+) with headroom (PLAN.md §12).
@@ -26,7 +26,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "dev.tarnan.financetracker"
+        applicationId = "dev.tarnan.spendthrift"
         minSdk = 26
         targetSdk = 36
         // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION

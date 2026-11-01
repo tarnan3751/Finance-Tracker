@@ -36,9 +36,9 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
 
 | Flavor | Entry file | Application id | App name | Server URL | Banner |
 |---|---|---|---|---|---|
-| `dev` | `lib/main_dev.dart` | `dev.tarnan.financetracker` | Spendthrift Dev | `FT_SERVER_URL`, default `http://10.0.2.2:8080` | `DEV` |
-| `demo` | `lib/main_demo.dart` | `dev.tarnan.financetracker.demo` | Spendthrift Demo | none | `DEMO` |
-| `prod` | `lib/main_prod.dart` | `dev.tarnan.financetracker` | Spendthrift | `FT_SERVER_URL`, no default; must be `https`; without it, entered at sign-in | none |
+| `dev` | `lib/main_dev.dart` | `dev.tarnan.spendthrift` | Spendthrift Dev | `FT_SERVER_URL`, default `http://10.0.2.2:8080` | `DEV` |
+| `demo` | `lib/main_demo.dart` | `dev.tarnan.spendthrift.demo` | Spendthrift Demo | none | `DEMO` |
+| `prod` | `lib/main_prod.dart` | `dev.tarnan.spendthrift` | Spendthrift | `FT_SERVER_URL`, no default; must be `https`; without it, entered at sign-in | none |
 
 - dev and prod open on a Welcome screen until the demo or the user's own server is
   chosen, and the choice is kept on the device (`onboarding.md`, **The app mode**): the
@@ -89,8 +89,8 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   rather than the `flutter.*` properties so a Flutter upgrade cannot move them silently.
   26 covers the Plaid Android SDK (25+) and the biometric and secure-storage libraries
   (23+) with headroom.
-- **Package.** Namespace and application id `dev.tarnan.financetracker`; `MainActivity` is
-  `app/android/app/src/main/kotlin/dev/tarnan/financetracker/MainActivity.kt`.
+- **Package.** Namespace and application id `dev.tarnan.spendthrift`; `MainActivity` is
+  `app/android/app/src/main/kotlin/dev/tarnan/spendthrift/MainActivity.kt`.
 - **The activity and the lock.** `MainActivity` is a `FlutterFragmentActivity`, because
   `local_auth` (BSD-3, pinned exactly at 3.0.2 in `app/pubspec.yaml`; its Android
   implementation `local_auth_android` 2.3.0, minSdk 24) shows the biometric prompt as a
@@ -100,10 +100,10 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   and below; AppCompat comes into the build through the plugins' dependencies (none is
   declared in `app/build.gradle.kts`). The main manifest declares `USE_BIOMETRIC` (the
   plugin's merged manifest brings it too). `MainActivity` also answers three channels of
-  the app's own in `configureFlutterEngine`: `dev.tarnan.financetracker/screen_security`
-  (`setSecure`, `FLAG_SECURE` on the window), `dev.tarnan.financetracker/clock`
+  the app's own in `configureFlutterEngine`: `dev.tarnan.spendthrift/screen_security`
+  (`setSecure`, `FLAG_SECURE` on the window), `dev.tarnan.spendthrift/clock`
   (`elapsedRealtime`) (`app-core.md`, **Screen security** and **The monotonic clock**;
-  `lock.md`) and `dev.tarnan.financetracker/system_settings` (**Background sync**
+  `lock.md`) and `dev.tarnan.spendthrift/system_settings` (**Background sync**
   below).
 - **Backup.** The `<application>` element sets `android:allowBackup="false"`,
   `android:fullBackupContent="false"` and
@@ -157,7 +157,7 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   `connectivity_plus` (BSD-3, pinned exactly at 7.3.2, behind
   `core/platform/connectivity.dart`) merges `ACCESS_NETWORK_STATE`; its transitive Linux
   implementation brings `nm` (MPL-2.0), never compiled into the Android app.
-  `MainActivity`'s third channel, `dev.tarnan.financetracker/system_settings`, opens a
+  `MainActivity`'s third channel, `dev.tarnan.spendthrift/system_settings`, opens a
   notification channel's settings (`android.settings.CHANNEL_NOTIFICATION_SETTINGS`) and
   the app's details, and reports a background restriction
   (`ActivityManager.isBackgroundRestricted`, the restricted standby bucket).

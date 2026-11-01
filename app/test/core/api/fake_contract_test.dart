@@ -389,7 +389,7 @@ void main() {
 
       // plaid
       final Map<String, Object?> linkExample = {
-        'android_package_name': 'dev.tarnan.financetracker',
+        'android_package_name': 'dev.tarnan.spendthrift',
       };
       expect(
         (await h.rawSend(

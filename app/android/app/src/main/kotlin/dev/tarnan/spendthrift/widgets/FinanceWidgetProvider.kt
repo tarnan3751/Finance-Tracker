@@ -1,4 +1,4 @@
-package dev.tarnan.financetracker.widgets
+package dev.tarnan.spendthrift.widgets
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -10,8 +10,8 @@ import android.os.Bundle
 import android.util.SizeF
 import android.view.View
 import android.widget.RemoteViews
-import dev.tarnan.financetracker.MainActivity
-import dev.tarnan.financetracker.R
+import dev.tarnan.spendthrift.MainActivity
+import dev.tarnan.spendthrift.R
 import es.antonborri.home_widget.HomeWidgetLaunchIntent
 import es.antonborri.home_widget.HomeWidgetPlugin
 import es.antonborri.home_widget.HomeWidgetProvider

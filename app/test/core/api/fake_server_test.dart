@@ -333,7 +333,7 @@ void main() {
     test('link, not_ready, completed, then the data as demo', () async {
       final FakeClient client = FakeClient.signedIn(server);
       final LinkToken link = await client.api.createLinkToken(
-        androidPackageName: 'dev.tarnan.financetracker',
+        androidPackageName: 'dev.tarnan.spendthrift',
       );
       expect(link.expiration, fakeNow.add(const Duration(hours: 4)));
 
@@ -419,7 +419,7 @@ void main() {
         await expectLater(
           client.api.createUpdateLinkToken(
             'sample-item-1',
-            androidPackageName: 'dev.tarnan.financetracker',
+            androidPackageName: 'dev.tarnan.spendthrift',
           ),
           throwsA(isA<NotFound>()),
         );
@@ -562,7 +562,7 @@ void main() {
       );
       await client.api.createUpdateLinkToken(
         'sample-item-1',
-        androidPackageName: 'dev.tarnan.financetracker',
+        androidPackageName: 'dev.tarnan.spendthrift',
       );
       final LinkedItem repaired = await client.api.exchangePublicToken(
         'public-demo-update-sample-item-1',

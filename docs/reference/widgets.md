@@ -19,7 +19,7 @@ Code:
   (`FakeWidgetWriter`, the tests').
 - `application/`: `widget_data_builder.dart` (`buildWidgetData`, `widgetUpdatedText`) and
   `widget_providers.dart` (**Providers**).
-- Android: `app/android/app/src/main/kotlin/dev/tarnan/financetracker/widgets/`
+- Android: `app/android/app/src/main/kotlin/dev/tarnan/spendthrift/widgets/`
   (`FinanceWidgetProvider.kt`, `BalancesWidgetProvider.kt`, `BudgetsWidgetProvider.kt`,
   `BillsWidgetProvider.kt`), `res/layout/widget_*.xml`, `res/xml/widget_*_info.xml`,
   `res/values*/widget_colors.xml`, `widget_dimens.xml`, `widget_strings.xml`,
@@ -92,7 +92,7 @@ masking is what keeps the home screen quiet.
 `WidgetWriter.write(data)` replaces the snapshot and redraws every placed widget.
 `HomeWidgetWriter` (every flavor: the demo's widgets show its seed, dev's and prod's the
 database) calls `HomeWidget.saveWidgetData` and then `HomeWidget.updateWidget` with each
-provider's full class name (the namespace stays `dev.tarnan.financetracker` while the demo's
+provider's full class name (the namespace stays `dev.tarnan.spendthrift` while the demo's
 application id has a suffix). `FakeWidgetWriter` records every write and can be made to
 fail.
 

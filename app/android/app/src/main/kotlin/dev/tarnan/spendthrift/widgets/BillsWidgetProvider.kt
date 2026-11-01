@@ -1,9 +1,9 @@
-package dev.tarnan.financetracker.widgets
+package dev.tarnan.spendthrift.widgets
 
 import android.content.Context
 import android.view.View
 import android.widget.RemoteViews
-import dev.tarnan.financetracker.R
+import dev.tarnan.spendthrift.R
 import org.json.JSONObject
 
 // Upcoming bills (2 by 2, 4 by 2 and wider): the next three unpaid bills as the app

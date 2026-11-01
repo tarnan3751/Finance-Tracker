@@ -53,7 +53,7 @@ const Rect foldBounds = Rect.fromLTWH(420.5, 0, 0, 701);
 /// The package metadata tests see.
 final PackageInfo testPackageInfo = PackageInfo(
   appName: 'Spendthrift',
-  packageName: 'dev.tarnan.financetracker',
+  packageName: 'dev.tarnan.spendthrift',
   version: '1.0.0',
   buildNumber: '1',
 );

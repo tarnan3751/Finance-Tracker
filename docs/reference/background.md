@@ -28,7 +28,7 @@ Code:
   one process), `background_sync_watcher.dart` (the app's side), `background_hooks.dart`.
 - `app/lib/features/settings/application/notifications_overview.dart` and
   `presentation/notifications_screen.dart`: Settings → Notifications.
-- `MainActivity.kt`: the `dev.tarnan.financetracker/system_settings` channel (`build.md`).
+- `MainActivity.kt`: the `dev.tarnan.spendthrift/system_settings` channel (`build.md`).
 
 ## Scheduling
 
@@ -305,7 +305,7 @@ over the fakes' state.
   periodic sync scheduled with the real plugin and read back from WorkManager.
 - The worker alone on a device (the dev flavor; the coordinator's acceptance): the
   developer menu's Run the background worker after about 20 seconds, then `adb shell
-  run-as dev.tarnan.financetracker kill -9 <pid>` inside the delay; the job then starts
+  run-as dev.tarnan.spendthrift kill -9 <pid>` inside the delay; the job then starts
   the dispatcher's engine in a process with no app. The 20 s are a floor, not a time:
   JobScheduler batches a non-expedited one-off work with no deadline, so the job can
   start minutes later (36 s and 3 min 10 s measured). Neither shortcut does it: a forced run

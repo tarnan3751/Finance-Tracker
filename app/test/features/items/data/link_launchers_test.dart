@@ -171,11 +171,11 @@ void main() {
 
     Future<String> token({String? update}) async => update == null
         ? (await client.api.createLinkToken(
-            androidPackageName: 'dev.tarnan.financetracker',
+            androidPackageName: 'dev.tarnan.spendthrift',
           )).linkToken
         : (await client.api.createUpdateLinkToken(
             update,
-            androidPackageName: 'dev.tarnan.financetracker',
+            androidPackageName: 'dev.tarnan.spendthrift',
           )).linkToken;
 
     test('links the next Item the user has not linked', () async {

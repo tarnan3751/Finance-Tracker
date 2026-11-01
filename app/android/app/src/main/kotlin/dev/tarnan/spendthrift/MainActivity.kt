@@ -1,4 +1,4 @@
-package dev.tarnan.financetracker
+package dev.tarnan.spendthrift
 
 import android.app.ActivityManager
 import android.app.usage.UsageStatsManager
@@ -52,7 +52,7 @@ class MainActivity : FlutterFragmentActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         val messenger = flutterEngine.dartExecutor.binaryMessenger
-        MethodChannel(messenger, "dev.tarnan.financetracker/screen_security")
+        MethodChannel(messenger, "dev.tarnan.spendthrift/screen_security")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "setSecure" -> {
@@ -66,7 +66,7 @@ class MainActivity : FlutterFragmentActivity() {
                     else -> result.notImplemented()
                 }
             }
-        MethodChannel(messenger, "dev.tarnan.financetracker/system_settings")
+        MethodChannel(messenger, "dev.tarnan.spendthrift/system_settings")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "openChannelSettings" -> result.success(
@@ -88,7 +88,7 @@ class MainActivity : FlutterFragmentActivity() {
                     else -> result.notImplemented()
                 }
             }
-        MethodChannel(messenger, "dev.tarnan.financetracker/clock")
+        MethodChannel(messenger, "dev.tarnan.spendthrift/clock")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "elapsedRealtime" -> result.success(SystemClock.elapsedRealtime())

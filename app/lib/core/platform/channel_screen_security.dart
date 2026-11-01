@@ -1,5 +1,5 @@
 /// The [ScreenSecurity] of every flavor on a device: `MainActivity`'s
-/// `dev.tarnan.financetracker/screen_security` channel, whose `setSecure` adds or clears
+/// `dev.tarnan.spendthrift/screen_security` channel, whose `setSecure` adds or clears
 /// `FLAG_SECURE` on the activity's window.
 library;
 
@@ -11,7 +11,7 @@ final class ChannelScreenSecurity implements ScreenSecurity {
   /// The flag through [channel] (the app's screen-security channel by default).
   const ChannelScreenSecurity([
     this._channel = const MethodChannel(
-      'dev.tarnan.financetracker/screen_security',
+      'dev.tarnan.spendthrift/screen_security',
     ),
   ]);
 

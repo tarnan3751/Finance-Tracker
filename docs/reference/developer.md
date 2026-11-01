@@ -68,7 +68,7 @@ fake server**), which is how the menu is tested on the harness.
   scheduled for, or why it was not. The 20 s are a floor: JobScheduler batches a
   non-expedited one-off work with no deadline, so the run can come minutes later
   (36 s and 3 min 10 s measured), which the row's detail says. It is how the worker is run with no app: kill the
-  process inside the delay, as `adb shell run-as dev.tarnan.financetracker kill -9
+  process inside the delay, as `adb shell run-as dev.tarnan.spendthrift kill -9
   <pid>` does, and the job then starts the dispatcher's engine alone (`background.md`,
   **Testing**, says why a forced run, a force-stop and `am kill` do not serve).
 

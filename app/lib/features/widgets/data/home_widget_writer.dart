@@ -1,9 +1,9 @@
 /// The [WidgetWriter] of every flavor on a device, over `home_widget`: the snapshot's
 /// JSON under [widgetSnapshotKey] in the plugin's preferences file, then an update
-/// broadcast to each of the three providers in `dev.tarnan.financetracker.widgets`
-/// (`app/android/app/src/main/kotlin/dev/tarnan/financetracker/widgets/`), which render
+/// broadcast to each of the three providers in `dev.tarnan.spendthrift.widgets`
+/// (`app/android/app/src/main/kotlin/dev/tarnan/spendthrift/widgets/`), which render
 /// it and nothing else. The providers are named in full: the namespace stays
-/// `dev.tarnan.financetracker` while the demo flavor's application id has a suffix.
+/// `dev.tarnan.spendthrift` while the demo flavor's application id has a suffix.
 library;
 
 import 'dart:convert';
@@ -14,9 +14,9 @@ import 'package:home_widget/home_widget.dart';
 
 /// The providers the writer redraws, by their full class names.
 const List<String> widgetProviders = [
-  'dev.tarnan.financetracker.widgets.BalancesWidgetProvider',
-  'dev.tarnan.financetracker.widgets.BudgetsWidgetProvider',
-  'dev.tarnan.financetracker.widgets.BillsWidgetProvider',
+  'dev.tarnan.spendthrift.widgets.BalancesWidgetProvider',
+  'dev.tarnan.spendthrift.widgets.BudgetsWidgetProvider',
+  'dev.tarnan.spendthrift.widgets.BillsWidgetProvider',
 ];
 
 /// The widgets through `home_widget`.

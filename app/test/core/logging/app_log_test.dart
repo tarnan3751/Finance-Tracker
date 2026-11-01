@@ -140,7 +140,7 @@ void main() {
       // runs, but not the mixed ones random tokens and keys are.
       'at package:finance_tracker/core/sync/sync_controller.dart:120:7',
       'GET /v1/transactions/recurring-streams/overrides',
-      'opened /data/user/0/dev.tarnan.financetracker/files/receipts/manual_lunch.jpg',
+      'opened /data/user/0/dev.tarnan.spendthrift/files/receipts/manual_lunch.jpg',
       'held 2 records of recurring_stream_override_with_a_long_entity_name_v2',
     ];
     final Logger log = Logger('sync');

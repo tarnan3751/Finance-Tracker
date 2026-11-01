@@ -5,10 +5,10 @@
 # versioning and how to change it: docs/reference/api.md.
 openapi: 3.0.3
 info:
-  title: Finance Tracker API
+  title: Spendthrift API
   version: 0.7.0
   description: >-
-    The API between the Finance Tracker app and its server. All JSON, snake_case. Money is
+    The API between the Spendthrift app and its server. All JSON, snake_case. Money is
     integer minor units plus an ISO 4217 code (`Money`), never a floating-point number;
     calendar dates are ISO dates (`format: date`); instants are UTC with millisecond
     precision and a `Z` suffix. Errors are RFC 9457 problem details. Plaid-sourced data
@@ -1480,7 +1480,7 @@ components:
           minLength: 1
           description: An Item to open Link in update mode for
       example:
-        android_package_name: dev.tarnan.financetracker
+        android_package_name: dev.tarnan.spendthrift
     UpdateLinkTokenRequest:
       type: object
       additionalProperties: false

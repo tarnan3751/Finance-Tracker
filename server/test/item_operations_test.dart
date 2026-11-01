@@ -7,7 +7,7 @@ import 'package:test/test.dart';
 
 import 'support/test_server.dart';
 
-const _package = 'dev.tarnan.financetracker';
+const _package = 'dev.tarnan.spendthrift';
 
 void main() {
   late TestServer server;

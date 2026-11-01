@@ -46,7 +46,7 @@ if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then
 else
   FLUTTER="flutter"
 fi
-PACKAGE="dev.tarnan.financetracker.demo"
+PACKAGE="dev.tarnan.spendthrift.demo"
 say() { echo "doze_check: $*"; }
 
 restore() {

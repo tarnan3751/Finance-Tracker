@@ -20,7 +20,7 @@ import 'package:test/test.dart';
 import 'support/recorded_plaid_transport.dart';
 import 'support/test_server.dart';
 
-const _package = 'dev.tarnan.financetracker';
+const _package = 'dev.tarnan.spendthrift';
 
 /// Every number in [node], to prove none decoded as a double.
 Iterable<Object?> _leaves(Object? node) sync* {

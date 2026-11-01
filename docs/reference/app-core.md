@@ -235,7 +235,7 @@ OEM may differ, and a thumbnail taken before the flag was set stays). The lock c
 sets it whenever the lock is enabled or "Block screenshots" is on (`lock.md`).
 
 - **`ChannelScreenSecurity`** (`channel_screen_security.dart`, every flavor): the
-  `dev.tarnan.financetracker/screen_security` channel's `setSecure(bool)`, which
+  `dev.tarnan.spendthrift/screen_security` channel's `setSecure(bool)`, which
   `MainActivity` answers by adding or clearing `WindowManager.LayoutParams.FLAG_SECURE`
   on its window. Plaid Link and the other activities the app starts have windows of
   their own, which the flag does not reach.
@@ -251,7 +251,7 @@ a fixed point that never goes back and that the user cannot change. The lock mea
 time in the background with it (`lock.md`).
 
 - **`ChannelMonotonicClock`** (`channel_monotonic_clock.dart`, every flavor): the
-  `dev.tarnan.financetracker/clock` channel's `elapsedRealtime`, which `MainActivity`
+  `dev.tarnan.spendthrift/clock` channel's `elapsedRealtime`, which `MainActivity`
   answers with `SystemClock.elapsedRealtime()` in milliseconds. That clock counts deep
   sleep; a Dart `Stopwatch` (`CLOCK_MONOTONIC`) stops in it and would undercount a phone
   that slept in a pocket.
