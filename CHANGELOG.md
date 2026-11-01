@@ -3,6 +3,70 @@
 Each release section is generated from the Conventional Commit log since the previous tag
 (`PLAN.md` §10). Tags are `vX.Y.Z`; a phase ends with a `vX.Y.Z-phaseN` pre-release.
 
+## v1.0.0-phase9 — 2026-11-01
+
+Phase 9 is the release. A fresh install of the release APK opens on a Welcome screen and runs the
+demo with no server and no account, or takes the address of your own server; the demo is marked
+while it runs and can be left from Settings. Bank exports come in as CSV files through a column
+mapping that is remembered per header, with likely duplicates skipped, the rules applied, and an
+Undo per import. In-app Help covers every feature, a Privacy page says what leaves the device and
+what never does, and About opens the open-source licences. A pushed version tag now publishes a
+GitHub release by itself: the gate, the prod APK signed with the release key held in Actions secrets
+and checked against the certificate's fingerprint before anything is published, the demo APK, the
+symbols, a sums file and notes taken from this changelog. The repository gains its MIT licence, a
+contributing guide, a code of conduct, a security policy and README screenshots. The developer menu
+is compiled out of demo and release builds, messages raised after an await land where the user is
+looking, errors from a closed database are shown rather than thrown, and the server waits for a held
+lock in wall time as the app does.
+
+### Features
+
+- tools: Add the release notes and signature check scripts (d919360)
+- import: Parse bank CSV exports into mapped rows (55a472a)
+- import: Write, review and undo an import (d0cf850)
+- import: Add the import flow screens and entry points (b5e2042)
+- app: Compile the developer tools out of demo and prod builds (4865126)
+- app: Run dev and prod in a stored app mode (7ec0c42)
+- onboarding: Open a fresh install on a Welcome screen (a9d3122)
+- onboarding: Mark the demo and let it be left (eab581a)
+- auth: Ask for the server's address when none is compiled in (c05f4a4)
+- help: Add the in-app help (be37dc7)
+- help: Add the privacy page and the licences to About (b8ea588)
+
+### Fixes
+
+- app: Show a message raised after an await where the user sees it (b6931e3)
+- app: Close the deleting editor through its own page (eba1946)
+- settings: Call a run held only while the restore offer is pending (81111e8)
+- developer: Say the worker runs after about 20 seconds, maybe later (3584140)
+- server: Wait out a held lock in wall time, not SQLite's timeout (224032f)
+- budgets: Show a future period below nothing as how far over (7f63762)
+- backup: Hold Back on the restoring screen while the restore works (9903d5f)
+- transactions: Say a failed bulk edit changed nothing and reselect (6733290)
+- bills: Say when marking a bill paid or its Undo is not saved (0c90cdd)
+- conflicts: Say a keep failed whatever it threw (e77f24c)
+
+### Refactoring
+
+- app: Give picked files a name and a MIME filter (2ace766)
+
+### CI
+
+- ci: Publish a signed release when a version tag is pushed (e86adaa)
+
+### Tests
+
+- import: Import a bank export on a device (ed11d96)
+- onboarding: Choose the demo and leave it on a device (5b4386e)
+
+### Documentation
+
+- docs: Add LICENSE, CONTRIBUTING, CODE_OF_CONDUCT and SECURITY (2693f8a)
+- docs: Describe the release workflow and the demo APK in the README (26804c7)
+- docs: Add README screenshots and the tour GIF (a1f6dff)
+- docs: Document cutting a release and the release signing (00b5319)
+- onboarding: Describe the app mode, Welcome, help and privacy (a86aba9)
+
 ## v0.9.0-phase8 — 2026-10-31
 
 Phase 8 brings the Android platform features. The app syncs in the background on an hourly,

@@ -18,50 +18,55 @@ heading of this file or of a doc.
 
 ## Status
 
-**Phases 0 to 8 have landed and passed their gates; Phase 9 is next:** the app runs on its Riverpod
-and go_router core with manual accounts, transactions and categories on the encrypted Drift database
-(schema v13 with the change log, field clocks, Items, rules, budgets and their alerts, dismissed
-duplicate pairs, saved filters, a full-text index, recurring streams and their overrides,
-liabilities, bills and bill alerts, securities, holdings, investment transactions, daily balance
-snapshots, goals and their contributions, the device-local conflicts and the transactions' receipt
-hashes); it signs in against the development server through the API client, syncs user data between
-devices through the sync engine (contract 0.7.0; a pulled record of a type this build does not know
-is held, not failed; a received clock more than an hour ahead is clamped), links banks through Plaid
-Link (real Sandbox Items through the server, which polls Plaid and verifies its webhooks), pulls
-their accounts and transactions with reported balances and institution logos, applies the user's
-rules on arrival and, on request, to the existing transactions; it budgets by category with periods,
-rollover, projection and in-app alerts, hides and bulk-edits transactions, reviews likely
-duplicates, searches by word prefixes, saves filters, splits transactions and attaches receipt
-photos; it pulls Plaid's recurring streams and liabilities, detects recurring streams in every
-transaction source with a measured detector and merges the two, classifies subscriptions and lists
-them with annual totals, tracks bills with local reminders scheduled at the right wall-clock time
-across DST and flags missed payments, and projects 30 and 90 days of cash flow with a confidence
-band, all under a Plan tab with Budgets, Bills and Forecast segments; it pulls holdings and
-investment transactions, records a balance snapshot per account per day and shows net worth over
-time with pre-install history reconstructed from transactions and labelled as derived, reports
-spending by category and merchant with comparisons, top movers and anomaly hints measured against
-the persona seeds, raises a weekly summary, tracks savings goals with contributions and suggestions,
-projects liability payoff, and exports a byte-identical PDF monthly report and a CSV, all under an
-Insights tab with Reports, Net worth, Investments and Goals segments; it backs everything up into
-one passphrase-encrypted file and restores it onto a fresh install or after a lost key, locks behind
-the device's biometrics or screen lock with a privacy screen and screenshot blocking, deletes the
-account or erases this device in an order a kill cannot leave half done, lists and removes the
-account's devices, shows the losing side of two edits made within ten minutes so the person can keep
-either, syncs receipt photos between devices through content-addressed blobs, survives a seeded
-chaos simulation of partitions, restarts and clock skew in the gate, and keeps a scrubbed copy of
-every log record in release builds; it syncs in the background on a battery-respecting hourly
-WorkManager schedule that survives Doze, delegating to the app when it is alive so two isolates
-never race the server's token rotation, and syncs again when a network returns; it owns its
-notification channels, posts budget alerts, the weekly summary and sync problems to the tray beside
-the in-app list, asks for the permission only when a notifying feature is turned on and has a
-Notifications settings screen; it keeps three home screen widgets (balances, budgets, upcoming
-bills) fresh within one background cycle and masked while the lock is on, and offers four app
-shortcuts; it fits a tablet and a foldable with a navigation rail and two panes that split on the
-hinge, passes the accessibility guidelines on every screen at two text scales, and carries a
-generated pseudo-locale and a Spanish skeleton behind a strings check in the gate; and it runs the
-demo flavor on the persona engine's seed against an in-process fake server with no network; the dev
-flavor carries a developer menu for the Sandbox controls. The repository is the pub workspace of
-**Folder layout**, Android only. The app runs in three flavors (`dev`, `demo`, `prod`) through
+**Phases 0 to 9 have landed and passed their gates; the project is at its first pre-release:** the
+app runs on its Riverpod and go_router core with manual accounts, transactions and categories on the
+encrypted Drift database (schema v13 with the change log, field clocks, Items, rules, budgets and
+their alerts, dismissed duplicate pairs, saved filters, a full-text index, recurring streams and
+their overrides, liabilities, bills and bill alerts, securities, holdings, investment transactions,
+daily balance snapshots, goals and their contributions, the device-local conflicts and the
+transactions' receipt hashes); it signs in against the development server through the API client,
+syncs user data between devices through the sync engine (contract 0.7.0; a pulled record of a type
+this build does not know is held, not failed; a received clock more than an hour ahead is clamped),
+links banks through Plaid Link (real Sandbox Items through the server, which polls Plaid and
+verifies its webhooks), pulls their accounts and transactions with reported balances and institution
+logos, applies the user's rules on arrival and, on request, to the existing transactions; it budgets
+by category with periods, rollover, projection and in-app alerts, hides and bulk-edits transactions,
+reviews likely duplicates, searches by word prefixes, saves filters, splits transactions and
+attaches receipt photos; it pulls Plaid's recurring streams and liabilities, detects recurring
+streams in every transaction source with a measured detector and merges the two, classifies
+subscriptions and lists them with annual totals, tracks bills with local reminders scheduled at the
+right wall-clock time across DST and flags missed payments, and projects 30 and 90 days of cash flow
+with a confidence band, all under a Plan tab with Budgets, Bills and Forecast segments; it pulls
+holdings and investment transactions, records a balance snapshot per account per day and shows net
+worth over time with pre-install history reconstructed from transactions and labelled as derived,
+reports spending by category and merchant with comparisons, top movers and anomaly hints measured
+against the persona seeds, raises a weekly summary, tracks savings goals with contributions and
+suggestions, projects liability payoff, and exports a byte-identical PDF monthly report and a CSV,
+all under an Insights tab with Reports, Net worth, Investments and Goals segments; it backs
+everything up into one passphrase-encrypted file and restores it onto a fresh install or after a
+lost key, locks behind the device's biometrics or screen lock with a privacy screen and screenshot
+blocking, deletes the account or erases this device in an order a kill cannot leave half done, lists
+and removes the account's devices, shows the losing side of two edits made within ten minutes so the
+person can keep either, syncs receipt photos between devices through content-addressed blobs,
+survives a seeded chaos simulation of partitions, restarts and clock skew in the gate, and keeps a
+scrubbed copy of every log record in release builds; it syncs in the background on a
+battery-respecting hourly WorkManager schedule that survives Doze, delegating to the app when it is
+alive so two isolates never race the server's token rotation, and syncs again when a network
+returns; it owns its notification channels, posts budget alerts, the weekly summary and sync
+problems to the tray beside the in-app list, asks for the permission only when a notifying feature
+is turned on and has a Notifications settings screen; it keeps three home screen widgets (balances,
+budgets, upcoming bills) fresh within one background cycle and masked while the lock is on, and
+offers four app shortcuts; it fits a tablet and a foldable with a navigation rail and two panes that
+split on the hinge, passes the accessibility guidelines on every screen at two text scales, and
+carries a generated pseudo-locale and a Spanish skeleton behind a strings check in the gate; it
+opens a fresh install on a Welcome screen that runs the demo inside the release build or takes the
+address of your own server, imports bank CSV exports through a remembered column mapping with likely
+duplicates skipped, the rules applied and an Undo per import, carries in-app Help, a Privacy page
+and the open-source licences, compiles the developer tools out of demo and release builds, and
+publishes a signed GitHub release from a pushed version tag; and it runs the demo flavor on the
+persona engine's seed against an in-process fake server with no network; the dev flavor carries a
+developer menu for the Sandbox controls. The repository is the pub workspace of **Folder layout**,
+Android only. The app runs in three flavors (`dev`, `demo`, `prod`) through
 `app/lib/bootstrap.dart`; `server/` is the development server implementing the contract with a fake
 Plaid client (`docs/reference/server.md`); `api/openapi.yaml` is the v1 contract, with
 `packages/api_client` generated from it and `packages/contract_test` checking against it; the
@@ -117,15 +122,18 @@ scripts pick it the same way. Commands marked with a phase do not exist before i
 | Run the harness on the foldable or the tablet, and set the posture | `FT_EMULATOR_AVD=ft-fold FT_AVD_DEVICE=pixel_fold tools/emulator_tests.sh demo`, then `tools/emulator_tests.sh posture folded\|unfolded`; `ft-tablet` with `pixel_tablet` |
 | Check the background job is kept, deferred under Doze and run in its maintenance window | `tools/emulator_tests.sh run tools/scripts/background_doze_check.sh` |
 | Regenerate the pseudo-locale after adding strings | `dart run tools/pseudo_locale.dart`, then `flutter gen-l10n` in `app/` |
+| Print a release's notes from the changelog | `tools/release/release_notes.sh <tag>` |
+| Check an APK is signed with the release certificate | `tools/release/check_signature.sh <apk>` |
+| Cut a release (the workflow publishes) | `tools/changelog.sh v<previous>..HEAD` into `CHANGELOG.md`, commit, `git tag -a vX.Y.Z[-suffix]`, `git push origin <tag>` |
 
-**Any Flutter run writes files**: `build/` and `.dart_tool/` in the tree it runs in, and a `run`
-or `install` writes the app and its data onto whatever emulator or device is attached. The dev
-server writes its SQLite database under `server/data/` (gitignored) and reads the Plaid keys from
+**Any Flutter run writes files**: `build/` and `.dart_tool/` in the tree it runs in, and a `run` or
+`install` writes the app and its data onto whatever emulator or device is attached. The dev server
+writes its SQLite database under `server/data/` (gitignored) and reads the Plaid keys from
 `server/.env` (gitignored; until `server/` exists they are in `notes/plaid-sandbox.env`, also
-gitignored). Agents never install onto the owner's emulators or devices, never run the dev
-server with the real keys, never read either env file, and never call Plaid Sandbox: Sandbox
-rate limits are per Item and per client, Items are shared state, and the coordinator is the only
-seat that touches them. Agents use the fakes and the demo flavor.
+gitignored). Agents never install onto the owner's emulators or devices, never run the dev server
+with the real keys, never read either env file or `~/.finance-tracker-release/`, and never call
+Plaid Sandbox: Sandbox rate limits are per Item and per client, Items are shared state, and the
+coordinator is the only seat that touches them. Agents use the fakes and the demo flavor.
 
 **Run the gate after every change.**
 
@@ -173,6 +181,7 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | Development server: auth, sync, the Plaid client (fake or Sandbox), the poll, webhooks, provisioning, receipt blobs | `server/` | `docs/reference/server.md` |
 | Persona engine: demo seed, Sandbox custom users and their manifest | `tools/persona_engine/` (Phase 2) | `docs/reference/persona.md` |
 | Build: workspace, flavors, Android configuration, signing, R8 | `pubspec.yaml`, `app/android/`, `app/lib/core/config/` | `docs/reference/build.md` |
+| Release: the tag workflow, the release notes and signature-check scripts, the expected certificate, the community files | `.github/workflows/release.yml`, `tools/release/`, `LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `PRIVACY.md` | `docs/reference/testing-tools.md` (Cutting a release), `docs/reference/build.md` (Signing) |
 | Testing and tools: gate, test runner, emulator harness, landing, the secrets sweep, scripts | `*/test/`, `app/integration_test/`, `tools/` | `docs/reference/testing-tools.md` |
 
 ## Architecture rules
@@ -294,8 +303,9 @@ PLAN.md          the plan: gitignored, read from the main tree
   `forecast_selection`, `bill_suggestions_dismissed`, `snapshots_written_on`, `dismissed_anomalies`,
   `weekly_summary_raised`, `payoff_entries`, `lock_enabled`, `lock_timeout_seconds`,
   `secure_screen`, `app_language`, `background_sync_enabled`, `background_last_run`,
-  `session_ended_in_background`, `notification_permission_asked`, `sync_problems_told`) and never
-  syncs; `app_settings` syncs.
+  `session_ended_in_background`, `notification_permission_asked`, `sync_problems_told`,
+  `background_last_unheld_run`, `import_presets`, `import_history`) and never syncs; `app_settings`
+  syncs.
 - A pulled change-log entry whose `entity_type` this build does not know is held under its raw
   type name and released, at a schema step or at any later open, by a build that knows it; a pull
   never fails on an unknown type (`docs/reference/sync-app.md`, Unknown types). The first build
@@ -312,7 +322,8 @@ PLAN.md          the plan: gitignored, read from the main tree
   included; a restore ends in `substituteNode(provisionalNodeId())` because both relays reject
   entries naming a foreign device, and the restore offer holds sync until answered. Every schema
   change keeps `dumpDatabase` working (a REAL or `dateTime()` column, or a table without a primary
-  key, breaks it and a host test says so), and `conflicts` and the lock keys never travel.
+  key, breaks it and a host test says so), and `conflicts`, the lock keys and the background run
+  records never travel.
 - `startApp(config, overrides)` and `stopApp()`: a restore or a wipe stops the app, works on a plain
   screen and starts it again; `stopApp` awaits the close the database provider started
   (`databaseClosing`), or the files are still open when they are replaced or deleted.
@@ -368,6 +379,40 @@ PLAN.md          the plan: gitignored, read from the main tree
   in the gate; `integration -- <file>` runs one file; `FT_EMULATOR_AVD=ft-fold
   FT_AVD_DEVICE=pixel_fold` and `posture folded|unfolded` for the foldable, `ft-tablet` with
   `pixel_tablet` for the tablet; booting one stops any other `ft-*` AVD.
+- The app mode (`app_mode`, `demo_persona`, `server_url`) lives in device preferences, not the
+  database, and is read at every `startApp`; before a mode is chosen the app runs on in-memory
+  wiring so nothing touches disk. A `Flavor.demo` check is right only for build matters (logging,
+  HTTPS, the plain database, the pseudo-locale, the banner); everything about the data asks
+  `config.isDemo`, and an equivalence test holds the demo flavor and prod-in-demo-mode to the same
+  wiring. The local wipe's step 7 clears the mode for every reason, so any wipe returns to Welcome.
+- `kDevTools` (`appFlavor == 'dev' || appFlavor == null || FT_FAKE_SERVER`) gates the developer
+  section and screen, so demo and prod builds drop them (the prod symbols have no
+  `DeveloperScreen`); the flavor assert lives in the three entry points, never in `bootstrap`,
+  because integration tests bootstrap other flavors' configs under the harness's demo build;
+  `FT_FAKE_SERVER` is a test-only define that no release build passes.
+- A message shown after an await goes through `VisibleMessenger.of(context)` taken before the await:
+  `.pane` while the screen stays, `.afterClose` once it has closed (the selected tab's messenger); a
+  captured `ScaffoldMessenger.of(context)` can be one that is no longer on screen.
+- `currentValue(stream)` (`core/util/stream_current.dart`) completes with the first event or fails
+  with a `StateError` when the stream closes without one, as a database closed mid-read does; a
+  callback that awaits a repository catches `on Object` and shows the failure, never `on Exception`
+  alone, which lets an `Error` escape.
+- An import is one all-or-nothing `upsertAll` with `source: import` (about 12 s per 10,000 rows on
+  the host); its batch is recorded pending before the rows and completed after, so Undo survives a
+  kill; amounts come from text through `BigInt` with half-even rounding, digit groups of exactly
+  three, and only known ISO currency codes or `kr` stripped; a re-import match (date, amount,
+  normalised name, each existing row once) sits on top of the duplicates detector, which never pairs
+  two entered rows on one account.
+- A release is cut by generating the CHANGELOG section with `tools/changelog.sh`, committing it,
+  then pushing an annotated `vX.Y.Z` tag (a suffix such as `-phase9` or `-rc.1` makes a
+  pre-release): `release.yml` runs the gate, signs the prod APK with the keystore from the
+  `FT_RELEASE_*` secrets, refuses to publish unless `tools/release/check_signature.sh` matches
+  `tools/release/expected_cert_sha256.txt`, and publishes the two APKs, the symbols and
+  `SHA256SUMS.txt` with the section as the body. The keystore and its password live only in
+  `~/.finance-tracker-release/` and the secrets.
+- The server opens SQLite with the same wall-time `busyWaiter` as the app; `PRAGMA busy_timeout` is
+  used nowhere, because SQLite's own handler counts the sleeps it asked for and a signal cuts them
+  short.
 
 ## Seeing the app
 
@@ -496,9 +541,16 @@ Constraints:
 
 ## Release notes
 
-- Release builds: `--obfuscate --split-debug-info=<dir>`, the symbol files attached to the
-  GitHub release; R8 keep rules for the Plaid SDK and SQLCipher; signing from environment, the
-  key never in the repository.
-- Every phase's definition of done includes a release-mode smoke run on an emulator, so an R8
-  or obfuscation regression is caught the phase it appears.
-- `CHANGELOG.md` is generated from the Conventional Commit log per release; tags are `vX.Y.Z`.
+- A pushed `vX.Y.Z` tag publishes the release through `.github/workflows/release.yml`: the gate, the
+  prod APK built with `--obfuscate --split-debug-info` and signed with the key held in the
+  `FT_RELEASE_*` Actions secrets (the Gradle config falls back to the debug key when they are
+  absent), the certificate checked against `tools/release/expected_cert_sha256.txt` before anything
+  is published, the demo APK, the symbols and `SHA256SUMS.txt` as assets, the CHANGELOG section as
+  the body, a suffixed tag as a pre-release.
+- Every phase's definition of done includes a release-mode smoke run on an emulator, so an R8 or
+  obfuscation regression is caught the phase it appears; R8 keep rules cover the Plaid SDK and
+  SQLCipher.
+- `CHANGELOG.md` is generated from the Conventional Commit log per release with
+  `tools/changelog.sh`; the section is committed before the tag, and
+  `tools/release/release_notes.sh` refuses a tag without one. Tags are `vX.Y.Z`; a phase ends with a
+  `vX.Y.Z-phaseN` pre-release.

@@ -50,7 +50,11 @@ the permission only when it is needed; three home screen widgets show balances, 
 upcoming bills and mask their amounts while the app is locked; four shortcuts launch the common
 actions; tablets get a navigation rail with list and detail side by side, foldables split on the
 hinge, every screen meets the accessibility guidelines at large text, and the strings are ready
-for translation.
+for translation. A fresh install opens on a Welcome screen: try the demo with no server and no
+account, or enter the address of your own server. Bank exports import from CSV files through a
+column mapping the app remembers, with likely duplicates skipped and an Undo per import. In-app
+Help covers every feature, a Privacy page says what leaves the device and what never does, and
+releases are published from version tags with a signed APK.
 
 ## Layout
 
