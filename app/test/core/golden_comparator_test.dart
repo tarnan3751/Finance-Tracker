@@ -79,12 +79,20 @@ void main() {
                 .compare(_read('${name}_test'), Uri.parse('golden.png')),
       );
       expect(passed, isTrue);
-      // It is noise, not identity: the plain comparison fails.
+      // It is noise, not identity: the plain byte comparison fails (the switcher pair
+      // differs only by levels under the floor, so its differing count is zero).
+      final ComparisonResult? plain = await tester.runAsync(
+        () => GoldenFileComparator.compareLists(
+          _read('${name}_test'),
+          _read('${name}_master'),
+        ),
+      );
+      expect(plain!.passed, isFalse);
+      plain.dispose();
       final GoldenNoise? noise = await tester.runAsync<GoldenNoise?>(
         () => noiseBetween(_read('${name}_test'), _read('${name}_master')),
       );
-      expect(noise!.differing, greaterThan(0));
-      expect(isNoise(noise), isTrue);
+      expect(isNoise(noise!), isTrue);
     });
   }
 
