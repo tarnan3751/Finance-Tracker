@@ -90,7 +90,7 @@ void main() {
         expect(body, containsPair('android_package_name', _package));
         expect(body, containsPair('user', {'client_user_id': 'user-1'}));
         expect(body, containsPair('country_codes', ['US']));
-        expect(body, containsPair('client_name', 'Finance Tracker'));
+        expect(body, containsPair('client_name', 'Spendthrift'));
         expect(body.containsKey('webhook'), isFalse);
         expect(body.containsKey('access_token'), isFalse);
       },

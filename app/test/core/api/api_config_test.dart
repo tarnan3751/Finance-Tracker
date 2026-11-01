@@ -72,7 +72,7 @@ void main() {
     await api.getHealth();
     expect(
       adapter.requests.single.headers['User-Agent'],
-      'finance-tracker/1.0.0 (dev)',
+      'spendthrift/1.0.0 (dev)',
     );
   });
 

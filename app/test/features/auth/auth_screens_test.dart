@@ -179,10 +179,7 @@ void main() {
   group('the gate', () {
     testWidgets('sign-out in Settings returns to sign-in', (tester) async {
       await pumpApp(tester, initialLocation: '/settings');
-      expect(
-        find.text('Signed in as demo@financetracker.test'),
-        findsOneWidget,
-      );
+      expect(find.text('Signed in as demo@spendthrift.test'), findsOneWidget);
       await _tapAndSettle(tester, find.text('Sign out'));
       expect(find.byType(SignInScreen), findsOneWidget);
     });
@@ -230,10 +227,7 @@ void main() {
         config: AppConfig.demo(),
         initialLocation: '/settings',
       );
-      expect(
-        find.text('Signed in as demo@financetracker.test'),
-        findsOneWidget,
-      );
+      expect(find.text('Signed in as demo@spendthrift.test'), findsOneWidget);
       expect(find.text('Sign out'), findsNothing);
       expect(find.text('Server'), findsNothing);
     });

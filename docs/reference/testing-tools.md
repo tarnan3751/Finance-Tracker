@@ -276,7 +276,7 @@ signing"), and then a new expected value.
 (`docs/reference/server.md`, **Running it**). On its first run it creates `server/.env`
 from `server/.env.example`, filling `JWT_SECRET`, `TOKEN_ENCRYPTION_KEY` and
 `SEED_USER_PASSWORD` with `openssl rand` values and setting the seed user
-`dev@financetracker.test`. It says it did so but prints no secret. Then it runs
+`dev@spendthrift.test`. It says it did so but prints no secret. Then it runs
 `dart run bin/server.dart` in `server/`, which migrates and seeds the database under
 `server/data/` and serves on `127.0.0.1:8080` until Ctrl-C. It writes `server/.env` and
 `server/data/`, both gitignored. The Plaid mode is `PLAID_MODE` in `server/.env`:

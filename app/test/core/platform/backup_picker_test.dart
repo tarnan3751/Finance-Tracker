@@ -39,7 +39,7 @@ void main() {
   test('reads the ranges asked for, then deletes the copy on close', () async {
     final Directory copy = Directory('${temp.path}/file_dialog-1234')
       ..createSync();
-    final File file = File('${copy.path}/finance-tracker-2026-10-30.ftbk')
+    final File file = File('${copy.path}/spendthrift-2026-10-30.ftbk')
       ..writeAsBytesSync([0x46, 0x54, 0x42, 0x4b, 1, 2, 3]);
     answer((_) => file.path);
     final PickedFile picked = (await const PlatformBackupPicker().pick())!;
@@ -48,7 +48,7 @@ void main() {
         seen.single.arguments as Map<Object?, Object?>;
     expect(args['mimeTypesFilter'], isNull);
     expect(args['copyFileToCacheDir'], isTrue);
-    expect(picked.name, 'finance-tracker-2026-10-30.ftbk');
+    expect(picked.name, 'spendthrift-2026-10-30.ftbk');
     expect(picked.length, 7);
     expect(await picked.read(0, 4), [0x46, 0x54, 0x42, 0x4b]);
     expect(await picked.read(4), [1, 2, 3]);

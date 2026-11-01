@@ -515,7 +515,7 @@ void main() {
       expect(
         linked.institution.logoUrl,
         Uri.parse(
-          'https://fake.financetracker.test/v1/institutions/ins_109508/logo',
+          'https://fake.spendthrift.test/v1/institutions/ins_109508/logo',
         ),
       );
       expect(await client.api.getInstitutionLogo('ins_109508'), png);

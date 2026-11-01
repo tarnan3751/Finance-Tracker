@@ -327,7 +327,7 @@ client (`api.md`), which nothing outside this folder imports.
   server URL (none compiled in, none entered yet) every request fails as a `NetworkError`
   (`notConfigured`). Timeouts
   are 10 s to connect, 30 s to send a body and 30 s to receive; every request sends `User-Agent:
-  finance-tracker/<version> (<flavor>)`. In dev only, `DevLogInterceptor` logs one line
+  spendthrift/<version> (<flavor>)`. In dev only, `DevLogInterceptor` logs one line
   per answer on the `api` logger: method, path template, status, duration and the
   server's `X-Request-Id`, never a body, a query or a token.
 - **Bytes.** `getInstitutionLogo` returns the PNG as `Uint8List`. `Institution.logoUrl`
@@ -407,7 +407,7 @@ through the generated client against it and checks every request and answer with
 **Flavors.** `apiOverridesFor(config)`: dev and prod use `HttpFinanceApi` on the network
 with `SecureTokenStore`. Demo uses the fake server over the persona's household the demo shows
 (`demoSeedProvider`, `data.md`, **The demo seed**) followed by Houndstooth Bank
-(`demoLinkableBank`), with the demo user `demo@financetracker.test` seeded, the household's
+(`demoLinkableBank`), with the demo user `demo@spendthrift.test` seeded, the household's
 Items linked and synced (Houndstooth Bank is left for the demo to link), and its session in an `InMemoryTokenStore`, so the demo starts signed in and
 makes no network call. The dev flavor built with `--dart-define=FT_FAKE_SERVER=true`
 uses the same fake over the sample dataset, empty and signed out, with the session in

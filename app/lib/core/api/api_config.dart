@@ -17,7 +17,7 @@
 ///   every request fails with `ServerNotConfiguredException`, which the problem mapper
 ///   reports as a `NetworkError` (`notConfigured`).
 /// - Timeouts: 10 s to connect, 30 s to send a body, 30 s to receive. Every request carries
-///   `User-Agent: finance-tracker/<version> (<flavor>)`.
+///   `User-Agent: spendthrift/<version> (<flavor>)`.
 /// - In dev only, each answer is logged on the `api` logger: method, path template,
 ///   status, duration and the server's `X-Request-Id`. Never a body, a header value other
 ///   than the request id, a query string or a token.
@@ -147,8 +147,7 @@ final class _UserAgentInterceptor extends Interceptor {
       // A missing platform implementation must not fail the request.
       version = 'unknown';
     }
-    options.headers['User-Agent'] =
-        'finance-tracker/$version (${_flavor.name})';
+    options.headers['User-Agent'] = 'spendthrift/$version (${_flavor.name})';
     handler.next(options);
   }
 }

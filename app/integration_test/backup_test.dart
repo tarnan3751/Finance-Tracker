@@ -202,9 +202,9 @@ void main() {
     final FakeFileExporter exporter =
         a.read(fileExporterProvider) as FakeFileExporter;
     await tester.tap(find.text('Save as'));
-    await pumpUntil(tester, find.textContaining('Saved finance-tracker-'));
+    await pumpUntil(tester, find.textContaining('Saved spendthrift-'));
     final ExportCall call = exporter.calls.single;
-    expect(call.fileName, 'finance-tracker-${today.toIso()}.ftbk');
+    expect(call.fileName, 'spendthrift-${today.toIso()}.ftbk');
     expect(String.fromCharCodes(call.bytes.sublist(0, 4)), 'FTBK');
     await tester.pumpWidget(const SizedBox());
 

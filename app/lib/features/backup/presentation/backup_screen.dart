@@ -28,8 +28,8 @@ final Logger _log = Logger('backup');
 /// The MIME type a backup is handed over as.
 const String backupMimeType = 'application/octet-stream';
 
-/// A backup's file name: `finance-tracker-<local date>.ftbk`.
-String backupFileName(String localDate) => 'finance-tracker-$localDate.ftbk';
+/// A backup's file name: `spendthrift-<local date>.ftbk`.
+String backupFileName(String localDate) => 'spendthrift-$localDate.ftbk';
 
 /// The backup screen.
 class BackupScreen extends StatelessWidget {

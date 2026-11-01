@@ -39,7 +39,7 @@ part 'api_providers.g.dart';
 
 /// The demo user of the fake server. Its password is a fixed string of the fake, which
 /// guards nothing: the fake never leaves the process.
-const String demoEmail = 'demo@financetracker.test';
+const String demoEmail = 'demo@spendthrift.test';
 const String demoPassword = 'demo-password';
 
 /// Whether the dev flavor runs on the fake server (`FT_FAKE_SERVER`).

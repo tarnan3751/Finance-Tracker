@@ -56,7 +56,7 @@ void main() {
 
     expect(find.byType(SignInScreen), findsNothing);
     await _openSettings(tester);
-    expect(find.text('Signed in as demo@financetracker.test'), findsOneWidget);
+    expect(find.text('Signed in as demo@spendthrift.test'), findsOneWidget);
     expect(find.text('Sign out'), findsNothing);
   });
 

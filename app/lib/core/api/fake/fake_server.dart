@@ -269,7 +269,7 @@ final class FakeServer {
   final LocalDate Function(DateTime instant) _localDate;
 
   /// The base URL a client of the fake uses; it never leaves the process.
-  static final Uri baseUrl = Uri.parse('https://fake.financetracker.test');
+  static final Uri baseUrl = Uri.parse('https://fake.spendthrift.test');
 
   /// How long every answer takes; zero (no timer at all) by default.
   Duration latency = Duration.zero;

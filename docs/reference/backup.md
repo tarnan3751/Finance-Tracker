@@ -248,7 +248,7 @@ must find nothing; any failure rolls the whole import back; then foreign keys on
 
 - **Backup** (`/settings/backup`): the export (what a backup holds; the passphrase twice,
   the hint, the no-recovery warning; Save as and Share, the file
-  `finance-tracker-<local date>.ftbk`, `application/octet-stream`) and the restore.
+  `spendthrift-<local date>.ftbk`, `application/octet-stream`) and the restore.
 - **Progress.** Export: "Reading your data", "Securing with your passphrase"
   (indeterminate: Argon2id reports none), "Encrypting" (frames done of all). Restore:
   "Securing with your passphrase", "Checking the backup" (frames), then, on the

@@ -5820,7 +5820,7 @@
     "placeholders": {
       "fileName": {
         "type": "String",
-        "example": "finance-tracker-2026-10-30.ftbk"
+        "example": "spendthrift-2026-10-30.ftbk"
       }
     }
   },

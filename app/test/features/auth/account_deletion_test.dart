@@ -70,8 +70,8 @@ void main() {
   );
 
   test('the typed email confirms trimmed and in any case', () {
-    expect(confirmsEmail(' Demo@FinanceTracker.test ', demoEmail), isTrue);
-    expect(confirmsEmail('demo@financetracker.tes', demoEmail), isFalse);
+    expect(confirmsEmail(' Demo@Spendthrift.test ', demoEmail), isTrue);
+    expect(confirmsEmail('demo@spendthrift.tes', demoEmail), isFalse);
     expect(confirmsEmail('', demoEmail), isFalse);
   });
 
@@ -100,7 +100,7 @@ void main() {
     await tester.enterText(find.byType(TextField), 'someone@example.com');
     await tester.pump();
     expect(_enabled(tester), isFalse);
-    await tester.enterText(find.byType(TextField), ' DEMO@financetracker.test');
+    await tester.enterText(find.byType(TextField), ' DEMO@spendthrift.test');
     await tester.pump();
     expect(_enabled(tester), isTrue);
   });

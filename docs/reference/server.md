@@ -14,7 +14,7 @@ behind one interface.
 `tools/run_server.sh` is the one command. On its first run it copies
 `server/.env.example` to `server/.env` (gitignored), fills `JWT_SECRET`,
 `TOKEN_ENCRYPTION_KEY` and `SEED_USER_PASSWORD` with random values and sets
-`SEED_USER_EMAIL=dev@financetracker.test`, and says so without printing any secret. Then
+`SEED_USER_EMAIL=dev@spendthrift.test`, and says so without printing any secret. Then
 it runs `dart run bin/server.dart` in `server/`, which:
 
 1. reads `.env` and the environment (**Configuration**); a bad configuration exits with
@@ -424,7 +424,7 @@ users keep Plaid's sign; the server flips what it stores.
 
 | Method | Path | Body beyond the keys |
 |---|---|---|
-| `createLinkToken` | `/link/token/create` | `client_name: Finance Tracker`, `language: en`, `country_codes: [US]`, `user.client_user_id`, `android_package_name`, `products`, `transactions.days_requested` (730), `webhook` when configured |
+| `createLinkToken` | `/link/token/create` | `client_name: Spendthrift`, `language: en`, `country_codes: [US]`, `user.client_user_id`, `android_package_name`, `products`, `transactions.days_requested` (730), `webhook` when configured |
 | `createUpdateLinkToken` | `/link/token/create` | the same without `products` and `transactions`, plus `access_token` and `update.account_selection_enabled: false` |
 | `exchangePublicToken` | `/item/public_token/exchange` | `public_token` |
 | `getItem` | `/item/get` | `access_token`; reads `item.institution_name`, `products`, `error.error_code` |

@@ -223,7 +223,7 @@ final class HttpPlaidClient implements PlaidClient {
   );
 
   Map<String, Object?> _linkBase(String clientUserId, String package) => {
-    'client_name': 'Finance Tracker',
+    'client_name': 'Spendthrift',
     'language': 'en',
     'country_codes': const ['US'],
     'user': {'client_user_id': clientUserId},

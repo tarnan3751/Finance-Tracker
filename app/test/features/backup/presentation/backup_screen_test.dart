@@ -200,11 +200,11 @@ void main() {
       runner.gate!.complete();
       await tester.pumpAndSettle();
       expect(exporter.calls.single.kind, ExportKind.saveAs);
-      expect(exporter.calls.single.fileName, 'finance-tracker-2026-10-24.ftbk');
+      expect(exporter.calls.single.fileName, 'spendthrift-2026-10-24.ftbk');
       expect(exporter.calls.single.mimeType, backupMimeType);
       expect(exporter.calls.single.bytes, [0x46, 0x54, 0x42, 0x4b]);
       expect(
-        find.text(l10n.backupSaved('finance-tracker-2026-10-24.ftbk')),
+        find.text(l10n.backupSaved('spendthrift-2026-10-24.ftbk')),
         findsOneWidget,
       );
       expect(find.text(l10n.backupStageEncrypting), findsNothing);
