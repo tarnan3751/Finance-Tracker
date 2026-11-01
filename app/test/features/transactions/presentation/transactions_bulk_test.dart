@@ -3,7 +3,8 @@
 // (a checkbox per row, the count in the app bar, Select all, Cancel, back), and each
 // action (set the category, add a tag, hide or unhide, delete when no row is the bank's,
 // after a confirmation naming the count) writes one batch and reports the count it
-// changed; a row deleted after it was selected is skipped, and a refused batch says so.
+// changed; a row deleted after it was selected is skipped, and a refused batch or a
+// write that fails otherwise says so and keeps the selection.
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
@@ -245,7 +246,9 @@ void main() {
     expect(find.text('1 transaction hidden'), findsOneWidget);
   });
 
-  testWidgets('a refused batch says nothing changed', (tester) async {
+  testWidgets('a refused batch says nothing changed and keeps the selection', (
+    tester,
+  ) async {
     final InMemoryStore store = _store();
     await pumpApp(
       tester,
@@ -267,6 +270,34 @@ void main() {
       ),
       findsOneWidget,
     );
+    expect(_count(2), findsOneWidget);
+    expect(find.byTooltip('Hide'), findsOneWidget);
+  });
+
+  testWidgets('a failed write says nothing changed and keeps the selection', (
+    tester,
+  ) async {
+    final InMemoryStore store = _store();
+    await pumpApp(
+      tester,
+      initialLocation: '/transactions',
+      overrides: [
+        storeOverride(store),
+        transactionRepositoryProvider.overrideWith(
+          (ref) => _Closed(ref.watch(inMemoryStoreProvider)),
+        ),
+      ],
+      size: _tall,
+    );
+    await _select(tester, ['Alpha', 'Beta']);
+    await _tap(tester, find.byTooltip('Hide'));
+    expect(store.transaction('m1')!.hidden, isFalse);
+    expect(
+      find.text('Nothing changed: the transactions could not be updated.'),
+      findsOneWidget,
+    );
+    expect(_count(2), findsOneWidget);
+    expect(find.byTooltip('Hide'), findsOneWidget);
   });
 }
 
@@ -281,4 +312,14 @@ final class _Refusing extends InMemoryTransactionRepository {
         batch.first.id,
         EntityDeletedException('transaction', batch.first.id),
       );
+}
+
+/// The in-memory repository whose database closed: every batch fails as a closed query
+/// stream's read does.
+final class _Closed extends InMemoryTransactionRepository {
+  _Closed(super.store) : super(recorder: const NoChangeRecorder());
+
+  @override
+  Future<void> upsertAll(List<Transaction> batch) async =>
+      throw StateError('the stream ended with no value');
 }

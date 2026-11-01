@@ -116,7 +116,9 @@ demo), so an edit synced since the selection is kept, a row deleted since is ski
 and nothing synced in between is written back; stamped `updatedAt`, through one
 `TransactionRepository.upsertAll` (Delete through `deleteAll`, `data.md`), so it is one
 recorded batch, all or nothing; a snack bar gives the count changed, or says nothing
-changed when the batch was refused (a row deleted meanwhile, say). A `plaid` row takes
+changed when the batch was refused (a row deleted meanwhile, say) or the write failed
+otherwise (the database closed under it), and then selects the rows again so the action
+can be retried. A `plaid` row takes
 the category, tags and hidden only, which is all these actions change.
 
 ## The effective category

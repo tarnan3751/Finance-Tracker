@@ -20,6 +20,7 @@ import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
+import 'package:finance_tracker/core/widgets/visible_messenger.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/categories/presentation/category_picker.dart';
@@ -35,7 +36,10 @@ import 'package:finance_tracker/features/transactions/presentation/transaction_t
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart';
+
+final Logger _log = Logger('transactions');
 
 /// The list of transactions.
 class TransactionsScreen extends ConsumerStatefulWidget {
@@ -127,14 +131,16 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   void _endSelection() => setState(() => _selection = null);
 
   // Runs a bulk [action] on [selected], ends selection and reports the count it changed
-  // with [done]; a refused batch changes nothing and says so.
+  // with [done]; a refused batch changes nothing and says so, as does any other failure
+  // (the database closed under it), and either selects the rows again for a retry.
   Future<void> _bulk(
     Future<int> Function(TransactionActions actions) action,
     String Function(int count) done,
   ) async {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState messenger = VisibleMessenger.of(context).pane;
     final TransactionActions actions = ref.read(transactionActionsProvider);
+    final Set<String>? selection = _selection;
     _endSelection();
     try {
       final int count = await action(actions);
@@ -149,6 +155,11 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           ),
         ),
       );
+      if (mounted) setState(() => _selection = selection);
+    } on Object catch (e) {
+      _log.warning('a bulk edit failed: ${e.runtimeType}');
+      messenger.showSnackBar(SnackBar(content: Text(l10n.bulkFailed)));
+      if (mounted) setState(() => _selection = selection);
     }
   }
 
