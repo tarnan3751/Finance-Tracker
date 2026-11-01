@@ -183,31 +183,143 @@ final class TransactionCategoryLookupProvider
 String _$transactionCategoryLookupHash() =>
     r'df6faa4142c877a10248f7369d2e7ac949f08bef';
 
-/// The list's transactions under its filters, newest first, as many pages as are loaded.
-/// A category filter takes the categories under each chosen one along and matches the
+/// Page [index] of the list under its filters, newest first: its own query of
+/// [transactionPageSize] rows from offset `index × transactionPageSize`, so loading a
+/// page reads only that page, and a write re-reads each loaded page's own rows. A
+/// category filter takes the categories under each chosen one along and matches the
 /// effective category, through the Plaid codes of the categories included; date presets
 /// are resolved against [todayProvider], so they move at midnight.
+
+@ProviderFor(transactionListPage)
+final transactionListPageProvider = TransactionListPageFamily._();
+
+/// Page [index] of the list under its filters, newest first: its own query of
+/// [transactionPageSize] rows from offset `index × transactionPageSize`, so loading a
+/// page reads only that page, and a write re-reads each loaded page's own rows. A
+/// category filter takes the categories under each chosen one along and matches the
+/// effective category, through the Plaid codes of the categories included; date presets
+/// are resolved against [todayProvider], so they move at midnight.
+
+final class TransactionListPageProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Transaction>>,
+          List<Transaction>,
+          Stream<List<Transaction>>
+        >
+    with
+        $FutureModifier<List<Transaction>>,
+        $StreamProvider<List<Transaction>> {
+  /// Page [index] of the list under its filters, newest first: its own query of
+  /// [transactionPageSize] rows from offset `index × transactionPageSize`, so loading a
+  /// page reads only that page, and a write re-reads each loaded page's own rows. A
+  /// category filter takes the categories under each chosen one along and matches the
+  /// effective category, through the Plaid codes of the categories included; date presets
+  /// are resolved against [todayProvider], so they move at midnight.
+  TransactionListPageProvider._({
+    required TransactionListPageFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'transactionListPageProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$transactionListPageHash();
+
+  @override
+  String toString() {
+    return r'transactionListPageProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<List<Transaction>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<Transaction>> create(Ref ref) {
+    final argument = this.argument as int;
+    return transactionListPage(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TransactionListPageProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$transactionListPageHash() =>
+    r'bd56ca66e074ecf144a704721f58bb825c445c00';
+
+/// Page [index] of the list under its filters, newest first: its own query of
+/// [transactionPageSize] rows from offset `index × transactionPageSize`, so loading a
+/// page reads only that page, and a write re-reads each loaded page's own rows. A
+/// category filter takes the categories under each chosen one along and matches the
+/// effective category, through the Plaid codes of the categories included; date presets
+/// are resolved against [todayProvider], so they move at midnight.
+
+final class TransactionListPageFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<List<Transaction>>, int> {
+  TransactionListPageFamily._()
+    : super(
+        retry: null,
+        name: r'transactionListPageProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Page [index] of the list under its filters, newest first: its own query of
+  /// [transactionPageSize] rows from offset `index × transactionPageSize`, so loading a
+  /// page reads only that page, and a write re-reads each loaded page's own rows. A
+  /// category filter takes the categories under each chosen one along and matches the
+  /// effective category, through the Plaid codes of the categories included; date presets
+  /// are resolved against [todayProvider], so they move at midnight.
+
+  TransactionListPageProvider call(int index) =>
+      TransactionListPageProvider._(argument: index, from: this);
+
+  @override
+  String toString() => r'transactionListPageProvider';
+}
+
+/// The list's transactions under its filters, newest first: the loaded pages
+/// ([transactionListPage]) in order, and more to load while the last one is full. A row
+/// a write has moved across a page boundary is listed once, where it is first met,
+/// while the pages' queries catch up with each other.
 
 @ProviderFor(transactionPage)
 final transactionPageProvider = TransactionPageProvider._();
 
-/// The list's transactions under its filters, newest first, as many pages as are loaded.
-/// A category filter takes the categories under each chosen one along and matches the
-/// effective category, through the Plaid codes of the categories included; date presets
-/// are resolved against [todayProvider], so they move at midnight.
+/// The list's transactions under its filters, newest first: the loaded pages
+/// ([transactionListPage]) in order, and more to load while the last one is full. A row
+/// a write has moved across a page boundary is listed once, where it is first met,
+/// while the pages' queries catch up with each other.
 
 final class TransactionPageProvider
     extends
         $FunctionalProvider<
           AsyncValue<TransactionPage>,
           TransactionPage,
-          Stream<TransactionPage>
+          FutureOr<TransactionPage>
         >
-    with $FutureModifier<TransactionPage>, $StreamProvider<TransactionPage> {
-  /// The list's transactions under its filters, newest first, as many pages as are loaded.
-  /// A category filter takes the categories under each chosen one along and matches the
-  /// effective category, through the Plaid codes of the categories included; date presets
-  /// are resolved against [todayProvider], so they move at midnight.
+    with $FutureModifier<TransactionPage>, $FutureProvider<TransactionPage> {
+  /// The list's transactions under its filters, newest first: the loaded pages
+  /// ([transactionListPage]) in order, and more to load while the last one is full. A row
+  /// a write has moved across a page boundary is listed once, where it is first met,
+  /// while the pages' queries catch up with each other.
   TransactionPageProvider._()
     : super(
         from: null,
@@ -224,17 +336,17 @@ final class TransactionPageProvider
 
   @$internal
   @override
-  $StreamProviderElement<TransactionPage> $createElement(
+  $FutureProviderElement<TransactionPage> $createElement(
     $ProviderPointer pointer,
-  ) => $StreamProviderElement(pointer);
+  ) => $FutureProviderElement(pointer);
 
   @override
-  Stream<TransactionPage> create(Ref ref) {
+  FutureOr<TransactionPage> create(Ref ref) {
     return transactionPage(ref);
   }
 }
 
-String _$transactionPageHash() => r'68e7f26bbd8a40b66d9f98bef5d2b9723df23ed9';
+String _$transactionPageHash() => r'212aed43ebf353127f12552470cafd59a6c13ab7';
 
 /// The live transaction [id], or null when it does not exist or is deleted.
 

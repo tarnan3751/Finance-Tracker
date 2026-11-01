@@ -187,6 +187,7 @@ final class TransactionFilters {
   TransactionQuery toQuery(
     LocalDate today, {
     int? limit,
+    int offset = 0,
     Iterable<String> Function(String id) childrenOf = _noChildren,
     String? Function(String id) plaidCodeOf = _noPlaidCode,
   }) {
@@ -207,6 +208,7 @@ final class TransactionFilters {
       minAmount: minAmount,
       maxAmount: maxAmount,
       limit: limit,
+      offset: offset,
     );
   }
 

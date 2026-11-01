@@ -23,6 +23,8 @@ import 'package:finance_tracker/features/transactions/domain/saved_filter_reposi
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'
+    show ProviderListenableSelect;
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_models/shared_models.dart';
@@ -82,39 +84,66 @@ Stream<List<Transaction>> liveLedger(Ref ref) =>
 CategoryLookup transactionCategoryLookup(Ref ref) =>
     categoryLookup(ref.watch(categoriesProvider).value ?? const []);
 
-/// The list's transactions under its filters, newest first, as many pages as are loaded.
-/// A category filter takes the categories under each chosen one along and matches the
+/// Page [index] of the list under its filters, newest first: its own query of
+/// [transactionPageSize] rows from offset `index × transactionPageSize`, so loading a
+/// page reads only that page, and a write re-reads each loaded page's own rows. A
+/// category filter takes the categories under each chosen one along and matches the
 /// effective category, through the Plaid codes of the categories included; date presets
 /// are resolved against [todayProvider], so they move at midnight.
 @riverpod
-Stream<TransactionPage> transactionPage(Ref ref) {
-  final TransactionListState state = ref.watch(
-    transactionListControllerProvider,
+Stream<List<Transaction>> transactionListPage(Ref ref, int index) {
+  // The filters only: loading another page leaves the loaded ones as they are.
+  final TransactionFilters filters = ref.watch(
+    transactionListControllerProvider.select((s) => s.filters),
   );
   final LocalDate today = ref.watch(todayProvider);
-  final List<Category> categories =
-      ref.watch(categoriesProvider).value ?? const [];
-  final Map<String, Category> byId = ref
-      .watch(transactionCategoryLookupProvider)
-      .byId;
-  final int limit = state.pages * transactionPageSize;
+  // The categories only shape a category filter: without one, their arrival at launch
+  // does not query the page again.
+  final bool byCategory = filters.categoryIds.isNotEmpty;
+  final List<Category> categories = byCategory
+      ? ref.watch(categoriesProvider).value ?? const []
+      : const [];
+  final Map<String, Category> byId = byCategory
+      ? ref.watch(transactionCategoryLookupProvider).byId
+      : const {};
   return ref
       .watch(transactionRepositoryProvider)
       .watch(
-        state.filters.toQuery(
+        filters.toQuery(
           today,
-          limit: limit,
+          limit: transactionPageSize,
+          offset: index * transactionPageSize,
           childrenOf: (id) => [
             for (final Category c in categories)
               if (c.parentId == id) c.id,
           ],
           plaidCodeOf: (id) => byId[id]?.plaidCategory,
         ),
-      )
-      .map(
-        (transactions) =>
-            (transactions: transactions, hasMore: transactions.length == limit),
       );
+}
+
+/// The list's transactions under its filters, newest first: the loaded pages
+/// ([transactionListPage]) in order, and more to load while the last one is full. A row
+/// a write has moved across a page boundary is listed once, where it is first met,
+/// while the pages' queries catch up with each other.
+@riverpod
+Future<TransactionPage> transactionPage(Ref ref) async {
+  final int pages = ref.watch(
+    transactionListControllerProvider.select((s) => s.pages),
+  );
+  final List<List<Transaction>> loaded = await Future.wait([
+    for (int i = 0; i < pages; i++)
+      ref.watch(transactionListPageProvider(i).future),
+  ]);
+  final Set<String> seen = {};
+  return (
+    transactions: [
+      for (final List<Transaction> page in loaded)
+        for (final Transaction t in page)
+          if (seen.add(t.id)) t,
+    ],
+    hasMore: loaded.last.length == transactionPageSize,
+  );
 }
 
 /// A row of the grouped transaction list.

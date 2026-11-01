@@ -27,12 +27,21 @@ tile, with the same category label and the running balance; the ledger lists hid
 labelled, since they count toward the balance.
 
 - **Paging.** `TransactionListController` holds the filters and how many pages are loaded;
-  `transactionPageProvider` watches the repository with `limit` = pages × 50
-  (`transactionPageSize`), and the list asks for one more page when it is scrolled within
-  600 pixels of its end. `loadMore(loaded:)` adds a page only when the transactions loaded
-  fill every page asked for, so the many scroll events before the next page arrives ask
-  for one page. A change of filters goes back to the first page. A widget test
-  checks that with 2,000 transactions only the rows on screen are built.
+  each page is its own watch of the repository, `transactionListPageProvider(i)` with
+  `limit` 50 (`transactionPageSize`) and `offset` 50 × i, which reads the filters only
+  (and the categories only under a category filter), so loading a page queries that page
+  once and a write re-queries each loaded page's own 50 rows. `transactionPageProvider`
+  joins the loaded pages in order, a row a write has just moved across a page boundary
+  listed once, with more to load while the last page is full. For the instant between two
+  pages' refreshes after a write, such a row can also be absent, which the old single
+  query could not do; the pages catch up within the same table-update notification. The
+  list asks for one more page when it is scrolled within 600 pixels of its end.
+  `loadMore(loaded:)` adds a page only when the transactions loaded fill every page asked
+  for, so the many scroll events before the next page arrives ask for one page. A change of filters goes back to the first page. A widget test
+  checks that with 2,000 transactions only the rows on screen are built, and
+  `transaction_paging_test.dart` counts the queries of a scroll and of a write. The account
+  detail's ledger is one query of the account's rows with its running balances walked in
+  Dart, the walk a few milliseconds over 10,000 rows beside the query, so it stays there.
 - **Search.** The app bar's search field sets `TransactionFilters.text` 250 ms after the
   last keystroke (`TransactionsScreen.searchDebounce`); Close clears it at once, a
   pending keystroke included, and closes the field. The Search transactions shortcut opens
