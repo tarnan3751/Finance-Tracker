@@ -5,7 +5,7 @@
 # with `git am`, checks the result against that tree, runs the gate, and leaves the
 # commits in place for the owner to push.
 #
-#   tools/land_series.sh <patch-dir> <base-commit> <tree-hash> [--dry-run]
+#   tools/land_series.sh <patch-dir> <base-commit> <tree-hash> [--dry-run] [--gated "<who> on <tree>"]
 #
 # It refuses a working tree that is not clean, a HEAD that is not the base commit, a
 # branch other than main, a patch directory with no NNNN-*.patch files, a patch that does
@@ -13,26 +13,37 @@
 # Conventional Commit subject of at most 72 characters, no trailer), and a final tree that
 # differs from the reported one. Each refusal after `git am` started resets
 # the branch back to the base, so the tree is left as it was found. `--dry-run` applies and
-# checks the chain, then resets to the base without running the gate. The gate's report is
+# checks the chain, then resets to the base without running the gate. `--gated "<who> on
+# <tree>"` lands without running the gate, because CI or the reviewer already ran it green on
+# that exact tree (the same tree gates the same; the note names the run, and the tree in it
+# must be the one this landing verified); the note is kept in the report in the gate's
+# place. The gate's report is
 # kept in app/build/landing/<tree>.log (gitignored); a gate failure leaves the commits in
 # place, prints the tail of the failing step and the `git reset --hard <base>` that undoes
 # the landing.
 set -uo pipefail
 
 usage() {
-  echo "usage: tools/land_series.sh <patch-dir> <base-commit> <tree-hash> [--dry-run]" >&2
+  echo "usage: tools/land_series.sh <patch-dir> <base-commit> <tree-hash> [--dry-run] [--gated \"<who> on <tree>\"]" >&2
   exit 2
 }
 
 dry_run=0
+gated=""
 positional=()
+expect_gated=0
 for arg in "$@"; do
+  if [ "$expect_gated" -eq 1 ]; then
+    gated="$arg"; expect_gated=0; continue
+  fi
   case "$arg" in
     --dry-run) dry_run=1 ;;
+    --gated) expect_gated=1 ;;
     -*) echo "land_series: unknown option $arg" >&2; usage ;;
     *) positional+=("$arg") ;;
   esac
 done
+[ "$expect_gated" -eq 0 ] || { echo "land_series: --gated needs a note naming who ran the gate and on which tree" >&2; usage; }
 [ "${#positional[@]}" -eq 3 ] || usage
 patch_dir="${positional[0]}"
 base_arg="${positional[1]}"
@@ -111,6 +122,20 @@ fi
 report_dir="$root/app/build/landing"
 mkdir -p "$report_dir"
 report="$report_dir/$tree.log"
+if [ -n "$gated" ]; then
+  # A gate already run green on this exact tree: the note must name the tree, so a note
+  # written for another series cannot be reused by mistake.
+  case "$gated" in
+    *"$tree"*|*"${tree:0:12}"*) ;;
+    *)
+      git reset -q --hard "$base"
+      refuse "the --gated note does not name the tree ${tree:0:12}: $gated" ;;
+  esac
+  echo "gate skipped: $gated" | tee "$report"
+  new_head="$(git rev-parse HEAD)"
+  echo "main: ${base:0:10} -> ${new_head:0:10} (${#patches[@]} commits), not pushed"
+  exit 0
+fi
 echo "running the gate (report: ${report#"$root"/})"
 if ! "$tools_dir/gates.sh" 2>&1 | tee "$report"; then
   {
