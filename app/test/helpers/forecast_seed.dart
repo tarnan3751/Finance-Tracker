@@ -11,7 +11,6 @@ import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/features/forecast/presentation/forecast_accounts_sheet.dart';
-import 'package:finance_tracker/features/forecast/presentation/forecast_screen.dart';
 import 'package:finance_tracker/features/recurring/data/in_memory_recurring_stream_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show Ref;
@@ -21,6 +20,7 @@ import 'package:shared_models/shared_models.dart';
 
 import 'pump_app.dart';
 import 'seed.dart';
+import 'segment_screens.dart';
 import 'test_seed.dart';
 
 /// The household's checking account.

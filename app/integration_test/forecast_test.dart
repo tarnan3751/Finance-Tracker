@@ -19,13 +19,14 @@ import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/forecast/application/forecast_providers.dart';
 import 'package:finance_tracker/features/forecast/domain/cash_flow_forecast.dart';
 import 'package:finance_tracker/features/forecast/presentation/forecast_chart.dart';
-import 'package:finance_tracker/features/forecast/presentation/forecast_screen.dart';
 import 'package:finance_tracker/features/forecast/presentation/forecast_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_models/shared_models.dart';
+
+import '../test/helpers/segment_screens.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();

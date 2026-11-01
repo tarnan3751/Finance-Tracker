@@ -6,7 +6,7 @@
 /// (`net_worth_table.dart`); then the liabilities with their payoff projections
 /// (`liability_payoff_card.dart`). The empty state when no snapshot is stored. No
 /// Scaffold of its own: the Insights tab mounts it under its app bar, and
-/// `NetWorthScreen` does for the tests.
+/// the tests' `NetWorthScreen` does.
 library;
 
 import 'package:finance_tracker/core/theme/tokens.dart';

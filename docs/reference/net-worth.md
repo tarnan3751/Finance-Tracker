@@ -15,8 +15,7 @@ Code: `app/lib/features/net_worth/`:
 - `application/`: `snapshot_writer.dart` (the writer and its runner),
   `net_worth_providers.dart` (**Providers**);
 - `presentation/`: `net_worth_view.dart` (`NetWorthView`, the hero card, the range),
-  `net_worth_chart.dart`, `net_worth_table.dart`, `liability_payoff_card.dart`,
-  `net_worth_screen.dart` (`NetWorthScreen`).
+  `net_worth_chart.dart`, `net_worth_table.dart`, `liability_payoff_card.dart`.
 
 `shared_models`' `BalanceSnapshot` (`core.md`); the `balance_snapshots` table
 (`data.md`); `app_meta` `snapshots_written_on` and `payoff_entries`.
@@ -199,4 +198,5 @@ one scroll:
 
 The empty state shows when no snapshot is stored. The Insights tab mounts the view at
 `/net-worth` in its `InsightsScaffold` (`app-core.md`, **Routing and the shell**);
-`NetWorthScreen` (a Scaffold titled "Net worth" around the view) serves the tests.
+`NetWorthScreen` (`test/helpers/segment_screens.dart`, a Scaffold titled "Net worth" around
+the view) serves the tests.

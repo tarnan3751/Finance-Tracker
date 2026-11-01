@@ -14,8 +14,7 @@ Code:
 - `application/`: `forecast_providers.dart` (the selection, the plan, the series),
   `forecast_bills.dart` (the bills the forecast counts);
 - `presentation/`: `forecast_view.dart` (`ForecastView`, `forecastAppBarActions`),
-  `forecast_chart.dart`, `forecast_table.dart`, `forecast_accounts_sheet.dart`,
-  `forecast_screen.dart` (`ForecastScreen`).
+  `forecast_chart.dart`, `forecast_table.dart`, `forecast_accounts_sheet.dart`.
 
 Tests: `app/test/features/forecast/` (the worked examples, the stream dates, the
 allowance, the selection, a property test over 200 seeded plans, the bills, the providers
@@ -166,6 +165,6 @@ The "Choose accounts" action opens `forecast_accounts_sheet.dart` on the root na
 (`useRootNavigator`): a switch per depository account (hidden ones listed, off unless turned on) and,
 when the covered accounts hold more than one currency, a chip per currency.
 
-`ForecastScreen` is a thin Scaffold titled "Forecast" with the action and the view, with
-no route of its own, for the tests and the integration test (`pumpApp`'s `router`
+`ForecastScreen` (`test/helpers/segment_screens.dart`) is a thin Scaffold titled "Forecast"
+with the action and the view, for the tests and the integration test (`pumpApp`'s `router`
 parameter puts it at a test router's root).

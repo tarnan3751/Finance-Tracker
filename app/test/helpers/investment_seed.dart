@@ -11,7 +11,6 @@
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/features/investments/data/in_memory_holding_repository.dart';
 import 'package:finance_tracker/features/investments/data/in_memory_investment_transaction_repository.dart';
-import 'package:finance_tracker/features/investments/presentation/investments_screen.dart';
 import 'package:finance_tracker/features/net_worth/data/in_memory_balance_snapshot_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show Ref;
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -19,6 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_models/shared_models.dart';
 
 import 'seed.dart';
+import 'segment_screens.dart';
 
 /// The linked retirement account.
 const String retirementId = 'invest-401k';

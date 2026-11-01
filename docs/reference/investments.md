@@ -91,9 +91,10 @@ its cash, as Plaid's current balance does.
 `InvestmentsView` (`presentation/investments_view.dart`; const, no arguments, no
 Scaffold) is the body of the Insights tab's Investments segment, `/investments`
 (`PLAN.md` §12, "Investments in the app", "Insights tab"; `app-core.md`, **Routing and
-the shell**); `InvestmentsScreen`, a thin Scaffold titled "Investments" with no route,
-serves the tests. It shows, for the investment accounts (`investmentAccountsProvider`),
-with the empty state ("No investment accounts") when there are none:
+the shell**); `InvestmentsScreen` (`test/helpers/segment_screens.dart`), a thin Scaffold
+titled "Investments", serves the tests. It shows, for the investment accounts
+(`investmentAccountsProvider`), with the empty state ("No investment accounts") when there
+are none:
 
 - the segment's hero card (`InvestmentsHero`, `design.md`, **The hero card**): what every
   shown holding is worth, the allocations' totals, one figure per currency, captioned by

@@ -15,7 +15,6 @@ import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/features/liabilities/data/in_memory_liability_repository.dart';
 import 'package:finance_tracker/features/net_worth/data/in_memory_balance_snapshot_repository.dart';
-import 'package:finance_tracker/features/net_worth/presentation/net_worth_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show Ref;
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:go_router/go_router.dart';
@@ -23,6 +22,7 @@ import 'package:shared_models/shared_models.dart';
 
 import 'pump_app.dart';
 import 'seed.dart';
+import 'segment_screens.dart';
 import 'test_seed.dart';
 
 const String nwCheckingId = 'nw-checking';

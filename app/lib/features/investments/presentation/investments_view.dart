@@ -5,7 +5,7 @@
 /// from install day (a chart or its table), its holdings, and its investment transactions
 /// newest first, a page at a time; the empty state when there is no investment account.
 /// No Scaffold of its own: the Insights tab mounts it under its app bar, and
-/// `InvestmentsScreen` does for the tests.
+/// the tests' `InvestmentsScreen` does.
 library;
 
 import 'package:finance_tracker/core/l10n/joins.dart';

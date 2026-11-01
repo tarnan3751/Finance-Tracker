@@ -3,7 +3,7 @@
 /// balance and its day, or the first day below zero, in pink), then the chart (`forecast_chart.dart`) or
 /// its table (`forecast_table.dart`); the empty state when no account is covered. No
 /// Scaffold of its own: the Plan tab mounts it under its app bar with
-/// [forecastAppBarActions], and `ForecastScreen` does for the tests.
+/// [forecastAppBarActions], and the tests' `ForecastScreen` does.
 library;
 
 import 'package:finance_tracker/core/theme/tokens.dart';
