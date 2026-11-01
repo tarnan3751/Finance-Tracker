@@ -19,15 +19,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-final class _Device extends Notifier<String?> {
-  @override
-  String? build() => 'dev-a';
+import '../../helpers/test_doubles.dart';
 
-  void set(String? id) => state = id;
-}
-
-final NotifierProvider<_Device, String?> _device = NotifierProvider(
-  _Device.new,
+final NotifierProvider<SettableDeviceId, String?> _device = NotifierProvider(
+  SettableDeviceId.new,
 );
 
 void main() {

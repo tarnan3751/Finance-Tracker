@@ -10,7 +10,6 @@ import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
-import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
 import 'package:finance_tracker/features/auth/domain/session_state.dart';
 import 'package:finance_tracker/features/lock/application/lock_controller.dart';
@@ -24,15 +23,7 @@ import 'package:shared_models/shared_models.dart';
 
 import '../../../helpers/pump_app.dart';
 import '../../../helpers/seed.dart';
-
-final class _FinishingSync extends SyncController {
-  @override
-  SyncStatus build() => SyncStatus.signedOut;
-
-  /// A session finished [at].
-  void finish(DateTime at) =>
-      state = SyncStatus(phase: SyncPhase.idle, lastSyncAt: at);
-}
+import '../../../helpers/test_doubles.dart';
 
 /// The stored session, read only after [delay]: a fresh container's session is unknown
 /// for that long.
@@ -164,7 +155,7 @@ void main() {
   });
 
   test('a whole Plaid pull and a sync session each write again', () async {
-    final _FinishingSync sync = _FinishingSync();
+    final FinishingSync sync = FinishingSync();
     final ProviderContainer c = container(
       overrides: [syncControllerProvider.overrideWith(() => sync)],
     );

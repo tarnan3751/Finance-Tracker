@@ -35,6 +35,7 @@ import 'package:sync_engine/sync_engine.dart';
 
 import '../../contract/repository_fixture.dart';
 import '../../helpers/dev_wiring.dart';
+import '../../helpers/test_doubles.dart';
 
 /// A relay that counts and can hold or fail its calls.
 final class ScriptedRelay implements SyncRelay {
@@ -85,16 +86,8 @@ final class _SlowOffer extends RestoreOffer {
   Future<bool> build() => _answer();
 }
 
-/// The session's device id, changeable as a sign-out and sign-in change it.
-final class _Device extends Notifier<String?> {
-  @override
-  String? build() => 'dev-a';
-
-  void set(String? id) => state = id;
-}
-
-final NotifierProvider<_Device, String?> _device = NotifierProvider(
-  _Device.new,
+final NotifierProvider<SettableDeviceId, String?> _device = NotifierProvider(
+  SettableDeviceId.new,
 );
 
 void main() {

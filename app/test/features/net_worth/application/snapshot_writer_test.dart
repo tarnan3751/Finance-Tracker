@@ -9,7 +9,6 @@ import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
-import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/accounts/data/in_memory_account_repository.dart';
 import 'package:finance_tracker/features/accounts/domain/account_repository.dart';
@@ -26,6 +25,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../../../contract/repository_fixture.dart';
 import '../../../helpers/pump_app.dart';
+import '../../../helpers/test_doubles.dart';
 
 final LocalDate _day1 = LocalDate(2026, 10, 23);
 final LocalDate _day2 = LocalDate(2026, 10, 24);
@@ -84,16 +84,6 @@ final class _TestClock implements Clock {
 
   @override
   tz.Location get location => tz.UTC;
-}
-
-/// A sync controller whose sessions the test finishes.
-final class _FinishingSync extends SyncController {
-  @override
-  SyncStatus build() => SyncStatus.signedOut;
-
-  /// A session finished [at].
-  void finish(DateTime at) =>
-      state = SyncStatus(phase: SyncPhase.idle, lastSyncAt: at);
 }
 
 void main() {
@@ -378,7 +368,7 @@ void main() {
     test(
       'replaces today after every sync session, not for the same one again',
       () async {
-        final _FinishingSync sync = _FinishingSync();
+        final FinishingSync sync = FinishingSync();
         final ProviderContainer container = ProviderContainer(
           overrides: [
             ...testOverrides(config: AppConfig.demo()),

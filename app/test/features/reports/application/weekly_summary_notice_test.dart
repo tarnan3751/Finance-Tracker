@@ -16,26 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-// A clock a test moves forward.
-final class _MovableClock implements Clock {
-  _MovableClock(DateTime utc) : _clock = FixedClock(utc, tz.UTC);
-
-  Clock _clock;
-
-  set now(DateTime utc) => _clock = FixedClock(utc, tz.UTC);
-
-  @override
-  DateTime nowUtc() => _clock.nowUtc();
-
-  @override
-  DateTime todayLocalMidnight() => _clock.todayLocalMidnight();
-
-  @override
-  LocalDate today() => _clock.today();
-
-  @override
-  tz.Location get location => _clock.location;
-}
+import '../../../helpers/test_doubles.dart';
 
 ProviderContainer container(AppMetaStore meta, DateTime now, {Clock? clock}) {
   final ProviderContainer c = ProviderContainer(
@@ -135,7 +116,7 @@ void main() {
     'with no install date, the first day it runs is the install day',
     () async {
       final AppMetaStore meta = InMemoryAppMetaStore();
-      final _MovableClock clock = _MovableClock(DateTime.utc(2026, 10, 21, 9));
+      final MovableClock clock = MovableClock(DateTime.utc(2026, 10, 21, 9));
       final ProviderContainer c = container(
         meta,
         DateTime.utc(2026, 10, 21, 9),
@@ -144,7 +125,7 @@ void main() {
       expect(await run(c), isEmpty);
 
       // The same running app reaches the next Monday.
-      clock.now = DateTime.utc(2026, 10, 26, 9);
+      clock.utc = DateTime.utc(2026, 10, 26, 9);
       c.invalidate(todayProvider);
       c.read(todayProvider);
       await settle();

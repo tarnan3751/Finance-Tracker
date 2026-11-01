@@ -76,6 +76,9 @@ final class SteppingClock implements Clock {
   /// Whether the clock has stopped.
   bool frozen = false;
 
+  /// The instant the next read of [nowUtc] gives, in milliseconds since the epoch.
+  int get millis => _millis;
+
   /// Moves the clock [by] on.
   void advance(Duration by) => _millis += by.inMilliseconds;
 

@@ -14,7 +14,6 @@ import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/db/receipt_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
-import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/conflicts/application/conflicts_providers.dart';
 import 'package:finance_tracker/features/conflicts/data/in_memory_conflict_store.dart';
 import 'package:finance_tracker/features/conflicts/domain/sync_conflict.dart';
@@ -25,28 +24,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 import '../../../contract/conflict_store_contract.dart';
 import '../../../contract/repository_fixture.dart';
-
-/// A clock the test moves.
-final class _Clock implements Clock {
-  int millis = DateTime.utc(2026, 10, 24, 15).millisecondsSinceEpoch;
-
-  @override
-  DateTime nowUtc() =>
-      DateTime.fromMillisecondsSinceEpoch(millis++, isUtc: true);
-
-  @override
-  DateTime todayLocalMidnight() => DateTime.utc(2026, 10, 24);
-
-  @override
-  LocalDate today() => LocalDate(2026, 10, 24);
-
-  @override
-  tz.Location get location => tz.UTC;
-}
 
 const int _minute = 60 * 1000;
 
@@ -78,7 +58,7 @@ final class _Other {
 
 void main() {
   late AppDatabase database;
-  late _Clock clock;
+  late SteppingClock clock;
   late ProviderContainer a;
   late InMemorySyncRelay relay;
   late _Other b;
@@ -102,7 +82,7 @@ void main() {
 
   // A writes its notes; B overwrites them a minute later; A pulls: a conflict.
   setUp(() async {
-    clock = _Clock();
+    clock = SteppingClock();
     relay = InMemorySyncRelay(nowWallMillis: () => clock.millis);
     database = AppDatabase(NativeDatabase.memory());
     receipts = MemoryReceiptStore();
@@ -128,7 +108,7 @@ void main() {
     b.now = clock.millis + _minute;
     await b.edit('t1', {'notes': 'from B'});
     await b.session.run();
-    clock.millis += 2 * _minute;
+    clock.advance(const Duration(minutes: 2));
     await syncA();
   });
   tearDown(() async {
@@ -235,7 +215,7 @@ void main() {
     b.now = clock.millis + _minute;
     await b.edit('p1', {'notes': 'theirs'});
     await b.session.run();
-    clock.millis += 2 * _minute;
+    clock.advance(const Duration(minutes: 2));
     await syncA();
     final SyncConflict c = (await conflicts()).firstWhere(
       (c) => c.entityId == 'p1',
@@ -270,7 +250,7 @@ void main() {
       b.now = clock.millis + _minute;
       await b.edit('t1', {'receipt_sha256': receiptHash(theirs)});
       await b.session.run();
-      clock.millis += 2 * _minute;
+      clock.advance(const Duration(minutes: 2));
       await syncA();
       return (await conflicts()).firstWhere((c) => c.field == 'receipt_sha256');
     }

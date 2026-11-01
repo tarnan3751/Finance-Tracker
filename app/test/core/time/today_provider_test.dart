@@ -1,7 +1,6 @@
 // todayProvider: the clock's local date, moved on by a timer at the next local midnight
 // in the clock's zone (rescheduled after it fires) and re-read when the app resumes.
 import 'package:finance_tracker/core/di/providers.dart';
-import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,27 +9,7 @@ import 'package:shared_models/shared_models.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
-/// A clock the test moves by hand, in [location].
-final class _MovableClock implements Clock {
-  _MovableClock(this.utc, this.location);
-
-  DateTime utc;
-
-  @override
-  final tz.Location location;
-
-  @override
-  DateTime nowUtc() => utc;
-
-  @override
-  DateTime todayLocalMidnight() {
-    final tz.TZDateTime local = tz.TZDateTime.from(utc, location);
-    return tz.TZDateTime(location, local.year, local.month, local.day);
-  }
-
-  @override
-  LocalDate today() => LocalDate.fromDateTime(todayLocalMidnight());
-}
+import '../../helpers/test_doubles.dart';
 
 void main() {
   setUpAll(tzdata.initializeTimeZones);
@@ -40,13 +19,13 @@ void main() {
     // 8 March 2026, 01:30 EST: midnight is 22.5 hours away, the day being 23 hours long.
     expect(
       untilNextLocalMidnight(
-        _MovableClock(DateTime.utc(2026, 3, 8, 6, 30), newYork),
+        MovableClock(DateTime.utc(2026, 3, 8, 6, 30), newYork),
       ),
       const Duration(hours: 21, minutes: 30),
     );
     expect(
       untilNextLocalMidnight(
-        _MovableClock(DateTime.utc(2026, 3, 8, 4, 30), newYork),
+        MovableClock(DateTime.utc(2026, 3, 8, 4, 30), newYork),
       ),
       const Duration(minutes: 30),
     );
@@ -55,7 +34,7 @@ void main() {
   testWidgets('moves on at local midnight, and again the next night', (
     tester,
   ) async {
-    final _MovableClock clock = _MovableClock(
+    final MovableClock clock = MovableClock(
       // 7 March 2026, 23:59 in New York (UTC-5).
       DateTime.utc(2026, 3, 8, 4, 59),
       tz.getLocation('America/New_York'),
@@ -87,7 +66,7 @@ void main() {
   });
 
   testWidgets('re-reads the date when the app resumes', (tester) async {
-    final _MovableClock clock = _MovableClock(
+    final MovableClock clock = MovableClock(
       DateTime.utc(2026, 10, 24, 15),
       tz.UTC,
     );

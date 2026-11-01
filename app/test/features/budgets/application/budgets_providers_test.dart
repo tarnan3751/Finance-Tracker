@@ -5,7 +5,6 @@
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/in_app_notifications.dart';
 import 'package:finance_tracker/core/platform/notifier.dart';
-import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_math.dart';
@@ -14,26 +13,9 @@ import 'package:finance_tracker/features/transactions/domain/transaction_query.d
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide Notifier;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 import '../../../contract/repository_fixture.dart';
-
-/// A clock the test moves by hand, in UTC.
-final class _MovableClock implements Clock {
-  DateTime utc = DateTime.utc(2026, 10, 20, 12);
-
-  @override
-  tz.Location get location => tz.UTC;
-
-  @override
-  DateTime nowUtc() => utc;
-
-  @override
-  DateTime todayLocalMidnight() => DateTime.utc(utc.year, utc.month, utc.day);
-
-  @override
-  LocalDate today() => LocalDate.fromDateTime(utc);
-}
+import '../../../helpers/test_doubles.dart';
 
 /// The in-memory transactions, keeping every query watched.
 final class _QueryRecordingTransactions extends InMemoryTransactionRepository {
@@ -76,11 +58,11 @@ void main() {
     startDate: LocalDate(2026, 9, 1),
   );
 
-  late _MovableClock clock;
+  late MovableClock clock;
   late ProviderContainer container;
   late _QueryRecordingTransactions transactions;
   setUp(() async {
-    clock = _MovableClock();
+    clock = MovableClock(DateTime.utc(2026, 10, 20, 12));
     container = ProviderContainer.test(
       overrides: [
         clockProvider.overrideWithValue(clock),

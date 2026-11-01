@@ -5,28 +5,11 @@ import 'package:drift/native.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/sync/entity_codec.dart';
-import 'package:finance_tracker/core/time/clock.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
-import 'package:timezone/timezone.dart' as tz;
 
-/// A clock the test moves.
-final class _Clock implements Clock {
-  DateTime now = DateTime.utc(2026, 10, 24, 15);
-
-  @override
-  DateTime nowUtc() => now;
-
-  @override
-  DateTime todayLocalMidnight() => DateTime.utc(now.year, now.month, now.day);
-
-  @override
-  LocalDate today() => LocalDate.fromDateTime(now);
-
-  @override
-  tz.Location get location => tz.UTC;
-}
+import '../../helpers/test_doubles.dart';
 
 const Category _category = Category(
   id: 'c1',
@@ -41,12 +24,12 @@ final Hlc _theirs = Hlc(1761318060000, 0, 'dev-b');
 
 void main() {
   late AppDatabase database;
-  late _Clock clock;
+  late MovableClock clock;
   late DriftSyncStore store;
 
   setUp(() async {
     database = AppDatabase(NativeDatabase.memory());
-    clock = _Clock();
+    clock = MovableClock(DateTime.utc(2026, 10, 24, 15));
     store = DriftSyncStore(database, clock);
     // The category as this device wrote it, then b's rename merged over it.
     final Map<String, Object?> fields = categoryRecordJson(_category)
@@ -105,7 +88,7 @@ void main() {
       expect((row.localValue, row.remoteValue), ('"Lunches"', '"Dinners"'));
       expect((row.localHlc, row.remoteHlc), (_mine.pack(), _theirs.pack()));
       expect(row.entityLabel, 'Dinners');
-      expect(row.seenAt, clock.now);
+      expect(row.seenAt, clock.utc);
       expect(await database.select(database.changeLog).get(), isEmpty);
     },
   );
@@ -152,10 +135,10 @@ void main() {
 
   test('the sweep removes conflicts thirty days old, and only those', () async {
     await store.recordConflicts([conflict('name')]);
-    clock.now = clock.now.add(const Duration(days: 30));
+    clock.utc = clock.utc.add(const Duration(days: 30));
     expect(await store.sweepConflicts(), 0);
     expect(await rows(), hasLength(1));
-    clock.now = clock.now.add(const Duration(milliseconds: 1));
+    clock.utc = clock.utc.add(const Duration(milliseconds: 1));
     expect(await store.sweepConflicts(), 1);
     expect(await rows(), isEmpty);
   });

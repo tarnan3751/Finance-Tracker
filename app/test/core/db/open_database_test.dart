@@ -12,11 +12,10 @@ import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/db/database_key_store.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockStorage extends Mock implements FlutterSecureStorage {}
+import '../../helpers/test_doubles.dart';
 
 const List<int> _sqliteHeader = [
   0x53, 0x51, 0x4c, 0x69, 0x74, 0x65, 0x20, 0x66, // "SQLite f"
@@ -128,8 +127,8 @@ void main() {
   });
 
   group('SecureDatabaseKeyStore', () {
-    late _MockStorage storage;
-    setUp(() => storage = _MockStorage());
+    late MockSecureStorage storage;
+    setUp(() => storage = MockSecureStorage());
 
     test('keeps the key under db_key_v1 without reset on error', () async {
       when(

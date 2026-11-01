@@ -10,6 +10,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../helpers/test_doubles.dart';
 import 'support/scripted_adapter.dart';
 
 final Session _session = Session(
@@ -20,19 +21,17 @@ final Session _session = Session(
   device: testDevice,
 );
 
-class _MockStorage extends Mock implements FlutterSecureStorage {}
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('reload', () {
-    late _MockStorage storage;
+    late MockSecureStorage storage;
     late SecureTokenStore store;
     String? value;
     Object? failure;
 
     setUp(() {
-      storage = _MockStorage();
+      storage = MockSecureStorage();
       value = jsonEncode(_session.toJson());
       failure = null;
       when(() => storage.read(key: SecureTokenStore.sessionKey))

@@ -904,6 +904,11 @@ The repository contract is `test/contract/settings_repository_contract.dart`,
   manual transaction relative to the test clock. Widget tests whose rows must all be laid
   out pump a taller `size`: the test font draws every character as a square, so rows are
   taller than on a device.
+- **Doubles.** `test/helpers/test_doubles.dart` holds the doubles more than one test file
+  needs: `MovableClock` (an instant the test moves, in a zone, UTC by default),
+  `SettableDeviceId` (the session's device id), `FinishingSync` (a sync controller that
+  finishes a session when told) and `MockSecureStorage`; a double one file needs stays in
+  that file.
 - **Accessibility.** `test/accessibility_test.dart` checks every screen, light and dark,
   at text scales 1 and 2, against `androidTapTargetGuideline`, `labeledTapTargetGuideline`
   and `textContrastGuideline`, and lays each out at text scale 2.0 and, when it opens
