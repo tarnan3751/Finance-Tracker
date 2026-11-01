@@ -18,8 +18,10 @@ import 'dart:async';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/core/widgets/visible_messenger.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
@@ -529,13 +531,16 @@ class _TransactionList extends ConsumerWidget {
       itemBuilder: (context, index) {
         if (index == items.length) {
           return const Padding(
-            padding: EdgeInsets.all(16),
+            padding: EdgeInsets.all(SpendthriftTokens.space16),
             child: Center(child: CircularProgressIndicator()),
           );
         }
         switch (items[index]) {
           case DateHeaderItem(:final LocalDate date):
-            return _DateHeader(transactionDateLabel(l10n, date, today));
+            return SectionHeader(
+              transactionDateLabel(l10n, date, today),
+              underline: true,
+            );
           case TransactionItem(:final Transaction transaction):
             final String category = transactionCategoryLabel(
               l10n,
@@ -569,29 +574,6 @@ class _TransactionList extends ConsumerWidget {
             );
         }
       },
-    );
-  }
-}
-
-class _DateHeader extends StatelessWidget {
-  const _DateHeader(this.label);
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return Semantics(
-      header: true,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-        child: Text(
-          label,
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: theme.colorScheme.primary,
-          ),
-        ),
-      ),
     );
   }
 }
@@ -663,10 +645,19 @@ class _ActiveFilters extends ConsumerWidget {
         ),
     ];
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+      padding: const EdgeInsets.fromLTRB(
+        SpendthriftTokens.space8,
+        SpendthriftTokens.space4,
+        SpendthriftTokens.space8,
+        SpendthriftTokens.space4,
+      ),
       child: Align(
         alignment: AlignmentDirectional.centerStart,
-        child: Wrap(spacing: 8, runSpacing: 4, children: chips),
+        child: Wrap(
+          spacing: SpendthriftTokens.space8,
+          runSpacing: SpendthriftTokens.space4,
+          children: chips,
+        ),
       ),
     );
   }

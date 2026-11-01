@@ -16,8 +16,9 @@ Code: `app/lib/features/transactions/` (`application/`, `presentation/`, and
 headers: "Today" and "Yesterday" from `todayProvider` (the clock's today in the device zone,
 re-read at midnight and on resume), the weekday for
 the rest of the last week, then the full date, through intl's `DateFormat` in the device
-locale (`transaction_dates.dart`). A row (`transaction_tile.dart`, built from plain values,
-no stream per row) shows the merchant's avatar and name (**Merchants**), the account and
+locale (`transaction_dates.dart`), each a `SectionHeader` with its ink underline
+(`design.md`, **Section headers**). A row (`transaction_tile.dart`, built from plain values,
+no stream per row) shows the merchant's avatar and name in Work Sans 500 (**Merchants**), the account and
 the effective category (**The effective category**; "Uncategorized" when there is none,
 "Split" for a transaction with splits, `transactionCategoryLabel`),
 the amount colored by `FinanceColors`, a "Pending" label, and a "Hidden" label on a

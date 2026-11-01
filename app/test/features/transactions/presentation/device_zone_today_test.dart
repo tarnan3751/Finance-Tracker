@@ -49,16 +49,16 @@ void main() {
     );
 
     expect(
-      tester.getTopLeft(find.text('Today')).dy,
+      tester.getTopLeft(find.text('TODAY')).dy,
       lessThan(tester.getTopLeft(find.text('on-7th')).dy),
     );
     expect(
-      tester.getTopLeft(find.text('Yesterday')).dy,
+      tester.getTopLeft(find.text('YESTERDAY')).dy,
       lessThan(tester.getTopLeft(find.text('on-6th')).dy),
     );
     expect(
       tester.getTopLeft(find.text('on-7th')).dy,
-      lessThan(tester.getTopLeft(find.text('Yesterday')).dy),
+      lessThan(tester.getTopLeft(find.text('YESTERDAY')).dy),
     );
   });
 

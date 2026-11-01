@@ -77,7 +77,12 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
     final Widget toggle = Align(
       alignment: AlignmentDirectional.centerEnd,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        padding: const EdgeInsets.fromLTRB(
+          SpendthriftTokens.space16,
+          0,
+          SpendthriftTokens.space16,
+          SpendthriftTokens.space8,
+        ),
         child: SegmentedButton<bool>(
           segments: [
             ButtonSegment(
@@ -200,7 +205,12 @@ class _BillList extends ConsumerWidget {
     }
     paused.sort(_byName);
     Widget heading(String text) => Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+      padding: const EdgeInsets.fromLTRB(
+        SpendthriftTokens.space16,
+        SpendthriftTokens.space16,
+        SpendthriftTokens.space16,
+        SpendthriftTokens.space4,
+      ),
       child: Semantics(
         header: true,
         child: Text(
@@ -211,45 +221,47 @@ class _BillList extends ConsumerWidget {
         ),
       ),
     );
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
-      children: [
-        header,
-        if (suggestions.isNotEmpty) ...[
-          heading(l10n.billsSuggested),
-          _Suggestions(suggestions),
+    final List<Widget> children = [
+      header,
+      if (suggestions.isNotEmpty) ...[
+        heading(l10n.billsSuggested),
+        _Suggestions(suggestions),
+      ],
+      for (final (String title, List<_Row> rows) in [
+        (l10n.billsGroupOverdue, overdue),
+        (l10n.billsGroupDueSoon, soon),
+        (l10n.billsGroupLater, later),
+      ])
+        if (rows.isNotEmpty) ...[
+          heading(title),
+          for (final _Row r in rows)
+            _BillTile(
+              key: ValueKey(r.bill.id),
+              bill: r.bill,
+              due: r.focus.due,
+              state: r.focus.state,
+              today: today,
+            ),
         ],
-        for (final (String title, List<_Row> rows) in [
-          (l10n.billsGroupOverdue, overdue),
-          (l10n.billsGroupDueSoon, soon),
-          (l10n.billsGroupLater, later),
-        ])
-          if (rows.isNotEmpty) ...[
-            heading(title),
-            for (final _Row r in rows)
+      if (paused.isNotEmpty)
+        ExpansionTile(
+          title: Text(l10n.billsGroupPaused(paused.length)),
+          children: [
+            for (final BillReminder b in paused)
               _BillTile(
-                key: ValueKey(r.bill.id),
-                bill: r.bill,
-                due: r.focus.due,
-                state: r.focus.state,
+                key: ValueKey(b.id),
+                bill: b,
+                due: null,
+                state: null,
                 today: today,
               ),
           ],
-        if (paused.isNotEmpty)
-          ExpansionTile(
-            title: Text(l10n.billsGroupPaused(paused.length)),
-            children: [
-              for (final BillReminder b in paused)
-                _BillTile(
-                  key: ValueKey(b.id),
-                  bill: b,
-                  due: null,
-                  state: null,
-                  today: today,
-                ),
-            ],
-          ),
-      ],
+        ),
+    ];
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: SpendthriftTokens.space24),
+      itemCount: children.length,
+      itemBuilder: (context, index) => children[index],
     );
   }
 }
@@ -429,7 +441,7 @@ class _BillTile extends ConsumerWidget {
             Text(Money(amount.minorUnits.abs(), amount.currencyCode).format()),
           if (chip != null || markable)
             Wrap(
-              spacing: 8,
+              spacing: SpendthriftTokens.space8,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 if (chip != null)
@@ -513,7 +525,10 @@ class _StateChip extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
     ),
     child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(
+        horizontal: SpendthriftTokens.space8,
+        vertical: 2,
+      ),
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color),
@@ -551,7 +566,9 @@ class _SuggestionsState extends State<_Suggestions> {
           _SuggestionTile(key: ValueKey(billSuggestionKey(s)), suggestion: s),
         if (folded)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(
+              horizontal: SpendthriftTokens.space8,
+            ),
             child: Align(
               alignment: AlignmentDirectional.centerStart,
               child: TextButton.icon(
@@ -604,10 +621,12 @@ class _SuggestionTile extends ConsumerWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(
+            horizontal: SpendthriftTokens.space16,
+          ),
           child: OverflowBar(
             alignment: MainAxisAlignment.end,
-            spacing: 8,
+            spacing: SpendthriftTokens.space8,
             children: [
               TextButton(
                 onPressed: () => ref
@@ -735,87 +754,95 @@ class _BillCalendarState extends ConsumerState<_BillCalendar> {
     final List<BillReminder> dayBills = day == null
         ? const []
         : byDay[day] ?? const [];
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
-      children: [
-        widget.header,
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
-            children: [
-              IconButton(
-                tooltip: l10n.billsPreviousMonth,
-                icon: const Icon(Icons.chevron_left),
-                onPressed: () => _show(_month.addDays(-1).firstOfMonth),
-              ),
-              Expanded(
-                child: Text(
-                  DateFormat.yMMMM().format(_month.toDateTime()),
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleMedium,
-                ),
-              ),
-              IconButton(
-                tooltip: l10n.billsNextMonth,
-                icon: const Icon(Icons.chevron_right),
-                onPressed: () => _show(next),
-              ),
-            ],
-          ),
+    final List<Widget> children = [
+      widget.header,
+      Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: SpendthriftTokens.space8,
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          // The day numbers stop growing at 1.5 times, so a week fits the width.
-          child: MediaQuery.withClampedTextScaling(
-            maxScaleFactor: 1.5,
-            child: Table(
-              children: [
-                TableRow(
-                  children: [
-                    for (int i = 0; i < 7; i++)
-                      ExcludeSemantics(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text(
-                            material.narrowWeekdays[(i +
-                                    material.firstDayOfWeekIndex) %
-                                7],
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.labelMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
+        child: Row(
+          children: [
+            IconButton(
+              tooltip: l10n.billsPreviousMonth,
+              icon: const Icon(Icons.chevron_left),
+              onPressed: () => _show(_month.addDays(-1).firstOfMonth),
+            ),
+            Expanded(
+              child: Text(
+                DateFormat.yMMMM().format(_month.toDateTime()),
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleMedium,
+              ),
+            ),
+            IconButton(
+              tooltip: l10n.billsNextMonth,
+              icon: const Icon(Icons.chevron_right),
+              onPressed: () => _show(next),
+            ),
+          ],
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: SpendthriftTokens.space16,
+        ),
+        // The day numbers stop growing at 1.5 times, so a week fits the width.
+        child: MediaQuery.withClampedTextScaling(
+          maxScaleFactor: 1.5,
+          child: Table(
+            children: [
+              TableRow(
+                children: [
+                  for (int i = 0; i < 7; i++)
+                    ExcludeSemantics(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: SpendthriftTokens.space8,
+                        ),
+                        child: Text(
+                          material.narrowWeekdays[(i +
+                                  material.firstDayOfWeekIndex) %
+                              7],
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),
-                  ],
-                ),
-                for (int row = 0; row < cells.length; row += 7)
-                  TableRow(children: cells.sublist(row, row + 7)),
-              ],
+                    ),
+                ],
+              ),
+              for (int row = 0; row < cells.length; row += 7)
+                TableRow(children: cells.sublist(row, row + 7)),
+            ],
+          ),
+        ),
+      ),
+      const Divider(height: 24),
+      if (day != null && dayBills.isEmpty)
+        Padding(
+          padding: const EdgeInsets.all(SpendthriftTokens.space16),
+          child: Text(
+            l10n.billsCalendarNone(shortDateLabel(day)),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
         ),
-        const Divider(height: 24),
-        if (day != null && dayBills.isEmpty)
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              l10n.billsCalendarNone(shortDateLabel(day)),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
+      if (day != null)
+        for (final BillReminder b in dayBills)
+          _BillTile(
+            key: ValueKey(b.id),
+            bill: b,
+            due: day,
+            state: stateOf(b, day),
+            today: today,
           ),
-        if (day != null)
-          for (final BillReminder b in dayBills)
-            _BillTile(
-              key: ValueKey(b.id),
-              bill: b,
-              due: day,
-              state: stateOf(b, day),
-              today: today,
-            ),
-      ],
+    ];
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: SpendthriftTokens.space24),
+      itemCount: children.length,
+      itemBuilder: (context, index) => children[index],
     );
   }
 }
@@ -858,7 +885,7 @@ class _DayCell extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 4),
+              const SizedBox(height: SpendthriftTokens.space4),
               DecoratedBox(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
@@ -897,7 +924,7 @@ class _DayCell extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: SpendthriftTokens.space4),
             ],
           ),
         ),

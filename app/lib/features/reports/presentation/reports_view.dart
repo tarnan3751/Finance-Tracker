@@ -57,95 +57,117 @@ class _ReportsViewState extends ConsumerState<ReportsView> {
     final int offset = ref.watch(reportPeriodOffsetProvider);
     final AsyncValue<Report> report = ref.watch(reportProvider(offset));
     return switch (report) {
-      AsyncValue(value: final Report r) => ListView(
-        padding: const EdgeInsets.only(bottom: 24),
-        children: [
-          BudgetPeriodSelector(
-            offset: offset,
-            dates: budgetPeriodLabel(l10n, r.current.range),
-            onSelected: _select,
-            showNext: offset < 0,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(SpendthriftTokens.space16),
-            child: ReportsHero(r.current),
-          ),
-          _SavingsRate(r.current),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: TextButton.icon(
-                onPressed: () => setState(() => _table = !_table),
-                icon: Icon(_table ? Icons.donut_large : Icons.table_rows),
-                label: Text(
-                  _table ? l10n.reportsShowCharts : l10n.reportsShowTables,
-                ),
-              ),
-            ),
-          ),
-          _Comparisons(r),
-          _SectionTitle(l10n.reportsByCategory),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: SegmentedButton<TransactionKind>(
-              segments: [
-                ButtonSegment(
-                  value: TransactionKind.spend,
-                  label: Text(l10n.reportsSpending),
-                ),
-                ButtonSegment(
-                  value: TransactionKind.income,
-                  label: Text(l10n.reportsIncome),
-                ),
-              ],
-              selected: {_kind},
-              showSelectedIcon: false,
-              onSelectionChanged: (s) => setState(() {
-                _kind = s.single;
-                _group = null;
-              }),
-            ),
-          ),
-          _Categories(
-            period: r.current,
-            kind: _kind,
-            group: _group,
-            table: _table,
-            onGroup: (id) => setState(() => _group = id),
-          ),
-          _SectionTitle(l10n.reportsIncomeAndSpending),
-          if (_table)
-            PeriodsTable(r.shortTrend)
-          else ...[
-            IncomeSpendingBars(r.shortTrend),
-            const SeriesLegend(),
-          ],
-          _SectionTitle(l10n.reportsTrend(longTrendPeriods)),
-          if (_table)
-            PeriodsTable(r.trend)
-          else ...[
-            TrendLines(r.trend),
-            const SeriesLegend(),
-          ],
-          _SectionTitle(l10n.reportsTopMerchants),
-          _Merchants(r.current),
-          _SectionTitle(l10n.reportsTopMovers),
-          _Movers(r),
-          _SectionTitle(l10n.anomaliesTitle),
-          AnomalyList(window: r.current.range),
-          const Divider(height: 32),
-          ListTile(
-            leading: const Icon(Icons.date_range),
-            title: Text(l10n.reportsWeeklySummary),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => const WeeklySummaryRoute().push<void>(context),
-          ),
-        ],
-      ),
+      AsyncValue(value: final Report r) => _report(context, l10n, r, offset),
       AsyncValue(hasError: true) => Center(child: Text(l10n.loadFailed)),
       _ => const Center(child: CircularProgressIndicator()),
     };
+  }
+
+  /// [r]'s sections, [offset] periods from the current one, built as they scroll in.
+  Widget _report(
+    BuildContext context,
+    AppLocalizations l10n,
+    Report r,
+    int offset,
+  ) {
+    final List<Widget> children = [
+      BudgetPeriodSelector(
+        offset: offset,
+        dates: budgetPeriodLabel(l10n, r.current.range),
+        onSelected: _select,
+        showNext: offset < 0,
+      ),
+      Padding(
+        padding: const EdgeInsets.all(SpendthriftTokens.space16),
+        child: ReportsHero(r.current),
+      ),
+      _SavingsRate(r.current),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(
+          SpendthriftTokens.space16,
+          SpendthriftTokens.space8,
+          SpendthriftTokens.space16,
+          0,
+        ),
+        child: Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: TextButton.icon(
+            onPressed: () => setState(() => _table = !_table),
+            icon: Icon(_table ? Icons.donut_large : Icons.table_rows),
+            label: Text(
+              _table ? l10n.reportsShowCharts : l10n.reportsShowTables,
+            ),
+          ),
+        ),
+      ),
+      _Comparisons(r),
+      _SectionTitle(l10n.reportsByCategory),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(
+          SpendthriftTokens.space16,
+          0,
+          SpendthriftTokens.space16,
+          SpendthriftTokens.space8,
+        ),
+        child: SegmentedButton<TransactionKind>(
+          segments: [
+            ButtonSegment(
+              value: TransactionKind.spend,
+              label: Text(l10n.reportsSpending),
+            ),
+            ButtonSegment(
+              value: TransactionKind.income,
+              label: Text(l10n.reportsIncome),
+            ),
+          ],
+          selected: {_kind},
+          showSelectedIcon: false,
+          onSelectionChanged: (s) => setState(() {
+            _kind = s.single;
+            _group = null;
+          }),
+        ),
+      ),
+      _Categories(
+        period: r.current,
+        kind: _kind,
+        group: _group,
+        table: _table,
+        onGroup: (id) => setState(() => _group = id),
+      ),
+      _SectionTitle(l10n.reportsIncomeAndSpending),
+      if (_table)
+        PeriodsTable(r.shortTrend)
+      else ...[
+        IncomeSpendingBars(r.shortTrend),
+        const SeriesLegend(),
+      ],
+      _SectionTitle(l10n.reportsTrend(longTrendPeriods)),
+      if (_table)
+        PeriodsTable(r.trend)
+      else ...[
+        TrendLines(r.trend),
+        const SeriesLegend(),
+      ],
+      _SectionTitle(l10n.reportsTopMerchants),
+      _Merchants(r.current),
+      _SectionTitle(l10n.reportsTopMovers),
+      _Movers(r),
+      _SectionTitle(l10n.anomaliesTitle),
+      AnomalyList(window: r.current.range),
+      const Divider(height: 32),
+      ListTile(
+        leading: const Icon(Icons.date_range_outlined),
+        title: Text(l10n.reportsWeeklySummary),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => const WeeklySummaryRoute().push<void>(context),
+      ),
+    ];
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: SpendthriftTokens.space24),
+      itemCount: children.length,
+      itemBuilder: (context, index) => children[index],
+    );
   }
 }
 
@@ -156,7 +178,12 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+    padding: const EdgeInsets.fromLTRB(
+      SpendthriftTokens.space16,
+      SpendthriftTokens.space24,
+      SpendthriftTokens.space16,
+      SpendthriftTokens.space8,
+    ),
     child: Semantics(
       header: true,
       child: Text(text, style: Theme.of(context).textTheme.titleMedium),
@@ -236,7 +263,7 @@ class _Comparisons extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
     Widget row(String label, Change spend, Change income) => Padding(
-      padding: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.only(top: SpendthriftTokens.space8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -248,7 +275,12 @@ class _Comparisons extends StatelessWidget {
     );
     final ReportPeriod current = report.current;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.fromLTRB(
+        SpendthriftTokens.space16,
+        SpendthriftTokens.space8,
+        SpendthriftTokens.space16,
+        0,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -264,7 +296,7 @@ class _Comparisons extends StatelessWidget {
           ),
           if (current.partial)
             Padding(
-              padding: const EdgeInsets.only(top: 4),
+              padding: const EdgeInsets.only(top: SpendthriftTokens.space4),
               child: Text(
                 l10n.reportsSameElapsed(current.elapsedDays),
                 style: theme.textTheme.bodySmall?.copyWith(
@@ -372,7 +404,9 @@ class _Categories extends ConsumerWidget {
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(
+                horizontal: SpendthriftTokens.space8,
+              ),
               child: TextButton.icon(
                 onPressed: () => onGroup(null),
                 icon: const Icon(Icons.arrow_back),
@@ -382,7 +416,12 @@ class _Categories extends ConsumerWidget {
           ),
         if (slices.isEmpty)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            padding: const EdgeInsets.fromLTRB(
+              SpendthriftTokens.space16,
+              0,
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space8,
+            ),
             child: Text(l10n.reportsNothingInPeriod),
           )
         else if (table)
@@ -423,7 +462,12 @@ class _Merchants extends StatelessWidget {
         .toList();
     if (top.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        padding: const EdgeInsets.fromLTRB(
+          SpendthriftTokens.space16,
+          0,
+          SpendthriftTokens.space16,
+          SpendthriftTokens.space8,
+        ),
         child: Text(l10n.reportsNothingInPeriod),
       );
     }
@@ -454,7 +498,12 @@ class _Movers extends ConsumerWidget {
     final Map<String, Category> byId = ref.watch(categoriesByIdProvider);
     if (report.categoryMovers.isEmpty && report.merchantMovers.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        padding: const EdgeInsets.fromLTRB(
+          SpendthriftTokens.space16,
+          0,
+          SpendthriftTokens.space16,
+          SpendthriftTokens.space8,
+        ),
         child: Text(l10n.reportsNoMovers),
       );
     }
@@ -470,7 +519,12 @@ class _Movers extends ConsumerWidget {
       ),
     );
     Widget subheading(String text) => Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.fromLTRB(
+        SpendthriftTokens.space16,
+        SpendthriftTokens.space8,
+        SpendthriftTokens.space16,
+        0,
+      ),
       child: Text(text, style: theme.textTheme.labelLarge),
     );
     return Column(

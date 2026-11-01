@@ -8,6 +8,7 @@
 /// values so a list of thousands builds only the rows on screen and subscribes to nothing.
 library;
 
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/widgets/amount_text.dart';
 import 'package:finance_tracker/core/widgets/merchant_avatar.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
@@ -89,7 +90,10 @@ class TransactionTile extends StatelessWidget {
           onTap: onTap,
           onLongPress: onLongPress,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(
+              horizontal: SpendthriftTokens.space16,
+              vertical: SpendthriftTokens.space12,
+            ),
             child: Row(
               children: [
                 if (isSelected == null)
@@ -108,14 +112,16 @@ class TransactionTile extends StatelessWidget {
                       onChanged: onTap == null ? null : (_) => onTap!(),
                     ),
                   ),
-                const SizedBox(width: 16),
+                const SizedBox(width: SpendthriftTokens.space16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         merchant.displayName,
-                        style: theme.textTheme.bodyLarge,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       Text(caption, style: captionStyle),
                       if (balance != null)
@@ -137,7 +143,7 @@ class TransactionTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: SpendthriftTokens.space12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -147,11 +153,11 @@ class TransactionTile extends StatelessWidget {
                       style: theme.textTheme.bodyLarge,
                     ),
                     if (pending) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: SpendthriftTokens.space4),
                       _Label(l10n.transactionPending),
                     ],
                     if (hidden) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: SpendthriftTokens.space4),
                       _Label(l10n.transactionHidden),
                     ],
                   ],
@@ -179,7 +185,10 @@ class _Label extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        padding: const EdgeInsets.symmetric(
+          horizontal: SpendthriftTokens.space8,
+          vertical: 2,
+        ),
         child: Text(text, style: theme.textTheme.labelSmall),
       ),
     );

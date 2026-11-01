@@ -48,13 +48,13 @@ void main() {
       ..upsertTransaction(testTransaction('t3', name: 'Books', daysAgo: 3));
     await _pumpList(tester, store);
 
-    expect(find.text('Today'), findsOneWidget);
-    expect(find.text('Yesterday'), findsOneWidget);
+    expect(find.text('TODAY'), findsOneWidget);
+    expect(find.text('YESTERDAY'), findsOneWidget);
     // The test clock's today is Saturday 24 October 2026.
-    expect(find.text('Wednesday'), findsOneWidget);
-    expect(find.text('October 12, 2026'), findsOneWidget);
+    expect(find.text('WEDNESDAY'), findsOneWidget);
+    expect(find.text('OCTOBER 12, 2026'), findsOneWidget);
     expect(
-      tester.getTopLeft(find.text('Today')).dy,
+      tester.getTopLeft(find.text('TODAY')).dy,
       lessThan(tester.getTopLeft(find.text('Lunch today')).dy),
     );
   });

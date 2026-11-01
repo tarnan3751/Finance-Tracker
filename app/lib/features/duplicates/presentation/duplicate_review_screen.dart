@@ -44,28 +44,42 @@ class DuplicateReviewScreen extends ConsumerWidget {
           headline: l10n.duplicatesEmptyHeadline,
           body: l10n.duplicatesEmptyBody,
         ),
-        final List<DuplicateCandidate> pairs => ListView(
+        final List<DuplicateCandidate> pairs => ListView.builder(
           padding: const EdgeInsets.fromLTRB(
             SpendthriftTokens.space16,
             SpendthriftTokens.space8,
             SpendthriftTokens.space16,
             SpendthriftTokens.space24,
           ),
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: SpendthriftTokens.space12),
-              child: Text(
-                l10n.duplicatesIntro,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+          // The introduction, then one card per pair.
+          itemCount: pairs.length + 1,
+          itemBuilder: (context, index) => index == 0
+              ? const _Intro()
+              : _PairCard(
+                  key: ValueKey(pairs[index - 1].key),
+                  pair: pairs[index - 1],
                 ),
-              ),
-            ),
-            for (final DuplicateCandidate pair in pairs)
-              _PairCard(key: ValueKey(pair.key), pair: pair),
-          ],
         ),
       },
+    );
+  }
+}
+
+/// What the review is for, above the pairs.
+class _Intro extends StatelessWidget {
+  const _Intro();
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: SpendthriftTokens.space12),
+      child: Text(
+        AppLocalizations.of(context).duplicatesIntro,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+      ),
     );
   }
 }

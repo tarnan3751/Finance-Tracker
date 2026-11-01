@@ -16,6 +16,7 @@ library;
 import 'dart:async';
 
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
 import 'package:finance_tracker/features/bills/domain/bill_suggestions.dart';
@@ -150,67 +151,73 @@ class _SubscriptionList extends ConsumerWidget {
           : (total: current.total + cost, count: current.count + 1);
     }
     final List<String> currencies = totals.keys.toList()..sort();
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
-      children: [
-        if (currencies.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (final String code in currencies)
-                  Text(
-                    l10n.subscriptionsTotal(
-                      totals[code]!.total.format(),
-                      totals[code]!.count,
-                    ),
-                    style: theme.textTheme.titleMedium,
+    final List<Widget> children = [
+      if (currencies.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            SpendthriftTokens.space16,
+            SpendthriftTokens.space16,
+            SpendthriftTokens.space16,
+            SpendthriftTokens.space8,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final String code in currencies)
+                Text(
+                  l10n.subscriptionsTotal(
+                    totals[code]!.total.format(),
+                    totals[code]!.count,
                   ),
-              ],
-            ),
-          ),
-        for (final Subscription s in _byYearlyCost(subscriptions))
-          _StreamTile(
-            key: ValueKey(s.view.stream.id),
-            view: s.view,
-            annualCost: s.annualCost,
-            actions: [
-              _StreamAction.mute,
-              _StreamAction.notSubscription,
-              _StreamAction.rename,
-              if (suggested.contains(s.view.stream.id))
-                _StreamAction.createBill,
-            ],
-          ),
-        if (muted.isNotEmpty)
-          ExpansionTile(
-            title: Text(l10n.subscriptionsMuted(muted.length)),
-            children: [
-              for (final StreamView v in muted)
-                _StreamTile(
-                  key: ValueKey(v.stream.id),
-                  view: v,
-                  actions: const [_StreamAction.unmute, _StreamAction.rename],
+                  style: theme.textTheme.titleMedium,
                 ),
             ],
           ),
-        if (others.isNotEmpty)
-          ExpansionTile(
-            title: Text(l10n.subscriptionsOthers(others.length)),
-            children: [
-              for (final StreamView v in others)
-                _StreamTile(
-                  key: ValueKey(v.stream.id),
-                  view: v,
-                  actions: const [
-                    _StreamAction.markSubscription,
-                    _StreamAction.rename,
-                  ],
-                ),
-            ],
-          ),
-      ],
+        ),
+      for (final Subscription s in _byYearlyCost(subscriptions))
+        _StreamTile(
+          key: ValueKey(s.view.stream.id),
+          view: s.view,
+          annualCost: s.annualCost,
+          actions: [
+            _StreamAction.mute,
+            _StreamAction.notSubscription,
+            _StreamAction.rename,
+            if (suggested.contains(s.view.stream.id)) _StreamAction.createBill,
+          ],
+        ),
+      if (muted.isNotEmpty)
+        ExpansionTile(
+          title: Text(l10n.subscriptionsMuted(muted.length)),
+          children: [
+            for (final StreamView v in muted)
+              _StreamTile(
+                key: ValueKey(v.stream.id),
+                view: v,
+                actions: const [_StreamAction.unmute, _StreamAction.rename],
+              ),
+          ],
+        ),
+      if (others.isNotEmpty)
+        ExpansionTile(
+          title: Text(l10n.subscriptionsOthers(others.length)),
+          children: [
+            for (final StreamView v in others)
+              _StreamTile(
+                key: ValueKey(v.stream.id),
+                view: v,
+                actions: const [
+                  _StreamAction.markSubscription,
+                  _StreamAction.rename,
+                ],
+              ),
+          ],
+        ),
+    ];
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: SpendthriftTokens.space24),
+      itemCount: children.length,
+      itemBuilder: (context, index) => children[index],
     );
   }
 }

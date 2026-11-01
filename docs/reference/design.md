@@ -15,7 +15,7 @@ Where a screen composes these is each feature's own reference file.
 | The tokens | `app/lib/core/theme/tokens.dart` (`SpendthriftTokens`) |
 | The schemes, the type, the component themes | `app/lib/core/theme/app_theme.dart` (`AppTheme`) |
 | The semantic colors and the chart inks | `app/lib/core/theme/finance_colors.dart` (`FinanceColors`) |
-| The hero card, the brand card, the empty state, amounts, avatars, the flavor banner | `app/lib/core/widgets/` |
+| The hero card, the brand card, the section header, the empty state, amounts, avatars, the flavor banner | `app/lib/core/widgets/` |
 | The demo strip | `app/lib/features/onboarding/presentation/demo_strip.dart` |
 | The fonts and their licences | `app/assets/fonts/`, `app/lib/features/help/application/licenses.dart` |
 | The launcher icon, the splash, the widgets' colors | `app/android/app/src/main/res/` (`build.md`, **Icon and splash**; `widgets.md`, **Colours**) |
@@ -149,6 +149,20 @@ nothing on a tap. The screens space their cards themselves: `space16` at the sid
 `space12` between. The accounts, the linked banks, the conflicts, the liabilities'
 payoffs, the duplicate pairs, the budgets and the goals are `BrandCard`s; a card that is
 not a `BrandCard` is a hero card.
+
+## Section headers and lists
+
+`SectionHeader` (`core/widgets/section_header.dart`) is a section's heading: Syne at the
+`titleSmall` size, weight 700, in capitals tracked at 0.08 em (read as written), in ink,
+`space24` above and `space8` below, announced as a header, with an optional action at its
+end. A list's group heading (the transactions' dates) takes `underline`: an ink line under
+it on paper and `space16` above.
+
+A list row's title is Work Sans 500, its caption `onSurfaceVariant`, its amount an
+`AmountText` (tabular figures); dividers are `outlineVariant`; a leading icon that is not a
+category's is outlined. A list of data that can grow (the transactions, the bills, the
+subscriptions, the reports, the duplicate review) is a `ListView.builder`, so only the rows
+on screen are built; a screen of fixed sections (Settings) keeps its `ListView`.
 
 ## The hero card and misregistration
 
