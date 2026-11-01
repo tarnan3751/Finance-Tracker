@@ -291,7 +291,8 @@ this month as PDF" exports the period shown (`export.md`, **Screens**). From the
   read as one sentence;
 - the savings rate: "Kept 41 % of income" (in the money-out pink when negative), or "No
   income in this period";
-- a Tables/Charts switch, which turns every chart below into its table;
+- a Charts | Tables switch (`ChartTableToggle`), which turns every chart below into its
+  table;
 - the comparisons: spending and income against the period before and against a year
   before, as "+$12.00 (+15 %)" or "(new)", with "Compared over the first N days of each
   period" while the period runs;

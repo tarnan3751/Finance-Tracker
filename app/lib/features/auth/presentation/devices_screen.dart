@@ -7,6 +7,7 @@ library;
 
 import 'package:finance_tracker/core/api/problems.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
 import 'package:finance_tracker/core/widgets/visible_messenger.dart';
 import 'package:finance_tracker/features/auth/application/devices_controller.dart';
@@ -178,6 +179,7 @@ Future<bool> _confirm(
             child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
           ),
           TextButton(
+            style: AppTheme.destructive(context),
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(action),
           ),

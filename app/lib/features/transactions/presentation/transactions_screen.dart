@@ -18,6 +18,7 @@ import 'dart:async';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
@@ -201,6 +202,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             child: Text(l10n.cancel),
           ),
           TextButton(
+            style: AppTheme.destructive(context),
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(l10n.delete),
           ),

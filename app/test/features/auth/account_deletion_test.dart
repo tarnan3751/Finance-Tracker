@@ -16,6 +16,7 @@ import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
+import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/features/auth/application/account_actions.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
 import 'package:finance_tracker/features/auth/domain/session_state.dart';
@@ -182,6 +183,8 @@ void main() {
     Future<void> show(int? pending) async {
       await tester.pumpWidget(
         MaterialApp(
+          // The app's theme, which carries the finance colors the dialog reads.
+          theme: AppTheme.light(),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           home: EraseDeviceDialog(pending: pending),
         ),
@@ -253,6 +256,7 @@ void main() {
           ),
         ],
         child: MaterialApp(
+          theme: AppTheme.light(),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           home: Consumer(
             builder: (context, ref, _) => TextButton(

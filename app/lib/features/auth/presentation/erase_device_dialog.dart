@@ -8,6 +8,8 @@ library;
 
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
+import 'package:finance_tracker/core/theme/app_theme.dart';
+import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/features/auth/application/account_actions.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +71,7 @@ class EraseDeviceDialog extends StatelessWidget {
               Text(
                 l10n.eraseDevicePending(pending),
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.error,
+                  color: FinanceColors.of(context).warning,
                 ),
               ),
             ],
@@ -82,6 +84,7 @@ class EraseDeviceDialog extends StatelessWidget {
           child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
         ),
         TextButton(
+          style: AppTheme.destructive(context),
           onPressed: () => Navigator.of(context).pop(true),
           child: Text(l10n.eraseDeviceConfirm),
         ),

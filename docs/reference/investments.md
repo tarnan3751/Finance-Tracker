@@ -117,7 +117,7 @@ with the empty state ("No investment accounts") when there are none:
   (`value_history.dart`: days from the first snapshot along the x axis, so a day with no
   snapshot is a gap the line spans; a dot on the latest; the first and last dates
   below; a tooltip on touch) read as one summary (the first and latest values and dates),
-  or, with the Table switch, its table, a row per recorded day newest first. Sandbox and
+  or, with the Chart | Table switch (`ChartTableToggle`), its table, a row per recorded day newest first. Sandbox and
   demo prices do not move, so their lines are flat; the demo's snapshots start on the
   launch day, so its line is one point;
 - its **holdings**, in the repository's order (`HoldingRow` in `investment_rows.dart`):

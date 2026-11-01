@@ -13,6 +13,7 @@ import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/widgets/amount_text.dart';
+import 'package:finance_tracker/core/widgets/chart_chrome.dart';
 import 'package:finance_tracker/core/widgets/hero_card.dart';
 import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/budgets/presentation/budget_period_selector.dart';
@@ -93,12 +94,11 @@ class _ReportsViewState extends ConsumerState<ReportsView> {
         ),
         child: Align(
           alignment: AlignmentDirectional.centerEnd,
-          child: TextButton.icon(
-            onPressed: () => setState(() => _table = !_table),
-            icon: Icon(_table ? Icons.donut_large : Icons.table_rows),
-            label: Text(
-              _table ? l10n.reportsShowCharts : l10n.reportsShowTables,
-            ),
+          child: ChartTableToggle(
+            table: _table,
+            onChanged: (table) => setState(() => _table = table),
+            chartLabel: l10n.reportsShowCharts,
+            tableLabel: l10n.reportsShowTables,
           ),
         ),
       ),
@@ -140,17 +140,19 @@ class _ReportsViewState extends ConsumerState<ReportsView> {
       SectionHeader(l10n.reportsIncomeAndSpending),
       if (_table)
         PeriodsTable(r.shortTrend)
-      else ...[
-        IncomeSpendingBars(r.shortTrend),
-        const SeriesLegend(),
-      ],
+      else
+        ChartCard(
+          child: Column(
+            children: [IncomeSpendingBars(r.shortTrend), const SeriesLegend()],
+          ),
+        ),
       SectionHeader(l10n.reportsTrend(longTrendPeriods)),
       if (_table)
         PeriodsTable(r.trend)
-      else ...[
-        TrendLines(r.trend),
-        const SeriesLegend(),
-      ],
+      else
+        ChartCard(
+          child: Column(children: [TrendLines(r.trend), const SeriesLegend()]),
+        ),
       SectionHeader(l10n.reportsTopMerchants),
       _Merchants(r.current),
       SectionHeader(l10n.reportsTopMovers),
@@ -414,16 +416,18 @@ class _Categories extends ConsumerWidget {
             onSelected: open,
           )
         else
-          CategoryDonut(
-            slices: slices,
-            total: total,
-            summary: l10n.reportsDonutSummary(
-              shown == null ? kindName : categoryName(l10n, byId, shown),
-              total.format(),
-              largest!.name,
-              largest.amount.format(),
+          ChartCard(
+            child: CategoryDonut(
+              slices: slices,
+              total: total,
+              summary: l10n.reportsDonutSummary(
+                shown == null ? kindName : categoryName(l10n, byId, shown),
+                total.format(),
+                largest!.name,
+                largest.amount.format(),
+              ),
+              onSelected: open,
             ),
-            onSelected: open,
           ),
       ],
     );

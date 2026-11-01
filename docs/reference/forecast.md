@@ -146,7 +146,7 @@ be saved until the next change is kept.
 `ForecastView` (const, no arguments, no Scaffold) is the body for the Plan tab's
 `/forecast` segment, under its app bar with `forecastAppBarActions(context, ref)`:
 
-- the 30 / 90 days `SegmentedButton`, with a Table / Chart switch beside it;
+- the 30 / 90 days `SegmentedButton`, with the Chart | Table switch (`ChartTableToggle`) beside it;
 - the hero card (`ForecastHero`, `design.md`, **The hero card**): the lowest balance as
   the figure, captioned by its day ("on Nov 18"), or, when the balance goes below zero,
   by the first day it does ("Below zero on Nov 3", on a paper pill in the money-out

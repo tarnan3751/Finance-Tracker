@@ -8,6 +8,7 @@ library;
 
 import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/widgets/amount_text.dart';
+import 'package:finance_tracker/core/widgets/chart_chrome.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/core/widgets/hero_card.dart';
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
@@ -51,13 +52,18 @@ class _ForecastViewState extends ConsumerState<ForecastView> {
     );
     return switch (forecast) {
       AsyncValue(value: final ForecastSeries series) => ListView(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: SpendthriftTokens.space24),
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            padding: const EdgeInsets.fromLTRB(
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space8,
+              SpendthriftTokens.space16,
+              0,
+            ),
             child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: SpendthriftTokens.space8,
+              runSpacing: SpendthriftTokens.space8,
               crossAxisAlignment: WrapCrossAlignment.center,
               alignment: WrapAlignment.spaceBetween,
               children: [
@@ -74,12 +80,11 @@ class _ForecastViewState extends ConsumerState<ForecastView> {
                   onSelectionChanged: (s) =>
                       setState(() => _horizon = s.single),
                 ),
-                TextButton.icon(
-                  onPressed: () => setState(() => _table = !_table),
-                  icon: Icon(_table ? Icons.show_chart : Icons.table_rows),
-                  label: Text(
-                    _table ? l10n.forecastShowChart : l10n.forecastShowTable,
-                  ),
+                ChartTableToggle(
+                  table: _table,
+                  onChanged: (table) => setState(() => _table = table),
+                  chartLabel: l10n.forecastShowChart,
+                  tableLabel: l10n.forecastShowTable,
                 ),
               ],
             ),
@@ -88,7 +93,10 @@ class _ForecastViewState extends ConsumerState<ForecastView> {
             padding: const EdgeInsets.all(SpendthriftTokens.space16),
             child: ForecastHero(series),
           ),
-          if (_table) ForecastTable(series) else ForecastChart(series),
+          if (_table)
+            ForecastTable(series)
+          else
+            ChartCard(child: ForecastChart(series)),
         ],
       ),
       AsyncValue(hasValue: true) => EmptyState(

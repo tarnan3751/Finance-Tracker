@@ -7,6 +7,7 @@ library;
 
 import 'package:finance_tracker/core/db/database_exceptions.dart';
 import 'package:finance_tracker/core/router/own_page.dart';
+import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/categories/domain/category_repository.dart';
 import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
@@ -172,6 +173,7 @@ class _CategoryFormState extends ConsumerState<_CategoryForm> {
             child: Text(l10n.cancel),
           ),
           TextButton(
+            style: AppTheme.destructive(context),
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(l10n.delete),
           ),

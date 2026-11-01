@@ -11,6 +11,7 @@ library;
 
 import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/widgets/amount_text.dart';
+import 'package:finance_tracker/core/widgets/chart_chrome.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/core/widgets/hero_card.dart';
 import 'package:finance_tracker/core/widgets/section_header.dart';
@@ -137,12 +138,11 @@ class _NetWorthViewState extends ConsumerState<NetWorthView> {
                   showSelectedIcon: false,
                   onSelectionChanged: (s) => setState(() => _range = s.single),
                 ),
-                TextButton.icon(
-                  onPressed: () => setState(() => _table = !_table),
-                  icon: Icon(_table ? Icons.show_chart : Icons.table_rows),
-                  label: Text(
-                    _table ? l10n.netWorthShowChart : l10n.netWorthShowTable,
-                  ),
+                ChartTableToggle(
+                  table: _table,
+                  onChanged: (table) => setState(() => _table = table),
+                  chartLabel: l10n.netWorthShowChart,
+                  tableLabel: l10n.netWorthShowTable,
                 ),
               ],
             ),
@@ -176,7 +176,7 @@ class _NetWorthViewState extends ConsumerState<NetWorthView> {
         if (_table)
           NetWorthTable(shown)
         else
-          SliverToBoxAdapter(child: NetWorthChart(shown)),
+          SliverToBoxAdapter(child: ChartCard(child: NetWorthChart(shown))),
         if (payoffs.isNotEmpty) ...[
           SliverToBoxAdapter(
             child: SectionHeader(l10n.netWorthLiabilitiesHeading),

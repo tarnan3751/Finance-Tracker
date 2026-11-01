@@ -117,8 +117,9 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
             const SizedBox(height: 24),
             FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor: theme.colorScheme.error,
-                foregroundColor: theme.colorScheme.onError,
+                // The destructive action in the pink, never the error red.
+                backgroundColor: theme.colorScheme.secondary,
+                foregroundColor: theme.colorScheme.onSecondary,
               ),
               onPressed: confirmed && !_busy ? _delete : null,
               child: _busy

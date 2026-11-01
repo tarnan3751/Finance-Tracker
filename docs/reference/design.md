@@ -136,7 +136,10 @@ All in `app_theme.dart`; elevation zero and no tint on every surface:
   segment filled blue with `onPrimary` text.
 - **Chips** outlined pills in ink. **Fields** outlined in ink at radius 8, a 2 px blue
   focus line, errors in the error color.
-- **Dialogs and sheets** paper, radius 16, ink border. **Menus and dropdown menus**
+- **Dialogs and sheets** paper, radius 16, ink border, titles in Syne (`headlineSmall`),
+  the sheets' drag handle in `outlineVariant`; a destructive action is a text button in
+  the money-out pink (`AppTheme.destructive`), never the error red, which is for errors
+  only (deleting the account fills its button with the pink). **Menus and dropdown menus**
   paper, radius 8, ink border. The legacy `DropdownButtonFormField` popups (the bill,
   category, rule and transaction editors, the import mapping, the developer screen) take
   no theme: they are built with elevation 0 and carry no ink border until they move to
@@ -240,8 +243,15 @@ The fl_chart charts (`forecast_chart.dart`, `net_worth_chart.dart`,
 `FinanceColors.inks`: a single series in blue; the forecast's band in the pink tint and
 its lowest point in yellow; net worth in blue, assets in green and liabilities in pink;
 income in green and spending in blue; the donuts' slices in the inks, then the scheme's
-containers. Lines are 2.5, bars flat with a 4 px top radius, tooltips in ink with paper
-text, axis labels Work Sans `labelSmall`, no grid. Every chart keeps its table.
+containers (a category's slice in its category's color, `categoryColorOf`). Lines are
+2.5, bars flat with a 4 px top radius, tooltips in ink with paper text, axis labels Work
+Sans `labelSmall` in `onSurfaceVariant`, no grid. Every chart keeps its table.
+
+The chrome is shared (`core/widgets/chart_chrome.dart`): a chart and its legend sit on a
+`ChartCard` (a `BrandCard` at the screen's sides); a legend entry is a `LegendPill`, the
+swatch or the line's key and the label in `labelSmall` `onSurfaceVariant` on an
+ink-outlined pill; the switch between a chart and its table is a `ChartTableToggle`, a
+`SegmentedButton` of the two.
 
 ## Adding a color
 

@@ -6,6 +6,7 @@
 /// filters, each applied with a tap (closing the sheet), renamed or deleted from its menu.
 library;
 
+import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/presentation/currency_picker.dart';
@@ -172,6 +173,7 @@ class _TransactionFilterSheetState
             child: Text(l10n.cancel),
           ),
           TextButton(
+            style: AppTheme.destructive(context),
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(l10n.delete),
           ),

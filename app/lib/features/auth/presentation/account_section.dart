@@ -13,6 +13,7 @@ import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
 import 'package:finance_tracker/features/auth/domain/session_state.dart';
@@ -73,7 +74,7 @@ class AccountSection extends ConsumerWidget {
           ListTile(
             leading: Icon(
               Icons.delete_forever_outlined,
-              color: Theme.of(context).colorScheme.error,
+              color: FinanceColors.of(context).outflow,
             ),
             title: Text(l10n.settingsDeleteAccount),
             trailing: const Icon(Icons.chevron_right),

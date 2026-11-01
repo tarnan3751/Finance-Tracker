@@ -9,6 +9,7 @@ library;
 
 import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/chart_chrome.dart';
 import 'package:finance_tracker/features/reports/domain/report.dart';
 import 'package:finance_tracker/features/reports/presentation/report_format.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -109,31 +110,34 @@ const BorderRadius _barTop = BorderRadius.vertical(
   top: Radius.circular(SpendthriftTokens.barTopRadius),
 );
 
-/// A legend under a chart: a swatch and the name of each series.
+/// A legend under a chart: a pill with a swatch and the name of each series.
 class SeriesLegend extends StatelessWidget {
   const SeriesLegend({super.key});
 
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ThemeData theme = Theme.of(context);
     final ({Color income, Color spending}) c = _seriesColors(
       FinanceColors.of(context),
     );
-    Widget item(Color color, String label) => Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(width: 12, height: 12, color: color),
-        const SizedBox(width: 6),
-        Text(label, style: theme.textTheme.bodySmall),
-      ],
+    Widget item(Color color, String label) => LegendPill(
+      swatch: SizedBox.square(
+        dimension: SpendthriftTokens.space12,
+        child: ColoredBox(color: color),
+      ),
+      label: label,
     );
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+      padding: const EdgeInsets.fromLTRB(
+        SpendthriftTokens.space16,
+        SpendthriftTokens.space4,
+        SpendthriftTokens.space16,
+        0,
+      ),
       child: ExcludeSemantics(
         child: Wrap(
-          spacing: 16,
-          runSpacing: 4,
+          spacing: SpendthriftTokens.space8,
+          runSpacing: SpendthriftTokens.space8,
           children: [
             item(c.income, l10n.reportsIncome),
             item(c.spending, l10n.reportsSpending),
@@ -175,7 +179,12 @@ class IncomeSpendingBars extends StatelessWidget {
       ),
       child: ExcludeSemantics(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+          padding: const EdgeInsets.fromLTRB(
+            SpendthriftTokens.space16,
+            SpendthriftTokens.space8,
+            SpendthriftTokens.space16,
+            0,
+          ),
           child: SizedBox(
             height: 200,
             child: BarChart(
@@ -198,7 +207,9 @@ class IncomeSpendingBars extends StatelessWidget {
                         meta: meta,
                         child: Text(
                           periodShortName(points[value.round()].range),
-                          style: theme.textTheme.labelSmall,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ),
                     ),
@@ -270,7 +281,12 @@ class TrendLines extends StatelessWidget {
       ),
       child: ExcludeSemantics(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 24, 0),
+          padding: const EdgeInsets.fromLTRB(
+            SpendthriftTokens.space16,
+            SpendthriftTokens.space8,
+            SpendthriftTokens.space24,
+            0,
+          ),
           child: SizedBox(
             height: 200,
             child: LineChart(
@@ -302,7 +318,9 @@ class TrendLines extends StatelessWidget {
                           fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
                           child: Text(
                             periodShortName(points[i].range),
-                            style: theme.textTheme.labelSmall,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         );
                       },

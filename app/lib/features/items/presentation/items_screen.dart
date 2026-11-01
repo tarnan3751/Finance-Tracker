@@ -10,6 +10,7 @@
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
@@ -249,6 +250,7 @@ class _BankCard extends ConsumerWidget {
             child: Text(l10n.cancel),
           ),
           TextButton(
+            style: AppTheme.destructive(context),
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(l10n.itemsDeleteHistoryConfirm),
           ),
@@ -467,6 +469,7 @@ class _UnlinkDialogState extends State<_UnlinkDialog> {
           child: Text(l10n.cancel),
         ),
         TextButton(
+          style: AppTheme.destructive(context),
           onPressed: () => Navigator.of(context).pop(_keep),
           child: Text(l10n.itemsUnlinkConfirm),
         ),

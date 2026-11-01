@@ -179,6 +179,7 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         modalElevation: 0,
+        dragHandleColor: scheme.outlineVariant,
         shape: RoundedRectangleBorder(
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(SpendthriftTokens.radiusLarge),
@@ -221,6 +222,11 @@ abstract final class AppTheme {
       dropdownMenuTheme: DropdownMenuThemeData(menuStyle: _menu(scheme)),
     );
   }
+
+  /// A destructive action's text button style in [context]'s theme: the money-out pink,
+  /// never the error red, which is for errors only.
+  static ButtonStyle destructive(BuildContext context) =>
+      TextButton.styleFrom(foregroundColor: FinanceColors.of(context).outflow);
 
   /// [t] with Material 3's English sizes.
   static TextTheme _sized(TextTheme t) =>

@@ -13,6 +13,7 @@ library;
 import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/chart_chrome.dart';
 import 'package:finance_tracker/features/net_worth/domain/net_worth_series.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -106,7 +107,12 @@ class NetWorthChart extends StatelessWidget {
       label: summary,
       child: ExcludeSemantics(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 24, 0),
+          padding: const EdgeInsets.fromLTRB(
+            SpendthriftTokens.space16,
+            SpendthriftTokens.space8,
+            SpendthriftTokens.space24,
+            0,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -185,10 +191,10 @@ class NetWorthChart extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: SpendthriftTokens.space8),
               Wrap(
-                spacing: 16,
-                runSpacing: 4,
+                spacing: SpendthriftTokens.space8,
+                runSpacing: SpendthriftTokens.space8,
                 children: [
                   _Key(inks.ink(0), l10n.netWorthTitle),
                   _Key(inks.ink(3), l10n.netWorthAssets),
@@ -237,7 +243,8 @@ class NetWorthChart extends StatelessWidget {
   }
 }
 
-// One entry of the legend: a short line in [color], dashed when [dashed], and [label].
+// One entry of the legend, a pill: a short line in [color], dashed when [dashed], and
+// [label].
 class _Key extends StatelessWidget {
   const _Key(this.color, this.label, {this.dashed = false});
 
@@ -246,19 +253,13 @@ class _Key extends StatelessWidget {
   final bool dashed;
 
   @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      SizedBox(
-        width: 20,
-        height: 10,
-        child: CustomPaint(painter: _KeyPainter(color, dashed)),
-      ),
-      const SizedBox(width: 6),
-      Flexible(
-        child: Text(label, style: Theme.of(context).textTheme.labelMedium),
-      ),
-    ],
+  Widget build(BuildContext context) => LegendPill(
+    swatch: SizedBox(
+      width: 20,
+      height: 10,
+      child: CustomPaint(painter: _KeyPainter(color, dashed)),
+    ),
+    label: label,
   );
 }
 

@@ -13,6 +13,7 @@ library;
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/own_page.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
@@ -108,6 +109,7 @@ class _Detail extends ConsumerWidget {
             child: Text(l10n.cancel),
           ),
           TextButton(
+            style: AppTheme.destructive(context),
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(l10n.delete),
           ),

@@ -11,6 +11,7 @@ library;
 import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/widgets/amount_text.dart';
+import 'package:finance_tracker/core/widgets/chart_chrome.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/core/widgets/hero_card.dart';
 import 'package:finance_tracker/core/widgets/section_header.dart';
@@ -98,7 +99,7 @@ class _Accounts extends StatelessWidget {
                 ? l10n.investmentsAllocation
                 : l10n.investmentsAllocationIn(allocation.total.currencyCode),
           ),
-          AllocationDonut(allocation),
+          ChartCard(child: AllocationDonut(allocation)),
           AllocationTable(allocation),
         ],
         for (final Account account in accounts)
@@ -267,14 +268,11 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
           l10n.investmentsValueTitle,
           trailing: history.isEmpty
               ? null
-              : TextButton.icon(
-                  onPressed: () => setState(() => _table = !_table),
-                  icon: Icon(_table ? Icons.show_chart : Icons.table_rows),
-                  label: Text(
-                    _table
-                        ? l10n.investmentsShowChart
-                        : l10n.investmentsShowTable,
-                  ),
+              : ChartTableToggle(
+                  table: _table,
+                  onChanged: (table) => setState(() => _table = table),
+                  chartLabel: l10n.investmentsShowChart,
+                  tableLabel: l10n.investmentsShowTable,
                 ),
         ),
         if (!snapshots.hasValue)
@@ -290,7 +288,7 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
           if (_table)
             ValueHistoryTable(history)
           else
-            ValueHistoryChart(history),
+            ChartCard(child: ValueHistoryChart(history)),
         ],
         _Heading(l10n.investmentsHoldings),
         if (widget.holdings.isEmpty)

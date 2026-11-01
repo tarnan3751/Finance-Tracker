@@ -12,6 +12,7 @@ import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/backup_picker.dart';
 import 'package:finance_tracker/core/platform/csv_picker_provider.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/core/widgets/section_header.dart';
@@ -425,6 +426,7 @@ class _StartViewState extends ConsumerState<_StartView> {
             child: Text(l10n.cancel),
           ),
           TextButton(
+            style: AppTheme.destructive(context),
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(l10n.importUndoConfirm),
           ),

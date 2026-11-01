@@ -174,7 +174,7 @@ one scroll:
   <date>", the latest net worth, captioned by its change since the first day of the range
   shown ("+$1,250.00 since Jul 24, 2026", on a paper pill in green when it rose and pink
   when it fell; "…, against an estimate" when that day is derived), read as one sentence;
-- the range control (3 m, 1 y, All; a year by default) with the Table / Chart switch, and
+- the range control (3 m, 1 y, All; a year by default) with the Chart | Table switch (`ChartTableToggle`), and
   a chip per currency when the history holds more than one (the device's currency first
   shown when held);
 - the chart (fl_chart 1.2.0): net worth, assets and liabilities, each line dashed over
