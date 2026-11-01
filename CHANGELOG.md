@@ -3,6 +3,76 @@
 Each release section is generated from the Conventional Commit log since the previous tag
 (`PLAN.md` §10). Tags are `vX.Y.Z`; a phase ends with a `vX.Y.Z-phaseN` pre-release.
 
+## v1.2.0-phase11 — 2026-11-02
+
+Phase 11 is the code compression and performance pass. The local write path records a batch of
+changes in one store pass instead of a dozen round trips per row: a 10,000-row import takes about
+1.8 s on the host instead of 9, a bulk edit of 1,000 rows 0.2 s instead of 1.2, and a sync pull from
+a bank re-indexes a transaction only when its text changed. The app starts its whole-ledger watchers
+after the first frame on one shared watch, seeds its categories once per version, pages the
+transactions list one page at a time and re-reads only the loaded pages on a write, and reads a bulk
+edit's rows in one batch. Schema 14 adds the index the list's order reads. The code lost what
+nothing drew any more (the merchants' and institutions' colours, three screens only tests used),
+finished the rename (`SpendthriftApp`, `serverNotSpendthrift`), merged its duplicated test doubles,
+and made its test suite about a third faster with the full convergence runs under a tag that CI runs
+on main. A performance harness under `tools/perf/` measures cold start, scrolling, the write path,
+the APK and the suite, with the baseline recorded in `docs/reference/performance.md`. The workflow
+itself got faster: lanes are gated by CI on their own branches, a landing trusts a gate already run
+on its tree, and tier B reviews send their findings straight to the developer.
+
+### Features
+
+- app: Index the transactions by date for the list's order (0e9f41a)
+- transactions: Read transactions by id in one query (52c8489)
+- tools: Let a landing trust a gate already run on its tree (b440ab4)
+- tools: Add the performance scripts (994bdd4)
+
+### Performance
+
+- app: Re-index a transaction only when its text changed (b8b1160)
+- sync: Record a batch of local changes in one store pass (64569d3)
+- app: Write and record transaction batches in a few statements (a38fe96)
+- transactions: Share one live watch of the whole ledger (62377e5)
+- app: Start the startup watchers after the first frame (3af7a7d)
+- app: Seed the categories once per version and skip a done import (bacec85)
+- transactions: Query the list one page at a time (674609d)
+- transactions: Read a bulk edit's rows in one batch (39c1c47)
+
+### Refactoring
+
+- transactions: Remove the merchant and institution colours (8ec6f0e)
+- app: Move the test-only segment screens into the test helpers (2d4e080)
+- app: Rename FinanceTrackerApp to SpendthriftApp (889f11d)
+- auth: Rename the serverNotFinanceTracker string key (7a026e2)
+
+### Build
+
+- build: Bump the version to 1.2.0 (dcd45f6)
+- build: Package only English and Spanish Android resources (97fa8ba)
+
+### CI
+
+- ci: Run the gate on lane branches and the builds on main only (ceaa248)
+- ci: Publish an arm64 APK beside the universal one (3f45af9)
+- ci: Run the full convergence seeds on main (f1bc1fc)
+
+### Tests
+
+- app: Share the test doubles written more than once (331fa61)
+- app: Wait for the wipe's screen instead of three rounds (2de52ae)
+- sync: Run five seeds of each random convergence run in the gate (25be646)
+- app: Generate each persona's demo seed once per test file (2958878)
+- app: Time the local write path on the dev wiring (53407df)
+- app: Trace scrolling and data on screen over a large ledger (2336bd0)
+
+### Documentation
+
+- map: Gate once per series and let CI carry the lanes (17c5766)
+- map: Give the reviewer seat the tool its direct findings need (c6bae2b)
+- docs: Describe the performance harness and record its baseline (6d06a6a)
+- map: Record Phase 11 in the map (57bec01)
+- docs: Record the Phase 11 baseline at low load (57935b1)
+
 ## v1.1.0-phase10 — 2026-11-01
 
 Phase 10 renames the app Spendthrift and gives it a look of its own. Everything a person sees says
