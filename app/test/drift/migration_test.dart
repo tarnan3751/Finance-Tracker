@@ -1003,7 +1003,7 @@ void main() {
       });
     }
 
-    for (final int from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]) {
+    for (final int from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]) {
       test('from schema $from, after a whole run whose version was not '
           'written', () async {
         final schema = await verifier.schemaAt(from);
@@ -1800,21 +1800,115 @@ void main() {
         (await seeded()).newConnection(),
       );
       addTearDown(database.close);
-      await verifier.migrateAndValidate(database, 13);
+      await verifier.migrateAndValidate(database, database.schemaVersion);
       await checkMigrated(database);
     });
 
     test('runs again after a run whose version was not written', () async {
       final schema = await seeded();
       final AppDatabase first = AppDatabase(schema.newConnection());
-      await verifier.migrateAndValidate(first, 13);
+      await verifier.migrateAndValidate(first, first.schemaVersion);
       await first.close();
       schema.rawDatabase.execute('PRAGMA user_version = 12');
 
       final AppDatabase again = AppDatabase(schema.newConnection());
       addTearDown(again.close);
-      await verifier.migrateAndValidate(again, 13);
+      await verifier.migrateAndValidate(again, again.schemaVersion);
       await checkMigrated(again);
+    });
+  });
+
+  group('schema 13 to 14', () {
+    const int created = 1759309200000; // 2026-10-01 09:00 UTC
+
+    // A schema 13 database with a manual account, two transactions and sync state.
+    Future<InitializedSchema> seeded() async {
+      final schema = await verifier.schemaAt(13);
+      schema.rawDatabase.execute('''
+        INSERT INTO accounts (id, item_id, type, subtype, name, official_name, mask,
+          currency, current_balance_minor, available_balance_minor, credit_limit_minor,
+          balances_as_of, is_hidden, display_order, created_at, updated_at, deleted_at,
+          sync_version)
+        VALUES ('acc', NULL, 'depository', NULL, 'Wallet', NULL, NULL, 'USD',
+          NULL, NULL, NULL, NULL, 0, 0, $created, $created, NULL, 0);
+        INSERT INTO transactions (id, account_id, amount_minor, currency, date,
+          authorized_date, pending, pending_transaction_id, name, merchant_name,
+          merchant_logo_url, plaid_primary_category, plaid_detailed_category,
+          user_category_id, notes, receipt_path, receipt_sha256, hidden, source,
+          created_at, updated_at, deleted_at, sync_version, deleted_with_account)
+        VALUES
+          ('t1', 'acc', -800, 'USD', '2026-09-29', NULL, 0, NULL, 'Coffee', NULL,
+           NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'manual',
+           $created, $created, NULL, 0, 0),
+          ('t2', 'acc', -1250, 'USD', '2026-09-30', NULL, 0, NULL, 'Lunch', NULL,
+           NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'manual',
+           $created, $created, NULL, 0, 0);
+        INSERT INTO sync_meta (key, value)
+        VALUES ('pull_cursor', '4'), ('device_id', 'dev-a');
+      ''');
+      return schema;
+    }
+
+    Future<void> checkMigrated(AppDatabase database) async {
+      expect(
+        (await (database.select(
+          database.transactions,
+        )..orderBy([(t) => OrderingTerm.desc(t.date)])).get()).map((t) => t.id),
+        ['t2', 't1'],
+      );
+      expect(
+        await database
+            .customSelect(
+              "SELECT name FROM sqlite_master WHERE type = 'index' "
+              "AND name = 'transactions_date_created'",
+            )
+            .get(),
+        hasLength(1),
+      );
+      expect(await DriftSyncStore(database, testClock).pullCursor(), 4);
+    }
+
+    test('keeps every row and adds the date index', () async {
+      final AppDatabase database = AppDatabase(
+        (await seeded()).newConnection(),
+      );
+      addTearDown(database.close);
+      await verifier.migrateAndValidate(database, 14);
+      await checkMigrated(database);
+    });
+
+    test('runs again after a run whose version was not written', () async {
+      final schema = await seeded();
+      final AppDatabase first = AppDatabase(schema.newConnection());
+      await verifier.migrateAndValidate(first, 14);
+      await first.close();
+      schema.rawDatabase.execute('PRAGMA user_version = 13');
+
+      final AppDatabase again = AppDatabase(schema.newConnection());
+      addTearDown(again.close);
+      await verifier.migrateAndValidate(again, 14);
+      await checkMigrated(again);
+    });
+
+    test('the list order reads the index, with no sort of its own', () async {
+      final AppDatabase database = AppDatabase(
+        (await seeded()).newConnection(),
+      );
+      addTearDown(database.close);
+      await verifier.migrateAndValidate(database, 14);
+      final String plan = [
+        for (final QueryRow row
+            in await database
+                .customSelect(
+                  'EXPLAIN QUERY PLAN SELECT * FROM transactions '
+                  'WHERE deleted_at IS NULL '
+                  'ORDER BY date DESC, created_at DESC, id DESC LIMIT 50',
+                )
+                .get())
+          row.read<String>('detail'),
+      ].join('\n');
+      expect(plan, contains('transactions_date_created'));
+      expect(plan, isNot(contains('TEMP B-TREE')));
     });
   });
 }

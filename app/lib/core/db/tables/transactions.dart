@@ -16,6 +16,11 @@ import 'package:shared_models/shared_models.dart';
   name: 'transactions_pending_transaction',
   columns: {#pendingTransactionId},
 )
+// Schema 14: the list's order, `date DESC, created_at DESC, id DESC`, read backwards.
+@TableIndex(
+  name: 'transactions_date_created',
+  columns: {#date, #createdAt, #id},
+)
 class Transactions extends Table {
   TextColumn get id => text()();
   TextColumn get accountId => text()();

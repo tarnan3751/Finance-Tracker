@@ -17048,6 +17048,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'transactions_pending_transaction',
     'CREATE INDEX transactions_pending_transaction ON transactions (pending_transaction_id)',
   );
+  late final Index transactionsDateCreated = Index(
+    'transactions_date_created',
+    'CREATE INDEX transactions_date_created ON transactions (date, created_at, id)',
+  );
   late final Index transactionTagsTag = Index(
     'transaction_tags_tag',
     'CREATE INDEX transaction_tags_tag ON transaction_tags (tag)',
@@ -17133,6 +17137,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     transactionsAccountDate,
     transactionsUserCategory,
     transactionsPendingTransaction,
+    transactionsDateCreated,
     transactionTagsTag,
     categoriesParent,
     changeLogOutbox,

@@ -31,7 +31,10 @@
 /// creates the empty tables. Schema 12 adds the user's savings goals (`goals`, synced as the
 /// `goal` record) and their contributions (`goal_contributions`, each synced as a
 /// `goal_contribution` record of its own); its migration materializes the records of
-/// both that sync held. The full-text index (`full_text_search.dart`)
+/// both that sync held. Schema 13 adds the device-local `conflicts` and
+/// `transactions.receipt_sha256`. Schema 14 adds the `transactions(date, created_at, id)`
+/// index the transaction list's order reads; its step creates it when missing. The
+/// full-text index (`full_text_search.dart`)
 /// is not part of a schema step: `beforeOpen` makes it match whether the bundled SQLite
 /// has FTS5, at every open, and records that in [AppDatabase.fullTextSearch]. Every
 /// schema change follows the procedure
@@ -166,7 +169,7 @@ final class AppDatabase extends _$AppDatabase {
 
   /// The schema version this build opens; the background cycle opens nothing else
   /// (`core/background/background_cycle.dart`).
-  static const int currentSchemaVersion = 13;
+  static const int currentSchemaVersion = 14;
 
   /// Closes the database, its query streams first, through [closeAgainOnRace]. Drift's
   /// stream store iterates its streams while awaiting each one's close, and that
@@ -322,6 +325,9 @@ final class AppDatabase extends _$AppDatabase {
             EntityType.transaction,
           ),
         );
+      }
+      if (from < 14) {
+        await _createIndex(m, transactionsDateCreated);
       }
     },
     beforeOpen: (details) async {

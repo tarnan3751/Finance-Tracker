@@ -13,7 +13,7 @@ The entities and `Money` are `shared_models` (`core.md`); the providers and star
 
 ## The database
 
-Drift on SQLite, at schema version 13 (`core/db/app_database.dart`; one file per table under
+Drift on SQLite, at schema version 14 (`core/db/app_database.dart`; one file per table under
 `core/db/tables/`). `app_database.dart` and the tables import no Flutter, so `drift_dev`
 can run them in the Dart VM to dump the schema.
 
@@ -85,6 +85,7 @@ splits reference their transaction with `ON DELETE CASCADE`; `beforeOpen` turns
 `foreign_keys` on. There is no foreign key from `transactions.account_id` to `accounts`:
 Phase 2's sync may apply a transaction before its account, so the repositories check that
 the account exists. Indexes: `transactions(account_id, date)`,
+`transactions(date, created_at, id)` (schema 14, the list's order read backwards),
 `transactions(user_category_id)`, `transactions(pending_transaction_id)`,
 `transaction_tags(tag)`, `categories(parent_id)`, `rules(position)`,
 `budgets(category_id)`, `saved_filters(position)`, `recurring_streams(account_id)`,
@@ -643,6 +644,15 @@ of an older backup is a tolerant import, not a migration: the rows land in today
 tables with the SQL defaults for the columns they lack, and a step's data backfill (as
 schema 2's change log, or a step that materializes held records) does not run on them;
 a step whose data the restored rows would need says how a restore gets it.
+
+**Schema 14** adds the `transactions(date, created_at, id)` index
+(`transactions_date_created`), which the transaction list's order `date DESC, created_at
+DESC, id DESC` reads backwards instead of sorting. Its step creates it only when
+`sqlite_master` lacks it; there is no data to move. `migration_test.dart` opens a schema
+13 database with rows and sync state, checks they stay and the index arrives, runs the
+step again at version 13, and checks with `EXPLAIN QUERY PLAN` that the unfiltered list
+query uses the index with no sort of its own. The **every step runs again at the old
+version** group covers every version from 1 to 13.
 
 **Schema 12** adds `goals` and `goal_contributions`. Its step, in one transaction,
 creates both tables and the `goal_contributions(goal_id)` index (only when `sqlite_master`
