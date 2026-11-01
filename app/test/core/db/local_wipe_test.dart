@@ -280,6 +280,13 @@ void main() {
     });
   }
 
+  test('a leave of the demo cut short is read back as one', () async {
+    SharedPreferences.setMockInitialValues({
+      DriftLocalWipe.pendingKey: WipeReason.demoLeft.name,
+    });
+    expect(await wipeOf().pending(), WipeReason.demoLeft);
+  });
+
   test('a pending record this build does not know still finishes', () async {
     SharedPreferences.setMockInitialValues({
       DriftLocalWipe.pendingKey: 'somethingNew',

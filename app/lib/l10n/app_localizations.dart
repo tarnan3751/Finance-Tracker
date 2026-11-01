@@ -7665,6 +7665,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Each is a made-up household, generated on this device. Nothing is sent anywhere. You can switch households in Settings and leave the demo at any time.'**
   String get welcomeDemoNote;
+
+  /// The strip above every tab while the demo runs, saying the data shown is the demo's made-up data. One short line.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo data'**
+  String get demoStripLabel;
+
+  /// Button on the demo strip that leaves the demo (after a confirmation). One short word.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get demoStripLeave;
+
+  /// Settings row, in the Demo data section, that leaves the demo for the welcome screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the demo'**
+  String get leaveDemo;
+
+  /// Supporting text of the Leave the demo row in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase the demo\'s data and go back to the welcome screen.'**
+  String get leaveDemoSubtitle;
+
+  /// Title of the dialog confirming that the user wants to leave the demo.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the demo?'**
+  String get leaveDemoTitle;
+
+  /// Body of the dialog confirming that the user wants to leave the demo.
+  ///
+  /// In en, this message translates to:
+  /// **'The demo\'s data, and any changes you made to it, are erased from this device, and the welcome screen opens.'**
+  String get leaveDemoBody;
+
+  /// Confirming button of the leave-the-demo dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get leaveDemoConfirm;
 }
 
 class _AppLocalizationsDelegate

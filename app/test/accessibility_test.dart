@@ -26,8 +26,9 @@
 // and registration screens are checked signed out; their text scale is checked with their
 // errors showing, in test/features/auth/auth_screens_test.dart. The screens of an app
 // mode (`_modeScreens`) are checked on their own configuration: the Welcome screen and
-// the demo's households before a mode is chosen; each also in the pseudo-locale on the
-// dev flavor, which offers it.
+// the demo's households before a mode is chosen, and the shell with the demo's strip and
+// its Leave dialog while the demo runs; each also in the pseudo-locale on the dev flavor,
+// which offers it.
 import 'dart:io';
 import 'dart:ui' show DisplayFeature, DisplayFeatureState, DisplayFeatureType;
 
@@ -47,6 +48,7 @@ import 'package:finance_tracker/features/conflicts/data/in_memory_conflict_store
 import 'package:finance_tracker/features/conflicts/domain/sync_conflict.dart';
 import 'package:finance_tracker/features/lock/application/device_auth_provider.dart';
 import 'package:finance_tracker/features/lock/data/fake_device_auth.dart';
+import 'package:finance_tracker/features/onboarding/presentation/demo_strip.dart';
 import 'package:finance_tracker/features/settings/domain/app_language.dart';
 import 'package:finance_tracker/features/transactions/presentation/receipt_view.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_tile.dart';
@@ -638,6 +640,12 @@ AppConfig _fresh(Flavor flavor) =>
       mode: null,
     );
 
+/// Dev or prod running the demo.
+AppConfig _demoMode(Flavor flavor) =>
+    (flavor == Flavor.dev ? AppConfig.dev() : AppConfig.prod()).withChoices(
+      mode: AppMode.demo,
+    );
+
 /// The screens of an app mode: where each opens, on which configuration for the flavor,
 /// signed in or not, with what overrides, and what to do after it opens.
 final Map<
@@ -664,6 +672,26 @@ _modeScreens = {
     signedIn: false,
     overrides: () => const [],
     open: null,
+  ),
+  'Accounts with the demo strip': (
+    location: '/accounts',
+    config: _demoMode,
+    signedIn: true,
+    overrides: () => const [],
+    open: null,
+  ),
+  'Leave the demo dialog': (
+    location: '/accounts',
+    config: _demoMode,
+    signedIn: true,
+    overrides: () => const [],
+    open: (tester) => _tapAndSettle(
+      tester,
+      find.descendant(
+        of: find.byType(DemoStrip),
+        matching: find.byType(TextButton),
+      ),
+    ),
   ),
 };
 

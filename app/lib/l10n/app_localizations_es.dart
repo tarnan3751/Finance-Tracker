@@ -5054,4 +5054,27 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get welcomeDemoNote =>
       'Each is a made-up household, generated on this device. Nothing is sent anywhere. You can switch households in Settings and leave the demo at any time.';
+
+  @override
+  String get demoStripLabel => 'Demo data';
+
+  @override
+  String get demoStripLeave => 'Leave';
+
+  @override
+  String get leaveDemo => 'Leave the demo';
+
+  @override
+  String get leaveDemoSubtitle =>
+      'Erase the demo\'s data and go back to the welcome screen.';
+
+  @override
+  String get leaveDemoTitle => 'Leave the demo?';
+
+  @override
+  String get leaveDemoBody =>
+      'The demo\'s data, and any changes you made to it, are erased from this device, and the welcome screen opens.';
+
+  @override
+  String get leaveDemoConfirm => 'Leave';
 }

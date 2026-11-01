@@ -5054,6 +5054,29 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get welcomeDemoNote =>
       'Each is a made-up household, generated on this device. Nothing is sent anywhere. You can switch households in Settings and leave the demo at any time.';
+
+  @override
+  String get demoStripLabel => 'Demo data';
+
+  @override
+  String get demoStripLeave => 'Leave';
+
+  @override
+  String get leaveDemo => 'Leave the demo';
+
+  @override
+  String get leaveDemoSubtitle =>
+      'Erase the demo\'s data and go back to the welcome screen.';
+
+  @override
+  String get leaveDemoTitle => 'Leave the demo?';
+
+  @override
+  String get leaveDemoBody =>
+      'The demo\'s data, and any changes you made to it, are erased from this device, and the welcome screen opens.';
+
+  @override
+  String get leaveDemoConfirm => 'Leave';
 }
 
 /// The translations for English (`en_XA`).
@@ -10210,4 +10233,27 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
   @override
   String get welcomeDemoNote =>
       '[Éåçĥ îš å ɱåðé-ûþ ĥöûšéĥöļð, ĝéñéŕåţéð öñ ţĥîš ðéṽîçé. Ñöţĥîñĝ îš šéñţ åñýŵĥéŕé. Ýöû çåñ šŵîţçĥ ĥöûšéĥöļðš îñ Šéţţîñĝš åñð ļéåṽé ţĥé ðéɱö åţ åñý ţîɱé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get demoStripLabel => '[Ðéɱö ðåţå ~~~~]';
+
+  @override
+  String get demoStripLeave => '[Ļéåṽé ~~]';
+
+  @override
+  String get leaveDemo => '[Ļéåṽé ţĥé ðéɱö ~~~~~]';
+
+  @override
+  String get leaveDemoSubtitle =>
+      '[Éŕåšé ţĥé ðéɱö\'š ðåţå åñð ĝö ƀåçķ ţö ţĥé ŵéļçöɱé šçŕééñ. ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get leaveDemoTitle => '[Ļéåṽé ţĥé ðéɱö? ~~~~~]';
+
+  @override
+  String get leaveDemoBody =>
+      '[Ţĥé ðéɱö\'š ðåţå, åñð åñý çĥåñĝéš ýöû ɱåðé ţö îţ, åŕé éŕåšéð ƒŕöɱ ţĥîš ðéṽîçé, åñð ţĥé ŵéļçöɱé šçŕééñ öþéñš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get leaveDemoConfirm => '[Ļéåṽé ~~]';
 }

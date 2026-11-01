@@ -28,6 +28,10 @@
 ///
 /// On its first frame the shell tells the user, once, what the legacy importer brought
 /// in at this launch (`legacyImportResultProvider`), then clears it.
+///
+/// While the demo runs in dev or prod, the demo's strip ("Demo data", with Leave) sits
+/// above all of it, at every size class (`features/onboarding/presentation/
+/// demo_strip.dart`).
 library;
 
 import 'package:finance_tracker/core/db/legacy_import/import_summary.dart';
@@ -41,6 +45,7 @@ import 'package:finance_tracker/features/accounts/presentation/accounts_screen.d
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
 import 'package:finance_tracker/features/bills/domain/bill_status.dart';
 import 'package:finance_tracker/features/bills/presentation/bills_screen.dart';
+import 'package:finance_tracker/features/onboarding/presentation/demo_strip.dart';
 import 'package:finance_tracker/features/settings/presentation/settings_screen.dart';
 import 'package:finance_tracker/features/transactions/presentation/transactions_screen.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -113,12 +118,14 @@ class _AppShellState extends ConsumerState<AppShell> {
 
   // The shell fills the window, so its width is the window's.
   @override
-  Widget build(BuildContext context) => SelectedTabMessenger(
-    current: () =>
-        _messengers[widget.navigationShell.currentIndex].currentState,
-    child: LayoutBuilder(
-      builder: (context, constraints) =>
-          _build(context, WindowSizeClass.fromWidth(constraints.maxWidth)),
+  Widget build(BuildContext context) => DemoStrip(
+    child: SelectedTabMessenger(
+      current: () =>
+          _messengers[widget.navigationShell.currentIndex].currentState,
+      child: LayoutBuilder(
+        builder: (context, constraints) =>
+            _build(context, WindowSizeClass.fromWidth(constraints.maxWidth)),
+      ),
     ),
   );
 

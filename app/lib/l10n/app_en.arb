@@ -7212,5 +7212,33 @@
   "welcomeDemoNote": "Each is a made-up household, generated on this device. Nothing is sent anywhere. You can switch households in Settings and leave the demo at any time.",
   "@welcomeDemoNote": {
     "description": "Explanation above the list of the demo's sample households on the Welcome screen's demo step."
+  },
+  "demoStripLabel": "Demo data",
+  "@demoStripLabel": {
+    "description": "The strip above every tab while the demo runs, saying the data shown is the demo's made-up data. One short line."
+  },
+  "demoStripLeave": "Leave",
+  "@demoStripLeave": {
+    "description": "Button on the demo strip that leaves the demo (after a confirmation). One short word."
+  },
+  "leaveDemo": "Leave the demo",
+  "@leaveDemo": {
+    "description": "Settings row, in the Demo data section, that leaves the demo for the welcome screen."
+  },
+  "leaveDemoSubtitle": "Erase the demo's data and go back to the welcome screen.",
+  "@leaveDemoSubtitle": {
+    "description": "Supporting text of the Leave the demo row in Settings."
+  },
+  "leaveDemoTitle": "Leave the demo?",
+  "@leaveDemoTitle": {
+    "description": "Title of the dialog confirming that the user wants to leave the demo."
+  },
+  "leaveDemoBody": "The demo's data, and any changes you made to it, are erased from this device, and the welcome screen opens.",
+  "@leaveDemoBody": {
+    "description": "Body of the dialog confirming that the user wants to leave the demo."
+  },
+  "leaveDemoConfirm": "Leave",
+  "@leaveDemoConfirm": {
+    "description": "Confirming button of the leave-the-demo dialog."
   }
 }
