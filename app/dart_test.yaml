@@ -16,3 +16,10 @@ tags:
   # `flutter test --run-skipped --tags convergence_full test/sync/` runs them alone.
   convergence_full:
     skip: "the full convergence runs: flutter test --run-skipped --tags convergence_full test/sync/"
+  # The performance measurements (docs/reference/performance.md). The gate runs the host
+  # one, test/perf/write_path_test.dart, once at full size with generous ceilings so it
+  # cannot rot; tools/perf/write_path.sh runs it three times for the medians. The device
+  # one, integration_test/perf/scroll_test.dart, runs only under `flutter drive` from
+  # tools/perf/scroll.sh, which passes --dart-define=FT_PERF=true; anywhere else (the
+  # harness's whole-directory integration run) it is skipped.
+  perf:
