@@ -120,8 +120,8 @@ tag are left alone), Hide, or Unhide when every selected row is hidden, Delete (
 when no selected row is `plaid`, after a confirmation naming the count; no undo), and in
 its menu Select all (the rows loaded). Back and Cancel leave it, and a row that leaves
 the list (hidden, deleted, filtered out) leaves the selection. Each action ends selection
-and writes the rows it changes, read again from the repository when it runs, in the
-same sync-store transaction as the write (the database's in dev and prod, none in the
+and writes the rows it changes, read again from the repository when it runs (one
+`getByIds` for the selection), in the same sync-store transaction as the write (the database's in dev and prod, none in the
 demo), so an edit synced since the selection is kept, a row deleted since is skipped,
 and nothing synced in between is written back; stamped `updatedAt`, through one
 `TransactionRepository.upsertAll` (Delete through `deleteAll`, `data.md`), so it is one

@@ -1,6 +1,6 @@
-// A bulk action reads its rows and writes the batch inside one sync-store transaction,
-// so nothing synced in between is written back: in memory, the reads and the write sit
-// between the store transaction's start and end; over Drift, a write the database
+// A bulk action reads its rows in one batch and writes the batch inside one sync-store
+// transaction, so nothing synced in between is written back: in memory, the read and the
+// write sit between the store transaction's start and end; over Drift, a write the database
 // refuses part way rolls the whole batch back, recording nothing.
 import 'package:drift/native.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
@@ -47,9 +47,9 @@ final class _LoggingTransactions extends InMemoryTransactionRepository {
   final List<String> log;
 
   @override
-  Stream<Transaction?> watchById(String id) {
-    log.add('read $id');
-    return super.watchById(id);
+  Future<Map<String, Transaction>> getByIds(Iterable<String> ids) {
+    log.add('read ${ids.join(' ')}');
+    return super.getByIds(ids);
   }
 
   @override
@@ -95,7 +95,7 @@ void main() {
         testTransaction('m1', 'a1', -100),
         testTransaction('m2', 'a1', -200),
       ], true);
-      expect(log, ['begin', 'read m1', 'read m2', 'write 2', 'end']);
+      expect(log, ['begin', 'read m1 m2', 'write 2', 'end']);
 
       log.clear();
       await actions.deleteAll(['m1', 'm2']);

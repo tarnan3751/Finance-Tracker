@@ -579,17 +579,18 @@ final class TransactionActions {
   // Applies [change] to each of [selected] as the repository holds it now (an edit
   // synced since the list last showed it is kept; a row deleted since is skipped) and
   // writes the rows it changes in one recorded batch, stamped now; returns how many.
-  // The reads and the write share one transaction, so nothing synced in between is
-  // written back.
+  // The rows are read in one batch (`getByIds`), and the reads and the write share one
+  // transaction, so nothing synced in between is written back.
   Future<int> _bulk(
     List<Transaction> selected,
     Transaction Function(Transaction) change,
   ) => _inTransaction(() async {
+    final Map<String, Transaction> stored = await _transactions.getByIds([
+      for (final Transaction t in selected) t.id,
+    ]);
     final List<Transaction> changed = [];
     for (final Transaction t in selected) {
-      final Transaction? current = await currentValue(
-        _transactions.watchById(t.id),
-      );
+      final Transaction? current = stored[t.id];
       if (current == null) continue;
       final Transaction next = change(current);
       if (next != current) changed.add(next);
