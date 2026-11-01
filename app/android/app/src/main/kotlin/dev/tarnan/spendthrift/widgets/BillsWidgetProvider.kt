@@ -10,7 +10,7 @@ import org.json.JSONObject
 // ordered them (missed first, in the error colour), with their due dates, and at 4 cells
 // their amounts, masked (and missed ones in the neutral colour) while the app is locked.
 // A tap opens the Bills segment; a row opens that bill.
-class BillsWidgetProvider : FinanceWidgetProvider() {
+class BillsWidgetProvider : SpendthriftWidgetProvider() {
     // The title and the footer; a row is two lines.
     override val chromeSp = 34f
     override val rowSp = 33f

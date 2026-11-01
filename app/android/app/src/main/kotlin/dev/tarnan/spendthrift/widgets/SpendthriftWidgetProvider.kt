@@ -98,7 +98,7 @@ internal fun RemoteViews.showEither(normal: Int, alert: Int, alerting: Boolean, 
 // The rows shown are those that fit the widget's height at the system's font scale
 // ([rows]), at most three: a widget that would clip drops its last row instead, never the
 // footer.
-abstract class FinanceWidgetProvider : HomeWidgetProvider() {
+abstract class SpendthriftWidgetProvider : HomeWidgetProvider() {
     // The widget's views for [snapshot] (null: nothing written yet), with at most [rows]
     // rows.
     abstract fun render(

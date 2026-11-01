@@ -9,7 +9,7 @@ import org.json.JSONObject
 // (account balances, or estimated from transactions), and at 4 cells the three largest
 // accounts with their balances as reported or from transactions; the amounts masked while
 // the app is locked. A tap opens Accounts; the net worth opens the Net worth segment.
-class BalancesWidgetProvider : FinanceWidgetProvider() {
+class BalancesWidgetProvider : SpendthriftWidgetProvider() {
     // The accounts' column: the footer below it; a row is two lines.
     override val chromeSp = 15f
     override val rowSp = 33f

@@ -20,7 +20,7 @@ Code:
 - `application/`: `widget_data_builder.dart` (`buildWidgetData`, `widgetUpdatedText`) and
   `widget_providers.dart` (**Providers**).
 - Android: `app/android/app/src/main/kotlin/dev/tarnan/spendthrift/widgets/`
-  (`FinanceWidgetProvider.kt`, `BalancesWidgetProvider.kt`, `BudgetsWidgetProvider.kt`,
+  (`SpendthriftWidgetProvider.kt`, `BalancesWidgetProvider.kt`, `BudgetsWidgetProvider.kt`,
   `BillsWidgetProvider.kt`), `res/layout/widget_*.xml`, `res/xml/widget_*_info.xml`,
   `res/values*/widget_colors.xml`, `widget_dimens.xml`, `widget_strings.xml`,
   `res/drawable/widget_background.xml`, and the receivers in the manifest (`build.md`,
@@ -127,7 +127,7 @@ redrawn) right after the receipts (`data.md`, **The local wipe**).
 ## The widgets
 
 Each is an `AppWidgetProvider` extending `home_widget`'s `HomeWidgetProvider`
-(`FinanceWidgetProvider`, which reads the snapshot and picks the layout), with RemoteViews
+(`SpendthriftWidgetProvider`, which reads the snapshot and picks the layout), with RemoteViews
 layouts only (no Glance or Compose in the app module). A redraw reads one preference and
 parses it: no database, no network, well inside a receiver's ten seconds.
 

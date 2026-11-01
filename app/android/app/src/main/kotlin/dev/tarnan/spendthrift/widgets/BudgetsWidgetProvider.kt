@@ -11,7 +11,7 @@ import org.json.JSONObject
 // over, what is left or over and the percent spent; while the app is locked, the names
 // only, with masked numbers and empty bars. A tap opens the Budgets segment; a row opens
 // that budget.
-class BudgetsWidgetProvider : FinanceWidgetProvider() {
+class BudgetsWidgetProvider : SpendthriftWidgetProvider() {
     // The title and the footer; a row is a line and its bar.
     override val chromeSp = 34f
     override val rowSp = 18f
