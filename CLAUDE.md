@@ -1,6 +1,6 @@
-# Finance Tracker
+# Spendthrift
 
-An Android personal finance app in Flutter, grown in place from a one-file manual
+An Android personal finance app in Flutter, formerly Finance Tracker (the Dart package name `finance_tracker`, the secure-storage namespace and the database file names keep the old name on purpose; the product, the application id `dev.tarnan.spendthrift` and the deep-link scheme `spendthrift://` carry the new one), grown in place from a one-file manual
 income-and-expense tracker. Real bank data from Plaid Sandbox through a development server in
 this repository, an offline-first encrypted local database, budgets, bills, insights and net
 worth, and a demo mode that runs with no server and no Plaid account. Solo developer with an
@@ -78,7 +78,7 @@ ten phases with sizes, §10 the process, §12 the decisions.
 ## Stack (pinned)
 
 - **Flutter stable**, pinned by **FVM** through `.fvmrc` (Phase 0); Dart 3.x; **Material 3**;
-  **Android only** (minSdk 26, compileSdk 36, package `dev.tarnan.financetracker`).
+  **Android only** (minSdk 26, compileSdk 36, package `dev.tarnan.spendthrift`).
 - **Riverpod** with code generation, **go_router**, **freezed** and json_serializable.
 - **Drift** on SQLite with **SQLCipher**; the key in Android Keystore via flutter_secure_storage.
 - **dio** with a client generated from `api/openapi.yaml` by openapi-generator's `dart-dio`.
@@ -148,7 +148,7 @@ coordinator is the only seat that touches them. Agents use the fakes and the dem
 | Sync engine (pure Dart, no Flutter): the merge, the session, the conflicts it reports, the chaos simulation under the `chaos` tag | `packages/sync_engine/` | `docs/reference/sync.md` |
 | Sync in the app: the Drift sync store, recording, the controller, the relay, the receipt upload before a push | `app/lib/core/sync/`, `app/lib/core/db/` | `docs/reference/sync-app.md` |
 | Background sync and notifications: the WorkManager seam and the cycle, the app and the worker in one process, the channels, the tray, Settings → Notifications | `app/lib/core/background/`, `app/lib/core/platform/`, `app/lib/features/settings/` | `docs/reference/background.md` |
-| Widgets and shortcuts: the snapshot and its writer, the refresh runner, the Kotlin providers, the launch intent seam and the launch links | `app/lib/features/widgets/`, `app/android/app/src/main/kotlin/dev/tarnan/financetracker/widgets/`, `app/lib/core/platform/launch_intent.dart`, `app/lib/core/router/launch_links.dart` | `docs/reference/widgets.md` |
+| Widgets and shortcuts: the snapshot and its writer, the refresh runner, the Kotlin providers, the launch intent seam and the launch links | `app/lib/features/widgets/`, `app/android/app/src/main/kotlin/dev/tarnan/spendthrift/widgets/`, `app/lib/core/platform/launch_intent.dart`, `app/lib/core/router/launch_links.dart` | `docs/reference/widgets.md` |
 | Layout: window size classes, the rail, `TwoPane`, `openDetail`, the fold split | `app/lib/core/layout/` | `docs/reference/app-core.md` (Large screens and foldables) |
 | Localization: the ARB files and the generated localizations, the pseudo-locale generator, the strings check, the joins and title-case helpers | `app/lib/l10n/`, `app/lib/core/l10n/`, `tools/pseudo_locale.dart`, `tools/check_strings.dart` | `docs/reference/app-core.md` (Localization) |
 | Conflicts: the device-local table, the store, "Keep this device's value" and the Conflicts screen | `app/lib/features/conflicts/` | `docs/reference/sync-app.md` |
