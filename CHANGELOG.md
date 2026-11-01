@@ -3,6 +3,75 @@
 Each release section is generated from the Conventional Commit log since the previous tag
 (`PLAN.md` §10). Tags are `vX.Y.Z`; a phase ends with a `vX.Y.Z-phaseN` pre-release.
 
+## v1.1.0-phase10 — 2026-11-01
+
+Phase 10 renames the app Spendthrift and gives it a look of its own. Everything a person sees says
+Spendthrift: the launcher, the screens, the widgets, the backup file, the release assets. The
+Android application id is now `dev.tarnan.spendthrift`, which Android treats as a new app: an
+install of the old `dev.tarnan.financetracker` stays on the device as a separate app until it is
+uninstalled by hand, and a backup made by it restores into Spendthrift unchanged. The design is
+"Riso": two inks on paper. Paper surfaces in light mode and a near-black paper in dark mode,
+ink-line cards with no elevation, blue for structure and the active state, pink for accents and
+money out, green for money in, yellow for warnings, red for errors only; Syne for headings and Work
+Sans with tabular numbers for everything else; one hero card per tab carrying its key figure with
+the pink misregistration shadow; charts printed in the inks; a duotone S as the launcher icon on a
+paper tile and a paper splash in both themes. Dynamic color stays available in Settings but is off
+by default so the brand shows. Every golden was regenerated on purpose and the README's screenshots
+retaken.
+
+### Features
+
+- app: Name the app Spendthrift (9152a56)
+- app: Open launch links at spendthrift:// (a2f14bc)
+- app: Name the backup file, user agent and Plaid client Spendthrift (4b20dc3)
+- app: Add the Spendthrift tokens, schemes and finance colors (57c162b)
+- app: Bundle Syne and Work Sans and set the type scale (93ea56b)
+- app: Restyle the component themes and the shell (0819a9f)
+- app: Restyle the shared widgets and the flavor and demo strips (77b8216)
+- app: Print the charts in the brand inks (5c54a91)
+- settings: Default dynamic color off (6ed11fd)
+- app: Give the Plan segments their hero cards (6a43e46)
+- app: Give the Insights segments their hero cards (1248d1b)
+- app: Build every card as a BrandCard (a21fdc9)
+- app: Restyle the lists and their date headers (ae34ca0)
+- categories: Draw the default categories in the brand's hues (97c926e)
+- app: Give the empty states and the section headers one form (5410d5c)
+- onboarding: Print the mark and the wordmark on Welcome (231c025)
+- app: Give the charts and the dialogs their chrome (d09f5f4)
+- app: Keep one menu per app bar and fit the segment switchers (e296f0a)
+- transactions: Draw the merchant avatars on the brand hues (6336b5a)
+
+### Fixes
+
+- app: Dim a disabled card's trailing widget with its face (29d5dc0)
+
+### Refactoring
+
+- app: Rename the base widget provider after Spendthrift (7d9e1f8)
+
+### Build
+
+- app: Move the Android identity to dev.tarnan.spendthrift (ee9488d)
+- build: Draw the duotone S icon, the splash and the widget colors (824fc8f)
+- build: Bump the version to 1.1.0 (242c445)
+
+### CI
+
+- ci: Name the release assets and the CI artifact Spendthrift (d32537e)
+
+### Tests
+
+- app: Tolerate anti-aliasing noise in the CI goldens (0bb1c11)
+- app: Ignore one-level gradient rounding in the CI goldens (a785edb)
+
+### Documentation
+
+- docs: Describe the product as Spendthrift (119ab52)
+- map: Name the map after Spendthrift (e1c95b5)
+- docs: Describe the Spendthrift design system (df7b292)
+- docs: Recapture the README media in the new look (a2fad13)
+- docs: Describe the merchant avatar on its brand hue (2ff72e1)
+
 ## v1.0.0-phase9 — 2026-11-01
 
 Phase 9 is the release. A fresh install of the release APK opens on a Welcome screen and runs the

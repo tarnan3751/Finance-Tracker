@@ -18,7 +18,7 @@ heading of this file or of a doc.
 
 ## Status
 
-**Phases 0 to 9 have landed and passed their gates; the project is at its first pre-release:** the
+**Phases 0 to 10 have landed and passed their gates; the project is at its second pre-release:** the
 app runs on its Riverpod and go_router core with manual accounts, transactions and categories on the
 encrypted Drift database (schema v13 with the change log, field clocks, Items, rules, budgets and
 their alerts, dismissed duplicate pairs, saved filters, a full-text index, recurring streams and
@@ -64,9 +64,16 @@ address of your own server, imports bank CSV exports through a remembered column
 duplicates skipped, the rules applied and an Undo per import, carries in-app Help, a Privacy page
 and the open-source licences, compiles the developer tools out of demo and release builds, and
 publishes a signed GitHub release from a pushed version tag; and it runs the demo flavor on the
-persona engine's seed against an in-process fake server with no network; the dev flavor carries a
-developer menu for the Sandbox controls. The repository is the pub workspace of **Folder layout**,
-Android only. The app runs in three flavors (`dev`, `demo`, `prod`) through
+persona engine's seed against an in-process fake server with no network; it is named Spendthrift
+throughout (application id `dev.tarnan.spendthrift`, scheme `spendthrift://`) and wears the Riso
+design system (`docs/reference/design.md`): hand-built paper-and-ink colour schemes in both themes
+with dynamic colour off by default, Syne and Work Sans bundled under the OFL with tabular figures,
+ink-line cards and pill switchers with no elevation, one hero card per tab with its pink
+misregistration, charts and category and merchant colours in the brand's hues, a duotone S launcher
+icon and paper splash, every CI golden regenerated and compared with a tolerance for the
+Linux-versus-macOS anti-aliasing of the bundled fonts, and the README media retaken; the dev flavor
+carries a developer menu for the Sandbox controls. The repository is the pub workspace of **Folder
+layout**, Android only. The app runs in three flavors (`dev`, `demo`, `prod`) through
 `app/lib/bootstrap.dart`; `server/` is the development server implementing the contract with a fake
 Plaid client (`docs/reference/server.md`); `api/openapi.yaml` is the v1 contract, with
 `packages/api_client` generated from it and `packages/contract_test` checking against it; the
@@ -414,6 +421,17 @@ PLAN.md          the plan: gitignored, read from the main tree
 - The server opens SQLite with the same wall-time `busyWaiter` as the app; `PRAGMA busy_timeout` is
   used nowhere, because SQLite's own handler counts the sleeps it asked for and a signal cuts them
   short.
+- The CI goldens are generated on macOS and checked on Linux: `TolerantGoldenComparator` passes at
+  most 0.5 % differing pixels with no 3×3 window differing entirely, a pixel differing when a
+  channel is more than three levels apart (anti-aliasing is thin, a gradient rounds a level apart, a
+  real change is solid and the smallest palette step is four levels); a failure message names both
+  numbers, and the `failures/` images are uploaded by CI.
+- Red is for errors only: money out and destructive actions are pink (`FinanceColors.outflow`,
+  `AppTheme.destructive`), warnings yellow (`warning`), money in green (`inflow`); a figure toned
+  pink or green on the hero blue prints on a paper pill, never directly on the blue.
+- One overflow menu per app bar: a segment's menu items go through the scaffold's `menuEntries` into
+  the `HelpMenuButton`; the `SegmentSwitcher` fills the width when its labels fit and scrolls with a
+  trailing fade when they do not.
 
 ## Seeing the app
 
