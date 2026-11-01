@@ -7,6 +7,7 @@
 import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/change_recorder.dart';
+import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/bills/data/in_memory_bill_repository.dart';
 import 'package:flutter/material.dart';
@@ -67,6 +68,27 @@ void main() {
     of: find.widgetWithText(ListTile, name),
     matching: matching,
   );
+
+  testWidgets('the hero card adds up what is due soon and what is overdue, '
+      'the overdue in pink', (tester) async {
+    final SemanticsHandle semantics = tester.ensureSemantics();
+    await open(tester);
+
+    // The phone on Oct 27 and the water paid early for Oct 26 are due soon; the rent
+    // missed on Oct 1 is overdue.
+    expect(find.text('DUE IN 7 DAYS'), findsOneWidget);
+    final Finder overdue = find.text(r'$1,234.57 overdue');
+    expect(overdue, findsOneWidget);
+    expect(
+      tester.widget<Text>(overdue).style?.color,
+      FinanceColors.of(tester.element(overdue)).outflow,
+    );
+    expect(
+      find.bySemanticsLabel(r'Due in 7 days: $130.86, $1,234.57 overdue.'),
+      findsOneWidget,
+    );
+    semantics.dispose();
+  });
 
   testWidgets('groups the bills by when they are due', (tester) async {
     double top(Finder finder) => tester.getTopLeft(finder).dy;
@@ -310,6 +332,8 @@ void main() {
     expect(find.text('Add'), findsNWidgets(3));
     expect(find.text('Service 3'), findsOneWidget);
     expect(find.text('Service 4'), findsNothing);
+    await tester.ensureVisible(find.text('Show all (5)'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Show all (5)'));
     await tester.pumpAndSettle();
     expect(find.text('Show all (5)'), findsNothing);

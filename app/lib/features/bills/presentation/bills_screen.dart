@@ -1,6 +1,10 @@
 /// `/bills`: the Plan tab's Bills segment (`docs/reference/bills.md`, **Screens**;
 /// `PLAN.md` §12 "5e rulings", "5c review rulings" item 8).
 ///
+/// Both views open with the hero card: what the active bills due within the next seven
+/// days expect (Due soon's bills), captioned by what the overdue ones expect, in pink when
+/// any is.
+///
 /// The list view: "Suggested" first when there are suggestions this device has not
 /// dismissed, three of them until "Show all" (Add opens the editor prefilled; Dismiss is
 /// remembered in `app_meta`), then the active bills grouped Overdue (the last occurrence missed), Due soon (due within 7
@@ -18,9 +22,14 @@ import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/plan_scaffold.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/finance_colors.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
+import 'package:finance_tracker/core/widgets/hero_card.dart';
 import 'package:finance_tracker/core/widgets/visible_messenger.dart';
+import 'package:finance_tracker/features/accounts/application/accounts_providers.dart'
+    show defaultCurrencyCode;
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
 import 'package:finance_tracker/features/bills/domain/bill_schedule.dart';
 import 'package:finance_tracker/features/bills/domain/bill_status.dart';
@@ -89,6 +98,18 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
         ),
       ),
     );
+    final Widget header = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (list != null)
+          BillsHero(
+            statuses: list,
+            today: ref.watch(todayProvider),
+            payments: ref.watch(billPaymentsProvider).value ?? const {},
+          ),
+        toggle,
+      ],
+    );
     return PlanScaffold(
       segment: PlanSegment.bills,
       actions: [
@@ -118,11 +139,11 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
           ),
         ),
         final List<BillStatus> list when _calendar => _BillCalendar(
-          header: toggle,
+          header: header,
           statuses: list,
         ),
         final List<BillStatus> list => _BillList(
-          header: toggle,
+          header: header,
           statuses: list,
           suggestions: shown,
         ),
@@ -165,13 +186,13 @@ class _BillList extends ConsumerWidget {
         payments[s.bill.id] ?? const {},
       );
       final _Row row = (bill: s.bill, focus: focus);
-      final LocalDate? due = focus.due;
-      if (focus.state == BillState.missed) {
-        overdue.add(row);
-      } else if (due != null && today.daysUntil(due) <= dueWindowDays) {
-        soon.add(row);
-      } else {
-        later.add(row);
+      switch (_groupOf(focus, today)) {
+        case _Group.overdue:
+          overdue.add(row);
+        case _Group.soon:
+          soon.add(row);
+        case _Group.later:
+          later.add(row);
       }
     }
     for (final List<_Row> group in [overdue, soon, later]) {
@@ -235,6 +256,99 @@ class _BillList extends ConsumerWidget {
 
 /// A bill and the occurrence its row shows.
 typedef _Row = ({BillReminder bill, BillOccurrence focus});
+
+/// The list's groups of active bills.
+enum _Group { overdue, soon, later }
+
+/// The group of an active bill whose row shows [focus]: Overdue when it was missed, Due
+/// soon when due within [dueWindowDays] of [today] (or still in its grace days), else
+/// Later.
+_Group _groupOf(BillOccurrence focus, LocalDate today) {
+  final LocalDate? due = focus.due;
+  if (focus.state == BillState.missed) return _Group.overdue;
+  if (due != null && today.daysUntil(due) <= dueWindowDays) return _Group.soon;
+  return _Group.later;
+}
+
+/// The Bills segment's hero card: what the active bills of [statuses] due soon expect,
+/// one figure per currency, captioned by what the overdue ones expect (pink) or that
+/// none is. A bill with no expected amount adds nothing.
+class BillsHero extends StatelessWidget {
+  const BillsHero({
+    super.key,
+    required this.statuses,
+    required this.today,
+    required this.payments,
+  });
+
+  final List<BillStatus> statuses;
+  final LocalDate today;
+  final BillPayments payments;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final Map<String, Money> soon = {};
+    final Map<String, Money> overdue = {};
+    for (final BillStatus s in statuses) {
+      final Money? amount = s.bill.amount;
+      if (!s.bill.active || amount == null) continue;
+      final BillOccurrence focus = billFocus(
+        s,
+        today,
+        payments[s.bill.id] ?? const {},
+      );
+      final Map<String, Money>? sums = switch (_groupOf(focus, today)) {
+        _Group.overdue => overdue,
+        _Group.soon => soon,
+        _Group.later => null,
+      };
+      if (sums == null) continue;
+      final String code = amount.currencyCode;
+      sums[code] = (sums[code] ?? Money.zero(code)) + amount.abs();
+    }
+    List<Money> sorted(Map<String, Money> sums) => [
+      for (final String code in sums.keys.toList()..sort()) sums[code]!,
+    ];
+    final List<Money> due = sorted(soon);
+    final List<Money> late = sorted(overdue);
+    // Nothing due shows a zero in the device's currency, or in the bills' own.
+    final List<Money> figure = due.isNotEmpty
+        ? due
+        : [
+            Money.zero(
+              late.firstOrNull?.currencyCode ??
+                  statuses
+                      .map((s) => s.bill.amount?.currencyCode)
+                      .nonNulls
+                      .firstOrNull ??
+                  defaultCurrencyCode(),
+            ),
+          ];
+    final String label = l10n.billsHeroLabel(dueWindowDays);
+    return Padding(
+      padding: const EdgeInsets.all(SpendthriftTokens.space16),
+      child: HeroCard(
+        label: label,
+        figure: HeroAmounts(figure),
+        caption: late.isEmpty
+            ? l10n.billsHeroNoneOverdue
+            : l10n.billsHeroOverdue(
+                listLine(l10n, [for (final Money m in late) m.format()]),
+              ),
+        captionTone: late.isEmpty ? HeroTone.plain : HeroTone.outflow,
+        semanticsLabel: heroSentence(
+          l10n,
+          label,
+          spokenAmounts(l10n, figure),
+          late.isEmpty
+              ? l10n.billsHeroNoneOverdue
+              : l10n.billsHeroOverdue(spokenAmounts(l10n, late)),
+        ),
+      ),
+    );
+  }
+}
 
 int _byName(BillReminder a, BillReminder b) {
   final int byName = (a.name ?? '').toLowerCase().compareTo(
@@ -322,7 +436,7 @@ class _BillTile extends ConsumerWidget {
                   _StateChip(
                     label: chip,
                     color: state == BillState.missed
-                        ? theme.colorScheme.error
+                        ? FinanceColors.of(context).outflow
                         : theme.colorScheme.primary,
                   ),
                 if (markable)
@@ -603,7 +717,7 @@ class _BillCalendarState extends ConsumerState<_BillCalendar> {
           dots: [
             for (final BillReminder b in byDay[d] ?? const <BillReminder>[])
               stateOf(b, d) == BillState.missed
-                  ? theme.colorScheme.error
+                  ? FinanceColors.of(context).outflow
                   : theme.colorScheme.primary,
           ],
           label: l10n.billsCalendarDay(

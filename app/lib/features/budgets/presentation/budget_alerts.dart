@@ -11,6 +11,7 @@ import 'package:finance_tracker/core/platform/in_app_notifications.dart';
 import 'package:finance_tracker/core/platform/notification_providers.dart';
 import 'package:finance_tracker/core/platform/notifier.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
@@ -285,7 +286,8 @@ class _AlertTile extends StatelessWidget {
     return ListTile(
       leading: Icon(
         full ? Icons.error_outline : Icons.notifications_active_outlined,
-        color: full ? colors.error : colors.tertiary,
+        // The text pink, which reaches 3:1 on paper as a meaningful graphic must.
+        color: full ? FinanceColors.of(context).outflow : colors.tertiary,
       ),
       title: Text(
         text,

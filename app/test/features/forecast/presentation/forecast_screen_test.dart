@@ -5,6 +5,7 @@
 import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/features/forecast/presentation/forecast_accounts_sheet.dart';
 import 'package:finance_tracker/features/forecast/presentation/forecast_chart.dart';
 import 'package:finance_tracker/features/forecast/presentation/forecast_table.dart';
@@ -52,7 +53,10 @@ void main() {
     expect(find.byType(ForecastChart), findsOneWidget);
     // Start $6,703.51 less $7.57 a day; rent on Nov 1 and Netflix on Nov 3 come before
     // the payroll on Nov 6.
-    expect(find.text(r'Lowest point $4,947.18 on Nov 5'), findsOneWidget);
+    expect(
+      find.bySemanticsLabel(r'Lowest balance: $4,947.18, on Nov 5.'),
+      findsOneWidget,
+    );
     expect(
       find.bySemanticsLabel(
         RegExp(
@@ -120,9 +124,10 @@ void main() {
     final Finder headline = find.textContaining('Below zero on Nov 1');
     expect(headline, findsOneWidget);
     final BuildContext context = tester.element(headline);
+    // A warning in the money-out pink, not the error red.
     expect(
       tester.widget<Text>(headline).style?.color,
-      Theme.of(context).colorScheme.error,
+      FinanceColors.of(context).outflow,
     );
   });
 

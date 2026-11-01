@@ -47,6 +47,12 @@ void main() {
     // One start day, so the selector carries the dates.
     expect(find.text('This period'), findsOneWidget);
     expect(find.text('Oct 1 – Oct 31, 2026'), findsOneWidget);
+    // Under the hero card, the last card is below the fold.
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('budget-transport')),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
     final List<String> order = [
       for (final BudgetCard card in tester.widgetList<BudgetCard>(
         find.byType(BudgetCard),
@@ -96,6 +102,32 @@ void main() {
       _inCard('Transportation', find.textContaining('reached')),
       findsNothing,
     );
+  });
+
+  testWidgets('the hero card adds up the period, read as one sentence', (
+    tester,
+  ) async {
+    final SemanticsHandle semantics = tester.ensureSemantics();
+    try {
+      await pumpApp(
+        tester,
+        initialLocation: '/budgets',
+        overrides: [
+          storeOverride(seededStore()),
+          budgetsOverride(seededBudgets()),
+        ],
+      );
+
+      // $5.75 + $1,450.00 + $48.02 of $7.00 + $1,200.00 + $300.00 available.
+      expect(find.text('SPENT'), findsOneWidget);
+      expect(find.text(r'of $1,507.00 budgeted'), findsOneWidget);
+      expect(
+        find.bySemanticsLabel(r'Spent: $1,503.77, of $1,507.00 budgeted.'),
+        findsOneWidget,
+      );
+    } finally {
+      semantics.dispose();
+    }
   });
 
   testWidgets('the bar reads as one sentence', (tester) async {

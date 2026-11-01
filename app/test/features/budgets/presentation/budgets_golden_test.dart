@@ -1,7 +1,8 @@
 // Goldens of the budgets screens, light and dark at phone size, on the test seed and its
 // three budgets (budget_seed.dart): the list (on pace with carry, projected over, over),
 // the editor of an existing budget, a budget's detail, and the alerts sheet over the list
-// (one unread alert, one read). Tagged `golden`; see
+// (one unread alert, one read); and the top of the list in light, the hero card under
+// the period selector. Tagged `golden`; see
 // test/flutter_test_config.dart for where the files go and how to update them.
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter/material.dart';
@@ -53,4 +54,14 @@ void main() {
       },
     );
   }
+
+  goldenTest(
+    'the hero card in place, light',
+    fileName: 'plan_budgets_hero_light',
+    constraints: BoxConstraints.tight(heroPlacementSize),
+    builder: () => SizedBox.fromSize(
+      size: heroPlacementSize,
+      child: _app('/budgets', Brightness.light),
+    ),
+  );
 }

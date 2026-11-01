@@ -4450,20 +4450,6 @@
   "@forecastShowChart": {
     "description": "Switches the forecast from its table to its chart."
   },
-  "forecastLowest": "Lowest point {amount} on {date}",
-  "@forecastLowest": {
-    "description": "The forecast's headline: its lowest projected balance and the day of it.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "$412.00"
-      },
-      "date": {
-        "type": "String",
-        "example": "Nov 18"
-      }
-    }
-  },
   "forecastBelowZero": "Below zero on {date}",
   "@forecastBelowZero": {
     "description": "The forecast's headline when the projected balance goes below zero: the first day it does.",
@@ -7704,5 +7690,88 @@
   "privacy19": "Nothing leaves the device. The sample households are made up on the device, and no account or server is involved.",
   "@privacy19": {
     "description": "A paragraph of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "heroSemantics": "{label}: {figure}.",
+  "@heroSemantics": {
+    "description": "What a screen reader says for a screen's hero card: what its figure is, then the figure.",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "Spent"
+      },
+      "figure": {
+        "type": "String",
+        "example": "$412.50"
+      }
+    }
+  },
+  "heroSemanticsCaption": "{label}: {figure}, {caption}.",
+  "@heroSemanticsCaption": {
+    "description": "What a screen reader says for a screen's hero card with a caption: what its figure is, the figure, then the caption under it.",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "Spent"
+      },
+      "figure": {
+        "type": "String",
+        "example": "$412.50"
+      },
+      "caption": {
+        "type": "String",
+        "example": "of $1,200.00 budgeted"
+      }
+    }
+  },
+  "budgetsHeroLabel": "Spent",
+  "@budgetsHeroLabel": {
+    "description": "Label of the Budgets segment's hero card, whose figure is what the budgets of the period shown have spent."
+  },
+  "budgetsHeroCaption": "of {amounts} budgeted",
+  "@budgetsHeroCaption": {
+    "description": "Caption of the Budgets segment's hero card: what the budgets of the period make available, the amount and what carried in (one amount per currency).",
+    "placeholders": {
+      "amounts": {
+        "type": "String",
+        "example": "$1,200.00"
+      }
+    }
+  },
+  "billsHeroLabel": "{days, plural, =1{Due in 1 day} other{Due in {days} days}}",
+  "@billsHeroLabel": {
+    "description": "Label of the Bills segment's hero card, whose figure is what the active bills due within the next [days] days expect (the Due soon window).",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "billsHeroOverdue": "{amounts} overdue",
+  "@billsHeroOverdue": {
+    "description": "Caption of the Bills segment's hero card: what the bills whose last due date was missed expect (one amount per currency).",
+    "placeholders": {
+      "amounts": {
+        "type": "String",
+        "example": "$85.00"
+      }
+    }
+  },
+  "billsHeroNoneOverdue": "Nothing overdue",
+  "@billsHeroNoneOverdue": {
+    "description": "Caption of the Bills segment's hero card when no bill's last due date was missed."
+  },
+  "forecastHeroLabel": "Lowest balance",
+  "@forecastHeroLabel": {
+    "description": "Label of the Forecast segment's hero card, whose figure is the lowest balance projected within the horizon chosen."
+  },
+  "forecastHeroDate": "on {date}",
+  "@forecastHeroDate": {
+    "description": "Caption of the Forecast segment's hero card: the day of the lowest projected balance.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Oct 22"
+      }
+    }
   }
 }

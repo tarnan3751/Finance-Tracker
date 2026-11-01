@@ -4,6 +4,7 @@
 library;
 
 import 'package:finance_tracker/core/l10n/joins.dart';
+import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/features/forecast/domain/cash_flow_forecast.dart';
 import 'package:finance_tracker/features/forecast/presentation/forecast_view.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -69,7 +70,7 @@ class _DayRow extends StatelessWidget {
                     balance,
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: point.balance.isNegative
-                          ? theme.colorScheme.error
+                          ? FinanceColors.of(context).outflow
                           : null,
                     ),
                   ),

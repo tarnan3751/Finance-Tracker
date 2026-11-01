@@ -4,7 +4,8 @@
 ///
 /// - **current**: a progress bar with the percent spent ("Nothing available" when
 ///   nothing is), styled as over past 100 %; spent and left (or over); the projection
-///   to the period's end, in the error colour when it ends above what is available;
+///   to the period's end, in the warning yellow when it ends above what is available
+///   (an overspend itself prints in the money-out pink; red is for errors only);
 /// - **past**: the same without the projection;
 /// - **future**: what will be available, with no spending, or how far over when a
 ///   carried deficit leaves less than nothing, worded and coloured as an overspend.
@@ -13,6 +14,7 @@
 /// values; the screen computes the status (`budget_math.dart`).
 library;
 
+import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_math.dart';
 import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -117,7 +119,9 @@ class BudgetCard extends StatelessWidget {
                   status.available.isNegative
                       ? Text(
                           l10n.budgetOver((-status.available).format()),
-                          style: caption?.copyWith(color: colors.error),
+                          style: caption?.copyWith(
+                            color: FinanceColors.of(context).outflow,
+                          ),
                         )
                       : Text(
                           l10n.budgetAvailable(status.available.format()),
@@ -156,7 +160,8 @@ class _Progress extends StatelessWidget {
     final ColorScheme colors = theme.colorScheme;
     final int? basisPoints = status.progress.percentBasisPoints;
     final bool over = basisPoints == null || status.remaining.isNegative;
-    final Color color = over ? colors.error : colors.primary;
+    final FinanceColors finance = FinanceColors.of(context);
+    final Color color = over ? finance.outflow : colors.primary;
     final String label = switch (basisPoints) {
       null => l10n.budgetProgressNothingSemantics(name, status.spent.format()),
       _ when status.remaining.isNegative => l10n.budgetProgressOverSemantics(
@@ -197,7 +202,7 @@ class _Progress extends StatelessWidget {
                   ? l10n.budgetNothingAvailable
                   : l10n.budgetPercent(basisPoints ~/ 100),
               style: theme.textTheme.labelLarge?.copyWith(
-                color: over ? colors.error : null,
+                color: over ? finance.outflow : null,
               ),
             ),
           ),
@@ -231,7 +236,9 @@ class _SpentAndLeft extends StatelessWidget {
               ? l10n.budgetOver((-remaining).format())
               : l10n.budgetLeft(remaining.format()),
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: remaining.isNegative ? theme.colorScheme.error : null,
+            color: remaining.isNegative
+                ? FinanceColors.of(context).outflow
+                : null,
           ),
         ),
       ],
@@ -251,7 +258,7 @@ class _Projection extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final bool over = status.projectedOverspend;
     final Color color = over
-        ? theme.colorScheme.error
+        ? FinanceColors.of(context).warning
         : theme.colorScheme.onSurfaceVariant;
     return Row(
       children: [
@@ -289,10 +296,10 @@ class _ThresholdBadge extends StatelessWidget {
     final ColorScheme colors = theme.colorScheme;
     final bool full = basisPoints >= 10000;
     final Color background = full
-        ? colors.errorContainer
+        ? colors.secondaryContainer
         : colors.tertiaryContainer;
     final Color foreground = full
-        ? colors.onErrorContainer
+        ? colors.onSecondaryContainer
         : colors.onTertiaryContainer;
     return DecoratedBox(
       decoration: BoxDecoration(

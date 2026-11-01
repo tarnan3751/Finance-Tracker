@@ -3169,11 +3169,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get forecastShowChart => 'Chart';
 
   @override
-  String forecastLowest(String amount, String date) {
-    return 'Lowest point $amount on $date';
-  }
-
-  @override
   String forecastBelowZero(String date) {
     return 'Below zero on $date';
   }
@@ -5491,4 +5486,49 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get privacy19 =>
       'Nothing leaves the device. The sample households are made up on the device, and no account or server is involved.';
+
+  @override
+  String heroSemantics(String label, String figure) {
+    return '$label: $figure.';
+  }
+
+  @override
+  String heroSemanticsCaption(String label, String figure, String caption) {
+    return '$label: $figure, $caption.';
+  }
+
+  @override
+  String get budgetsHeroLabel => 'Spent';
+
+  @override
+  String budgetsHeroCaption(String amounts) {
+    return 'of $amounts budgeted';
+  }
+
+  @override
+  String billsHeroLabel(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Due in $days days',
+      one: 'Due in 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String billsHeroOverdue(String amounts) {
+    return '$amounts overdue';
+  }
+
+  @override
+  String get billsHeroNoneOverdue => 'Nothing overdue';
+
+  @override
+  String get forecastHeroLabel => 'Lowest balance';
+
+  @override
+  String forecastHeroDate(String date) {
+    return 'on $date';
+  }
 }

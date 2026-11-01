@@ -1,7 +1,8 @@
 // Goldens of the Bills segment, light and dark at phone size, on the bill seed
 // (bill_seed.dart) and the test seed: the list with its Overdue, Due soon and Later
 // groups and the folded Paused group, the calendar on today's month, and the list with a
-// suggestion from the stream seed (stream_seed.dart). Tagged `golden`; see
+// suggestion from the stream seed (stream_seed.dart); and the top of the list in light,
+// the hero card under the segment switcher. Tagged `golden`; see
 // test/flutter_test_config.dart for where the files go and how to update them.
 import 'package:alchemist/alchemist.dart';
 import 'package:finance_tracker/core/di/providers.dart';
@@ -72,4 +73,14 @@ void main() {
           _app(brightness, bills: [testBills().first], streams: true),
     );
   }
+
+  goldenTest(
+    'the hero card in place, light',
+    fileName: 'plan_bills_hero_light',
+    constraints: BoxConstraints.tight(heroPlacementSize),
+    builder: () => SizedBox.fromSize(
+      size: heroPlacementSize,
+      child: _app(Brightness.light),
+    ),
+  );
 }

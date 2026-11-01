@@ -4827,12 +4827,6 @@ abstract class AppLocalizations {
   /// **'Chart'**
   String get forecastShowChart;
 
-  /// The forecast's headline: its lowest projected balance and the day of it.
-  ///
-  /// In en, this message translates to:
-  /// **'Lowest point {amount} on {date}'**
-  String forecastLowest(String amount, String date);
-
   /// The forecast's headline when the projected balance goes below zero: the first day it does.
   ///
   /// In en, this message translates to:
@@ -8403,6 +8397,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing leaves the device. The sample households are made up on the device, and no account or server is involved.'**
   String get privacy19;
+
+  /// What a screen reader says for a screen's hero card: what its figure is, then the figure.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {figure}.'**
+  String heroSemantics(String label, String figure);
+
+  /// What a screen reader says for a screen's hero card with a caption: what its figure is, the figure, then the caption under it.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {figure}, {caption}.'**
+  String heroSemanticsCaption(String label, String figure, String caption);
+
+  /// Label of the Budgets segment's hero card, whose figure is what the budgets of the period shown have spent.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent'**
+  String get budgetsHeroLabel;
+
+  /// Caption of the Budgets segment's hero card: what the budgets of the period make available, the amount and what carried in (one amount per currency).
+  ///
+  /// In en, this message translates to:
+  /// **'of {amounts} budgeted'**
+  String budgetsHeroCaption(String amounts);
+
+  /// Label of the Bills segment's hero card, whose figure is what the active bills due within the next [days] days expect (the Due soon window).
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Due in 1 day} other{Due in {days} days}}'**
+  String billsHeroLabel(int days);
+
+  /// Caption of the Bills segment's hero card: what the bills whose last due date was missed expect (one amount per currency).
+  ///
+  /// In en, this message translates to:
+  /// **'{amounts} overdue'**
+  String billsHeroOverdue(String amounts);
+
+  /// Caption of the Bills segment's hero card when no bill's last due date was missed.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing overdue'**
+  String get billsHeroNoneOverdue;
+
+  /// Label of the Forecast segment's hero card, whose figure is the lowest balance projected within the horizon chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest balance'**
+  String get forecastHeroLabel;
+
+  /// Caption of the Forecast segment's hero card: the day of the lowest projected balance.
+  ///
+  /// In en, this message translates to:
+  /// **'on {date}'**
+  String forecastHeroDate(String date);
 }
 
 class _AppLocalizationsDelegate

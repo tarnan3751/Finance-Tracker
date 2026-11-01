@@ -219,6 +219,16 @@ when another period is shown. When every budget starts its periods on the same d
 selector also shows the dates in the device zone ("Oct 1 – Oct 31, 2026"). Otherwise each
 card shows its own dates.
 
+Under the selector is the segment's hero card (`BudgetsHero`, `design.md`, **The hero
+card**): what the period's budgets spent as the figure, captioned "of $1,507.00 budgeted"
+(what they make available, the amounts and what carried in), one figure per currency and
+never converted; a group budget and a budget of one of its categories both count the
+same spending, as their cards do. When the budgets share one currency a bar in blue on
+the `outlineVariant` track sits under the card; a currency that spent more than it has
+available prints its figure on a paper pill in the money-out pink, each currency on its
+own, and the bar turns the money-out pink when its one currency is over (a meaningful
+graphic, so the text pink, which reaches 3:1 on paper). The card reads as one sentence ("Spent: $1,503.77, of $1,507.00 budgeted.").
+
 Below it is one `BudgetCard` per budget (`budget_card.dart`), by category name. A card
 shows:
 - the category's icon and name ("Deleted category" when it is gone), and "Includes N
@@ -227,13 +237,15 @@ shows:
 - the amount, with the carry when rollover moved it ("$500.00 + $42.00 carried", or
   "− … carried" for a deficit);
 - in the current and past periods: a bar and the percent from `percentBasisPoints`, in the
-  error colour past 100 %, or "Nothing available" when `available ≤ 0`; then spent, and left
+  money-out pink past 100 % (the bar too), or "Nothing available" when `available ≤ 0`; then spent, and left
   or over;
 - in the current period only: the projection, "On pace: about $410.00 by the end" or
-  "Projected over by $60.00" in the error colour with a warning icon (`projectedOverspend`);
+  "Projected over by $60.00" in the warning yellow (`FinanceColors.warning`) with a warning
+  icon (`projectedOverspend`): a projection warns, an overspend is pink, and the error red
+  is for errors only;
 - in a future period: what will be available, with no spending and no badge; when a
   carried deficit leaves less than nothing, how far over instead ("$1,486.40 over", in
-  the error colour), the wording of an overspend in the current period, on the card and
+  the money-out pink), the wording of an overspend in the current period, on the card and
   on the home screen widget alike, rather than a negative amount available.
 
 The bar and its percent are read as one sentence ("Groceries: 82 percent of $500.00 spent,

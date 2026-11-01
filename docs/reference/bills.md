@@ -198,6 +198,13 @@ segment (`app-core.md`, **The Plan tab**; `PLAN.md` §12 "5e rulings"). Its app 
 the subscriptions (`recurring.md`, **Screens**) and a new bill. A list and a calendar
 view, switched by the control at the top of the body.
 
+Both views open with the segment's hero card (`BillsHero`, `design.md`, **The hero
+card**): what the active bills due soon expect (labelled "Due in 7 days" from `dueWindowDays`; the
+**Due soon** group below, one figure
+per currency; a bill with no expected amount adds nothing), captioned by what the
+**Overdue** ones expect ("$1,234.57 overdue", on a paper pill in the money-out pink) or
+"Nothing overdue", and read as one sentence.
+
 The list:
 - **Suggested**, first, when `suggestedBillsProvider` has suggestions this device has not
   dismissed: the first three, then "Show all (N)", which reveals the rest, so the bills
@@ -216,7 +223,7 @@ The list:
   reached). Each row: the name, the due date (relative from 6 days back to 7 days ahead:
   "Due yesterday", "Due today", "Due in 3 days", "Due in 7 days"; else "Due Nov 10,
   2026"), the expected amount,
-  a chip (Missed in the error colour; Paid; Autopay for an autopay bill not yet paid), and
+  a chip (Missed in the money-out pink; Paid; Autopay for an autopay bill not yet paid), and
   **Mark paid** when the occurrence shown is due or missed: `setPaid(id, due, paid:
   true)` for that occurrence, with an Undo; either one not saved (the database closed
   under it) says so and leaves the bill as it was. Tapping a row opens the editor.
@@ -226,7 +233,7 @@ The list:
 The calendar: a month grid (previous and next month; the week starts on the locale's
 first day; today ringed, the chosen day filled; the numbers stop growing at 1.5 times the
 text size so a week fits) with a dot per active bill due that day from its
-`BillSchedule` (in the error colour when that occurrence was missed; at most three), and
+`BillSchedule` (in the money-out pink when that occurrence was missed; at most three), and
 the chosen day's bills under it, as list rows for that occurrence. It opens on today's
 month with today chosen. Each day reads "Nov 3, 2 bills due: Netflix, Rent". Paused bills
 have no dot.

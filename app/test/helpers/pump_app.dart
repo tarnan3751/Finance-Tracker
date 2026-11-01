@@ -34,6 +34,10 @@ import 'package:timezone/timezone.dart' as tz;
 /// The phone size goldens and screen tests use, in logical pixels.
 const Size phoneSize = Size(412, 915);
 
+/// The top of a phone screen, for the goldens of a hero card in place: the app bar, the
+/// segment switcher and the hero.
+const Size heroPlacementSize = Size(412, 460);
+
 /// The tablet size of the tablet golden, in logical pixels (an expanded window).
 const Size tabletSize = Size(1024, 768);
 

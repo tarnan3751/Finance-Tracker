@@ -144,10 +144,22 @@ radius 8, its text in paper (the scheme's surface); a `label` in Work Sans 600 c
 tracked at 0.08 em (read by screen readers as written), a `figure` widget whose text
 takes `AppTheme.figure` at the `headlineMedium` size, an optional `caption` and an
 optional `trailing` widget at the end; the label, figure and caption are one semantics
-node and the trailing widget is its own, so a button there stays a button. Its pink copy
-is a second `DecoratedBox` in the accent, offset 5 down and to the end, not a shadow, so
-it is flat and shows in the CI goldens. The Accounts screen's header is one (the totals
-per currency, captioned by what they add); other screens take one each at most.
+node, read as one sentence when the screen gives it one (`semanticsLabel`, built by
+`heroSentence`: "Spent: $1,503.77, of $1,507.00 budgeted."), and the trailing widget is
+its own, so a button there stays a button. Its pink copy is a second `DecoratedBox` in
+the accent, offset 5 down and to the end, not a shadow, so it is flat and shows in the CI
+goldens. `HeroAmounts` is the figure of amounts, one per currency, never converted
+(`spokenAmounts` reads them).
+
+A figure or a caption that carries a direction (`HeroTone.inflow`, `HeroTone.outflow`:
+money in, money out or over a limit) is set on a paper pill inside the block in the text
+green or pink: the inks themselves fall under 3:1 on the blue, the text inks on paper
+pass. The error red never prints on a hero.
+
+One hero per screen, under the app bar or the segment switcher (and the period selector,
+where there is one), with `space16` around it: Accounts (the totals per currency), Plan →
+Budgets, Bills and Forecast, Insights → Reports, Net worth, Investments and Goals; each
+feature's reference file says what its figure is.
 
 Misregistration is the brand's one ornament: the pink copy under the hero card and the
 floating button (5), and under the empty state's icon (3, two `Icon`s, blue over pink).

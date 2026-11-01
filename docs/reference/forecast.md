@@ -147,8 +147,10 @@ be saved until the next change is kept.
 `/forecast` segment, under its app bar with `forecastAppBarActions(context, ref)`:
 
 - the 30 / 90 days `SegmentedButton`, with a Table / Chart switch beside it;
-- the headline: "Lowest point $412.00 on Nov 18", or "Below zero on Nov 3" in the error
-  colour;
+- the hero card (`ForecastHero`, `design.md`, **The hero card**): the lowest balance as
+  the figure, captioned by its day ("on Nov 18"), or, when the balance goes below zero,
+  by the first day it does ("Below zero on Nov 3", on a paper pill in the money-out
+  pink); read as one sentence;
 - the chart (fl_chart 1.2.0): the balance line, the band filled between its edges
   (`BetweenBarsData`), dots on today and the lowest point, a dashed zero line when the
   band reaches zero, dates along the bottom, and a tooltip on touch with the day's
