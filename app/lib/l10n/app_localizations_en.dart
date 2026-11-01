@@ -5108,6 +5108,309 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signInTryDemo => 'Try the demo instead';
+
+  @override
+  String get helpTitle => 'Help';
+
+  @override
+  String get helpMenuItem => 'Help';
+
+  @override
+  String get helpMoreOptions => 'More options';
+
+  @override
+  String get helpSettingsSubtitle => 'How each part of the app works';
+
+  @override
+  String get helpStartTitle => 'Getting started and the demo';
+
+  @override
+  String get helpStart1 =>
+      'Finance Tracker keeps your accounts, transactions, budgets and bills on this device, in an encrypted database, and works offline.';
+
+  @override
+  String get helpStart2 => 'Two ways in';
+
+  @override
+  String get helpStart3 =>
+      'Try the demo: one of four made-up households, generated on this device. It needs no account and sends nothing anywhere.';
+
+  @override
+  String get helpStart4 =>
+      'Use my own server: sign in to, or create an account on, a Finance Tracker server you run. Your changes then sync between your devices, and you can link banks through Plaid.';
+
+  @override
+  String get helpStart5 => 'While the demo runs';
+
+  @override
+  String get helpStart6 =>
+      'A Demo data strip stays above every tab. Settings, Demo data, switches to another household; the changes you made in the demo are not kept when you switch.';
+
+  @override
+  String get helpStart7 =>
+      'To leave, tap Leave on the strip or Leave the demo in Settings. The demo\'s data is erased from this device and the welcome screen opens again.';
+
+  @override
+  String get helpStart8 => 'Finding your way';
+
+  @override
+  String get helpStart9 =>
+      'The tabs are Accounts, Transactions, Plan (budgets, bills and the forecast), Insights (reports, net worth, investments and goals) and Settings. The menus of Accounts, Transactions, Plan and Insights open the help for what they show, and Settings, Help, lists every section.';
+
+  @override
+  String get helpAccountsTitle => 'Accounts and linked banks';
+
+  @override
+  String get helpAccounts1 =>
+      'The Accounts tab lists your accounts and their balances. Each balance says where it comes from: reported by the bank, or worked out from the account\'s transactions.';
+
+  @override
+  String get helpAccounts2 => 'Accounts you keep by hand';
+
+  @override
+  String get helpAccounts3 =>
+      'Add an account for cash, a card you do not link, or anything else you track yourself. Its balance comes from its opening balance and the transactions you enter.';
+
+  @override
+  String get helpAccounts4 => 'Linked banks';
+
+  @override
+  String get helpAccounts5 =>
+      'With your own server, Linked banks connects a bank through Plaid Link. Your server pulls the bank\'s accounts, transactions and balances, and, where the bank offers them, its loans and cards, investments and recurring payments; the app fetches them from your server.';
+
+  @override
+  String get helpAccounts6 =>
+      'A bank that needs you to sign in again is marked; Fix connection opens Plaid Link to repair it.';
+
+  @override
+  String get helpAccounts7 =>
+      'Unlink removes a bank. You choose whether its accounts and transactions stay on your devices, no longer updated, or go.';
+
+  @override
+  String get helpAccounts8 =>
+      'In the demo, linking adds a sample bank, Houndstooth Bank.';
+
+  @override
+  String get helpTransactionsTitle => 'Transactions';
+
+  @override
+  String get helpTransactions1 =>
+      'The Transactions tab lists your transactions, newest first. Tap one to change its category, name, notes or tags, or to hide it from your totals.';
+
+  @override
+  String get helpTransactions2 => 'Search and filters';
+
+  @override
+  String get helpTransactions3 =>
+      'Search finds words, or the start of words, in names, merchants and notes.';
+
+  @override
+  String get helpTransactions4 =>
+      'Filters narrow the list by account, category, dates, amount and tags. Save a set of filters to use it again.';
+
+  @override
+  String get helpTransactions5 => 'Splits and receipts';
+
+  @override
+  String get helpTransactions6 =>
+      'Split a transaction across categories; the parts always add up to its amount.';
+
+  @override
+  String get helpTransactions7 =>
+      'Attach a receipt photo from the camera or the gallery. With your own server it reaches your other devices too.';
+
+  @override
+  String get helpTransactions8 => 'Several at once';
+
+  @override
+  String get helpTransactions9 =>
+      'Long-press a transaction to select several, then categorise, tag, hide or delete them together. Likely duplicates are offered for review from the menu.';
+
+  @override
+  String get helpTransactions10 => 'Importing';
+
+  @override
+  String get helpTransactions11 =>
+      'Import reads a CSV export from your bank. You match its columns, check the rows, and add them to an account; likely duplicates are skipped, and an import can be undone.';
+
+  @override
+  String get helpBudgetsTitle => 'Budgets';
+
+  @override
+  String get helpBudgets1 =>
+      'A budget sets a limit on a category for each period, monthly from a start day you choose.';
+
+  @override
+  String get helpBudgets2 =>
+      'Rollover carries what is left, or what was overspent, into the next period.';
+
+  @override
+  String get helpBudgets3 =>
+      'The projection estimates where this period\'s spending will end at its current pace.';
+
+  @override
+  String get helpBudgets4 =>
+      'An alert is raised when spending reaches 80 percent of a budget and again at 100 percent; the bell lists them.';
+
+  @override
+  String get helpBudgets5 => 'Open a budget to see the transactions it counts.';
+
+  @override
+  String get helpBillsTitle => 'Bills and reminders';
+
+  @override
+  String get helpBills1 =>
+      'Bills tracks payments that come due regularly. Add one yourself, or accept a suggestion made from the recurring payments in your transactions.';
+
+  @override
+  String get helpBills2 =>
+      'Each bill shows when it is next due and whether it was paid. A payment is matched from your transactions, and a missed one is counted on the Plan tab.';
+
+  @override
+  String get helpBills3 =>
+      'Reminders arrive as notifications on the days before a due date you choose, at the time of day you choose, kept at that time when the clocks change.';
+
+  @override
+  String get helpBills4 => 'The calendar shows the month\'s bills by day.';
+
+  @override
+  String get helpBills5 => 'Subscriptions';
+
+  @override
+  String get helpBills6 =>
+      'Subscriptions lists the recurring charges that look like subscriptions, with what each costs in a year. You can rename one, say it is not a subscription, or mute it.';
+
+  @override
+  String get helpForecastTitle => 'Forecast';
+
+  @override
+  String get helpForecast1 =>
+      'The forecast projects the balance of the accounts you choose for the next 30 or 90 days, from your bills, your recurring payments and an allowance for everyday spending, with a band showing how far it may vary.';
+
+  @override
+  String get helpForecast2 => 'Choose accounts picks the accounts it covers.';
+
+  @override
+  String get helpForecast3 => 'A table under the chart gives the same figures.';
+
+  @override
+  String get helpForecast4 =>
+      'It is an estimate, and it changes as new transactions arrive.';
+
+  @override
+  String get helpInsightsTitle => 'Insights';
+
+  @override
+  String get helpInsights1 => 'Insights has four segments.';
+
+  @override
+  String get helpInsights2 =>
+      'Reports: spending by category and by merchant for a period, compared with the period before, with the largest changes and unusual transactions pointed out. The weekly summary is here, and the month\'s report can be saved as a PDF; Settings, Export, also writes your transactions as a CSV file.';
+
+  @override
+  String get helpInsights3 =>
+      'Net worth: what you own minus what you owe, over time, from a balance recorded each day. Days from before the app was installed are worked out from transactions and labelled as derived. Loans and cards show when they could be paid off.';
+
+  @override
+  String get helpInsights4 =>
+      'Investments: the holdings of linked investment accounts, how they are spread, their gains, and their transactions.';
+
+  @override
+  String get helpInsights5 =>
+      'Goals: savings targets with their contributions, their progress and a suggested amount to put aside.';
+
+  @override
+  String get helpInsights6 => 'Every chart has a table with the same figures.';
+
+  @override
+  String get helpSyncTitle => 'Sync, devices and conflicts';
+
+  @override
+  String get helpSync1 =>
+      'With your own server, your changes sync between the devices signed in to your account: shortly after a change, when the app opens, and about once an hour in the background. Bank data comes from your server; your own changes travel both ways.';
+
+  @override
+  String get helpSync2 =>
+      'Settings, Sync, shows when the last sync ran and has Sync now.';
+
+  @override
+  String get helpSync3 =>
+      'When two devices change the same thing within ten minutes of each other, the later change wins and the other is kept under Conflicts, where you can keep this device\'s value instead.';
+
+  @override
+  String get helpSync4 =>
+      'Settings, Devices, lists your devices; you can sign one out, or every other one.';
+
+  @override
+  String get helpSync5 => 'The demo never syncs.';
+
+  @override
+  String get helpBackupTitle => 'Backup and security';
+
+  @override
+  String get helpBackup1 => 'Backup';
+
+  @override
+  String get helpBackup2 =>
+      'Settings, Backup, writes everything into one file, encrypted with a passphrase you choose. Keep the passphrase safe: without it the file cannot be opened. Restore the file on a new install, or when this device can no longer open its data. The demo is not backed up.';
+
+  @override
+  String get helpBackup3 => 'Locking';
+
+  @override
+  String get helpBackup4 =>
+      'Settings, Security, locks the app behind your fingerprint, face or screen lock when it opens and after the time away you choose. Block screenshots keeps the app out of screenshots and hides it in the recent apps.';
+
+  @override
+  String get helpBackup5 => 'Signing out and deleting';
+
+  @override
+  String get helpBackup6 => 'Sign out keeps this device\'s data.';
+
+  @override
+  String get helpBackup7 =>
+      'Sign out and erase this device removes everything the app keeps here; your account stays.';
+
+  @override
+  String get helpBackup8 =>
+      'Delete account disconnects your banks, deletes every record on your server and erases this device.';
+
+  @override
+  String get helpWidgetsTitle => 'Widgets and shortcuts';
+
+  @override
+  String get helpWidgets1 =>
+      'Three home screen widgets show your balances, this period\'s budgets and your next bills. Add them from your launcher\'s list of widgets; tapping one opens the app there.';
+
+  @override
+  String get helpWidgets2 =>
+      'While the app lock is on, the widgets hide every amount.';
+
+  @override
+  String get helpWidgets3 =>
+      'Touch and hold the app\'s icon for its shortcuts: Add transaction, Scan receipt, Search transactions and Sync now.';
+
+  @override
+  String get helpNotificationsTitle => 'Notifications and background sync';
+
+  @override
+  String get helpNotifications1 =>
+      'The app\'s notifications are posted by this device: budget alerts, bill reminders, the weekly summary and sync problems, each in a channel of its own that you can adjust in Android\'s settings.';
+
+  @override
+  String get helpNotifications2 =>
+      'The app asks for permission the first time you turn on something that notifies, never when it first opens.';
+
+  @override
+  String get helpNotifications3 =>
+      'Settings, Notifications, shows each channel and opens its settings.';
+
+  @override
+  String get helpNotifications4 => 'Background sync';
+
+  @override
+  String get helpNotifications5 =>
+      'With your own server, the app syncs about once an hour while the phone is on a network and its battery is not low. Settings, Notifications, shows the last background run and has a switch to turn it off. Some phones stop background work to save battery; letting the app run in the background helps.';
 }
 
 /// The translations for English (`en_XA`).
@@ -10319,4 +10622,315 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get signInTryDemo => '[Ţŕý ţĥé ðéɱö îñšţéåð ~~~~~ ~~]';
+
+  @override
+  String get helpTitle => '[Ĥéļþ ~~]';
+
+  @override
+  String get helpMenuItem => '[Ĥéļþ ~~]';
+
+  @override
+  String get helpMoreOptions => '[Ṁöŕé öþţîöñš ~~~~~]';
+
+  @override
+  String get helpSettingsSubtitle =>
+      '[Ĥöŵ éåçĥ þåŕţ öƒ ţĥé åþþ ŵöŕķš ~~~~~ ~~~~~]';
+
+  @override
+  String get helpStartTitle => '[Ĝéţţîñĝ šţåŕţéð åñð ţĥé ðéɱö ~~~~~ ~~~~~]';
+
+  @override
+  String get helpStart1 =>
+      '[Ƒîñåñçé Ţŕåçķéŕ ķééþš ýöûŕ åççöûñţš, ţŕåñšåçţîöñš, ƀûðĝéţš åñð ƀîļļš öñ ţĥîš ðéṽîçé, îñ åñ éñçŕýþţéð ðåţåƀåšé, åñð ŵöŕķš öƒƒļîñé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get helpStart2 => '[Ţŵö ŵåýš îñ ~~~~]';
+
+  @override
+  String get helpStart3 =>
+      '[Ţŕý ţĥé ðéɱö: öñé öƒ ƒöûŕ ɱåðé-ûþ ĥöûšéĥöļðš, ĝéñéŕåţéð öñ ţĥîš ðéṽîçé. Îţ ñééðš ñö åççöûñţ åñð šéñðš ñöţĥîñĝ åñýŵĥéŕé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get helpStart4 =>
+      '[Ûšé ɱý öŵñ šéŕṽéŕ: šîĝñ îñ ţö, öŕ çŕéåţé åñ åççöûñţ öñ, å Ƒîñåñçé Ţŕåçķéŕ šéŕṽéŕ ýöû ŕûñ. Ýöûŕ çĥåñĝéš ţĥéñ šýñç ƀéţŵééñ ýöûŕ ðéṽîçéš, åñð ýöû çåñ ļîñķ ƀåñķš ţĥŕöûĝĥ Þļåîð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get helpStart5 => '[Ŵĥîļé ţĥé ðéɱö ŕûñš ~~~~~ ~~]';
+
+  @override
+  String get helpStart6 =>
+      '[Å Ðéɱö ðåţå šţŕîþ šţåýš åƀöṽé éṽéŕý ţåƀ. Šéţţîñĝš, Ðéɱö ðåţå, šŵîţçĥéš ţö åñöţĥéŕ ĥöûšéĥöļð; ţĥé çĥåñĝéš ýöû ɱåðé îñ ţĥé ðéɱö åŕé ñöţ ķéþţ ŵĥéñ ýöû šŵîţçĥ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get helpStart7 =>
+      '[Ţö ļéåṽé, ţåþ Ļéåṽé öñ ţĥé šţŕîþ öŕ Ļéåṽé ţĥé ðéɱö îñ Šéţţîñĝš. Ţĥé ðéɱö\'š ðåţå îš éŕåšéð ƒŕöɱ ţĥîš ðéṽîçé åñð ţĥé ŵéļçöɱé šçŕééñ öþéñš åĝåîñ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get helpStart8 => '[Ƒîñðîñĝ ýöûŕ ŵåý ~~~~~ ~]';
+
+  @override
+  String get helpStart9 =>
+      '[Ţĥé ţåƀš åŕé Åççöûñţš, Ţŕåñšåçţîöñš, Þļåñ (ƀûðĝéţš, ƀîļļš åñð ţĥé ƒöŕéçåšţ), Îñšîĝĥţš (ŕéþöŕţš, ñéţ ŵöŕţĥ, îñṽéšţɱéñţš åñð ĝöåļš) åñð Šéţţîñĝš. Ţĥé ɱéñûš öƒ Åççöûñţš, Ţŕåñšåçţîöñš, Þļåñ åñð Îñšîĝĥţš öþéñ ţĥé ĥéļþ ƒöŕ ŵĥåţ ţĥéý šĥöŵ, åñð Šéţţîñĝš, Ĥéļþ, ļîšţš éṽéŕý šéçţîöñ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get helpAccountsTitle => '[Åççöûñţš åñð ļîñķéð ƀåñķš ~~~~~ ~~~~]';
+
+  @override
+  String get helpAccounts1 =>
+      '[Ţĥé Åççöûñţš ţåƀ ļîšţš ýöûŕ åççöûñţš åñð ţĥéîŕ ƀåļåñçéš. Éåçĥ ƀåļåñçé šåýš ŵĥéŕé îţ çöɱéš ƒŕöɱ: ŕéþöŕţéð ƀý ţĥé ƀåñķ, öŕ ŵöŕķéð öûţ ƒŕöɱ ţĥé åççöûñţ\'š ţŕåñšåçţîöñš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get helpAccounts2 => '[Åççöûñţš ýöû ķééþ ƀý ĥåñð ~~~~~ ~~~~]';
+
+  @override
+  String get helpAccounts3 =>
+      '[Åðð åñ åççöûñţ ƒöŕ çåšĥ, å çåŕð ýöû ðö ñöţ ļîñķ, öŕ åñýţĥîñĝ éļšé ýöû ţŕåçķ ýöûŕšéļƒ. Îţš ƀåļåñçé çöɱéš ƒŕöɱ îţš öþéñîñĝ ƀåļåñçé åñð ţĥé ţŕåñšåçţîöñš ýöû éñţéŕ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get helpAccounts4 => '[Ļîñķéð ƀåñķš ~~~~~]';
+
+  @override
+  String get helpAccounts5 =>
+      '[Ŵîţĥ ýöûŕ öŵñ šéŕṽéŕ, Ļîñķéð ƀåñķš çöññéçţš å ƀåñķ ţĥŕöûĝĥ Þļåîð Ļîñķ. Ýöûŕ šéŕṽéŕ þûļļš ţĥé ƀåñķ\'š åççöûñţš, ţŕåñšåçţîöñš åñð ƀåļåñçéš, åñð, ŵĥéŕé ţĥé ƀåñķ öƒƒéŕš ţĥéɱ, îţš ļöåñš åñð çåŕðš, îñṽéšţɱéñţš åñð ŕéçûŕŕîñĝ þåýɱéñţš; ţĥé åþþ ƒéţçĥéš ţĥéɱ ƒŕöɱ ýöûŕ šéŕṽéŕ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get helpAccounts6 =>
+      '[Å ƀåñķ ţĥåţ ñééðš ýöû ţö šîĝñ îñ åĝåîñ îš ɱåŕķéð; Ƒîẋ çöññéçţîöñ öþéñš Þļåîð Ļîñķ ţö ŕéþåîŕ îţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get helpAccounts7 =>
+      '[Ûñļîñķ ŕéɱöṽéš å ƀåñķ. Ýöû çĥööšé ŵĥéţĥéŕ îţš åççöûñţš åñð ţŕåñšåçţîöñš šţåý öñ ýöûŕ ðéṽîçéš, ñö ļöñĝéŕ ûþðåţéð, öŕ ĝö. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get helpAccounts8 =>
+      '[Îñ ţĥé ðéɱö, ļîñķîñĝ åððš å šåɱþļé ƀåñķ, Ĥöûñðšţööţĥ Ɓåñķ. ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get helpTransactionsTitle => '[Ţŕåñšåçţîöñš ~~~~~]';
+
+  @override
+  String get helpTransactions1 =>
+      '[Ţĥé Ţŕåñšåçţîöñš ţåƀ ļîšţš ýöûŕ ţŕåñšåçţîöñš, ñéŵéšţ ƒîŕšţ. Ţåþ öñé ţö çĥåñĝé îţš çåţéĝöŕý, ñåɱé, ñöţéš öŕ ţåĝš, öŕ ţö ĥîðé îţ ƒŕöɱ ýöûŕ ţöţåļš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get helpTransactions2 => '[Šéåŕçĥ åñð ƒîļţéŕš ~~~~~ ~~]';
+
+  @override
+  String get helpTransactions3 =>
+      '[Šéåŕçĥ ƒîñðš ŵöŕðš, öŕ ţĥé šţåŕţ öƒ ŵöŕðš, îñ ñåɱéš, ɱéŕçĥåñţš åñð ñöţéš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get helpTransactions4 =>
+      '[Ƒîļţéŕš ñåŕŕöŵ ţĥé ļîšţ ƀý åççöûñţ, çåţéĝöŕý, ðåţéš, åɱöûñţ åñð ţåĝš. Šåṽé å šéţ öƒ ƒîļţéŕš ţö ûšé îţ åĝåîñ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get helpTransactions5 => '[Šþļîţš åñð ŕéçéîþţš ~~~~~ ~~]';
+
+  @override
+  String get helpTransactions6 =>
+      '[Šþļîţ å ţŕåñšåçţîöñ åçŕöšš çåţéĝöŕîéš; ţĥé þåŕţš åļŵåýš åðð ûþ ţö îţš åɱöûñţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get helpTransactions7 =>
+      '[Åţţåçĥ å ŕéçéîþţ þĥöţö ƒŕöɱ ţĥé çåɱéŕå öŕ ţĥé ĝåļļéŕý. Ŵîţĥ ýöûŕ öŵñ šéŕṽéŕ îţ ŕéåçĥéš ýöûŕ öţĥéŕ ðéṽîçéš ţöö. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get helpTransactions8 => '[Šéṽéŕåļ åţ öñçé ~~~~~ ~]';
+
+  @override
+  String get helpTransactions9 =>
+      '[Ļöñĝ-þŕéšš å ţŕåñšåçţîöñ ţö šéļéçţ šéṽéŕåļ, ţĥéñ çåţéĝöŕîšé, ţåĝ, ĥîðé öŕ ðéļéţé ţĥéɱ ţöĝéţĥéŕ. Ļîķéļý ðûþļîçåţéš åŕé öƒƒéŕéð ƒöŕ ŕéṽîéŵ ƒŕöɱ ţĥé ɱéñû. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get helpTransactions10 => '[Îɱþöŕţîñĝ ~~~~]';
+
+  @override
+  String get helpTransactions11 =>
+      '[Îɱþöŕţ ŕéåðš å ÇŠṼ éẋþöŕţ ƒŕöɱ ýöûŕ ƀåñķ. Ýöû ɱåţçĥ îţš çöļûɱñš, çĥéçķ ţĥé ŕöŵš, åñð åðð ţĥéɱ ţö åñ åççöûñţ; ļîķéļý ðûþļîçåţéš åŕé šķîþþéð, åñð åñ îɱþöŕţ çåñ ƀé ûñðöñé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get helpBudgetsTitle => '[Ɓûðĝéţš ~~~]';
+
+  @override
+  String get helpBudgets1 =>
+      '[Å ƀûðĝéţ šéţš å ļîɱîţ öñ å çåţéĝöŕý ƒöŕ éåçĥ þéŕîöð, ɱöñţĥļý ƒŕöɱ å šţåŕţ ðåý ýöû çĥööšé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get helpBudgets2 =>
+      '[Ŕöļļöṽéŕ çåŕŕîéš ŵĥåţ îš ļéƒţ, öŕ ŵĥåţ ŵåš öṽéŕšþéñţ, îñţö ţĥé ñéẋţ þéŕîöð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get helpBudgets3 =>
+      '[Ţĥé þŕöĵéçţîöñ éšţîɱåţéš ŵĥéŕé ţĥîš þéŕîöð\'š šþéñðîñĝ ŵîļļ éñð åţ îţš çûŕŕéñţ þåçé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get helpBudgets4 =>
+      '[Åñ åļéŕţ îš ŕåîšéð ŵĥéñ šþéñðîñĝ ŕéåçĥéš 80 þéŕçéñţ öƒ å ƀûðĝéţ åñð åĝåîñ åţ 100 þéŕçéñţ; ţĥé ƀéļļ ļîšţš ţĥéɱ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get helpBudgets5 =>
+      '[Öþéñ å ƀûðĝéţ ţö šéé ţĥé ţŕåñšåçţîöñš îţ çöûñţš. ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get helpBillsTitle => '[Ɓîļļš åñð ŕéɱîñðéŕš ~~~~~ ~~]';
+
+  @override
+  String get helpBills1 =>
+      '[Ɓîļļš ţŕåçķš þåýɱéñţš ţĥåţ çöɱé ðûé ŕéĝûļåŕļý. Åðð öñé ýöûŕšéļƒ, öŕ åççéþţ å šûĝĝéšţîöñ ɱåðé ƒŕöɱ ţĥé ŕéçûŕŕîñĝ þåýɱéñţš îñ ýöûŕ ţŕåñšåçţîöñš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get helpBills2 =>
+      '[Éåçĥ ƀîļļ šĥöŵš ŵĥéñ îţ îš ñéẋţ ðûé åñð ŵĥéţĥéŕ îţ ŵåš þåîð. Å þåýɱéñţ îš ɱåţçĥéð ƒŕöɱ ýöûŕ ţŕåñšåçţîöñš, åñð å ɱîššéð öñé îš çöûñţéð öñ ţĥé Þļåñ ţåƀ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get helpBills3 =>
+      '[Ŕéɱîñðéŕš åŕŕîṽé åš ñöţîƒîçåţîöñš öñ ţĥé ðåýš ƀéƒöŕé å ðûé ðåţé ýöû çĥööšé, åţ ţĥé ţîɱé öƒ ðåý ýöû çĥööšé, ķéþţ åţ ţĥåţ ţîɱé ŵĥéñ ţĥé çļöçķš çĥåñĝé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get helpBills4 =>
+      '[Ţĥé çåļéñðåŕ šĥöŵš ţĥé ɱöñţĥ\'š ƀîļļš ƀý ðåý. ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get helpBills5 => '[Šûƀšçŕîþţîöñš ~~~~~ ~]';
+
+  @override
+  String get helpBills6 =>
+      '[Šûƀšçŕîþţîöñš ļîšţš ţĥé ŕéçûŕŕîñĝ çĥåŕĝéš ţĥåţ ļööķ ļîķé šûƀšçŕîþţîöñš, ŵîţĥ ŵĥåţ éåçĥ çöšţš îñ å ýéåŕ. Ýöû çåñ ŕéñåɱé öñé, šåý îţ îš ñöţ å šûƀšçŕîþţîöñ, öŕ ɱûţé îţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get helpForecastTitle => '[Ƒöŕéçåšţ ~~~~]';
+
+  @override
+  String get helpForecast1 =>
+      '[Ţĥé ƒöŕéçåšţ þŕöĵéçţš ţĥé ƀåļåñçé öƒ ţĥé åççöûñţš ýöû çĥööšé ƒöŕ ţĥé ñéẋţ 30 öŕ 90 ðåýš, ƒŕöɱ ýöûŕ ƀîļļš, ýöûŕ ŕéçûŕŕîñĝ þåýɱéñţš åñð åñ åļļöŵåñçé ƒöŕ éṽéŕýðåý šþéñðîñĝ, ŵîţĥ å ƀåñð šĥöŵîñĝ ĥöŵ ƒåŕ îţ ɱåý ṽåŕý. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get helpForecast2 =>
+      '[Çĥööšé åççöûñţš þîçķš ţĥé åççöûñţš îţ çöṽéŕš. ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get helpForecast3 =>
+      '[Å ţåƀļé ûñðéŕ ţĥé çĥåŕţ ĝîṽéš ţĥé šåɱé ƒîĝûŕéš. ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get helpForecast4 =>
+      '[Îţ îš åñ éšţîɱåţé, åñð îţ çĥåñĝéš åš ñéŵ ţŕåñšåçţîöñš åŕŕîṽé. ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get helpInsightsTitle => '[Îñšîĝĥţš ~~~~]';
+
+  @override
+  String get helpInsights1 => '[Îñšîĝĥţš ĥåš ƒöûŕ šéĝɱéñţš. ~~~~~ ~~~~~]';
+
+  @override
+  String get helpInsights2 =>
+      '[Ŕéþöŕţš: šþéñðîñĝ ƀý çåţéĝöŕý åñð ƀý ɱéŕçĥåñţ ƒöŕ å þéŕîöð, çöɱþåŕéð ŵîţĥ ţĥé þéŕîöð ƀéƒöŕé, ŵîţĥ ţĥé ļåŕĝéšţ çĥåñĝéš åñð ûñûšûåļ ţŕåñšåçţîöñš þöîñţéð öûţ. Ţĥé ŵééķļý šûɱɱåŕý îš ĥéŕé, åñð ţĥé ɱöñţĥ\'š ŕéþöŕţ çåñ ƀé šåṽéð åš å ÞÐƑ; Šéţţîñĝš, Éẋþöŕţ, åļšö ŵŕîţéš ýöûŕ ţŕåñšåçţîöñš åš å ÇŠṼ ƒîļé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get helpInsights3 =>
+      '[Ñéţ ŵöŕţĥ: ŵĥåţ ýöû öŵñ ɱîñûš ŵĥåţ ýöû öŵé, öṽéŕ ţîɱé, ƒŕöɱ å ƀåļåñçé ŕéçöŕðéð éåçĥ ðåý. Ðåýš ƒŕöɱ ƀéƒöŕé ţĥé åþþ ŵåš îñšţåļļéð åŕé ŵöŕķéð öûţ ƒŕöɱ ţŕåñšåçţîöñš åñð ļåƀéļļéð åš ðéŕîṽéð. Ļöåñš åñð çåŕðš šĥöŵ ŵĥéñ ţĥéý çöûļð ƀé þåîð öƒƒ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get helpInsights4 =>
+      '[Îñṽéšţɱéñţš: ţĥé ĥöļðîñĝš öƒ ļîñķéð îñṽéšţɱéñţ åççöûñţš, ĥöŵ ţĥéý åŕé šþŕéåð, ţĥéîŕ ĝåîñš, åñð ţĥéîŕ ţŕåñšåçţîöñš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get helpInsights5 =>
+      '[Ĝöåļš: šåṽîñĝš ţåŕĝéţš ŵîţĥ ţĥéîŕ çöñţŕîƀûţîöñš, ţĥéîŕ þŕöĝŕéšš åñð å šûĝĝéšţéð åɱöûñţ ţö þûţ åšîðé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get helpInsights6 =>
+      '[Éṽéŕý çĥåŕţ ĥåš å ţåƀļé ŵîţĥ ţĥé šåɱé ƒîĝûŕéš. ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get helpSyncTitle => '[Šýñç, ðéṽîçéš åñð çöñƒļîçţš ~~~~~ ~~~~~]';
+
+  @override
+  String get helpSync1 =>
+      '[Ŵîţĥ ýöûŕ öŵñ šéŕṽéŕ, ýöûŕ çĥåñĝéš šýñç ƀéţŵééñ ţĥé ðéṽîçéš šîĝñéð îñ ţö ýöûŕ åççöûñţ: šĥöŕţļý åƒţéŕ å çĥåñĝé, ŵĥéñ ţĥé åþþ öþéñš, åñð åƀöûţ öñçé åñ ĥöûŕ îñ ţĥé ƀåçķĝŕöûñð. Ɓåñķ ðåţå çöɱéš ƒŕöɱ ýöûŕ šéŕṽéŕ; ýöûŕ öŵñ çĥåñĝéš ţŕåṽéļ ƀöţĥ ŵåýš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get helpSync2 =>
+      '[Šéţţîñĝš, Šýñç, šĥöŵš ŵĥéñ ţĥé ļåšţ šýñç ŕåñ åñð ĥåš Šýñç ñöŵ. ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get helpSync3 =>
+      '[Ŵĥéñ ţŵö ðéṽîçéš çĥåñĝé ţĥé šåɱé ţĥîñĝ ŵîţĥîñ ţéñ ɱîñûţéš öƒ éåçĥ öţĥéŕ, ţĥé ļåţéŕ çĥåñĝé ŵîñš åñð ţĥé öţĥéŕ îš ķéþţ ûñðéŕ Çöñƒļîçţš, ŵĥéŕé ýöû çåñ ķééþ ţĥîš ðéṽîçé\'š ṽåļûé îñšţéåð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get helpSync4 =>
+      '[Šéţţîñĝš, Ðéṽîçéš, ļîšţš ýöûŕ ðéṽîçéš; ýöû çåñ šîĝñ öñé öûţ, öŕ éṽéŕý öţĥéŕ öñé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get helpSync5 => '[Ţĥé ðéɱö ñéṽéŕ šýñçš. ~~~~~ ~~]';
+
+  @override
+  String get helpBackupTitle => '[Ɓåçķûþ åñð šéçûŕîţý ~~~~~ ~~]';
+
+  @override
+  String get helpBackup1 => '[Ɓåçķûþ ~~~]';
+
+  @override
+  String get helpBackup2 =>
+      '[Šéţţîñĝš, Ɓåçķûþ, ŵŕîţéš éṽéŕýţĥîñĝ îñţö öñé ƒîļé, éñçŕýþţéð ŵîţĥ å þåššþĥŕåšé ýöû çĥööšé. Ķééþ ţĥé þåššþĥŕåšé šåƒé: ŵîţĥöûţ îţ ţĥé ƒîļé çåññöţ ƀé öþéñéð. Ŕéšţöŕé ţĥé ƒîļé öñ å ñéŵ îñšţåļļ, öŕ ŵĥéñ ţĥîš ðéṽîçé çåñ ñö ļöñĝéŕ öþéñ îţš ðåţå. Ţĥé ðéɱö îš ñöţ ƀåçķéð ûþ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get helpBackup3 => '[Ļöçķîñĝ ~~~]';
+
+  @override
+  String get helpBackup4 =>
+      '[Šéţţîñĝš, Šéçûŕîţý, ļöçķš ţĥé åþþ ƀéĥîñð ýöûŕ ƒîñĝéŕþŕîñţ, ƒåçé öŕ šçŕééñ ļöçķ ŵĥéñ îţ öþéñš åñð åƒţéŕ ţĥé ţîɱé åŵåý ýöû çĥööšé. Ɓļöçķ šçŕééñšĥöţš ķééþš ţĥé åþþ öûţ öƒ šçŕééñšĥöţš åñð ĥîðéš îţ îñ ţĥé ŕéçéñţ åþþš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get helpBackup5 => '[Šîĝñîñĝ öûţ åñð ðéļéţîñĝ ~~~~~ ~~~~]';
+
+  @override
+  String get helpBackup6 =>
+      '[Šîĝñ öûţ ķééþš ţĥîš ðéṽîçé\'š ðåţå. ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get helpBackup7 =>
+      '[Šîĝñ öûţ åñð éŕåšé ţĥîš ðéṽîçé ŕéɱöṽéš éṽéŕýţĥîñĝ ţĥé åþþ ķééþš ĥéŕé; ýöûŕ åççöûñţ šţåýš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get helpBackup8 =>
+      '[Ðéļéţé åççöûñţ ðîšçöññéçţš ýöûŕ ƀåñķš, ðéļéţéš éṽéŕý ŕéçöŕð öñ ýöûŕ šéŕṽéŕ åñð éŕåšéš ţĥîš ðéṽîçé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get helpWidgetsTitle => '[Ŵîðĝéţš åñð šĥöŕţçûţš ~~~~~ ~~~]';
+
+  @override
+  String get helpWidgets1 =>
+      '[Ţĥŕéé ĥöɱé šçŕééñ ŵîðĝéţš šĥöŵ ýöûŕ ƀåļåñçéš, ţĥîš þéŕîöð\'š ƀûðĝéţš åñð ýöûŕ ñéẋţ ƀîļļš. Åðð ţĥéɱ ƒŕöɱ ýöûŕ ļåûñçĥéŕ\'š ļîšţ öƒ ŵîðĝéţš; ţåþþîñĝ öñé öþéñš ţĥé åþþ ţĥéŕé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get helpWidgets2 =>
+      '[Ŵĥîļé ţĥé åþþ ļöçķ îš öñ, ţĥé ŵîðĝéţš ĥîðé éṽéŕý åɱöûñţ. ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get helpWidgets3 =>
+      '[Ţöûçĥ åñð ĥöļð ţĥé åþþ\'š îçöñ ƒöŕ îţš šĥöŕţçûţš: Åðð ţŕåñšåçţîöñ, Šçåñ ŕéçéîþţ, Šéåŕçĥ ţŕåñšåçţîöñš åñð Šýñç ñöŵ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get helpNotificationsTitle =>
+      '[Ñöţîƒîçåţîöñš åñð ƀåçķĝŕöûñð šýñç ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get helpNotifications1 =>
+      '[Ţĥé åþþ\'š ñöţîƒîçåţîöñš åŕé þöšţéð ƀý ţĥîš ðéṽîçé: ƀûðĝéţ åļéŕţš, ƀîļļ ŕéɱîñðéŕš, ţĥé ŵééķļý šûɱɱåŕý åñð šýñç þŕöƀļéɱš, éåçĥ îñ å çĥåññéļ öƒ îţš öŵñ ţĥåţ ýöû çåñ åðĵûšţ îñ Åñðŕöîð\'š šéţţîñĝš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get helpNotifications2 =>
+      '[Ţĥé åþþ åšķš ƒöŕ þéŕɱîššîöñ ţĥé ƒîŕšţ ţîɱé ýöû ţûŕñ öñ šöɱéţĥîñĝ ţĥåţ ñöţîƒîéš, ñéṽéŕ ŵĥéñ îţ ƒîŕšţ öþéñš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get helpNotifications3 =>
+      '[Šéţţîñĝš, Ñöţîƒîçåţîöñš, šĥöŵš éåçĥ çĥåññéļ åñð öþéñš îţš šéţţîñĝš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get helpNotifications4 => '[Ɓåçķĝŕöûñð šýñç ~~~~~ ~]';
+
+  @override
+  String get helpNotifications5 =>
+      '[Ŵîţĥ ýöûŕ öŵñ šéŕṽéŕ, ţĥé åþþ šýñçš åƀöûţ öñçé åñ ĥöûŕ ŵĥîļé ţĥé þĥöñé îš öñ å ñéţŵöŕķ åñð îţš ƀåţţéŕý îš ñöţ ļöŵ. Šéţţîñĝš, Ñöţîƒîçåţîöñš, šĥöŵš ţĥé ļåšţ ƀåçķĝŕöûñð ŕûñ åñð ĥåš å šŵîţçĥ ţö ţûŕñ îţ öƒƒ. Šöɱé þĥöñéš šţöþ ƀåçķĝŕöûñð ŵöŕķ ţö šåṽé ƀåţţéŕý; ļéţţîñĝ ţĥé åþþ ŕûñ îñ ţĥé ƀåçķĝŕöûñð ĥéļþš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
 }

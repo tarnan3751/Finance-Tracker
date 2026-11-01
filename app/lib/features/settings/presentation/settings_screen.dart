@@ -6,7 +6,7 @@
 /// `notifications_screen.dart`), Data (category management, rules,
 /// export, backup; in the demo flavor the Backup entry says the demo's data is not backed
 /// up) and About (app name, version and build, flavor, the time zone dates are computed
-/// in), then Demo data (demo only, `demo_data_section.dart`) and Developer (dev only,
+/// in, Help, `features/help/`), then Demo data (demo only, `demo_data_section.dart`) and Developer (dev only,
 /// `features/developer/presentation/developer_section.dart`).
 library;
 
@@ -160,6 +160,13 @@ class SettingsScreen extends ConsumerWidget {
           ),
           ListTile(title: Text(l10n.aboutFlavor), subtitle: Text(flavor)),
           ListTile(title: Text(l10n.aboutTimeZone), subtitle: Text(timeZone)),
+          ListTile(
+            leading: const Icon(Icons.help_outline),
+            title: Text(l10n.helpTitle),
+            subtitle: Text(l10n.helpSettingsSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => openDetail(context, const HelpRoute().location),
+          ),
           if (ref.watch(appConfigProvider).isDemo) const DemoDataSection(),
           // A constant first, so demo and prod builds leave the tools out.
           if (kDevTools && ref.watch(appConfigProvider).flavor == Flavor.dev)

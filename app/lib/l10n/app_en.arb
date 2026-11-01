@@ -7276,5 +7276,345 @@
   "signInTryDemo": "Try the demo instead",
   "@signInTryDemo": {
     "description": "Button on the sign-in screen of a new install that goes back to the welcome screen, where the demo can be chosen."
+  },
+  "helpTitle": "Help",
+  "@helpTitle": {
+    "description": "Title of the in-app help, opened from Settings and from each tab's menu."
+  },
+  "helpMenuItem": "Help",
+  "@helpMenuItem": {
+    "description": "Menu item, in each tab's menu, that opens the help for what the tab shows."
+  },
+  "helpMoreOptions": "More options",
+  "@helpMoreOptions": {
+    "description": "Tooltip of the menu button in a tab's app bar that holds Help."
+  },
+  "helpSettingsSubtitle": "How each part of the app works",
+  "@helpSettingsSubtitle": {
+    "description": "Supporting text of the Help row in Settings."
+  },
+  "helpStartTitle": "Getting started and the demo",
+  "@helpStartTitle": {
+    "description": "Title of the help section about getting started and the demo."
+  },
+  "helpStart1": "Finance Tracker keeps your accounts, transactions, budgets and bills on this device, in an encrypted database, and works offline.",
+  "@helpStart1": {
+    "description": "A paragraph of the help section \"Getting started and the demo\". Plain prose, no formatting."
+  },
+  "helpStart2": "Two ways in",
+  "@helpStart2": {
+    "description": "A heading of the help section \"Getting started and the demo\". Plain prose, no formatting."
+  },
+  "helpStart3": "Try the demo: one of four made-up households, generated on this device. It needs no account and sends nothing anywhere.",
+  "@helpStart3": {
+    "description": "A bullet of the help section \"Getting started and the demo\". Plain prose, no formatting."
+  },
+  "helpStart4": "Use my own server: sign in to, or create an account on, a Finance Tracker server you run. Your changes then sync between your devices, and you can link banks through Plaid.",
+  "@helpStart4": {
+    "description": "A bullet of the help section \"Getting started and the demo\". Plain prose, no formatting."
+  },
+  "helpStart5": "While the demo runs",
+  "@helpStart5": {
+    "description": "A heading of the help section \"Getting started and the demo\". Plain prose, no formatting."
+  },
+  "helpStart6": "A Demo data strip stays above every tab. Settings, Demo data, switches to another household; the changes you made in the demo are not kept when you switch.",
+  "@helpStart6": {
+    "description": "A paragraph of the help section \"Getting started and the demo\". Plain prose, no formatting."
+  },
+  "helpStart7": "To leave, tap Leave on the strip or Leave the demo in Settings. The demo's data is erased from this device and the welcome screen opens again.",
+  "@helpStart7": {
+    "description": "A paragraph of the help section \"Getting started and the demo\". Plain prose, no formatting."
+  },
+  "helpStart8": "Finding your way",
+  "@helpStart8": {
+    "description": "A heading of the help section \"Getting started and the demo\". Plain prose, no formatting."
+  },
+  "helpStart9": "The tabs are Accounts, Transactions, Plan (budgets, bills and the forecast), Insights (reports, net worth, investments and goals) and Settings. The menus of Accounts, Transactions, Plan and Insights open the help for what they show, and Settings, Help, lists every section.",
+  "@helpStart9": {
+    "description": "A paragraph of the help section \"Getting started and the demo\". Plain prose, no formatting."
+  },
+  "helpAccountsTitle": "Accounts and linked banks",
+  "@helpAccountsTitle": {
+    "description": "Title of the help section about accounts and linked banks."
+  },
+  "helpAccounts1": "The Accounts tab lists your accounts and their balances. Each balance says where it comes from: reported by the bank, or worked out from the account's transactions.",
+  "@helpAccounts1": {
+    "description": "A paragraph of the help section \"Accounts and linked banks\". Plain prose, no formatting."
+  },
+  "helpAccounts2": "Accounts you keep by hand",
+  "@helpAccounts2": {
+    "description": "A heading of the help section \"Accounts and linked banks\". Plain prose, no formatting."
+  },
+  "helpAccounts3": "Add an account for cash, a card you do not link, or anything else you track yourself. Its balance comes from its opening balance and the transactions you enter.",
+  "@helpAccounts3": {
+    "description": "A paragraph of the help section \"Accounts and linked banks\". Plain prose, no formatting."
+  },
+  "helpAccounts4": "Linked banks",
+  "@helpAccounts4": {
+    "description": "A heading of the help section \"Accounts and linked banks\". Plain prose, no formatting."
+  },
+  "helpAccounts5": "With your own server, Linked banks connects a bank through Plaid Link. Your server pulls the bank's accounts, transactions and balances, and, where the bank offers them, its loans and cards, investments and recurring payments; the app fetches them from your server.",
+  "@helpAccounts5": {
+    "description": "A paragraph of the help section \"Accounts and linked banks\". Plain prose, no formatting."
+  },
+  "helpAccounts6": "A bank that needs you to sign in again is marked; Fix connection opens Plaid Link to repair it.",
+  "@helpAccounts6": {
+    "description": "A bullet of the help section \"Accounts and linked banks\". Plain prose, no formatting."
+  },
+  "helpAccounts7": "Unlink removes a bank. You choose whether its accounts and transactions stay on your devices, no longer updated, or go.",
+  "@helpAccounts7": {
+    "description": "A bullet of the help section \"Accounts and linked banks\". Plain prose, no formatting."
+  },
+  "helpAccounts8": "In the demo, linking adds a sample bank, Houndstooth Bank.",
+  "@helpAccounts8": {
+    "description": "A bullet of the help section \"Accounts and linked banks\". Plain prose, no formatting."
+  },
+  "helpTransactionsTitle": "Transactions",
+  "@helpTransactionsTitle": {
+    "description": "Title of the help section about transactions."
+  },
+  "helpTransactions1": "The Transactions tab lists your transactions, newest first. Tap one to change its category, name, notes or tags, or to hide it from your totals.",
+  "@helpTransactions1": {
+    "description": "A paragraph of the help section \"Transactions\". Plain prose, no formatting."
+  },
+  "helpTransactions2": "Search and filters",
+  "@helpTransactions2": {
+    "description": "A heading of the help section \"Transactions\". Plain prose, no formatting."
+  },
+  "helpTransactions3": "Search finds words, or the start of words, in names, merchants and notes.",
+  "@helpTransactions3": {
+    "description": "A bullet of the help section \"Transactions\". Plain prose, no formatting."
+  },
+  "helpTransactions4": "Filters narrow the list by account, category, dates, amount and tags. Save a set of filters to use it again.",
+  "@helpTransactions4": {
+    "description": "A bullet of the help section \"Transactions\". Plain prose, no formatting."
+  },
+  "helpTransactions5": "Splits and receipts",
+  "@helpTransactions5": {
+    "description": "A heading of the help section \"Transactions\". Plain prose, no formatting."
+  },
+  "helpTransactions6": "Split a transaction across categories; the parts always add up to its amount.",
+  "@helpTransactions6": {
+    "description": "A bullet of the help section \"Transactions\". Plain prose, no formatting."
+  },
+  "helpTransactions7": "Attach a receipt photo from the camera or the gallery. With your own server it reaches your other devices too.",
+  "@helpTransactions7": {
+    "description": "A bullet of the help section \"Transactions\". Plain prose, no formatting."
+  },
+  "helpTransactions8": "Several at once",
+  "@helpTransactions8": {
+    "description": "A heading of the help section \"Transactions\". Plain prose, no formatting."
+  },
+  "helpTransactions9": "Long-press a transaction to select several, then categorise, tag, hide or delete them together. Likely duplicates are offered for review from the menu.",
+  "@helpTransactions9": {
+    "description": "A paragraph of the help section \"Transactions\". Plain prose, no formatting."
+  },
+  "helpTransactions10": "Importing",
+  "@helpTransactions10": {
+    "description": "A heading of the help section \"Transactions\". Plain prose, no formatting."
+  },
+  "helpTransactions11": "Import reads a CSV export from your bank. You match its columns, check the rows, and add them to an account; likely duplicates are skipped, and an import can be undone.",
+  "@helpTransactions11": {
+    "description": "A paragraph of the help section \"Transactions\". Plain prose, no formatting."
+  },
+  "helpBudgetsTitle": "Budgets",
+  "@helpBudgetsTitle": {
+    "description": "Title of the help section about budgets."
+  },
+  "helpBudgets1": "A budget sets a limit on a category for each period, monthly from a start day you choose.",
+  "@helpBudgets1": {
+    "description": "A paragraph of the help section \"Budgets\". Plain prose, no formatting."
+  },
+  "helpBudgets2": "Rollover carries what is left, or what was overspent, into the next period.",
+  "@helpBudgets2": {
+    "description": "A bullet of the help section \"Budgets\". Plain prose, no formatting."
+  },
+  "helpBudgets3": "The projection estimates where this period's spending will end at its current pace.",
+  "@helpBudgets3": {
+    "description": "A bullet of the help section \"Budgets\". Plain prose, no formatting."
+  },
+  "helpBudgets4": "An alert is raised when spending reaches 80 percent of a budget and again at 100 percent; the bell lists them.",
+  "@helpBudgets4": {
+    "description": "A bullet of the help section \"Budgets\". Plain prose, no formatting."
+  },
+  "helpBudgets5": "Open a budget to see the transactions it counts.",
+  "@helpBudgets5": {
+    "description": "A paragraph of the help section \"Budgets\". Plain prose, no formatting."
+  },
+  "helpBillsTitle": "Bills and reminders",
+  "@helpBillsTitle": {
+    "description": "Title of the help section about bills and reminders."
+  },
+  "helpBills1": "Bills tracks payments that come due regularly. Add one yourself, or accept a suggestion made from the recurring payments in your transactions.",
+  "@helpBills1": {
+    "description": "A paragraph of the help section \"Bills and reminders\". Plain prose, no formatting."
+  },
+  "helpBills2": "Each bill shows when it is next due and whether it was paid. A payment is matched from your transactions, and a missed one is counted on the Plan tab.",
+  "@helpBills2": {
+    "description": "A bullet of the help section \"Bills and reminders\". Plain prose, no formatting."
+  },
+  "helpBills3": "Reminders arrive as notifications on the days before a due date you choose, at the time of day you choose, kept at that time when the clocks change.",
+  "@helpBills3": {
+    "description": "A bullet of the help section \"Bills and reminders\". Plain prose, no formatting."
+  },
+  "helpBills4": "The calendar shows the month's bills by day.",
+  "@helpBills4": {
+    "description": "A bullet of the help section \"Bills and reminders\". Plain prose, no formatting."
+  },
+  "helpBills5": "Subscriptions",
+  "@helpBills5": {
+    "description": "A heading of the help section \"Bills and reminders\". Plain prose, no formatting."
+  },
+  "helpBills6": "Subscriptions lists the recurring charges that look like subscriptions, with what each costs in a year. You can rename one, say it is not a subscription, or mute it.",
+  "@helpBills6": {
+    "description": "A paragraph of the help section \"Bills and reminders\". Plain prose, no formatting."
+  },
+  "helpForecastTitle": "Forecast",
+  "@helpForecastTitle": {
+    "description": "Title of the help section about forecast."
+  },
+  "helpForecast1": "The forecast projects the balance of the accounts you choose for the next 30 or 90 days, from your bills, your recurring payments and an allowance for everyday spending, with a band showing how far it may vary.",
+  "@helpForecast1": {
+    "description": "A paragraph of the help section \"Forecast\". Plain prose, no formatting."
+  },
+  "helpForecast2": "Choose accounts picks the accounts it covers.",
+  "@helpForecast2": {
+    "description": "A bullet of the help section \"Forecast\". Plain prose, no formatting."
+  },
+  "helpForecast3": "A table under the chart gives the same figures.",
+  "@helpForecast3": {
+    "description": "A bullet of the help section \"Forecast\". Plain prose, no formatting."
+  },
+  "helpForecast4": "It is an estimate, and it changes as new transactions arrive.",
+  "@helpForecast4": {
+    "description": "A paragraph of the help section \"Forecast\". Plain prose, no formatting."
+  },
+  "helpInsightsTitle": "Insights",
+  "@helpInsightsTitle": {
+    "description": "Title of the help section about insights."
+  },
+  "helpInsights1": "Insights has four segments.",
+  "@helpInsights1": {
+    "description": "A paragraph of the help section \"Insights\". Plain prose, no formatting."
+  },
+  "helpInsights2": "Reports: spending by category and by merchant for a period, compared with the period before, with the largest changes and unusual transactions pointed out. The weekly summary is here, and the month's report can be saved as a PDF; Settings, Export, also writes your transactions as a CSV file.",
+  "@helpInsights2": {
+    "description": "A bullet of the help section \"Insights\". Plain prose, no formatting."
+  },
+  "helpInsights3": "Net worth: what you own minus what you owe, over time, from a balance recorded each day. Days from before the app was installed are worked out from transactions and labelled as derived. Loans and cards show when they could be paid off.",
+  "@helpInsights3": {
+    "description": "A bullet of the help section \"Insights\". Plain prose, no formatting."
+  },
+  "helpInsights4": "Investments: the holdings of linked investment accounts, how they are spread, their gains, and their transactions.",
+  "@helpInsights4": {
+    "description": "A bullet of the help section \"Insights\". Plain prose, no formatting."
+  },
+  "helpInsights5": "Goals: savings targets with their contributions, their progress and a suggested amount to put aside.",
+  "@helpInsights5": {
+    "description": "A bullet of the help section \"Insights\". Plain prose, no formatting."
+  },
+  "helpInsights6": "Every chart has a table with the same figures.",
+  "@helpInsights6": {
+    "description": "A paragraph of the help section \"Insights\". Plain prose, no formatting."
+  },
+  "helpSyncTitle": "Sync, devices and conflicts",
+  "@helpSyncTitle": {
+    "description": "Title of the help section about sync, devices and conflicts."
+  },
+  "helpSync1": "With your own server, your changes sync between the devices signed in to your account: shortly after a change, when the app opens, and about once an hour in the background. Bank data comes from your server; your own changes travel both ways.",
+  "@helpSync1": {
+    "description": "A paragraph of the help section \"Sync, devices and conflicts\". Plain prose, no formatting."
+  },
+  "helpSync2": "Settings, Sync, shows when the last sync ran and has Sync now.",
+  "@helpSync2": {
+    "description": "A bullet of the help section \"Sync, devices and conflicts\". Plain prose, no formatting."
+  },
+  "helpSync3": "When two devices change the same thing within ten minutes of each other, the later change wins and the other is kept under Conflicts, where you can keep this device's value instead.",
+  "@helpSync3": {
+    "description": "A bullet of the help section \"Sync, devices and conflicts\". Plain prose, no formatting."
+  },
+  "helpSync4": "Settings, Devices, lists your devices; you can sign one out, or every other one.",
+  "@helpSync4": {
+    "description": "A bullet of the help section \"Sync, devices and conflicts\". Plain prose, no formatting."
+  },
+  "helpSync5": "The demo never syncs.",
+  "@helpSync5": {
+    "description": "A paragraph of the help section \"Sync, devices and conflicts\". Plain prose, no formatting."
+  },
+  "helpBackupTitle": "Backup and security",
+  "@helpBackupTitle": {
+    "description": "Title of the help section about backup and security."
+  },
+  "helpBackup1": "Backup",
+  "@helpBackup1": {
+    "description": "A heading of the help section \"Backup and security\". Plain prose, no formatting."
+  },
+  "helpBackup2": "Settings, Backup, writes everything into one file, encrypted with a passphrase you choose. Keep the passphrase safe: without it the file cannot be opened. Restore the file on a new install, or when this device can no longer open its data. The demo is not backed up.",
+  "@helpBackup2": {
+    "description": "A paragraph of the help section \"Backup and security\". Plain prose, no formatting."
+  },
+  "helpBackup3": "Locking",
+  "@helpBackup3": {
+    "description": "A heading of the help section \"Backup and security\". Plain prose, no formatting."
+  },
+  "helpBackup4": "Settings, Security, locks the app behind your fingerprint, face or screen lock when it opens and after the time away you choose. Block screenshots keeps the app out of screenshots and hides it in the recent apps.",
+  "@helpBackup4": {
+    "description": "A paragraph of the help section \"Backup and security\". Plain prose, no formatting."
+  },
+  "helpBackup5": "Signing out and deleting",
+  "@helpBackup5": {
+    "description": "A heading of the help section \"Backup and security\". Plain prose, no formatting."
+  },
+  "helpBackup6": "Sign out keeps this device's data.",
+  "@helpBackup6": {
+    "description": "A bullet of the help section \"Backup and security\". Plain prose, no formatting."
+  },
+  "helpBackup7": "Sign out and erase this device removes everything the app keeps here; your account stays.",
+  "@helpBackup7": {
+    "description": "A bullet of the help section \"Backup and security\". Plain prose, no formatting."
+  },
+  "helpBackup8": "Delete account disconnects your banks, deletes every record on your server and erases this device.",
+  "@helpBackup8": {
+    "description": "A bullet of the help section \"Backup and security\". Plain prose, no formatting."
+  },
+  "helpWidgetsTitle": "Widgets and shortcuts",
+  "@helpWidgetsTitle": {
+    "description": "Title of the help section about widgets and shortcuts."
+  },
+  "helpWidgets1": "Three home screen widgets show your balances, this period's budgets and your next bills. Add them from your launcher's list of widgets; tapping one opens the app there.",
+  "@helpWidgets1": {
+    "description": "A paragraph of the help section \"Widgets and shortcuts\". Plain prose, no formatting."
+  },
+  "helpWidgets2": "While the app lock is on, the widgets hide every amount.",
+  "@helpWidgets2": {
+    "description": "A bullet of the help section \"Widgets and shortcuts\". Plain prose, no formatting."
+  },
+  "helpWidgets3": "Touch and hold the app's icon for its shortcuts: Add transaction, Scan receipt, Search transactions and Sync now.",
+  "@helpWidgets3": {
+    "description": "A bullet of the help section \"Widgets and shortcuts\". Plain prose, no formatting."
+  },
+  "helpNotificationsTitle": "Notifications and background sync",
+  "@helpNotificationsTitle": {
+    "description": "Title of the help section about notifications and background sync."
+  },
+  "helpNotifications1": "The app's notifications are posted by this device: budget alerts, bill reminders, the weekly summary and sync problems, each in a channel of its own that you can adjust in Android's settings.",
+  "@helpNotifications1": {
+    "description": "A paragraph of the help section \"Notifications and background sync\". Plain prose, no formatting."
+  },
+  "helpNotifications2": "The app asks for permission the first time you turn on something that notifies, never when it first opens.",
+  "@helpNotifications2": {
+    "description": "A bullet of the help section \"Notifications and background sync\". Plain prose, no formatting."
+  },
+  "helpNotifications3": "Settings, Notifications, shows each channel and opens its settings.",
+  "@helpNotifications3": {
+    "description": "A bullet of the help section \"Notifications and background sync\". Plain prose, no formatting."
+  },
+  "helpNotifications4": "Background sync",
+  "@helpNotifications4": {
+    "description": "A heading of the help section \"Notifications and background sync\". Plain prose, no formatting."
+  },
+  "helpNotifications5": "With your own server, the app syncs about once an hour while the phone is on a network and its battery is not low. Settings, Notifications, shows the last background run and has a switch to turn it off. Some phones stop background work to save battery; letting the app run in the background helps.",
+  "@helpNotifications5": {
+    "description": "A paragraph of the help section \"Notifications and background sync\". Plain prose, no formatting."
   }
 }

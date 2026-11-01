@@ -25,6 +25,8 @@ import 'package:finance_tracker/features/accounts/application/accounts_providers
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/categories/presentation/category_picker.dart';
 import 'package:finance_tracker/features/duplicates/application/duplicates_providers.dart';
+import 'package:finance_tracker/features/help/domain/help_section.dart';
+import 'package:finance_tracker/features/help/presentation/help_menu.dart';
 import 'package:finance_tracker/features/transactions/application/transaction_filters.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
@@ -378,6 +380,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                         ),
                         child: Text(l10n.importTitle),
                       ),
+                      helpMenuItem(context, HelpSection.transactions),
                     ],
                   ),
                 ],

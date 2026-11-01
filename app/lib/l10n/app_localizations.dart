@@ -7761,6 +7761,516 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try the demo instead'**
   String get signInTryDemo;
+
+  /// Title of the in-app help, opened from Settings and from each tab's menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get helpTitle;
+
+  /// Menu item, in each tab's menu, that opens the help for what the tab shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get helpMenuItem;
+
+  /// Tooltip of the menu button in a tab's app bar that holds Help.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get helpMoreOptions;
+
+  /// Supporting text of the Help row in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'How each part of the app works'**
+  String get helpSettingsSubtitle;
+
+  /// Title of the help section about getting started and the demo.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting started and the demo'**
+  String get helpStartTitle;
+
+  /// A paragraph of the help section "Getting started and the demo". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance Tracker keeps your accounts, transactions, budgets and bills on this device, in an encrypted database, and works offline.'**
+  String get helpStart1;
+
+  /// A heading of the help section "Getting started and the demo". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Two ways in'**
+  String get helpStart2;
+
+  /// A bullet of the help section "Getting started and the demo". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Try the demo: one of four made-up households, generated on this device. It needs no account and sends nothing anywhere.'**
+  String get helpStart3;
+
+  /// A bullet of the help section "Getting started and the demo". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my own server: sign in to, or create an account on, a Finance Tracker server you run. Your changes then sync between your devices, and you can link banks through Plaid.'**
+  String get helpStart4;
+
+  /// A heading of the help section "Getting started and the demo". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'While the demo runs'**
+  String get helpStart5;
+
+  /// A paragraph of the help section "Getting started and the demo". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'A Demo data strip stays above every tab. Settings, Demo data, switches to another household; the changes you made in the demo are not kept when you switch.'**
+  String get helpStart6;
+
+  /// A paragraph of the help section "Getting started and the demo". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'To leave, tap Leave on the strip or Leave the demo in Settings. The demo\'s data is erased from this device and the welcome screen opens again.'**
+  String get helpStart7;
+
+  /// A heading of the help section "Getting started and the demo". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding your way'**
+  String get helpStart8;
+
+  /// A paragraph of the help section "Getting started and the demo". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'The tabs are Accounts, Transactions, Plan (budgets, bills and the forecast), Insights (reports, net worth, investments and goals) and Settings. The menus of Accounts, Transactions, Plan and Insights open the help for what they show, and Settings, Help, lists every section.'**
+  String get helpStart9;
+
+  /// Title of the help section about accounts and linked banks.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts and linked banks'**
+  String get helpAccountsTitle;
+
+  /// A paragraph of the help section "Accounts and linked banks". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'The Accounts tab lists your accounts and their balances. Each balance says where it comes from: reported by the bank, or worked out from the account\'s transactions.'**
+  String get helpAccounts1;
+
+  /// A heading of the help section "Accounts and linked banks". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts you keep by hand'**
+  String get helpAccounts2;
+
+  /// A paragraph of the help section "Accounts and linked banks". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an account for cash, a card you do not link, or anything else you track yourself. Its balance comes from its opening balance and the transactions you enter.'**
+  String get helpAccounts3;
+
+  /// A heading of the help section "Accounts and linked banks". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked banks'**
+  String get helpAccounts4;
+
+  /// A paragraph of the help section "Accounts and linked banks". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'With your own server, Linked banks connects a bank through Plaid Link. Your server pulls the bank\'s accounts, transactions and balances, and, where the bank offers them, its loans and cards, investments and recurring payments; the app fetches them from your server.'**
+  String get helpAccounts5;
+
+  /// A bullet of the help section "Accounts and linked banks". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'A bank that needs you to sign in again is marked; Fix connection opens Plaid Link to repair it.'**
+  String get helpAccounts6;
+
+  /// A bullet of the help section "Accounts and linked banks". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink removes a bank. You choose whether its accounts and transactions stay on your devices, no longer updated, or go.'**
+  String get helpAccounts7;
+
+  /// A bullet of the help section "Accounts and linked banks". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'In the demo, linking adds a sample bank, Houndstooth Bank.'**
+  String get helpAccounts8;
+
+  /// Title of the help section about transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get helpTransactionsTitle;
+
+  /// A paragraph of the help section "Transactions". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'The Transactions tab lists your transactions, newest first. Tap one to change its category, name, notes or tags, or to hide it from your totals.'**
+  String get helpTransactions1;
+
+  /// A heading of the help section "Transactions". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Search and filters'**
+  String get helpTransactions2;
+
+  /// A bullet of the help section "Transactions". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Search finds words, or the start of words, in names, merchants and notes.'**
+  String get helpTransactions3;
+
+  /// A bullet of the help section "Transactions". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters narrow the list by account, category, dates, amount and tags. Save a set of filters to use it again.'**
+  String get helpTransactions4;
+
+  /// A heading of the help section "Transactions". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Splits and receipts'**
+  String get helpTransactions5;
+
+  /// A bullet of the help section "Transactions". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Split a transaction across categories; the parts always add up to its amount.'**
+  String get helpTransactions6;
+
+  /// A bullet of the help section "Transactions". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach a receipt photo from the camera or the gallery. With your own server it reaches your other devices too.'**
+  String get helpTransactions7;
+
+  /// A heading of the help section "Transactions". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Several at once'**
+  String get helpTransactions8;
+
+  /// A paragraph of the help section "Transactions". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Long-press a transaction to select several, then categorise, tag, hide or delete them together. Likely duplicates are offered for review from the menu.'**
+  String get helpTransactions9;
+
+  /// A heading of the help section "Transactions". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing'**
+  String get helpTransactions10;
+
+  /// A paragraph of the help section "Transactions". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Import reads a CSV export from your bank. You match its columns, check the rows, and add them to an account; likely duplicates are skipped, and an import can be undone.'**
+  String get helpTransactions11;
+
+  /// Title of the help section about budgets.
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets'**
+  String get helpBudgetsTitle;
+
+  /// A paragraph of the help section "Budgets". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'A budget sets a limit on a category for each period, monthly from a start day you choose.'**
+  String get helpBudgets1;
+
+  /// A bullet of the help section "Budgets". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Rollover carries what is left, or what was overspent, into the next period.'**
+  String get helpBudgets2;
+
+  /// A bullet of the help section "Budgets". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'The projection estimates where this period\'s spending will end at its current pace.'**
+  String get helpBudgets3;
+
+  /// A bullet of the help section "Budgets". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'An alert is raised when spending reaches 80 percent of a budget and again at 100 percent; the bell lists them.'**
+  String get helpBudgets4;
+
+  /// A paragraph of the help section "Budgets". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a budget to see the transactions it counts.'**
+  String get helpBudgets5;
+
+  /// Title of the help section about bills and reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills and reminders'**
+  String get helpBillsTitle;
+
+  /// A paragraph of the help section "Bills and reminders". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills tracks payments that come due regularly. Add one yourself, or accept a suggestion made from the recurring payments in your transactions.'**
+  String get helpBills1;
+
+  /// A bullet of the help section "Bills and reminders". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Each bill shows when it is next due and whether it was paid. A payment is matched from your transactions, and a missed one is counted on the Plan tab.'**
+  String get helpBills2;
+
+  /// A bullet of the help section "Bills and reminders". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders arrive as notifications on the days before a due date you choose, at the time of day you choose, kept at that time when the clocks change.'**
+  String get helpBills3;
+
+  /// A bullet of the help section "Bills and reminders". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'The calendar shows the month\'s bills by day.'**
+  String get helpBills4;
+
+  /// A heading of the help section "Bills and reminders". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions'**
+  String get helpBills5;
+
+  /// A paragraph of the help section "Bills and reminders". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions lists the recurring charges that look like subscriptions, with what each costs in a year. You can rename one, say it is not a subscription, or mute it.'**
+  String get helpBills6;
+
+  /// Title of the help section about forecast.
+  ///
+  /// In en, this message translates to:
+  /// **'Forecast'**
+  String get helpForecastTitle;
+
+  /// A paragraph of the help section "Forecast". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'The forecast projects the balance of the accounts you choose for the next 30 or 90 days, from your bills, your recurring payments and an allowance for everyday spending, with a band showing how far it may vary.'**
+  String get helpForecast1;
+
+  /// A bullet of the help section "Forecast". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose accounts picks the accounts it covers.'**
+  String get helpForecast2;
+
+  /// A bullet of the help section "Forecast". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'A table under the chart gives the same figures.'**
+  String get helpForecast3;
+
+  /// A paragraph of the help section "Forecast". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'It is an estimate, and it changes as new transactions arrive.'**
+  String get helpForecast4;
+
+  /// Title of the help section about insights.
+  ///
+  /// In en, this message translates to:
+  /// **'Insights'**
+  String get helpInsightsTitle;
+
+  /// A paragraph of the help section "Insights". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Insights has four segments.'**
+  String get helpInsights1;
+
+  /// A bullet of the help section "Insights". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports: spending by category and by merchant for a period, compared with the period before, with the largest changes and unusual transactions pointed out. The weekly summary is here, and the month\'s report can be saved as a PDF; Settings, Export, also writes your transactions as a CSV file.'**
+  String get helpInsights2;
+
+  /// A bullet of the help section "Insights". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Net worth: what you own minus what you owe, over time, from a balance recorded each day. Days from before the app was installed are worked out from transactions and labelled as derived. Loans and cards show when they could be paid off.'**
+  String get helpInsights3;
+
+  /// A bullet of the help section "Insights". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Investments: the holdings of linked investment accounts, how they are spread, their gains, and their transactions.'**
+  String get helpInsights4;
+
+  /// A bullet of the help section "Insights". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals: savings targets with their contributions, their progress and a suggested amount to put aside.'**
+  String get helpInsights5;
+
+  /// A paragraph of the help section "Insights". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Every chart has a table with the same figures.'**
+  String get helpInsights6;
+
+  /// Title of the help section about sync, devices and conflicts.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync, devices and conflicts'**
+  String get helpSyncTitle;
+
+  /// A paragraph of the help section "Sync, devices and conflicts". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'With your own server, your changes sync between the devices signed in to your account: shortly after a change, when the app opens, and about once an hour in the background. Bank data comes from your server; your own changes travel both ways.'**
+  String get helpSync1;
+
+  /// A bullet of the help section "Sync, devices and conflicts". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings, Sync, shows when the last sync ran and has Sync now.'**
+  String get helpSync2;
+
+  /// A bullet of the help section "Sync, devices and conflicts". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'When two devices change the same thing within ten minutes of each other, the later change wins and the other is kept under Conflicts, where you can keep this device\'s value instead.'**
+  String get helpSync3;
+
+  /// A bullet of the help section "Sync, devices and conflicts". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings, Devices, lists your devices; you can sign one out, or every other one.'**
+  String get helpSync4;
+
+  /// A paragraph of the help section "Sync, devices and conflicts". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'The demo never syncs.'**
+  String get helpSync5;
+
+  /// Title of the help section about backup and security.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup and security'**
+  String get helpBackupTitle;
+
+  /// A heading of the help section "Backup and security". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get helpBackup1;
+
+  /// A paragraph of the help section "Backup and security". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings, Backup, writes everything into one file, encrypted with a passphrase you choose. Keep the passphrase safe: without it the file cannot be opened. Restore the file on a new install, or when this device can no longer open its data. The demo is not backed up.'**
+  String get helpBackup2;
+
+  /// A heading of the help section "Backup and security". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Locking'**
+  String get helpBackup3;
+
+  /// A paragraph of the help section "Backup and security". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings, Security, locks the app behind your fingerprint, face or screen lock when it opens and after the time away you choose. Block screenshots keeps the app out of screenshots and hides it in the recent apps.'**
+  String get helpBackup4;
+
+  /// A heading of the help section "Backup and security". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing out and deleting'**
+  String get helpBackup5;
+
+  /// A bullet of the help section "Backup and security". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out keeps this device\'s data.'**
+  String get helpBackup6;
+
+  /// A bullet of the help section "Backup and security". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out and erase this device removes everything the app keeps here; your account stays.'**
+  String get helpBackup7;
+
+  /// A bullet of the help section "Backup and security". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account disconnects your banks, deletes every record on your server and erases this device.'**
+  String get helpBackup8;
+
+  /// Title of the help section about widgets and shortcuts.
+  ///
+  /// In en, this message translates to:
+  /// **'Widgets and shortcuts'**
+  String get helpWidgetsTitle;
+
+  /// A paragraph of the help section "Widgets and shortcuts". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Three home screen widgets show your balances, this period\'s budgets and your next bills. Add them from your launcher\'s list of widgets; tapping one opens the app there.'**
+  String get helpWidgets1;
+
+  /// A bullet of the help section "Widgets and shortcuts". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'While the app lock is on, the widgets hide every amount.'**
+  String get helpWidgets2;
+
+  /// A bullet of the help section "Widgets and shortcuts". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Touch and hold the app\'s icon for its shortcuts: Add transaction, Scan receipt, Search transactions and Sync now.'**
+  String get helpWidgets3;
+
+  /// Title of the help section about notifications and background sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications and background sync'**
+  String get helpNotificationsTitle;
+
+  /// A paragraph of the help section "Notifications and background sync". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'The app\'s notifications are posted by this device: budget alerts, bill reminders, the weekly summary and sync problems, each in a channel of its own that you can adjust in Android\'s settings.'**
+  String get helpNotifications1;
+
+  /// A bullet of the help section "Notifications and background sync". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'The app asks for permission the first time you turn on something that notifies, never when it first opens.'**
+  String get helpNotifications2;
+
+  /// A bullet of the help section "Notifications and background sync". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings, Notifications, shows each channel and opens its settings.'**
+  String get helpNotifications3;
+
+  /// A heading of the help section "Notifications and background sync". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Background sync'**
+  String get helpNotifications4;
+
+  /// A paragraph of the help section "Notifications and background sync". Plain prose, no formatting.
+  ///
+  /// In en, this message translates to:
+  /// **'With your own server, the app syncs about once an hour while the phone is on a network and its battery is not low. Settings, Notifications, shows the last background run and has a switch to turn it off. Some phones stop background work to save battery; letting the app run in the background helps.'**
+  String get helpNotifications5;
 }
 
 class _AppLocalizationsDelegate

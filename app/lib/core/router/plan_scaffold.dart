@@ -1,5 +1,6 @@
 /// The screen frame of the Plan tab's three segments (`PLAN.md` §12 "5e rulings"): the
-/// "Plan" app bar with the segment's own actions, then the Budgets | Bills | Forecast
+/// "Plan" app bar with the segment's own actions and the menu holding the segment's help,
+/// then the Budgets | Bills | Forecast
 /// control at the top of the body (in the body, so it grows with the text size), then
 /// the segment's body. Choosing a segment goes to its root (`/budgets`, `/bills`,
 /// `/forecast`), whose page has no transition, so the control reads as one screen
@@ -7,6 +8,8 @@
 library;
 
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/features/help/domain/help_section.dart';
+import 'package:finance_tracker/features/help/presentation/help_menu.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -54,7 +57,16 @@ class PlanScaffold extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.navPlan),
-        actions: actions,
+        actions: [
+          ...actions,
+          HelpMenuButton(
+            section: switch (segment) {
+              PlanSegment.budgets => HelpSection.budgets,
+              PlanSegment.bills => HelpSection.bills,
+              PlanSegment.forecast => HelpSection.forecast,
+            },
+          ),
+        ],
         // Room for a badge, which extends past its button's end.
         actionsPadding: const EdgeInsetsDirectional.only(end: 8),
       ),

@@ -28,7 +28,8 @@
 // mode (`_modeScreens`) are checked on their own configuration: the Welcome screen and
 // the demo's households before a mode is chosen, and the shell with the demo's strip and
 // its Leave dialog while the demo runs, and the auth screens with the server field (and
-// the way back to Welcome) of a build with no compiled URL; each also in the pseudo-locale on the dev flavor,
+// the way back to Welcome) of a build with no compiled URL, and the help's list and a
+// section; each also in the pseudo-locale on the dev flavor,
 // which offers it.
 import 'dart:io';
 import 'dart:ui' show DisplayFeature, DisplayFeatureState, DisplayFeatureType;
@@ -643,6 +644,10 @@ AppConfig _fresh(Flavor flavor) =>
       mode: null,
     );
 
+/// Dev or prod as built.
+AppConfig _built(Flavor flavor) =>
+    flavor == Flavor.dev ? AppConfig.dev() : AppConfig.prod();
+
 /// Dev or prod in the live mode, chosen on the Welcome screen.
 AppConfig _live(Flavor flavor) =>
     (flavor == Flavor.dev ? AppConfig.dev() : AppConfig.prod()).withChoices(
@@ -701,6 +706,20 @@ _modeScreens = {
     config: _live,
     signedIn: false,
     overrides: () => [serverAddressProvider.overrideWithValue(ServerAddress())],
+    open: null,
+  ),
+  'Help': (
+    location: '/settings/help',
+    config: _built,
+    signedIn: true,
+    overrides: () => const [],
+    open: null,
+  ),
+  'Help, a section': (
+    location: '/settings/help/getting-started',
+    config: _built,
+    signedIn: true,
+    overrides: () => const [],
     open: null,
   ),
   'Leave the demo dialog': (

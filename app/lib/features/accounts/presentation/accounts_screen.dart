@@ -15,6 +15,8 @@ import 'package:finance_tracker/core/widgets/merchant_avatar.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_errors.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_type_style.dart';
+import 'package:finance_tracker/features/help/domain/help_section.dart';
+import 'package:finance_tracker/features/help/presentation/help_menu.dart';
 import 'package:finance_tracker/features/items/domain/linked_bank.dart';
 import 'package:finance_tracker/features/transactions/domain/enrichment.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -44,6 +46,7 @@ class AccountsScreen extends ConsumerWidget {
             icon: const Icon(Icons.account_balance_outlined),
             onPressed: () => openDetail(context, const ItemsRoute().location),
           ),
+          const HelpMenuButton(section: HelpSection.accounts),
         ],
       ),
       floatingActionButton: hasAccounts

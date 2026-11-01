@@ -1,6 +1,6 @@
 /// The screen frame of the Insights tab's four segments (`PLAN.md` §12 "Insights tab"),
 /// as `PlanScaffold` is the Plan tab's: the "Insights" app bar with the segment's own
-/// actions, then the Reports | Net worth | Investments | Goals control at the top of the
+/// actions and the menu holding the help, then the Reports | Net worth | Investments | Goals control at the top of the
 /// body (in the body, so it grows with the text size; it scrolls sideways when four
 /// labels do not fit, which on a phone is the usual case, and opens scrolled to the
 /// segment shown), then the segment's body. Choosing a segment goes to its root
@@ -11,6 +11,8 @@ library;
 
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
+import 'package:finance_tracker/features/help/domain/help_section.dart';
+import 'package:finance_tracker/features/help/presentation/help_menu.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -82,7 +84,10 @@ class _InsightsScaffoldState extends State<InsightsScaffold> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.navInsights),
-        actions: widget.actions,
+        actions: [
+          ...widget.actions,
+          const HelpMenuButton(section: HelpSection.insights),
+        ],
         actionsPadding: const EdgeInsetsDirectional.only(end: 8),
       ),
       floatingActionButton: widget.floatingActionButton,

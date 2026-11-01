@@ -7,7 +7,7 @@
 /// | Transactions | `/transactions?search=true`, `/transactions/new?account=<id>&receipt=camera`, `/transactions/duplicates`, `/transactions/import`, `/transactions/:id` |
 /// | Plan | `/plan` (redirects to `/budgets`); `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new?stream-id=<id>`, `/bills/new?liability-account-id=<id>`, `/bills/subscriptions`, `/bills/:id`; `/forecast` |
 /// | Insights | `/insights` (redirects to `/reports`); `/reports`, `/reports/weekly`; `/net-worth`; `/investments`; `/goals`, `/goals/new`, `/goals/:id`, `/goals/:id/edit`, `/goals/:id/contribute` |
-/// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id`, `/settings/export`, `/settings/import`, `/settings/backup`, `/settings/devices`, `/settings/delete-account` |
+/// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id`, `/settings/export`, `/settings/import`, `/settings/backup`, `/settings/devices`, `/settings/delete-account`, `/settings/help`, `/settings/help/:section` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
 /// user is sent in the live mode, `/restore` the restore offer of a fresh install, and
@@ -57,6 +57,8 @@ import 'package:finance_tracker/features/goals/presentation/contribution_editor_
 import 'package:finance_tracker/features/goals/presentation/goal_detail_screen.dart';
 import 'package:finance_tracker/features/goals/presentation/goal_editor_screen.dart';
 import 'package:finance_tracker/features/goals/presentation/goals_screen.dart';
+import 'package:finance_tracker/features/help/presentation/help_screen.dart';
+import 'package:finance_tracker/features/help/presentation/help_section_screen.dart';
 import 'package:finance_tracker/features/import/presentation/import_screen.dart';
 import 'package:finance_tracker/features/investments/presentation/investments_view.dart';
 import 'package:finance_tracker/features/items/presentation/items_screen.dart';
@@ -196,6 +198,12 @@ part 'routes.g.dart';
             TypedGoRoute<DeleteAccountRoute>(path: 'delete-account'),
             TypedGoRoute<ConflictsRoute>(path: 'conflicts'),
             TypedGoRoute<NotificationsRoute>(path: 'notifications'),
+            TypedGoRoute<HelpRoute>(
+              path: 'help',
+              routes: <TypedRoute<RouteData>>[
+                TypedGoRoute<HelpSectionRoute>(path: ':section'),
+              ],
+            ),
           ],
         ),
       ],
@@ -669,6 +677,25 @@ class NotificationsRoute extends GoRouteData with $NotificationsRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const NotificationsScreen();
+}
+
+/// `/settings/help`: the in-app help's sections, from Settings → About.
+class HelpRoute extends GoRouteData with $HelpRoute {
+  const HelpRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const HelpScreen();
+}
+
+/// `/settings/help/:section`: one section of the help, from the list or a tab's menu.
+class HelpSectionRoute extends GoRouteData with $HelpSectionRoute {
+  const HelpSectionRoute(this.section);
+
+  final String section;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      HelpSectionScreen(slug: section);
 }
 
 /// `/settings/rules`: the rules, in the order they are tried.

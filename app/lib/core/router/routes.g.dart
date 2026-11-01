@@ -278,6 +278,18 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
               hasOverriddenOnExit: false,
               factory: $NotificationsRoute._fromState,
             ),
+            GoRouteData.$route(
+              path: 'help',
+              hasOverriddenOnExit: false,
+              factory: $HelpRoute._fromState,
+              routes: [
+                GoRouteData.$route(
+                  path: ':section',
+                  hasOverriddenOnExit: false,
+                  factory: $HelpSectionRoute._fromState,
+                ),
+              ],
+            ),
           ],
         ),
       ],
@@ -1250,6 +1262,51 @@ mixin $NotificationsRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/settings/notifications');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $HelpRoute on GoRouteData {
+  static HelpRoute _fromState(GoRouterState state) => const HelpRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings/help');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $HelpSectionRoute on GoRouteData {
+  static HelpSectionRoute _fromState(GoRouterState state) =>
+      HelpSectionRoute(state.pathParameters['section']!);
+
+  HelpSectionRoute get _self => this as HelpSectionRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/settings/help/${Uri.encodeComponent(_self.section)}',
+  );
 
   @override
   void go(BuildContext context) => context.go(location);
