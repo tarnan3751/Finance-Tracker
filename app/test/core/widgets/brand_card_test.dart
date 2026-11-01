@@ -119,6 +119,7 @@ void main() {
         BrandCard(
           enabled: false,
           onTap: () => taps++,
+          trailing: const Icon(Icons.chevron_right),
           child: const Text('Renter'),
         ),
       ),
@@ -138,6 +139,14 @@ void main() {
           )
           .opacity,
       0.38,
+    );
+    // The trailing widget is dimmed with the rest of the face.
+    expect(
+      find.ancestor(
+        of: find.byIcon(Icons.chevron_right),
+        matching: find.byType(Opacity),
+      ),
+      findsOneWidget,
     );
     await tester.tap(find.text('Renter'));
     expect(taps, 0);

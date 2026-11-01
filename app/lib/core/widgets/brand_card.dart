@@ -69,9 +69,6 @@ class BrandCard extends StatelessWidget {
         ),
       );
     }
-    if (!enabled) {
-      body = Opacity(opacity: _disabledOpacity, child: body);
-    }
     if (trailing != null) {
       body = Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,6 +77,10 @@ class BrandCard extends StatelessWidget {
           trailing,
         ],
       );
+    }
+    if (!enabled) {
+      // The whole face, the trailing widget included.
+      body = Opacity(opacity: _disabledOpacity, child: body);
     }
     body = Padding(padding: padding, child: body);
     if (this.onTap != null) {
