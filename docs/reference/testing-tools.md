@@ -119,7 +119,7 @@ worst real noise so far, `shell_accounts_medium_light`, is 1505 pixels, 0.255 %.
 ## Test tags and seeds
 
 Tags mark the measured and randomized suites so they can run alone; the gate runs every
-one of them but `convergence_full`, which is skipped unless asked for. They are declared in
+one of them on the host but `convergence_full`, which is skipped unless asked for. They are declared in
 each package's `dart_test.yaml`.
 
 | Tag | Package | What it marks |
@@ -128,6 +128,7 @@ each package's `dart_test.yaml`.
 | `detector_harness` | `app` | the recurring detector measured against the persona engine |
 | `anomaly_harness` | `app` | the anomaly flags measured against the persona engine |
 | `convergence_full` | `app` | every seed of the convergence test's three seeded random runs (25, 15 and 15 seeds; the gate runs the first five of each, untagged): `flutter test --run-skipped --tags convergence_full test/sync/` |
+| `perf` | `app` | the performance measurements (`performance.md`): `test/perf/write_path_test.dart`, which the gate runs once with generous ceilings, and `integration_test/perf/scroll_test.dart`, which runs only under `flutter drive` from `tools/perf/scroll.sh` (`--dart-define=FT_PERF=true`) and is skipped in the harness's integration runs |
 | `chaos` | `packages/sync_engine` | the chaos simulation (`sync.md`, **Testing**) |
 
 The sync engine's seeded suites take their seed and size from the environment, so a
@@ -424,6 +425,14 @@ coordinator's dev-flavor acceptance.
 It exits 0 only on the maintenance window's run. Any other path says which step failed
 (the task running while idle, JobScheduler never reporting the hold, the task not running
 in the window) and prints the job's constraint lines, and the log when the task never ran.
+
+## `tools/perf/`: the performance scripts
+
+`cold_start.sh`, `scroll.sh`, `write_path.sh`, `size.sh`, `suite_time.sh` and `report.sh`,
+described in `performance.md` with the rules for measuring and the baseline. The two device
+scripts (`cold_start.sh`, `scroll.sh`) run themselves through `tools/emulator_tests.sh run`
+when called directly, so they hold the lock and talk only to an `ft-` AVD; they install and
+uninstall the demo flavor only. Each script writes its record under `app/build/perf/`.
 
 ## `tools/secrets_sweep.sh`: the secrets sweep
 

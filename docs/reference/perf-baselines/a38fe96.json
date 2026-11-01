@@ -1,0 +1,905 @@
+{
+  "format": 1,
+  "commit": "3fc1ecb",
+  "main_base": "a38fe96",
+  "app_lib_tree": "a891dc04b750",
+  "collected": "2026-11-01T20:58:28Z",
+  "host": {
+    "cpu": "Apple M5",
+    "memory_gb": 24,
+    "os": "macOS 26.5.1",
+    "load_1m": 10.25
+  },
+  "device": {
+    "avd": "ft-lane",
+    "api": 36,
+    "abi": "arm64-v8a"
+  },
+  "records": {
+    "cold_start": [
+      {
+        "script": "cold_start",
+        "commit": "3fc1ecb",
+        "main_base": "a38fe96",
+        "app_lib_tree": "a891dc04b750",
+        "uncommitted_code_changes": 0,
+        "date": "2026-11-01T19:39:48Z",
+        "host": {
+          "cpu": "Apple M5",
+          "memory_gb": 24,
+          "os": "macOS 26.5.1",
+          "load_1m": 10.25
+        },
+        "flutter": "3.47.8",
+        "device": {
+          "serial": "emulator-5554",
+          "avd": "ft-lane",
+          "api": 36,
+          "abi": "arm64-v8a"
+        },
+        "metrics": {
+          "total_time_median_ms": 5264,
+          "total_time_min_ms": 3868,
+          "total_time_max_ms": 13652,
+          "first_launch_ms": 12785,
+          "framework_init_ms": 1325,
+          "first_frame_ms": 2633,
+          "first_frame_rasterized_ms": 2796
+        },
+        "notes": [
+          "demo flavor, profile build, installed fresh; TotalTime from am start -W -S (process start to the first drawn frame of the activity window, which Android may count at the launch theme), the first launch after the install apart",
+          "the startup trace is one flutter run --profile --trace-startup; data on screen is the scroll script's"
+        ],
+        "detail": {
+          "total_time_ms": [
+            3966,
+            3868,
+            6501,
+            7041,
+            11529,
+            13652,
+            4232,
+            5250,
+            5150,
+            5278
+          ],
+          "start_up_info": {
+            "engineEnterTimestampMicros": 2674343033,
+            "timeToFrameworkInitMicros": 1325494,
+            "timeToFirstFrameRasterizedMicros": 2795788,
+            "timeToFirstFrameMicros": 2633375,
+            "timeAfterFrameworkInitMicros": 1307881
+          }
+        }
+      },
+      {
+        "script": "cold_start",
+        "commit": "3fc1ecb",
+        "main_base": "a38fe96",
+        "app_lib_tree": "a891dc04b750",
+        "uncommitted_code_changes": 0,
+        "date": "2026-11-01T20:14:30Z",
+        "host": {
+          "cpu": "Apple M5",
+          "memory_gb": 24,
+          "os": "macOS 26.5.1",
+          "load_1m": 18.44
+        },
+        "flutter": "3.47.8",
+        "device": {
+          "serial": "emulator-5554",
+          "avd": "ft-lane",
+          "api": 36,
+          "abi": "arm64-v8a"
+        },
+        "metrics": {
+          "total_time_median_ms": 4541.5,
+          "total_time_min_ms": 3026,
+          "total_time_max_ms": 5173,
+          "first_launch_ms": 10273,
+          "framework_init_ms": 3026,
+          "first_frame_ms": 6233,
+          "first_frame_rasterized_ms": 6426
+        },
+        "notes": [
+          "demo flavor, profile build, installed fresh; TotalTime from am start -W -S (process start to the first drawn frame of the activity window, which Android may count at the launch theme), the first launch after the install apart",
+          "the startup trace is one flutter run --profile --trace-startup; data on screen is the scroll script's"
+        ],
+        "detail": {
+          "total_time_ms": [
+            4555,
+            4091,
+            5173,
+            3026,
+            4528,
+            4739,
+            3790,
+            4718,
+            4705,
+            3573
+          ],
+          "start_up_info": {
+            "engineEnterTimestampMicros": 4752336690,
+            "timeToFrameworkInitMicros": 3025740,
+            "timeToFirstFrameRasterizedMicros": 6425512,
+            "timeToFirstFrameMicros": 6233486,
+            "timeAfterFrameworkInitMicros": 3207746
+          }
+        }
+      }
+    ],
+    "scroll": [
+      {
+        "script": "scroll",
+        "commit": "3fc1ecb",
+        "main_base": "a38fe96",
+        "app_lib_tree": "a891dc04b750",
+        "uncommitted_code_changes": 0,
+        "date": "2026-11-01T19:41:51Z",
+        "host": {
+          "cpu": "Apple M5",
+          "memory_gb": 24,
+          "os": "macOS 26.5.1",
+          "load_1m": 6.32
+        },
+        "flutter": "3.47.8",
+        "device": {
+          "serial": "emulator-5554",
+          "avd": "ft-lane",
+          "api": 36,
+          "abi": "arm64-v8a"
+        },
+        "metrics": {
+          "data_on_screen_ms": 545,
+          "start_frame_count": 4,
+          "start_worst_frame_build_ms": 79.31,
+          "scroll_offset_px": 13705,
+          "scroll_span_ms": 2083,
+          "scroll_frame_count": 53,
+          "scroll_average_frame_build_ms": 4.31,
+          "scroll_p90_frame_build_ms": 8.69,
+          "scroll_p99_frame_build_ms": 18.41,
+          "scroll_worst_frame_build_ms": 19.77,
+          "scroll_missed_build_budget_count": 3,
+          "scroll_average_frame_raster_ms": 37.43,
+          "scroll_p90_frame_raster_ms": 54.05,
+          "scroll_p99_frame_raster_ms": 55.74,
+          "scroll_worst_frame_raster_ms": 64.01,
+          "scroll_missed_raster_budget_count": 49
+        },
+        "notes": [
+          "demo flavor, profile build through flutter drive, the persona seed plus 10,000 demo transactions on one more account",
+          "data on screen: startApp (after the process setup) to the Accounts list showing Everyday Checking; scroll: five flings of 1500 px at 5000 px/s down the Transactions list, each settled and, when it reached the loaded end, the next page waited for; scroll_offset_px is how far the list got, scroll_span_ms the time from the first frame to the last"
+        ],
+        "detail": {
+          "drive": {
+            "data_on_screen_ms": 545,
+            "ledger_rows": 10000,
+            "scroll_offset_px": 13705
+          }
+        }
+      },
+      {
+        "script": "scroll",
+        "commit": "3fc1ecb",
+        "main_base": "a38fe96",
+        "app_lib_tree": "a891dc04b750",
+        "uncommitted_code_changes": 0,
+        "date": "2026-11-01T20:35:51Z",
+        "host": {
+          "cpu": "Apple M5",
+          "memory_gb": 24,
+          "os": "macOS 26.5.1",
+          "load_1m": 13.12
+        },
+        "flutter": "3.47.8",
+        "device": {
+          "serial": "emulator-5554",
+          "avd": "ft-lane",
+          "api": 36,
+          "abi": "arm64-v8a"
+        },
+        "metrics": {
+          "data_on_screen_ms": 1076,
+          "start_frame_count": 4,
+          "start_worst_frame_build_ms": 96.45,
+          "scroll_offset_px": 10528,
+          "scroll_span_ms": 2718,
+          "scroll_frame_count": 53,
+          "scroll_average_frame_build_ms": 7.2,
+          "scroll_p90_frame_build_ms": 20.82,
+          "scroll_p99_frame_build_ms": 23.04,
+          "scroll_worst_frame_build_ms": 36.22,
+          "scroll_missed_build_budget_count": 7,
+          "scroll_average_frame_raster_ms": 49.22,
+          "scroll_p90_frame_raster_ms": 72.72,
+          "scroll_p99_frame_raster_ms": 104.26,
+          "scroll_worst_frame_raster_ms": 157.41,
+          "scroll_missed_raster_budget_count": 49
+        },
+        "notes": [
+          "demo flavor, profile build through flutter drive, the persona seed plus 10,000 demo transactions on one more account",
+          "data on screen: startApp (after the process setup) to the Accounts list showing Everyday Checking; scroll: five flings of 1500 px at 5000 px/s down the Transactions list, each settled and, when it reached the loaded end, the next page waited for; scroll_offset_px is how far the list got, scroll_span_ms the time from the first frame to the last"
+        ],
+        "detail": {
+          "drive": {
+            "data_on_screen_ms": 1076,
+            "ledger_rows": 10000,
+            "scroll_offset_px": 10528
+          }
+        }
+      }
+    ],
+    "size": [
+      {
+        "script": "size",
+        "commit": "3fc1ecb",
+        "main_base": "a38fe96",
+        "app_lib_tree": "a891dc04b750",
+        "uncommitted_code_changes": 0,
+        "date": "2026-11-01T19:51:59Z",
+        "host": {
+          "cpu": "Apple M5",
+          "memory_gb": 24,
+          "os": "macOS 26.5.1",
+          "load_1m": 29.32
+        },
+        "flutter": "3.47.8",
+        "device": null,
+        "metrics": {
+          "universal_apk_bytes": 89925049,
+          "universal_download_bytes": 40175344,
+          "arm64_apk_bytes": 33266134,
+          "arm64_download_bytes": 16040467,
+          "armeabi_v7a_apk_bytes": 31523208,
+          "x86_64_apk_bytes": 35136183,
+          "arm64_libapp_bytes": 14287752,
+          "arm64_libflutter_bytes": 11763360,
+          "arm64_libsqlite3mc_bytes": 2024864,
+          "dex_bytes": 7165572,
+          "resources_arsc_bytes": 829576,
+          "font_bytes": 928624,
+          "flutter_assets_bytes": 1136616,
+          "symbols_bytes": 22122932,
+          "analyze_arm64_apk_bytes": 36131350,
+          "analyze_arm64_libapp_bytes": 16909192
+        },
+        "notes": [
+          "prod flavor release builds; the shipped ones with --obfuscate --split-debug-info, universal and --split-per-abi; the --analyze-size build is arm64 only and neither obfuscated nor split (the flag refuses both), so its figures are its own",
+          "entry sizes are uncompressed (unzip -l); download sizes from apkanalyzer",
+          "the Dart package breakdown recomputed from the round-2 --analyze-size JSON after a fix to the summary query (the builds were identical)"
+        ],
+        "detail": {
+          "apks": {
+            "universal": {
+              "apk_bytes": 89925049,
+              "download_bytes": 40175344,
+              "libs": {
+                "arm64-v8a/libapp.so": 14287752,
+                "arm64-v8a/libflutter.so": 11763360,
+                "arm64-v8a/libsqlite3mc.so": 2024864,
+                "armeabi-v7a/libapp.so": 15696456,
+                "armeabi-v7a/libflutter.so": 8625652,
+                "armeabi-v7a/libsqlite3mc.so": 2067780,
+                "x86_64/libapp.so": 14680968,
+                "x86_64/libflutter.so": 13074608,
+                "x86_64/libsqlite3mc.so": 2190992
+              },
+              "dex_bytes": 7165572,
+              "resources_arsc_bytes": 829576,
+              "font_bytes": 928624,
+              "flutter_assets_bytes": 1136616
+            },
+            "armeabi-v7a": {
+              "apk_bytes": 31523208,
+              "download_bytes": 15953725,
+              "libs": {
+                "armeabi-v7a/libapp.so": 15696456,
+                "armeabi-v7a/libflutter.so": 8625652,
+                "armeabi-v7a/libsqlite3mc.so": 2067780
+              },
+              "dex_bytes": 7165572,
+              "resources_arsc_bytes": 829576,
+              "font_bytes": 928624,
+              "flutter_assets_bytes": 1136616
+            },
+            "arm64-v8a": {
+              "apk_bytes": 33266134,
+              "download_bytes": 16040467,
+              "libs": {
+                "arm64-v8a/libapp.so": 14287752,
+                "arm64-v8a/libflutter.so": 11763360,
+                "arm64-v8a/libsqlite3mc.so": 2024864
+              },
+              "dex_bytes": 7165572,
+              "resources_arsc_bytes": 829576,
+              "font_bytes": 928624,
+              "flutter_assets_bytes": 1136616
+            },
+            "x86_64": {
+              "apk_bytes": 35136183,
+              "download_bytes": 16300666,
+              "libs": {
+                "x86_64/libapp.so": 14680968,
+                "x86_64/libflutter.so": 13074608,
+                "x86_64/libsqlite3mc.so": 2190992
+              },
+              "dex_bytes": 7165572,
+              "resources_arsc_bytes": 829576,
+              "font_bytes": 928624,
+              "flutter_assets_bytes": 1136616
+            }
+          },
+          "dart_aot_arm64": {
+            "libapp_bytes": 16909192,
+            "packages": [
+              {
+                "name": "package:flutter",
+                "bytes": 4113522
+              },
+              {
+                "name": "package:finance_tracker",
+                "bytes": 3400613
+              },
+              {
+                "name": "@unknown",
+                "bytes": 1493620
+              },
+              {
+                "name": "package:image",
+                "bytes": 821240
+              },
+              {
+                "name": "dart:mixin_deduplication",
+                "bytes": 644781
+              },
+              {
+                "name": "@shared",
+                "bytes": 524445
+              },
+              {
+                "name": "package:flutter_localizations",
+                "bytes": 460299
+              },
+              {
+                "name": "package:api_client",
+                "bytes": 405153
+              },
+              {
+                "name": "dart:core",
+                "bytes": 355051
+              },
+              {
+                "name": "package:timezone",
+                "bytes": 276786
+              },
+              {
+                "name": "@stubs",
+                "bytes": 256348
+              },
+              {
+                "name": "dart:ui",
+                "bytes": 252982
+              }
+            ]
+          }
+        }
+      },
+      {
+        "script": "size",
+        "commit": "3fc1ecb",
+        "main_base": "a38fe96",
+        "app_lib_tree": "a891dc04b750",
+        "uncommitted_code_changes": 0,
+        "date": "2026-11-01T20:54:11Z",
+        "host": {
+          "cpu": "Apple M5",
+          "memory_gb": 24,
+          "os": "macOS 26.5.1",
+          "load_1m": 11.53
+        },
+        "flutter": "3.47.8",
+        "device": null,
+        "metrics": {
+          "universal_apk_bytes": 89925049,
+          "universal_download_bytes": 40175351,
+          "arm64_apk_bytes": 33266134,
+          "arm64_download_bytes": 16040469,
+          "armeabi_v7a_apk_bytes": 31523208,
+          "x86_64_apk_bytes": 35136183,
+          "arm64_libapp_bytes": 14287752,
+          "arm64_libflutter_bytes": 11763360,
+          "arm64_libsqlite3mc_bytes": 2024864,
+          "dex_bytes": 7165572,
+          "resources_arsc_bytes": 829576,
+          "font_bytes": 928624,
+          "flutter_assets_bytes": 1136616,
+          "symbols_bytes": 22122932,
+          "analyze_arm64_apk_bytes": 36131350,
+          "analyze_arm64_libapp_bytes": 16909192
+        },
+        "notes": [
+          "prod flavor release builds; the shipped ones with --obfuscate --split-debug-info, universal and --split-per-abi; the --analyze-size build is arm64 only and neither obfuscated nor split (the flag refuses both), so its figures are its own",
+          "entry sizes are uncompressed (unzip -l); download sizes from apkanalyzer",
+          "the Dart package breakdown recomputed from the round-2 --analyze-size JSON after a fix to the summary query (the builds were identical)"
+        ],
+        "detail": {
+          "apks": {
+            "universal": {
+              "apk_bytes": 89925049,
+              "download_bytes": 40175351,
+              "libs": {
+                "arm64-v8a/libapp.so": 14287752,
+                "arm64-v8a/libflutter.so": 11763360,
+                "arm64-v8a/libsqlite3mc.so": 2024864,
+                "armeabi-v7a/libapp.so": 15696456,
+                "armeabi-v7a/libflutter.so": 8625652,
+                "armeabi-v7a/libsqlite3mc.so": 2067780,
+                "x86_64/libapp.so": 14680968,
+                "x86_64/libflutter.so": 13074608,
+                "x86_64/libsqlite3mc.so": 2190992
+              },
+              "dex_bytes": 7165572,
+              "resources_arsc_bytes": 829576,
+              "font_bytes": 928624,
+              "flutter_assets_bytes": 1136616
+            },
+            "armeabi-v7a": {
+              "apk_bytes": 31523208,
+              "download_bytes": 15953730,
+              "libs": {
+                "armeabi-v7a/libapp.so": 15696456,
+                "armeabi-v7a/libflutter.so": 8625652,
+                "armeabi-v7a/libsqlite3mc.so": 2067780
+              },
+              "dex_bytes": 7165572,
+              "resources_arsc_bytes": 829576,
+              "font_bytes": 928624,
+              "flutter_assets_bytes": 1136616
+            },
+            "arm64-v8a": {
+              "apk_bytes": 33266134,
+              "download_bytes": 16040469,
+              "libs": {
+                "arm64-v8a/libapp.so": 14287752,
+                "arm64-v8a/libflutter.so": 11763360,
+                "arm64-v8a/libsqlite3mc.so": 2024864
+              },
+              "dex_bytes": 7165572,
+              "resources_arsc_bytes": 829576,
+              "font_bytes": 928624,
+              "flutter_assets_bytes": 1136616
+            },
+            "x86_64": {
+              "apk_bytes": 35136183,
+              "download_bytes": 16300669,
+              "libs": {
+                "x86_64/libapp.so": 14680968,
+                "x86_64/libflutter.so": 13074608,
+                "x86_64/libsqlite3mc.so": 2190992
+              },
+              "dex_bytes": 7165572,
+              "resources_arsc_bytes": 829576,
+              "font_bytes": 928624,
+              "flutter_assets_bytes": 1136616
+            }
+          },
+          "dart_aot_arm64": {
+            "libapp_bytes": 16909192,
+            "packages": [
+              {
+                "name": "package:flutter",
+                "bytes": 4113522
+              },
+              {
+                "name": "package:finance_tracker",
+                "bytes": 3400613
+              },
+              {
+                "name": "@unknown",
+                "bytes": 1493620
+              },
+              {
+                "name": "package:image",
+                "bytes": 821240
+              },
+              {
+                "name": "dart:mixin_deduplication",
+                "bytes": 644781
+              },
+              {
+                "name": "@shared",
+                "bytes": 524445
+              },
+              {
+                "name": "package:flutter_localizations",
+                "bytes": 460299
+              },
+              {
+                "name": "package:api_client",
+                "bytes": 405153
+              },
+              {
+                "name": "dart:core",
+                "bytes": 355051
+              },
+              {
+                "name": "package:timezone",
+                "bytes": 276786
+              },
+              {
+                "name": "@stubs",
+                "bytes": 256348
+              },
+              {
+                "name": "dart:ui",
+                "bytes": 252982
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "suite_time": [
+      {
+        "script": "suite_time",
+        "commit": "3fc1ecb",
+        "main_base": "a38fe96",
+        "app_lib_tree": "a891dc04b750",
+        "uncommitted_code_changes": 0,
+        "date": "2026-11-01T20:08:07Z",
+        "host": {
+          "cpu": "Apple M5",
+          "memory_gb": 24,
+          "os": "macOS 26.5.1",
+          "load_1m": 11.40
+        },
+        "flutter": "3.47.8",
+        "device": null,
+        "metrics": {
+          "gate_s": 521,
+          "app_suite_json_run_s": 293,
+          "tests_app_s": 281,
+          "tests_server_s": 4,
+          "tests_packages_api_client_s": 1,
+          "tests_packages_contract_test_s": 1,
+          "tests_packages_shared_models_s": 1,
+          "tests_packages_sync_engine_s": 16,
+          "tests_tools_persona_engine_s": 36
+        },
+        "notes": [
+          "the gate at its default concurrency; the load at the start was 5.46",
+          "the slowest files come from a second run of the app suite with --reporter json"
+        ],
+        "detail": {
+          "gate_passed": true,
+          "app_suite_passed": true,
+          "gate_tests_line": "gate tests     ok (7 package(s): app 281s, server 4s, packages/api_client 1s, packages/contract_test 1s, packages/shared_models 1s, packages/sync_engine 16s, tools/persona_engine 36s) (ceiling 1500s at load 5.46)",
+          "slowest_app_files": [
+            {
+              "file": "test/sync/two_device_convergence_test.dart",
+              "seconds": 115.4
+            },
+            {
+              "file": "test/accessibility_test.dart",
+              "seconds": 87.7
+            },
+            {
+              "file": "test/features/transactions/presentation/transaction_editor_screen_test.dart",
+              "seconds": 22.2
+            },
+            {
+              "file": "test/perf/write_path_test.dart",
+              "seconds": 19.4
+            },
+            {
+              "file": "test/features/transactions/presentation/transactions_bulk_test.dart",
+              "seconds": 18
+            },
+            {
+              "file": "test/features/transactions/presentation/transaction_editor_splits_test.dart",
+              "seconds": 15.2
+            },
+            {
+              "file": "test/features/transactions/presentation/transactions_screen_test.dart",
+              "seconds": 15.2
+            },
+            {
+              "file": "test/features/transactions/presentation/transaction_editor_receipt_test.dart",
+              "seconds": 14.6
+            },
+            {
+              "file": "test/core/background/background_cycle_test.dart",
+              "seconds": 13.9
+            },
+            {
+              "file": "test/features/rules/presentation/rule_editor_screen_test.dart",
+              "seconds": 12.6
+            },
+            {
+              "file": "test/features/transactions/presentation/transaction_editor_rules_test.dart",
+              "seconds": 11.1
+            },
+            {
+              "file": "test/perf/write_path_statements_test.dart",
+              "seconds": 10
+            },
+            {
+              "file": "test/features/goals/presentation/goals_screen_test.dart",
+              "seconds": 9.7
+            },
+            {
+              "file": "test/features/import/presentation/import_flow_test.dart",
+              "seconds": 9.6
+            },
+            {
+              "file": "test/features/transactions/presentation/saved_filters_test.dart",
+              "seconds": 9.4
+            },
+            {
+              "file": "test/features/transactions/presentation/transaction_receipt_golden_test.dart",
+              "seconds": 9.4
+            },
+            {
+              "file": "test/l10n/localization_test.dart",
+              "seconds": 9.2
+            },
+            {
+              "file": "test/features/rules/presentation/rules_screen_test.dart",
+              "seconds": 9
+            },
+            {
+              "file": "test/features/export/presentation/export_screen_test.dart",
+              "seconds": 9
+            },
+            {
+              "file": "test/features/backup/presentation/backup_screen_test.dart",
+              "seconds": 9
+            }
+          ]
+        }
+      }
+    ],
+    "write_path": [
+      {
+        "script": "write_path",
+        "commit": "3fc1ecb",
+        "main_base": "a38fe96",
+        "app_lib_tree": "a891dc04b750",
+        "uncommitted_code_changes": 0,
+        "date": "2026-11-01T19:42:47Z",
+        "host": {
+          "cpu": "Apple M5",
+          "memory_gb": 24,
+          "os": "macOS 26.5.1",
+          "load_1m": 4.82
+        },
+        "flutter": "3.47.8",
+        "device": null,
+        "metrics": {
+          "upsert_all_1000_median_ms": 272,
+          "upsert_all_1000_min_ms": 225,
+          "upsert_all_1000_max_ms": 339,
+          "upsert_all_10000_median_ms": 2046,
+          "upsert_all_10000_min_ms": 1924,
+          "upsert_all_10000_max_ms": 2215,
+          "sync_pull_5000_median_ms": 3512,
+          "sync_pull_5000_min_ms": 3192,
+          "sync_pull_5000_max_ms": 3535,
+          "import_review_10000_median_ms": 113,
+          "import_review_10000_min_ms": 86,
+          "import_review_10000_max_ms": 175
+        },
+        "notes": [
+          "host test, dev wiring, encrypted temporary-file database with WAL and FTS, 3 run(s) of each"
+        ],
+        "detail": {
+          "runs": 3,
+          "results": {
+            "upsert_all_1000": {
+              "median_ms": 272,
+              "min_ms": 225,
+              "max_ms": 339
+            },
+            "upsert_all_10000": {
+              "median_ms": 2046,
+              "min_ms": 1924,
+              "max_ms": 2215
+            },
+            "sync_pull_5000": {
+              "median_ms": 3512,
+              "min_ms": 3192,
+              "max_ms": 3535
+            },
+            "import_review_10000": {
+              "median_ms": 113,
+              "min_ms": 86,
+              "max_ms": 175
+            }
+          }
+        }
+      },
+      {
+        "script": "write_path",
+        "commit": "3fc1ecb",
+        "main_base": "a38fe96",
+        "app_lib_tree": "a891dc04b750",
+        "uncommitted_code_changes": 0,
+        "date": "2026-11-01T20:45:42Z",
+        "host": {
+          "cpu": "Apple M5",
+          "memory_gb": 24,
+          "os": "macOS 26.5.1",
+          "load_1m": 7.53
+        },
+        "flutter": "3.47.8",
+        "device": null,
+        "metrics": {
+          "upsert_all_1000_median_ms": 371,
+          "upsert_all_1000_min_ms": 354,
+          "upsert_all_1000_max_ms": 392,
+          "upsert_all_10000_median_ms": 5024,
+          "upsert_all_10000_min_ms": 2842,
+          "upsert_all_10000_max_ms": 5215,
+          "sync_pull_5000_median_ms": 7529,
+          "sync_pull_5000_min_ms": 7209,
+          "sync_pull_5000_max_ms": 8935,
+          "import_review_10000_median_ms": 171,
+          "import_review_10000_min_ms": 112,
+          "import_review_10000_max_ms": 281
+        },
+        "notes": [
+          "host test, dev wiring, encrypted temporary-file database with WAL and FTS, 3 run(s) of each"
+        ],
+        "detail": {
+          "runs": 3,
+          "results": {
+            "upsert_all_1000": {
+              "median_ms": 371,
+              "min_ms": 354,
+              "max_ms": 392
+            },
+            "upsert_all_10000": {
+              "median_ms": 5024,
+              "min_ms": 2842,
+              "max_ms": 5215
+            },
+            "sync_pull_5000": {
+              "median_ms": 7529,
+              "min_ms": 7209,
+              "max_ms": 8935
+            },
+            "import_review_10000": {
+              "median_ms": 171,
+              "min_ms": 112,
+              "max_ms": 281
+            }
+          }
+        }
+      }
+    ]
+  },
+  "before_11a": {
+    "note": "write_path only, measured on the same scripts over 970c7db's app code (commit 559d074 on 970c7db), before lane 11a's batched write path",
+    "records": {
+      "write_path": [
+        {
+          "script": "write_path",
+          "commit": "559d074",
+          "main_base": "970c7db",
+          "app_lib_tree": "449a455125c2",
+          "uncommitted_code_changes": 0,
+          "date": "2026-11-01T19:04:36Z",
+          "host": {
+            "cpu": "Apple M5",
+            "memory_gb": 24,
+            "os": "macOS 26.5.1",
+            "load_1m": 3.74
+          },
+          "flutter": "3.47.8",
+          "device": null,
+          "metrics": {
+            "upsert_all_1000_median_ms": 1557,
+            "upsert_all_1000_min_ms": 1458,
+            "upsert_all_1000_max_ms": 1868,
+            "upsert_all_10000_median_ms": 14699,
+            "upsert_all_10000_min_ms": 14570,
+            "upsert_all_10000_max_ms": 15058,
+            "sync_pull_5000_median_ms": 3799,
+            "sync_pull_5000_min_ms": 3765,
+            "sync_pull_5000_max_ms": 3825,
+            "import_review_10000_median_ms": 86,
+            "import_review_10000_min_ms": 65,
+            "import_review_10000_max_ms": 165
+          },
+          "notes": [
+            "host test, dev wiring, encrypted temporary-file database with WAL and FTS, 3 run(s) of each"
+          ],
+          "detail": {
+            "runs": 3,
+            "results": {
+              "upsert_all_1000": {
+                "median_ms": 1557,
+                "min_ms": 1458,
+                "max_ms": 1868
+              },
+              "upsert_all_10000": {
+                "median_ms": 14699,
+                "min_ms": 14570,
+                "max_ms": 15058
+              },
+              "sync_pull_5000": {
+                "median_ms": 3799,
+                "min_ms": 3765,
+                "max_ms": 3825
+              },
+              "import_review_10000": {
+                "median_ms": 86,
+                "min_ms": 65,
+                "max_ms": 165
+              }
+            }
+          }
+        },
+        {
+          "script": "write_path",
+          "commit": "559d074",
+          "main_base": "970c7db",
+          "app_lib_tree": "449a455125c2",
+          "uncommitted_code_changes": 0,
+          "date": "2026-11-01T19:06:17Z",
+          "host": {
+            "cpu": "Apple M5",
+            "memory_gb": 24,
+            "os": "macOS 26.5.1",
+            "load_1m": 5.81
+          },
+          "flutter": "3.47.8",
+          "device": null,
+          "metrics": {
+            "upsert_all_1000_median_ms": 3191,
+            "upsert_all_1000_min_ms": 1662,
+            "upsert_all_1000_max_ms": 5312,
+            "upsert_all_10000_median_ms": 22461,
+            "upsert_all_10000_min_ms": 14948,
+            "upsert_all_10000_max_ms": 25063,
+            "sync_pull_5000_median_ms": 3998,
+            "sync_pull_5000_min_ms": 3852,
+            "sync_pull_5000_max_ms": 4248,
+            "import_review_10000_median_ms": 90,
+            "import_review_10000_min_ms": 73,
+            "import_review_10000_max_ms": 167
+          },
+          "notes": [
+            "host test, dev wiring, encrypted temporary-file database with WAL and FTS, 3 run(s) of each"
+          ],
+          "detail": {
+            "runs": 3,
+            "results": {
+              "upsert_all_1000": {
+                "median_ms": 3191,
+                "min_ms": 1662,
+                "max_ms": 5312
+              },
+              "upsert_all_10000": {
+                "median_ms": 22461,
+                "min_ms": 14948,
+                "max_ms": 25063
+              },
+              "sync_pull_5000": {
+                "median_ms": 3998,
+                "min_ms": 3852,
+                "max_ms": 4248
+              },
+              "import_review_10000": {
+                "median_ms": 90,
+                "min_ms": 73,
+                "max_ms": 167
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

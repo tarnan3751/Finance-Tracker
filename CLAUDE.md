@@ -124,6 +124,7 @@ scripts pick it the same way. Commands marked with a phase do not exist before i
 | Lint the commits since a base (the gate runs it on `origin/main..HEAD`) | `tools/check_commits.sh <base>` |
 | Stop the harness emulator, even past a live lock | `tools/emulator_tests.sh stop [--force]` |
 | Run the sync chaos simulation with a seed and a budget | `SYNC_CHAOS_SEED=<n> SYNC_CHAOS_SCENARIOS=<k> dart test -t chaos` in `packages/sync_engine` |
+| Measure performance (cold start, scroll, write path, size, suite time) and compare with the baseline | `tools/perf/<script>.sh`, then `tools/perf/report.sh --against docs/reference/perf-baselines/<commit>.json` (`docs/reference/performance.md`) |
 | Sweep the manifest, the extraction rules and a logcat capture for secrets | `tools/secrets_sweep.sh <capture>` (`--self-test` checks the patterns) |
 | Run one integration test file on the harness AVD | `tools/emulator_tests.sh integration -- integration_test/<file>.dart` |
 | Run the harness on the foldable or the tablet, and set the posture | `FT_EMULATOR_AVD=ft-fold FT_AVD_DEVICE=pixel_fold tools/emulator_tests.sh demo`, then `tools/emulator_tests.sh posture folded\|unfolded`; `ft-tablet` with `pixel_tablet` |
