@@ -42,6 +42,13 @@ android {
         resValues = true
     }
 
+    // The app speaks English and Spanish (lib/l10n/), so only those languages of the
+    // libraries' Android resources are packaged; the other locales' strings went
+    // unused and made up most of resources.arsc.
+    androidResources {
+        localeFilters += setOf("en", "es")
+    }
+
     // One flavor per entry point (lib/main_<flavor>.dart). None may be named like a build
     // type (debug, profile, release): AGP refuses that. dev and prod share the application id
     // registered with Plaid; demo never touches Plaid and installs beside them.

@@ -90,6 +90,12 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   rather than the `flutter.*` properties so a Flutter upgrade cannot move them silently.
   26 covers the Plaid Android SDK (25+) and the biometric and secure-storage libraries
   (23+) with headroom.
+- **Languages.** `androidResources.localeFilters` is `en` and `es`, the languages of
+  `lib/l10n/`: the libraries' Android strings in every other language are left out of the
+  APK, where they made up most of `resources.arsc` (stored uncompressed in every APK). A
+  native screen of a library, such as the Plaid SDK's (which ships `de`, `fr` and `nl`),
+  shows its English strings on a device set to another language, as the app itself does.
+  A language added to `lib/l10n/` joins the filter in the same change.
 - **Package.** Namespace and application id `dev.tarnan.spendthrift`; `MainActivity` is
   `app/android/app/src/main/kotlin/dev/tarnan/spendthrift/MainActivity.kt`.
 - **Identity.** The application id changed from `dev.tarnan.financetracker` to
@@ -245,8 +251,10 @@ certificate SHA-256 is `tools/release/expected_cert_sha256.txt`'s (`testing-tool
   rules cover `com.plaid.**` (the Plaid SDK behind `plaid_flutter`) and the no-argument
   constructor of every Room database: the Plaid SDK brings WorkManager, which creates its
   Room database by reflection at startup, and without the rule the release app crashes on
-  launch (`NoSuchMethodException: WorkDatabase_Impl.<init>`). The app's own classes are
-  not kept. `image_picker_android` needs no rule: its channel is Pigeon-generated code
+  launch (`NoSuchMethodException: WorkDatabase_Impl.<init>`). The Plaid rule repeats the
+  SDK's own consumer rule (`sdk-core` 5.5.3's `proguard.txt` keeps `com.plaid.**` whole,
+  beside rules for OkHttp, Retrofit and kotlinx.serialization), so it keeps nothing more.
+  The app's own classes are not kept. `image_picker_android` needs no rule: its channel is Pigeon-generated code
   with no reflection, the registrant names its plugin class, and AAPT keeps the provider
   the manifest names. The encrypted database needs none: SQLite3 Multiple Ciphers is a native library
   reached over FFI, and R8 only touches Java and Kotlin code. `flutter_local_notifications` needs
