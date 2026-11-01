@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12 and later draw the splash themselves, from the launcher icon on this
+         background (the paper, or the night paper in dark mode: values-night/colors.xml);
+         launch_background.xml is not shown there. Both night and day need this file: the
+         night qualifier outranks the API level, so values-night/styles.xml would win. -->
+    <style name="LaunchTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
+    </style>
+</resources>

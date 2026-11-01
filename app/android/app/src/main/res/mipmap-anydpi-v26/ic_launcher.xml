@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Placeholder adaptive launcher icon until the app has its own artwork. minSdk 26 means
-     every device reads this file, so there are no per-density PNGs. -->
+<!-- The adaptive launcher icon: the duotone S on a paper tile, with a one-ink monochrome
+     layer for themed icons. minSdk 26 means every device reads this file, so there are no
+     per-density PNGs. -->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@color/ic_launcher_background" />
     <foreground android:drawable="@drawable/ic_launcher_foreground" />
-    <monochrome android:drawable="@drawable/ic_launcher_foreground" />
+    <monochrome android:drawable="@drawable/ic_launcher_monochrome" />
 </adaptive-icon>

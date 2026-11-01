@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- The legacy theme's purple, deepened for the launcher icon background. -->
-    <color name="ic_launcher_background">#6A1B9A</color>
+    <!-- The launcher icon's tile: paper. -->
+    <color name="ic_launcher_background">#F7F3EA</color>
+    <!-- The splash: paper; values-night has the night paper. -->
+    <color name="splash_background">#F7F3EA</color>
 </resources>

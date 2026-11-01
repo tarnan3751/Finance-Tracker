@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher icon monochrome layer (themed icons): the S in one ink, centred. The
+     launcher tints it, so only its shape counts. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:strokeColor="#1F1F1F"
+        android:strokeWidth="8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M66,38 C63,33 58,32 54,32 C47,32 42,36 42,42 C42,48 48,51 54,53 C61,55 67,58 67,65 C67,72 61,76 54,76 C49,76 44,74 41,69" />
+</vector>
