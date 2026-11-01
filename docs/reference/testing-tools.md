@@ -281,9 +281,13 @@ A release is a pushed `v*` tag; the workflow does the rest. In order:
    final step removes the keystore file whatever happened. No step echoes a secret or turns on
    `set -x`. `ci.yml` also runs on the tag push, as on every push.
 
-The assets are `spendthrift-<tag>-prod-release.apk`, `spendthrift-<tag>-demo-debug.apk`,
-`spendthrift-<tag>-symbols.tar.gz` (the `build/symbols` directory, for
-`flutter symbolize` on an obfuscated stack trace) and `SHA256SUMS.txt` of the three.
+The assets are `spendthrift-<tag>-prod-release.apk` (universal, every ABI),
+`spendthrift-<tag>-prod-release-arm64-v8a.apk` (a second build with `--split-per-abi
+--target-platform android-arm64`, about a third of the size, signed and checked the same way),
+`spendthrift-<tag>-demo-debug.apk`, `spendthrift-<tag>-symbols.tar.gz` (the `build/symbols`
+directory of the universal build and `build/symbols-arm64` of the arm64 one, each for `flutter
+symbolize` on an obfuscated stack trace of its own build, since an obfuscation map belongs to
+the build that made it) and `SHA256SUMS.txt` of the four.
 
 `tools/release/release_notes.sh <tag>` prints the release's body: the lines of the
 `CHANGELOG.md` section whose heading is `## <tag>` alone or followed by a space (so `v1.0.0`

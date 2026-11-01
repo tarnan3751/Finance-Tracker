@@ -1,11 +1,13 @@
 # Release: a pushed v* tag publishes a GitHub release by itself (docs/reference/testing-tools.md,
 # **Cutting a release**). The gate runs first, with the same steps as ci.yml's, and nothing is
 # published when it fails. The release job then checks that CHANGELOG.md has the tag's section,
-# builds the demo debug APK and the prod release APK signed with the release key from the
-# repository's secrets, refuses to go on unless apksigner reports the release certificate
-# (tools/release/check_signature.sh), and creates the release with gh and the default token:
-# the two APKs, the obfuscation symbols and a SHA256SUMS.txt as assets, the changelog section as
-# the body, a pre-release when the tag has a suffix (v0.9.0-phase8, v1.0.0-rc.1). The keystore
+# builds the demo debug APK and the prod release APK, universal and arm64-only
+# (--split-per-abi, about a third of the size, for any phone of the last several years),
+# both signed with the release key from the repository's secrets, refuses to go on unless
+# apksigner reports the release certificate on each (tools/release/check_signature.sh), and
+# creates the release with gh and the default token: the three APKs, the obfuscation symbols
+# of both prod builds and a SHA256SUMS.txt as assets, the changelog section as the body, a
+# pre-release when the tag has a suffix (v0.9.0-phase8, v1.0.0-rc.1). The keystore
 # exists only as a temporary file for the build, removed whatever happens; no step prints a
 # password or turns on tracing.
 name: Release
@@ -87,14 +89,33 @@ jobs:
         run: >-
           flutter build apk --release --flavor prod -t lib/main_prod.dart
           --obfuscate --split-debug-info=build/symbols
-      - name: Check the release signature
-        run: tools/release/check_signature.sh app/build/app/outputs/flutter-apk/app-prod-release.apk
+      # A second, arm64-only build with its own symbols directory: an obfuscation map belongs
+      # to the build that made it, so the universal APK's symbols are not overwritten.
+      - name: Build the prod release APK for arm64
+        working-directory: app
+        env:
+          FT_RELEASE_KEYSTORE: ${{ runner.temp }}/release.jks
+          FT_RELEASE_KEYSTORE_PASSWORD: ${{ secrets.FT_RELEASE_KEYSTORE_PASSWORD }}
+          FT_RELEASE_KEY_ALIAS: ${{ secrets.FT_RELEASE_KEY_ALIAS }}
+          FT_RELEASE_KEY_PASSWORD: ${{ secrets.FT_RELEASE_KEY_PASSWORD }}
+        run: >-
+          flutter build apk --release --flavor prod -t lib/main_prod.dart
+          --obfuscate --split-debug-info=build/symbols-arm64
+          --split-per-abi --target-platform android-arm64
+      - name: Check the release signatures
+        run: |
+          tools/release/check_signature.sh app/build/app/outputs/flutter-apk/app-prod-release.apk
+          arm64=$(ls app/build/app/outputs/flutter-apk/app-*arm64-v8a*-release.apk)
+          [ "$(printf '%s\n' "$arm64" | wc -l)" -eq 1 ] || { echo "::error::expected one arm64 APK, found: $arm64"; exit 1; }
+          tools/release/check_signature.sh "$arm64"
+          echo "ARM64_APK=$arm64" >> "$GITHUB_ENV"
       - name: Collect the assets
         run: |
           mkdir dist
           cp app/build/app/outputs/flutter-apk/app-prod-release.apk "dist/spendthrift-$TAG-prod-release.apk"
+          cp "$ARM64_APK" "dist/spendthrift-$TAG-prod-release-arm64-v8a.apk"
           cp app/build/app/outputs/flutter-apk/app-demo-debug.apk "dist/spendthrift-$TAG-demo-debug.apk"
-          tar -czf "dist/spendthrift-$TAG-symbols.tar.gz" -C app/build symbols
+          tar -czf "dist/spendthrift-$TAG-symbols.tar.gz" -C app/build symbols symbols-arm64
           (cd dist && sha256sum spendthrift-* > SHA256SUMS.txt && cat SHA256SUMS.txt)
       - name: Publish the release
         env:

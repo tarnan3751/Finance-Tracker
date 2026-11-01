@@ -84,7 +84,11 @@ A few rules hold everywhere:
 The quickest look needs no toolchain: the newest release on the
 [Releases page](https://github.com/tarnan3751/Finance-Tracker/releases) carries a demo
 APK (`spendthrift-<tag>-demo-debug.apk`) that runs on seeded data with no server, no
-account and no network. Install it on a phone or an emulator and open it.
+account and no network. Install it on a phone or an emulator and open it. The same page
+carries the release build in two files: `spendthrift-<tag>-prod-release-arm64-v8a.apk` for
+any phone of the last several years (about a third of the size), and
+`spendthrift-<tag>-prod-release.apk`, which runs on every ABI, for anything else; Android
+refuses the wrong one with a clear error, so a wrong pick costs a second download.
 
 The app has three flavors, each with its own entry point. Run them from `app/`:
 
@@ -127,7 +131,7 @@ are unset. `docs/reference/build.md` has the details.
 Releases are built by CI, not by hand. Pushing a `v*` tag runs `.github/workflows/release.yml`:
 the gate, then the prod release APK signed with the release key held in the repository's
 secrets, checked against the release certificate before anything is published, and the demo
-debug APK; the release gets both APKs, the obfuscation symbols and a `SHA256SUMS.txt`, with the
+debug APK; the release gets the three APKs (the prod build universal and arm64-only, the demo), the obfuscation symbols and a `SHA256SUMS.txt`, with the
 tag's `CHANGELOG.md` section as its notes. A tag with a suffix (`v1.0.0-rc.1`) is published as
 a pre-release. To cut one, generate the section with `tools/changelog.sh <previous-tag>..HEAD`,
 add it to `CHANGELOG.md` under `## <tag> — <date>` and commit it, then tag that commit and push

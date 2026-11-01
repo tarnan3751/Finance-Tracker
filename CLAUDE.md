@@ -418,8 +418,9 @@ PLAN.md          the plan: gitignored, read from the main tree
   then pushing an annotated `vX.Y.Z` tag (a suffix such as `-phase9` or `-rc.1` makes a
   pre-release): `release.yml` runs the gate, signs the prod APK with the keystore from the
   `FT_RELEASE_*` secrets, refuses to publish unless `tools/release/check_signature.sh` matches
-  `tools/release/expected_cert_sha256.txt`, and publishes the two APKs, the symbols and
-  `SHA256SUMS.txt` with the section as the body. The keystore and its password live only in
+  `tools/release/expected_cert_sha256.txt`, and publishes the three APKs (the prod build universal
+  and arm64-only, the demo), the symbols of both prod builds and `SHA256SUMS.txt` with the section as
+  the body. The keystore and its password live only in
   `~/.finance-tracker-release/` and the secrets.
 - The server opens SQLite with the same wall-time `busyWaiter` as the app; `PRAGMA busy_timeout` is
   used nowhere, because SQLite's own handler counts the sleeps it asked for and a signal cuts them
@@ -580,7 +581,8 @@ Constraints:
   prod APK built with `--obfuscate --split-debug-info` and signed with the key held in the
   `FT_RELEASE_*` Actions secrets (the Gradle config falls back to the debug key when they are
   absent), the certificate checked against `tools/release/expected_cert_sha256.txt` before anything
-  is published, the demo APK, the symbols and `SHA256SUMS.txt` as assets, the CHANGELOG section as
+  is published, the same build again arm64-only with `--split-per-abi` and its own symbols directory, the
+  demo APK, the symbols and `SHA256SUMS.txt` as assets, the CHANGELOG section as
   the body, a suffixed tag as a pre-release.
 - Every phase's definition of done includes a release-mode smoke run on an emulator, so an R8 or
   obfuscation regression is caught the phase it appears; R8 keep rules cover the Plaid SDK and
