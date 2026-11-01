@@ -525,18 +525,18 @@ _investmentsViews = {
   'Investments value table': (
     overrides: investmentOverrides,
     open: (tester) async {
-      await _scrollToTop(tester, find.text('Value over time'));
+      await _scrollToTop(tester, find.text('VALUE OVER TIME'));
       await _tapAndSettle(tester, find.text('Table'));
     },
   ),
   'Investments holdings': (
     overrides: investmentOverrides,
-    open: (tester) => _scrollToTop(tester, find.text('Holdings')),
+    open: (tester) => _scrollToTop(tester, find.text('HOLDINGS')),
   ),
   'Investments transactions': (
     overrides: investmentOverrides,
     open: (tester) =>
-        _scrollToTop(tester, find.text('Investment transactions')),
+        _scrollToTop(tester, find.text('INVESTMENT TRANSACTIONS')),
   ),
   'Investments, empty': (
     overrides: () => [storeOverride(seededStore())],

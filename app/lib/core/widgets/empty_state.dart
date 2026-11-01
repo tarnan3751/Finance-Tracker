@@ -31,7 +31,7 @@ class EmptyState extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(SpendthriftTokens.space24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -57,13 +57,13 @@ class EmptyState extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: SpendthriftTokens.space16),
             Text(
               headline,
               style: theme.textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: SpendthriftTokens.space8),
             Text(
               body,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -72,7 +72,7 @@ class EmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             if (action case final Widget action) ...[
-              const SizedBox(height: 24),
+              const SizedBox(height: SpendthriftTokens.space24),
               action,
             ],
           ],

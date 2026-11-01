@@ -5,13 +5,14 @@
 /// switch, and the account, an existing one or a new manual account.
 library;
 
+import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_type_style.dart';
 import 'package:finance_tracker/features/accounts/presentation/currency_picker.dart';
 import 'package:finance_tracker/features/import/domain/amount_parser.dart';
 import 'package:finance_tracker/features/import/domain/csv_reader.dart';
 import 'package:finance_tracker/features/import/domain/date_formats.dart';
 import 'package:finance_tracker/features/import/domain/import_mapping.dart';
-import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_dates.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -258,7 +259,7 @@ class _ImportMappingViewState extends State<ImportMappingView> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
-    const SizedBox gap = SizedBox(height: 16);
+    const SizedBox gap = SizedBox(height: SpendthriftTokens.space16);
     final int width = _header.length;
     final bool ready =
         _draft.mapping != null &&
@@ -266,16 +267,23 @@ class _ImportMappingViewState extends State<ImportMappingView> {
             ? _draft.newName.trim().isNotEmpty
             : widget.accounts.any((a) => a.id == _draft.accountId));
     return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: SpendthriftTokens.space24),
       children: [
         if (_draft.presetApplied)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            padding: const EdgeInsets.fromLTRB(
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space16,
+              0,
+            ),
             child: Text(l10n.importPresetApplied),
           ),
-        SettingsSectionHeader(l10n.importFileSection),
+        SectionHeader(l10n.importFileSection),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(
+            horizontal: SpendthriftTokens.space16,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -341,14 +349,16 @@ class _ImportMappingViewState extends State<ImportMappingView> {
             ],
           ),
         ),
-        SettingsSectionHeader(l10n.importMappingSection),
+        SectionHeader(l10n.importMappingSection),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(
+            horizontal: SpendthriftTokens.space16,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(l10n.importAmountMode, style: theme.textTheme.titleSmall),
-              const SizedBox(height: 8),
+              const SizedBox(height: SpendthriftTokens.space8),
               SegmentedButton<bool>(
                 segments: [
                   ButtonSegment(
@@ -424,7 +434,7 @@ class _ImportMappingViewState extends State<ImportMappingView> {
                 l10n.importDecimalSeparator,
                 style: theme.textTheme.titleSmall,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: SpendthriftTokens.space8),
               SegmentedButton<DecimalSeparator>(
                 segments: [
                   ButtonSegment(
@@ -442,7 +452,7 @@ class _ImportMappingViewState extends State<ImportMappingView> {
                 ),
               ),
               if (!_draft.separatorDetected) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: SpendthriftTokens.space8),
                 Text(l10n.importSeparatorUnsure),
               ],
             ],
@@ -456,9 +466,11 @@ class _ImportMappingViewState extends State<ImportMappingView> {
             onChanged: (v) =>
                 widget.onChanged(_draft.copyWith(outflowsNegative: v)),
           ),
-        SettingsSectionHeader(l10n.importAccountSection),
+        SectionHeader(l10n.importAccountSection),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(
+            horizontal: SpendthriftTokens.space16,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -503,10 +515,10 @@ class _ImportMappingViewState extends State<ImportMappingView> {
                 ),
                 gap,
                 Text(l10n.accountType, style: theme.textTheme.titleSmall),
-                const SizedBox(height: 8),
+                const SizedBox(height: SpendthriftTokens.space8),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: SpendthriftTokens.space8,
+                  runSpacing: SpendthriftTokens.space8,
                   children: [
                     for (final AccountType type in AccountType.values)
                       ChoiceChip(
@@ -628,7 +640,7 @@ class _DateFormatChoice extends StatelessWidget {
         ),
         if (draft.columns.containsKey(ImportRole.date) &&
             draft.dateCandidates.isEmpty) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: SpendthriftTokens.space8),
           Text(l10n.importDateNone),
         ],
       ],

@@ -9,11 +9,12 @@ import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/developer/application/developer_controller.dart';
 import 'package:finance_tracker/features/developer/presentation/developer_screen.dart';
-import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -75,7 +76,7 @@ class DeveloperSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SettingsSectionHeader(l10n.settingsDeveloper),
+        SectionHeader(l10n.settingsDeveloper),
         for (final (IconData icon, String title, String value) in rows)
           ListTile(
             leading: Icon(icon),
@@ -93,10 +94,13 @@ class DeveloperSection extends ConsumerWidget {
             failed: pull.failure != null,
           ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+            horizontal: SpendthriftTokens.space16,
+            vertical: SpendthriftTokens.space8,
+          ),
           child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: SpendthriftTokens.space8,
+            runSpacing: SpendthriftTokens.space8,
             children: [
               FilledButton.tonalIcon(
                 onPressed: developer.running == null
@@ -152,14 +156,17 @@ class DeveloperRunningLine extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     liveRegion: true,
     child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: SpendthriftTokens.space16,
+        vertical: SpendthriftTokens.space4,
+      ),
       child: Row(
         children: [
           const SizedBox.square(
             dimension: 16,
             child: CircularProgressIndicator(strokeWidth: 2),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: SpendthriftTokens.space12),
           Expanded(child: Text(label)),
         ],
       ),
@@ -184,7 +191,10 @@ class DeveloperResultLine extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        padding: const EdgeInsets.symmetric(
+          horizontal: SpendthriftTokens.space16,
+          vertical: SpendthriftTokens.space4,
+        ),
         child: Text(
           text,
           style: theme.textTheme.bodyMedium?.copyWith(

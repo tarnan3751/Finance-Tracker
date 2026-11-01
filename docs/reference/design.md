@@ -162,12 +162,22 @@ nothing on a tap. The screens space their cards themselves: `space16` at the sid
 payoffs, the duplicate pairs, the budgets and the goals are `BrandCard`s; a card that is
 not a `BrandCard` is a hero card.
 
+## Empty states
+
+`EmptyState` is every empty screen and every empty part of one that has nothing to show
+yet (the budget alerts sheet, a budget's or an account's transactions, the import
+history): the duotone icon, the Syne `titleLarge` headline, one body line in
+`onSurfaceVariant` and, where there is one, the primary action as a `FilledButton`. No
+screen shows a bare "No …" line in its place.
+
 ## Section headers and lists
 
 `SectionHeader` (`core/widgets/section_header.dart`) is a section's heading: Syne at the
 `titleSmall` size, weight 700, in capitals tracked at 0.08 em (read as written), in ink,
 `space24` above and `space8` below, announced as a header, with an optional action at its
-end. A list's group heading (the transactions' dates) takes `underline`: an ink line under
+end. Settings' groups, the bills' groups, the report's and the weekly summary's sections,
+the investments' and the liabilities' headings, a goal's sections, the export's and the
+category picker's groups all use it. A list's group heading (the transactions' dates) takes `underline`: an ink line under
 it on paper and `space16` above.
 
 A list row's title is Work Sans 500, its caption `onSurfaceVariant`, its amount an

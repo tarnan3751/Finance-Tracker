@@ -21,12 +21,13 @@ import 'dart:async';
 import 'package:finance_tracker/core/api/api_models.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/background_work_provider.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/developer/application/developer_controller.dart';
 import 'package:finance_tracker/features/developer/application/developer_providers.dart';
 import 'package:finance_tracker/features/developer/presentation/developer_section.dart';
 import 'package:finance_tracker/features/items/domain/linked_bank.dart';
-import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/features/transactions/presentation/amount_input.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -122,9 +123,9 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.developerOpenSandbox)),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: SpendthriftTokens.space24),
         children: [
-          SettingsSectionHeader(l10n.developerItemSection),
+          SectionHeader(l10n.developerItemSection),
           if (items == null)
             const LinearProgressIndicator()
           else if (itemId == null)
@@ -158,8 +159,8 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
             ),
             _Padded(
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: SpendthriftTokens.space8,
+                runSpacing: SpendthriftTokens.space8,
                 children: [
                   FilledButton.tonal(
                     onPressed: state.running == null
@@ -223,12 +224,12 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
                 text: _resultText(l10n, result),
                 failed: result.failure != null || result.pullFailure != null,
               ),
-            SettingsSectionHeader(l10n.developerInjectSection),
+            SectionHeader(l10n.developerInjectSection),
             _inject(l10n, state, itemId),
           ],
-          SettingsSectionHeader(l10n.developerProvisionSection),
+          SectionHeader(l10n.developerProvisionSection),
           _provision(l10n, state),
-          SettingsSectionHeader(l10n.developerWorkerSection),
+          SectionHeader(l10n.developerWorkerSection),
           ListTile(
             leading: const Icon(Icons.schedule_outlined),
             title: Text(l10n.developerRunWorker),
@@ -479,12 +480,12 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
                       l10n.developerJobStatus(job.status.name),
                       style: theme.textTheme.titleSmall,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: SpendthriftTokens.space8),
                     LinearProgressIndicator(
                       value: _fraction(job.progress),
                       semanticsLabel: l10n.developerJobProgress,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: SpendthriftTokens.space8),
                     Text(
                       l10n.developerJobItems(
                         job.progress.itemsLinked,
@@ -618,7 +619,10 @@ class _Padded extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    padding: const EdgeInsets.symmetric(
+      horizontal: SpendthriftTokens.space16,
+      vertical: SpendthriftTokens.space8,
+    ),
     child: child,
   );
 }

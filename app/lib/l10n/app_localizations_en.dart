@@ -534,9 +534,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountNotFound => 'This account no longer exists.';
 
   @override
-  String get accountNoTransactions => 'No transactions on this account yet.';
-
-  @override
   String get accountHide => 'Hide account';
 
   @override
@@ -2278,10 +2275,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alertsMarkAllRead => 'Mark all read';
-
-  @override
-  String get alertsEmpty =>
-      'No alerts yet. A budget alerts you when its spending reaches 80 % and 100 %.';
 
   @override
   String get alertUnread => 'Unread';
@@ -4675,7 +4668,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importHistorySection => 'Imports';
 
   @override
-  String get importHistoryEmpty => 'Nothing imported yet.';
+  String get importHistoryEmpty => 'Nothing imported yet';
 
   @override
   String get importHistoryUnnamed => 'Unnamed file';
@@ -5555,6 +5548,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String goalsHeroOnTrack(int onTrack, int total) {
     return '$onTrack of $total on track';
   }
+
+  @override
+  String get alertsEmptyHeadline => 'No alerts yet';
+
+  @override
+  String get alertsEmptyBody =>
+      'A budget alerts you when its spending reaches 80 % and 100 %.';
+
+  @override
+  String get budgetTransactionsEmptyBody =>
+      'Spending in this budget\'s categories in the period shows here.';
+
+  @override
+  String get accountNoTransactionsBody =>
+      'Transactions on this account show here, newest first.';
+
+  @override
+  String get importHistoryEmptyBody => 'Each file you import is listed here.';
 }
 
 /// The translations for English (`en_XA`).
@@ -6091,10 +6102,6 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get accountNotFound => '[Ţĥîš åççöûñţ ñö ļöñĝéŕ éẋîšţš. ~~~~~ ~~~~~]';
-
-  @override
-  String get accountNoTransactions =>
-      '[Ñö ţŕåñšåçţîöñš öñ ţĥîš åççöûñţ ýéţ. ~~~~~ ~~~~~ ~~]';
 
   @override
   String get accountHide => '[Ĥîðé åççöûñţ ~~~~~]';
@@ -7883,10 +7890,6 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get alertsMarkAllRead => '[Ṁåŕķ åļļ ŕéåð ~~~~~]';
-
-  @override
-  String get alertsEmpty =>
-      '[Ñö åļéŕţš ýéţ. Å ƀûðĝéţ åļéŕţš ýöû ŵĥéñ îţš šþéñðîñĝ ŕéåçĥéš 80 % åñð 100 %. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
 
   @override
   String get alertUnread => '[Ûñŕéåð ~~~]';
@@ -10327,7 +10330,7 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
   String get importHistorySection => '[Îɱþöŕţš ~~~]';
 
   @override
-  String get importHistoryEmpty => '[Ñöţĥîñĝ îɱþöŕţéð ýéţ. ~~~~~ ~~~]';
+  String get importHistoryEmpty => '[Ñöţĥîñĝ îɱþöŕţéð ýéţ ~~~~~ ~~~]';
 
   @override
   String get importHistoryUnnamed => '[Ûññåɱéð ƒîļé ~~~~~]';
@@ -11223,4 +11226,23 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
   String goalsHeroOnTrack(int onTrack, int total) {
     return '[$onTrack öƒ $total öñ ţŕåçķ ~~~~]';
   }
+
+  @override
+  String get alertsEmptyHeadline => '[Ñö åļéŕţš ýéţ ~~~~~]';
+
+  @override
+  String get alertsEmptyBody =>
+      '[Å ƀûðĝéţ åļéŕţš ýöû ŵĥéñ îţš šþéñðîñĝ ŕéåçĥéš 80 % åñð 100 %. ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get budgetTransactionsEmptyBody =>
+      '[Šþéñðîñĝ îñ ţĥîš ƀûðĝéţ\'š çåţéĝöŕîéš îñ ţĥé þéŕîöð šĥöŵš ĥéŕé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get accountNoTransactionsBody =>
+      '[Ţŕåñšåçţîöñš öñ ţĥîš åççöûñţ šĥöŵ ĥéŕé, ñéŵéšţ ƒîŕšţ. ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get importHistoryEmptyBody =>
+      '[Éåçĥ ƒîļé ýöû îɱþöŕţ îš ļîšţéð ĥéŕé. ~~~~~ ~~~~~ ~~]';
 }

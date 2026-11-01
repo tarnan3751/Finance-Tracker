@@ -7,12 +7,12 @@ library;
 
 import 'dart:async';
 
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/lock/application/device_auth_provider.dart';
 import 'package:finance_tracker/features/lock/application/lock_controller.dart';
 import 'package:finance_tracker/features/lock/domain/device_auth.dart';
 import 'package:finance_tracker/features/lock/domain/lock_settings.dart';
 import 'package:finance_tracker/features/lock/presentation/lock_gate.dart';
-import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -97,7 +97,7 @@ class _SecuritySectionState extends ConsumerState<SecuritySection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SettingsSectionHeader(l10n.settingsSecurity),
+        SectionHeader(l10n.settingsSecurity),
         SwitchListTile(
           title: Text(l10n.lockRequireUnlock),
           subtitle: Text(

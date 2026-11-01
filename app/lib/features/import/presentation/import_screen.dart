@@ -12,6 +12,9 @@ import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/backup_picker.dart';
 import 'package:finance_tracker/core/platform/csv_picker_provider.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/empty_state.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/import/application/import_providers.dart';
 import 'package:finance_tracker/features/import/domain/amount_parser.dart';
@@ -22,7 +25,6 @@ import 'package:finance_tracker/features/import/domain/import_mapping.dart';
 import 'package:finance_tracker/features/import/domain/import_records.dart';
 import 'package:finance_tracker/features/import/presentation/import_mapping_view.dart';
 import 'package:finance_tracker/features/import/presentation/import_review_view.dart';
-import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_dates.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -458,16 +460,16 @@ class _StartViewState extends ConsumerState<_StartView> {
     final ImportResult? done = widget.result;
     final tz.Location zone = ref.watch(clockProvider).location;
     return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: SpendthriftTokens.space24),
       children: [
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(SpendthriftTokens.space16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (done == null) ...[
                 Text(l10n.importIntro),
-                const SizedBox(height: 16),
+                const SizedBox(height: SpendthriftTokens.space16),
                 FilledButton.icon(
                   onPressed: busy ? null : onPick,
                   icon: const Icon(Icons.upload_file),
@@ -481,30 +483,31 @@ class _StartViewState extends ConsumerState<_StartView> {
                 if (done.skipped > 0)
                   Text(l10n.importResultSkipped(done.skipped)),
                 if (!done.historySaved) Text(l10n.importHistoryNotSaved),
-                const SizedBox(height: 16),
+                const SizedBox(height: SpendthriftTokens.space16),
                 FilledButton(
                   onPressed: () =>
                       AccountDetailRoute(done.account.id).push<void>(context),
                   child: Text(l10n.importViewAccount),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: SpendthriftTokens.space8),
                 OutlinedButton(
                   onPressed: onRestart,
                   child: Text(l10n.importAnother),
                 ),
               ],
               if (error case final String message) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: SpendthriftTokens.space16),
                 Text(message, style: TextStyle(color: theme.colorScheme.error)),
               ],
             ],
           ),
         ),
-        SettingsSectionHeader(l10n.importHistorySection),
+        SectionHeader(l10n.importHistorySection),
         if (history.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(l10n.importHistoryEmpty),
+          EmptyState(
+            icon: Icons.history,
+            headline: l10n.importHistoryEmpty,
+            body: l10n.importHistoryEmptyBody,
           ),
         for (final ImportBatch batch in history)
           ListTile(

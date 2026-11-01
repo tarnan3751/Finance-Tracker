@@ -131,7 +131,6 @@
   "accountsTotals": "[Ţöţåļš ~~~]",
   "accountsHidden": "[{count, plural, =1{1 ĥîððéñ åççöûñţ ~~~~~ ~} other{{count} ĥîððéñ åççöûñţš ~~~~~ ~}}]",
   "accountNotFound": "[Ţĥîš åççöûñţ ñö ļöñĝéŕ éẋîšţš. ~~~~~ ~~~~~]",
-  "accountNoTransactions": "[Ñö ţŕåñšåçţîöñš öñ ţĥîš åççöûñţ ýéţ. ~~~~~ ~~~~~ ~~]",
   "accountHide": "[Ĥîðé åççöûñţ ~~~~~]",
   "accountShow": "[Šĥöŵ åççöûñţ ~~~~~]",
   "accountHiddenLabel": "[Ĥîððéñ ~~~]",
@@ -593,7 +592,6 @@
   "alertsTooltip": "[{count, plural, =0{Åļéŕţš ~~~} =1{Åļéŕţš, 1 ûñŕéåð ~~~~~} other{Åļéŕţš, {count} ûñŕéåð ~~~~~}}]",
   "alertsTitle": "[Åļéŕţš ~~~]",
   "alertsMarkAllRead": "[Ṁåŕķ åļļ ŕéåð ~~~~~]",
-  "alertsEmpty": "[Ñö åļéŕţš ýéţ. Å ƀûðĝéţ åļéŕţš ýöû ŵĥéñ îţš šþéñðîñĝ ŕéåçĥéš 80 % åñð 100 %. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]",
   "alertUnread": "[Ûñŕéåð ~~~]",
   "alertBudgetThreshold": "[{category} ŕéåçĥéð {percent} % öƒ {available} öñ {date} ~~~~~]",
   "transactionHidden": "[Ĥîððéñ ~~~]",
@@ -1158,7 +1156,7 @@
   "importUnreadable": "[Ţĥé ƒîļé çöûļð ñöţ ƀé ŕéåð åš ţéẋţ. ~~~~~ ~~~~~ ~]",
   "importNoTable": "[Ñö ţåƀļé öƒ ţŕåñšåçţîöñš ŵåš ƒöûñð îñ ţĥîš ƒîļé. ~~~~~ ~~~~~ ~~~~~ ~]",
   "importHistorySection": "[Îɱþöŕţš ~~~]",
-  "importHistoryEmpty": "[Ñöţĥîñĝ îɱþöŕţéð ýéţ. ~~~~~ ~~~]",
+  "importHistoryEmpty": "[Ñöţĥîñĝ îɱþöŕţéð ýéţ ~~~~~ ~~~]",
   "importHistoryUnnamed": "[Ûññåɱéð ƒîļé ~~~~~]",
   "importHistorySubtitle": "[{count, plural, =1{1 ţŕåñšåçţîöñ, {date} ~~~~~} other{{count} ţŕåñšåçţîöñš, {date} ~~~~~}}]",
   "importHistoryUndoneSubtitle": "[{count, plural, =1{1 ţŕåñšåçţîöñ, {date}, ûñðöñé ~~~~~ ~~} other{{count} ţŕåñšåçţîöñš, {date}, ûñðöñé ~~~~~ ~~~}}]",
@@ -1384,5 +1382,10 @@
   "investmentsHeroLabel": "[Ţöţåļ ṽåļûé ~~~~]",
   "investmentsHeroGain": "[{amounts} ĝåîñ öñ çöšţ ~~~~]",
   "goalsHeroLabel": "[Šåṽéð ~~]",
-  "goalsHeroOnTrack": "[{onTrack} öƒ {total} öñ ţŕåçķ ~~~~]"
+  "goalsHeroOnTrack": "[{onTrack} öƒ {total} öñ ţŕåçķ ~~~~]",
+  "alertsEmptyHeadline": "[Ñö åļéŕţš ýéţ ~~~~~]",
+  "alertsEmptyBody": "[Å ƀûðĝéţ åļéŕţš ýöû ŵĥéñ îţš šþéñðîñĝ ŕéåçĥéš 80 % åñð 100 %. ~~~~~ ~~~~~ ~~~~~ ~~]",
+  "budgetTransactionsEmptyBody": "[Šþéñðîñĝ îñ ţĥîš ƀûðĝéţ'š çåţéĝöŕîéš îñ ţĥé þéŕîöð šĥöŵš ĥéŕé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]",
+  "accountNoTransactionsBody": "[Ţŕåñšåçţîöñš öñ ţĥîš åççöûñţ šĥöŵ ĥéŕé, ñéŵéšţ ƒîŕšţ. ~~~~~ ~~~~~ ~~~~~ ~~~]",
+  "importHistoryEmptyBody": "[Éåçĥ ƒîļé ýöû îɱþöŕţ îš ļîšţéð ĥéŕé. ~~~~~ ~~~~~ ~~]"
 }

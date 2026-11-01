@@ -10,6 +10,8 @@ import 'dart:typed_data';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/file_exporter.dart';
 import 'package:finance_tracker/core/platform/file_exporter_provider.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/backup/application/backup_providers.dart';
 import 'package:finance_tracker/features/backup/application/backup_service.dart';
 import 'package:finance_tracker/features/backup/application/backup_worker.dart';
@@ -17,7 +19,6 @@ import 'package:finance_tracker/features/backup/domain/passphrase_strength.dart'
 import 'package:finance_tracker/features/backup/presentation/backup_messages.dart';
 import 'package:finance_tracker/features/backup/presentation/restore_flow.dart';
 import 'package:finance_tracker/features/lock/application/lock_hold.dart';
-import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,17 +42,24 @@ class BackupScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.backupTitle)),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: SpendthriftTokens.space24),
         children: [
-          SettingsSectionHeader(l10n.backupExportSection),
+          SectionHeader(l10n.backupExportSection),
           const _ExportSection(),
-          SettingsSectionHeader(l10n.backupRestoreSection),
+          SectionHeader(l10n.backupRestoreSection),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            padding: const EdgeInsets.fromLTRB(
+              SpendthriftTokens.space16,
+              0,
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space16,
+            ),
             child: Text(l10n.backupRestoreExplanation),
           ),
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(
+              horizontal: SpendthriftTokens.space16,
+            ),
             child: RestoreFlow(entry: RestoreEntry.settings),
           ),
         ],
@@ -162,12 +170,14 @@ class _ExportSectionState extends ConsumerState<_ExportSection> {
     final BackupProgress? progress = _progress;
     final String? error = _error;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: SpendthriftTokens.space16,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(l10n.backupExportExplanation),
-          const SizedBox(height: 16),
+          const SizedBox(height: SpendthriftTokens.space16),
           TextField(
             controller: _passphrase,
             enabled: !_busy,
@@ -183,7 +193,7 @@ class _ExportSectionState extends ConsumerState<_ExportSection> {
               errorText: _passphraseError(l10n),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: SpendthriftTokens.space8),
           TextField(
             controller: _confirm,
             enabled: !_busy,
@@ -195,15 +205,15 @@ class _ExportSectionState extends ConsumerState<_ExportSection> {
               errorText: _confirmError(l10n),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: SpendthriftTokens.space8),
           Text(
             l10n.backupNoRecovery,
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: SpendthriftTokens.space16),
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: SpendthriftTokens.space8,
+            runSpacing: SpendthriftTokens.space8,
             alignment: WrapAlignment.end,
             children: [
               OutlinedButton.icon(
@@ -221,11 +231,11 @@ class _ExportSectionState extends ConsumerState<_ExportSection> {
             ],
           ),
           if (progress != null) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: SpendthriftTokens.space16),
             BackupProgressView(progress),
           ],
           if (error != null) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: SpendthriftTokens.space16),
             BackupErrorText(error),
           ],
         ],

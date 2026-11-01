@@ -17,6 +17,8 @@ import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/auth/presentation/account_section.dart';
 import 'package:finance_tracker/features/developer/presentation/developer_section.dart';
 import 'package:finance_tracker/features/lock/presentation/security_section.dart';
@@ -26,7 +28,6 @@ import 'package:finance_tracker/features/settings/application/settings_controlle
 import 'package:finance_tracker/features/settings/domain/app_language.dart';
 import 'package:finance_tracker/features/settings/domain/settings.dart';
 import 'package:finance_tracker/features/settings/presentation/demo_data_section.dart';
-import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/features/settings/presentation/sync_section.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -57,14 +58,14 @@ class SettingsScreen extends ConsumerWidget {
           const AccountSection(),
           if (ref.watch(syncControllerProvider).phase != SyncPhase.unavailable)
             const SyncSection(),
-          SettingsSectionHeader(l10n.settingsAppearance),
+          SectionHeader(l10n.settingsAppearance),
           if (settings == null)
             const LinearProgressIndicator()
           else ...[
             ListTile(
               title: Text(l10n.settingsThemeMode),
               subtitle: Padding(
-                padding: const EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.only(top: SpendthriftTokens.space8),
                 child: SegmentedButton<AppThemeMode>(
                   segments: [
                     ButtonSegment(
@@ -96,7 +97,7 @@ class SettingsScreen extends ConsumerWidget {
           if (ref.watch(appConfigProvider).flavor != Flavor.prod)
             const _LanguageTile(),
           const SecuritySection(),
-          SettingsSectionHeader(l10n.settingsNotifications),
+          SectionHeader(l10n.settingsNotifications),
           ListTile(
             leading: const Icon(Icons.notifications_outlined),
             title: Text(l10n.settingsNotificationsSubtitle),
@@ -104,7 +105,7 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () =>
                 openDetail(context, const NotificationsRoute().location),
           ),
-          SettingsSectionHeader(l10n.settingsData),
+          SectionHeader(l10n.settingsData),
           ListTile(
             leading: const Icon(Icons.category_outlined),
             title: Text(l10n.categoriesTitle),
@@ -145,7 +146,7 @@ class SettingsScreen extends ConsumerWidget {
               trailing: const Icon(Icons.chevron_right),
               onTap: () => openDetail(context, const BackupRoute().location),
             ),
-          SettingsSectionHeader(l10n.settingsAbout),
+          SectionHeader(l10n.settingsAbout),
           ListTile(title: Text(l10n.aboutAppName), subtitle: Text(appName)),
           ListTile(
             title: Text(l10n.aboutVersion),
@@ -211,7 +212,7 @@ class _LanguageTile extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(l10n.settingsLanguageSubtitle),
-          const SizedBox(height: 8),
+          const SizedBox(height: SpendthriftTokens.space8),
           SegmentedButton<AppLanguage>(
             segments: [
               ButtonSegment(

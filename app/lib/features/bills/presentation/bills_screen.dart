@@ -27,6 +27,7 @@ import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/core/widgets/hero_card.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/core/widgets/visible_messenger.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart'
     show defaultCurrencyCode;
@@ -172,7 +173,6 @@ class _BillList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ThemeData theme = Theme.of(context);
     final LocalDate today = ref.watch(todayProvider);
     final BillPayments payments =
         ref.watch(billPaymentsProvider).value ?? const {};
@@ -204,27 +204,10 @@ class _BillList extends ConsumerWidget {
       group.sort(_byDue);
     }
     paused.sort(_byName);
-    Widget heading(String text) => Padding(
-      padding: const EdgeInsets.fromLTRB(
-        SpendthriftTokens.space16,
-        SpendthriftTokens.space16,
-        SpendthriftTokens.space16,
-        SpendthriftTokens.space4,
-      ),
-      child: Semantics(
-        header: true,
-        child: Text(
-          text,
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: theme.colorScheme.primary,
-          ),
-        ),
-      ),
-    );
     final List<Widget> children = [
       header,
       if (suggestions.isNotEmpty) ...[
-        heading(l10n.billsSuggested),
+        SectionHeader(l10n.billsSuggested),
         _Suggestions(suggestions),
       ],
       for (final (String title, List<_Row> rows) in [
@@ -233,7 +216,7 @@ class _BillList extends ConsumerWidget {
         (l10n.billsGroupLater, later),
       ])
         if (rows.isNotEmpty) ...[
-          heading(title),
+          SectionHeader(title),
           for (final _Row r in rows)
             _BillTile(
               key: ValueKey(r.bill.id),

@@ -37,6 +37,7 @@ void main() {
     bool streams = false,
     List<RecurringStream>? streamList,
     bool keepMeta = false,
+    Size size = phoneSize,
   }) async {
     final Clock at = clock ?? testClock;
     bills = _Failing(
@@ -50,6 +51,7 @@ void main() {
       tester,
       initialLocation: location,
       clock: at,
+      size: size,
       overrides: <Override>[
         storeOverride(seededStore(clock: at)),
         billRepositoryProvider.overrideWithValue(bills),
@@ -92,16 +94,17 @@ void main() {
 
   testWidgets('groups the bills by when they are due', (tester) async {
     double top(Finder finder) => tester.getTopLeft(finder).dy;
-    await open(tester);
+    // Tall enough for every group to be built at once under the hero card.
+    await open(tester, size: const Size(412, 1400));
 
     // Overdue, then Due soon, then Later, each by date.
     final List<double> order = [
-      top(find.text('Overdue')),
+      top(find.text('OVERDUE')),
       top(find.text('Rent')),
-      top(find.text('Due soon')),
+      top(find.text('DUE SOON')),
       top(find.text('Water')),
       top(find.text('Phone')),
-      top(find.text('Later')),
+      top(find.text('LATER')),
       top(find.text('Netflix')),
     ];
     expect(order, [...order]..sort());
@@ -148,7 +151,7 @@ void main() {
       LocalDate(2026, 10, 1),
     ]);
     // Paid, its next date is more than a week away.
-    expect(find.text('Overdue'), findsNothing);
+    expect(find.text('OVERDUE'), findsNothing);
     expect(inTile('Rent', find.text('Due Nov 1, 2026')), findsOneWidget);
 
     await tester.tap(find.text('Undo'));
@@ -156,7 +159,7 @@ void main() {
     expect((await stored(tester, 'rent')).paidOccurrences, [
       LocalDate(2026, 9, 1),
     ]);
-    expect(find.text('Overdue'), findsOneWidget);
+    expect(find.text('OVERDUE'), findsOneWidget);
   });
 
   testWidgets('a Mark paid or Undo not saved says so and changes nothing', (
@@ -175,7 +178,7 @@ void main() {
     expect((await stored(tester, 'rent')).paidOccurrences, [
       LocalDate(2026, 9, 1),
     ]);
-    expect(find.text('Overdue'), findsOneWidget);
+    expect(find.text('OVERDUE'), findsOneWidget);
     expect(inTile('Rent', find.text('Mark paid')), findsOneWidget);
 
     bills.failing = false;
@@ -193,7 +196,7 @@ void main() {
       LocalDate(2026, 9, 1),
       LocalDate(2026, 10, 1),
     ]);
-    expect(find.text('Overdue'), findsNothing);
+    expect(find.text('OVERDUE'), findsNothing);
   });
 
   testWidgets('Mark paid on a due bill marks the occurrence it shows', (
@@ -220,9 +223,9 @@ void main() {
     expect(inTile('Cable', find.text('Due in 7 days')), findsOneWidget);
     expect(
       tester.getTopLeft(find.text('Cable')).dy,
-      greaterThan(tester.getTopLeft(find.text('Due soon')).dy),
+      greaterThan(tester.getTopLeft(find.text('DUE SOON')).dy),
     );
-    expect(find.text('Later'), findsNothing);
+    expect(find.text('LATER'), findsNothing);
   });
 
   testWidgets('the Plan tab counts the missed bills, the paused one left out', (
@@ -305,7 +308,7 @@ void main() {
   testWidgets('a suggestion opens the editor prefilled', (tester) async {
     await open(tester, initial: const [], streams: true);
 
-    expect(find.text('Suggested'), findsOneWidget);
+    expect(find.text('SUGGESTED'), findsOneWidget);
     expect(find.text('Every month, next due Nov 3, 2026'), findsOneWidget);
     await tester.tap(find.text('Add'));
     await tester.pumpAndSettle();
@@ -353,7 +356,7 @@ void main() {
 
     await tester.tap(find.text('Dismiss'));
     await tester.pumpAndSettle();
-    expect(find.text('Suggested'), findsNothing);
+    expect(find.text('SUGGESTED'), findsNothing);
     expect(find.text('No bills yet'), findsOneWidget);
     expect(
       await tester.runAsync(
@@ -363,7 +366,7 @@ void main() {
     );
 
     await open(tester, initial: const [], streams: true, keepMeta: true);
-    expect(find.text('Suggested'), findsNothing);
+    expect(find.text('SUGGESTED'), findsNothing);
   });
 
   testWidgets('says when there are no bills', (tester) async {

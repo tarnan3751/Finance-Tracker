@@ -23,12 +23,12 @@ void main() {
     );
 
     expect(find.widgetWithText(AppBar, 'Weekly summary'), findsOneWidget);
-    expect(find.text('Last week, Oct 12 – Oct 18'), findsOneWidget);
+    expect(find.text('LAST WEEK, OCT 12 – OCT 18'), findsOneWidget);
     expect(find.text('Spent \$486.00'), findsOneWidget);
     expect(find.text('Entertainment: \$389.00'), findsOneWidget);
     expect(find.text('Food and drink: \$97.00'), findsOneWidget);
     expect(find.text('Spent most at Guitar Center: \$389.00'), findsOneWidget);
-    expect(find.text('This week so far'), findsOneWidget);
+    expect(find.text('THIS WEEK SO FAR'), findsOneWidget);
     expect(find.text('Spent \$82.00'), findsOneWidget);
 
     await tester.scrollUntilVisible(

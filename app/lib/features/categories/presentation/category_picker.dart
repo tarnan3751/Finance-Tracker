@@ -6,6 +6,7 @@ library;
 
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
@@ -159,23 +160,7 @@ class _CategoryPickerScreenState extends ConsumerState<CategoryPickerScreen> {
             child: ListView.builder(
               itemCount: rows.length,
               itemBuilder: (context, index) => switch (rows[index]) {
-                _HeaderRow(:final String title) => Semantics(
-                  header: true,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      SpendthriftTokens.space16,
-                      SpendthriftTokens.space16,
-                      SpendthriftTokens.space16,
-                      SpendthriftTokens.space4,
-                    ),
-                    child: Text(
-                      title,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                ),
+                _HeaderRow(:final String title) => SectionHeader(title),
                 _NoneRow() => ListTile(
                   leading: Icon(
                     fallbackCategoryIcon,

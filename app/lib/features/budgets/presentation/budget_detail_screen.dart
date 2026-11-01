@@ -5,7 +5,9 @@
 library;
 
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
+import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_math.dart';
 import 'package:finance_tracker/features/budgets/presentation/budget_card.dart';
@@ -68,7 +70,7 @@ class BudgetDetailScreen extends ConsumerWidget {
         ],
       ),
       body: ListView.builder(
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.only(bottom: SpendthriftTokens.space16),
         itemCount: 2 + (entries.isEmpty ? 1 : entries.length),
         itemBuilder: (context, index) {
           if (index == 0) {
@@ -92,12 +94,10 @@ class BudgetDetailScreen extends ConsumerWidget {
             );
           }
           if (entries.isEmpty) {
-            return Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(
-                l10n.budgetTransactionsEmpty,
-                textAlign: TextAlign.center,
-              ),
+            return EmptyState(
+              icon: Icons.receipt_long_outlined,
+              headline: l10n.budgetTransactionsEmpty,
+              body: l10n.budgetTransactionsEmptyBody,
             );
           }
           final BudgetEntry entry = entries[index - 2];

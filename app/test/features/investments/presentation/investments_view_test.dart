@@ -50,7 +50,7 @@ void main() {
     final SemanticsHandle semantics = tester.ensureSemantics();
     await _pump(tester);
     expect(find.widgetWithText(AppBar, 'Investments'), findsOneWidget);
-    expect(find.text('Allocation'), findsOneWidget);
+    expect(find.text('ALLOCATION'), findsOneWidget);
     expect(
       find.bySemanticsLabel(
         r'Holdings worth $7,265.83 in 4 security types. The largest is ETF at 62 %.',
@@ -223,7 +223,7 @@ void main() {
       ],
       router: investmentsRouter,
     );
-    await _scrollTo(tester, find.text('Investment transactions'));
+    await _scrollTo(tester, find.text('INVESTMENT TRANSACTIONS'));
     expect(
       find.text('Something went wrong loading this. Try again later.'),
       findsNWidgets(2),
@@ -259,7 +259,7 @@ void main() {
     for (int i = 0; i < 5; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
-    expect(find.text('Value over time'), findsOneWidget);
+    expect(find.text('VALUE OVER TIME'), findsOneWidget);
     expect(find.text('No values recorded yet'), findsNothing);
     expect(find.byType(CircularProgressIndicator), findsWidgets);
     await tester.pumpWidget(const SizedBox());

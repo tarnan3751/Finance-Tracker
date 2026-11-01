@@ -7,7 +7,9 @@ library;
 import 'dart:async';
 
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/budgets/presentation/budget_period_selector.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
@@ -15,7 +17,6 @@ import 'package:finance_tracker/features/export/application/export_providers.dar
 import 'package:finance_tracker/features/export/domain/monthly_report.dart';
 import 'package:finance_tracker/features/export/presentation/export_runner.dart';
 import 'package:finance_tracker/features/recurring/application/merged_streams.dart';
-import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -100,13 +101,13 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.exportTitle)),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: SpendthriftTokens.space24),
         children: [
           if (_busy)
             LinearProgressIndicator(semanticsLabel: l10n.exportPreparing)
           else
-            const SizedBox(height: 4),
-          SettingsSectionHeader(l10n.exportReportSection),
+            const SizedBox(height: SpendthriftTokens.space4),
+          SectionHeader(l10n.exportReportSection),
           BudgetPeriodSelector(
             offset: _offset,
             dates: data == null
@@ -116,7 +117,12 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             showNext: _offset < 0,
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            padding: const EdgeInsets.fromLTRB(
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space8,
+              SpendthriftTokens.space16,
+              0,
+            ),
             child: ExportButtons(
               saveLabel: l10n.exportSaveReport,
               shareLabel: l10n.exportShareReport,
@@ -128,7 +134,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                   : () => _exportReport(data, share: true),
             ),
           ),
-          SettingsSectionHeader(l10n.exportTransactionsSection),
+          SectionHeader(l10n.exportTransactionsSection),
           _TransactionsExport(
             range: _range,
             accounts: _accounts,
@@ -138,7 +144,12 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             onExport: _run,
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+            padding: const EdgeInsets.fromLTRB(
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space24,
+              SpendthriftTokens.space16,
+              0,
+            ),
             child: ExportPrivacyNote(demo: demo),
           ),
         ],
@@ -174,7 +185,7 @@ class _TransactionsExport extends ConsumerWidget {
     final List<Category>? categories = ref.watch(categoriesProvider).value;
     if (ledger == null || all == null || categories == null) {
       return const Padding(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(SpendthriftTokens.space16),
         child: Center(child: CircularProgressIndicator()),
       );
     }
@@ -231,21 +242,14 @@ class _TransactionsExport extends ConsumerWidget {
           trailing: const Icon(Icons.chevron_right),
           onTap: () => onPickRange(shown),
         ),
+        SectionHeader(l10n.exportAccounts),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-          child: Semantics(
-            header: true,
-            child: Text(
-              l10n.exportAccounts,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: SpendthriftTokens.space16,
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Wrap(
-            spacing: 8,
-            runSpacing: 4,
+            spacing: SpendthriftTokens.space8,
+            runSpacing: SpendthriftTokens.space4,
             children: [
               for (final Account a in all)
                 FilterChip(
@@ -259,11 +263,21 @@ class _TransactionsExport extends ConsumerWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          padding: const EdgeInsets.fromLTRB(
+            SpendthriftTokens.space16,
+            SpendthriftTokens.space12,
+            SpendthriftTokens.space16,
+            0,
+          ),
           child: Text(l10n.exportTransactionCount(count)),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+          padding: const EdgeInsets.fromLTRB(
+            SpendthriftTokens.space16,
+            SpendthriftTokens.space8,
+            SpendthriftTokens.space16,
+            0,
+          ),
           child: ExportButtons(
             saveLabel: l10n.exportSaveTransactions,
             shareLabel: l10n.exportShareTransactions,

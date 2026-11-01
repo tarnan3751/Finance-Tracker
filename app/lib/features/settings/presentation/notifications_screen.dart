@@ -17,10 +17,11 @@ import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/platform/background_work.dart';
 import 'package:finance_tracker/core/platform/notification_channels.dart';
 import 'package:finance_tracker/core/platform/notification_providers.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/backup/application/backup_providers.dart';
 import 'package:finance_tracker/features/settings/application/notifications_overview.dart';
-import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -80,12 +81,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           value,
         ),
         AsyncError() => Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(SpendthriftTokens.space16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(l10n.notificationsLoadFailed),
-              const SizedBox(height: 8),
+              const SizedBox(height: SpendthriftTokens.space8),
               FilledButton.tonal(
                 onPressed: () => ref.invalidate(notificationsOverviewProvider),
                 child: Text(l10n.notificationsTryAgain),
@@ -109,7 +110,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       children: [
         if (!state.appEnabled)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            padding: const EdgeInsets.fromLTRB(
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space8,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -117,7 +123,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   l10n.notificationsAppOff,
                   style: theme.textTheme.bodyLarge,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: SpendthriftTokens.space8),
                 FilledButton.tonal(
                   onPressed: () => unawaited(_turnOn(value.asked)),
                   child: Text(l10n.notificationsTurnOn),
@@ -127,7 +133,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           ),
         for (final AppChannel channel in AppChannel.values)
           _ChannelTile(channel: channel, state: state),
-        SettingsSectionHeader(l10n.backgroundSyncTitle),
+        SectionHeader(l10n.backgroundSyncTitle),
         if (!value.backgroundAvailable)
           ListTile(
             leading: const Icon(Icons.sync_disabled),
@@ -148,12 +154,17 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           ),
         if (value.restricted)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            padding: const EdgeInsets.fromLTRB(
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space8,
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space16,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(l10n.backgroundRestricted),
-                const SizedBox(height: 8),
+                const SizedBox(height: SpendthriftTokens.space8),
                 OutlinedButton(
                   onPressed: () => unawaited(
                     ref.read(systemSettingsProvider).openAppDetails(),

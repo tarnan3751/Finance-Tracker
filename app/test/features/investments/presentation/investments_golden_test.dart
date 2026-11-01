@@ -31,14 +31,14 @@ Future<void> _scrollToTop(WidgetTester tester, String text) async {
 
 final Map<String, Future<void> Function(WidgetTester)?> _views = {
   'investments_allocation': null,
-  'investments_holdings': (tester) => _scrollToTop(tester, 'Holdings'),
+  'investments_holdings': (tester) => _scrollToTop(tester, 'HOLDINGS'),
   'investments_value_table': (tester) async {
-    await _scrollToTop(tester, 'Value over time');
+    await _scrollToTop(tester, 'VALUE OVER TIME');
     await tester.tap(find.text('Table'));
     await tester.pumpAndSettle();
   },
   'investments_transactions': (tester) =>
-      _scrollToTop(tester, 'Investment transactions'),
+      _scrollToTop(tester, 'INVESTMENT TRANSACTIONS'),
 };
 
 void main() {

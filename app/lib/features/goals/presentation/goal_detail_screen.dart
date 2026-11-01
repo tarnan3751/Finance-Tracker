@@ -8,6 +8,8 @@ library;
 
 import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/goals/application/goals_providers.dart';
 import 'package:finance_tracker/features/goals/presentation/goal_card.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_dates.dart';
@@ -83,13 +85,6 @@ class _GoalDetail extends ConsumerWidget {
     final Goal goal = view.goal;
     final String? note = goal.note;
     final bool contributions = goal.kind == GoalKind.contribution;
-    Widget heading(String text) => Padding(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
-      child: Semantics(
-        header: true,
-        child: Text(text, style: theme.textTheme.titleSmall),
-      ),
-    );
     return Scaffold(
       appBar: AppBar(
         title: Text(goal.name),
@@ -113,18 +108,28 @@ class _GoalDetail extends ConsumerWidget {
         padding: const EdgeInsets.only(bottom: 96),
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            padding: const EdgeInsets.fromLTRB(
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space16,
+              0,
+            ),
             child: MergeSemantics(
               child: GoalSummary(view: view, showName: false),
             ),
           ),
           if (note != null && note.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              padding: const EdgeInsets.fromLTRB(
+                SpendthriftTokens.space16,
+                SpendthriftTokens.space12,
+                SpendthriftTokens.space16,
+                0,
+              ),
               child: Text(note, style: theme.textTheme.bodyMedium),
             ),
           if (!contributions) ...[
-            heading(l10n.goalCountedAccounts),
+            SectionHeader(l10n.goalCountedAccounts),
             for (final a in view.accounts)
               ListTile(
                 key: ValueKey('account/${a.account.id}'),
@@ -141,7 +146,12 @@ class _GoalDetail extends ConsumerWidget {
               ),
             if (view.otherCurrencyAccounts.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                padding: const EdgeInsets.fromLTRB(
+                  SpendthriftTokens.space16,
+                  SpendthriftTokens.space4,
+                  SpendthriftTokens.space16,
+                  0,
+                ),
                 child: Text(
                   l10n.goalNotCounted(
                     listLine(
@@ -153,10 +163,12 @@ class _GoalDetail extends ConsumerWidget {
                 ),
               ),
           ] else ...[
-            heading(l10n.goalContributions),
+            SectionHeader(l10n.goalContributions),
             if (view.contributions.isEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SpendthriftTokens.space16,
+                ),
                 child: Text(l10n.goalNoContributions, style: caption),
               ),
             for (final GoalContribution c in view.contributions.reversed)

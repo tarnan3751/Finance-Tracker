@@ -13,6 +13,7 @@ import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/widgets/amount_text.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/core/widgets/hero_card.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/net_worth/application/net_worth_providers.dart';
 import 'package:finance_tracker/features/net_worth/domain/net_worth_series.dart';
@@ -95,7 +96,6 @@ class _NetWorthViewState extends ConsumerState<NetWorthView> {
     Map<String, List<NetWorthPoint>> series,
     List<LiabilityPayoff> payoffs,
   ) {
-    final ThemeData theme = Theme.of(context);
     final String currency = currencyShown(series.keys, _currency);
     final List<NetWorthPoint> all = series[currency]!;
     final List<NetWorthPoint> shown = pointsInRange(all, _range);
@@ -113,8 +113,8 @@ class _NetWorthViewState extends ConsumerState<NetWorthView> {
               horizontal: SpendthriftTokens.space16,
             ),
             child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: SpendthriftTokens.space8,
+              runSpacing: SpendthriftTokens.space8,
               crossAxisAlignment: WrapCrossAlignment.center,
               alignment: WrapAlignment.spaceBetween,
               children: [
@@ -151,9 +151,14 @@ class _NetWorthViewState extends ConsumerState<NetWorthView> {
         if (series.length > 1)
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              padding: const EdgeInsets.fromLTRB(
+                SpendthriftTokens.space16,
+                SpendthriftTokens.space8,
+                SpendthriftTokens.space16,
+                0,
+              ),
               child: Wrap(
-                spacing: 8,
+                spacing: SpendthriftTokens.space8,
                 children: [
                   for (final String code in series.keys)
                     ChoiceChip(
@@ -165,23 +170,16 @@ class _NetWorthViewState extends ConsumerState<NetWorthView> {
               ),
             ),
           ),
-        const SliverToBoxAdapter(child: SizedBox(height: 8)),
+        const SliverToBoxAdapter(
+          child: SizedBox(height: SpendthriftTokens.space8),
+        ),
         if (_table)
           NetWorthTable(shown)
         else
           SliverToBoxAdapter(child: NetWorthChart(shown)),
         if (payoffs.isNotEmpty) ...[
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
-              child: Semantics(
-                header: true,
-                child: Text(
-                  l10n.netWorthLiabilitiesHeading,
-                  style: theme.textTheme.titleMedium,
-                ),
-              ),
-            ),
+            child: SectionHeader(l10n.netWorthLiabilitiesHeading),
           ),
           SliverList.list(
             children: [
@@ -190,7 +188,9 @@ class _NetWorthViewState extends ConsumerState<NetWorthView> {
             ],
           ),
         ],
-        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+        const SliverToBoxAdapter(
+          child: SizedBox(height: SpendthriftTokens.space24),
+        ),
       ],
     );
   }

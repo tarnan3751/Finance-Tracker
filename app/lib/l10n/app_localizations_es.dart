@@ -534,9 +534,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get accountNotFound => 'This account no longer exists.';
 
   @override
-  String get accountNoTransactions => 'Esta cuenta aún no tiene movimientos.';
-
-  @override
   String get accountHide => 'Ocultar cuenta';
 
   @override
@@ -2278,10 +2275,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get alertsMarkAllRead => 'Mark all read';
-
-  @override
-  String get alertsEmpty =>
-      'No alerts yet. A budget alerts you when its spending reaches 80 % and 100 %.';
 
   @override
   String get alertUnread => 'Unread';
@@ -4675,7 +4668,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get importHistorySection => 'Imports';
 
   @override
-  String get importHistoryEmpty => 'Nothing imported yet.';
+  String get importHistoryEmpty => 'Nothing imported yet';
 
   @override
   String get importHistoryUnnamed => 'Unnamed file';
@@ -5555,4 +5548,22 @@ class AppLocalizationsEs extends AppLocalizations {
   String goalsHeroOnTrack(int onTrack, int total) {
     return '$onTrack of $total on track';
   }
+
+  @override
+  String get alertsEmptyHeadline => 'No alerts yet';
+
+  @override
+  String get alertsEmptyBody =>
+      'A budget alerts you when its spending reaches 80 % and 100 %.';
+
+  @override
+  String get budgetTransactionsEmptyBody =>
+      'Spending in this budget\'s categories in the period shows here.';
+
+  @override
+  String get accountNoTransactionsBody =>
+      'Transactions on this account show here, newest first.';
+
+  @override
+  String get importHistoryEmptyBody => 'Each file you import is listed here.';
 }

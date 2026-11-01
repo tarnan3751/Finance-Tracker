@@ -77,7 +77,7 @@ void main() {
         initialLocation: '/settings',
         size: const Size(412, 2900),
       );
-      expect(find.text('Developer'), findsNothing);
+      expect(find.text('DEVELOPER'), findsNothing);
       expect(find.text('Sandbox controls'), findsNothing);
     }
     await pumpApp(
@@ -86,7 +86,7 @@ void main() {
       initialLocation: '/settings',
       size: const Size(412, 2900),
     );
-    expect(find.text('Developer'), findsOneWidget);
+    expect(find.text('DEVELOPER'), findsOneWidget);
     expect(find.text('Sandbox controls'), findsOneWidget);
   });
 

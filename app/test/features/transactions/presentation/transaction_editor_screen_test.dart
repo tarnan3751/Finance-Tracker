@@ -145,7 +145,7 @@ void main() {
     await tester.tap(find.text('Category'));
     await tester.pumpAndSettle();
     // Recently used first: the seed's newest transaction is filed under Coffee.
-    expect(find.text('Recently used'), findsOneWidget);
+    expect(find.text('RECENTLY USED'), findsOneWidget);
     await tester.enterText(find.byType(TextField), 'coffee');
     await tester.pumpAndSettle();
     await tester.tap(find.text('Coffee'));
@@ -236,7 +236,7 @@ void main() {
 
     await tester.pageBack();
     await tester.pumpAndSettle();
-    expect(find.text('All categories').hitTestable(), findsOneWidget);
+    expect(find.text('ALL CATEGORIES').hitTestable(), findsOneWidget);
   });
 
   testWidgets('an edit keeps the source, splits and merchant', (tester) async {

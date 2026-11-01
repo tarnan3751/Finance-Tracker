@@ -7,7 +7,9 @@ library;
 
 import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/core/theme/finance_colors.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
 import 'package:finance_tracker/features/bills/domain/bill_status.dart';
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
@@ -45,22 +47,24 @@ class WeeklySummaryScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.weeklyTitle)),
       body: switch (report) {
         AsyncValue(value: final WeeklyReport r) => ListView(
-          padding: const EdgeInsets.only(bottom: 24),
+          padding: const EdgeInsets.only(bottom: SpendthriftTokens.space24),
           children: [
-            _Heading(l10n.weeklyLastWeek(weekLabel(l10n, r.lastWeek.week))),
+            SectionHeader(
+              l10n.weeklyLastWeek(weekLabel(l10n, r.lastWeek.week)),
+            ),
             _Week(r.lastWeek),
-            _Heading(l10n.weeklyThisWeek),
+            SectionHeader(l10n.weeklyThisWeek),
             _Week(r.thisWeek, details: false),
-            _Heading(l10n.anomaliesTitle),
+            SectionHeader(l10n.anomaliesTitle),
             AnomalyList(
               window: LocalDateRange(
                 r.lastWeek.week.start,
                 ref.watch(todayProvider).addDays(1),
               ),
             ),
-            _Heading(l10n.weeklyBillsNextWeek),
+            SectionHeader(l10n.weeklyBillsNextWeek),
             _BillsNextWeek(weekContaining(r.thisWeek.week.end)),
-            _Heading(l10n.weeklyBudgets),
+            SectionHeader(l10n.weeklyBudgets),
             const _Budgets(),
           ],
         ),
@@ -69,21 +73,6 @@ class WeeklySummaryScreen extends ConsumerWidget {
       },
     );
   }
-}
-
-class _Heading extends StatelessWidget {
-  const _Heading(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-    child: Semantics(
-      header: true,
-      child: Text(text, style: Theme.of(context).textTheme.titleMedium),
-    ),
-  );
 }
 
 /// A week's spending, income and net; with [details], its biggest categories and
@@ -102,13 +91,15 @@ class _Week extends ConsumerWidget {
     final ReportPeriod p = summary.period;
     final MerchantTotal? merchant = summary.topMerchant;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: SpendthriftTokens.space16,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Wrap(
-            spacing: 24,
-            runSpacing: 4,
+            spacing: SpendthriftTokens.space24,
+            runSpacing: SpendthriftTokens.space4,
             children: [
               Text(l10n.reportsSpendingAmount(p.spend.format())),
               Text(l10n.reportsIncomeAmount(p.income.format())),
@@ -116,7 +107,7 @@ class _Week extends ConsumerWidget {
             ],
           ),
           if (details) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: SpendthriftTokens.space8),
             if (summary.topCategories.isEmpty)
               Text(l10n.weeklyNoSpending)
             else ...[
@@ -130,7 +121,7 @@ class _Week extends ConsumerWidget {
                 ),
             ],
             if (merchant != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: SpendthriftTokens.space8),
               Text(
                 l10n.weeklyTopMerchant(
                   merchant.displayName,
@@ -161,7 +152,9 @@ class _BillsNextWeek extends ConsumerWidget {
     ]..sort((a, b) => a.nextDue!.compareTo(b.nextDue!));
     if (due.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(
+          horizontal: SpendthriftTokens.space16,
+        ),
         child: Text(l10n.weeklyNoBills),
       );
     }
@@ -198,7 +191,9 @@ class _Budgets extends ConsumerWidget {
         ref.watch(budgetStatusesProvider).value ?? const [];
     if (statuses.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(
+          horizontal: SpendthriftTokens.space16,
+        ),
         child: Text(l10n.weeklyNoBudgets),
       );
     }

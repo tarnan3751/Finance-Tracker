@@ -11,10 +11,11 @@ import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
 import 'package:finance_tracker/core/sync/sync_status.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/conflicts/application/conflicts_providers.dart';
-import 'package:finance_tracker/features/settings/presentation/settings_section_header.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,7 +51,7 @@ class SyncSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SettingsSectionHeader(l10n.settingsSync),
+        SectionHeader(l10n.settingsSync),
         // Announced as it changes (syncing, synced, failed) under the user.
         Semantics(
           liveRegion: true,
@@ -112,7 +113,10 @@ class SyncSection extends ConsumerWidget {
           ),
         if (signedIn)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(
+              horizontal: SpendthriftTokens.space16,
+              vertical: SpendthriftTokens.space8,
+            ),
             child: Align(
               alignment: AlignmentDirectional.centerStart,
               child: FilledButton.tonalIcon(

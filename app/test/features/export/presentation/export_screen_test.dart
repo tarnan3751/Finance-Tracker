@@ -105,8 +105,8 @@ void main() {
     );
     await _tap(tester, find.text('Export'));
 
-    expect(find.text('Monthly report (PDF)'), findsOneWidget);
-    expect(find.text('Transactions (CSV)'), findsOneWidget);
+    expect(find.text('MONTHLY REPORT (PDF)'), findsOneWidget);
+    expect(find.text('TRANSACTIONS (CSV)'), findsOneWidget);
     expect(find.text(_privacy), findsOneWidget);
   });
 

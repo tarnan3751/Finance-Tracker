@@ -19,9 +19,9 @@ void main() {
       // included.
       size: const Size(412, 2900),
     );
-    expect(find.text('Demo data'), findsOneWidget);
+    expect(find.text('DEMO DATA'), findsOneWidget);
     final ProviderContainer container = ProviderScope.containerOf(
-      tester.element(find.text('Demo data')),
+      tester.element(find.text('DEMO DATA')),
     );
     expect(container.read(demoPersonaProvider), PersonaId.renter);
     await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
@@ -43,6 +43,6 @@ void main() {
       initialLocation: '/settings',
       size: const Size(412, 1600),
     );
-    expect(find.text('Demo data'), findsNothing);
+    expect(find.text('DEMO DATA'), findsNothing);
   });
 }

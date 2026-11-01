@@ -168,7 +168,7 @@ void main() {
     );
     await _tap(tester, find.text('Import transactions'));
     expect(find.text('Choose a CSV file'), findsOneWidget);
-    expect(find.text('Nothing imported yet.'), findsOneWidget);
+    expect(find.text('Nothing imported yet'), findsOneWidget);
   });
 
   testWidgets('pick, map, review and import a Chase export', (tester) async {

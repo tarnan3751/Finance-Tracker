@@ -13,6 +13,7 @@ import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/widgets/amount_text.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/core/widgets/hero_card.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/investments/application/investments_providers.dart';
 import 'package:finance_tracker/features/investments/domain/allocation.dart';
@@ -84,7 +85,7 @@ class _Accounts extends StatelessWidget {
     ];
     final List<Allocation> allocations = allocationOf(held);
     return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: SpendthriftTokens.space24),
       children: [
         if (allocations.isNotEmpty)
           Padding(
@@ -178,21 +179,7 @@ class _Heading extends StatelessWidget {
   final Widget? trailing;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-    child: Wrap(
-      spacing: 8,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      alignment: WrapAlignment.spaceBetween,
-      children: [
-        Semantics(
-          header: true,
-          child: Text(text, style: Theme.of(context).textTheme.titleSmall),
-        ),
-        ?trailing,
-      ],
-    ),
-  );
+  Widget build(BuildContext context) => SectionHeader(text, trailing: trailing);
 }
 
 /// One investment account: its name and balance, its value over time, its holdings and
@@ -256,9 +243,11 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
           ),
           child: ExcludeSemantics(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(
+                horizontal: SpendthriftTokens.space16,
+              ),
               child: Wrap(
-                spacing: 8,
+                spacing: SpendthriftTokens.space8,
                 alignment: WrapAlignment.spaceBetween,
                 children: [
                   Text(account.name, style: theme.textTheme.titleMedium),
@@ -323,7 +312,9 @@ class _AccountSectionState extends ConsumerState<_AccountSection> {
           ],
           if (transactions.length > _shown)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(
+                horizontal: SpendthriftTokens.space8,
+              ),
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: TextButton(
@@ -352,7 +343,7 @@ class _Pending extends StatelessWidget {
   Widget build(BuildContext context) => failed
       ? _Note(AppLocalizations.of(context).loadFailed)
       : const Padding(
-          padding: EdgeInsets.all(16),
+          padding: EdgeInsets.all(SpendthriftTokens.space16),
           child: Center(child: CircularProgressIndicator()),
         );
 }
@@ -367,7 +358,12 @@ class _Note extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      padding: const EdgeInsets.fromLTRB(
+        SpendthriftTokens.space16,
+        0,
+        SpendthriftTokens.space16,
+        SpendthriftTokens.space8,
+      ),
       child: Text(
         text,
         style: theme.textTheme.bodySmall?.copyWith(

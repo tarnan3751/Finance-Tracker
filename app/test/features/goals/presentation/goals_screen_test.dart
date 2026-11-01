@@ -194,7 +194,7 @@ void main() {
 
   testWidgets('a balance goal lists the accounts it counts', (tester) async {
     await pumpGoals(tester, location: '/goals/goal-fund');
-    expect(find.text('Counted accounts'), findsOneWidget);
+    expect(find.text('COUNTED ACCOUNTS'), findsOneWidget);
     expect(find.text('Everyday Checking'), findsOneWidget);
     expect(find.text('from transactions'), findsOneWidget);
     expect(find.text('Add contribution'), findsNothing);

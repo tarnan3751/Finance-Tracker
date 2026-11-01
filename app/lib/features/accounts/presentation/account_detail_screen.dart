@@ -13,10 +13,13 @@ library;
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/own_page.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/widgets/amount_text.dart';
+import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/core/widgets/merchant_avatar.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_errors.dart';
 import 'package:finance_tracker/features/accounts/presentation/account_type_style.dart';
@@ -117,7 +120,6 @@ class _Detail extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ThemeData theme = Theme.of(context);
     final List<LedgerEntry> ledger =
         ref.watch(accountLedgerProvider(account.id)).value ?? const [];
     final ShownBalance balance = shownBalance(
@@ -189,13 +191,10 @@ class _Detail extends ConsumerWidget {
             );
           }
           if (ledger.isEmpty) {
-            return Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(
-                l10n.accountNoTransactions,
-                style: theme.textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
+            return EmptyState(
+              icon: Icons.receipt_long_outlined,
+              headline: l10n.transactionsEmptyHeadline,
+              body: l10n.accountNoTransactionsBody,
             );
           }
           final LedgerEntry entry = ledger[index - 1];
@@ -250,7 +249,12 @@ class _Header extends StatelessWidget {
     final Money? available = account.availableBalance;
     final Money? limit = account.creditLimit;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.fromLTRB(
+        SpendthriftTokens.space16,
+        SpendthriftTokens.space16,
+        SpendthriftTokens.space16,
+        SpendthriftTokens.space8,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -263,7 +267,7 @@ class _Header extends StatelessWidget {
                   color: institutionColor(institution),
                   logoBytes: bank?.logo,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: SpendthriftTokens.space12),
                 Expanded(
                   child: Text(
                     institution.name,
@@ -272,7 +276,7 @@ class _Header extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: SpendthriftTokens.space8),
           ],
           if (account.itemId != null && (official != null || mask != null)) ...[
             Text(
@@ -295,7 +299,7 @@ class _Header extends StatelessWidget {
               },
               style: caption,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: SpendthriftTokens.space8),
           ],
           Row(
             children: [
@@ -303,7 +307,7 @@ class _Header extends StatelessWidget {
                 accountTypeIcon(account.type),
                 color: theme.colorScheme.primary,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: SpendthriftTokens.space8),
               Flexible(
                 child: Text(
                   account.isHidden
@@ -317,7 +321,7 @@ class _Header extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: SpendthriftTokens.space8),
           AmountText(balance.amount, style: theme.textTheme.headlineMedium),
           Text(switch ((balance.reported, institution)) {
             (true, final Institution i) => l10n.balanceReportedBy(i.name),
@@ -345,16 +349,15 @@ class _Header extends StatelessWidget {
               ),
               style: theme.textTheme.bodyMedium,
             ),
-          const SizedBox(height: 16),
+          const SizedBox(height: SpendthriftTokens.space16),
           // Its own node, so only it is read as a heading.
           Semantics(
             header: true,
             container: true,
             child: Text(
-              l10n.navTransactions,
-              style: theme.textTheme.titleSmall?.copyWith(
-                color: theme.colorScheme.primary,
-              ),
+              l10n.navTransactions.toUpperCase(),
+              semanticsLabel: l10n.navTransactions,
+              style: SectionHeader.style(theme),
             ),
           ),
         ],

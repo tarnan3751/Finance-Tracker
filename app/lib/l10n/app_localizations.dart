@@ -901,12 +901,6 @@ abstract class AppLocalizations {
   /// **'This account no longer exists.'**
   String get accountNotFound;
 
-  /// Shown in an account's detail when it has no transactions.
-  ///
-  /// In en, this message translates to:
-  /// **'No transactions on this account yet.'**
-  String get accountNoTransactions;
-
   /// Menu item that hides the account from the account list (it moves to the Hidden section).
   ///
   /// In en, this message translates to:
@@ -3687,12 +3681,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mark all read'**
   String get alertsMarkAllRead;
-
-  /// The alerts sheet when there is no alert.
-  ///
-  /// In en, this message translates to:
-  /// **'No alerts yet. A budget alerts you when its spending reaches 80 % and 100 %.'**
-  String get alertsEmpty;
 
   /// What a screen reader says for the dot of an unread alert.
   ///
@@ -7129,7 +7117,7 @@ abstract class AppLocalizations {
   /// Shown under Imports when no import is recorded on this device.
   ///
   /// In en, this message translates to:
-  /// **'Nothing imported yet.'**
+  /// **'Nothing imported yet'**
   String get importHistoryEmpty;
 
   /// Title of a past import whose file had no name.
@@ -8487,6 +8475,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{onTrack} of {total} on track'**
   String goalsHeroOnTrack(int onTrack, int total);
+
+  /// Headline of the budget alerts sheet when there is no alert.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts yet'**
+  String get alertsEmptyHeadline;
+
+  /// Body of the budget alerts sheet when there is no alert: when alerts are raised.
+  ///
+  /// In en, this message translates to:
+  /// **'A budget alerts you when its spending reaches 80 % and 100 %.'**
+  String get alertsEmptyBody;
+
+  /// Body under 'Nothing counted in this period' on a budget's detail when no transaction counts against it in the period shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending in this budget\'s categories in the period shows here.'**
+  String get budgetTransactionsEmptyBody;
+
+  /// Body under 'No transactions yet' on an account's detail when the account has no transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions on this account show here, newest first.'**
+  String get accountNoTransactionsBody;
+
+  /// Body under 'Nothing imported yet.' in the import screen's history when nothing has been imported.
+  ///
+  /// In en, this message translates to:
+  /// **'Each file you import is listed here.'**
+  String get importHistoryEmptyBody;
 }
 
 class _AppLocalizationsDelegate

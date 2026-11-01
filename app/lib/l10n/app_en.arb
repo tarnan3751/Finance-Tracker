@@ -838,10 +838,6 @@
   "@accountNotFound": {
     "description": "Shown when the account asked for has been deleted or does not exist."
   },
-  "accountNoTransactions": "No transactions on this account yet.",
-  "@accountNoTransactions": {
-    "description": "Shown in an account's detail when it has no transactions."
-  },
   "accountHide": "Hide account",
   "@accountHide": {
     "description": "Menu item that hides the account from the account list (it moves to the Hidden section)."
@@ -3283,10 +3279,6 @@
   "alertsMarkAllRead": "Mark all read",
   "@alertsMarkAllRead": {
     "description": "Button of the alerts sheet that marks every alert read."
-  },
-  "alertsEmpty": "No alerts yet. A budget alerts you when its spending reaches 80 % and 100 %.",
-  "@alertsEmpty": {
-    "description": "The alerts sheet when there is no alert."
   },
   "alertUnread": "Unread",
   "@alertUnread": {
@@ -6681,7 +6673,7 @@
   "@importHistorySection": {
     "description": "Section header of the list of past imports on the import screen."
   },
-  "importHistoryEmpty": "Nothing imported yet.",
+  "importHistoryEmpty": "Nothing imported yet",
   "@importHistoryEmpty": {
     "description": "Shown under Imports when no import is recorded on this device."
   },
@@ -7825,5 +7817,25 @@
         "type": "int"
       }
     }
+  },
+  "alertsEmptyHeadline": "No alerts yet",
+  "@alertsEmptyHeadline": {
+    "description": "Headline of the budget alerts sheet when there is no alert."
+  },
+  "alertsEmptyBody": "A budget alerts you when its spending reaches 80 % and 100 %.",
+  "@alertsEmptyBody": {
+    "description": "Body of the budget alerts sheet when there is no alert: when alerts are raised."
+  },
+  "budgetTransactionsEmptyBody": "Spending in this budget's categories in the period shows here.",
+  "@budgetTransactionsEmptyBody": {
+    "description": "Body under 'Nothing counted in this period' on a budget's detail when no transaction counts against it in the period shown."
+  },
+  "accountNoTransactionsBody": "Transactions on this account show here, newest first.",
+  "@accountNoTransactionsBody": {
+    "description": "Body under 'No transactions yet' on an account's detail when the account has no transaction."
+  },
+  "importHistoryEmptyBody": "Each file you import is listed here.",
+  "@importHistoryEmptyBody": {
+    "description": "Body under 'Nothing imported yet.' in the import screen's history when nothing has been imported."
   }
 }

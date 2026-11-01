@@ -70,7 +70,6 @@
   "accountAdd": "Añadir cuenta",
   "accountsTotals": "Totales",
   "accountsHidden": "{count, plural, =1{1 cuenta oculta} other{{count} cuentas ocultas}}",
-  "accountNoTransactions": "Esta cuenta aún no tiene movimientos.",
   "accountHide": "Ocultar cuenta",
   "accountShow": "Mostrar cuenta",
   "accountNewTitle": "Cuenta nueva",

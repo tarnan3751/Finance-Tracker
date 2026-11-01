@@ -37,7 +37,7 @@ void main() {
           syncDeviceIdProvider.overrideWithValue(null),
         ],
       );
-      expect(find.text('Sync'), findsOneWidget);
+      expect(find.text('SYNC'), findsOneWidget);
       expect(
         find.text('Sign in to sync your data between devices'),
         findsOneWidget,
@@ -212,7 +212,7 @@ void main() {
 
   testWidgets('in-memory data has no Sync section', (tester) async {
     await pumpApp(tester, initialLocation: '/settings');
-    expect(find.text('Sync'), findsNothing);
+    expect(find.text('SYNC'), findsNothing);
   });
 
   testWidgets('the demo flavor has no Sync section', (tester) async {
@@ -221,7 +221,7 @@ void main() {
       initialLocation: '/settings',
       config: AppConfig.demo(),
     );
-    expect(find.text('Sync'), findsNothing);
+    expect(find.text('SYNC'), findsNothing);
   });
 
   testWidgets('the status is a live region, announced as it changes', (

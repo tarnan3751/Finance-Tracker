@@ -12,8 +12,10 @@ import 'package:finance_tracker/core/platform/notification_providers.dart';
 import 'package:finance_tracker/core/platform/notifier.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/theme/finance_colors.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
+import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_period.dart';
@@ -180,7 +182,12 @@ class _AlertsSheet extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 12, 8),
+          padding: const EdgeInsets.fromLTRB(
+            SpendthriftTokens.space24,
+            0,
+            SpendthriftTokens.space12,
+            SpendthriftTokens.space8,
+          ),
           child: Wrap(
             alignment: WrapAlignment.spaceBetween,
             crossAxisAlignment: WrapCrossAlignment.center,
@@ -202,20 +209,16 @@ class _AlertsSheet extends ConsumerWidget {
           ),
         ),
         if (notifications.isEmpty)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
-            child: Text(
-              l10n.alertsEmpty,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
+          EmptyState(
+            icon: Icons.notifications_none,
+            headline: l10n.alertsEmptyHeadline,
+            body: l10n.alertsEmptyBody,
           )
         else
           Flexible(
             child: ListView(
               shrinkWrap: true,
-              padding: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.only(bottom: SpendthriftTokens.space16),
               children: [
                 for (final InAppNotification n in notifications)
                   switch (n.notification) {

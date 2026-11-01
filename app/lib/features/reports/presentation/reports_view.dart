@@ -14,6 +14,7 @@ import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/widgets/amount_text.dart';
 import 'package:finance_tracker/core/widgets/hero_card.dart';
+import 'package:finance_tracker/core/widgets/section_header.dart';
 import 'package:finance_tracker/features/budgets/presentation/budget_period_selector.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
@@ -102,7 +103,7 @@ class _ReportsViewState extends ConsumerState<ReportsView> {
         ),
       ),
       _Comparisons(r),
-      _SectionTitle(l10n.reportsByCategory),
+      SectionHeader(l10n.reportsByCategory),
       Padding(
         padding: const EdgeInsets.fromLTRB(
           SpendthriftTokens.space16,
@@ -136,25 +137,25 @@ class _ReportsViewState extends ConsumerState<ReportsView> {
         table: _table,
         onGroup: (id) => setState(() => _group = id),
       ),
-      _SectionTitle(l10n.reportsIncomeAndSpending),
+      SectionHeader(l10n.reportsIncomeAndSpending),
       if (_table)
         PeriodsTable(r.shortTrend)
       else ...[
         IncomeSpendingBars(r.shortTrend),
         const SeriesLegend(),
       ],
-      _SectionTitle(l10n.reportsTrend(longTrendPeriods)),
+      SectionHeader(l10n.reportsTrend(longTrendPeriods)),
       if (_table)
         PeriodsTable(r.trend)
       else ...[
         TrendLines(r.trend),
         const SeriesLegend(),
       ],
-      _SectionTitle(l10n.reportsTopMerchants),
+      SectionHeader(l10n.reportsTopMerchants),
       _Merchants(r.current),
-      _SectionTitle(l10n.reportsTopMovers),
+      SectionHeader(l10n.reportsTopMovers),
       _Movers(r),
-      _SectionTitle(l10n.anomaliesTitle),
+      SectionHeader(l10n.anomaliesTitle),
       AnomalyList(window: r.current.range),
       const Divider(height: 32),
       ListTile(
@@ -170,26 +171,6 @@ class _ReportsViewState extends ConsumerState<ReportsView> {
       itemBuilder: (context, index) => children[index],
     );
   }
-}
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(
-      SpendthriftTokens.space16,
-      SpendthriftTokens.space24,
-      SpendthriftTokens.space16,
-      SpendthriftTokens.space8,
-    ),
-    child: Semantics(
-      header: true,
-      child: Text(text, style: Theme.of(context).textTheme.titleMedium),
-    ),
-  );
 }
 
 /// The Reports segment's hero card: [period]'s net, its income less its spending,
