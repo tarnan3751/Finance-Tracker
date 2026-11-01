@@ -7188,5 +7188,29 @@
   "leavingDemoTitle": "Leaving the demo…",
   "@leavingDemoTitle": {
     "description": "Headline while the demo's data is erased after the user chose to leave the demo."
+  },
+  "modeChoiceFailed": "Your choice could not be saved on this device. Try again.",
+  "@modeChoiceFailed": {
+    "description": "Message shown when the choice made on the welcome screen (the demo, a demo household, or your own server), or the sign-in screen's Try the demo instead, could not be stored on the device."
+  },
+  "welcomeBody": "Your accounts, budgets and bills in one place, kept encrypted on this device.",
+  "@welcomeBody": {
+    "description": "The one sentence under the app's name on the Welcome screen, the first screen of a fresh install."
+  },
+  "welcomeTryDemo": "Try the demo",
+  "@welcomeTryDemo": {
+    "description": "Welcome screen button that opens the demo's sample households; no account or server needed."
+  },
+  "welcomeUseServer": "Use my own server",
+  "@welcomeUseServer": {
+    "description": "Welcome screen button that chooses the app's live mode, signing in to the user's own Finance Tracker server."
+  },
+  "welcomeDemoTitle": "Choose a household",
+  "@welcomeDemoTitle": {
+    "description": "Title of the screen listing the demo's sample households, opened from the Welcome screen."
+  },
+  "welcomeDemoNote": "Each is a made-up household, generated on this device. Nothing is sent anywhere. You can switch households in Settings and leave the demo at any time.",
+  "@welcomeDemoNote": {
+    "description": "Explanation above the list of the demo's sample households on the Welcome screen's demo step."
   }
 }

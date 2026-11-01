@@ -10,7 +10,9 @@
 /// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id`, `/settings/export`, `/settings/import`, `/settings/backup`, `/settings/devices`, `/settings/delete-account` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
-/// user is sent in dev and prod, and `/restore` the restore offer of a fresh install. `/` redirects to `/accounts` (`app_router.dart`). Detail and editor routes are
+/// user is sent in the live mode, `/restore` the restore offer of a fresh install, and
+/// `/welcome` with `/welcome/demo` the Welcome screen and the demo's households, where dev
+/// and prod open before an app mode is chosen. `/` redirects to `/accounts` (`app_router.dart`). Detail and editor routes are
 /// sub-routes of their branch, so each tab keeps its own stack; pushing a route of another
 /// branch (a transaction from an account's detail, category management from the category
 /// picker) opens it on top of the current tab's stack, and back returns there. Navigate
@@ -59,6 +61,8 @@ import 'package:finance_tracker/features/import/presentation/import_screen.dart'
 import 'package:finance_tracker/features/investments/presentation/investments_view.dart';
 import 'package:finance_tracker/features/items/presentation/items_screen.dart';
 import 'package:finance_tracker/features/net_worth/presentation/net_worth_view.dart';
+import 'package:finance_tracker/features/onboarding/presentation/demo_persona_screen.dart';
+import 'package:finance_tracker/features/onboarding/presentation/welcome_screen.dart';
 import 'package:finance_tracker/features/recurring/presentation/subscriptions_screen.dart';
 import 'package:finance_tracker/features/reports/presentation/reports_view.dart';
 import 'package:finance_tracker/features/reports/presentation/weekly_summary_screen.dart';
@@ -714,6 +718,28 @@ class RestoreOfferRoute extends GoRouteData with $RestoreOfferRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const RestoreOfferScreen();
+}
+
+/// `/welcome`: the Welcome screen, outside the shell, before an app mode is chosen.
+@TypedGoRoute<WelcomeRoute>(
+  path: '/welcome',
+  routes: <TypedRoute<RouteData>>[TypedGoRoute<WelcomeDemoRoute>(path: 'demo')],
+)
+class WelcomeRoute extends GoRouteData with $WelcomeRoute {
+  const WelcomeRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const WelcomeScreen();
+}
+
+/// `/welcome/demo`: the demo's households, from the Welcome screen.
+class WelcomeDemoRoute extends GoRouteData with $WelcomeDemoRoute {
+  const WelcomeDemoRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const DemoPersonaScreen();
 }
 
 /// `/register`: the registration screen, outside the shell.

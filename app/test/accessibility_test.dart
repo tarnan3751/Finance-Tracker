@@ -24,7 +24,10 @@
 // screen (the lock enabled in app_meta), the Security section of Settings and its "Lock
 // after" dialog are checked on the fake device check. The sign-in
 // and registration screens are checked signed out; their text scale is checked with their
-// errors showing, in test/features/auth/auth_screens_test.dart.
+// errors showing, in test/features/auth/auth_screens_test.dart. The screens of an app
+// mode (`_modeScreens`) are checked on their own configuration: the Welcome screen and
+// the demo's households before a mode is chosen; each also in the pseudo-locale on the
+// dev flavor, which offers it.
 import 'dart:io';
 import 'dart:ui' show DisplayFeature, DisplayFeatureState, DisplayFeatureType;
 
@@ -629,6 +632,41 @@ _largeScreens = {
   ),
 };
 
+/// A fresh dev or prod install's configuration: no app mode chosen.
+AppConfig _fresh(Flavor flavor) =>
+    (flavor == Flavor.dev ? AppConfig.dev() : AppConfig.prod()).withChoices(
+      mode: null,
+    );
+
+/// The screens of an app mode: where each opens, on which configuration for the flavor,
+/// signed in or not, with what overrides, and what to do after it opens.
+final Map<
+  String,
+  ({
+    String location,
+    AppConfig Function(Flavor flavor) config,
+    bool signedIn,
+    List<Override> Function() overrides,
+    Future<void> Function(WidgetTester)? open,
+  })
+>
+_modeScreens = {
+  'Welcome': (
+    location: '/welcome',
+    config: _fresh,
+    signedIn: false,
+    overrides: () => const [],
+    open: null,
+  ),
+  'Demo households': (
+    location: '/welcome/demo',
+    config: _fresh,
+    signedIn: false,
+    overrides: () => const [],
+    open: null,
+  ),
+};
+
 /// The auth screens, which only a signed-out user sees.
 const Map<String, String> _authScreens = {
   'Sign in': '/sign-in',
@@ -701,6 +739,69 @@ void main() {
       await view.open?.call(tester);
 
       expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final MapEntry(key: String name, value: view) in _modeScreens.entries) {
+    for (final Brightness brightness in Brightness.values) {
+      for (final double scale in _scales) {
+        testWidgets('$name (${brightness.name}, text scale $scale) meets the '
+            'Android and contrast guidelines', (tester) async {
+          final SemanticsHandle semantics = tester.ensureSemantics();
+          try {
+            await pumpApp(
+              tester,
+              config: view.config(Flavor.prod),
+              initialLocation: view.location,
+              brightness: brightness,
+              textScale: scale,
+              signedIn: view.signedIn,
+              overrides: view.overrides(),
+            );
+            await view.open?.call(tester);
+
+            await _meetsGuidelines(tester);
+          } finally {
+            semantics.dispose();
+          }
+        });
+      }
+    }
+
+    testWidgets('$name lays out at text scale 2.0 without overflow', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        config: view.config(Flavor.prod),
+        initialLocation: view.location,
+        textScale: 2,
+        signedIn: view.signedIn,
+        overrides: view.overrides(),
+      );
+      await view.open?.call(tester);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('$name lays out in the pseudo-locale without overflow', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        config: view.config(Flavor.dev),
+        initialLocation: view.location,
+        signedIn: view.signedIn,
+        overrides: [
+          ...view.overrides(),
+          appMetaStoreProvider.overrideWithValue(_pseudoMeta()),
+        ],
+      );
+      await view.open?.call(tester);
+      expect(tester.takeException(), isNull);
+      expect(
+        Localizations.localeOf(tester.element(find.byType(Scaffold).last)),
+        pseudoLocale,
+      );
     });
   }
 

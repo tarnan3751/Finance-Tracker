@@ -7629,6 +7629,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Leaving the demo…'**
   String get leavingDemoTitle;
+
+  /// Message shown when the choice made on the welcome screen (the demo, a demo household, or your own server), or the sign-in screen's Try the demo instead, could not be stored on the device.
+  ///
+  /// In en, this message translates to:
+  /// **'Your choice could not be saved on this device. Try again.'**
+  String get modeChoiceFailed;
+
+  /// The one sentence under the app's name on the Welcome screen, the first screen of a fresh install.
+  ///
+  /// In en, this message translates to:
+  /// **'Your accounts, budgets and bills in one place, kept encrypted on this device.'**
+  String get welcomeBody;
+
+  /// Welcome screen button that opens the demo's sample households; no account or server needed.
+  ///
+  /// In en, this message translates to:
+  /// **'Try the demo'**
+  String get welcomeTryDemo;
+
+  /// Welcome screen button that chooses the app's live mode, signing in to the user's own Finance Tracker server.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my own server'**
+  String get welcomeUseServer;
+
+  /// Title of the screen listing the demo's sample households, opened from the Welcome screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a household'**
+  String get welcomeDemoTitle;
+
+  /// Explanation above the list of the demo's sample households on the Welcome screen's demo step.
+  ///
+  /// In en, this message translates to:
+  /// **'Each is a made-up household, generated on this device. Nothing is sent anywhere. You can switch households in Settings and leave the demo at any time.'**
+  String get welcomeDemoNote;
 }
 
 class _AppLocalizationsDelegate

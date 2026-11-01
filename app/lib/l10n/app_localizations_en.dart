@@ -5033,6 +5033,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get leavingDemoTitle => 'Leaving the demo…';
+
+  @override
+  String get modeChoiceFailed =>
+      'Your choice could not be saved on this device. Try again.';
+
+  @override
+  String get welcomeBody =>
+      'Your accounts, budgets and bills in one place, kept encrypted on this device.';
+
+  @override
+  String get welcomeTryDemo => 'Try the demo';
+
+  @override
+  String get welcomeUseServer => 'Use my own server';
+
+  @override
+  String get welcomeDemoTitle => 'Choose a household';
+
+  @override
+  String get welcomeDemoNote =>
+      'Each is a made-up household, generated on this device. Nothing is sent anywhere. You can switch households in Settings and leave the demo at any time.';
 }
 
 /// The translations for English (`en_XA`).
@@ -10168,4 +10189,25 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get leavingDemoTitle => '[Ļéåṽîñĝ ţĥé ðéɱö… ~~~~~ ~]';
+
+  @override
+  String get modeChoiceFailed =>
+      '[Ýöûŕ çĥöîçé çöûļð ñöţ ƀé šåṽéð öñ ţĥîš ðéṽîçé. Ţŕý åĝåîñ. ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get welcomeBody =>
+      '[Ýöûŕ åççöûñţš, ƀûðĝéţš åñð ƀîļļš îñ öñé þļåçé, ķéþţ éñçŕýþţéð öñ ţĥîš ðéṽîçé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get welcomeTryDemo => '[Ţŕý ţĥé ðéɱö ~~~~]';
+
+  @override
+  String get welcomeUseServer => '[Ûšé ɱý öŵñ šéŕṽéŕ ~~~~~ ~]';
+
+  @override
+  String get welcomeDemoTitle => '[Çĥööšé å ĥöûšéĥöļð ~~~~~ ~~]';
+
+  @override
+  String get welcomeDemoNote =>
+      '[Éåçĥ îš å ɱåðé-ûþ ĥöûšéĥöļð, ĝéñéŕåţéð öñ ţĥîš ðéṽîçé. Ñöţĥîñĝ îš šéñţ åñýŵĥéŕé. Ýöû çåñ šŵîţçĥ ĥöûšéĥöļðš îñ Šéţţîñĝš åñð ļéåṽé ţĥé ðéɱö åţ åñý ţîɱé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
 }

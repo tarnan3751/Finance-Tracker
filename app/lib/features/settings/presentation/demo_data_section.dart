@@ -40,19 +40,8 @@ class DemoDataSection extends ConsumerWidget {
               for (final PersonaId persona in PersonaId.values)
                 RadioListTile<PersonaId>(
                   value: persona,
-                  title: Text(switch (persona) {
-                    PersonaId.renter => l10n.demoPersonaRenter,
-                    PersonaId.family => l10n.demoPersonaFamily,
-                    PersonaId.student => l10n.demoPersonaStudent,
-                    PersonaId.smallBusiness => l10n.demoPersonaSmallBusiness,
-                  }),
-                  subtitle: Text(switch (persona) {
-                    PersonaId.renter => l10n.demoPersonaRenterDetail,
-                    PersonaId.family => l10n.demoPersonaFamilyDetail,
-                    PersonaId.student => l10n.demoPersonaStudentDetail,
-                    PersonaId.smallBusiness =>
-                      l10n.demoPersonaSmallBusinessDetail,
-                  }),
+                  title: Text(demoPersonaName(l10n, persona)),
+                  subtitle: Text(demoPersonaDetail(l10n, persona)),
                 ),
             ],
           ),
@@ -61,3 +50,22 @@ class DemoDataSection extends ConsumerWidget {
     );
   }
 }
+
+/// The name of the demo household [persona], as the Welcome screen and this section show
+/// it.
+String demoPersonaName(AppLocalizations l10n, PersonaId persona) =>
+    switch (persona) {
+      PersonaId.renter => l10n.demoPersonaRenter,
+      PersonaId.family => l10n.demoPersonaFamily,
+      PersonaId.student => l10n.demoPersonaStudent,
+      PersonaId.smallBusiness => l10n.demoPersonaSmallBusiness,
+    };
+
+/// The one line describing the demo household [persona].
+String demoPersonaDetail(AppLocalizations l10n, PersonaId persona) =>
+    switch (persona) {
+      PersonaId.renter => l10n.demoPersonaRenterDetail,
+      PersonaId.family => l10n.demoPersonaFamilyDetail,
+      PersonaId.student => l10n.demoPersonaStudentDetail,
+      PersonaId.smallBusiness => l10n.demoPersonaSmallBusinessDetail,
+    };

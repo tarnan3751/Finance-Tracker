@@ -1,6 +1,7 @@
 // The wiring `startApp` builds for each app mode (`overridesFor`), for a test that starts
 // the app on a mode store of its own: the platform seams with no host implementation
-// left out (their fakes are the defaults), the wipe the in-memory one over the test's
+// left out (their fakes are the defaults; the notification plugin one that answers
+// nothing), the wipe the in-memory one over the test's
 // store, the clock, the package info and the device name pinned, and in the live mode
 // the database in memory and the restore offer answered.
 import 'package:drift/native.dart';
@@ -14,6 +15,8 @@ import 'package:finance_tracker/core/platform/background_work_provider.dart';
 import 'package:finance_tracker/core/platform/connectivity_provider.dart';
 import 'package:finance_tracker/core/platform/in_app_notifications.dart';
 import 'package:finance_tracker/core/platform/launch_intent_provider.dart';
+import 'package:finance_tracker/core/platform/local_notifications.dart';
+import 'package:finance_tracker/core/platform/local_notifications_provider.dart';
 import 'package:finance_tracker/core/platform/monotonic_clock_provider.dart';
 import 'package:finance_tracker/core/platform/notification_providers.dart';
 import 'package:finance_tracker/core/platform/reminder_scheduler_provider.dart';
@@ -23,7 +26,9 @@ import 'package:finance_tracker/features/backup/application/backup_providers.dar
 import 'package:finance_tracker/features/lock/application/device_auth_provider.dart';
 import 'package:finance_tracker/features/settings/application/package_info.dart';
 import 'package:finance_tracker/features/widgets/application/widget_providers.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:flutter_test/flutter_test.dart';
 
 import 'pump_app.dart';
 import 'restore_offer.dart';
@@ -42,6 +47,9 @@ List<Override> Function(AppConfig config) modeWiring(
         ))
           o,
       appModeStoreProvider.overrideWithValue(modes),
+      localNotificationsProvider.overrideWithValue(
+        LocalNotifications(_QuietPlugin()),
+      ),
       clockProvider.overrideWithValue(testClock),
       packageInfoProvider.overrideWith((ref) async => testPackageInfo),
       appVersionProvider.overrideWith((ref) async => testPackageInfo.version),
@@ -73,3 +81,19 @@ final List<Object> _replaced = [
   notificationChannelsProvider,
   systemSettingsProvider,
 ];
+
+/// The notification plugin with no platform: initialized, and launched by no tap.
+final class _QuietPlugin extends Fake
+    implements FlutterLocalNotificationsPlugin {
+  @override
+  Future<bool?> initialize({
+    required InitializationSettings settings,
+    DidReceiveNotificationResponseCallback? onDidReceiveNotificationResponse,
+    DidReceiveBackgroundNotificationResponseCallback?
+    onDidReceiveBackgroundNotificationResponse,
+  }) async => true;
+
+  @override
+  Future<NotificationAppLaunchDetails?>
+  getNotificationAppLaunchDetails() async => null;
+}

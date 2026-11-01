@@ -1,16 +1,20 @@
 /// The app's `GoRouter`, built from the typed routes in `routes.dart`, with the session
-/// gate of dev and prod.
+/// gate of the live mode and the Welcome screen's hold before a mode is chosen.
 ///
 /// - `/` redirects to `/accounts`.
-/// - In dev and prod a signed-out user is sent to `/sign-in` (or stays on `/register`),
+/// - In the live mode a signed-out user is sent to `/sign-in` (or stays on `/register`),
 ///   and a signed-in user on either auth screen is sent to `/accounts`. The router
 ///   follows the session through `refreshListenable`, so a sign-in, a sign-out or a
 ///   session the server ends moves the app at once. While the session is still unknown
 ///   (only before `bootstrap` has read it), nothing is redirected.
-/// - In dev and prod, while the restore offer is pending (`RestoreOffer`: signed in, an
+/// - In the live mode, while the restore offer is pending (`RestoreOffer`: signed in, an
 ///   empty database, the offer never answered), a signed-in user is held at `/restore`;
 ///   once it is answered, `/restore` is sent to `/accounts`.
-/// - The demo flavor has no gate: it is always signed in as the demo user.
+/// - The demo (the flavor, and dev and prod in the demo mode) has no session gate: it is
+///   always signed in as the demo user.
+/// - Before an app mode is chosen (dev and prod on a fresh install, `docs/reference/
+///   onboarding.md`) every location but `/welcome` and `/welcome/demo` goes to
+///   `/welcome`; once one is, those two go where `/` would.
 /// - A cold start at a launch link (a home screen widget's tap or an app shortcut,
 ///   `launch_links.dart`) opens at its location ([LaunchLocation], set by `bootstrap`
 ///   before the router is built), behind the session gate and the lock like any other
@@ -18,6 +22,7 @@
 ///   link that reaches the running app goes there ([openLaunchLink]).
 library;
 
+import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/launch_links.dart';
 import 'package:finance_tracker/core/router/routes.dart';
@@ -62,13 +67,14 @@ bool openLaunchLink(
   return true;
 }
 
-/// The router for [ref]'s flavor, opening at [initialLocation]: gated on
-/// `sessionControllerProvider` and `restoreOfferProvider` in dev and prod, ungated in
-/// demo. Disposed with [ref].
+/// The router for [ref]'s flavor and app mode, opening at [initialLocation]: gated on
+/// `sessionControllerProvider` and `restoreOfferProvider` in the live mode, ungated in
+/// the demo, held at the Welcome screen before a mode is chosen. Disposed with [ref].
 GoRouter routerFor(Ref ref, {String? initialLocation}) {
   ValueNotifier<SessionState>? session;
   ValueNotifier<bool>? restoreOffer;
-  if (!ref.watch(appConfigProvider).isDemo) {
+  final AppConfig config = ref.watch(appConfigProvider);
+  if (config.isLive) {
     final ValueNotifier<SessionState> notifier = ValueNotifier(
       ref.read(sessionControllerProvider),
     );
@@ -90,17 +96,20 @@ GoRouter routerFor(Ref ref, {String? initialLocation}) {
     initialLocation: initialLocation,
     session: session,
     restoreOffer: restoreOffer,
+    modeChosen: config.mode != null,
   );
   ref.onDispose(router.dispose);
   return router;
 }
 
 /// A router over the app's routes, opening at [initialLocation] (the Accounts tab by
-/// default), gated on [session] and [restoreOffer] when given.
+/// default), gated on [session] and [restoreOffer] when given, and held at the Welcome
+/// screen unless [modeChosen].
 GoRouter createRouter({
   String? initialLocation,
   ValueListenable<SessionState>? session,
   ValueListenable<bool>? restoreOffer,
+  bool modeChosen = true,
 }) => GoRouter(
   initialLocation: initialLocation ?? const AccountsRoute().location,
   routes: $appRoutes,
@@ -109,21 +118,29 @@ GoRouter createRouter({
     state.uri.path,
     session?.value,
     restoreOffer: restoreOffer?.value ?? false,
+    modeChosen: modeChosen,
   ),
 );
 
 const Set<String> _authPaths = {'/sign-in', '/register'};
 
-/// Where [path] redirects for [session] (null: no gate) and a pending [restoreOffer], or
-/// null to stay.
+/// Where [path] redirects for [session] (null: no gate), a pending [restoreOffer] and
+/// whether an app mode is [modeChosen], or null to stay.
 @visibleForTesting
 String? redirectFor(
   String path,
   SessionState? session, {
   bool restoreOffer = false,
+  bool modeChosen = true,
 }) {
   final String home = const AccountsRoute().location;
   final String offer = const RestoreOfferRoute().location;
+  final String welcome = const WelcomeRoute().location;
+  final bool onWelcome = path == welcome || path.startsWith('$welcome/');
+  if (!modeChosen) return onWelcome ? null : welcome;
+  if (onWelcome) {
+    return redirectFor('/', session, restoreOffer: restoreOffer) ?? home;
+  }
   return switch (session) {
     SignedOut() =>
       _authPaths.contains(path) ? null : const SignInRoute().location,

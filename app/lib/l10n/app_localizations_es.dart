@@ -5033,4 +5033,25 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get leavingDemoTitle => 'Leaving the demo…';
+
+  @override
+  String get modeChoiceFailed =>
+      'Your choice could not be saved on this device. Try again.';
+
+  @override
+  String get welcomeBody =>
+      'Your accounts, budgets and bills in one place, kept encrypted on this device.';
+
+  @override
+  String get welcomeTryDemo => 'Try the demo';
+
+  @override
+  String get welcomeUseServer => 'Use my own server';
+
+  @override
+  String get welcomeDemoTitle => 'Choose a household';
+
+  @override
+  String get welcomeDemoNote =>
+      'Each is a made-up household, generated on this device. Nothing is sent anywhere. You can switch households in Settings and leave the demo at any time.';
 }

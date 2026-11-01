@@ -52,4 +52,25 @@ void main() {
   test('an answered offer leaves /restore for the shell', () {
     expect(redirectFor('/restore', signedIn), '/accounts');
   });
+
+  test('before a mode is chosen, everything but Welcome goes to Welcome', () {
+    for (final SessionState? session in [null, const SignedOut(), signedIn]) {
+      expect(redirectFor('/', session, modeChosen: false), '/welcome');
+      expect(
+        redirectFor('/accounts/a1', session, modeChosen: false),
+        '/welcome',
+      );
+      expect(redirectFor('/sign-in', session, modeChosen: false), '/welcome');
+      expect(redirectFor('/welcome', session, modeChosen: false), isNull);
+      expect(redirectFor('/welcome/demo', session, modeChosen: false), isNull);
+    }
+  });
+
+  test('once a mode is chosen, Welcome goes where / would', () {
+    expect(redirectFor('/welcome', null), '/accounts');
+    expect(redirectFor('/welcome/demo', const SignedOut()), '/sign-in');
+    expect(redirectFor('/welcome', signedIn), '/accounts');
+    expect(redirectFor('/welcome', signedIn, restoreOffer: true), '/restore');
+    expect(redirectFor('/welcomeback', null), isNull);
+  });
 }
