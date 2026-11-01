@@ -272,7 +272,7 @@ class _Logo extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MerchantAvatar(
     name: bank.institution.name,
-    color: institutionColor(bank.institution),
+    hue: avatarHue(bank.institution.name),
     logoBytes: bank.logo,
   );
 }

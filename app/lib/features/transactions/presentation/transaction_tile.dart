@@ -99,7 +99,7 @@ class TransactionTile extends StatelessWidget {
                 if (isSelected == null)
                   MerchantAvatar(
                     name: merchant.displayName,
-                    color: merchant.color,
+                    hue: avatarHue(merchant.displayName),
                     logoUrl: merchant.logoUrl,
                   )
                 else

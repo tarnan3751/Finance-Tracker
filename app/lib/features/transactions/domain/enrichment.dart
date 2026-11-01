@@ -126,14 +126,24 @@ String cleanMerchantName(String raw) {
   return kept == kept.toUpperCase() ? _titleCase(kept) : kept;
 }
 
-/// One of [_palette], chosen by a stable hash (32-bit FNV-1a) of [name] normalized, so a
-/// name has the same color on every device and every run.
-int paletteColor(String name) {
+/// One of [_palette], chosen by [nameHash], so a name has the same color on every device
+/// and every run.
+int paletteColor(String name) => palette[nameHash(name) % palette.length];
+
+/// The number of the brand's hues a letter avatar is drawn in (`brand_hues.dart`).
+const int avatarHueCount = 8;
+
+/// The brand hue (`0` to [avatarHueCount] − 1) a letter avatar of [name] is drawn in,
+/// chosen by [nameHash], so a merchant or an institution keeps one hue everywhere.
+int avatarHue(String name) => nameHash(name) % avatarHueCount;
+
+/// A stable hash (32-bit FNV-1a) of [name] normalized ([normalizeMerchantText]).
+int nameHash(String name) {
   int hash = 0x811C9DC5;
   for (final int unit in normalizeMerchantText(name).codeUnits) {
     hash = ((hash ^ unit) * 0x01000193) & 0xFFFFFFFF;
   }
-  return palette[hash % palette.length];
+  return hash;
 }
 
 /// The colors a name without a brand color is drawn in: Material's 800 shades, each with

@@ -1,9 +1,9 @@
 /// The brand's eight hues for things that carry a color of their own
-/// (`docs/reference/design.md`, **Category colors**): the four inks, then violet, teal,
-/// orange and plum, each with its night print variant lifted as the inks are, and a
-/// text-safe variant for a letter or an icon drawn on the hue's own tint ([hueTint]): the
-/// same hue darkened on paper, lifted on the night print, until it reaches 4.8:1 on that
-/// tint. A category's default color takes one of these.
+/// (`docs/reference/design.md`, **Category colors** and **Avatars**): the four inks, then
+/// violet, teal, orange and plum, each with its night print variant lifted as the inks
+/// are, and a text-safe variant for a letter or an icon drawn on the hue's own tint
+/// ([hueTint]): the same hue darkened on paper, lifted on the night print, until it reaches
+/// 4.8:1 on that tint. A category's default color and a letter avatar take one of these.
 library;
 
 import 'package:finance_tracker/core/theme/tokens.dart';

@@ -84,7 +84,7 @@ Account → Linked banks. One card per
 Item, as `ItemRepository.watchAll` orders them (`linkedBanksProvider`):
 
 - the institution's avatar (`MerchantAvatar`, `app-core.md`: the stored logo bytes, else
-  its initial on Plaid's primary color or a palette color); its name; "Last synced <date time>" in the device's zone (the clock's
+  its initial on its name's brand hue, `transactions.md`, **Merchants**); its name; "Last synced <date time>" in the device's zone (the clock's
   location), or "Not synced yet";
 - a status chip, drawn by hand so its label wraps at large text sizes, with its own
   semantics node ("Status: Connected"): healthy is Connected; login required and pending

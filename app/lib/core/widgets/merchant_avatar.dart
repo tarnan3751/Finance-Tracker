@@ -1,22 +1,25 @@
 /// A round avatar for a merchant or an institution: its logo when there is one (a URL
 /// Plaid gave, loaded with `Image.network`, or bytes the device stored, with
 /// `Image.memory`), else, and whenever the logo fails or is still loading, the name's
-/// first letter or digit on [MerchantAvatar.color] in black or white, whichever contrasts
-/// more (always at least 4.58:1, above WCAG AA's 4.5:1). Decorative unless given a
-/// [MerchantAvatar.semanticsLabel]: the name it stands for is usually written beside it.
+/// first letter or digit drawn as a category's icon is (`docs/reference/design.md`,
+/// **Avatars**): on a disc of one of the brand's eight hues ([MerchantAvatar.hue], which
+/// the name's hash chooses, `avatarHue`) at its tint over `surfaceContainer`, the letter in
+/// the hue's text-safe variant (at least 4.8:1 on that tint in both themes). Decorative
+/// unless given a [MerchantAvatar.semanticsLabel]: the name it stands for is usually
+/// written beside it.
 library;
 
 import 'dart:typed_data';
 
+import 'package:finance_tracker/core/theme/brand_hues.dart';
 import 'package:flutter/material.dart';
 
-/// An avatar of [name] in [color] (opaque ARGB), showing [logoUrl] or [logoBytes] when
-/// given.
+/// An avatar of [name] in brand hue [hue], showing [logoUrl] or [logoBytes] when given.
 class MerchantAvatar extends StatelessWidget {
   const MerchantAvatar({
     super.key,
     required this.name,
-    required this.color,
+    required this.hue,
     this.logoUrl,
     this.logoBytes,
     this.radius = 20,
@@ -24,7 +27,9 @@ class MerchantAvatar extends StatelessWidget {
   });
 
   final String name;
-  final int color;
+
+  /// The brand hue (`0` to `7`, `brand_hues.dart`) the letter is drawn in.
+  final int hue;
   final Uri? logoUrl;
   final Uint8List? logoBytes;
   final double radius;
@@ -34,11 +39,14 @@ class MerchantAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color background = Color(color);
+    final ThemeData theme = Theme.of(context);
     final Widget letter = CircleAvatar(
       radius: radius,
-      backgroundColor: background,
-      foregroundColor: avatarForeground(background),
+      backgroundColor: hueTint(
+        brandHue(hue, theme.brightness),
+        theme.colorScheme,
+      ),
+      foregroundColor: brandHueTextOn(hue, theme.brightness),
       child: Text(avatarLetter(name)),
     );
     // Shown once its first frame is decoded, on white, which logos are drawn for.
@@ -93,19 +101,5 @@ String avatarLetter(String name) {
 
 final RegExp _letterOrDigit = RegExp(r'^[\p{L}\p{N}]', unicode: true);
 
-/// The letter's dark and light colors: black and white, not the scheme's ink and paper.
-/// Only the extremes keep the letter at 4.5:1 or more on a background of any color (at
-/// least 4.58:1); ink and white bottom out near 4.06:1, black and paper near 4.36:1.
-const Color _letterDark = Color(0xFF000000);
-const Color _letterLight = Color(0xFFFFFFFF);
-
 /// The backing of a logo: white, which logos are drawn for, in both themes.
 const Color _logoBacking = Color(0xFFFFFFFF);
-
-/// Black or white, whichever has the higher contrast ratio against [background].
-Color avatarForeground(Color background) {
-  final double luminance = background.computeLuminance();
-  final double onBlack = (luminance + 0.05) / 0.05;
-  final double onWhite = 1.05 / (luminance + 0.05);
-  return onBlack > onWhite ? _letterDark : _letterLight;
-}

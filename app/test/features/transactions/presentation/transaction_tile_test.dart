@@ -1,6 +1,6 @@
 // The transaction row on bank data: Plaid's merchant and logo when it gave them, else the
-// dictionary's name or the cleaned raw name on a letter avatar in the brand or palette
-// color, the account and the category, and "Pending" on a pending transaction.
+// dictionary's name or the cleaned raw name on a letter avatar in its name's brand hue,
+// the account and the category, and "Pending" on a pending transaction.
 import 'package:finance_tracker/core/widgets/merchant_avatar.dart';
 import 'package:finance_tracker/features/transactions/domain/enrichment.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_tile.dart';
@@ -52,20 +52,21 @@ void main() {
     await pumpList(tester);
 
     expect(find.text('NETFLIX.COM'), findsNothing);
-    final CircleAvatar avatar = tester.widget(
+    // The letter on its name's brand hue, not the dictionary's brand red.
+    final MerchantAvatar avatar = tester.widget(
       find.descendant(
         of: _tile('Netflix'),
-        matching: find.byType(CircleAvatar),
+        matching: find.byType(MerchantAvatar),
       ),
     );
-    expect(avatar.backgroundColor, const Color(0xFFE50914));
+    expect(avatar.hue, avatarHue('Netflix'));
     expect(
       find.descendant(of: _tile('Netflix'), matching: find.byType(Image)),
       findsNothing,
     );
   });
 
-  testWidgets('an unknown raw name is cleaned, on a palette color', (
+  testWidgets('an unknown raw name is cleaned, on its name\'s hue', (
     tester,
   ) async {
     await pumpList(tester);
@@ -77,7 +78,7 @@ void main() {
         matching: find.byType(MerchantAvatar),
       ),
     );
-    expect(avatar.color, paletteColor('Taco Rock'));
+    expect(avatar.hue, avatarHue('Taco Rock'));
     expect(avatar.logoUrl, isNull);
   });
 

@@ -266,7 +266,7 @@ class _Header extends StatelessWidget {
                 // Decorative: the institution's name is beside it.
                 MerchantAvatar(
                   name: institution.name,
-                  color: institutionColor(institution),
+                  hue: avatarHue(institution.name),
                   logoBytes: bank?.logo,
                 ),
                 const SizedBox(width: SpendthriftTokens.space12),

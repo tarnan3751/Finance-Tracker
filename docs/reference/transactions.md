@@ -158,10 +158,14 @@ and §12:
   such as ATM, LLC and IRS kept in capitals).
 - **Logo.** Plaid's `merchantLogoUrl`, untouched (a public CDN URL, loaded by
   `MerchantAvatar` through `Image.network`); null when Plaid gave none. No logo is bundled.
-- **Color.** The dictionary's brand color for Plaid's merchant name or the raw name, else
-  `paletteColor(name)`: one of twelve Material 800 shades by a 32-bit FNV-1a hash of the
-  normalized name, the same on every device and run. `institutionColor` is Plaid's
-  `primary_color`, else the palette color of the institution's name.
+- **Color.** The letter avatar draws in one of the brand's eight hues, `avatarHue(name)`:
+  a 32-bit FNV-1a hash of the normalized name (`nameHash`) modulo eight, so a merchant or an
+  institution keeps one hue on every device and run, as a category's icon is drawn: the
+  hue's tint over `surfaceContainer` and the letter in its text-safe variant (`design.md`,
+  **Avatars**). `EnrichedMerchant.color` (the dictionary's brand color, else
+  `paletteColor(name)`, one of twelve Material 800 shades by the same hash) and
+  `institutionColor` (Plaid's `primary_color`, else the palette color) are still computed
+  but no screen draws them.
 
 **The dictionary** (`domain/merchant_dictionary.dart`, `merchantDictionary`) holds about 150
 merchants, each a display name, the raw-name prefixes that mean it and an ARGB brand color

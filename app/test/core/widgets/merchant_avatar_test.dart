@@ -1,10 +1,12 @@
-// The merchant avatar: the letter on its color with black or white text, whichever
-// contrasts more, at WCAG AA or better for every dictionary and palette color and a sweep
-// of others; a logo URL through Image.network and stored bytes through Image.memory, the
+// The merchant avatar: the letter in one of the brand's eight hues, chosen by the name's
+// hash and the same on every build, on the hue's tint over surfaceContainer, the letter at
+// 4.8:1 or better on that tint for every hue in both themes; a logo URL through Image.network and stored bytes through Image.memory, the
 // letter whenever either fails; decorative unless labelled.
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:finance_tracker/core/theme/app_theme.dart';
+import 'package:finance_tracker/core/theme/brand_hues.dart';
 import 'package:finance_tracker/core/widgets/merchant_avatar.dart';
 import 'package:finance_tracker/features/transactions/domain/enrichment.dart';
 import 'package:finance_tracker/features/transactions/domain/merchant_dictionary.dart';
@@ -19,8 +21,15 @@ double _contrast(Color a, Color b) {
   return (light + 0.05) / (dark + 0.05);
 }
 
-Future<void> _pump(WidgetTester tester, Widget avatar) => tester.pumpWidget(
+Future<void> _pump(
+  WidgetTester tester,
+  Widget avatar, {
+  Brightness brightness = Brightness.light,
+}) => tester.pumpWidget(
   MaterialApp(
+    // A new app each time, so the theme does not animate from the last one.
+    key: UniqueKey(),
+    theme: brightness == Brightness.light ? AppTheme.light() : AppTheme.dark(),
     home: Scaffold(body: Center(child: avatar)),
   ),
 );
@@ -31,23 +40,33 @@ final Uint8List _png = base64Decode(
 );
 
 void main() {
-  test('the letter has AA contrast on every color', () {
-    final List<int> colors = [
-      for (final MerchantEntry e in merchantDictionary) ?e.color,
-      ...palette,
-      for (int r = 0; r < 256; r += 17)
-        for (int g = 0; g < 256; g += 17)
-          for (int b = 0; b < 256; b += 17) 0xFF000000 | r << 16 | g << 8 | b,
-    ];
-    for (final int argb in colors) {
-      final Color background = Color(argb);
-      expect(
-        _contrast(background, avatarForeground(background)),
-        greaterThanOrEqualTo(4.5),
-        reason: argb.toRadixString(16),
-      );
-    }
+  test('a name takes one of the eight hues, the same every time', () {
+    final Set<int> hues = {
+      for (final MerchantEntry e in merchantDictionary) avatarHue(e.name),
+    };
+    expect(hues, {for (int i = 0; i < avatarHueCount; i++) i});
+    expect(avatarHueCount, brandHues.length);
+    expect(avatarHue('SAFEWAY #1234'), avatarHue('Safeway 1234'));
+    expect(avatarHue('Safeway'), nameHash('safeway') % avatarHueCount);
   });
+
+  for (final Brightness brightness in Brightness.values) {
+    test('the letter reaches 4.8:1 on every tint, ${brightness.name}', () {
+      final ColorScheme scheme = brightness == Brightness.light
+          ? AppTheme.lightScheme
+          : AppTheme.darkScheme;
+      for (int i = 0; i < brandHues.length; i++) {
+        expect(
+          _contrast(
+            brandHueTextOn(i, brightness),
+            hueTint(brandHue(i, brightness), scheme),
+          ),
+          greaterThanOrEqualTo(4.8),
+          reason: 'hue $i',
+        );
+      }
+    });
+  }
 
   test('the letter is the first letter or digit, upper-cased', () {
     expect(avatarLetter('netflix'), 'N');
@@ -56,16 +75,39 @@ void main() {
     expect(avatarLetter('***'), '?');
   });
 
-  testWidgets('with no logo, the letter on the color', (tester) async {
+  for (final Brightness brightness in Brightness.values) {
+    testWidgets('with no logo, the letter on its hue\'s tint, '
+        '${brightness.name}', (tester) async {
+      await _pump(
+        tester,
+        const MerchantAvatar(name: 'Netflix', hue: 6),
+        brightness: brightness,
+      );
+      final CircleAvatar circle = tester.widget(find.byType(CircleAvatar));
+      final ColorScheme scheme = brightness == Brightness.light
+          ? AppTheme.lightScheme
+          : AppTheme.darkScheme;
+      expect(circle.backgroundColor, hueTint(brandHue(6, brightness), scheme));
+      expect(circle.foregroundColor, brandHueTextOn(6, brightness));
+      expect(find.text('N'), findsOneWidget);
+      expect(find.byType(Image), findsNothing);
+    });
+  }
+
+  testWidgets('a merchant keeps its hue across rebuilds', (tester) async {
+    Color? background() =>
+        tester.widget<CircleAvatar>(find.byType(CircleAvatar)).backgroundColor;
+    final int hue = avatarHue('Blue Bottle Coffee');
+    await _pump(tester, MerchantAvatar(name: 'Blue Bottle Coffee', hue: hue));
+    final Color? first = background();
     await _pump(
       tester,
-      const MerchantAvatar(name: 'Netflix', color: 0xFFE50914),
+      MerchantAvatar(
+        name: 'Blue Bottle Coffee',
+        hue: avatarHue('BLUE BOTTLE COFFEE'),
+      ),
     );
-    final CircleAvatar circle = tester.widget(find.byType(CircleAvatar));
-    expect(circle.backgroundColor, const Color(0xFFE50914));
-    expect(circle.foregroundColor, avatarForeground(const Color(0xFFE50914)));
-    expect(find.text('N'), findsOneWidget);
-    expect(find.byType(Image), findsNothing);
+    expect(background(), first);
   });
 
   testWidgets(
@@ -74,7 +116,7 @@ void main() {
       final Uri url = Uri.parse('https://plaid-merchant-logos.plaid.com/n.png');
       await _pump(
         tester,
-        MerchantAvatar(name: 'Netflix', color: 0xFFE50914, logoUrl: url),
+        MerchantAvatar(name: 'Netflix', hue: 1, logoUrl: url),
       );
       final Image image = tester.widget(find.byType(Image));
       expect((image.image as NetworkImage).url, url.toString());
@@ -95,7 +137,7 @@ void main() {
   ) async {
     await _pump(
       tester,
-      MerchantAvatar(name: 'Tartan Bank', color: 0xFF283593, logoBytes: _png),
+      MerchantAvatar(name: 'Tartan Bank', hue: 0, logoBytes: _png),
     );
     expect(find.byType(Image), findsOneWidget);
     await tester.runAsync(() async {
@@ -122,7 +164,7 @@ void main() {
       tester,
       MerchantAvatar(
         name: 'Tartan Bank',
-        color: 0xFF283593,
+        hue: 0,
         logoBytes: Uint8List.fromList([1, 2, 3]),
       ),
     );
@@ -137,16 +179,13 @@ void main() {
   testWidgets('decorative by default, labelled when asked', (tester) async {
     final SemanticsHandle semantics = tester.ensureSemantics();
     try {
-      await _pump(
-        tester,
-        const MerchantAvatar(name: 'Netflix', color: 0xFFE50914),
-      );
+      await _pump(tester, const MerchantAvatar(name: 'Netflix', hue: 1));
       expect(find.bySemanticsLabel('N'), findsNothing);
       await _pump(
         tester,
         const MerchantAvatar(
           name: 'Tartan Bank',
-          color: 0xFF283593,
+          hue: 0,
           semanticsLabel: 'Tartan Bank',
         ),
       );

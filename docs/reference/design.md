@@ -15,12 +15,12 @@ Where a screen composes these is each feature's own reference file.
 | The tokens | `app/lib/core/theme/tokens.dart` (`SpendthriftTokens`) |
 | The schemes, the type, the component themes | `app/lib/core/theme/app_theme.dart` (`AppTheme`) |
 | The semantic colors and the chart inks | `app/lib/core/theme/finance_colors.dart` (`FinanceColors`) |
-| The eight brand hues of the categories | `app/lib/core/theme/brand_hues.dart` |
+| The eight brand hues of categories and letter avatars | `app/lib/core/theme/brand_hues.dart` |
 | The hero card, the brand card, the section header, the empty state, the mark and the wordmark, amounts, avatars, the flavor banner | `app/lib/core/widgets/` |
 | The demo strip | `app/lib/features/onboarding/presentation/demo_strip.dart` |
 | The fonts and their licences | `app/assets/fonts/`, `app/lib/features/help/application/licenses.dart` |
 | The launcher icon, the splash, the widgets' colors | `app/android/app/src/main/res/` (`build.md`, **Icon and splash**; `widgets.md`, **Colours**) |
-| The tests | `app/test/core/theme/`, `app/test/core/widgets/hero_card_test.dart`, `brand_card_test.dart`, `section_header_test.dart`, `brand_mark_test.dart`, `empty_state_test.dart` |
+| The tests | `app/test/core/theme/`, `app/test/core/widgets/hero_card_test.dart`, `brand_card_test.dart`, `section_header_test.dart`, `brand_mark_test.dart`, `merchant_avatar_test.dart`, `empty_state_test.dart` |
 
 ## Tokens
 
@@ -188,6 +188,16 @@ A list row's title is Work Sans 500, its caption `onSurfaceVariant`, its amount 
 category's is outlined. A list of data that can grow (the transactions, the bills, the
 subscriptions, the reports, the duplicate review) is a `ListView.builder`, so only the rows
 on screen are built; a screen of fixed sections (Settings) keeps its `ListView`.
+
+## Avatars
+
+A letter avatar (`MerchantAvatar`, for a merchant without a logo or an institution without
+a stored one) is drawn as a category's icon is: on a disc of one of the eight brand hues
+(`core/theme/brand_hues.dart`, the hues a category's default color takes), chosen by the
+name's hash (`avatarHue`, so a merchant keeps one hue), at the hue's 20 % tint over
+`surfaceContainer` (`hueTint`), the letter in the hue's text-safe variant
+(`brandHueText`: darkened on paper, lifted on the night print, at least 4.8:1 on its tint).
+A logo is untouched, on white. The avatar is decorative unless labelled.
 
 ## The hero card and misregistration
 

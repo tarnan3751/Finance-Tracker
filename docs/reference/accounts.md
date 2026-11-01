@@ -45,7 +45,7 @@ running balance and is left out of the walk.
 
 - **List** (`accounts_screen.dart`). One card per visible account: for a linked account
   the institution's avatar (`MerchantAvatar` with the stored logo bytes, else its initial on
-  `institutionColor`, labelled with the institution's name, which the card does not
+  its name's brand hue, `avatarHue`, labelled with the institution's name, which the card does not
   write), for a manual one the type icon; name, type label, the balance as shown and its
   caption. Whenever an account is visible, the screen's hero card (`HeroCard`,
   `design.md`) at the top, labelled "Totals", has one total per currency of the balances

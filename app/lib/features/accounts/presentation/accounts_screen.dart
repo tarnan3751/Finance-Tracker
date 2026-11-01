@@ -296,7 +296,7 @@ class _AccountCard extends StatelessWidget {
             LinkedBank(:final Institution institution, :final logo) =>
               MerchantAvatar(
                 name: institution.name,
-                color: institutionColor(institution),
+                hue: avatarHue(institution.name),
                 logoBytes: logo,
                 radius: 12,
                 semanticsLabel: institution.name,
