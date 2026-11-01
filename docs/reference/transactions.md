@@ -171,16 +171,12 @@ and §12:
   a 32-bit FNV-1a hash of the normalized name (`nameHash`) modulo eight, so a merchant or an
   institution keeps one hue on every device and run, as a category's icon is drawn: the
   hue's tint over `surfaceContainer` and the letter in its text-safe variant (`design.md`,
-  **Avatars**). `EnrichedMerchant.color` (the dictionary's brand color, else
-  `paletteColor(name)`, one of twelve Material 800 shades by the same hash) and
-  `institutionColor` (Plaid's `primary_color`, else the palette color) are still computed
-  but no screen draws them.
+  **Avatars**).
 
 **The dictionary** (`domain/merchant_dictionary.dart`, `merchantDictionary`) holds about 150
-merchants, each a display name, the raw-name prefixes that mean it and an ARGB brand color
-where the brand has a well-known one. `lookupMerchant` normalizes the raw name
-(`normalizeMerchantText`: lower case, apostrophes dropped, other punctuation a space) and
-matches a key as the whole first words, longest first, trying again after each piece of
+merchants, each a display name and the raw-name prefixes that mean it. `lookupMerchant`
+normalizes the raw name (`normalizeMerchantText`: lower case, apostrophes dropped, other
+punctuation a space) and matches a key as the whole first words, longest first, trying again after each piece of
 leading noise is skipped: a processor's prefix before a `*` (`SQ *`, `TST*`, `PAYPAL *`,
 `DNH*`, ...), numbers, dates, masked digits (`XXXX`), and card words (`POS PURCHASE`,
 `PURCHASE AUTHORIZED ON`, `CHECKCARD`, `INTERAC PURCHASE`, ...). So `NETFLIX.COM` is

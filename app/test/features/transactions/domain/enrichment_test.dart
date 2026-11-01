@@ -1,6 +1,6 @@
 // The merchant enrichment fallback: Plaid's merchant name and logo are used untouched; a
 // manual description is shown as typed; otherwise the dictionary names the raw name, or it
-// is cleaned; colors are the brand's or a stable palette color. Checked on the 316 raw
+// is cleaned; an avatar's hue is stable. Checked on the 316 raw
 // names Plaid Sandbox returned (test/fixtures/plaid_transaction_names.json, copied from
 // server/test/fixtures/plaid/transactions_sync_page1.json, names only).
 import 'dart:convert';
@@ -59,30 +59,6 @@ void main() {
       expect(m.displayName, 'Amazon Marketplace');
       expect(m.logoUrl, isNull);
     });
-
-    test("the brand color follows Plaid's merchant name first", () {
-      final EnrichedMerchant m = EnrichedMerchant.resolve(
-        _transaction('UNRELATED 123', merchantName: 'Netflix'),
-      );
-      expect(m.color, 0xFFE50914);
-    });
-
-    test("an institution's color is Plaid's primary color when present", () {
-      expect(
-        institutionColor(
-          const Institution(
-            id: 'i',
-            name: 'Tartan Bank',
-            primaryColor: 0xFF0075A3,
-          ),
-        ),
-        0xFF0075A3,
-      );
-      expect(
-        institutionColor(const Institution(id: 'i', name: 'Tartan Bank')),
-        paletteColor('Tartan Bank'),
-      );
-    });
   });
 
   group('the dictionary', () {
@@ -122,11 +98,6 @@ void main() {
       expect(lookupMerchant('CAVALIER HOTEL'), isNull);
     });
 
-    test('gives the brand color, else none', () {
-      expect(lookupMerchant('NETFLIX.COM')!.color, 0xFFE50914);
-      expect(lookupMerchant('WEGMANS #93')!.color, isNull);
-    });
-
     test('has no key twice, and every key normalizes to words', () {
       final List<String> keys = [
         for (final MerchantEntry e in merchantDictionary)
@@ -162,7 +133,6 @@ void main() {
         final EnrichedMerchant m = EnrichedMerchant.resolve(_transaction(raw));
         expect(m.displayName, name);
         expect(m.logoUrl, isNull);
-        expect(m.color, paletteColor(name));
       });
     }
   });
@@ -176,15 +146,13 @@ void main() {
       _transaction('netflix', source: DataSource.manual),
     );
     expect(known.displayName, 'netflix');
-    expect(known.color, 0xFFE50914);
   });
 
-  test('palette colors are stable and ignore case and punctuation', () {
-    expect(paletteColor('Gyro Factory'), paletteColor('GYRO FACTORY'));
-    expect(paletteColor("Joe's Cafe"), paletteColor('JOES CAFE'));
-    expect(palette, contains(paletteColor('anything at all')));
+  test('avatar hues are stable and ignore case and punctuation', () {
+    expect(avatarHue('Gyro Factory'), avatarHue('GYRO FACTORY'));
+    expect(avatarHue("Joe's Cafe"), avatarHue('JOES CAFE'));
     // A fixed value: a change of the hash would recolor every letter avatar.
-    expect(paletteColor('Gyro Factory'), 0xFF283593);
+    expect(nameHash('Gyro Factory'), 0x2D9AE2A4);
   });
 
   group("Sandbox's raw names", () {

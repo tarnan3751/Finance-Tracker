@@ -1,5 +1,5 @@
-/// The merchant enrichment fallback (`PLAN.md` §7.1 Tier B, §12): the name, logo and color
-/// a transaction is shown with. Plaid's `merchantName` and `merchantLogoUrl` are used as
+/// The merchant enrichment fallback (`PLAN.md` §7.1 Tier B, §12): the name and logo a
+/// transaction is shown with. Plaid's `merchantName` and `merchantLogoUrl` are used as
 /// they are whenever present; only where Plaid returned none does the fallback name the
 /// merchant, from the dictionary (`merchant_dictionary.dart`) or by cleaning the raw name.
 /// Pure Dart.
@@ -12,14 +12,10 @@ library;
 import 'package:finance_tracker/features/transactions/domain/merchant_dictionary.dart';
 import 'package:shared_models/shared_models.dart';
 
-/// How a transaction's merchant is shown: [displayName], Plaid's [logoUrl] when it gave
-/// one, and [color] (opaque ARGB) for the letter avatar drawn when there is no logo.
+/// How a transaction's merchant is shown: [displayName], and Plaid's [logoUrl] when it
+/// gave one.
 final class EnrichedMerchant {
-  const EnrichedMerchant({
-    required this.displayName,
-    this.logoUrl,
-    required this.color,
-  });
+  const EnrichedMerchant({required this.displayName, this.logoUrl});
 
   /// The merchant of [transaction]:
   ///
@@ -27,50 +23,32 @@ final class EnrichedMerchant {
   ///   column) when present; else, for a `manual` transaction,
   ///   its description as the user typed it; else the dictionary's name for the raw
   ///   `name`; else the raw name cleaned ([cleanMerchantName]);
-  /// - the logo: Plaid's `merchantLogoUrl`, untouched (null when Plaid gave none);
-  /// - the color: the dictionary's brand color for Plaid's merchant name or the raw name,
-  ///   else the palette color of the name shown ([paletteColor]).
-  factory EnrichedMerchant.resolve(Transaction transaction) {
-    final String? plaidName = transaction.merchantName;
-    final MerchantEntry? byPlaidName = plaidName == null
-        ? null
-        : lookupMerchant(plaidName);
-    final MerchantEntry? byRawName = lookupMerchant(transaction.name);
-    final String displayName =
-        plaidName ??
+  /// - the logo: Plaid's `merchantLogoUrl`, untouched (null when Plaid gave none).
+  factory EnrichedMerchant.resolve(Transaction transaction) => EnrichedMerchant(
+    displayName:
+        transaction.merchantName ??
         (transaction.source == DataSource.manual
             ? transaction.name
-            : byRawName?.name ?? cleanMerchantName(transaction.name));
-    return EnrichedMerchant(
-      displayName: displayName,
-      logoUrl: transaction.merchantLogoUrl,
-      color:
-          byPlaidName?.color ?? byRawName?.color ?? paletteColor(displayName),
-    );
-  }
+            : lookupMerchant(transaction.name)?.name ??
+                  cleanMerchantName(transaction.name)),
+    logoUrl: transaction.merchantLogoUrl,
+  );
 
   final String displayName;
   final Uri? logoUrl;
-  final int color;
 
   @override
   bool operator ==(Object other) =>
       other is EnrichedMerchant &&
       other.displayName == displayName &&
-      other.logoUrl == logoUrl &&
-      other.color == color;
+      other.logoUrl == logoUrl;
 
   @override
-  int get hashCode => Object.hash(displayName, logoUrl, color);
+  int get hashCode => Object.hash(displayName, logoUrl);
 
   @override
-  String toString() => 'EnrichedMerchant($displayName, $logoUrl, $color)';
+  String toString() => 'EnrichedMerchant($displayName, $logoUrl)';
 }
-
-/// The avatar color of [institution]: Plaid's `primary_color` when present, else the
-/// palette color of its name.
-int institutionColor(Institution institution) =>
-    institution.primaryColor ?? paletteColor(institution.name);
 
 /// [text] as dictionary keys are compared: lower case, apostrophes dropped, every other
 /// run of characters that are not ASCII letters or digits one space, trimmed.
@@ -126,10 +104,6 @@ String cleanMerchantName(String raw) {
   return kept == kept.toUpperCase() ? _titleCase(kept) : kept;
 }
 
-/// One of [_palette], chosen by [nameHash], so a name has the same color on every device
-/// and every run.
-int paletteColor(String name) => palette[nameHash(name) % palette.length];
-
 /// The number of the brand's hues a letter avatar is drawn in (`brand_hues.dart`).
 const int avatarHueCount = 8;
 
@@ -145,23 +119,6 @@ int nameHash(String name) {
   }
   return hash;
 }
-
-/// The colors a name without a brand color is drawn in: Material's 800 shades, each with
-/// enough contrast against white or black text (the avatar picks the better).
-const List<int> palette = [
-  0xFFC62828,
-  0xFFAD1457,
-  0xFF6A1B9A,
-  0xFF4527A0,
-  0xFF283593,
-  0xFF1565C0,
-  0xFF00838F,
-  0xFF00695C,
-  0xFF2E7D32,
-  0xFF9E9D24,
-  0xFFEF6C00,
-  0xFF4E342E,
-];
 
 final RegExp _apostrophes = RegExp('[\'’]');
 final RegExp _nonWord = RegExp('[^a-z0-9]+');

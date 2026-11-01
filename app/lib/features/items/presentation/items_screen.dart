@@ -262,8 +262,8 @@ class _BankCard extends ConsumerWidget {
   }
 }
 
-/// The institution's logo when the server gave one, else its initial on Plaid's primary
-/// color or a palette color; decorative, its name being beside it.
+/// The institution's logo when the server gave one, else its initial in its name's brand
+/// hue ([avatarHue]); decorative, its name being beside it.
 class _Logo extends StatelessWidget {
   const _Logo({required this.bank});
 
