@@ -43,8 +43,8 @@ $section
 
 ### Install
 
-The demo APK (\`finance-tracker-$tag-demo-debug.apk\`) runs on seeded data with no server and no
-account: install it and open it. The prod APK (\`finance-tracker-$tag-prod-release.apk\`) expects
+The demo APK (\`spendthrift-$tag-demo-debug.apk\`) runs on seeded data with no server and no
+account: install it and open it. The prod APK (\`spendthrift-$tag-prod-release.apk\`) expects
 your own development server; the README says how to run one. Both need Android 8.0 or later.
 
 ### Verify

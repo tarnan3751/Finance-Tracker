@@ -83,7 +83,7 @@ A few rules hold everywhere:
 
 The quickest look needs no toolchain: the newest release on the
 [Releases page](https://github.com/tarnan3751/Finance-Tracker/releases) carries a demo
-APK (`finance-tracker-<tag>-demo-debug.apk`) that runs on seeded data with no server, no
+APK (`spendthrift-<tag>-demo-debug.apk`) that runs on seeded data with no server, no
 account and no network. Install it on a phone or an emulator and open it.
 
 The app has three flavors, each with its own entry point. Run them from `app/`:

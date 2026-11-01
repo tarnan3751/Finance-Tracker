@@ -53,7 +53,7 @@ hash="$(shasum -a 256 "$spec" | cut -d' ' -f1)"
 # generate <output-dir>
 generate() {
   local log
-  log="$(mktemp "${TMPDIR:-/tmp}/finance-tracker-openapi-generator.XXXXXX")"
+  log="$(mktemp "${TMPDIR:-/tmp}/spendthrift-openapi-generator.XXXXXX")"
   if ! "${generator[@]}" generate -g dart-dio -i "$spec" -o "$1" \
     --global-property=apiTests=false,modelTests=false,apiDocs=false,modelDocs=false \
     --additional-properties="pubName=api_client,pubLibrary=api_client,serializationLibrary=built_value,pubDescription=The Finance Tracker API client generated from api/openapi.yaml" \
@@ -64,7 +64,7 @@ generate() {
 }
 
 if [ $check -eq 1 ]; then
-  scratch="$(mktemp -d "${TMPDIR:-/tmp}/finance-tracker-api-client.XXXXXX")"
+  scratch="$(mktemp -d "${TMPDIR:-/tmp}/spendthrift-api-client.XXXXXX")"
   trap 'rm -rf "$scratch"' EXIT
   mkdir "$scratch/out"
   cp "$package/.openapi-generator-ignore" "$scratch/out/"

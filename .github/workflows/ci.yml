@@ -62,7 +62,7 @@ jobs:
         run: flutter build apk --debug --flavor demo -t lib/main_demo.dart
       - uses: actions/upload-artifact@v7
         with:
-          name: finance-tracker-demo-debug
+          name: spendthrift-demo-debug
           path: app/build/app/outputs/flutter-apk/app-demo-debug.apk
           retention-days: 14
       - name: Build the prod release APK (R8 and obfuscation canary)

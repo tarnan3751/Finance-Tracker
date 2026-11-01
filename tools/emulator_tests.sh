@@ -421,7 +421,7 @@ avd_age() {
 adb_within() {
   local limit="$1" serial="$2" out pid n=0 status
   shift 2
-  out="$(mktemp "${TMPDIR:-/tmp}/finance-tracker-adb.XXXXXX")"
+  out="$(mktemp "${TMPDIR:-/tmp}/spendthrift-adb.XXXXXX")"
   "$ADB" -s "$serial" "$@" >"$out" 2>&1 &
   pid=$!
   while alive "$pid"; do

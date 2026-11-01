@@ -72,7 +72,7 @@ if ! [[ "$TEST_TIMEOUT" =~ ^[0-9]+$ ]]; then
   exit 2
 fi
 CEILING="$(pwd)/tools/with_ceiling.sh"
-scratch="$(mktemp -d "${TMPDIR:-/tmp}/finance-tracker-gates.XXXXXX")"
+scratch="$(mktemp -d "${TMPDIR:-/tmp}/spendthrift-gates.XXXXXX")"
 trap 'rm -rf "$scratch"' EXIT
 failed=0
 

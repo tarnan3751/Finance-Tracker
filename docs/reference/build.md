@@ -261,5 +261,5 @@ flutter build apk --release --flavor prod -t lib/main_prod.dart \
 CI (`.github/workflows/ci.yml`) runs `tools/gates.sh` (when it fails, the images alchemist
 writes for a failing golden, `app/test/**/failures/**`, are uploaded as `golden-failures`,
 kept 14 days), then the demo debug build (uploaded
-as `finance-tracker-demo-debug`, kept 14 days) and the prod release build with obfuscation
+as `spendthrift-demo-debug`, kept 14 days) and the prod release build with obfuscation
 as the R8 canary, on Flutter from `.fvmrc`.

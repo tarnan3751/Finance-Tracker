@@ -245,8 +245,8 @@ A release is a pushed `v*` tag; the workflow does the rest. In order:
    final step removes the keystore file whatever happened. No step echoes a secret or turns on
    `set -x`. `ci.yml` also runs on the tag push, as on every push.
 
-The assets are `finance-tracker-<tag>-prod-release.apk`, `finance-tracker-<tag>-demo-debug.apk`,
-`finance-tracker-<tag>-symbols.tar.gz` (the `build/symbols` directory, for
+The assets are `spendthrift-<tag>-prod-release.apk`, `spendthrift-<tag>-demo-debug.apk`,
+`spendthrift-<tag>-symbols.tar.gz` (the `build/symbols` directory, for
 `flutter symbolize` on an obfuscated stack trace) and `SHA256SUMS.txt` of the three.
 
 `tools/release/release_notes.sh <tag>` prints the release's body: the lines of the
