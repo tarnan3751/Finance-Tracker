@@ -15,6 +15,7 @@ Where a screen composes these is each feature's own reference file.
 | The tokens | `app/lib/core/theme/tokens.dart` (`SpendthriftTokens`) |
 | The schemes, the type, the component themes | `app/lib/core/theme/app_theme.dart` (`AppTheme`) |
 | The semantic colors and the chart inks | `app/lib/core/theme/finance_colors.dart` (`FinanceColors`) |
+| The eight brand hues of the categories | `app/lib/core/theme/brand_hues.dart` |
 | The hero card, the brand card, the section header, the empty state, amounts, avatars, the flavor banner | `app/lib/core/widgets/` |
 | The demo strip | `app/lib/features/onboarding/presentation/demo_strip.dart` |
 | The fonts and their licences | `app/assets/fonts/`, `app/lib/features/help/application/licenses.dart` |
@@ -81,9 +82,20 @@ on and the device has dynamic schemes (Android 12 and later), those replace both
 and every `FinanceColors` color is harmonized with the scheme's primary
 (`FinanceColors.harmonized`, dynamic_color's `harmonizeWith`: the hue moves toward the
 primary's by at most 15 degrees, the tone stays, so the contrast holds). A color the user
-chose that a chart draws (a category's slice) goes through `FinanceColors.custom`:
-harmonized toward the brand's blue with the brand schemes, toward the device's primary
-with dynamic color.
+chose goes through `FinanceColors.custom`: harmonized toward the brand's blue with the
+brand schemes, toward the device's primary with dynamic color.
+
+**Category colors** (`categoryColorOf`, `category_icons.dart`; `categories.md`, **Icons and
+colors**): a system category still in its default taxonomy color takes one of the eight
+brand hues (`core/theme/brand_hues.dart`), blue `1F4FE0`, pink `FF3EA5`, yellow `F2B705`, green `1E8A4A`, violet
+`6B4FE0`, teal `1E8A8A`, orange `E0661F` and plum `8A1E5C` (on the night print `8FA8FF`,
+`FF7AC3`, `FFD24D`, `5FD38B`, `B0A0FF`, `5FD3D3`, `FFA266`, `E07AB0`); a color the user
+chose stays as chosen, lightened on the night print and harmonized. The icon (on a disc
+of the color's 20 % tint over `surfaceContainer`, `CategoryIconDisc`, drawn in the hue's
+text-safe variant, `brandHueText`: darkened on paper, lifted on the night print, 4.8:1 on
+its tint; a color the user chose is moved until it reaches 3:1, as a meaningful graphic
+must), the budget card
+and the report's slice draw the same color, so a category reads the same everywhere.
 
 ## Type
 

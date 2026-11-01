@@ -231,7 +231,7 @@ graphic, so the text pink, which reaches 3:1 on paper). The card reads as one se
 
 Below it is one `BudgetCard` per budget (`budget_card.dart`), by category name. A card
 shows:
-- the category's icon and name ("Deleted category" when it is gone), and "Includes N
+- the category's icon on its disc (`CategoryIconDisc`) and name ("Deleted category" when it is gone), and "Includes N
   categories" when it budgets a group;
 - a badge for the highest threshold of `thresholdsCrossed` ("80 % reached");
 - the amount, with the carry when rollover moved it ("$500.00 + $42.00 carried", or

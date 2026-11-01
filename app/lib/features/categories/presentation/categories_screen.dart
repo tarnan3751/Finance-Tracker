@@ -5,6 +5,7 @@
 library;
 
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -95,7 +96,12 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            padding: const EdgeInsets.fromLTRB(
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space8,
+              SpendthriftTokens.space16,
+              SpendthriftTokens.space8,
+            ),
             child: TextField(
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
@@ -118,18 +124,15 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                       return ListTile(
                         key: ValueKey(category.id),
                         contentPadding: EdgeInsetsDirectional.only(
-                          start: row.indented ? 56 : 16,
-                          end: 8,
+                          start: row.indented ? 56 : SpendthriftTokens.space16,
+                          end: SpendthriftTokens.space8,
                         ),
-                        leading: Icon(
-                          categoryIconFor(category.icon),
-                          color: categoryColor(context, category.color),
-                        ),
+                        leading: CategoryIconDisc(category),
                         title: Row(
                           children: [
                             Flexible(child: Text(category.name)),
                             if (category.isSystem) ...[
-                              const SizedBox(width: 8),
+                              const SizedBox(width: SpendthriftTokens.space8),
                               Icon(
                                 Icons.lock_outline,
                                 size: 16,

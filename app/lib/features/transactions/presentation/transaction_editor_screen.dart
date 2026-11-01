@@ -902,14 +902,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
             else
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(
-                  category == null
-                      ? fallbackCategoryIcon
-                      : categoryIconFor(category.icon),
-                  color: category == null
-                      ? theme.colorScheme.outline
-                      : categoryColor(context, category.color),
-                ),
+                leading: CategoryIconDisc(category),
                 title: Text(l10n.transactionCategory),
                 subtitle: fromBank == null
                     ? Text(category?.name ?? l10n.uncategorized)
@@ -1025,7 +1018,6 @@ class _SplitRowFields extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ThemeData theme = Theme.of(context);
     final Category? category = this.category;
     return Padding(
       padding: const EdgeInsets.only(top: 8),
@@ -1038,14 +1030,7 @@ class _SplitRowFields extends StatelessWidget {
               children: [
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(
-                    category == null
-                        ? fallbackCategoryIcon
-                        : categoryIconFor(category.icon),
-                    color: category == null
-                        ? theme.colorScheme.outline
-                        : categoryColor(context, category.color),
-                  ),
+                  leading: CategoryIconDisc(category),
                   title: Text(
                     category?.name ??
                         (row.categoryId == null

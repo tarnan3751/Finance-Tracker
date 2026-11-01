@@ -87,14 +87,7 @@ class BudgetCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  category == null
-                      ? fallbackCategoryIcon
-                      : categoryIconFor(category.icon),
-                  color: category == null
-                      ? colors.outline
-                      : categoryColor(context, category.color),
-                ),
+                CategoryIconDisc(category),
                 const SizedBox(width: SpendthriftTokens.space12),
                 Expanded(
                   child: Column(

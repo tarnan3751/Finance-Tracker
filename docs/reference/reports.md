@@ -296,7 +296,8 @@ this month as PDF" exports the period shown (`export.md`, **Screens**). From the
   before, as "+$12.00 (+15 %)" or "(new)", with "Compared over the first N days of each
   period" while the period runs;
 - **By category**, with a Spending | Income control. A donut (fl_chart `PieChart`) of
-  the top-level groups, the total in its middle. A tap on a group with children shows
+  the top-level groups in their categories' colors (`categoryColorOf`, as their icons
+  and budgets draw them), the total in its middle. A tap on a group with children shows
   them, plus the group's own rows as "<group> itself", and "All categories" goes back.
   Its table lists the name, the share and the amount, and a row with children opens
   them;

@@ -16,6 +16,7 @@ import 'package:finance_tracker/core/widgets/amount_text.dart';
 import 'package:finance_tracker/core/widgets/hero_card.dart';
 import 'package:finance_tracker/features/budgets/presentation/budget_period_selector.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
+import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
 import 'package:finance_tracker/features/reports/application/reports_providers.dart';
 import 'package:finance_tracker/features/reports/domain/report.dart';
 import 'package:finance_tracker/features/reports/domain/report_period.dart';
@@ -354,7 +355,7 @@ class _Categories extends ConsumerWidget {
     Color colorOf(String? id) {
       final Category? c = byId[id];
       if (shown == null && c != null && c.color != 0) {
-        return FinanceColors.of(context).custom(Color(c.color));
+        return categoryColorOf(context, c);
       }
       return palette[i++ % palette.length];
     }

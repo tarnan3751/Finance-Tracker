@@ -34,8 +34,17 @@ categories under it; a child whose parent is not live shows at the top level), a
 
 `Category.icon` is a key: the name of a Material icon. `categoryIcons` is the curated set,
 about forty, each with a localized label; it holds every key the system categories use.
-An unknown key draws `fallbackCategoryIcon`. In the dark theme `categoryColor` lightens the
-stored color so the deep palette stays visible.
+An unknown key draws `fallbackCategoryIcon`. A category's color as every screen draws it
+is `categoryColorOf`: a system category still in its default taxonomy color takes the
+brand's hue for its primary (`brandHues`, `core/theme/brand_hues.dart`, eight hues from the inks, assigned so
+that neighbouring top-level categories differ in Plaid's order and by name, lifted on the
+night print); any other color, one the user chose (on a user category or a system one),
+stays as chosen: lightened in the dark theme by `categoryColor` so the deep palette stays
+visible, and harmonized with the scheme's primary (`FinanceColors.custom`). The stored
+colors do not change, so nothing syncs. Lists show the icon in that color on a disc of
+its 20 % tint over `surfaceContainer` (`CategoryIconDisc`), the icon in the hue's
+text-safe variant (a color the user chose moved until it reaches 3:1 on its disc); the budget cards and the
+report's donut draw the same color.
 
 ## Uncategorized
 

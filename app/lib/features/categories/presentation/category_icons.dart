@@ -2,10 +2,22 @@
 /// `Category.icon` (the Material icon's name) and an accessibility label. The system
 /// categories' keys (`category_defaults.dart`) are all here; a key that is not, written by
 /// a later version or another device, shows [fallbackCategoryIcon].
+///
+/// A category's color as drawn ([categoryColorOf]): a system category still in its
+/// default taxonomy color takes one of the brand's eight hues (`brand_hues.dart`,
+/// derived from the inks, assigned so that neighbouring top-level categories differ,
+/// with lifted variants on the night print); any other color, one the user chose, stays
+/// as chosen, lightened in the dark theme and harmonized with the scheme's primary
+/// (`FinanceColors.custom`). The icon, the budget card and the report's slice all draw it,
+/// so a category reads the same everywhere. [CategoryIconDisc] is the icon on a disc of
+/// the color's tint over `surfaceContainer`, the icon in the color's text-safe variant.
 library;
 
+import 'package:finance_tracker/core/theme/brand_hues.dart';
+import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_models/shared_models.dart';
 
 /// A choosable category icon.
 typedef CategoryIconOption = ({
@@ -99,6 +111,113 @@ Color categoryColor(BuildContext context, int color) =>
     Theme.of(context).brightness == Brightness.dark
     ? Color.lerp(Color(color), Colors.white, 0.45)!
     : Color(color);
+
+/// The default taxonomy's colors (`category_defaults.dart`, one per Plaid primary, which
+/// its detailed categories share) and the palette hue each takes, assigned so that
+/// neighbours differ both in Plaid's order and by name.
+const Map<int, int> _defaultHue = {
+  0xFF2E7D32: 3, // Income: green
+  0xFF00695C: 5, // Loan disbursements: teal
+  0xFF4527A0: 4, // Loan payments: violet
+  0xFF0277BD: 0, // Transfer in: blue
+  0xFF01579B: 4, // Transfer out: violet
+  0xFFC62828: 7, // Bank fees: plum
+  0xFF6A1B9A: 4, // Entertainment: violet
+  0xFFEF6C00: 6, // Food and drink: orange
+  0xFFAD1457: 1, // General merchandise: pink
+  0xFF5D4037: 2, // Home improvement: yellow
+  0xFFD32F2F: 7, // Medical: plum
+  0xFFC2185B: 1, // Personal care: pink
+  0xFF455A64: 5, // General services: teal
+  0xFF283593: 4, // Government and non-profit: violet
+  0xFF1565C0: 0, // Transportation: blue
+  0xFF00838F: 5, // Travel: teal
+  0xFF6D4C41: 2, // Rent and utilities: yellow
+  0xFF616161: 0, // Other: blue
+};
+
+/// The brand hue (`brand_hues.dart`) of [category] when it is a system category still in
+/// its default color, else null.
+int? _hueOf(Category category) =>
+    category.isSystem ? _defaultHue[category.color] : null;
+
+/// [category]'s color as every screen draws it: the brand hue for a system category still
+/// in its default color, else the stored color as [categoryColor] draws it, harmonized
+/// with the scheme's primary.
+Color categoryColorOf(BuildContext context, Category category) {
+  if (_hueOf(category) case final int hue) {
+    return brandHue(hue, Theme.of(context).brightness);
+  }
+  return FinanceColors.of(context)
+      .custom(categoryColor(context, category.color));
+}
+
+/// [category]'s icon in its color on a disc of the color's tint over the scheme's
+/// `surfaceContainer`; the fallback icon in the outline for no category. The icon takes
+/// the hue's text-safe variant (`brandHueText`), and a color the user chose is darkened on
+/// paper or lifted on the night print until it reaches 3:1 on its disc, as a meaningful
+/// graphic must. Decorative: the category's name is written beside it.
+class CategoryIconDisc extends StatelessWidget {
+  const CategoryIconDisc(this.category, {super.key, this.radius = 20});
+
+  /// The category, or null for none (a deleted or unknown one).
+  final Category? category;
+
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme scheme = theme.colorScheme;
+    final Category? category = this.category;
+    final Color color = category == null
+        ? scheme.outline
+        : categoryColorOf(context, category);
+    final Color disc = hueTint(color, scheme);
+    final int? hue = category == null ? null : _hueOf(category);
+    final Color ink = hue != null
+        ? brandHueTextOn(hue, theme.brightness)
+        : category == null
+        ? color
+        : readableOn(color, disc, theme.brightness);
+    return ExcludeSemantics(
+      child: DecoratedBox(
+        decoration: BoxDecoration(shape: BoxShape.circle, color: disc),
+        child: SizedBox.square(
+          dimension: radius * 2,
+          child: Icon(
+            category == null
+                ? fallbackCategoryIcon
+                : categoryIconFor(category.icon),
+            color: ink,
+            size: radius,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// [color], darkened on paper ([brightness] light) or lifted on the night print in steps
+/// of its lightness until it reaches 3:1 against [background].
+Color readableOn(Color color, Color background, Brightness brightness) {
+  HSLColor hsl = HSLColor.fromColor(color);
+  Color shown = color;
+  final double step = brightness == Brightness.light ? -0.02 : 0.02;
+  while (_contrast(shown, background) < 3 &&
+      hsl.lightness + step >= 0 &&
+      hsl.lightness + step <= 1) {
+    hsl = hsl.withLightness(hsl.lightness + step);
+    shown = hsl.toColor();
+  }
+  return shown;
+}
+
+double _contrast(Color a, Color b) {
+  final double la = a.computeLuminance();
+  final double lb = b.computeLuminance();
+  return (la > lb ? la + 0.05 : lb + 0.05) / (la > lb ? lb + 0.05 : la + 0.05);
+}
 
 String _lPayments(AppLocalizations l) => l.categoryIconPayments;
 String _lAccountBalance(AppLocalizations l) => l.categoryIconAccountBalance;
