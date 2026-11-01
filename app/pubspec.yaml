@@ -138,6 +138,29 @@ flutter:
     - assets/fonts/Roboto-Bold.ttf
     # Their licence, shown on Settings → About → Open-source licences.
     - assets/fonts/LICENSE.txt
+    # The Syne and Work Sans fonts' licences (OFL-1.1), shown there too.
+    - assets/fonts/Syne-OFL.txt
+    - assets/fonts/WorkSans-OFL.txt
     # The demo's receipt photo (a synthetic one), for its fake image source: in every
     # flavor, since dev and prod run the demo too when it is chosen on the Welcome screen.
     - assets/demo/receipt.jpg
+  # The brand's type (docs/reference/design.md), static instances from Google Fonts under
+  # the OFL-1.1, their licences beside them: Syne for headings and titles, Work Sans for
+  # everything else.
+  fonts:
+    - family: Syne
+      fonts:
+        - asset: assets/fonts/Syne-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Syne-ExtraBold.ttf
+          weight: 800
+    - family: WorkSans
+      fonts:
+        - asset: assets/fonts/WorkSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/WorkSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/WorkSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/WorkSans-Bold.ttf
+          weight: 700

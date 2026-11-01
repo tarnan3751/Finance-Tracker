@@ -49,21 +49,31 @@ void main() {
     expect(page.applicationVersion, testPackageInfo.version);
   });
 
-  testWidgets("the Roboto fonts' licence is registered once", (tester) async {
+  testWidgets("the bundled fonts' licences are registered once", (
+    tester,
+  ) async {
     registerBundledLicenses();
     registerBundledLicenses();
-    final List<LicenseEntry> roboto =
+    Future<List<LicenseEntry>> of(String font) async =>
         await tester.runAsync(
           () => LicenseRegistry.licenses
-              .where((l) => l.packages.contains('Roboto'))
+              .where((l) => l.packages.contains(font))
               .toList(),
         ) ??
         [];
-    expect(roboto, hasLength(1));
-    expect(
-      roboto.single.paragraphs.map((p) => p.text).join(' '),
-      contains('Apache License'),
-    );
+    for (final (String font, String licence) in const [
+      ('Roboto', 'Apache License'),
+      ('Syne', 'SIL Open Font License'),
+      ('Work Sans', 'SIL Open Font License'),
+    ]) {
+      final List<LicenseEntry> entries = await of(font);
+      expect(entries, hasLength(1), reason: font);
+      expect(
+        entries.single.paragraphs.map((p) => p.text).join(' '),
+        contains(licence),
+        reason: font,
+      );
+    }
   });
 
   test('no demo household carries an address off the device', () {

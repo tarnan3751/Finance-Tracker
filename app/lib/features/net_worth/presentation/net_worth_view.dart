@@ -8,6 +8,7 @@
 /// `NetWorthScreen` does for the tests.
 library;
 
+import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/net_worth/application/net_worth_providers.dart';
@@ -218,7 +219,10 @@ class NetWorthHeadline extends StatelessWidget {
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
-          Text(last.netWorth.format(), style: theme.textTheme.headlineMedium),
+          Text(
+            last.netWorth.format(),
+            style: AppTheme.figure(theme.textTheme.headlineMedium),
+          ),
           if (before != null)
             Text(
               (before.derived

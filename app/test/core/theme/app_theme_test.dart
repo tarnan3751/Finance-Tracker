@@ -208,4 +208,66 @@ void main() {
       }
     });
   }
+
+  test('the headings are Syne and the rest Work Sans with tabular figures, at '
+      "Material 3's sizes", () {
+    final TextTheme m3 = Typography.material2021().englishLike;
+    for (final ThemeData theme in [AppTheme.light(), AppTheme.dark()]) {
+      // As `Theme` gives it, with the sizes of English.
+      final TextTheme t = ThemeData.localize(theme, m3).textTheme;
+      final Map<String, (TextStyle?, TextStyle?)> styles = {
+        'displayLarge': (t.displayLarge, m3.displayLarge),
+        'displayMedium': (t.displayMedium, m3.displayMedium),
+        'displaySmall': (t.displaySmall, m3.displaySmall),
+        'headlineLarge': (t.headlineLarge, m3.headlineLarge),
+        'headlineMedium': (t.headlineMedium, m3.headlineMedium),
+        'headlineSmall': (t.headlineSmall, m3.headlineSmall),
+        'titleLarge': (t.titleLarge, m3.titleLarge),
+        'titleMedium': (t.titleMedium, m3.titleMedium),
+        'titleSmall': (t.titleSmall, m3.titleSmall),
+        'bodyLarge': (t.bodyLarge, m3.bodyLarge),
+        'bodyMedium': (t.bodyMedium, m3.bodyMedium),
+        'bodySmall': (t.bodySmall, m3.bodySmall),
+        'labelLarge': (t.labelLarge, m3.labelLarge),
+        'labelMedium': (t.labelMedium, m3.labelMedium),
+        'labelSmall': (t.labelSmall, m3.labelSmall),
+      };
+      for (final MapEntry(key: String name, value: (TextStyle? s, TextStyle? m))
+          in styles.entries) {
+        expect(
+          (s!.fontSize! - m!.fontSize!).abs(),
+          lessThanOrEqualTo(2),
+          reason: name,
+        );
+        final bool heading =
+            name.startsWith('display') ||
+            name.startsWith('headline') ||
+            name == 'titleLarge';
+        if (heading) {
+          expect(s.fontFamily, AppTheme.headingFont, reason: name);
+          expect(
+            s.fontWeight,
+            name.startsWith('display') ? FontWeight.w800 : FontWeight.w700,
+            reason: name,
+          );
+          expect(s.letterSpacing, closeTo(-0.02 * s.fontSize!, 1e-9));
+        } else {
+          expect(s.fontFamily, AppTheme.bodyFont, reason: name);
+          expect(s.fontFeatures, AppTheme.tabularFigures, reason: name);
+        }
+      }
+    }
+  });
+
+  test('a figure is Work Sans 700 with tabular figures at its size', () {
+    final TextStyle? headline = ThemeData.localize(
+      AppTheme.light(),
+      Typography.material2021().englishLike,
+    ).textTheme.headlineMedium;
+    final TextStyle figure = AppTheme.figure(headline);
+    expect(figure.fontFamily, AppTheme.bodyFont);
+    expect(figure.fontWeight, FontWeight.w700);
+    expect(figure.fontFeatures, AppTheme.tabularFigures);
+    expect(figure.fontSize, headline!.fontSize);
+  });
 }

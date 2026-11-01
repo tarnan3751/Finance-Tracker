@@ -4,8 +4,12 @@
 /// and [AppTheme.darkScheme], the night print) unless the device supplies dynamic color
 /// schemes and the user has dynamic color on, in which case those schemes are used
 /// (`FinanceTrackerApp` decides). Each carries the matching [FinanceColors], harmonized
-/// with a dynamic scheme's primary color. Surfaces carry no tint. Text scale is never
-/// clamped.
+/// with a dynamic scheme's primary color. Surfaces carry no tint.
+///
+/// The type is Syne for the display and headline styles and `titleLarge` (800 for
+/// display, 700 otherwise, tracked at -0.02 em) and Work Sans for everything else, with
+/// tabular figures so columns of amounts line up; the sizes are Material 3's. Text scale
+/// is never clamped.
 library;
 
 import 'package:finance_tracker/core/theme/finance_colors.dart';
@@ -13,6 +17,26 @@ import 'package:flutter/material.dart';
 
 /// The app's themes.
 abstract final class AppTheme {
+  /// The heading face, bundled under `assets/fonts/`.
+  static const String headingFont = 'Syne';
+
+  /// The body face, for text, lists and every number.
+  static const String bodyFont = 'WorkSans';
+
+  /// Digits of one width, so amounts line up.
+  static const List<FontFeature> tabularFigures = [
+    FontFeature.tabularFigures(),
+  ];
+
+  /// [base] as a money figure: Work Sans 700 with tabular figures, at [base]'s size.
+  static TextStyle figure(TextStyle? base) =>
+      (base ?? const TextStyle()).copyWith(
+        fontFamily: bodyFont,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0,
+        fontFeatures: tabularFigures,
+      );
+
   /// The light scheme: ink on paper, blue, pink and yellow inks.
   static const ColorScheme lightScheme = ColorScheme(
     brightness: Brightness.light,
@@ -102,6 +126,70 @@ abstract final class AppTheme {
     },
   );
 
-  static ThemeData _theme(ColorScheme scheme, FinanceColors finance) =>
-      ThemeData(colorScheme: scheme, useMaterial3: true, extensions: [finance]);
+  static ThemeData _theme(ColorScheme scheme, FinanceColors finance) {
+    final ThemeData base = ThemeData(
+      colorScheme: scheme,
+      useMaterial3: true,
+      fontFamily: bodyFont,
+      extensions: [finance],
+    );
+    return base.copyWith(textTheme: _textTheme(base.textTheme));
+  }
+
+  /// [t], Material 3's scale in Work Sans, with the headings in Syne and tabular figures
+  /// in the rest.
+  static TextTheme _textTheme(TextTheme t) {
+    // The theme's text styles carry no sizes: `Theme` merges in the script's geometry,
+    // whose sizes for English are Material 3's.
+    final TextTheme geometry = Typography.material2021().englishLike;
+    TextStyle heading(TextStyle? style, TextStyle? sized, FontWeight weight) =>
+        style!.copyWith(
+          fontFamily: headingFont,
+          fontWeight: weight,
+          letterSpacing: -0.02 * sized!.fontSize!,
+        );
+    TextStyle body(TextStyle? style) =>
+        style!.copyWith(fontFeatures: tabularFigures);
+    return t.copyWith(
+      displayLarge: heading(
+        t.displayLarge,
+        geometry.displayLarge,
+        FontWeight.w800,
+      ),
+      displayMedium: heading(
+        t.displayMedium,
+        geometry.displayMedium,
+        FontWeight.w800,
+      ),
+      displaySmall: heading(
+        t.displaySmall,
+        geometry.displaySmall,
+        FontWeight.w800,
+      ),
+      headlineLarge: heading(
+        t.headlineLarge,
+        geometry.headlineLarge,
+        FontWeight.w700,
+      ),
+      headlineMedium: heading(
+        t.headlineMedium,
+        geometry.headlineMedium,
+        FontWeight.w700,
+      ),
+      headlineSmall: heading(
+        t.headlineSmall,
+        geometry.headlineSmall,
+        FontWeight.w700,
+      ),
+      titleLarge: heading(t.titleLarge, geometry.titleLarge, FontWeight.w700),
+      titleMedium: body(t.titleMedium),
+      titleSmall: body(t.titleSmall),
+      bodyLarge: body(t.bodyLarge),
+      bodyMedium: body(t.bodyMedium),
+      bodySmall: body(t.bodySmall),
+      labelLarge: body(t.labelLarge),
+      labelMedium: body(t.labelMedium),
+      labelSmall: body(t.labelSmall),
+    );
+  }
 }

@@ -1,8 +1,11 @@
 /// An amount of `Money` as text: formatted in the device locale with its currency's symbol,
-/// optionally colored by direction ([FinanceColors]), and read by a screen reader with
+/// in Work Sans with tabular figures whatever the style's face (every number in the app is
+/// set in Work Sans, `docs/reference/design.md`), optionally colored by direction
+/// ([FinanceColors]), and read by a screen reader with
 /// the sign spelled out ("minus $12.50"), since a hyphen is easily lost in speech.
 library;
 
+import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +37,11 @@ class AmountText extends StatelessWidget {
         : colors.inflow;
     return Text(
       amount.format(),
-      style: (style ?? const TextStyle()).copyWith(color: color),
+      style: (style ?? const TextStyle()).copyWith(
+        color: color,
+        fontFamily: AppTheme.bodyFont,
+        fontFeatures: AppTheme.tabularFigures,
+      ),
       textAlign: textAlign,
       semanticsLabel: amountSemanticsLabel(
         AppLocalizations.of(context),
