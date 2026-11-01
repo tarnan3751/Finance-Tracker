@@ -69,6 +69,7 @@ import 'package:finance_tracker/features/backup/presentation/restore_flow.dart';
 import 'package:finance_tracker/features/backup/presentation/restoring_app.dart';
 import 'package:finance_tracker/features/bills/application/reminder_planner.dart';
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
+import 'package:finance_tracker/features/categories/data/category_defaults.dart';
 import 'package:finance_tracker/features/help/application/licenses.dart';
 import 'package:finance_tracker/features/lock/application/lock_controller.dart';
 import 'package:finance_tracker/features/net_worth/application/snapshot_writer.dart';
@@ -557,8 +558,9 @@ String deviceLocale() => Intl.verifiedLocale(
 /// sequence runs (and throws its exceptions) here rather than under the first screen, the
 /// held records of every type this build knows are released, the sync conflicts thirty
 /// days old are swept, the install date is recorded
-/// on the first launch, the system categories are seeded, and the original app's data is
-/// imported once (in the currency of [locale]), its summary left in
+/// on the first launch, the system categories are seeded once per
+/// `systemCategoriesVersion`, and the original app's data is imported once (in the
+/// currency of [locale]; the preferences it reads are opened only until it is done), its summary left in
 /// `legacyImportResultProvider`. A failed release or import is logged, not thrown.
 Future<void> openLocalData(
   ProviderContainer container, {
@@ -588,17 +590,25 @@ Future<void> openLocalData(
       container.read(clockProvider).today().toIso(),
     );
   }
-  await container.read(categoryRepositoryProvider).ensureSeeded();
+  // Once per version of the system categories, not at every launch.
+  const String seeded = '$systemCategoriesVersion';
+  if (await meta.read(AppMetaKeys.categoriesSeededVersion) != seeded) {
+    await container.read(categoryRepositoryProvider).ensureSeeded();
+    await meta.write(AppMetaKeys.categoriesSeededVersion, seeded);
+  }
   ImportSummary? imported;
   try {
-    imported = await LegacyImporter(
-      preferences: await preferences(),
-      accounts: container.read(accountRepositoryProvider),
-      transactions: container.read(transactionRepositoryProvider),
-      meta: meta,
-      clock: container.read(clockProvider),
-      locale: locale,
-    ).runIfNeeded();
+    // The preferences are opened only while the import has not been done.
+    if (await meta.read(AppMetaKeys.legacyImportDone) == null) {
+      imported = await LegacyImporter(
+        preferences: await preferences(),
+        accounts: container.read(accountRepositoryProvider),
+        transactions: container.read(transactionRepositoryProvider),
+        meta: meta,
+        clock: container.read(clockProvider),
+        locale: locale,
+      ).runIfNeeded();
+    }
   } on Exception catch (e) {
     // A failed import must not keep the app from starting; not having recorded
     // legacy_import_done, it runs again at the next launch.

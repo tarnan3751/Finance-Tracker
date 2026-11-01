@@ -14,7 +14,8 @@
 /// `session_ended_in_background`), and whether the permission to notify was asked
 /// (`notification_permission_asked`), which sync problems were told
 /// (`sync_problems_told`), and the transaction import's presets and history
-/// (`import_presets`, `import_history`).
+/// (`import_presets`, `import_history`), and the version of the system categories last
+/// seeded (`categories_seeded_version`).
 library;
 
 import 'package:finance_tracker/core/db/app_database.dart';
@@ -118,6 +119,10 @@ abstract final class AppMetaKeys {
   /// The record of each import, a JSON list, newest first, with the ids of the
   /// transactions it wrote (`features/import/`).
   static const String importHistory = 'import_history';
+
+  /// The [systemCategoriesVersion] (`features/categories/data/category_defaults.dart`)
+  /// whose system categories were last seeded, as a decimal string.
+  static const String categoriesSeededVersion = 'categories_seeded_version';
 }
 
 /// The store over the database's `app_meta` table.

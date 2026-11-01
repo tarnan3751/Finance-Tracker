@@ -51,6 +51,11 @@ const Map<String, String> _nameOverrides = {
 /// The id of the system category seeded from Plaid code [code].
 String systemCategoryId(String code) => 'plaid:$code';
 
+/// The version of [systemCategories], raised whenever a later build adds one, so that
+/// build seeds again: startup seeds only when `app_meta` `categories_seeded_version`
+/// holds another (`openLocalData` in `bootstrap.dart`).
+const int systemCategoriesVersion = 1;
+
 /// Every system category: each primary, followed by its detailed categories, in the order
 /// Plaid publishes them.
 final List<Category> systemCategories = _buildSystemCategories();

@@ -75,6 +75,51 @@ void main() {
     },
   );
 
+  test('openLocalData seeds once per categories version and opens the preferences only until the import is done', () async {
+    final AppDatabase database = AppDatabase(NativeDatabase.memory());
+    addTearDown(database.close);
+    final ProviderContainer container = ProviderContainer.test(
+      overrides: [
+        ...overridesFor(AppConfig.prod()),
+        databaseProvider.overrideWithValue(database),
+      ],
+    );
+    int opened = 0;
+    Future<SharedPreferences> preferences() {
+      opened++;
+      return SharedPreferences.getInstance();
+    }
+
+    Future<int> systemRows() async => (await (database.select(
+      database.categories,
+    )..where((c) => c.isSystem.equals(true))).get()).length;
+
+    SharedPreferences.setMockInitialValues({});
+    await openLocalData(container, locale: 'en_US', preferences: preferences);
+    expect(await systemRows(), systemCategories.length);
+    expect(
+      await DriftAppMetaStore(database).read('categories_seeded_version'),
+      '$systemCategoriesVersion',
+    );
+    expect(opened, 1);
+
+    // A system category gone (as one a later version adds is missing) stays gone at
+    // the same version, and the done import never opens the preferences again.
+    await (database.delete(
+      database.categories,
+    )..where((c) => c.id.equals(systemCategories.last.id))).go();
+    await openLocalData(container, locale: 'en_US', preferences: preferences);
+    expect(await systemRows(), systemCategories.length - 1);
+    expect(opened, 1);
+
+    // Another version seeds what is missing.
+    await DriftAppMetaStore(database)
+        .write('categories_seeded_version', '${systemCategoriesVersion - 1}');
+    await openLocalData(container, locale: 'en_US', preferences: preferences);
+    expect(await systemRows(), systemCategories.length);
+    expect(opened, 1);
+  });
+
   test('openLocalData releases the records held under a known type with no schema step', () async {
     // A database created at this version, so no schema step runs; a category held
     // under its raw name, as a build that did not know categories held it, and one

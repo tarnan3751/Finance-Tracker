@@ -34,7 +34,8 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
    **Encryption and the key**), the held records of every type this build knows are
    released (`sync-app.md`, **Unknown types**; a failure is logged by type and leaves
    them held), `install_date` is recorded on the first launch, the system categories are
-   seeded and the legacy importer runs once. Any failure to open is logged by type and
+   seeded once per `systemCategoriesVersion` (`data.md`, **Categories**) and the legacy
+   importer runs once, the preferences opened only until it has. Any failure to open is logged by type and
    `runApp(DatabaseErrorApp(failure: ...))` shows a plain error screen instead of the
    app, with a message for a missing cipher, a wrong key, a lost key, or anything else;
    for a lost key it also offers "Restore from a backup" (`backup.md`);
