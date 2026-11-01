@@ -34,8 +34,10 @@ void main() {
     await _open(tester);
 
     expect(find.text('This period'), findsOneWidget);
-    expect(find.text('Spent \$2,526.50'), findsOneWidget);
-    expect(find.text('Income \$4,300.00'), findsOneWidget);
+    // The hero card: the net, then what it is the difference of.
+    expect(find.text('NET'), findsOneWidget);
+    expect(find.text('\$1,773.50'), findsOneWidget);
+    expect(find.text('Income \$4,300.00 · spent \$2,526.50'), findsOneWidget);
     // (4,300.00 - 2,526.50) / 4,300.00 = 41.2 %.
     expect(find.text('Kept 41 % of income'), findsOneWidget);
     expect(
@@ -117,7 +119,15 @@ void main() {
     await _open(tester, store: store);
     await tester.tap(find.text('Tables'));
     await tester.pumpAndSettle();
+    await _scrollTo(tester, find.text('Food and drink'));
     await tester.tap(find.text('Food and drink'));
+    await tester.pumpAndSettle();
+    // Back up to the switch, scrolled away above.
+    await tester.scrollUntilVisible(
+      find.text('Charts'),
+      -300,
+      scrollable: find.byType(Scrollable).last,
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Charts'));
     await tester.pumpAndSettle();

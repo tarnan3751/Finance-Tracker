@@ -6,6 +6,7 @@
 library;
 
 import 'package:finance_tracker/core/l10n/joins.dart';
+import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
 import 'package:finance_tracker/features/bills/domain/bill_status.dart';
@@ -192,7 +193,6 @@ class _Budgets extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ThemeData theme = Theme.of(context);
     final Map<String, Category> byId = ref.watch(categoriesByIdProvider);
     final List<BudgetStatus> statuses =
         ref.watch(budgetStatusesProvider).value ?? const [];
@@ -224,7 +224,7 @@ class _Budgets extends ConsumerWidget {
                         s.remaining.format(),
                       ),
                 style: s.remaining.isNegative
-                    ? TextStyle(color: theme.colorScheme.error)
+                    ? TextStyle(color: FinanceColors.of(context).outflow)
                     : null,
               ),
             ),

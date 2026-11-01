@@ -3,7 +3,7 @@
 // section; a new goal through the editor; the detail of a contribution goal with a
 // contribution added, deleted and restored by Undo; a balance goal's counted accounts;
 // archive and delete from the editor with their undo; the progress read as one
-// sentence; the empty state; and every screen at twice the text size.
+// sentence; the hero card; the empty state; and every screen at twice the text size.
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/features/goals/data/in_memory_goal_repository.dart';
 import 'package:finance_tracker/features/goals/domain/goal_repository.dart';
@@ -45,6 +45,22 @@ Future<Goal?> stored(
 ) async => (await entry(tester, goals, id))?.goal;
 
 void main() {
+  testWidgets('the hero card adds up the live goals, read as one sentence', (
+    tester,
+  ) async {
+    final SemanticsHandle semantics = tester.ensureSemantics();
+    await pumpGoals(tester);
+    expect(find.text('SAVED'), findsOneWidget);
+    // Emergency fund on track, Holiday behind, the one with no date open; the
+    // archived Bike left out.
+    expect(find.text('1 of 3 on track'), findsOneWidget);
+    expect(
+      find.bySemanticsLabel(r'Saved: $6,175.91, 1 of 3 on track.'),
+      findsOneWidget,
+    );
+    semantics.dispose();
+  });
+
   testWidgets('the list shows each goal with its status and suggestion, the '
       'archived ones folded', (tester) async {
     await pumpGoals(tester);

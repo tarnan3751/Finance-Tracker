@@ -5,6 +5,7 @@
 library;
 
 import 'package:finance_tracker/core/l10n/joins.dart';
+import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/features/net_worth/domain/net_worth_series.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +70,7 @@ class NetWorthRow extends StatelessWidget {
                     netWorth,
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: point.netWorth.isNegative
-                          ? theme.colorScheme.error
+                          ? FinanceColors.of(context).outflow
                           : null,
                     ),
                   ),

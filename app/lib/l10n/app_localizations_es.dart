@@ -3581,16 +3581,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String netWorthChange(String amount) {
-    return '$amount over 30 days';
-  }
-
-  @override
-  String netWorthChangeEstimated(String amount) {
-    return '$amount over 30 days, against an estimate';
-  }
-
-  @override
   String get netWorthRangeThreeMonths => '3 m';
 
   @override
@@ -5530,5 +5520,39 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String forecastHeroDate(String date) {
     return 'on $date';
+  }
+
+  @override
+  String get reportsHeroLabel => 'Net';
+
+  @override
+  String reportsHeroCaption(String income, String spending) {
+    return 'Income $income · spent $spending';
+  }
+
+  @override
+  String netWorthHeroSince(String amount, String date) {
+    return '$amount since $date';
+  }
+
+  @override
+  String netWorthHeroEstimate(String change) {
+    return '$change, against an estimate';
+  }
+
+  @override
+  String get investmentsHeroLabel => 'Total value';
+
+  @override
+  String investmentsHeroGain(String amounts) {
+    return '$amounts gain on cost';
+  }
+
+  @override
+  String get goalsHeroLabel => 'Saved';
+
+  @override
+  String goalsHeroOnTrack(int onTrack, int total) {
+    return '$onTrack of $total on track';
   }
 }

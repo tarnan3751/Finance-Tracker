@@ -39,8 +39,16 @@ Future<void> openTable(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> scrollTo(WidgetTester tester, Finder finder) => tester
-    .scrollUntilVisible(finder, 300, scrollable: find.byType(Scrollable).first);
+Future<void> scrollTo(WidgetTester tester, Finder finder) async {
+  await tester.scrollUntilVisible(
+    finder,
+    300,
+    scrollable: find.byType(Scrollable).first,
+  );
+  // Fully in view, not just its first pixels at the bottom edge.
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+}
 
 void main() {
   testWidgets('the headline and the chart, its estimated span named', (
@@ -55,17 +63,15 @@ void main() {
     final List<NetWorthPoint> series = expectedSeries();
     final NetWorthPoint last = series.last;
     expect(find.widgetWithText(AppBar, 'Net worth'), findsOneWidget);
-    expect(find.text('Net worth on Oct 24, 2026'), findsOneWidget);
+    expect(find.text('NET WORTH ON OCT 24, 2026'), findsOneWidget);
     expect(find.text(last.netWorth.format()), findsOneWidget);
-    // Thirty days back, 24 September, is estimated.
-    final NetWorthPoint before = series.singleWhere(
-      (p) => p.date == LocalDate(2026, 9, 24),
-    );
-    expect(before.derived, isTrue);
+    // The year's range starts on 1 August, which is estimated.
+    final NetWorthPoint first = series.first;
+    expect(first.derived, isTrue);
     expect(
       find.text(
-        '${(last.netWorth - before.netWorth).format(showPlusSign: true)} over '
-        '30 days, against an estimate',
+        '${(last.netWorth - first.netWorth).format(showPlusSign: true)} since '
+        'Aug 1, 2026, against an estimate',
       ),
       findsOneWidget,
     );

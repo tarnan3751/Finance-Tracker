@@ -1,5 +1,6 @@
 /// The goals (`docs/reference/goals.md`, **Screens**), at `/goals`, the Insights tab's
-/// Goals segment (an `InsightsScaffold`): a card per live goal
+/// Goals segment (an `InsightsScaffold`): the hero card (what is saved toward the goals
+/// not archived, per currency, captioned by how many are on track), a card per live goal
 /// (`goal_card.dart`), then a folded "Archived" section of the archived ones; an empty
 /// state with New goal when there are none. Tapping a goal opens its detail; the app bar's
 /// action opens a new goal.
@@ -7,12 +8,16 @@ library;
 
 import 'package:finance_tracker/core/router/insights_scaffold.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
+import 'package:finance_tracker/core/widgets/hero_card.dart';
 import 'package:finance_tracker/features/goals/application/goals_providers.dart';
+import 'package:finance_tracker/features/goals/domain/goal_math.dart';
 import 'package:finance_tracker/features/goals/presentation/goal_card.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_models/shared_models.dart';
 
 /// The goals screen.
 class GoalsScreen extends ConsumerWidget {
@@ -63,22 +68,67 @@ class _GoalList extends StatelessWidget {
       for (final GoalView v in views)
         if (v.archived) v,
     ];
+    final List<GoalView> live = [
+      for (final GoalView v in views)
+        if (!v.archived) v,
+    ];
     Widget card(GoalView v) => GoalCard(
       key: ValueKey(v.goal.id),
       view: v,
       onTap: () => GoalDetailRoute(v.goal.id).push<void>(context),
     );
     return ListView(
-      padding: const EdgeInsets.only(top: 8, bottom: 32),
+      padding: const EdgeInsets.only(bottom: 32),
       children: [
-        for (final GoalView v in views)
-          if (!v.archived) card(v),
+        if (live.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.all(SpendthriftTokens.space16),
+            child: GoalsHero(live),
+          ),
+        for (final GoalView v in live) card(v),
         if (archived.isNotEmpty)
           ExpansionTile(
             title: Text(l10n.goalsArchived(archived.length)),
             children: [for (final GoalView v in archived) card(v)],
           ),
       ],
+    );
+  }
+}
+
+/// The Goals segment's hero card: what is saved toward [views] (the goals not archived),
+/// one figure per currency, captioned by how many of them are on track or done.
+class GoalsHero extends StatelessWidget {
+  const GoalsHero(this.views, {super.key});
+
+  final List<GoalView> views;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final Map<String, Money> saved = {};
+    for (final GoalView v in views) {
+      final String code = v.progress.currencyCode;
+      saved[code] = (saved[code] ?? Money.zero(code)) + v.progress;
+    }
+    final List<Money> totals = [
+      for (final String code in saved.keys.toList()..sort()) saved[code]!,
+    ];
+    final int onTrack = views
+        .where((v) => v.status is GoalOnTrack || v.status is GoalDone)
+        .length;
+    final String label = l10n.goalsHeroLabel;
+    final String caption = l10n.goalsHeroOnTrack(onTrack, views.length);
+    return HeroCard(
+      label: label,
+      figure: HeroAmounts(totals),
+      caption: caption,
+      semanticsLabel: heroSentence(
+        l10n,
+        label,
+        spokenAmounts(l10n, totals),
+        caption,
+      ),
     );
   }
 }

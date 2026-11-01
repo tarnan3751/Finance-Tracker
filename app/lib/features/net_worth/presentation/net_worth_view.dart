@@ -1,5 +1,6 @@
 /// The Net worth segment's body (`docs/reference/net-worth.md`, **The screen**): the
-/// headline (the latest net worth and its change over 30 days), the range control
+/// hero card (the latest net worth and its change since the first day of the range shown,
+/// green or pink), the range control
 /// (3 m, 1 y, All) with the Table/Chart switch and, when the history holds more than one
 /// currency, a chip per currency; then the chart (`net_worth_chart.dart`) or its table
 /// (`net_worth_table.dart`); then the liabilities with their payoff projections
@@ -8,8 +9,10 @@
 /// `NetWorthScreen` does for the tests.
 library;
 
-import 'package:finance_tracker/core/theme/app_theme.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/amount_text.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
+import 'package:finance_tracker/core/widgets/hero_card.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/net_worth/application/net_worth_providers.dart';
 import 'package:finance_tracker/features/net_worth/domain/net_worth_series.dart';
@@ -100,13 +103,15 @@ class _NetWorthViewState extends ConsumerState<NetWorthView> {
       slivers: [
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: NetWorthHeadline(all),
+            padding: const EdgeInsets.all(SpendthriftTokens.space16),
+            child: NetWorthHero(shown),
           ),
         ),
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: SpendthriftTokens.space16,
+            ),
             child: Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -191,48 +196,54 @@ class _NetWorthViewState extends ConsumerState<NetWorthView> {
   }
 }
 
-/// The latest net worth of [points] (by date, not empty) and its change against the
-/// point 30 days before it, when the history reaches back that far.
-class NetWorthHeadline extends StatelessWidget {
-  const NetWorthHeadline(this.points, {super.key});
+/// The Net worth segment's hero card: the latest net worth of [points] (the range shown,
+/// by date, not empty), captioned by its change since the range's first day in green or
+/// pink, "against an estimate" when that day is reconstructed from transactions.
+class NetWorthHero extends StatelessWidget {
+  const NetWorthHero(this.points, {super.key});
 
   final List<NetWorthPoint> points;
 
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ThemeData theme = Theme.of(context);
+    final DateFormat date = DateFormat.yMMMd();
+    final NetWorthPoint first = points.first;
     final NetWorthPoint last = points.last;
-    final LocalDate monthAgo = last.date.addDays(-30);
-    final NetWorthPoint? before = points
-        .where((p) => p.date == monthAgo)
-        .firstOrNull;
-    return MergeSemantics(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.netWorthHeadlineLabel(
-              DateFormat.yMMMd().format(last.date.toDateTime()),
-            ),
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-          Text(
-            last.netWorth.format(),
-            style: AppTheme.figure(theme.textTheme.headlineMedium),
-          ),
-          if (before != null)
-            Text(
-              (before.derived
-                  ? l10n.netWorthChangeEstimated
-                  : l10n.netWorthChange)(
-                (last.netWorth - before.netWorth).format(showPlusSign: true),
-              ),
-              style: theme.textTheme.bodyMedium,
-            ),
-        ],
+    final Money change = last.netWorth - first.netWorth;
+    String caption(String amount) {
+      final String since = l10n.netWorthHeroSince(
+        amount,
+        date.format(first.date.toDateTime()),
+      );
+      return first.derived ? l10n.netWorthHeroEstimate(since) : since;
+    }
+
+    final bool moved = points.length > 1;
+    final String label = l10n.netWorthHeadlineLabel(
+      date.format(last.date.toDateTime()),
+    );
+    return HeroCard(
+      label: label,
+      figure: AmountText(last.netWorth),
+      caption: moved ? caption(change.format(showPlusSign: true)) : null,
+      captionTone: !moved || change.isZero
+          ? HeroTone.plain
+          : change.isNegative
+          ? HeroTone.outflow
+          : HeroTone.inflow,
+      semanticsLabel: heroSentence(
+        l10n,
+        label,
+        amountSemanticsLabel(l10n, last.netWorth),
+        // The sign spelled out when negative, the plus kept when positive.
+        moved
+            ? caption(
+                change.isNegative
+                    ? amountSemanticsLabel(l10n, change)
+                    : change.format(showPlusSign: true),
+              )
+            : null,
       ),
     );
   }

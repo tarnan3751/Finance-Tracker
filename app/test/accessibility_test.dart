@@ -498,7 +498,17 @@ final Map<String, Future<void> Function(WidgetTester)?> _forecastViews = {
 
 /// Scrolls the screen until [finder] is at the top.
 Future<void> _scrollToTop(WidgetTester tester, Finder finder) async {
-  await Scrollable.ensureVisible(tester.element(finder));
+  // Built first, which a lazy list leaves for later when it is far down.
+  await tester.scrollUntilVisible(
+    finder,
+    300,
+    scrollable: find
+        .byWidgetPredicate(
+          (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+        )
+        .first,
+  );
+  await Scrollable.ensureVisible(tester.element(finder.first));
   await tester.pumpAndSettle();
 }
 
@@ -521,12 +531,12 @@ _investmentsViews = {
   ),
   'Investments holdings': (
     overrides: investmentOverrides,
-    open: (tester) => _scrollToTop(tester, find.text('Holdings').first),
+    open: (tester) => _scrollToTop(tester, find.text('Holdings')),
   ),
   'Investments transactions': (
     overrides: investmentOverrides,
     open: (tester) =>
-        _scrollToTop(tester, find.text('Investment transactions').first),
+        _scrollToTop(tester, find.text('Investment transactions')),
   ),
   'Investments, empty': (
     overrides: () => [storeOverride(seededStore())],

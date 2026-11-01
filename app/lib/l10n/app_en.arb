@@ -5176,26 +5176,6 @@
       }
     }
   },
-  "netWorthChange": "{amount} over 30 days",
-  "@netWorthChange": {
-    "description": "The change in net worth against the point 30 days before the latest.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "+$1,250.00"
-      }
-    }
-  },
-  "netWorthChangeEstimated": "{amount} over 30 days, against an estimate",
-  "@netWorthChangeEstimated": {
-    "description": "The change in net worth when the point 30 days before is estimated from transactions.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "+$1,250.00"
-      }
-    }
-  },
   "netWorthRangeThreeMonths": "3 m",
   "@netWorthRangeThreeMonths": {
     "description": "The range control: the last three months."
@@ -7771,6 +7751,78 @@
       "date": {
         "type": "String",
         "example": "Oct 22"
+      }
+    }
+  },
+  "reportsHeroLabel": "Net",
+  "@reportsHeroLabel": {
+    "description": "Label of the Reports segment's hero card, whose figure is the period's income less its spending."
+  },
+  "reportsHeroCaption": "Income {income} · spent {spending}",
+  "@reportsHeroCaption": {
+    "description": "Caption of the Reports segment's hero card: the period's income and spending, which its net figure is the difference of.",
+    "placeholders": {
+      "income": {
+        "type": "String",
+        "example": "$4,200.00"
+      },
+      "spending": {
+        "type": "String",
+        "example": "$3,150.00"
+      }
+    }
+  },
+  "netWorthHeroSince": "{amount} since {date}",
+  "@netWorthHeroSince": {
+    "description": "Caption of the Net worth segment's hero card: the change in net worth from the first day of the range shown to the latest, signed.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "+$1,250.00"
+      },
+      "date": {
+        "type": "String",
+        "example": "Jul 24, 2026"
+      }
+    }
+  },
+  "netWorthHeroEstimate": "{change}, against an estimate",
+  "@netWorthHeroEstimate": {
+    "description": "Caption of the Net worth segment's hero card when the range's first day is reconstructed from transactions rather than recorded.",
+    "placeholders": {
+      "change": {
+        "type": "String",
+        "example": "+$1,250.00 since Jul 24, 2026"
+      }
+    }
+  },
+  "investmentsHeroLabel": "Total value",
+  "@investmentsHeroLabel": {
+    "description": "Label of the Investments segment's hero card, whose figure is what every holding is worth as the institutions report it (one amount per currency)."
+  },
+  "investmentsHeroGain": "{amounts} gain on cost",
+  "@investmentsHeroGain": {
+    "description": "Caption of the Investments segment's hero card: the holdings' value less what they cost, over the holdings whose cost the institution reports (one signed amount per currency).",
+    "placeholders": {
+      "amounts": {
+        "type": "String",
+        "example": "+$1,820.40"
+      }
+    }
+  },
+  "goalsHeroLabel": "Saved",
+  "@goalsHeroLabel": {
+    "description": "Label of the Goals segment's hero card, whose figure is what is saved toward the goals not archived (one amount per currency)."
+  },
+  "goalsHeroOnTrack": "{onTrack} of {total} on track",
+  "@goalsHeroOnTrack": {
+    "description": "Caption of the Goals segment's hero card: how many of the goals not archived are on track or done.",
+    "placeholders": {
+      "onTrack": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
       }
     }
   }

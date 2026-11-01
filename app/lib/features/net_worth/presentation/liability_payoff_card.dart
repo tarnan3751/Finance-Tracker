@@ -6,6 +6,7 @@
 /// extra-per-month slider with what it changes.
 library;
 
+import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/features/net_worth/application/net_worth_providers.dart';
 import 'package:finance_tracker/features/net_worth/domain/payoff.dart';
 import 'package:finance_tracker/features/net_worth/domain/payoff_entries.dart';
@@ -220,7 +221,7 @@ class _LiabilityPayoffCardState extends ConsumerState<LiabilityPayoffCard> {
                       payoffText(projection, l10n),
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: projection is NeverPaidOff
-                            ? theme.colorScheme.error
+                            ? FinanceColors.of(context).warning
                             : null,
                       ),
                     ),

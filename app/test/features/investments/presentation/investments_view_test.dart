@@ -1,5 +1,5 @@
 // The Investments segment on the test investments (investment_seed.dart), as of 24
-// October 2026: the allocation's donut summary and table, the accounts' headings, the
+// October 2026: the hero card, the allocation's donut summary and table, the accounts' headings, the
 // holdings with their gains or "cost basis unavailable", the value chart's summary and
 // its table, the investment transactions a page at a time, the empty sections of an
 // account with nothing in it, the empty state, and text scale 2.
@@ -28,6 +28,22 @@ Future<void> _scrollTo(WidgetTester tester, Finder finder) => tester
     .scrollUntilVisible(finder, 300, scrollable: find.byType(Scrollable).first);
 
 void main() {
+  testWidgets('the hero card: what the holdings are worth and their gain', (
+    tester,
+  ) async {
+    final SemanticsHandle semantics = tester.ensureSemantics();
+    await _pump(tester);
+    expect(find.text('TOTAL VALUE'), findsOneWidget);
+    // Every holding's value, as the allocation adds it; the gain over the holdings
+    // with a cost basis only.
+    expect(find.text(r'+$13.75 gain on cost'), findsOneWidget);
+    expect(
+      find.bySemanticsLabel(r'Total value: $7,265.83, +$13.75 gain on cost.'),
+      findsOneWidget,
+    );
+    semantics.dispose();
+  });
+
   testWidgets('the allocation: the donut\'s summary and its table', (
     tester,
   ) async {

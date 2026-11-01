@@ -5453,18 +5453,6 @@ abstract class AppLocalizations {
   /// **'Net worth on {date}'**
   String netWorthHeadlineLabel(String date);
 
-  /// The change in net worth against the point 30 days before the latest.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} over 30 days'**
-  String netWorthChange(String amount);
-
-  /// The change in net worth when the point 30 days before is estimated from transactions.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} over 30 days, against an estimate'**
-  String netWorthChangeEstimated(String amount);
-
   /// The range control: the last three months.
   ///
   /// In en, this message translates to:
@@ -8451,6 +8439,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'on {date}'**
   String forecastHeroDate(String date);
+
+  /// Label of the Reports segment's hero card, whose figure is the period's income less its spending.
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get reportsHeroLabel;
+
+  /// Caption of the Reports segment's hero card: the period's income and spending, which its net figure is the difference of.
+  ///
+  /// In en, this message translates to:
+  /// **'Income {income} · spent {spending}'**
+  String reportsHeroCaption(String income, String spending);
+
+  /// Caption of the Net worth segment's hero card: the change in net worth from the first day of the range shown to the latest, signed.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} since {date}'**
+  String netWorthHeroSince(String amount, String date);
+
+  /// Caption of the Net worth segment's hero card when the range's first day is reconstructed from transactions rather than recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'{change}, against an estimate'**
+  String netWorthHeroEstimate(String change);
+
+  /// Label of the Investments segment's hero card, whose figure is what every holding is worth as the institutions report it (one amount per currency).
+  ///
+  /// In en, this message translates to:
+  /// **'Total value'**
+  String get investmentsHeroLabel;
+
+  /// Caption of the Investments segment's hero card: the holdings' value less what they cost, over the holdings whose cost the institution reports (one signed amount per currency).
+  ///
+  /// In en, this message translates to:
+  /// **'{amounts} gain on cost'**
+  String investmentsHeroGain(String amounts);
+
+  /// Label of the Goals segment's hero card, whose figure is what is saved toward the goals not archived (one amount per currency).
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get goalsHeroLabel;
+
+  /// Caption of the Goals segment's hero card: how many of the goals not archived are on track or done.
+  ///
+  /// In en, this message translates to:
+  /// **'{onTrack} of {total} on track'**
+  String goalsHeroOnTrack(int onTrack, int total);
 }
 
 class _AppLocalizationsDelegate

@@ -1,7 +1,8 @@
 // Goldens of the Reports segment on the report household (report_seed.dart), light and
 // dark at text scale 1 and 2: the charts (the donut, the bars, the trend lines) and the
 // tables, each down the whole report (a phone's width, as tall as the report), with the
-// movers and "Worth a look" at the end.
+// movers and "Worth a look" at the end; and the top of the segment in light, the hero
+// card under the period selector.
 // Tagged `golden`; see test/flutter_test_config.dart for where the files go and how to
 // update them.
 import 'package:alchemist/alchemist.dart';
@@ -51,4 +52,18 @@ void main() {
       }
     }
   }
+
+  goldenTest(
+    'the hero card in place, light',
+    fileName: 'insights_reports_hero_light',
+    constraints: BoxConstraints.tight(heroPlacementSize),
+    builder: () => SizedBox.fromSize(
+      size: heroPlacementSize,
+      child: buildTestApp(
+        brightness: Brightness.light,
+        overrides: reportOverrides(),
+        initialLocation: '/reports',
+      ),
+    ),
+  );
 }

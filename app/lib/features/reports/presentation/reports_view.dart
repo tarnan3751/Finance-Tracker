@@ -1,5 +1,6 @@
 /// The Reports segment's body (`docs/reference/reports.md`, **The screen**): the period
-/// selector, the headline (spending, income and the savings rate), the comparisons with
+/// selector, the hero card (the period's net, captioned by its income and spending), the
+/// savings rate, the comparisons with
 /// the period before and the year before, spending or income by category as a donut
 /// that drills into a group, income and spending over six periods as bars, the trend
 /// over twelve as lines, the top merchants, the top movers, "Worth a look" and the
@@ -10,6 +11,9 @@ library;
 
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/theme/finance_colors.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/amount_text.dart';
+import 'package:finance_tracker/core/widgets/hero_card.dart';
 import 'package:finance_tracker/features/budgets/presentation/budget_period_selector.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
 import 'package:finance_tracker/features/reports/application/reports_providers.dart';
@@ -63,6 +67,11 @@ class _ReportsViewState extends ConsumerState<ReportsView> {
             showNext: offset < 0,
           ),
           Padding(
+            padding: const EdgeInsets.all(SpendthriftTokens.space16),
+            child: ReportsHero(r.current),
+          ),
+          _SavingsRate(r.current),
+          Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: Align(
               alignment: AlignmentDirectional.centerEnd,
@@ -75,7 +84,6 @@ class _ReportsViewState extends ConsumerState<ReportsView> {
               ),
             ),
           ),
-          _Headline(r.current),
           _Comparisons(r),
           _SectionTitle(l10n.reportsByCategory),
           Padding(
@@ -156,9 +164,41 @@ class _SectionTitle extends StatelessWidget {
   );
 }
 
-/// Spending, income and the savings rate of [period].
-class _Headline extends StatelessWidget {
-  const _Headline(this.period);
+/// The Reports segment's hero card: [period]'s net, its income less its spending,
+/// captioned by the two.
+class ReportsHero extends StatelessWidget {
+  const ReportsHero(this.period, {super.key});
+
+  final ReportPeriod period;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final Money net = period.income - period.spend;
+    final String label = l10n.reportsHeroLabel;
+    return HeroCard(
+      label: label,
+      figure: AmountText(net),
+      caption: l10n.reportsHeroCaption(
+        period.income.format(),
+        period.spend.format(),
+      ),
+      semanticsLabel: heroSentence(
+        l10n,
+        label,
+        amountSemanticsLabel(l10n, net),
+        l10n.reportsHeroCaption(
+          amountSemanticsLabel(l10n, period.income),
+          amountSemanticsLabel(l10n, period.spend),
+        ),
+      ),
+    );
+  }
+}
+
+/// The savings rate of [period], in the money-out pink when it is negative.
+class _SavingsRate extends StatelessWidget {
+  const _SavingsRate(this.period);
 
   final ReportPeriod period;
 
@@ -168,34 +208,18 @@ class _Headline extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final int? rate = period.savingsRateBasisPoints;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 24,
-            runSpacing: 4,
-            children: [
-              Text(
-                l10n.reportsSpendingAmount(period.spend.format()),
-                style: theme.textTheme.titleMedium,
-              ),
-              Text(
-                l10n.reportsIncomeAmount(period.income.format()),
-                style: theme.textTheme.titleMedium,
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            rate == null
-                ? l10n.reportsNoIncome
-                : l10n.reportsSavingsRate(percentLabel(l10n, rate)),
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: rate != null && rate < 0 ? theme.colorScheme.error : null,
-            ),
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(
+        horizontal: SpendthriftTokens.space16,
+      ),
+      child: Text(
+        rate == null
+            ? l10n.reportsNoIncome
+            : l10n.reportsSavingsRate(percentLabel(l10n, rate)),
+        style: theme.textTheme.bodyLarge?.copyWith(
+          color: rate != null && rate < 0
+              ? FinanceColors.of(context).outflow
+              : null,
+        ),
       ),
     );
   }

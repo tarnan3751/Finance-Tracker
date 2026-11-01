@@ -1,12 +1,13 @@
 /// A goal as a card (`docs/reference/goals.md`, **Screens**): its name and target date,
 /// a progress bar with the progress of the target, the status ("On track", "Behind by
-/// $150.00" in the error colour, "Done"; none without a target date) and the suggestion
+/// $150.00" in the warning yellow, "Done"; none without a target date) and the suggestion
 /// ("Set aside $175.00 a month"). The goals list shows one per goal; the detail shows
 /// the same summary at its top ([GoalSummary]). A card reads as one sentence, each part
 /// once: "Holiday, By Apr 24, 2027, 41 percent of the target, $750.00 of $1,800.00,
 /// Behind by $152.46, Set aside $175.00 a month".
 library;
 
+import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/features/goals/application/goals_providers.dart';
 import 'package:finance_tracker/features/goals/domain/goal_math.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_dates.dart';
@@ -86,7 +87,7 @@ class GoalSummary extends StatelessWidget {
             statusText,
             style: theme.textTheme.labelLarge?.copyWith(
               color: switch (status) {
-                GoalBehind() => colors.error,
+                GoalBehind() => FinanceColors.of(context).warning,
                 GoalDone() => colors.primary,
                 _ => null,
               },
@@ -128,7 +129,7 @@ class GoalProgressBar extends StatelessWidget {
       excludeSemantics: true,
       child: LinearProgressIndicator(
         value: percent.clamp(0, 100) / 100,
-        color: view.status is GoalBehind ? colors.error : colors.primary,
+        color: view.status is GoalBehind ? colors.tertiary : colors.primary,
         minHeight: 8,
         borderRadius: BorderRadius.circular(4),
       ),

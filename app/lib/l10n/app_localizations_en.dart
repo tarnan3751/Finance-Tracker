@@ -3581,16 +3581,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String netWorthChange(String amount) {
-    return '$amount over 30 days';
-  }
-
-  @override
-  String netWorthChangeEstimated(String amount) {
-    return '$amount over 30 days, against an estimate';
-  }
-
-  @override
   String get netWorthRangeThreeMonths => '3 m';
 
   @override
@@ -5530,6 +5520,40 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String forecastHeroDate(String date) {
     return 'on $date';
+  }
+
+  @override
+  String get reportsHeroLabel => 'Net';
+
+  @override
+  String reportsHeroCaption(String income, String spending) {
+    return 'Income $income · spent $spending';
+  }
+
+  @override
+  String netWorthHeroSince(String amount, String date) {
+    return '$amount since $date';
+  }
+
+  @override
+  String netWorthHeroEstimate(String change) {
+    return '$change, against an estimate';
+  }
+
+  @override
+  String get investmentsHeroLabel => 'Total value';
+
+  @override
+  String investmentsHeroGain(String amounts) {
+    return '$amounts gain on cost';
+  }
+
+  @override
+  String get goalsHeroLabel => 'Saved';
+
+  @override
+  String goalsHeroOnTrack(int onTrack, int total) {
+    return '$onTrack of $total on track';
   }
 }
 
@@ -9176,16 +9200,6 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
   }
 
   @override
-  String netWorthChange(String amount) {
-    return '[$amount öṽéŕ 30 ðåýš ~~~~]';
-  }
-
-  @override
-  String netWorthChangeEstimated(String amount) {
-    return '[$amount öṽéŕ 30 ðåýš, åĝåîñšţ åñ éšţîɱåţé ~~~~~ ~~~~~]';
-  }
-
-  @override
   String get netWorthRangeThreeMonths => '[3 ɱ ~]';
 
   @override
@@ -11174,5 +11188,39 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
   @override
   String forecastHeroDate(String date) {
     return '[öñ $date ~]';
+  }
+
+  @override
+  String get reportsHeroLabel => '[Ñéţ ~~]';
+
+  @override
+  String reportsHeroCaption(String income, String spending) {
+    return '[Îñçöɱé $income · šþéñţ $spending ~~~~~]';
+  }
+
+  @override
+  String netWorthHeroSince(String amount, String date) {
+    return '[$amount šîñçé $date ~~]';
+  }
+
+  @override
+  String netWorthHeroEstimate(String change) {
+    return '[$change, åĝåîñšţ åñ éšţîɱåţé ~~~~~ ~~]';
+  }
+
+  @override
+  String get investmentsHeroLabel => '[Ţöţåļ ṽåļûé ~~~~]';
+
+  @override
+  String investmentsHeroGain(String amounts) {
+    return '[$amounts ĝåîñ öñ çöšţ ~~~~]';
+  }
+
+  @override
+  String get goalsHeroLabel => '[Šåṽéð ~~]';
+
+  @override
+  String goalsHeroOnTrack(int onTrack, int total) {
+    return '[$onTrack öƒ $total öñ ţŕåçķ ~~~~]';
   }
 }

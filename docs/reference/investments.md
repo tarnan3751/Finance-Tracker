@@ -95,6 +95,11 @@ the shell**); `InvestmentsScreen`, a thin Scaffold titled "Investments" with no 
 serves the tests. It shows, for the investment accounts (`investmentAccountsProvider`),
 with the empty state ("No investment accounts") when there are none:
 
+- the segment's hero card (`InvestmentsHero`, `design.md`, **The hero card**): what every
+  shown holding is worth, the allocations' totals, one figure per currency, captioned by
+  the gain on cost over the holdings whose institution reports a cost basis ("+$13.75
+  gain on cost"; no caption when none does), read as one sentence;
+
 - the **allocation**: every shown account's holdings by security type, one per currency
   of their values (headed "Allocation in USD" when there is more than one). A holding is
   allocated under "Cash" when its security is a cash equivalent, else under its

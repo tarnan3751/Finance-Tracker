@@ -1,5 +1,6 @@
 /// The Investments segment's body (`docs/reference/investments.md`, **The segment**): the
-/// allocation of every holding by security type (a donut and its table per currency),
+/// hero card (what every holding is worth, per currency, captioned by the gain on cost of
+/// those with a reported cost basis), the allocation of every holding by security type (a donut and its table per currency),
 /// then each investment account in display order with its balance, its value over time
 /// from install day (a chart or its table), its holdings, and its investment transactions
 /// newest first, a page at a time; the empty state when there is no investment account.
@@ -7,7 +8,11 @@
 /// `InvestmentsScreen` does for the tests.
 library;
 
+import 'package:finance_tracker/core/l10n/joins.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/amount_text.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
+import 'package:finance_tracker/core/widgets/hero_card.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/investments/application/investments_providers.dart';
 import 'package:finance_tracker/features/investments/domain/allocation.dart';
@@ -81,6 +86,11 @@ class _Accounts extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
+        if (allocations.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.all(SpendthriftTokens.space16),
+            child: InvestmentsHero(allocations: allocations, holdings: held),
+          ),
         for (final Allocation allocation in allocations) ...[
           _Heading(
             allocations.length == 1
@@ -102,6 +112,60 @@ class _Accounts extends StatelessWidget {
             ],
           ),
       ],
+    );
+  }
+}
+
+/// The Investments segment's hero card: what the [holdings] are worth (each
+/// [allocations]' total, one per currency), captioned by their gain on cost over the
+/// holdings whose institution reports a cost basis; no caption when none does.
+class InvestmentsHero extends StatelessWidget {
+  const InvestmentsHero({
+    super.key,
+    required this.allocations,
+    required this.holdings,
+  });
+
+  final List<Allocation> allocations;
+  final List<HoldingView> holdings;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final Map<String, Money> gains = {};
+    for (final HoldingView view in holdings) {
+      final Gain? gain = gainOf(view.holding);
+      if (gain == null) continue;
+      final String code = gain.amount.currencyCode;
+      gains[code] = (gains[code] ?? Money.zero(code)) + gain.amount;
+    }
+    final List<Money> totals = [
+      for (final Allocation a in allocations) a.total,
+    ];
+    final List<Money> gained = [
+      for (final String code in gains.keys.toList()..sort()) gains[code]!,
+    ];
+    String caption(String Function(Money) format) =>
+        l10n.investmentsHeroGain(listLine(l10n, gained.map(format)));
+    final String label = l10n.investmentsHeroLabel;
+    return HeroCard(
+      label: label,
+      figure: HeroAmounts(totals),
+      caption: gained.isEmpty
+          ? null
+          : caption((m) => m.format(showPlusSign: true)),
+      semanticsLabel: heroSentence(
+        l10n,
+        label,
+        spokenAmounts(l10n, totals),
+        gained.isEmpty
+            ? null
+            : caption(
+                (m) => m.isNegative
+                    ? amountSemanticsLabel(l10n, m)
+                    : m.format(showPlusSign: true),
+              ),
+      ),
     );
   }
 }

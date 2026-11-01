@@ -286,9 +286,12 @@ arguments and no Scaffold of its own; the segment's app bar carries the alerts b
 this month as PDF" exports the period shown (`export.md`, **Screens**). From the top:
 - the budgets' period selector (`budget_period_selector.dart`), with no next button at
   the current period since nothing lies ahead;
+- the segment's hero card (`ReportsHero`, `design.md`, **The hero card**): the period's
+  net, its income less its spending, captioned "Income $4,300.00 · spent $2,526.50" and
+  read as one sentence;
+- the savings rate: "Kept 41 % of income" (in the money-out pink when negative), or "No
+  income in this period";
 - a Tables/Charts switch, which turns every chart below into its table;
-- the headline: "Spent $2,526.50", "Income $4,300.00", "Kept 41 % of income" (in the
-  error colour when negative), or "No income in this period";
 - the comparisons: spending and income against the period before and against a year
   before, as "+$12.00 (+15 %)" or "(new)", with "Compared over the first N days of each
   period" while the period runs;

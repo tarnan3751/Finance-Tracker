@@ -86,10 +86,13 @@ monthly contributions of 125.00 from its creation day, so it is behind its plan.
 ## Screens
 
 **The goals** (`/goals`, `presentation/goals_screen.dart`), the Insights tab's Goals
-segment (an `InsightsScaffold`, `app-core.md`, **The Insights tab**): a card per live goal
+segment (an `InsightsScaffold`, `app-core.md`, **The Insights tab**): the segment's hero
+card (`GoalsHero`, `design.md`, **The hero card**), what is saved toward the live goals,
+one figure per currency, captioned "1 of 3 on track" (on track or done) and read as one
+sentence; then a card per live goal
 (`goal_card.dart`): its name, "By Oct 24, 2027" when it has a date, a progress bar (in
-the error colour when behind), "$750.00 of $1,800.00", the status ("On track", "Behind
-by $152.46" in the error colour, "Done"), and the suggestion; then **Archived (N)**,
+the yellow ink when behind), "$750.00 of $1,800.00", the status ("On track", "Behind
+by $152.46" in the warning yellow, "Done"), and the suggestion; then **Archived (N)**,
 folded. Each card reads as one sentence, each part once ("Holiday, By Apr 24, 2027,
 41 percent of the target, $750.00 of $1,800.00, Behind by $152.46, Set aside $175.00 a
 month"): the progress bar's own label is only the percent. The app bar opens a new goal; with none, an empty state does.

@@ -14,7 +14,7 @@ Code: `app/lib/features/net_worth/`:
 - `data/`: the Drift, in-memory and demo snapshot repositories;
 - `application/`: `snapshot_writer.dart` (the writer and its runner),
   `net_worth_providers.dart` (**Providers**);
-- `presentation/`: `net_worth_view.dart` (`NetWorthView`, the headline, the range),
+- `presentation/`: `net_worth_view.dart` (`NetWorthView`, the hero card, the range),
   `net_worth_chart.dart`, `net_worth_table.dart`, `liability_payoff_card.dart`,
   `net_worth_screen.dart` (`NetWorthScreen`).
 
@@ -170,8 +170,10 @@ fails, and the card says the entry could not be saved.
 `NetWorthView` (const, no Scaffold) is the body of the Insights tab's Net worth segment,
 one scroll:
 
-- the headline: "Net worth on <date>", the latest net worth, and its change against the
-  point 30 days before ("…, against an estimate" when that point is derived);
+- the segment's hero card (`NetWorthHero`, `design.md`, **The hero card**): "Net worth on
+  <date>", the latest net worth, captioned by its change since the first day of the range
+  shown ("+$1,250.00 since Jul 24, 2026", on a paper pill in green when it rose and pink
+  when it fell; "…, against an estimate" when that day is derived), read as one sentence;
 - the range control (3 m, 1 y, All; a year by default) with the Table / Chart switch, and
   a chip per currency when the history holds more than one (the device's currency first
   shown when held);
@@ -187,7 +189,7 @@ one scroll:
 - the liabilities, one card each: the name and what is owed ("Hidden account" under the
   name of a hidden one, which net worth still counts), the rate and the payment
   with where each came from, the projection ("Paid off in N months, <month>; <amount> in
-  interest", "Never paid off: …" in the error colour, "Over 50 years to pay off"), Enter
+  interest", "Never paid off: …" in the warning yellow, "Over 50 years to pay off"), Enter
   rate and Enter payment where the bank reports none (a dialog refusing what an entry may
   not hold), and an "Extra a month" slider of twenty steps up to about the payment (each
   step a twentieth of it rounded up to a whole unit) with "With <extra> more a month: N

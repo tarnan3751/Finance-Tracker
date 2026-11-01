@@ -882,8 +882,6 @@
   "investmentsShowMore": "[Šĥöŵ ɱöŕé ({count} ļéƒţ) ~~~~~]",
   "netWorthTitle": "[Ñéţ ŵöŕţĥ ~~~~]",
   "netWorthHeadlineLabel": "[Ñéţ ŵöŕţĥ öñ {date} ~~~~]",
-  "netWorthChange": "[{amount} öṽéŕ 30 ðåýš ~~~~]",
-  "netWorthChangeEstimated": "[{amount} öṽéŕ 30 ðåýš, åĝåîñšţ åñ éšţîɱåţé ~~~~~ ~~~~~]",
   "netWorthRangeThreeMonths": "[3 ɱ ~]",
   "netWorthRangeYear": "[1 ý ~]",
   "netWorthRangeAll": "[Åļļ ~~]",
@@ -1378,5 +1376,13 @@
   "billsHeroOverdue": "[{amounts} öṽéŕðûé ~~~]",
   "billsHeroNoneOverdue": "[Ñöţĥîñĝ öṽéŕðûé ~~~~~ ~]",
   "forecastHeroLabel": "[Ļöŵéšţ ƀåļåñçé ~~~~~ ~]",
-  "forecastHeroDate": "[öñ {date} ~]"
+  "forecastHeroDate": "[öñ {date} ~]",
+  "reportsHeroLabel": "[Ñéţ ~~]",
+  "reportsHeroCaption": "[Îñçöɱé {income} · šþéñţ {spending} ~~~~~]",
+  "netWorthHeroSince": "[{amount} šîñçé {date} ~~]",
+  "netWorthHeroEstimate": "[{change}, åĝåîñšţ åñ éšţîɱåţé ~~~~~ ~~]",
+  "investmentsHeroLabel": "[Ţöţåļ ṽåļûé ~~~~]",
+  "investmentsHeroGain": "[{amounts} ĝåîñ öñ çöšţ ~~~~]",
+  "goalsHeroLabel": "[Šåṽéð ~~]",
+  "goalsHeroOnTrack": "[{onTrack} öƒ {total} öñ ţŕåçķ ~~~~]"
 }
