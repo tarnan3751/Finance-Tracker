@@ -139,8 +139,8 @@ void main() {
 
     final Text outflow = tester.widget(find.text(r'-$5.75'));
     final Text inflow = tester.widget(find.text(r'$187.69'));
-    expect(outflow.style!.color, const Color(0xFFB3261E));
-    expect(inflow.style!.color, const Color(0xFF1B6C2A));
+    expect(outflow.style!.color, const Color(0xFFBC2170));
+    expect(inflow.style!.color, const Color(0xFF19743E));
   });
 
   testWidgets('search matches word prefixes, after the debounce', (

@@ -1,7 +1,7 @@
-// The finance colors with the device's dynamic colors: harmonized with the scheme's
-// primary and still at the 4.5:1 text contrast ratio on the
-// scheme's surface, light and dark, for wallpapers of every hue; a category's color in a
-// chart harmonized the same way; and the baseline themes' colors as they were.
+// The finance colors: the brand's values; a category's color harmonized toward the
+// brand's blue with the brand schemes; and with the device's dynamic colors, harmonized
+// with the scheme's primary and still at the 4.5:1 text contrast ratio on the scheme's
+// surface, light and dark, for wallpapers of every hue.
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/theme/finance_colors.dart';
@@ -15,7 +15,44 @@ double _contrast(Color a, Color b) {
 }
 
 void main() {
-  test('the baseline themes keep the fixed colors', () {
+  test('the light colors are the brand\'s', () {
+    const FinanceColors c = FinanceColors.light;
+    expect(c.outflow, const Color(0xFFBC2170));
+    expect(c.inflow, const Color(0xFF19743E));
+    expect(c.warning, const Color(0xFF806000));
+    expect(c.accent, const Color(0xFFFF3EA5));
+    expect(c.inks, const [
+      Color(0xFF1F4FE0),
+      Color(0xFFFF3EA5),
+      Color(0xFFF2B705),
+      Color(0xFF1E8A4A),
+      Color(0xFF1F1F1F),
+    ]);
+  });
+
+  test('the dark colors are the night print\'s', () {
+    const FinanceColors c = FinanceColors.dark;
+    expect(c.outflow, const Color(0xFFFF7AC3));
+    expect(c.inflow, const Color(0xFF5FD38B));
+    expect(c.warning, const Color(0xFFFFD24D));
+    expect(c.accent, const Color(0xFFFF7AC3));
+    expect(c.inks, const [
+      Color(0xFF8FA8FF),
+      Color(0xFFFF7AC3),
+      Color(0xFFFFD24D),
+      Color(0xFF5FD38B),
+      Color(0xFFF1ECE1),
+    ]);
+  });
+
+  test('an ink cycles and its tint is a fifth of it', () {
+    const FinanceColors c = FinanceColors.light;
+    expect(c.ink(5), c.inks.first);
+    expect(c.tint(1), const Color(0xFFFF3EA5).withValues(alpha: 0.2));
+  });
+
+  test('the brand themes keep the brand colors and bend a category toward '
+      'the blue', () {
     expect(
       AppTheme.light().extension<FinanceColors>()!.outflow,
       FinanceColors.light.outflow,
@@ -27,7 +64,11 @@ void main() {
     const Color category = Color(0xFF00897B);
     expect(
       AppTheme.light().extension<FinanceColors>()!.custom(category),
-      category,
+      category.harmonizeWith(AppTheme.lightScheme.primary),
+    );
+    expect(
+      AppTheme.dark().extension<FinanceColors>()!.custom(category),
+      category.harmonizeWith(AppTheme.darkScheme.primary),
     );
   });
 
@@ -55,7 +96,9 @@ void main() {
 
         expect(colors.outflow, fixed.outflow.harmonizeWith(scheme.primary));
         expect(colors.inflow, fixed.inflow.harmonizeWith(scheme.primary));
-        for (final Color c in [colors.outflow, colors.inflow]) {
+        expect(colors.warning, fixed.warning.harmonizeWith(scheme.primary));
+        expect(colors.ink(0), fixed.ink(0).harmonizeWith(scheme.primary));
+        for (final Color c in [colors.outflow, colors.inflow, colors.warning]) {
           expect(_contrast(c, scheme.surface), greaterThanOrEqualTo(4.5));
         }
         const Color category = Color(0xFF00897B);
