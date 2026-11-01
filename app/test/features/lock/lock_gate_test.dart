@@ -95,7 +95,7 @@ void main() {
     );
 
     expect(find.byType(LockScreen), findsOneWidget);
-    expect(find.text('Finance Tracker'), findsOneWidget);
+    expect(find.text('Spendthrift'), findsOneWidget);
     expect(find.text('Unlock'), findsOneWidget);
     // The app is built below but hidden from the screen reader.
     expect(find.semantics.byLabel('Accounts'), findsNothing);

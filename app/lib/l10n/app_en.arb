@@ -624,7 +624,7 @@
   "@databaseErrorTitle": {
     "description": "Headline of the screen shown instead of the app when the local database cannot be opened on this device."
   },
-  "databaseErrorBody": "Finance Tracker could not open its data on this device. Nothing has been deleted. Close the app and open it again; if this keeps happening, your data cannot be read on this device.",
+  "databaseErrorBody": "Spendthrift could not open its data on this device. Nothing has been deleted. Close the app and open it again; if this keeps happening, your data cannot be read on this device.",
   "@databaseErrorBody": {
     "description": "Supporting text of the database error screen when the database failed to open for a reason other than its key or encryption (for example a damaged file)."
   },
@@ -636,7 +636,7 @@
   "@databaseErrorKeyMismatch": {
     "description": "Supporting text of the database error screen when the stored encryption key does not open the database file."
   },
-  "databaseErrorNoEncryption": "This version of Finance Tracker cannot encrypt data, so it will not open yours. Nothing has been deleted.",
+  "databaseErrorNoEncryption": "This version of Spendthrift cannot encrypt data, so it will not open yours. Nothing has been deleted.",
   "@databaseErrorNoEncryption": {
     "description": "Supporting text of the database error screen when the app's database library has no encryption support."
   },
@@ -5902,15 +5902,15 @@
   "@backupConfirmRestore": {
     "description": "Button that confirms a restore."
   },
-  "backupErrorNotABackup": "This file is not a Finance Tracker backup.",
+  "backupErrorNotABackup": "This file is not a Spendthrift backup.",
   "@backupErrorNotABackup": {
     "description": "A picked file is not a backup."
   },
-  "backupErrorTooLarge": "This file is too large to be a Finance Tracker backup (over 512 MB).",
+  "backupErrorTooLarge": "This file is too large to be a Spendthrift backup (over 512 MB).",
   "@backupErrorTooLarge": {
     "description": "A picked file is over the backup size cap, so it was not read."
   },
-  "backupErrorTooNew": "This backup was made by a newer version of Finance Tracker. Update the app, then restore it.",
+  "backupErrorTooNew": "This backup was made by a newer version of Spendthrift. Update the app, then restore it.",
   "@backupErrorTooNew": {
     "description": "A backup's format or schema is newer than this app's."
   },
@@ -5950,7 +5950,7 @@
   "@backupRestoreFailedTitle": {
     "description": "Headline of the restoring screen when the restore failed."
   },
-  "backupRestoreFailedBody": "Finance Tracker will start with the data this device holds now.",
+  "backupRestoreFailedBody": "Spendthrift will start with the data this device holds now.",
   "@backupRestoreFailedBody": {
     "description": "Supporting text when a restore failed after it started."
   },
@@ -5962,7 +5962,7 @@
   "@restoreOfferTitle": {
     "description": "Headline of the restore offer shown on a new install after sign-in."
   },
-  "restoreOfferBody": "If you have a Finance Tracker backup, you can restore it now, before this device fetches your data. Your bank data and synced changes come back from the server either way; a backup also brings receipt photos and what was kept only on your old device.",
+  "restoreOfferBody": "If you have a Spendthrift backup, you can restore it now, before this device fetches your data. Your bank data and synced changes come back from the server either way; a backup also brings receipt photos and what was kept only on your old device.",
   "@restoreOfferBody": {
     "description": "Supporting text of the restore offer."
   },
@@ -7203,7 +7203,7 @@
   },
   "welcomeUseServer": "Use my own server",
   "@welcomeUseServer": {
-    "description": "Welcome screen button that chooses the app's live mode, signing in to the user's own Finance Tracker server."
+    "description": "Welcome screen button that chooses the app's live mode, signing in to the user's own Spendthrift server."
   },
   "welcomeDemoTitle": "Choose a household",
   "@welcomeDemoTitle": {
@@ -7243,13 +7243,13 @@
   },
   "serverFieldLabel": "Server",
   "@serverFieldLabel": {
-    "description": "Label of the field, on the sign-in and registration screens, where the user enters the address of their own Finance Tracker server."
+    "description": "Label of the field, on the sign-in and registration screens, where the user enters the address of their own Spendthrift server."
   },
   "serverFieldHint": "https://money.example.com",
   "@serverFieldHint": {
     "description": "Example address shown in the empty server field. A web address, not translated words."
   },
-  "serverFieldHelper": "The address of your own Finance Tracker server.",
+  "serverFieldHelper": "The address of your own Spendthrift server.",
   "@serverFieldHelper": {
     "description": "Help text under the server field on the sign-in and registration screens."
   },
@@ -7269,9 +7269,9 @@
   "@serverUnreachable": {
     "description": "Error under the server field when nothing answered at the address."
   },
-  "serverNotFinanceTracker": "That address did not answer as a Finance Tracker server.",
+  "serverNotFinanceTracker": "That address did not answer as a Spendthrift server.",
   "@serverNotFinanceTracker": {
-    "description": "Error under the server field when something answered at the address, but not a Finance Tracker server."
+    "description": "Error under the server field when something answered at the address, but not a Spendthrift server."
   },
   "signInTryDemo": "Try the demo instead",
   "@signInTryDemo": {
@@ -7297,7 +7297,7 @@
   "@helpStartTitle": {
     "description": "Title of the help section about getting started and the demo."
   },
-  "helpStart1": "Finance Tracker keeps your accounts, transactions, budgets and bills on this device, in an encrypted database, and works offline.",
+  "helpStart1": "Spendthrift keeps your accounts, transactions, budgets and bills on this device, in an encrypted database, and works offline.",
   "@helpStart1": {
     "description": "A paragraph of the help section \"Getting started and the demo\". Plain prose, no formatting."
   },
@@ -7309,7 +7309,7 @@
   "@helpStart3": {
     "description": "A bullet of the help section \"Getting started and the demo\". Plain prose, no formatting."
   },
-  "helpStart4": "Use my own server: sign in to, or create an account on, a Finance Tracker server you run. Your changes then sync between your devices, and you can link banks through Plaid.",
+  "helpStart4": "Use my own server: sign in to, or create an account on, a Spendthrift server you run. Your changes then sync between your devices, and you can link banks through Plaid.",
   "@helpStart4": {
     "description": "A bullet of the help section \"Getting started and the demo\". Plain prose, no formatting."
   },

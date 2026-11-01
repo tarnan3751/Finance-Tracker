@@ -1,6 +1,6 @@
 /// The check an entered server URL passes before the first request goes to it
 /// (`docs/reference/onboarding.md`, **The server URL**): `GET /v1/health` on a client of
-/// its own, which answers whether the address is a Finance Tracker server, cannot be
+/// its own, which answers whether the address is a Spendthrift server, cannot be
 /// reached, or answered as something else.
 library;
 
@@ -23,13 +23,13 @@ final Logger _log = Logger('auth');
 
 /// What the check found.
 enum ServerCheckOutcome {
-  /// A Finance Tracker server answered.
+  /// A Spendthrift server answered.
   ok,
 
   /// Nothing answered: no network, no such host, nothing listening, or too slow.
   unreachable,
 
-  /// Something answered, but not as a Finance Tracker server.
+  /// Something answered, but not as a Spendthrift server.
   notAServer,
 }
 

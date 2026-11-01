@@ -404,7 +404,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get databaseErrorBody =>
-      'Finance Tracker could not open its data on this device. Nothing has been deleted. Close the app and open it again; if this keeps happening, your data cannot be read on this device.';
+      'Spendthrift could not open its data on this device. Nothing has been deleted. Close the app and open it again; if this keeps happening, your data cannot be read on this device.';
 
   @override
   String get databaseErrorKeyLost =>
@@ -416,7 +416,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get databaseErrorNoEncryption =>
-      'This version of Finance Tracker cannot encrypt data, so it will not open yours. Nothing has been deleted.';
+      'This version of Spendthrift cannot encrypt data, so it will not open yours. Nothing has been deleted.';
 
   @override
   String get save => 'Save';
@@ -4065,16 +4065,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backupConfirmRestore => 'Restore';
 
   @override
-  String get backupErrorNotABackup =>
-      'This file is not a Finance Tracker backup.';
+  String get backupErrorNotABackup => 'This file is not a Spendthrift backup.';
 
   @override
   String get backupErrorTooLarge =>
-      'This file is too large to be a Finance Tracker backup (over 512 MB).';
+      'This file is too large to be a Spendthrift backup (over 512 MB).';
 
   @override
   String get backupErrorTooNew =>
-      'This backup was made by a newer version of Finance Tracker. Update the app, then restore it.';
+      'This backup was made by a newer version of Spendthrift. Update the app, then restore it.';
 
   @override
   String get backupErrorUnsafe =>
@@ -4110,7 +4109,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupRestoreFailedBody =>
-      'Finance Tracker will start with the data this device holds now.';
+      'Spendthrift will start with the data this device holds now.';
 
   @override
   String get backupContinue => 'Continue';
@@ -4120,7 +4119,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreOfferBody =>
-      'If you have a Finance Tracker backup, you can restore it now, before this device fetches your data. Your bank data and synced changes come back from the server either way; a backup also brings receipt photos and what was kept only on your old device.';
+      'If you have a Spendthrift backup, you can restore it now, before this device fetches your data. Your bank data and synced changes come back from the server either way; a backup also brings receipt photos and what was kept only on your old device.';
 
   @override
   String get restoreOfferStartFresh => 'Start fresh';
@@ -5085,8 +5084,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverFieldHint => 'https://money.example.com';
 
   @override
-  String get serverFieldHelper =>
-      'The address of your own Finance Tracker server.';
+  String get serverFieldHelper => 'The address of your own Spendthrift server.';
 
   @override
   String get serverUrlEmpty => 'Enter your server\'s address.';
@@ -5104,7 +5102,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get serverNotFinanceTracker =>
-      'That address did not answer as a Finance Tracker server.';
+      'That address did not answer as a Spendthrift server.';
 
   @override
   String get signInTryDemo => 'Try the demo instead';
@@ -5126,7 +5124,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpStart1 =>
-      'Finance Tracker keeps your accounts, transactions, budgets and bills on this device, in an encrypted database, and works offline.';
+      'Spendthrift keeps your accounts, transactions, budgets and bills on this device, in an encrypted database, and works offline.';
 
   @override
   String get helpStart2 => 'Two ways in';
@@ -5137,7 +5135,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpStart4 =>
-      'Use my own server: sign in to, or create an account on, a Finance Tracker server you run. Your changes then sync between your devices, and you can link banks through Plaid.';
+      'Use my own server: sign in to, or create an account on, a Spendthrift server you run. Your changes then sync between your devices, and you can link banks through Plaid.';
 
   @override
   String get helpStart5 => 'While the demo runs';
@@ -5901,7 +5899,7 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get databaseErrorBody =>
-      '[Ƒîñåñçé Ţŕåçķéŕ çöûļð ñöţ öþéñ îţš ðåţå öñ ţĥîš ðéṽîçé. Ñöţĥîñĝ ĥåš ƀééñ ðéļéţéð. Çļöšé ţĥé åþþ åñð öþéñ îţ åĝåîñ; îƒ ţĥîš ķééþš ĥåþþéñîñĝ, ýöûŕ ðåţå çåññöţ ƀé ŕéåð öñ ţĥîš ðéṽîçé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+      '[Šþéñðţĥŕîƒţ çöûļð ñöţ öþéñ îţš ðåţå öñ ţĥîš ðéṽîçé. Ñöţĥîñĝ ĥåš ƀééñ ðéļéţéð. Çļöšé ţĥé åþþ åñð öþéñ îţ åĝåîñ; îƒ ţĥîš ķééþš ĥåþþéñîñĝ, ýöûŕ ðåţå çåññöţ ƀé ŕéåð öñ ţĥîš ðéṽîçé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
 
   @override
   String get databaseErrorKeyLost =>
@@ -5913,7 +5911,7 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get databaseErrorNoEncryption =>
-      '[Ţĥîš ṽéŕšîöñ öƒ Ƒîñåñçé Ţŕåçķéŕ çåññöţ éñçŕýþţ ðåţå, šö îţ ŵîļļ ñöţ öþéñ ýöûŕš. Ñöţĥîñĝ ĥåš ƀééñ ðéļéţéð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+      '[Ţĥîš ṽéŕšîöñ öƒ Šþéñðţĥŕîƒţ çåññöţ éñçŕýþţ ðåţå, šö îţ ŵîļļ ñöţ öþéñ ýöûŕš. Ñöţĥîñĝ ĥåš ƀééñ ðéļéţéð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
 
   @override
   String get save => '[Šåṽé ~~]';
@@ -9636,15 +9634,15 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get backupErrorNotABackup =>
-      '[Ţĥîš ƒîļé îš ñöţ å Ƒîñåñçé Ţŕåçķéŕ ƀåçķûþ. ~~~~~ ~~~~~ ~~~~]';
+      '[Ţĥîš ƒîļé îš ñöţ å Šþéñðţĥŕîƒţ ƀåçķûþ. ~~~~~ ~~~~~ ~~~]';
 
   @override
   String get backupErrorTooLarge =>
-      '[Ţĥîš ƒîļé îš ţöö ļåŕĝé ţö ƀé å Ƒîñåñçé Ţŕåçķéŕ ƀåçķûþ (öṽéŕ 512 ṀƁ). ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+      '[Ţĥîš ƒîļé îš ţöö ļåŕĝé ţö ƀé å Šþéñðţĥŕîƒţ ƀåçķûþ (öṽéŕ 512 ṀƁ). ~~~~~ ~~~~~ ~~~~~ ~~~~]';
 
   @override
   String get backupErrorTooNew =>
-      '[Ţĥîš ƀåçķûþ ŵåš ɱåðé ƀý å ñéŵéŕ ṽéŕšîöñ öƒ Ƒîñåñçé Ţŕåçķéŕ. Ûþðåţé ţĥé åþþ, ţĥéñ ŕéšţöŕé îţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+      '[Ţĥîš ƀåçķûþ ŵåš ɱåðé ƀý å ñéŵéŕ ṽéŕšîöñ öƒ Šþéñðţĥŕîƒţ. Ûþðåţé ţĥé åþþ, ţĥéñ ŕéšţöŕé îţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
 
   @override
   String get backupErrorUnsafe =>
@@ -9682,7 +9680,7 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get backupRestoreFailedBody =>
-      '[Ƒîñåñçé Ţŕåçķéŕ ŵîļļ šţåŕţ ŵîţĥ ţĥé ðåţå ţĥîš ðéṽîçé ĥöļðš ñöŵ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+      '[Šþéñðţĥŕîƒţ ŵîļļ šţåŕţ ŵîţĥ ţĥé ðåţå ţĥîš ðéṽîçé ĥöļðš ñöŵ. ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
 
   @override
   String get backupContinue => '[Çöñţîñûé ~~~~]';
@@ -9692,7 +9690,7 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get restoreOfferBody =>
-      '[Îƒ ýöû ĥåṽé å Ƒîñåñçé Ţŕåçķéŕ ƀåçķûþ, ýöû çåñ ŕéšţöŕé îţ ñöŵ, ƀéƒöŕé ţĥîš ðéṽîçé ƒéţçĥéš ýöûŕ ðåţå. Ýöûŕ ƀåñķ ðåţå åñð šýñçéð çĥåñĝéš çöɱé ƀåçķ ƒŕöɱ ţĥé šéŕṽéŕ éîţĥéŕ ŵåý; å ƀåçķûþ åļšö ƀŕîñĝš ŕéçéîþţ þĥöţöš åñð ŵĥåţ ŵåš ķéþţ öñļý öñ ýöûŕ öļð ðéṽîçé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+      '[Îƒ ýöû ĥåṽé å Šþéñðţĥŕîƒţ ƀåçķûþ, ýöû çåñ ŕéšţöŕé îţ ñöŵ, ƀéƒöŕé ţĥîš ðéṽîçé ƒéţçĥéš ýöûŕ ðåţå. Ýöûŕ ƀåñķ ðåţå åñð šýñçéð çĥåñĝéš çöɱé ƀåçķ ƒŕöɱ ţĥé šéŕṽéŕ éîţĥéŕ ŵåý; å ƀåçķûþ åļšö ƀŕîñĝš ŕéçéîþţ þĥöţöš åñð ŵĥåţ ŵåš ķéþţ öñļý öñ ýöûŕ öļð ðéṽîçé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
 
   @override
   String get restoreOfferStartFresh => '[Šţåŕţ ƒŕéšĥ ~~~~]';
@@ -10681,7 +10679,7 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get serverFieldHelper =>
-      '[Ţĥé åððŕéšš öƒ ýöûŕ öŵñ Ƒîñåñçé Ţŕåçķéŕ šéŕṽéŕ. ~~~~~ ~~~~~ ~~~~~ ~]';
+      '[Ţĥé åððŕéšš öƒ ýöûŕ öŵñ Šþéñðţĥŕîƒţ šéŕṽéŕ. ~~~~~ ~~~~~ ~~~~~]';
 
   @override
   String get serverUrlEmpty => '[Éñţéŕ ýöûŕ šéŕṽéŕ\'š åððŕéšš. ~~~~~ ~~~~~]';
@@ -10700,7 +10698,7 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get serverNotFinanceTracker =>
-      '[Ţĥåţ åððŕéšš ðîð ñöţ åñšŵéŕ åš å Ƒîñåñçé Ţŕåçķéŕ šéŕṽéŕ. ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+      '[Ţĥåţ åððŕéšš ðîð ñöţ åñšŵéŕ åš å Šþéñðţĥŕîƒţ šéŕṽéŕ. ~~~~~ ~~~~~ ~~~~~ ~~~]';
 
   @override
   String get signInTryDemo => '[Ţŕý ţĥé ðéɱö îñšţéåð ~~~~~ ~~]';
@@ -10723,7 +10721,7 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get helpStart1 =>
-      '[Ƒîñåñçé Ţŕåçķéŕ ķééþš ýöûŕ åççöûñţš, ţŕåñšåçţîöñš, ƀûðĝéţš åñð ƀîļļš öñ ţĥîš ðéṽîçé, îñ åñ éñçŕýþţéð ðåţåƀåšé, åñð ŵöŕķš öƒƒļîñé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+      '[Šþéñðţĥŕîƒţ ķééþš ýöûŕ åççöûñţš, ţŕåñšåçţîöñš, ƀûðĝéţš åñð ƀîļļš öñ ţĥîš ðéṽîçé, îñ åñ éñçŕýþţéð ðåţåƀåšé, åñð ŵöŕķš öƒƒļîñé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
 
   @override
   String get helpStart2 => '[Ţŵö ŵåýš îñ ~~~~]';
@@ -10734,7 +10732,7 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get helpStart4 =>
-      '[Ûšé ɱý öŵñ šéŕṽéŕ: šîĝñ îñ ţö, öŕ çŕéåţé åñ åççöûñţ öñ, å Ƒîñåñçé Ţŕåçķéŕ šéŕṽéŕ ýöû ŕûñ. Ýöûŕ çĥåñĝéš ţĥéñ šýñç ƀéţŵééñ ýöûŕ ðéṽîçéš, åñð ýöû çåñ ļîñķ ƀåñķš ţĥŕöûĝĥ Þļåîð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+      '[Ûšé ɱý öŵñ šéŕṽéŕ: šîĝñ îñ ţö, öŕ çŕéåţé åñ åççöûñţ öñ, å Šþéñðţĥŕîƒţ šéŕṽéŕ ýöû ŕûñ. Ýöûŕ çĥåñĝéš ţĥéñ šýñç ƀéţŵééñ ýöûŕ ðéṽîçéš, åñð ýöû çåñ ļîñķ ƀåñķš ţĥŕöûĝĥ Þļåîð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
 
   @override
   String get helpStart5 => '[Ŵĥîļé ţĥé ðéɱö ŕûñš ~~~~~ ~~]';

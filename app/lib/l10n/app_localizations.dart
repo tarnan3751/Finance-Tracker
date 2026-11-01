@@ -718,7 +718,7 @@ abstract class AppLocalizations {
   /// Supporting text of the database error screen when the database failed to open for a reason other than its key or encryption (for example a damaged file).
   ///
   /// In en, this message translates to:
-  /// **'Finance Tracker could not open its data on this device. Nothing has been deleted. Close the app and open it again; if this keeps happening, your data cannot be read on this device.'**
+  /// **'Spendthrift could not open its data on this device. Nothing has been deleted. Close the app and open it again; if this keeps happening, your data cannot be read on this device.'**
   String get databaseErrorBody;
 
   /// Supporting text of the database error screen when the database's encryption key is missing from, or unreadable in, the device's secure storage.
@@ -736,7 +736,7 @@ abstract class AppLocalizations {
   /// Supporting text of the database error screen when the app's database library has no encryption support.
   ///
   /// In en, this message translates to:
-  /// **'This version of Finance Tracker cannot encrypt data, so it will not open yours. Nothing has been deleted.'**
+  /// **'This version of Spendthrift cannot encrypt data, so it will not open yours. Nothing has been deleted.'**
   String get databaseErrorNoEncryption;
 
   /// Button that saves the form being edited.
@@ -6211,19 +6211,19 @@ abstract class AppLocalizations {
   /// A picked file is not a backup.
   ///
   /// In en, this message translates to:
-  /// **'This file is not a Finance Tracker backup.'**
+  /// **'This file is not a Spendthrift backup.'**
   String get backupErrorNotABackup;
 
   /// A picked file is over the backup size cap, so it was not read.
   ///
   /// In en, this message translates to:
-  /// **'This file is too large to be a Finance Tracker backup (over 512 MB).'**
+  /// **'This file is too large to be a Spendthrift backup (over 512 MB).'**
   String get backupErrorTooLarge;
 
   /// A backup's format or schema is newer than this app's.
   ///
   /// In en, this message translates to:
-  /// **'This backup was made by a newer version of Finance Tracker. Update the app, then restore it.'**
+  /// **'This backup was made by a newer version of Spendthrift. Update the app, then restore it.'**
   String get backupErrorTooNew;
 
   /// A backup's header has a KDF or cost the app refuses.
@@ -6283,7 +6283,7 @@ abstract class AppLocalizations {
   /// Supporting text when a restore failed after it started.
   ///
   /// In en, this message translates to:
-  /// **'Finance Tracker will start with the data this device holds now.'**
+  /// **'Spendthrift will start with the data this device holds now.'**
   String get backupRestoreFailedBody;
 
   /// Button that starts the app after a failed restore.
@@ -6301,7 +6301,7 @@ abstract class AppLocalizations {
   /// Supporting text of the restore offer.
   ///
   /// In en, this message translates to:
-  /// **'If you have a Finance Tracker backup, you can restore it now, before this device fetches your data. Your bank data and synced changes come back from the server either way; a backup also brings receipt photos and what was kept only on your old device.'**
+  /// **'If you have a Spendthrift backup, you can restore it now, before this device fetches your data. Your bank data and synced changes come back from the server either way; a backup also brings receipt photos and what was kept only on your old device.'**
   String get restoreOfferBody;
 
   /// Button that declines the restore offer.
@@ -7648,7 +7648,7 @@ abstract class AppLocalizations {
   /// **'Try the demo'**
   String get welcomeTryDemo;
 
-  /// Welcome screen button that chooses the app's live mode, signing in to the user's own Finance Tracker server.
+  /// Welcome screen button that chooses the app's live mode, signing in to the user's own Spendthrift server.
   ///
   /// In en, this message translates to:
   /// **'Use my own server'**
@@ -7708,7 +7708,7 @@ abstract class AppLocalizations {
   /// **'Leave'**
   String get leaveDemoConfirm;
 
-  /// Label of the field, on the sign-in and registration screens, where the user enters the address of their own Finance Tracker server.
+  /// Label of the field, on the sign-in and registration screens, where the user enters the address of their own Spendthrift server.
   ///
   /// In en, this message translates to:
   /// **'Server'**
@@ -7723,7 +7723,7 @@ abstract class AppLocalizations {
   /// Help text under the server field on the sign-in and registration screens.
   ///
   /// In en, this message translates to:
-  /// **'The address of your own Finance Tracker server.'**
+  /// **'The address of your own Spendthrift server.'**
   String get serverFieldHelper;
 
   /// Error under the server field when it is empty.
@@ -7750,10 +7750,10 @@ abstract class AppLocalizations {
   /// **'The server could not be reached. Check the address and your connection.'**
   String get serverUnreachable;
 
-  /// Error under the server field when something answered at the address, but not a Finance Tracker server.
+  /// Error under the server field when something answered at the address, but not a Spendthrift server.
   ///
   /// In en, this message translates to:
-  /// **'That address did not answer as a Finance Tracker server.'**
+  /// **'That address did not answer as a Spendthrift server.'**
   String get serverNotFinanceTracker;
 
   /// Button on the sign-in screen of a new install that goes back to the welcome screen, where the demo can be chosen.
@@ -7795,7 +7795,7 @@ abstract class AppLocalizations {
   /// A paragraph of the help section "Getting started and the demo". Plain prose, no formatting.
   ///
   /// In en, this message translates to:
-  /// **'Finance Tracker keeps your accounts, transactions, budgets and bills on this device, in an encrypted database, and works offline.'**
+  /// **'Spendthrift keeps your accounts, transactions, budgets and bills on this device, in an encrypted database, and works offline.'**
   String get helpStart1;
 
   /// A heading of the help section "Getting started and the demo". Plain prose, no formatting.
@@ -7813,7 +7813,7 @@ abstract class AppLocalizations {
   /// A bullet of the help section "Getting started and the demo". Plain prose, no formatting.
   ///
   /// In en, this message translates to:
-  /// **'Use my own server: sign in to, or create an account on, a Finance Tracker server you run. Your changes then sync between your devices, and you can link banks through Plaid.'**
+  /// **'Use my own server: sign in to, or create an account on, a Spendthrift server you run. Your changes then sync between your devices, and you can link banks through Plaid.'**
   String get helpStart4;
 
   /// A heading of the help section "Getting started and the demo". Plain prose, no formatting.

@@ -404,7 +404,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get databaseErrorBody =>
-      'Finance Tracker could not open its data on this device. Nothing has been deleted. Close the app and open it again; if this keeps happening, your data cannot be read on this device.';
+      'Spendthrift could not open its data on this device. Nothing has been deleted. Close the app and open it again; if this keeps happening, your data cannot be read on this device.';
 
   @override
   String get databaseErrorKeyLost =>
@@ -416,7 +416,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get databaseErrorNoEncryption =>
-      'This version of Finance Tracker cannot encrypt data, so it will not open yours. Nothing has been deleted.';
+      'This version of Spendthrift cannot encrypt data, so it will not open yours. Nothing has been deleted.';
 
   @override
   String get save => 'Guardar';
@@ -4065,16 +4065,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get backupConfirmRestore => 'Restore';
 
   @override
-  String get backupErrorNotABackup =>
-      'This file is not a Finance Tracker backup.';
+  String get backupErrorNotABackup => 'This file is not a Spendthrift backup.';
 
   @override
   String get backupErrorTooLarge =>
-      'This file is too large to be a Finance Tracker backup (over 512 MB).';
+      'This file is too large to be a Spendthrift backup (over 512 MB).';
 
   @override
   String get backupErrorTooNew =>
-      'This backup was made by a newer version of Finance Tracker. Update the app, then restore it.';
+      'This backup was made by a newer version of Spendthrift. Update the app, then restore it.';
 
   @override
   String get backupErrorUnsafe =>
@@ -4110,7 +4109,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get backupRestoreFailedBody =>
-      'Finance Tracker will start with the data this device holds now.';
+      'Spendthrift will start with the data this device holds now.';
 
   @override
   String get backupContinue => 'Continue';
@@ -4120,7 +4119,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get restoreOfferBody =>
-      'If you have a Finance Tracker backup, you can restore it now, before this device fetches your data. Your bank data and synced changes come back from the server either way; a backup also brings receipt photos and what was kept only on your old device.';
+      'If you have a Spendthrift backup, you can restore it now, before this device fetches your data. Your bank data and synced changes come back from the server either way; a backup also brings receipt photos and what was kept only on your old device.';
 
   @override
   String get restoreOfferStartFresh => 'Start fresh';
@@ -5085,8 +5084,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get serverFieldHint => 'https://money.example.com';
 
   @override
-  String get serverFieldHelper =>
-      'The address of your own Finance Tracker server.';
+  String get serverFieldHelper => 'The address of your own Spendthrift server.';
 
   @override
   String get serverUrlEmpty => 'Enter your server\'s address.';
@@ -5104,7 +5102,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get serverNotFinanceTracker =>
-      'That address did not answer as a Finance Tracker server.';
+      'That address did not answer as a Spendthrift server.';
 
   @override
   String get signInTryDemo => 'Try the demo instead';
@@ -5126,7 +5124,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get helpStart1 =>
-      'Finance Tracker keeps your accounts, transactions, budgets and bills on this device, in an encrypted database, and works offline.';
+      'Spendthrift keeps your accounts, transactions, budgets and bills on this device, in an encrypted database, and works offline.';
 
   @override
   String get helpStart2 => 'Two ways in';
@@ -5137,7 +5135,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get helpStart4 =>
-      'Use my own server: sign in to, or create an account on, a Finance Tracker server you run. Your changes then sync between your devices, and you can link banks through Plaid.';
+      'Use my own server: sign in to, or create an account on, a Spendthrift server you run. Your changes then sync between your devices, and you can link banks through Plaid.';
 
   @override
   String get helpStart5 => 'While the demo runs';

@@ -12,5 +12,5 @@
     <string name="widget_bills_label">Upcoming bills</string>
     <string name="widget_bills_description">The next bills to pay, overdue ones first</string>
     <string name="widget_net_worth">Net worth</string>
-    <string name="widget_setup">Open Finance Tracker to set up</string>
+    <string name="widget_setup">Open Spendthrift to set up</string>
 </resources>

@@ -45,7 +45,7 @@ void main() {
     await _open(tester, l10n.aboutLicenses);
     expect(find.byType(LicensePage), findsOneWidget);
     final LicensePage page = tester.widget(find.byType(LicensePage));
-    expect(page.applicationName, 'Finance Tracker');
+    expect(page.applicationName, 'Spendthrift');
     expect(page.applicationVersion, testPackageInfo.version);
   });
 

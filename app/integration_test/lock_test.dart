@@ -96,7 +96,7 @@ void main() {
       );
 
       await _shows(tester, find.byType(LockScreen));
-      expect(find.text('Finance Tracker Demo'), findsOneWidget);
+      expect(find.text('Spendthrift Demo'), findsOneWidget);
 
       await tester.tap(find.text('Unlock'));
       await _shows(tester, find.text('Unlock was cancelled.'));

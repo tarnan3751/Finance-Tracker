@@ -173,7 +173,7 @@ abstract class FinanceWidgetProvider : HomeWidgetProvider() {
         return render(context, snapshot, width >= WIDE_DP, rows)
     }
 
-    // The set-up state: the widget's [title] and "Open Finance Tracker to set up"; a tap
+    // The set-up state: the widget's [title] and "Open Spendthrift to set up"; a tap
     // opens the app at [link].
     protected fun setUp(context: Context, title: Int, link: String): RemoteViews =
         RemoteViews(context.packageName, R.layout.widget_setup).apply {

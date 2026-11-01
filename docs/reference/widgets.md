@@ -148,7 +148,7 @@ parses it: no database, no network, well inside a receiver's ten seconds.
   Android 14's non-linear scaling. A font scale change takes effect at the next write.
 - **States.** No snapshot yet (the widget may be placed before the app first runs), a
   snapshot of another version, signed out, or nothing to show (no accounts, budgets or
-  bills): the widget's title and "Open Finance Tracker to set up" (`widget_setup.xml`),
+  bills): the widget's title and "Open Spendthrift to set up" (`widget_setup.xml`),
   whose tap opens the app there. A widget with fewer than three rows hides the rest.
 - **Colours.** `widget_colors.xml`: the app's Material 3 baseline, light and dark by the
   system's night mode; on Android 12 and later the launcher's dynamic palette

@@ -10,5 +10,5 @@
     <string name="widget_bills_label">Próximas facturas</string>
     <string name="widget_bills_description">Las próximas facturas por pagar, primero las vencidas</string>
     <string name="widget_net_worth">Patrimonio neto</string>
-    <string name="widget_setup">Abre Finance Tracker para configurarlo</string>
+    <string name="widget_setup">Abre Spendthrift para configurarlo</string>
 </resources>

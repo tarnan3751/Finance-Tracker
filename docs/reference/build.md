@@ -36,9 +36,9 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
 
 | Flavor | Entry file | Application id | App name | Server URL | Banner |
 |---|---|---|---|---|---|
-| `dev` | `lib/main_dev.dart` | `dev.tarnan.financetracker` | Finance Tracker Dev | `FT_SERVER_URL`, default `http://10.0.2.2:8080` | `DEV` |
-| `demo` | `lib/main_demo.dart` | `dev.tarnan.financetracker.demo` | Finance Tracker Demo | none | `DEMO` |
-| `prod` | `lib/main_prod.dart` | `dev.tarnan.financetracker` | Finance Tracker | `FT_SERVER_URL`, no default; must be `https`; without it, entered at sign-in | none |
+| `dev` | `lib/main_dev.dart` | `dev.tarnan.financetracker` | Spendthrift Dev | `FT_SERVER_URL`, default `http://10.0.2.2:8080` | `DEV` |
+| `demo` | `lib/main_demo.dart` | `dev.tarnan.financetracker.demo` | Spendthrift Demo | none | `DEMO` |
+| `prod` | `lib/main_prod.dart` | `dev.tarnan.financetracker` | Spendthrift | `FT_SERVER_URL`, no default; must be `https`; without it, entered at sign-in | none |
 
 - dev and prod open on a Welcome screen until the demo or the user's own server is
   chosen, and the choice is kept on the device (`onboarding.md`, **The app mode**): the

@@ -140,7 +140,7 @@ void main() {
     await pumpApp(tester, config: AppConfig.demo());
 
     final MaterialApp app = tester.widget(find.byType(MaterialApp));
-    expect(app.title, 'Finance Tracker Demo');
+    expect(app.title, 'Spendthrift Demo');
   });
 
   testWidgets("a tab's snack bar sits in the tab, above the navigation bar", (

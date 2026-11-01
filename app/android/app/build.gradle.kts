@@ -49,16 +49,16 @@ android {
     productFlavors {
         create("dev") {
             dimension = "flavor"
-            resValue("string", "app_name", "Finance Tracker Dev")
+            resValue("string", "app_name", "Spendthrift Dev")
         }
         create("demo") {
             dimension = "flavor"
             applicationIdSuffix = ".demo"
-            resValue("string", "app_name", "Finance Tracker Demo")
+            resValue("string", "app_name", "Spendthrift Demo")
         }
         create("prod") {
             dimension = "flavor"
-            resValue("string", "app_name", "Finance Tracker")
+            resValue("string", "app_name", "Spendthrift")
         }
     }
 

@@ -1,7 +1,7 @@
 // The Server field of a build with no compiled URL: shown on sign-in and registration
 // (and not over a compiled or fake address), refusing what is not an address and, in
 // prod, plain http before anything is sent; an unreachable server and something that is
-// not a Finance Tracker server shown under the field with no sign-in tried; a good one
+// not a Spendthrift server shown under the field with no sign-in tried; a good one
 // kept and used, the sign-in going on; registration the same; Settings showing the
 // entered server; and "Try the demo instead" on a new live install going back to
 // Welcome.
@@ -121,7 +121,7 @@ void main() {
     expect(modes.serverUrl, isNull);
     expect(address.entered, isNull);
 
-    // A Finance Tracker server: kept, used, and the sign-in goes on.
+    // A Spendthrift server: kept, used, and the sign-in goes on.
     answer = _healthy;
     await _submit(tester, l10n.signInSubmit);
     expect(modes.serverUrl, Uri.parse('https://money.example.com'));

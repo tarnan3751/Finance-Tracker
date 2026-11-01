@@ -1,6 +1,6 @@
-// The server check: a Finance Tracker server answers ok; no answer is unreachable; any
+// The server check: a Spendthrift server answers ok; no answer is unreachable; any
 // other answer (a 404, a page that is not the health's JSON, a health that is not ok) is
-// not a Finance Tracker server; and it asks only GET /v1/health, at the address given.
+// not a Spendthrift server; and it asks only GET /v1/health, at the address given.
 import 'package:dio/dio.dart';
 import 'package:finance_tracker/core/api/api_config.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
@@ -19,7 +19,7 @@ void main() {
   );
   final Uri server = Uri.parse('https://money.example.com/ft');
 
-  test('a Finance Tracker server answers ok', () async {
+  test('a Spendthrift server answers ok', () async {
     final List<Uri> asked = [];
     final ScriptedAdapter adapter = ScriptedAdapter((options, _) {
       asked.add(options.uri);
@@ -39,7 +39,7 @@ void main() {
     expect(await check(adapter).check(server), ServerCheckOutcome.unreachable);
   });
 
-  test('any other answer is not a Finance Tracker server', () async {
+  test('any other answer is not a Spendthrift server', () async {
     for (final Answer answer in [
       problem(404, 'not_found'),
       ok('<html>hello</html>'),

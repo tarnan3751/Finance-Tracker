@@ -106,7 +106,7 @@ void main() {
     );
     await tester.scrollUntilVisible(find.text('Time zone'), 100);
 
-    expect(find.text('Finance Tracker Demo'), findsOneWidget);
+    expect(find.text('Spendthrift Demo'), findsOneWidget);
     expect(find.text('1.0.0 (build 1)'), findsOneWidget);
     expect(find.text('demo'), findsOneWidget);
     expect(find.text('Etc/UTC'), findsOneWidget);

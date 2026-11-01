@@ -41,7 +41,7 @@ void main() {
 
     await startApp(AppConfig.prod(), modes: modes);
     await _until(tester, find.byType(WelcomeScreen));
-    expect(find.text('Finance Tracker'), findsOneWidget);
+    expect(find.text('Spendthrift'), findsOneWidget);
 
     await tester.tap(find.text('Try the demo'));
     await tester.pumpAndSettle();

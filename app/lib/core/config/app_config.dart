@@ -33,7 +33,7 @@ final class AppConfig {
   AppConfig.dev()
     : flavor = Flavor.dev,
       serverBaseUrl = Uri.parse(_devServerUrl),
-      appName = 'Finance Tracker Dev',
+      appName = 'Spendthrift Dev',
       mode = AppMode.live,
       demoPersona = null,
       enteredServerUrl = null,
@@ -43,7 +43,7 @@ final class AppConfig {
   AppConfig.demo()
     : flavor = Flavor.demo,
       serverBaseUrl = null,
-      appName = 'Finance Tracker Demo',
+      appName = 'Spendthrift Demo',
       mode = AppMode.demo,
       demoPersona = null,
       enteredServerUrl = null,
@@ -53,7 +53,7 @@ final class AppConfig {
   AppConfig.prod()
     : flavor = Flavor.prod,
       serverBaseUrl = _prodServerUrl.isEmpty ? null : Uri.parse(_prodServerUrl),
-      appName = 'Finance Tracker',
+      appName = 'Spendthrift',
       mode = AppMode.live,
       demoPersona = null,
       enteredServerUrl = null,
