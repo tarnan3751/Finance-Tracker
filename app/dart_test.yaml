@@ -10,3 +10,9 @@ tags:
   # (test/features/reports/domain/anomaly_harness_test.dart); the gate runs it, and
   # `flutter test --tags anomaly_harness` runs it alone with its figures.
   anomaly_harness:
+  # The full seeded random runs of the convergence test
+  # (test/sync/two_device_convergence_test.dart): every seed of each run, where the gate
+  # runs the first five. Skipped unless asked for:
+  # `flutter test --run-skipped --tags convergence_full test/sync/` runs them alone.
+  convergence_full:
+    skip: "the full convergence runs: flutter test --run-skipped --tags convergence_full test/sync/"

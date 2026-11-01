@@ -119,13 +119,15 @@ worst real noise so far, `shell_accounts_medium_light`, is 1505 pixels, 0.255 %.
 ## Test tags and seeds
 
 Tags mark the measured and randomized suites so they can run alone; the gate runs every
-one of them. They are declared in each package's `dart_test.yaml`.
+one of them but `convergence_full`, which is skipped unless asked for. They are declared in
+each package's `dart_test.yaml`.
 
 | Tag | Package | What it marks |
 |---|---|---|
 | `golden` | `app` | the golden tests |
 | `detector_harness` | `app` | the recurring detector measured against the persona engine |
 | `anomaly_harness` | `app` | the anomaly flags measured against the persona engine |
+| `convergence_full` | `app` | every seed of the convergence test's three seeded random runs (25, 15 and 15 seeds; the gate runs the first five of each, untagged): `flutter test --run-skipped --tags convergence_full test/sync/` |
 | `chaos` | `packages/sync_engine` | the chaos simulation (`sync.md`, **Testing**) |
 
 The sync engine's seeded suites take their seed and size from the environment, so a

@@ -2,12 +2,11 @@
 // Drift repositories, the recorder, the device clock, the sync controller), syncing
 // through one relay: scripted conflicts, rules, budgets, recurring stream overrides,
 // bills and goals among them, a conflict resolved both ways, a partition, a restart, a
-// clock hours behind, and seeded
-// random runs, after
-// which every device's entity tables and sync records are the same (sync-app.md,
-// **Testing**). The Plaid pull after each session goes to an in-app fake server with no
-// bank linked, so it brings nothing and never touches the network; a test that needs a
-// bank row applies it as the pull's page does.
+// clock hours behind, and seeded random runs (five seeds each in the gate, every seed
+// under the `convergence_full` tag), after which every device's entity tables and sync
+// records are the same (sync-app.md, **Testing**). The Plaid pull after each session
+// goes to an in-app fake server with no bank linked, so it brings nothing and never
+// touches the network; a test that needs a bank row applies it as the pull's page does.
 import 'dart:math';
 
 import 'package:drift/drift.dart' hide isNotNull, isNull;
@@ -1059,61 +1058,58 @@ void main() {
       });
     });
 
-    test(
+    randomRuns(
       'a seeded random run of rule edits on three devices converges',
-      () async {
-        for (int seed = 0; seed < 15; seed++) {
-          setUpRandom(seed);
-          world = World();
-          relay = SwappableRelay(
-            InMemorySyncRelay(nowWallMillis: () => world.now),
-          );
-          final Random random = Random(seed);
-          final List<Device> run = [
-            for (final (int i, int skew) in [(0, 0), (1, 45), (2, -60)])
-              device('dev-$i', skew: Duration(seconds: skew)),
-          ];
-          final List<String> ids = [];
-          for (int step = 0; step < 80; step++) {
-            final Device d = run[random.nextInt(run.length)];
-            String pick() => ids[random.nextInt(ids.length)];
-            try {
-              switch (random.nextInt(8)) {
-                case 0 || 1:
-                  final String id = 'r${ids.length}';
-                  ids.add(id);
-                  await d.rules.upsert(
-                    rule(id, position: random.nextInt(5), name: 'n$step'),
-                  );
-                case 2 when ids.isNotEmpty:
-                  final String id = pick();
-                  final Rule? r = (await live(d))
-                      .where((r) => r.id == id)
-                      .firstOrNull;
-                  if (r != null) {
-                    await d.rules.upsert(r.copyWith(name: 'e$step'));
-                  }
-                case 3 when ids.isNotEmpty:
-                  await d.rules.delete(pick());
-                case 4 when ids.isNotEmpty:
-                  await d.rules.restore(pick());
-                case 5 when ids.isNotEmpty:
-                  await d.rules.reorder([...ids]..shuffle(random));
-                default:
-                  await d.sync();
-              }
-            } on EntityDeletedException {
-              // An edit of a rule this device already knows is deleted.
+      15,
+      (seed) async {
+        world = World();
+        relay = SwappableRelay(
+          InMemorySyncRelay(nowWallMillis: () => world.now),
+        );
+        final Random random = Random(seed);
+        final List<Device> run = [
+          for (final (int i, int skew) in [(0, 0), (1, 45), (2, -60)])
+            device('dev-$i', skew: Duration(seconds: skew)),
+        ];
+        final List<String> ids = [];
+        for (int step = 0; step < 80; step++) {
+          final Device d = run[random.nextInt(run.length)];
+          String pick() => ids[random.nextInt(ids.length)];
+          try {
+            switch (random.nextInt(8)) {
+              case 0 || 1:
+                final String id = 'r${ids.length}';
+                ids.add(id);
+                await d.rules.upsert(
+                  rule(id, position: random.nextInt(5), name: 'n$step'),
+                );
+              case 2 when ids.isNotEmpty:
+                final String id = pick();
+                final Rule? r = (await live(d))
+                    .where((r) => r.id == id)
+                    .firstOrNull;
+                if (r != null) {
+                  await d.rules.upsert(r.copyWith(name: 'e$step'));
+                }
+              case 3 when ids.isNotEmpty:
+                await d.rules.delete(pick());
+              case 4 when ids.isNotEmpty:
+                await d.rules.restore(pick());
+              case 5 when ids.isNotEmpty:
+                await d.rules.reorder([...ids]..shuffle(random));
+              default:
+                await d.sync();
             }
-          }
-          await expectConverged(run);
-          for (final Device d in run) {
-            await d.close();
-            devices.remove(d);
+          } on EntityDeletedException {
+            // An edit of a rule this device already knows is deleted.
           }
         }
+        await expectConverged(run);
+        for (final Device d in run) {
+          await d.close();
+          devices.remove(d);
+        }
       },
-      timeout: const Timeout.factor(6),
     );
   });
 
@@ -1370,65 +1366,62 @@ void main() {
       },
     );
 
-    test(
+    randomRuns(
       'a seeded random run of budget edits on three devices converges',
-      () async {
-        for (int seed = 0; seed < 15; seed++) {
-          setUpRandom(seed);
-          world = World();
-          relay = SwappableRelay(
-            InMemorySyncRelay(nowWallMillis: () => world.now),
-          );
-          final Random random = Random(seed);
-          final List<Device> run = [
-            for (final (int i, int skew) in [(0, 0), (1, 45), (2, -60)])
-              device('dev-$i', skew: Duration(seconds: skew)),
-          ];
-          final List<String> ids = [];
-          for (int step = 0; step < 80; step++) {
-            final Device d = run[random.nextInt(run.length)];
-            String pick() => ids[random.nextInt(ids.length)];
-            try {
-              switch (random.nextInt(8)) {
-                case 0 || 1:
-                  final String id = 'b${ids.length}';
-                  ids.add(id);
-                  await d.budgets.upsert(randomBudget(random, id));
-                case 2 when ids.isNotEmpty:
-                  final Budget? b = await d.budgets.watchById(pick()).first;
-                  if (b != null) {
-                    final Budget other = randomBudget(random, b.id);
-                    await d.budgets.upsert(switch (random.nextInt(4)) {
-                      0 => b.copyWith(
-                        amount: Money(
-                          random.nextInt(90000),
-                          b.amount.currencyCode,
-                        ),
+      15,
+      (seed) async {
+        world = World();
+        relay = SwappableRelay(
+          InMemorySyncRelay(nowWallMillis: () => world.now),
+        );
+        final Random random = Random(seed);
+        final List<Device> run = [
+          for (final (int i, int skew) in [(0, 0), (1, 45), (2, -60)])
+            device('dev-$i', skew: Duration(seconds: skew)),
+        ];
+        final List<String> ids = [];
+        for (int step = 0; step < 80; step++) {
+          final Device d = run[random.nextInt(run.length)];
+          String pick() => ids[random.nextInt(ids.length)];
+          try {
+            switch (random.nextInt(8)) {
+              case 0 || 1:
+                final String id = 'b${ids.length}';
+                ids.add(id);
+                await d.budgets.upsert(randomBudget(random, id));
+              case 2 when ids.isNotEmpty:
+                final Budget? b = await d.budgets.watchById(pick()).first;
+                if (b != null) {
+                  final Budget other = randomBudget(random, b.id);
+                  await d.budgets.upsert(switch (random.nextInt(4)) {
+                    0 => b.copyWith(
+                      amount: Money(
+                        random.nextInt(90000),
+                        b.amount.currencyCode,
                       ),
-                      1 => b.copyWith(rollover: !b.rollover),
-                      2 => b.copyWith(periodStartDay: other.periodStartDay),
-                      _ => b.copyWith(startDate: other.startDate),
-                    });
-                  }
-                case 3 when ids.isNotEmpty:
-                  await d.budgets.delete(pick());
-                case 4 when ids.isNotEmpty:
-                  await d.budgets.restore(pick());
-                default:
-                  await d.sync();
-              }
-            } on EntityDeletedException {
-              // An edit of a budget this device already knows is deleted.
+                    ),
+                    1 => b.copyWith(rollover: !b.rollover),
+                    2 => b.copyWith(periodStartDay: other.periodStartDay),
+                    _ => b.copyWith(startDate: other.startDate),
+                  });
+                }
+              case 3 when ids.isNotEmpty:
+                await d.budgets.delete(pick());
+              case 4 when ids.isNotEmpty:
+                await d.budgets.restore(pick());
+              default:
+                await d.sync();
             }
-          }
-          await expectConverged(run);
-          for (final Device d in run) {
-            await d.close();
-            devices.remove(d);
+          } on EntityDeletedException {
+            // An edit of a budget this device already knows is deleted.
           }
         }
+        await expectConverged(run);
+        for (final Device d in run) {
+          await d.close();
+          devices.remove(d);
+        }
       },
-      timeout: const Timeout.factor(6),
     );
   });
 
@@ -1619,84 +1612,104 @@ void main() {
     });
   });
 
-  test('a seeded random run on three devices converges', () async {
-    const int seeds = 25;
-    for (int seed = 0; seed < seeds; seed++) {
-      setUpRandom(seed);
-      world = World();
-      relay = SwappableRelay(InMemorySyncRelay(nowWallMillis: () => world.now));
-      final Random random = Random(seed);
-      final List<Device> run = [
-        for (final (int i, int skew) in [(0, 0), (1, 90), (2, -120)])
-          device('dev-$i', skew: Duration(seconds: skew)),
-      ];
-      await run.first.categories.ensureSeeded();
-      for (final Device d in run.skip(1)) {
-        await d.categories.ensureSeeded();
-      }
-      final List<String> accountIds = [];
-      final List<String> transactionIds = [];
-      for (int step = 0; step < 120; step++) {
-        final Device d = run[random.nextInt(run.length)];
-        String pick(List<String> ids) => ids[random.nextInt(ids.length)];
-        try {
-          switch (random.nextInt(10)) {
-            case 0:
-              final String id = 'a${accountIds.length}';
-              accountIds.add(id);
-              await d.accounts.upsert(testAccount(id));
-            case 1 || 2 || 3 when accountIds.isNotEmpty:
-              final String id = 't${transactionIds.length}';
-              transactionIds.add(id);
+  randomRuns('a seeded random run on three devices converges', 25, (
+    seed,
+  ) async {
+    world = World();
+    relay = SwappableRelay(InMemorySyncRelay(nowWallMillis: () => world.now));
+    final Random random = Random(seed);
+    final List<Device> run = [
+      for (final (int i, int skew) in [(0, 0), (1, 90), (2, -120)])
+        device('dev-$i', skew: Duration(seconds: skew)),
+    ];
+    await run.first.categories.ensureSeeded();
+    for (final Device d in run.skip(1)) {
+      await d.categories.ensureSeeded();
+    }
+    final List<String> accountIds = [];
+    final List<String> transactionIds = [];
+    for (int step = 0; step < 120; step++) {
+      final Device d = run[random.nextInt(run.length)];
+      String pick(List<String> ids) => ids[random.nextInt(ids.length)];
+      try {
+        switch (random.nextInt(10)) {
+          case 0:
+            final String id = 'a${accountIds.length}';
+            accountIds.add(id);
+            await d.accounts.upsert(testAccount(id));
+          case 1 || 2 || 3 when accountIds.isNotEmpty:
+            final String id = 't${transactionIds.length}';
+            transactionIds.add(id);
+            await d.transactions.upsert(
+              txn(id, pick(accountIds), -random.nextInt(5000), world),
+            );
+          case 4 || 5 when transactionIds.isNotEmpty:
+            final Transaction? t = await d.transactions
+                .watchById(pick(transactionIds))
+                .first;
+            if (t != null) {
               await d.transactions.upsert(
-                txn(id, pick(accountIds), -random.nextInt(5000), world),
+                t.copyWith(
+                  notes: 'n$step',
+                  tags: random.nextBool() ? ['x$step'] : t.tags,
+                  hidden: random.nextInt(3) == 0 ? !t.hidden : t.hidden,
+                ),
               );
-            case 4 || 5 when transactionIds.isNotEmpty:
-              final Transaction? t = await d.transactions
-                  .watchById(pick(transactionIds))
-                  .first;
-              if (t != null) {
-                await d.transactions.upsert(
-                  t.copyWith(
-                    notes: 'n$step',
-                    tags: random.nextBool() ? ['x$step'] : t.tags,
-                    hidden: random.nextInt(3) == 0 ? !t.hidden : t.hidden,
-                  ),
-                );
-              }
-            case 6 when transactionIds.isNotEmpty:
-              await d.transactions.delete(pick(transactionIds));
-            case 7 when transactionIds.isNotEmpty:
-              await d.transactions.restore(pick(transactionIds));
-            case 8 when accountIds.isNotEmpty:
-              final String id = pick(accountIds);
-              if (random.nextBool()) {
-                await d.accounts.delete(id);
-              } else {
-                await d.accounts.restore(id);
-              }
-            default:
-              await d.sync();
-          }
-        } on AccountNotFoundException {
-          // A transaction on an account this device has not seen, or a deleted one.
-        } on EntityDeletedException {
-          // An edit of something this device already knows is deleted.
+            }
+          case 6 when transactionIds.isNotEmpty:
+            await d.transactions.delete(pick(transactionIds));
+          case 7 when transactionIds.isNotEmpty:
+            await d.transactions.restore(pick(transactionIds));
+          case 8 when accountIds.isNotEmpty:
+            final String id = pick(accountIds);
+            if (random.nextBool()) {
+              await d.accounts.delete(id);
+            } else {
+              await d.accounts.restore(id);
+            }
+          default:
+            await d.sync();
         }
-        if (random.nextInt(4) == 0) {
-          await run[random.nextInt(run.length)].sync();
-        }
+      } on AccountNotFoundException {
+        // A transaction on an account this device has not seen, or a deleted one.
+      } on EntityDeletedException {
+        // An edit of something this device already knows is deleted.
       }
-      await expectConverged(run);
-      for (final Device d in run) {
-        await d.close();
-        devices.remove(d);
+      if (random.nextInt(4) == 0) {
+        await run[random.nextInt(run.length)].sync();
       }
     }
-    // Twenty-five runs of sessions that each end with a Plaid pull: about 15 s alone, and
-    // close to a minute beside the rest of the gate's tests, so six times the default 30 s.
-  }, timeout: const Timeout.factor(6));
+    await expectConverged(run);
+    for (final Device d in run) {
+      await d.close();
+      devices.remove(d);
+    }
+  });
 }
 
 /// Names the seed in a failure.
 void setUpRandom(int seed) => printOnFailure('random run seed $seed');
+
+/// How many seeds of each seeded random run the gate runs.
+const int gateSeeds = 5;
+
+/// The seeded random run [name] of [run] for seeds 0 to [gateSeeds] − 1, and the same
+/// for every one of [seeds] seeds as `<name>, every seed`, tagged `convergence_full`
+/// (`dart_test.yaml`), which runs it alone. Each seed is a run of sessions that each end
+/// with a Plaid pull, so six times the default 30 s, for a loaded machine.
+void randomRuns(String name, int seeds, Future<void> Function(int seed) run) {
+  Future<void> upTo(int n) async {
+    for (int seed = 0; seed < n; seed++) {
+      setUpRandom(seed);
+      await run(seed);
+    }
+  }
+
+  test(name, () => upTo(gateSeeds), timeout: const Timeout.factor(6));
+  test(
+    '$name, every seed',
+    () => upTo(seeds),
+    tags: 'convergence_full',
+    timeout: const Timeout.factor(6),
+  );
+}
