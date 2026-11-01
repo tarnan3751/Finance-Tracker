@@ -127,7 +127,7 @@ each package's `dart_test.yaml`.
 | `golden` | `app` | the golden tests |
 | `detector_harness` | `app` | the recurring detector measured against the persona engine |
 | `anomaly_harness` | `app` | the anomaly flags measured against the persona engine |
-| `convergence_full` | `app` | every seed of the convergence test's three seeded random runs (25, 15 and 15 seeds; the gate runs the first five of each, untagged): `flutter test --run-skipped --tags convergence_full test/sync/` |
+| `convergence_full` | `app` | every seed of the convergence test's three seeded random runs (25, 15 and 15 seeds; the gate runs the first five of each, untagged): `flutter test --run-skipped --tags convergence_full test/sync/`, which CI runs after the gate on main and on tags |
 | `perf` | `app` | the performance measurements (`performance.md`): `test/perf/write_path_test.dart`, which the gate runs once with generous ceilings, and `integration_test/perf/scroll_test.dart`, which runs only under `flutter drive` from `tools/perf/scroll.sh` (`--dart-define=FT_PERF=true`) and is skipped in the harness's integration runs |
 | `chaos` | `packages/sync_engine` | the chaos simulation (`sync.md`, **Testing**) |
 

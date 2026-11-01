@@ -2,8 +2,9 @@
 # artifact); a lane pushes its series to `lane/<name>` so this gate runs it off the
 # development machine, and a green run on the delivered tree stands in for the reviewer's
 # and the landing's gate (CLAUDE.md, **Lanes**, **Delivery and landing**). On main and on
-# tags only: the demo debug APK as an artifact and the prod release build as the R8 and
-# obfuscation canary, and the contract job: the OpenAPI document validated by
+# tags only: every seed of the convergence test's random runs after the gate, the demo
+# debug APK as an artifact and the prod release build as the R8 and obfuscation canary,
+# and the contract job: the OpenAPI document validated by
 # openapi-generator itself and the committed client proved current by regenerating it.
 # The Flutter version comes from .fvmrc, so CI runs the same SDK as every lane. The
 # signed release on a v* tag is release.yml's; this prod build is debug-signed.
@@ -34,6 +35,12 @@ jobs:
           channel: stable
           cache: true
       - run: tools/gates.sh
+      # Every seed of the convergence test's random runs, which the gate runs five of
+      # (dart_test.yaml, convergence_full): on main and tags only, so a lane's run stays
+      # the gate alone.
+      - if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+        working-directory: app
+        run: flutter test --run-skipped --tags convergence_full test/sync/
       # Alchemist writes the master, test and diff images of a failing golden under the
       # test's failures/ folder: kept so a platform difference can be seen, not guessed.
       - if: failure()
