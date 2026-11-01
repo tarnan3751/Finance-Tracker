@@ -1,7 +1,7 @@
 // The Conflicts screen: both values with the device that wrote each (this device, a name
 // from the devices list, else the node id) and when, in the device's zone; values shown
-// as amounts, categories and lists; the two actions; the empty state; and Settings →
-// Sync's entry, there only while there are conflicts.
+// as amounts, categories and lists; the two actions, and either one failing; the empty
+// state; and Settings → Sync's entry, there only while there are conflicts.
 import 'dart:typed_data';
 
 import 'package:finance_tracker/core/db/receipt_store.dart';
@@ -12,6 +12,7 @@ import 'package:finance_tracker/core/sync/sync_status.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/conflicts/application/conflicts_providers.dart';
 import 'package:finance_tracker/features/conflicts/data/in_memory_conflict_store.dart';
+import 'package:finance_tracker/features/conflicts/domain/conflict_store.dart';
 import 'package:finance_tracker/features/conflicts/domain/sync_conflict.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart'
     show receiptHash;
@@ -79,8 +80,8 @@ void main() {
   setUp(() => store = InMemoryConflictStore());
   tearDown(() => store.close());
 
-  List<Override> overrides() => [
-    conflictStoreProvider.overrideWithValue(store),
+  List<Override> overrides([ConflictStore? conflicts]) => [
+    conflictStoreProvider.overrideWithValue(conflicts ?? store),
     syncDeviceIdProvider.overrideWithValue('dev-a'),
     conflictDeviceNamesProvider.overrideWith(
       (ref) async => {'dev-a': 'Pixel 6', 'dev-b': 'Pixel Tablet'},
@@ -240,6 +241,43 @@ void main() {
     expect(await store.watch().first, isEmpty);
   });
 
+  testWidgets('a keep that fails says so and offers the actions again', (
+    tester,
+  ) async {
+    store.add(_conflict('t1', 'notes', 'Team lunch', 'Lunch with Ana'));
+    await pumpApp(
+      tester,
+      initialLocation: '/settings/conflicts',
+      clock: newYork(),
+      size: const Size(412, 1200),
+      overrides: overrides(_Closed(store)),
+    );
+    await tester.tap(find.text("Keep this device's value"));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('The value could not be kept. Try again.'),
+      findsOneWidget,
+    );
+    expect(find.text('Team lunch'), findsOneWidget);
+    for (final String action in [
+      "Keep this device's value",
+      'Keep the other',
+    ]) {
+      expect(
+        tester
+            .widget<ButtonStyleButton>(
+              find.ancestor(
+                of: find.text(action),
+                matching: find.bySubtype<ButtonStyleButton>(),
+              ),
+            )
+            .onPressed,
+        isNotNull,
+        reason: action,
+      );
+    }
+  });
+
   testWidgets('Settings → Sync lists the conflicts only while there are any', (
     tester,
   ) async {
@@ -262,4 +300,19 @@ void main() {
     expect(find.text('Starbucks'), findsNothing);
     expect(find.text('Transaction · Starbucks'), findsOneWidget);
   });
+}
+
+/// [store]'s conflicts, whose database closed: forgetting one fails as a closed query
+/// stream's read does.
+final class _Closed implements ConflictStore {
+  _Closed(this.store);
+
+  final InMemoryConflictStore store;
+
+  @override
+  Stream<List<SyncConflict>> watch() => store.watch();
+
+  @override
+  Future<void> dismiss(SyncConflict conflict) async =>
+      throw StateError('the stream ended with no value');
 }

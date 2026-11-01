@@ -23,7 +23,10 @@ import 'package:finance_tracker/features/transactions/domain/effective_category.
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart';
+
+final Logger _log = Logger('conflicts');
 
 /// The conflicts.
 class ConflictsScreen extends ConsumerWidget {
@@ -84,7 +87,8 @@ class _ConflictCardState extends ConsumerState<_ConflictCard> {
     setState(() => _busy = true);
     try {
       await action(ref.read(conflictActionsProvider));
-    } on Exception {
+    } on Object catch (e) {
+      _log.warning('a conflict was not resolved: ${e.runtimeType}');
       messenger.showSnackBar(SnackBar(content: Text(failed)));
     } finally {
       if (mounted) setState(() => _busy = false);
