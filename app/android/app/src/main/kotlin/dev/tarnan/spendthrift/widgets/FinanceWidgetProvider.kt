@@ -24,7 +24,7 @@ import org.json.JSONObject
 // else: every text, amounts and dates included, was formatted by the app in the device's
 // locale, no database is opened here, and a redraw only reads one preference, well within
 // a receiver's time. A snapshot of another format version reads as none. A tap opens the
-// app at a financetracker:// link (core/router/launch_links.dart) through home_widget's
+// app at a spendthrift:// link (core/router/launch_links.dart) through home_widget's
 // launch action, which the app's LaunchIntent seam reads. While the app lock is enabled the
 // snapshot is "locked": every amount, percent and bar is masked ([masked]), names, due dates
 // and the footer stay, and each row's spoken text (the app's) says the amount is hidden.
@@ -66,9 +66,9 @@ internal fun masked(snapshot: JSONObject, value: String?): String? =
 internal fun JSONObject.text(name: String): String? =
     if (isNull(name)) null else optString(name)
 
-// The launch link of [segments], each encoded: financetracker://plan/bills/<id>.
+// The launch link of [segments], each encoded: spendthrift://plan/bills/<id>.
 internal fun launchLink(vararg segments: String): String =
-    "financetracker://" + segments.joinToString("/") { Uri.encode(it) }
+    "spendthrift://" + segments.joinToString("/") { Uri.encode(it) }
 
 // Opens the app at [link].
 internal fun launch(context: Context, link: String): PendingIntent =

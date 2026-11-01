@@ -625,19 +625,19 @@ keeping its own navigation stack.
 
 ## Launch links
 
-A home screen widget's tap and an app shortcut open the app at a `financetracker://`
+A home screen widget's tap and an app shortcut open the app at a `spendthrift://`
 link; `core/router/launch_links.dart` maps each to a router location (`launchTargetOf`),
 and a link it does not know opens nothing (logged without the link).
 
 | Link | Location |
 |---|---|
-| `financetracker://accounts` | `/accounts` |
-| `financetracker://insights/net-worth` | `/net-worth` |
-| `financetracker://plan/budgets`, `…/plan/budgets/<id>` | `/budgets`, `/budgets/<id>/transactions` |
-| `financetracker://plan/bills`, `…/plan/bills/<id>` | `/bills`, `/bills/<id>` |
-| `financetracker://transactions/new`, `…?receipt=camera` | `/transactions/new`, `/transactions/new?receipt=camera` |
-| `financetracker://search` | `/transactions?search=true` |
-| `financetracker://sync` | `/settings`, and a sync session (`SyncController.syncNow`, which does nothing in demo) when the app was already running; a cold start syncs anyway |
+| `spendthrift://accounts` | `/accounts` |
+| `spendthrift://insights/net-worth` | `/net-worth` |
+| `spendthrift://plan/budgets`, `…/plan/budgets/<id>` | `/budgets`, `/budgets/<id>/transactions` |
+| `spendthrift://plan/bills`, `…/plan/bills/<id>` | `/bills`, `/bills/<id>` |
+| `spendthrift://transactions/new`, `…?receipt=camera` | `/transactions/new`, `/transactions/new?receipt=camera` |
+| `spendthrift://search` | `/transactions?search=true` |
+| `spendthrift://sync` | `/settings`, and a sync session (`SyncController.syncNow`, which does nothing in demo) when the app was already running; a cold start syncs anyway |
 
 - **The seam.** `core/platform/launch_intent.dart`, pure Dart: `LaunchIntent.initial()`,
   the link of a cold start, and `opened`, the links that reach the running app.

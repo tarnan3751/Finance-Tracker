@@ -1,20 +1,20 @@
 /// The app's launch links (`docs/reference/app-core.md`, **Launch links**): the
-/// `financetracker://` links a home screen widget's tap or an app shortcut opens, the
+/// `spendthrift://` links a home screen widget's tap or an app shortcut opens, the
 /// router location each one opens at, and the four app shortcuts ([appShortcutsFor]). A
 /// link the app does not know opens nothing.
 ///
 /// | Link | Location |
 /// |---|---|
-/// | `financetracker://accounts` | `/accounts` |
-/// | `financetracker://insights/net-worth` | `/net-worth` |
-/// | `financetracker://plan/budgets` | `/budgets` |
-/// | `financetracker://plan/budgets/<id>` | `/budgets/<id>/transactions`, the budget's detail |
-/// | `financetracker://plan/bills` | `/bills` |
-/// | `financetracker://plan/bills/<id>` | `/bills/<id>` |
-/// | `financetracker://transactions/new` | `/transactions/new` |
-/// | `financetracker://transactions/new?receipt=camera` | `/transactions/new?receipt=camera`, the camera opened for the receipt |
-/// | `financetracker://search` | `/transactions?search=true`, searching |
-/// | `financetracker://sync` | `/settings`, with a sync session started ([LaunchTarget.syncs]) |
+/// | `spendthrift://accounts` | `/accounts` |
+/// | `spendthrift://insights/net-worth` | `/net-worth` |
+/// | `spendthrift://plan/budgets` | `/budgets` |
+/// | `spendthrift://plan/budgets/<id>` | `/budgets/<id>/transactions`, the budget's detail |
+/// | `spendthrift://plan/bills` | `/bills` |
+/// | `spendthrift://plan/bills/<id>` | `/bills/<id>` |
+/// | `spendthrift://transactions/new` | `/transactions/new` |
+/// | `spendthrift://transactions/new?receipt=camera` | `/transactions/new?receipt=camera`, the camera opened for the receipt |
+/// | `spendthrift://search` | `/transactions?search=true`, searching |
+/// | `spendthrift://sync` | `/settings`, with a sync session started ([LaunchTarget.syncs]) |
 library;
 
 import 'package:finance_tracker/core/platform/app_shortcuts.dart';
@@ -22,7 +22,7 @@ import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 
 /// The scheme of every launch link.
-const String launchScheme = 'financetracker';
+const String launchScheme = 'spendthrift';
 
 /// Where a launch link opens: the router [location], and whether it asks for a sync
 /// session ([syncs]: Settings shows the Sync section first in dev and prod; the demo,

@@ -51,38 +51,35 @@ String _path(WidgetTester tester) {
 void main() {
   group('launchTargetOf', () {
     test('the widgets\' links', () {
-      expect(_location('financetracker://accounts'), '/accounts');
-      expect(_location('financetracker://insights/net-worth'), '/net-worth');
-      expect(_location('financetracker://plan/budgets'), '/budgets');
+      expect(_location('spendthrift://accounts'), '/accounts');
+      expect(_location('spendthrift://insights/net-worth'), '/net-worth');
+      expect(_location('spendthrift://plan/budgets'), '/budgets');
       expect(
-        _location('financetracker://plan/budgets/b-1'),
+        _location('spendthrift://plan/budgets/b-1'),
         '/budgets/b-1/transactions',
       );
-      expect(_location('financetracker://plan/bills'), '/bills');
-      expect(_location('financetracker://plan/bills/bill-7'), '/bills/bill-7');
+      expect(_location('spendthrift://plan/bills'), '/bills');
+      expect(_location('spendthrift://plan/bills/bill-7'), '/bills/bill-7');
     });
 
     test('an id is decoded from the link and encoded in the location', () {
       expect(
-        _location('financetracker://plan/bills/a%20b'),
+        _location('spendthrift://plan/bills/a%20b'),
         const EditBillRoute('a b').location,
       );
     });
 
     test('the shortcuts\' links; only Sync now asks for a session', () {
+      expect(_location('spendthrift://transactions/new'), '/transactions/new');
       expect(
-        _location('financetracker://transactions/new'),
-        '/transactions/new',
-      );
-      expect(
-        _location('financetracker://transactions/new?receipt=camera'),
+        _location('spendthrift://transactions/new?receipt=camera'),
         '/transactions/new?receipt=camera',
       );
       expect(
-        _location('financetracker://transactions/new?receipt=other'),
+        _location('spendthrift://transactions/new?receipt=other'),
         '/transactions/new',
       );
-      expect(_location('financetracker://search'), '/transactions?search=true');
+      expect(_location('spendthrift://search'), '/transactions?search=true');
       expect(
         launchTargetOf(syncLink),
         const LaunchTarget('/settings', syncs: true),
@@ -93,11 +90,11 @@ void main() {
     test('anything else opens nothing', () {
       for (final String link in [
         'https://accounts',
-        'financetracker://',
-        'financetracker://settings/delete-account',
-        'financetracker://plan',
-        'financetracker://plan/bills/a/b',
-        'financetracker://accounts/x',
+        'spendthrift://',
+        'spendthrift://settings/delete-account',
+        'spendthrift://plan',
+        'spendthrift://plan/bills/a/b',
+        'spendthrift://accounts/x',
         'other://accounts',
       ]) {
         expect(_location(link), isNull, reason: link);
@@ -138,7 +135,7 @@ void main() {
     addTearDown(container.dispose);
     container
         .read(launchLocationProvider.notifier)
-        .startAt(Uri.parse('financetracker://plan/bills/bill-7'));
+        .startAt(Uri.parse('spendthrift://plan/bills/bill-7'));
     expect(
       container.read(goRouterProvider).routeInformationProvider.value.uri.path,
       '/bills/bill-7',
@@ -152,7 +149,7 @@ void main() {
     addTearDown(container.dispose);
     container
         .read(launchLocationProvider.notifier)
-        .startAt(Uri.parse('financetracker://nowhere'));
+        .startAt(Uri.parse('spendthrift://nowhere'));
     expect(container.read(launchLocationProvider), isNull);
     expect(
       container.read(goRouterProvider).routeInformationProvider.value.uri.path,
@@ -169,7 +166,7 @@ void main() {
     expect(
       openLaunchLink(
         router,
-        Uri.parse('financetracker://plan/bills'),
+        Uri.parse('spendthrift://plan/bills'),
         sync: () => syncs++,
       ),
       isTrue,
@@ -184,7 +181,7 @@ void main() {
     expect(
       openLaunchLink(
         router,
-        Uri.parse('financetracker://nowhere'),
+        Uri.parse('spendthrift://nowhere'),
         sync: () => syncs++,
       ),
       isFalse,
@@ -218,7 +215,7 @@ void main() {
       );
       openLaunchLink(
         container.read(goRouterProvider),
-        Uri.parse('financetracker://plan/bills/bill-7'),
+        Uri.parse('spendthrift://plan/bills/bill-7'),
         sync: () {},
       );
       await tester.pumpAndSettle();
