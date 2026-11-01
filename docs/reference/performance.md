@@ -198,6 +198,15 @@ mind; the sizes are exact.
 | write_path | `sync_pull_5000_median_ms` | 3512 | 7529 | 73 % |
 | write_path | `import_review_10000_median_ms` | 113 | 171 | 41 % |
 | size | `universal_apk_bytes` | 85.76 MB | 85.76 MB | 0 % |
+
+`docs/reference/perf-baselines/3f45af9.json`: the same scripts on `3f45af9` (its `app/lib` tree
+`c8aa083a8d3e`), taken at low load on the same machine and `ft-lane`, on 2026-11-01. The
+one-minute load at the start of each record was 5.1 for the suite time, 3.8 and 5.6 for the two
+cold starts and 2.5 and 5.8 for the two scrolls (the machine was otherwise quiet, so these are
+the figures to compare a change with; `a38fe96.json` was taken at loads of 4.8 to 29 and its
+device figures are 4 to 10 times slower). Medians: cold start `TotalTime` 920 ms, first frame
+510 ms; data on screen 256 ms; scroll build p99 10.2 ms and raster p99 36.7 ms; the suite's app
+time 183 s (gate 341 s). Later lanes compare against this record, not `a38fe96.json`.
 | size | `universal_download_bytes` | 38.31 MB | 38.31 MB | 0 % |
 | size | `arm64_apk_bytes` (split) | 31.73 MB | 31.73 MB | 0 % |
 | size | `arm64_download_bytes` | 15.3 MB | 15.3 MB | 0 % |

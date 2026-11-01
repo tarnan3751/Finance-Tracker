@@ -1,0 +1,354 @@
+{
+  "format": 1,
+  "commit": "3f45af9",
+  "main_base": "3f45af9",
+  "app_lib_tree": "c8aa083a8d3e",
+  "collected": "2026-11-01T23:12:16Z",
+  "host": {
+    "cpu": "Apple M5",
+    "memory_gb": 24,
+    "os": "macOS 26.5.1",
+    "load_1m": 5.10
+  },
+  "device": {
+    "avd": "ft-lane",
+    "api": 36,
+    "abi": "arm64-v8a"
+  },
+  "records": {
+    "cold_start": [
+      {
+        "script": "cold_start",
+        "commit": "3f45af9",
+        "main_base": "3f45af9",
+        "app_lib_tree": "c8aa083a8d3e",
+        "uncommitted_code_changes": 0,
+        "date": "2026-11-01T23:09:38Z",
+        "host": {
+          "cpu": "Apple M5",
+          "memory_gb": 24,
+          "os": "macOS 26.5.1",
+          "load_1m": 3.83
+        },
+        "flutter": "3.47.8",
+        "device": {
+          "serial": "emulator-5554",
+          "avd": "ft-lane",
+          "api": 36,
+          "abi": "arm64-v8a"
+        },
+        "metrics": {
+          "total_time_median_ms": 941.5,
+          "total_time_min_ms": 851,
+          "total_time_max_ms": 1145,
+          "first_launch_ms": 2566,
+          "framework_init_ms": 132,
+          "first_frame_ms": 498,
+          "first_frame_rasterized_ms": 549
+        },
+        "notes": [
+          "demo flavor, profile build, installed fresh; TotalTime from am start -W -S (process start to the first drawn frame of the activity window, which Android may count at the launch theme), the first launch after the install apart",
+          "the startup trace is one flutter run --profile --trace-startup; data on screen is the scroll script's"
+        ],
+        "detail": {
+          "total_time_ms": [
+            1025,
+            1145,
+            927,
+            851,
+            956,
+            926,
+            970,
+            960,
+            918,
+            908
+          ],
+          "start_up_info": {
+            "engineEnterTimestampMicros": 3478886654,
+            "timeToFrameworkInitMicros": 131507,
+            "timeToFirstFrameRasterizedMicros": 548948,
+            "timeToFirstFrameMicros": 498157,
+            "timeAfterFrameworkInitMicros": 366650
+          }
+        }
+      },
+      {
+        "script": "cold_start",
+        "commit": "3f45af9",
+        "main_base": "3f45af9",
+        "app_lib_tree": "c8aa083a8d3e",
+        "uncommitted_code_changes": 0,
+        "date": "2026-11-01T23:11:47Z",
+        "host": {
+          "cpu": "Apple M5",
+          "memory_gb": 24,
+          "os": "macOS 26.5.1",
+          "load_1m": 5.58
+        },
+        "flutter": "3.47.8",
+        "device": {
+          "serial": "emulator-5554",
+          "avd": "ft-lane",
+          "api": 36,
+          "abi": "arm64-v8a"
+        },
+        "metrics": {
+          "total_time_median_ms": 898,
+          "total_time_min_ms": 806,
+          "total_time_max_ms": 942,
+          "first_launch_ms": 1183,
+          "framework_init_ms": 132,
+          "first_frame_ms": 522,
+          "first_frame_rasterized_ms": 564
+        },
+        "notes": [
+          "demo flavor, profile build, installed fresh; TotalTime from am start -W -S (process start to the first drawn frame of the activity window, which Android may count at the launch theme), the first launch after the install apart",
+          "the startup trace is one flutter run --profile --trace-startup; data on screen is the scroll script's"
+        ],
+        "detail": {
+          "total_time_ms": [
+            942,
+            872,
+            806,
+            929,
+            911,
+            921,
+            876,
+            880,
+            907,
+            889
+          ],
+          "start_up_info": {
+            "engineEnterTimestampMicros": 3607980980,
+            "timeToFrameworkInitMicros": 131683,
+            "timeToFirstFrameRasterizedMicros": 563715,
+            "timeToFirstFrameMicros": 522377,
+            "timeAfterFrameworkInitMicros": 390694
+          }
+        }
+      }
+    ],
+    "scroll": [
+      {
+        "script": "scroll",
+        "commit": "3f45af9",
+        "main_base": "3f45af9",
+        "app_lib_tree": "c8aa083a8d3e",
+        "uncommitted_code_changes": 0,
+        "date": "2026-11-01T23:10:32Z",
+        "host": {
+          "cpu": "Apple M5",
+          "memory_gb": 24,
+          "os": "macOS 26.5.1",
+          "load_1m": 2.49
+        },
+        "flutter": "3.47.8",
+        "device": {
+          "serial": "emulator-5554",
+          "avd": "ft-lane",
+          "api": 36,
+          "abi": "arm64-v8a"
+        },
+        "metrics": {
+          "data_on_screen_ms": 195,
+          "start_frame_count": 4,
+          "start_worst_frame_build_ms": 86.62,
+          "scroll_offset_px": 13705,
+          "scroll_span_ms": 1269,
+          "scroll_frame_count": 48,
+          "scroll_average_frame_build_ms": 1.41,
+          "scroll_p90_frame_build_ms": 2.2,
+          "scroll_p99_frame_build_ms": 10.78,
+          "scroll_worst_frame_build_ms": 10.78,
+          "scroll_missed_build_budget_count": 0,
+          "scroll_average_frame_raster_ms": 24.4,
+          "scroll_p90_frame_raster_ms": 28.83,
+          "scroll_p99_frame_raster_ms": 41.15,
+          "scroll_worst_frame_raster_ms": 41.15,
+          "scroll_missed_raster_budget_count": 47
+        },
+        "notes": [
+          "demo flavor, profile build through flutter drive, the persona seed plus 10,000 demo transactions on one more account",
+          "data on screen: startApp (after the process setup) to the Accounts list showing Everyday Checking; scroll: five flings of 1500 px at 5000 px/s down the Transactions list, each settled and, when it reached the loaded end, the next page waited for; scroll_offset_px is how far the list got, scroll_span_ms the time from the first frame to the last"
+        ],
+        "detail": {
+          "drive": {
+            "data_on_screen_ms": 195,
+            "ledger_rows": 10000,
+            "scroll_offset_px": 13705
+          }
+        }
+      },
+      {
+        "script": "scroll",
+        "commit": "3f45af9",
+        "main_base": "3f45af9",
+        "app_lib_tree": "c8aa083a8d3e",
+        "uncommitted_code_changes": 0,
+        "date": "2026-11-01T23:12:10Z",
+        "host": {
+          "cpu": "Apple M5",
+          "memory_gb": 24,
+          "os": "macOS 26.5.1",
+          "load_1m": 5.81
+        },
+        "flutter": "3.47.8",
+        "device": {
+          "serial": "emulator-5554",
+          "avd": "ft-lane",
+          "api": 36,
+          "abi": "arm64-v8a"
+        },
+        "metrics": {
+          "data_on_screen_ms": 317,
+          "start_frame_count": 4,
+          "start_worst_frame_build_ms": 165.6,
+          "scroll_offset_px": 7350,
+          "scroll_span_ms": 1833,
+          "scroll_frame_count": 70,
+          "scroll_average_frame_build_ms": 1.26,
+          "scroll_p90_frame_build_ms": 1.83,
+          "scroll_p99_frame_build_ms": 9.54,
+          "scroll_worst_frame_build_ms": 10.76,
+          "scroll_missed_build_budget_count": 0,
+          "scroll_average_frame_raster_ms": 23.38,
+          "scroll_p90_frame_raster_ms": 28.85,
+          "scroll_p99_frame_raster_ms": 32.33,
+          "scroll_worst_frame_raster_ms": 41.55,
+          "scroll_missed_raster_budget_count": 64
+        },
+        "notes": [
+          "demo flavor, profile build through flutter drive, the persona seed plus 10,000 demo transactions on one more account",
+          "data on screen: startApp (after the process setup) to the Accounts list showing Everyday Checking; scroll: five flings of 1500 px at 5000 px/s down the Transactions list, each settled and, when it reached the loaded end, the next page waited for; scroll_offset_px is how far the list got, scroll_span_ms the time from the first frame to the last"
+        ],
+        "detail": {
+          "drive": {
+            "data_on_screen_ms": 317,
+            "ledger_rows": 10000,
+            "scroll_offset_px": 7350
+          }
+        }
+      }
+    ],
+    "suite_time": [
+      {
+        "script": "suite_time",
+        "commit": "3f45af9",
+        "main_base": "3f45af9",
+        "app_lib_tree": "c8aa083a8d3e",
+        "uncommitted_code_changes": 0,
+        "date": "2026-11-01T23:06:59Z",
+        "host": {
+          "cpu": "Apple M5",
+          "memory_gb": 24,
+          "os": "macOS 26.5.1",
+          "load_1m": 5.10
+        },
+        "flutter": "3.47.8",
+        "device": null,
+        "metrics": {
+          "gate_s": 341,
+          "app_suite_json_run_s": 157,
+          "tests_app_s": 183,
+          "tests_server_s": 7,
+          "tests_packages_api_client_s": 1,
+          "tests_packages_contract_test_s": 1,
+          "tests_packages_shared_models_s": 2,
+          "tests_packages_sync_engine_s": 14,
+          "tests_tools_persona_engine_s": 26
+        },
+        "notes": [
+          "the gate at its default concurrency; the load at the start was 1.17",
+          "the slowest files come from a second run of the app suite with --reporter json"
+        ],
+        "detail": {
+          "gate_passed": true,
+          "app_suite_passed": true,
+          "gate_tests_line": "gate tests     ok (7 package(s): app 183s, server 7s, packages/api_client 1s, packages/contract_test 1s, packages/shared_models 2s, packages/sync_engine 14s, tools/persona_engine 26s) (ceiling 1500s at load 1.17)",
+          "slowest_app_files": [
+            {
+              "file": "test/accessibility_test.dart",
+              "seconds": 35.9
+            },
+            {
+              "file": "test/sync/two_device_convergence_test.dart",
+              "seconds": 25.3
+            },
+            {
+              "file": "test/perf/write_path_test.dart",
+              "seconds": 11.2
+            },
+            {
+              "file": "test/core/background/background_cycle_test.dart",
+              "seconds": 8.8
+            },
+            {
+              "file": "test/core/sync/sync_controller_test.dart",
+              "seconds": 8.2
+            },
+            {
+              "file": "test/core/router/own_page_test.dart",
+              "seconds": 8.2
+            },
+            {
+              "file": "test/features/transactions/presentation/transaction_editor_screen_test.dart",
+              "seconds": 8.2
+            },
+            {
+              "file": "test/features/transactions/presentation/transactions_screen_test.dart",
+              "seconds": 7.6
+            },
+            {
+              "file": "test/features/import/presentation/import_flow_test.dart",
+              "seconds": 7.4
+            },
+            {
+              "file": "test/features/rules/presentation/rule_editor_screen_test.dart",
+              "seconds": 7.2
+            },
+            {
+              "file": "test/features/developer/developer_menu_test.dart",
+              "seconds": 7
+            },
+            {
+              "file": "test/features/backup/presentation/backup_screen_test.dart",
+              "seconds": 7
+            },
+            {
+              "file": "test/features/transactions/presentation/transaction_editor_receipt_test.dart",
+              "seconds": 6.8
+            },
+            {
+              "file": "test/core/router/app_shell_golden_test.dart",
+              "seconds": 6.7
+            },
+            {
+              "file": "test/features/goals/presentation/goals_screen_test.dart",
+              "seconds": 6.7
+            },
+            {
+              "file": "test/perf/write_path_statements_test.dart",
+              "seconds": 6.7
+            },
+            {
+              "file": "test/features/transactions/presentation/transactions_bulk_test.dart",
+              "seconds": 6.4
+            },
+            {
+              "file": "test/features/transactions/presentation/transaction_editor_splits_test.dart",
+              "seconds": 6.2
+            },
+            {
+              "file": "test/features/phase1_screens_golden_test.dart",
+              "seconds": 5.7
+            },
+            {
+              "file": "test/features/recurring/application/detector_runner_test.dart",
+              "seconds": 5.6
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
