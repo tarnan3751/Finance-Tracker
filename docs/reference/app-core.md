@@ -46,10 +46,12 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
    launch link the app was started at, if any, is read (**Launch links**), so the router
    opens at its location; then the sync controller starts
    (`sync-app.md`, **The controller**), the background sync's watcher keeps the periodic
-   sync scheduled while someone is signed in (`background.md`, **Scheduling**) and, in
-   every flavor, the budget alert watcher is listened to (`budgets.md`, **Alerts**);
+   sync scheduled while someone is signed in (`background.md`, **Scheduling**);
 10. `runApp(UncontrolledProviderScope(container: container, child: FinanceTrackerApp()))`;
-11. after the first frame, in every flavor, the reminder watcher is listened to (the bill
+11. after the first frame, in every flavor, the budget alert watcher (`budgets.md`,
+    **Alerts**), the recurring detector (`recurring.md`, **The detector**) and the weekly
+    summary's notice (`reports.md`, **The weekly summary**) are listened to, so their
+    first runs never hold up the first screen's data, and the reminder watcher (the bill
     reminders are planned then and whenever their inputs change, `bills.md`,
     **Reminders**) and `reminderSchedulerProvider.openedBillIds` pushes `/bills/:id` for
     a tapped reminder; the home screen widgets' runner is listened to (`widgets.md`), the

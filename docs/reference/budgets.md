@@ -153,7 +153,8 @@ app asks, once on the device, for the permission to notify (`NotificationPermiss
 
 `budgetAlertWatcherProvider` listens to the statuses. It evaluates them
 `budgetAlertDebounceProvider` (1 s) after they last changed, on a timer and never inside a
-build. `bootstrap` listens to it in every flavor, so alerts run from startup. The demo budgets
+build. `bootstrap` listens to it in every flavor from the first frame on, so alerts run from
+startup. The demo budgets
 exist to show them.
 
 ## Repositories

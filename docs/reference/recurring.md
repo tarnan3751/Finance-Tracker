@@ -183,7 +183,7 @@ categories and `today` (never on input order or a clock), and every amount is in
   `replaceDetected`. On a ledger of more than `detectorIsolateThresholdProvider` (2,000)
   rows the run goes to a background isolate (`compute`). One run happens at a time; a
   change during a run starts one more on the latest input, and the run's own write does
-  not start another. `bootstrap` listens to it for the life of the app, in every flavor;
+  not start another. `bootstrap` listens to it from the first frame for the life of the app, in every flavor;
   nothing runs in a test that does not listen. A failure is logged by type only.
 - **Measured.** `test/features/recurring/domain/detector_harness_test.dart` (tag
   `detector_harness`, run by the gate) runs the detector over each persona's full demo seed

@@ -3,13 +3,14 @@
 /// the device keeps (dev and prod: the demo, the live mode, or none yet, which opens on
 /// the Welcome screen; `docs/reference/onboarding.md`), opens the local data (the live
 /// mode), reads the stored session and the lock's settings (locking the app and
-/// securing its window before the first frame when they say so), starts sync and the
-/// budget alerts, and runs the app on a new Riverpod container; after the first frame,
-/// the bill reminders are planned (a tapped one opens its bill), the home screen widgets
-/// are kept current, the app shortcuts are set, a launch link that reaches the running
-/// app opens its location (a cold start at one opens there), the notification channels
-/// are created in the device's locale (in dev and prod a tapped notification opens its
-/// screen), and dev and prod sweep the receipt files no transaction references.
+/// securing its window before the first frame when they say so), starts sync, and runs
+/// the app on a new Riverpod container; after the first frame, the budget alerts, the
+/// recurring detector and the weekly summary's notice start, the bill reminders are
+/// planned (a tapped one opens its bill), the home screen widgets are kept current, the
+/// app shortcuts are set, a launch link that reaches the running app opens its location
+/// (a cold start at one opens there), the notification channels are created in the
+/// device's locale (in dev and prod a tapped notification opens its screen), and dev and
+/// prod sweep the receipt files no transaction references.
 /// [startApp] can run again in the same process, on a new container: a restore
 /// (`features/backup/`) stops the app, replaces its database on a plain screen showing
 /// its progress, and starts it again through the
@@ -244,12 +245,6 @@ Future<void> startApp(
   container.read(syncControllerProvider);
   // The background sync is scheduled while someone is signed in (only live).
   container.listen(backgroundSyncWatcherProvider, (_, _) {});
-  // The budget alerts are evaluated whenever the statuses change, in every flavor.
-  container.listen(budgetAlertWatcherProvider, (_, _) {});
-  // The detected recurring streams follow the transactions, in every flavor.
-  container.listen(detectorRunnerProvider, (_, _) {});
-  // The weekly summary's notice is raised once a week, in every flavor.
-  container.listen(weeklySummaryNoticeProvider, (_, _) {});
   runApp(
     UncontrolledProviderScope(
       container: container,
@@ -260,6 +255,18 @@ Future<void> startApp(
   // whenever their inputs, a sync or the device's zone change (reminder_planner.dart);
   // a tapped reminder opens its bill.
   WidgetsBinding.instance.addPostFrameCallback((_) {
+    // A stopApp before the first frame (a restart or a wipe that came first) disposed
+    // this container: nothing may start on it.
+    if (!identical(_running, container)) return;
+    // The watchers start after the first frame, in every flavor, so their first runs
+    // (the detector's reads the whole ledger) never hold up the first screen's data; the
+    // budget alerts and the detector each run once per burst of writes (their own
+    // debounce). The budget alerts are evaluated whenever the statuses change, the
+    // detected recurring streams follow the transactions, and the weekly summary's notice
+    // is raised once a week.
+    container.listen(budgetAlertWatcherProvider, (_, _) {});
+    container.listen(detectorRunnerProvider, (_, _) {});
+    container.listen(weeklySummaryNoticeProvider, (_, _) {});
     container.listen(reminderWatcherProvider, (_, _) {});
     // Today's balance snapshots, from the first frame on and after every pull and sync
     // session, in every flavor (snapshot_writer.dart).

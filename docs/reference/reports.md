@@ -252,7 +252,7 @@ biggest merchant.
 - each budget's spending against what is available (`budgetStatusesProvider`).
 
 **The notice.** `weeklySummaryNoticeProvider` is listened to by `bootstrap` in every
-flavor. On the first day in a week that it runs, it tells the `Notifier` a
+flavor, from the first frame on. On the first day in a week that it runs, it tells the `Notifier` a
 `WeeklySummaryNotification` (key `weekly/<Monday of the week before>`). It then records
 this week's Monday in `app_meta` under `weekly_summary_raised`, so the notice is raised
 once a week on each device; a failure is logged by its type. Only a week that began on or
