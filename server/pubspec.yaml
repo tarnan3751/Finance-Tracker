@@ -1,5 +1,5 @@
 name: finance_tracker_server
-description: The Finance Tracker development server. Never deployed.
+description: The Spendthrift development server. Never deployed.
 publish_to: none
 
 environment:

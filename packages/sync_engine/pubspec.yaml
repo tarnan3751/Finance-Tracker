@@ -1,5 +1,5 @@
 name: sync_engine
-description: The Finance Tracker sync engine, pure Dart, shared by the app and the server.
+description: The Spendthrift sync engine, pure Dart, shared by the app and the server.
 publish_to: none
 
 environment:

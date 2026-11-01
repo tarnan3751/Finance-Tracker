@@ -1,9 +1,9 @@
-# The Finance Tracker API client, generated from api/openapi.yaml by
+# The Spendthrift API client, generated from api/openapi.yaml by
 # tools/gen_api_client.sh (openapi-generator dart-dio, built_value). This file is ours, kept
 # by .openapi-generator-ignore; the pins follow what the generator's template needs, inside
 # the workspace's analyzer 13 / build 4 band (PLAN.md §12).
 name: api_client
-description: The Finance Tracker API client, generated from api/openapi.yaml.
+description: The Spendthrift API client, generated from api/openapi.yaml.
 publish_to: none
 
 environment:

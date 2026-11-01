@@ -1,4 +1,4 @@
-# Finance Tracker
+# Spendthrift
 
 A personal finance app for Android, written in Flutter. It links bank accounts, keeps their
 transactions up to date, and turns them into budgets and a clear picture of where the money

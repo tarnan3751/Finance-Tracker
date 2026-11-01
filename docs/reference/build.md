@@ -91,6 +91,12 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
   (23+) with headroom.
 - **Package.** Namespace and application id `dev.tarnan.spendthrift`; `MainActivity` is
   `app/android/app/src/main/kotlin/dev/tarnan/spendthrift/MainActivity.kt`.
+- **Identity.** The application id changed from `dev.tarnan.financetracker` to
+  `dev.tarnan.spendthrift` at v1.1.0, with the rename to Spendthrift, while the app had no
+  public users. Android treats the two ids as different apps: an install of
+  `dev.tarnan.financetracker` (or its `.demo`) is not upgraded, keeps its own data and home
+  screen widgets, and is uninstalled by hand. A backup it made restores into Spendthrift,
+  because the `FTBK` format and the `.ftbk` extension did not change.
 - **The activity and the lock.** `MainActivity` is a `FlutterFragmentActivity`, because
   `local_auth` (BSD-3, pinned exactly at 3.0.2 in `app/pubspec.yaml`; its Android
   implementation `local_auth_android` 2.3.0, minSdk 24) shows the biometric prompt as a

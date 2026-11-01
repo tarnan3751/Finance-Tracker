@@ -1,4 +1,4 @@
-/// The Finance Tracker development server (`docs/reference/server.md`).
+/// The Spendthrift development server (`docs/reference/server.md`).
 ///
 /// [ServerApp] assembles the services and the route table behind `api/openapi.yaml`;
 /// `bin/server.dart` reads the configuration, opens the database and serves its handler.

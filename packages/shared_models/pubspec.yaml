@@ -1,5 +1,5 @@
 name: shared_models
-description: Models shared by the Finance Tracker app and server.
+description: Models shared by the Spendthrift app and server.
 publish_to: none
 
 environment:

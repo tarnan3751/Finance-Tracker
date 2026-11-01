@@ -1,6 +1,6 @@
 name: persona_engine
 description: >-
-  Deterministic synthetic households for the Finance Tracker: the demo seed, Plaid Sandbox
+  Deterministic synthetic households for Spendthrift: the demo seed, Plaid Sandbox
   custom users and Sandbox injection batches, all from one persona and one seed.
 publish_to: none
 

@@ -1,4 +1,4 @@
-/// The shared domain of the Finance Tracker app, the development server and the persona
+/// The shared domain of the Spendthrift app, the development server and the persona
 /// engine: `Money` (integer minor units plus an ISO currency code), calendar dates and UTC
 /// instants, exact decimals for prices and quantities, the domain entities of `PLAN.md` §6.2
 /// and Plaid's category taxonomy.

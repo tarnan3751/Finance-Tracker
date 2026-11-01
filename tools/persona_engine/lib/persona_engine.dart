@@ -1,4 +1,4 @@
-/// The persona engine: deterministic synthetic households for the Finance Tracker.
+/// The persona engine: deterministic synthetic households for Spendthrift.
 ///
 /// One persona and one seed give one household (`generateHousehold`), written three
 /// ways: the demo seed the demo flavor loads (`source: demo` on every record), Plaid

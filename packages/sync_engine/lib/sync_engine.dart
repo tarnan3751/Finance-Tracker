@@ -1,4 +1,4 @@
-/// The Finance Tracker sync engine: user-authored data synced between devices through the
+/// The Spendthrift sync engine: user-authored data synced between devices through the
 /// change log (`PLAN.md` §6.4). A hybrid logical clock stamps every local change; changes
 /// merge last-writer-wins per field, with tombstones that win over concurrent edits.
 ///

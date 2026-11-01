@@ -5,7 +5,7 @@ change needs before it can land.
 
 ## What this project is
 
-Finance Tracker is a personal finance app for Android, written in Flutter, with a Dart
+Spendthrift is a personal finance app for Android, written in Flutter, with a Dart
 development server that proxies Plaid Sandbox. The server is never deployed: it runs on your
 own machine for development, and the app's demo flavor needs nothing at all, no server, no
 account and no network. It is not a hosted service, it handles no real bank credentials, and

@@ -56,7 +56,7 @@ generate() {
   log="$(mktemp "${TMPDIR:-/tmp}/spendthrift-openapi-generator.XXXXXX")"
   if ! "${generator[@]}" generate -g dart-dio -i "$spec" -o "$1" \
     --global-property=apiTests=false,modelTests=false,apiDocs=false,modelDocs=false \
-    --additional-properties="pubName=api_client,pubLibrary=api_client,serializationLibrary=built_value,pubDescription=The Finance Tracker API client generated from api/openapi.yaml" \
+    --additional-properties="pubName=api_client,pubLibrary=api_client,serializationLibrary=built_value,pubDescription=The Spendthrift API client generated from api/openapi.yaml" \
     >"$log" 2>&1; then
     cat "$log" >&2; rm -f "$log"; exit 1
   fi
