@@ -7616,5 +7616,93 @@
   "helpNotifications5": "With your own server, the app syncs about once an hour while the phone is on a network and its battery is not low. Settings, Notifications, shows the last background run and has a switch to turn it off. Some phones stop background work to save battery; letting the app run in the background helps.",
   "@helpNotifications5": {
     "description": "A paragraph of the help section \"Notifications and background sync\". Plain prose, no formatting."
+  },
+  "privacyTitle": "Privacy",
+  "@privacyTitle": {
+    "description": "Title of the privacy page, opened from Settings → About; the same text as PRIVACY.md in the repository, which a test keeps equal."
+  },
+  "aboutPrivacySubtitle": "What leaves this device and what does not",
+  "@aboutPrivacySubtitle": {
+    "description": "Supporting text of the Privacy row in Settings → About."
+  },
+  "aboutLicenses": "Open-source licences",
+  "@aboutLicenses": {
+    "description": "Settings → About row opening the licences of the open-source software the app is built with."
+  },
+  "privacy1": "This page says what leaves your device and what stays on it.",
+  "@privacy1": {
+    "description": "A paragraph of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy2": "With your own server",
+  "@privacy2": {
+    "description": "A heading of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy3": "When you use your own server, these go off the device, and only to the places named:",
+  "@privacy3": {
+    "description": "A paragraph of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy4": "Your changes and settings, to the server you set up, so your devices stay in step.",
+  "@privacy4": {
+    "description": "A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy5": "This device's model name, to that server, as the device's name in your list of devices.",
+  "@privacy5": {
+    "description": "A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy6": "The receipt photos you attach, stored on that server so your other devices can show them.",
+  "@privacy6": {
+    "description": "A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy7": "Bank data does not come from this device: your server pulls it from Plaid. The app itself never calls Plaid's API.",
+  "@privacy7": {
+    "description": "A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy8": "Linking a bank opens Plaid Link, Plaid's own screen, which talks to Plaid directly. Your bank sign-in goes to Plaid, not to the app or your server.",
+  "@privacy8": {
+    "description": "A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy9": "Merchant logos are loaded from the addresses Plaid supplies, so Plaid's logo host sees this device's requests.",
+  "@privacy9": {
+    "description": "A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy10": "Nothing goes to anyone else.",
+  "@privacy10": {
+    "description": "A paragraph of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy11": "What stays on this device",
+  "@privacy11": {
+    "description": "A heading of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy12": "The app's own code has no analytics, crash reporting or advertising. Plaid Link is Plaid's component, and while it is open it may send its own diagnostics to Plaid.",
+  "@privacy12": {
+    "description": "A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy13": "The app does not write amounts, merchants or tokens to its log, and the release app keeps its log on the device, with tokens and email addresses removed.",
+  "@privacy13": {
+    "description": "A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy14": "The database is encrypted, with its key kept by Android's keystore.",
+  "@privacy14": {
+    "description": "A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy15": "Android's automatic backup of the app's data is turned off.",
+  "@privacy15": {
+    "description": "A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy16": "A backup is encrypted with your passphrase and goes only where you save or share it.",
+  "@privacy16": {
+    "description": "A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy17": "Notifications and reminders are scheduled on the device itself.",
+  "@privacy17": {
+    "description": "A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy18": "In the demo",
+  "@privacy18": {
+    "description": "A heading of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
+  },
+  "privacy19": "Nothing leaves the device. The sample households are made up on the device, and no account or server is involved.",
+  "@privacy19": {
+    "description": "A paragraph of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal."
   }
 }

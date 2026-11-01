@@ -290,6 +290,11 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
                 ),
               ],
             ),
+            GoRouteData.$route(
+              path: 'privacy',
+              hasOverriddenOnExit: false,
+              factory: $PrivacyRoute._fromState,
+            ),
           ],
         ),
       ],
@@ -1307,6 +1312,26 @@ mixin $HelpSectionRoute on GoRouteData {
   String get location => GoRouteData.$location(
     '/settings/help/${Uri.encodeComponent(_self.section)}',
   );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $PrivacyRoute on GoRouteData {
+  static PrivacyRoute _fromState(GoRouterState state) => const PrivacyRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings/privacy');
 
   @override
   void go(BuildContext context) => context.go(location);

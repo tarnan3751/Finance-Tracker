@@ -8271,6 +8271,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'With your own server, the app syncs about once an hour while the phone is on a network and its battery is not low. Settings, Notifications, shows the last background run and has a switch to turn it off. Some phones stop background work to save battery; letting the app run in the background helps.'**
   String get helpNotifications5;
+
+  /// Title of the privacy page, opened from Settings → About; the same text as PRIVACY.md in the repository, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get privacyTitle;
+
+  /// Supporting text of the Privacy row in Settings → About.
+  ///
+  /// In en, this message translates to:
+  /// **'What leaves this device and what does not'**
+  String get aboutPrivacySubtitle;
+
+  /// Settings → About row opening the licences of the open-source software the app is built with.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source licences'**
+  String get aboutLicenses;
+
+  /// A paragraph of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'This page says what leaves your device and what stays on it.'**
+  String get privacy1;
+
+  /// A heading of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'With your own server'**
+  String get privacy2;
+
+  /// A paragraph of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'When you use your own server, these go off the device, and only to the places named:'**
+  String get privacy3;
+
+  /// A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'Your changes and settings, to the server you set up, so your devices stay in step.'**
+  String get privacy4;
+
+  /// A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'This device\'s model name, to that server, as the device\'s name in your list of devices.'**
+  String get privacy5;
+
+  /// A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'The receipt photos you attach, stored on that server so your other devices can show them.'**
+  String get privacy6;
+
+  /// A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank data does not come from this device: your server pulls it from Plaid. The app itself never calls Plaid\'s API.'**
+  String get privacy7;
+
+  /// A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'Linking a bank opens Plaid Link, Plaid\'s own screen, which talks to Plaid directly. Your bank sign-in goes to Plaid, not to the app or your server.'**
+  String get privacy8;
+
+  /// A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'Merchant logos are loaded from the addresses Plaid supplies, so Plaid\'s logo host sees this device\'s requests.'**
+  String get privacy9;
+
+  /// A paragraph of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing goes to anyone else.'**
+  String get privacy10;
+
+  /// A heading of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'What stays on this device'**
+  String get privacy11;
+
+  /// A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'The app\'s own code has no analytics, crash reporting or advertising. Plaid Link is Plaid\'s component, and while it is open it may send its own diagnostics to Plaid.'**
+  String get privacy12;
+
+  /// A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'The app does not write amounts, merchants or tokens to its log, and the release app keeps its log on the device, with tokens and email addresses removed.'**
+  String get privacy13;
+
+  /// A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'The database is encrypted, with its key kept by Android\'s keystore.'**
+  String get privacy14;
+
+  /// A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'Android\'s automatic backup of the app\'s data is turned off.'**
+  String get privacy15;
+
+  /// A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'A backup is encrypted with your passphrase and goes only where you save or share it.'**
+  String get privacy16;
+
+  /// A bullet of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications and reminders are scheduled on the device itself.'**
+  String get privacy17;
+
+  /// A heading of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'In the demo'**
+  String get privacy18;
+
+  /// A paragraph of the privacy page. Plain prose, no formatting; PRIVACY.md in the repository carries the same text, which a test keeps equal.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing leaves the device. The sample households are made up on the device, and no account or server is involved.'**
+  String get privacy19;
 }
 
 class _AppLocalizationsDelegate

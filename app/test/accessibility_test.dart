@@ -29,7 +29,7 @@
 // the demo's households before a mode is chosen, and the shell with the demo's strip and
 // its Leave dialog while the demo runs, and the auth screens with the server field (and
 // the way back to Welcome) of a build with no compiled URL, and the help's list and a
-// section; each also in the pseudo-locale on the dev flavor,
+// section, and the privacy page; each also in the pseudo-locale on the dev flavor,
 // which offers it.
 import 'dart:io';
 import 'dart:ui' show DisplayFeature, DisplayFeatureState, DisplayFeatureType;
@@ -717,6 +717,13 @@ _modeScreens = {
   ),
   'Help, a section': (
     location: '/settings/help/getting-started',
+    config: _built,
+    signedIn: true,
+    overrides: () => const [],
+    open: null,
+  ),
+  'Privacy': (
+    location: '/settings/privacy',
     config: _built,
     signedIn: true,
     overrides: () => const [],

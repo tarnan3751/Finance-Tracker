@@ -5411,4 +5411,86 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get helpNotifications5 =>
       'With your own server, the app syncs about once an hour while the phone is on a network and its battery is not low. Settings, Notifications, shows the last background run and has a switch to turn it off. Some phones stop background work to save battery; letting the app run in the background helps.';
+
+  @override
+  String get privacyTitle => 'Privacy';
+
+  @override
+  String get aboutPrivacySubtitle =>
+      'What leaves this device and what does not';
+
+  @override
+  String get aboutLicenses => 'Open-source licences';
+
+  @override
+  String get privacy1 =>
+      'This page says what leaves your device and what stays on it.';
+
+  @override
+  String get privacy2 => 'With your own server';
+
+  @override
+  String get privacy3 =>
+      'When you use your own server, these go off the device, and only to the places named:';
+
+  @override
+  String get privacy4 =>
+      'Your changes and settings, to the server you set up, so your devices stay in step.';
+
+  @override
+  String get privacy5 =>
+      'This device\'s model name, to that server, as the device\'s name in your list of devices.';
+
+  @override
+  String get privacy6 =>
+      'The receipt photos you attach, stored on that server so your other devices can show them.';
+
+  @override
+  String get privacy7 =>
+      'Bank data does not come from this device: your server pulls it from Plaid. The app itself never calls Plaid\'s API.';
+
+  @override
+  String get privacy8 =>
+      'Linking a bank opens Plaid Link, Plaid\'s own screen, which talks to Plaid directly. Your bank sign-in goes to Plaid, not to the app or your server.';
+
+  @override
+  String get privacy9 =>
+      'Merchant logos are loaded from the addresses Plaid supplies, so Plaid\'s logo host sees this device\'s requests.';
+
+  @override
+  String get privacy10 => 'Nothing goes to anyone else.';
+
+  @override
+  String get privacy11 => 'What stays on this device';
+
+  @override
+  String get privacy12 =>
+      'The app\'s own code has no analytics, crash reporting or advertising. Plaid Link is Plaid\'s component, and while it is open it may send its own diagnostics to Plaid.';
+
+  @override
+  String get privacy13 =>
+      'The app does not write amounts, merchants or tokens to its log, and the release app keeps its log on the device, with tokens and email addresses removed.';
+
+  @override
+  String get privacy14 =>
+      'The database is encrypted, with its key kept by Android\'s keystore.';
+
+  @override
+  String get privacy15 =>
+      'Android\'s automatic backup of the app\'s data is turned off.';
+
+  @override
+  String get privacy16 =>
+      'A backup is encrypted with your passphrase and goes only where you save or share it.';
+
+  @override
+  String get privacy17 =>
+      'Notifications and reminders are scheduled on the device itself.';
+
+  @override
+  String get privacy18 => 'In the demo';
+
+  @override
+  String get privacy19 =>
+      'Nothing leaves the device. The sample households are made up on the device, and no account or server is involved.';
 }

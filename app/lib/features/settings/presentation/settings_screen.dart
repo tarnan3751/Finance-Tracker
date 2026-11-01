@@ -6,7 +6,7 @@
 /// `notifications_screen.dart`), Data (category management, rules,
 /// export, backup; in the demo flavor the Backup entry says the demo's data is not backed
 /// up) and About (app name, version and build, flavor, the time zone dates are computed
-/// in, Help, `features/help/`), then Demo data (demo only, `demo_data_section.dart`) and Developer (dev only,
+/// in, Help and Privacy, `features/help/`, and the open-source licences), then Demo data (demo only, `demo_data_section.dart`) and Developer (dev only,
 /// `features/developer/presentation/developer_section.dart`).
 library;
 
@@ -166,6 +166,23 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: Text(l10n.helpSettingsSubtitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => openDetail(context, const HelpRoute().location),
+          ),
+          ListTile(
+            leading: const Icon(Icons.privacy_tip_outlined),
+            title: Text(l10n.privacyTitle),
+            subtitle: Text(l10n.aboutPrivacySubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => openDetail(context, const PrivacyRoute().location),
+          ),
+          ListTile(
+            leading: const Icon(Icons.description_outlined),
+            title: Text(l10n.aboutLicenses),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => showLicensePage(
+              context: context,
+              applicationName: appName,
+              applicationVersion: packageInfo?.version,
+            ),
           ),
           if (ref.watch(appConfigProvider).isDemo) const DemoDataSection(),
           // A constant first, so demo and prod builds leave the tools out.

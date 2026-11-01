@@ -5411,6 +5411,88 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get helpNotifications5 =>
       'With your own server, the app syncs about once an hour while the phone is on a network and its battery is not low. Settings, Notifications, shows the last background run and has a switch to turn it off. Some phones stop background work to save battery; letting the app run in the background helps.';
+
+  @override
+  String get privacyTitle => 'Privacy';
+
+  @override
+  String get aboutPrivacySubtitle =>
+      'What leaves this device and what does not';
+
+  @override
+  String get aboutLicenses => 'Open-source licences';
+
+  @override
+  String get privacy1 =>
+      'This page says what leaves your device and what stays on it.';
+
+  @override
+  String get privacy2 => 'With your own server';
+
+  @override
+  String get privacy3 =>
+      'When you use your own server, these go off the device, and only to the places named:';
+
+  @override
+  String get privacy4 =>
+      'Your changes and settings, to the server you set up, so your devices stay in step.';
+
+  @override
+  String get privacy5 =>
+      'This device\'s model name, to that server, as the device\'s name in your list of devices.';
+
+  @override
+  String get privacy6 =>
+      'The receipt photos you attach, stored on that server so your other devices can show them.';
+
+  @override
+  String get privacy7 =>
+      'Bank data does not come from this device: your server pulls it from Plaid. The app itself never calls Plaid\'s API.';
+
+  @override
+  String get privacy8 =>
+      'Linking a bank opens Plaid Link, Plaid\'s own screen, which talks to Plaid directly. Your bank sign-in goes to Plaid, not to the app or your server.';
+
+  @override
+  String get privacy9 =>
+      'Merchant logos are loaded from the addresses Plaid supplies, so Plaid\'s logo host sees this device\'s requests.';
+
+  @override
+  String get privacy10 => 'Nothing goes to anyone else.';
+
+  @override
+  String get privacy11 => 'What stays on this device';
+
+  @override
+  String get privacy12 =>
+      'The app\'s own code has no analytics, crash reporting or advertising. Plaid Link is Plaid\'s component, and while it is open it may send its own diagnostics to Plaid.';
+
+  @override
+  String get privacy13 =>
+      'The app does not write amounts, merchants or tokens to its log, and the release app keeps its log on the device, with tokens and email addresses removed.';
+
+  @override
+  String get privacy14 =>
+      'The database is encrypted, with its key kept by Android\'s keystore.';
+
+  @override
+  String get privacy15 =>
+      'Android\'s automatic backup of the app\'s data is turned off.';
+
+  @override
+  String get privacy16 =>
+      'A backup is encrypted with your passphrase and goes only where you save or share it.';
+
+  @override
+  String get privacy17 =>
+      'Notifications and reminders are scheduled on the device itself.';
+
+  @override
+  String get privacy18 => 'In the demo';
+
+  @override
+  String get privacy19 =>
+      'Nothing leaves the device. The sample households are made up on the device, and no account or server is involved.';
 }
 
 /// The translations for English (`en_XA`).
@@ -10933,4 +11015,86 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
   @override
   String get helpNotifications5 =>
       '[Ŵîţĥ ýöûŕ öŵñ šéŕṽéŕ, ţĥé åþþ šýñçš åƀöûţ öñçé åñ ĥöûŕ ŵĥîļé ţĥé þĥöñé îš öñ å ñéţŵöŕķ åñð îţš ƀåţţéŕý îš ñöţ ļöŵ. Šéţţîñĝš, Ñöţîƒîçåţîöñš, šĥöŵš ţĥé ļåšţ ƀåçķĝŕöûñð ŕûñ åñð ĥåš å šŵîţçĥ ţö ţûŕñ îţ öƒƒ. Šöɱé þĥöñéš šţöþ ƀåçķĝŕöûñð ŵöŕķ ţö šåṽé ƀåţţéŕý; ļéţţîñĝ ţĥé åþþ ŕûñ îñ ţĥé ƀåçķĝŕöûñð ĥéļþš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get privacyTitle => '[Þŕîṽåçý ~~~]';
+
+  @override
+  String get aboutPrivacySubtitle =>
+      '[Ŵĥåţ ļéåṽéš ţĥîš ðéṽîçé åñð ŵĥåţ ðöéš ñöţ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get aboutLicenses => '[Öþéñ-šöûŕçé ļîçéñçéš ~~~~~ ~~~]';
+
+  @override
+  String get privacy1 =>
+      '[Ţĥîš þåĝé šåýš ŵĥåţ ļéåṽéš ýöûŕ ðéṽîçé åñð ŵĥåţ šţåýš öñ îţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~]';
+
+  @override
+  String get privacy2 => '[Ŵîţĥ ýöûŕ öŵñ šéŕṽéŕ ~~~~~ ~~]';
+
+  @override
+  String get privacy3 =>
+      '[Ŵĥéñ ýöû ûšé ýöûŕ öŵñ šéŕṽéŕ, ţĥéšé ĝö öƒƒ ţĥé ðéṽîçé, åñð öñļý ţö ţĥé þļåçéš ñåɱéð: ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get privacy4 =>
+      '[Ýöûŕ çĥåñĝéš åñð šéţţîñĝš, ţö ţĥé šéŕṽéŕ ýöû šéţ ûþ, šö ýöûŕ ðéṽîçéš šţåý îñ šţéþ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get privacy5 =>
+      '[Ţĥîš ðéṽîçé\'š ɱöðéļ ñåɱé, ţö ţĥåţ šéŕṽéŕ, åš ţĥé ðéṽîçé\'š ñåɱé îñ ýöûŕ ļîšţ öƒ ðéṽîçéš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get privacy6 =>
+      '[Ţĥé ŕéçéîþţ þĥöţöš ýöû åţţåçĥ, šţöŕéð öñ ţĥåţ šéŕṽéŕ šö ýöûŕ öţĥéŕ ðéṽîçéš çåñ šĥöŵ ţĥéɱ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get privacy7 =>
+      '[Ɓåñķ ðåţå ðöéš ñöţ çöɱé ƒŕöɱ ţĥîš ðéṽîçé: ýöûŕ šéŕṽéŕ þûļļš îţ ƒŕöɱ Þļåîð. Ţĥé åþþ îţšéļƒ ñéṽéŕ çåļļš Þļåîð\'š ÅÞÎ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get privacy8 =>
+      '[Ļîñķîñĝ å ƀåñķ öþéñš Þļåîð Ļîñķ, Þļåîð\'š öŵñ šçŕééñ, ŵĥîçĥ ţåļķš ţö Þļåîð ðîŕéçţļý. Ýöûŕ ƀåñķ šîĝñ-îñ ĝöéš ţö Þļåîð, ñöţ ţö ţĥé åþþ öŕ ýöûŕ šéŕṽéŕ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get privacy9 =>
+      '[Ṁéŕçĥåñţ ļöĝöš åŕé ļöåðéð ƒŕöɱ ţĥé åððŕéššéš Þļåîð šûþþļîéš, šö Þļåîð\'š ļöĝö ĥöšţ šééš ţĥîš ðéṽîçé\'š ŕéǫûéšţš. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~]';
+
+  @override
+  String get privacy10 => '[Ñöţĥîñĝ ĝöéš ţö åñýöñé éļšé. ~~~~~ ~~~~~]';
+
+  @override
+  String get privacy11 => '[Ŵĥåţ šţåýš öñ ţĥîš ðéṽîçé ~~~~~ ~~~~]';
+
+  @override
+  String get privacy12 =>
+      '[Ţĥé åþþ\'š öŵñ çöðé ĥåš ñö åñåļýţîçš, çŕåšĥ ŕéþöŕţîñĝ öŕ åðṽéŕţîšîñĝ. Þļåîð Ļîñķ îš Þļåîð\'š çöɱþöñéñţ, åñð ŵĥîļé îţ îš öþéñ îţ ɱåý šéñð îţš öŵñ ðîåĝñöšţîçš ţö Þļåîð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get privacy13 =>
+      '[Ţĥé åþþ ðöéš ñöţ ŵŕîţé åɱöûñţš, ɱéŕçĥåñţš öŕ ţöķéñš ţö îţš ļöĝ, åñð ţĥé ŕéļéåšé åþþ ķééþš îţš ļöĝ öñ ţĥé ðéṽîçé, ŵîţĥ ţöķéñš åñð éɱåîļ åððŕéššéš ŕéɱöṽéð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get privacy14 =>
+      '[Ţĥé ðåţåƀåšé îš éñçŕýþţéð, ŵîţĥ îţš ķéý ķéþţ ƀý Åñðŕöîð\'š ķéýšţöŕé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get privacy15 =>
+      '[Åñðŕöîð\'š åûţöɱåţîç ƀåçķûþ öƒ ţĥé åþþ\'š ðåţå îš ţûŕñéð öƒƒ. ~~~~~ ~~~~~ ~~~~~ ~~~~]';
+
+  @override
+  String get privacy16 =>
+      '[Å ƀåçķûþ îš éñçŕýþţéð ŵîţĥ ýöûŕ þåššþĥŕåšé åñð ĝöéš öñļý ŵĥéŕé ýöû šåṽé öŕ šĥåŕé îţ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~]';
+
+  @override
+  String get privacy17 =>
+      '[Ñöţîƒîçåţîöñš åñð ŕéɱîñðéŕš åŕé šçĥéðûļéð öñ ţĥé ðéṽîçé îţšéļƒ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get privacy18 => '[Îñ ţĥé ðéɱö ~~~~]';
+
+  @override
+  String get privacy19 =>
+      '[Ñöţĥîñĝ ļéåṽéš ţĥé ðéṽîçé. Ţĥé šåɱþļé ĥöûšéĥöļðš åŕé ɱåðé ûþ öñ ţĥé ðéṽîçé, åñð ñö åççöûñţ öŕ šéŕṽéŕ îš îñṽöļṽéð. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
 }

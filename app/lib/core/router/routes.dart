@@ -7,7 +7,7 @@
 /// | Transactions | `/transactions?search=true`, `/transactions/new?account=<id>&receipt=camera`, `/transactions/duplicates`, `/transactions/import`, `/transactions/:id` |
 /// | Plan | `/plan` (redirects to `/budgets`); `/budgets`, `/budgets/new`, `/budgets/:id`, `/budgets/:id/transactions`; `/bills`, `/bills/new?stream-id=<id>`, `/bills/new?liability-account-id=<id>`, `/bills/subscriptions`, `/bills/:id`; `/forecast` |
 /// | Insights | `/insights` (redirects to `/reports`); `/reports`, `/reports/weekly`; `/net-worth`; `/investments`; `/goals`, `/goals/new`, `/goals/:id`, `/goals/:id/edit`, `/goals/:id/contribute` |
-/// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id`, `/settings/export`, `/settings/import`, `/settings/backup`, `/settings/devices`, `/settings/delete-account`, `/settings/help`, `/settings/help/:section` |
+/// | Settings | `/settings`, `/settings/categories`, `/settings/categories/new`, `/settings/categories/:id`, `/settings/rules`, `/settings/rules/new`, `/settings/rules/:id`, `/settings/export`, `/settings/import`, `/settings/backup`, `/settings/devices`, `/settings/delete-account`, `/settings/help`, `/settings/help/:section`, `/settings/privacy` |
 ///
 /// Outside the shell, `/sign-in` and `/register` are the auth screens, where a signed-out
 /// user is sent in the live mode, `/restore` the restore offer of a fresh install, and
@@ -59,6 +59,7 @@ import 'package:finance_tracker/features/goals/presentation/goal_editor_screen.d
 import 'package:finance_tracker/features/goals/presentation/goals_screen.dart';
 import 'package:finance_tracker/features/help/presentation/help_screen.dart';
 import 'package:finance_tracker/features/help/presentation/help_section_screen.dart';
+import 'package:finance_tracker/features/help/presentation/privacy_screen.dart';
 import 'package:finance_tracker/features/import/presentation/import_screen.dart';
 import 'package:finance_tracker/features/investments/presentation/investments_view.dart';
 import 'package:finance_tracker/features/items/presentation/items_screen.dart';
@@ -204,6 +205,7 @@ part 'routes.g.dart';
                 TypedGoRoute<HelpSectionRoute>(path: ':section'),
               ],
             ),
+            TypedGoRoute<PrivacyRoute>(path: 'privacy'),
           ],
         ),
       ],
@@ -696,6 +698,15 @@ class HelpSectionRoute extends GoRouteData with $HelpSectionRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       HelpSectionScreen(slug: section);
+}
+
+/// `/settings/privacy`: what leaves the device and what does not, from Settings → About.
+class PrivacyRoute extends GoRouteData with $PrivacyRoute {
+  const PrivacyRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const PrivacyScreen();
 }
 
 /// `/settings/rules`: the rules, in the order they are tried.

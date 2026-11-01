@@ -68,6 +68,7 @@ import 'package:finance_tracker/features/backup/presentation/restore_flow.dart';
 import 'package:finance_tracker/features/backup/presentation/restoring_app.dart';
 import 'package:finance_tracker/features/bills/application/reminder_planner.dart';
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
+import 'package:finance_tracker/features/help/application/licenses.dart';
 import 'package:finance_tracker/features/lock/application/lock_controller.dart';
 import 'package:finance_tracker/features/net_worth/application/snapshot_writer.dart';
 import 'package:finance_tracker/features/onboarding/presentation/starting_app.dart';
@@ -110,6 +111,8 @@ Future<void> bootstrap(AppConfig config) async {
     );
   }
   WidgetsFlutterBinding.ensureInitialized();
+  // The bundled fonts' licence, beside the packages' (Settings → About).
+  registerBundledLicenses();
   setUpLogging(config.flavor);
   forwardUncaughtErrors();
   await setUpTimeZones();

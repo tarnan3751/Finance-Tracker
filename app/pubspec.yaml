@@ -136,6 +136,8 @@ flutter:
     # monthly report's PDF (features/export/).
     - assets/fonts/Roboto-Regular.ttf
     - assets/fonts/Roboto-Bold.ttf
+    # Their licence, shown on Settings → About → Open-source licences.
+    - assets/fonts/LICENSE.txt
     # The demo's receipt photo (a synthetic one), for its fake image source: in every
     # flavor, since dev and prod run the demo too when it is chosen on the Welcome screen.
     - assets/demo/receipt.jpg

@@ -17,7 +17,7 @@ void main() {
       config: AppConfig.demo(),
       // Tall enough for the whole screen, the Security and Notifications sections
       // included.
-      size: const Size(412, 2600),
+      size: const Size(412, 2900),
     );
     expect(find.text('Demo data'), findsOneWidget);
     final ProviderContainer container = ProviderScope.containerOf(
