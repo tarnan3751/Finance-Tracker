@@ -1,6 +1,7 @@
 /// The local wipe (`docs/reference/data.md`, **The local wipe**): everything this install
 /// keeps of its account, erased so the next start is a fresh install. Run by account
-/// deletion and by "Sign out and erase this device" through `wipeLocalDataProvider`, which
+/// deletion, by "Sign out and erase this device" and by "Leave the demo"
+/// (`docs/reference/onboarding.md`) through `wipeLocalDataProvider`, which
 /// `bootstrap` supplies: the app is stopped first (its container disposed, so sync, the
 /// reminder planner and every watcher stop and the database is closed), then [LocalWipe]
 /// runs, then the app starts again on a new container.
@@ -25,6 +26,9 @@
 ///    account from syncing it;
 /// 6. every pending reminder and every notification the app has shown, then the
 ///    background sync's schedule (`core/platform/background_work.dart`);
+/// 7. the app mode, the demo's household and the entered server URL
+///    (`core/config/app_mode_store.dart`), last, so a wipe still pending always starts in
+///    the mode it was cut short in, and the fresh install opens on Welcome;
 ///
 /// then the pending record goes. No path, key or value is logged.
 library;
@@ -32,6 +36,7 @@ library;
 import 'dart:io';
 
 import 'package:finance_tracker/core/api/token_store.dart';
+import 'package:finance_tracker/core/config/app_mode_store.dart';
 import 'package:finance_tracker/core/db/database_key_store.dart';
 import 'package:finance_tracker/core/db/legacy_import/legacy_importer.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
@@ -49,6 +54,9 @@ enum WipeReason {
 
   /// The user erased this device; the account stays.
   deviceErased,
+
+  /// The user left the demo, for the Welcome screen.
+  demoLeft,
 }
 
 /// Stops the app, wipes its local data with the running app's [LocalWipe], confirms, and
@@ -67,7 +75,7 @@ abstract interface class LocalWipe {
   Future<void> wipe(WipeReason reason);
 }
 
-/// The dev and prod flavors' wipe: the pending record and the legacy keys in
+/// The dev and prod flavors' wipe, whatever the app mode: the pending record and the legacy keys in
 /// [preferences], the database files under [directory] (the application support
 /// directory), then the stores.
 final class DriftLocalWipe implements LocalWipe {
@@ -81,6 +89,7 @@ final class DriftLocalWipe implements LocalWipe {
     required this.tokens,
     required this.reminders,
     required this.background,
+    required this.modes,
   });
 
   /// The key of the pending record in [preferences], its value the [WipeReason]'s name.
@@ -95,6 +104,7 @@ final class DriftLocalWipe implements LocalWipe {
   final TokenStore tokens;
   final ReminderScheduler reminders;
   final BackgroundWork background;
+  final AppModeStore modes;
 
   /// The suffixes of SQLite's files beside a database.
   static const List<String> databaseFileSuffixes = [
@@ -126,7 +136,15 @@ final class DriftLocalWipe implements LocalWipe {
         if (file.existsSync()) await file.delete();
       }
     }
-    await _wipeStores(receipts, widgets, keys, tokens, reminders, background);
+    await _wipeStores(
+      receipts,
+      widgets,
+      keys,
+      tokens,
+      reminders,
+      background,
+      modes,
+    );
     await prefs.remove(pendingKey);
   }
 }
@@ -142,6 +160,7 @@ final class InMemoryLocalWipe implements LocalWipe {
     required this.tokens,
     required this.reminders,
     required this.background,
+    required this.modes,
   });
 
   final ReceiptStore receipts;
@@ -150,6 +169,7 @@ final class InMemoryLocalWipe implements LocalWipe {
   final TokenStore tokens;
   final ReminderScheduler reminders;
   final BackgroundWork background;
+  final AppModeStore modes;
 
   /// The pending record.
   WipeReason? pendingReason;
@@ -163,7 +183,15 @@ final class InMemoryLocalWipe implements LocalWipe {
   @override
   Future<void> wipe(WipeReason reason) async {
     pendingReason = reason;
-    await _wipeStores(receipts, widgets, keys, tokens, reminders, background);
+    await _wipeStores(
+      receipts,
+      widgets,
+      keys,
+      tokens,
+      reminders,
+      background,
+      modes,
+    );
     pendingReason = null;
     wipes++;
   }
@@ -176,6 +204,7 @@ Future<void> _wipeStores(
   TokenStore tokens,
   ReminderScheduler reminders,
   BackgroundWork background,
+  AppModeStore modes,
 ) async {
   await receipts.deleteAll();
   await widgets.clear();
@@ -184,4 +213,5 @@ Future<void> _wipeStores(
   await tokens.clearInstallUserId();
   await reminders.clearAll();
   await background.cancelAll();
+  await modes.clear();
 }

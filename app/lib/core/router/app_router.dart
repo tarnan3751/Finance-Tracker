@@ -18,7 +18,6 @@
 ///   link that reaches the running app goes there ([openLaunchLink]).
 library;
 
-import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/launch_links.dart';
 import 'package:finance_tracker/core/router/routes.dart';
@@ -69,7 +68,7 @@ bool openLaunchLink(
 GoRouter routerFor(Ref ref, {String? initialLocation}) {
   ValueNotifier<SessionState>? session;
   ValueNotifier<bool>? restoreOffer;
-  if (ref.watch(appConfigProvider).flavor != Flavor.demo) {
+  if (!ref.watch(appConfigProvider).isDemo) {
     final ValueNotifier<SessionState> notifier = ValueNotifier(
       ref.read(sessionControllerProvider),
     );

@@ -5027,6 +5027,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get importReviewFailed =>
       'The rows could not be read for review. Try again, or go back and choose another file.';
+
+  @override
+  String get startingApp => 'Starting…';
+
+  @override
+  String get leavingDemoTitle => 'Leaving the demo…';
 }
 
 /// The translations for English (`en_XA`).
@@ -10156,4 +10162,10 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
   @override
   String get importReviewFailed =>
       '[Ţĥé ŕöŵš çöûļð ñöţ ƀé ŕéåð ƒöŕ ŕéṽîéŵ. Ţŕý åĝåîñ, öŕ ĝö ƀåçķ åñð çĥööšé åñöţĥéŕ ƒîļé. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~]';
+
+  @override
+  String get startingApp => '[Šţåŕţîñĝ… ~~~~]';
+
+  @override
+  String get leavingDemoTitle => '[Ļéåṽîñĝ ţĥé ðéɱö… ~~~~~ ~]';
 }

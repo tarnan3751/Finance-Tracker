@@ -48,9 +48,16 @@ void main() {
     );
   });
 
-  test('screenshots are blocked by default in prod only', () {
-    expect(AppConfig.prod().secureScreenDefault, isTrue);
-    expect(AppConfig.dev().secureScreenDefault, isFalse);
+  test("screenshots are blocked by default in prod's live mode only", () {
+    final AppConfig prod = AppConfig.prod();
+    expect(prod.secureScreenDefault, isTrue);
+    expect(prod.withChoices(mode: AppMode.live).secureScreenDefault, isTrue);
+    expect(prod.withChoices(mode: AppMode.demo).secureScreenDefault, isFalse);
+    expect(prod.withChoices(mode: null).secureScreenDefault, isFalse);
+    final AppConfig dev = AppConfig.dev();
+    for (final AppMode? mode in [AppMode.live, AppMode.demo, null]) {
+      expect(dev.withChoices(mode: mode).secureScreenDefault, isFalse);
+    }
     expect(AppConfig.demo().secureScreenDefault, isFalse);
   });
 }

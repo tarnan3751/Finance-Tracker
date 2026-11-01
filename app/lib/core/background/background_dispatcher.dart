@@ -6,7 +6,9 @@
 /// database opener sets SQLite's temporary directory itself. Then one
 /// [runBackgroundCycle] on the flavor's own wiring (`overridesFor`, with no window, so
 /// the lock never calls `MainActivity`'s channel, which this engine has not). The flavor comes in
-/// the task's input data (`workmanager_background_work.dart`).
+/// the task's input data (`workmanager_background_work.dart`); the app mode and the
+/// entered server URL from the preferences the app keeps them in (`app_mode_store.dart`),
+/// so a prod build without a compiled URL syncs with the one entered on sign-in.
 library;
 
 import 'dart:io';
@@ -14,6 +16,7 @@ import 'dart:io';
 import 'package:finance_tracker/bootstrap.dart' show deviceLocale;
 import 'package:finance_tracker/core/background/background_cycle.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
+import 'package:finance_tracker/core/config/app_mode_store.dart';
 import 'package:finance_tracker/core/db/local_wipe.dart';
 import 'package:finance_tracker/core/db/open_database.dart';
 import 'package:finance_tracker/core/di/providers.dart';
@@ -31,12 +34,16 @@ import 'package:workmanager/workmanager.dart';
 @pragma('vm:entry-point')
 void backgroundDispatcher() {
   Workmanager().executeTask((task, input) async {
-    final AppConfig config = switch (input?[flavorInputKey]) {
+    final AppConfig flavor = switch (input?[flavorInputKey]) {
       'dev' => AppConfig.dev(),
       'prod' => AppConfig.prod(),
       _ => AppConfig.demo(),
     };
-    setUpLogging(config.flavor);
+    setUpLogging(flavor.flavor);
+    final AppConfig config = await resolveAppConfig(
+      flavor,
+      deviceAppModeStore(),
+    );
     await setUpTimeZones();
     Intl.defaultLocale = deviceLocale();
     // Every locale's date symbols, which the app gets from flutter_localizations at its

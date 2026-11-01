@@ -6,7 +6,6 @@ library;
 
 import 'dart:async';
 
-import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/features/budgets/presentation/budget_period_selector.dart';
 import 'package:finance_tracker/features/export/application/export_providers.dart';
@@ -134,9 +133,7 @@ class _ReportExportSheetState extends ConsumerState<_ReportExportSheet> {
                   : null,
             ),
             const SizedBox(height: 16),
-            ExportPrivacyNote(
-              demo: ref.watch(appConfigProvider).flavor == Flavor.demo,
-            ),
+            ExportPrivacyNote(demo: ref.watch(appConfigProvider).isDemo),
           ],
         ),
       ),

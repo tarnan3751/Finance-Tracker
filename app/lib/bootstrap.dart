@@ -1,6 +1,8 @@
 /// Startup shared by the three entry points: [bootstrap] checks the configuration and
-/// sets up logging, time zones and the locale once, then [startApp] opens the local data
-/// (dev and prod), reads the stored session and the lock's settings (locking the app and
+/// sets up logging, time zones and the locale once, then [startApp] reads the app mode
+/// the device keeps (dev and prod: the demo, the live mode, or none yet, which opens on
+/// the Welcome screen; `docs/reference/onboarding.md`), opens the local data (the live
+/// mode), reads the stored session and the lock's settings (locking the app and
 /// securing its window before the first frame when they say so), starts sync and the
 /// budget alerts, and runs the app on a new Riverpod container; after the first frame,
 /// the bill reminders are planned (a tapped one opens its bill), the home screen widgets
@@ -14,13 +16,15 @@
 /// app restart [startApp] supplies (`appRestartProvider`); the local wipe
 /// (`core/db/local_wipe.dart`, `wipeLocalDataProvider`) stops it the same way, wipes,
 /// confirms on a plain screen and starts it again on the fresh install; a wipe cut short
-/// is finished the same way before [startApp] opens anything local.
+/// is finished the same way before [startApp] opens anything local. A choice made on
+/// the Welcome screen restarts it the same way (`appModeRestartProvider`), on the mode
+/// it stored.
 ///
 /// The background sync (`core/background/`, `docs/reference/background.md`): in dev and
 /// prod [bootstrap] registers the process's `ft.app` port once (and again on every resume,
 /// in case a worker took the app for gone), so the worker asks this
 /// app to sync while it runs (and finds it busy while a restore or a wipe has stopped
-/// it); [startApp] first waits, at most 45 s, for a cycle the worker runs on its own to
+/// it); in the live mode [startApp] first waits, at most 45 s, for a cycle the worker runs on its own to
 /// finish, so two sessions never share the account's tokens; after the session is read
 /// it turns a remote sign-out the worker met into the sign-in screen's notice; and it
 /// keeps the periodic sync scheduled while someone is signed in
@@ -34,6 +38,7 @@ import 'package:finance_tracker/core/background/background_cycle.dart';
 import 'package:finance_tracker/core/background/background_ports.dart';
 import 'package:finance_tracker/core/background/background_sync_watcher.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
+import 'package:finance_tracker/core/config/app_mode_store.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
@@ -65,6 +70,7 @@ import 'package:finance_tracker/features/bills/application/reminder_planner.dart
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
 import 'package:finance_tracker/features/lock/application/lock_controller.dart';
 import 'package:finance_tracker/features/net_worth/application/snapshot_writer.dart';
+import 'package:finance_tracker/features/onboarding/presentation/starting_app.dart';
 import 'package:finance_tracker/features/recurring/application/detector_runner.dart';
 import 'package:finance_tracker/features/reports/application/weekly_summary_providers.dart';
 import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
@@ -91,9 +97,9 @@ StreamSubscription<String>? _notificationTaps;
 AppSyncPort? _appPort;
 AppLifecycleListener? _appPortLifecycle;
 
-/// Starts the app for [config] ([startApp]) after the process's one-time setup. Throws a
-/// [StateError] before anything runs when the prod flavor is given a server URL that is
-/// not HTTPS.
+/// Starts the app for [config] ([startApp], on the app mode the device keeps outside the
+/// demo flavor) after the process's one-time setup. Throws a [StateError] before anything
+/// runs when the prod flavor is given a server URL that is not HTTPS.
 Future<void> bootstrap(AppConfig config) async {
   final Uri? serverBaseUrl = config.serverBaseUrl;
   if (config.flavor == Flavor.prod &&
@@ -119,7 +125,10 @@ Future<void> bootstrap(AppConfig config) async {
     // Again on every resume: a worker that once took the app for gone removed it.
     _appPortLifecycle ??= AppLifecycleListener(onResume: port.register);
   }
-  await startApp(config);
+  await startApp(
+    config,
+    modes: config.flavor == Flavor.demo ? null : deviceAppModeStore(),
+  );
 }
 
 // A sync the worker asked for, run by the app (`ft.app`): Sync now, its outcome
@@ -149,33 +158,55 @@ Future<DelegatedResult> _syncForBackground() async {
       : DelegatedResult.success;
 }
 
-/// Runs the app for [config] on a new container over [overrides] (the flavor's,
-/// [overridesFor], unless a test supplies its own), after [bootstrap]'s one-time setup.
-/// When the local data cannot be opened, for whatever reason, logs the failure's type
-/// and shows [DatabaseErrorApp] instead of the app.
-Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
-  final List<Override> base = overrides ?? overridesFor(config);
+/// Runs the app for [config] on a new container over [overrides] (the wiring of the
+/// configuration and its app mode, [overridesFor], unless a test supplies its own, or
+/// [wiringFor]'s for the mode read), after [bootstrap]'s one-time setup. With [modes],
+/// the app mode, the demo's household and the entered server URL are read from it first
+/// (`AppConfig.withChoices`), at this start and at every restart; without, [config] is
+/// taken as it is. When the local data cannot be opened, for whatever reason, logs the
+/// failure's type and shows [DatabaseErrorApp] instead of the app.
+Future<void> startApp(
+  AppConfig config, {
+  List<Override>? overrides,
+  AppModeStore? modes,
+  @visibleForTesting List<Override> Function(AppConfig config)? wiringFor,
+}) async {
+  Future<void> again() => startApp(
+    config,
+    overrides: overrides,
+    modes: modes,
+    wiringFor: wiringFor,
+  );
+  final AppConfig resolved = modes == null
+      ? config
+      : await _resolved(config, modes);
+  final List<Override> base =
+      overrides ?? (wiringFor ?? overridesFor)(resolved);
   final Override restart = appRestartProvider.overrideWithValue(
-    (work) => _restart(config, overrides, work),
+    (work) => _restart(work, again),
   );
   late final ProviderContainer container;
   final Override wipe = wipeLocalDataProvider.overrideWithValue(
-    (reason) =>
-        _wipe(config, overrides, container.read(localWipeProvider), reason),
+    (reason) => _wipe(container.read(localWipeProvider), reason, again),
+  );
+  final Override modeRestart = appModeRestartProvider.overrideWithValue(
+    () => _restartOnMode(again),
   );
   // A cycle the background sync runs on its own finishes first.
-  if (config.flavor != Flavor.demo) await waitForBackgroundCycle();
-  container = ProviderContainer(overrides: [...base, restart, wipe]);
+  if (resolved.isLive) await waitForBackgroundCycle();
+  container = ProviderContainer(
+    overrides: [...base, restart, wipe, modeRestart],
+  );
   // A wipe cut short (the process killed part way) is finished before anything local
   // opens, so the app never starts on what is left of it.
   final LocalWipe localWipe = container.read(localWipeProvider);
   final WipeReason? pending = await _pendingWipe(localWipe);
   if (pending != null) {
     container.dispose();
-    await _wipe(config, overrides, localWipe, pending, resumed: true);
+    await _wipe(localWipe, pending, again, resumed: true);
     return;
   }
-  if (config.flavor != Flavor.demo) {
+  if (resolved.isLive) {
     try {
       await openLocalData(container, locale: Intl.getCurrentLocale());
     } catch (e) {
@@ -186,7 +217,7 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
       _log.severe('the local database did not open: ${e.runtimeType}');
       runApp(
         ProviderScope(
-          overrides: [...base, restart, wipe],
+          overrides: [...base, restart, wipe, modeRestart],
           child: DatabaseErrorApp(failure: databaseFailureOf(e)),
         ),
       );
@@ -197,7 +228,7 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
   // The stored session, read before the first frame so the router never shows the
   // sign-in screen to a signed-in user; GET /me confirms it in the background.
   await container.read(sessionControllerProvider.notifier).restored();
-  if (config.flavor != Flavor.demo) await _takeBackgroundSignOut(container);
+  if (resolved.isLive) await _takeBackgroundSignOut(container);
   // The lock's settings, read before the first frame: a locked app never shows its content,
   // and a secure window is secure before anything is drawn in it.
   await container.read(lockControllerProvider.notifier).restored();
@@ -206,9 +237,9 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
   container
       .read(launchLocationProvider.notifier)
       .startAt(await _initialLaunchLink(container));
-  // Sync starts with the app: it runs a session when someone is signed in (never in demo).
+  // Sync starts with the app: it runs a session when someone is signed in (only live).
   container.read(syncControllerProvider);
-  // The background sync is scheduled while someone is signed in (never in demo).
+  // The background sync is scheduled while someone is signed in (only live).
   container.listen(backgroundSyncWatcherProvider, (_, _) {});
   // The budget alerts are evaluated whenever the statuses change, in every flavor.
   container.listen(budgetAlertWatcherProvider, (_, _) {});
@@ -257,10 +288,10 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
                 .push<void>(EditBillRoute(id).location),
           ),
         );
-    // The notification channels, named in the device's locale, at every start; in dev
-    // and prod a tapped notification opens its screen.
+    // The notification channels, named in the device's locale, at every start; in the
+    // live mode a tapped notification opens its screen.
     unawaited(_ensureChannels(container));
-    if (config.flavor != Flavor.demo) {
+    if (resolved.isLive) {
       _notificationTaps = container
           .read(localNotificationsProvider)
           .routes
@@ -270,7 +301,7 @@ Future<void> startApp(AppConfig config, {List<Override>? overrides}) async {
           );
     }
   });
-  if (config.flavor != Flavor.demo) {
+  if (resolved.isLive) {
     // Once per launch, off the first frame: the photos attached before receipt hashes
     // existed get theirs (`TransactionActions.fillReceiptHashes`), then a delete that
     // became final while the app was not watching (`TransactionActions.sweepReceipts`)
@@ -311,13 +342,35 @@ Future<void> _ensureChannels(ProviderContainer container) async {
   }
 }
 
+// [config] with the choices [modes] holds; a store that cannot be read is logged by type
+// and leaves [config] as it is.
+Future<AppConfig> _resolved(AppConfig config, AppModeStore modes) async {
+  try {
+    return await resolveAppConfig(config, modes);
+  } on Object catch (e) {
+    _log.warning('the app mode could not be read: ${e.runtimeType}');
+    return config;
+  }
+}
+
+// The restart after the Welcome screen stored a mode (or the sign-in screen cleared it):
+// the starting screen, the running app stopped, then the app started again by [again],
+// which reads the mode the store now holds.
+Future<void> _restartOnMode(Future<void> Function() again) async {
+  runApp(const ProviderScope(child: StartingApp()));
+  // Two frames, as the restore's restart waits: the old tree is gone first.
+  await WidgetsBinding.instance.endOfFrame;
+  await WidgetsBinding.instance.endOfFrame;
+  await stopApp();
+  await again();
+}
+
 // The app restart a restore runs under: the restoring screen, the running app stopped,
-// [work] with its progress shown, then the app started again on [config] and
-// [overrides]; a failure of [work] is shown, by type in the log, until the user goes on.
+// [work] with its progress shown, then the app started again by [again]; a failure of
+// [work] is shown, by type in the log, until the user goes on.
 Future<void> _restart(
-  AppConfig config,
-  List<Override>? overrides,
   Future<void> Function(ProgressReport report) work,
+  Future<void> Function() again,
 ) async {
   final ValueNotifier<RestoringState> state = ValueNotifier(
     const RestoringState(),
@@ -342,20 +395,19 @@ Future<void> _restart(
     state.value = RestoringState(failure: e, onContinue: completeOnce(resume));
     await resume.future;
   }
-  await startApp(config, overrides: overrides);
+  await again();
 }
 
 // The local wipe: the erasing screen, the running app stopped (none when it finishes a
 // pending wipe at startup, [resumed]), [wipe] run until it succeeds (each failure shown,
 // by type in the log, until the user tries again; a repeated one, the second in a row
 // or any of a resumed wipe, also points at Android's storage settings), the confirmation
-// for [reason], then, on Done, the app started again on [config] and [overrides], on the
-// fresh install.
+// for [reason] (none for leaving the demo), then, on Done, the app started again by
+// [again], on the fresh install.
 Future<void> _wipe(
-  AppConfig config,
-  List<Override>? overrides,
   LocalWipe wipe,
-  WipeReason reason, {
+  WipeReason reason,
+  Future<void> Function() again, {
   bool resumed = false,
 }) async {
   final ValueNotifier<ErasingState> state = ValueNotifier(const Erasing());
@@ -385,10 +437,13 @@ Future<void> _wipe(
       state.value = const Erasing();
     }
   }
-  final Completer<void> done = Completer<void>();
-  state.value = Erased(() => _completeOnce(done));
-  await done.future;
-  await startApp(config, overrides: overrides);
+  // Leaving the demo goes straight to the Welcome screen.
+  if (reason != WipeReason.demoLeft) {
+    final Completer<void> done = Completer<void>();
+    state.value = Erased(() => _completeOnce(done));
+    await done.future;
+  }
+  await again();
 }
 
 // The launch link the app was started at, or null; a platform failure is logged by type
@@ -443,10 +498,9 @@ Future<void> stopApp() async {
   await _notificationTaps?.cancel();
   _notificationTaps = null;
   if (container == null) return;
-  final AppDatabase? database =
-      container.read(appConfigProvider).flavor == Flavor.demo
-      ? null
-      : container.read(databaseProvider);
+  final AppDatabase? database = container.read(appConfigProvider).isLive
+      ? container.read(databaseProvider)
+      : null;
   container.dispose();
   // The close the container started (one close only: two at once race in Drift),
   // awaited so the files can go.

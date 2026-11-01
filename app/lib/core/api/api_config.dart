@@ -1,16 +1,19 @@
 /// The `Dio` every API call goes through, built for a flavor's `AppConfig`.
 ///
-/// - The base URL is the flavor's server URL with `/v1` appended (the dev default is
-///   `http://10.0.2.2:8080/v1`, the development server as the emulator sees it).
-/// - **HTTPS in prod** (`PLAN.md` §12): a prod build given a non-`https` URL fails here,
-///   before any request, with a `StateError`; `bootstrap` refuses it earlier still. Dart's
-///   `HttpClient` ignores Android's network security config, so this is where the rule
-///   holds for the app's own traffic.
+/// - The base URL is the server's ([ServerAddress]: the flavor's compiled URL, or the one
+///   entered on the sign-in screen) with `/v1` appended (the dev default is
+///   `http://10.0.2.2:8080/v1`, the development server as the emulator sees it), read for
+///   every request, so an address entered while the app runs is used from the next one.
+/// - **HTTPS in prod** (`PLAN.md` §12): a prod build given a non-`https` compiled URL
+///   fails here, before any request, with a `StateError` (`bootstrap` refuses it earlier
+///   still), and a request to a non-`https` entered one fails with a `StateError` too.
+///   Dart's `HttpClient` ignores Android's network security config, so this is where the
+///   rule holds for the app's own traffic.
 /// - **Certificates are never relaxed**: the adapter is Dio's default with no
 ///   `createHttpClient` or `validateCertificate`, so the platform's checks apply in every
 ///   flavor, wrapped by [ResettableHttpClientAdapter] so its connections can be dropped
 ///   after a network change. Tests and the demo pass the fake server's adapter instead.
-/// - A build with no server URL (a prod build without `FT_SERVER_URL`) gets a Dio whose
+/// - With no server URL (a prod build without `FT_SERVER_URL`, before one is entered),
 ///   every request fails with `ServerNotConfiguredException`, which the problem mapper
 ///   reports as a `NetworkError` (`notConfigured`).
 /// - Timeouts: 10 s to connect, 30 s to send a body, 30 s to receive. Every request carries
@@ -24,6 +27,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:finance_tracker/core/api/problems.dart';
+import 'package:finance_tracker/core/api/server_address.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:logging/logging.dart';
 
@@ -40,35 +44,42 @@ const String _startedKey = 'ft.started';
 typedef VersionReader = Future<String> Function();
 
 /// The Dio for [config]: on [adapter] when given (the fake server), else Dio's default;
-/// at [baseUrl] when given, else the flavor's server URL. See the library comment.
+/// at [baseUrl] when given, else at [address] (the flavor's server URL by default). See
+/// the library comment.
 Dio buildDio(
   AppConfig config, {
   HttpClientAdapter? adapter,
   Uri? baseUrl,
+  ServerAddress? address,
   required VersionReader version,
 }) {
-  final Uri? server = baseUrl ?? config.serverBaseUrl;
-  if (server != null && config.flavor == Flavor.prod) {
-    if (server.scheme != 'https') {
-      throw StateError('The prod flavor needs an https server URL');
-    }
+  final ServerAddress server = baseUrl != null
+      ? ServerAddress(compiled: baseUrl)
+      : address ?? ServerAddress(compiled: config.serverBaseUrl);
+  final Uri? compiled = server.compiled;
+  if (compiled != null && !_allowed(config, compiled)) {
+    throw StateError('The prod flavor needs an https server URL');
   }
+  final Uri? initial = server.current;
   final Dio dio = Dio(
     BaseOptions(
-      baseUrl: server == null
+      baseUrl: initial == null
           ? 'https://unconfigured.invalid/v1'
-          : apiBaseUrl(server),
+          : apiBaseUrl(initial),
       connectTimeout: const Duration(seconds: 10),
       sendTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
     ),
   );
   if (adapter != null) dio.httpClientAdapter = adapter;
+  dio.interceptors.add(_ServerInterceptor(config, server));
   dio.interceptors.add(_UserAgentInterceptor(config.flavor, version));
-  if (server == null) dio.interceptors.add(const _NotConfiguredInterceptor());
   if (config.flavor == Flavor.dev) dio.interceptors.add(DevLogInterceptor());
   return dio;
 }
+
+bool _allowed(AppConfig config, Uri server) =>
+    config.flavor != Flavor.prod || server.scheme == 'https';
 
 /// Connections that can be dropped: [reset] makes the next request open a new one.
 abstract interface class HttpConnections {
@@ -142,17 +153,39 @@ final class _UserAgentInterceptor extends Interceptor {
   }
 }
 
-final class _NotConfiguredInterceptor extends Interceptor {
-  const _NotConfiguredInterceptor();
+/// Points each request at the server's current address, or refuses it: with
+/// `ServerNotConfiguredException` while there is none, with a `StateError` for a
+/// non-`https` one in prod.
+final class _ServerInterceptor extends Interceptor {
+  const _ServerInterceptor(this._config, this._server);
+
+  final AppConfig _config;
+  final ServerAddress _server;
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) =>
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    final Uri? server = _server.current;
+    if (server == null) {
       handler.reject(
         DioException(
           requestOptions: options,
           error: const ServerNotConfiguredException(),
         ),
       );
+      return;
+    }
+    if (!_allowed(_config, server)) {
+      handler.reject(
+        DioException(
+          requestOptions: options,
+          error: StateError('The prod flavor needs an https server URL'),
+        ),
+      );
+      return;
+    }
+    options.baseUrl = apiBaseUrl(server);
+    handler.next(options);
+  }
 }
 
 /// The dev flavor's request log: one line per answer, with no body, token or query.

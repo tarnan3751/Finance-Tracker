@@ -5027,4 +5027,10 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get importReviewFailed =>
       'The rows could not be read for review. Try again, or go back and choose another file.';
+
+  @override
+  String get startingApp => 'Starting…';
+
+  @override
+  String get leavingDemoTitle => 'Leaving the demo…';
 }

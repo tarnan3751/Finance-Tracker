@@ -7180,5 +7180,13 @@
   "importReviewFailed": "The rows could not be read for review. Try again, or go back and choose another file.",
   "@importReviewFailed": {
     "description": "Error on the import mapping when preparing the review failed."
+  },
+  "startingApp": "Starting…",
+  "@startingApp": {
+    "description": "Screen-reader label of the progress indicator while the app restarts on the mode chosen on the Welcome screen."
+  },
+  "leavingDemoTitle": "Leaving the demo…",
+  "@leavingDemoTitle": {
+    "description": "Headline while the demo's data is erased after the user chose to leave the demo."
   }
 }

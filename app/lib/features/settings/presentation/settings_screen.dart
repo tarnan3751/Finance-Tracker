@@ -131,7 +131,7 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => openDetail(context, const ImportRoute().location),
           ),
-          if (ref.watch(appConfigProvider).flavor == Flavor.demo)
+          if (ref.watch(appConfigProvider).isDemo)
             ListTile(
               leading: const Icon(Icons.settings_backup_restore),
               title: Text(l10n.backupTitle),
@@ -160,8 +160,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           ListTile(title: Text(l10n.aboutFlavor), subtitle: Text(flavor)),
           ListTile(title: Text(l10n.aboutTimeZone), subtitle: Text(timeZone)),
-          if (ref.watch(appConfigProvider).flavor == Flavor.demo)
-            const DemoDataSection(),
+          if (ref.watch(appConfigProvider).isDemo) const DemoDataSection(),
           // A constant first, so demo and prod builds leave the tools out.
           if (kDevTools && ref.watch(appConfigProvider).flavor == Flavor.dev)
             const DeveloperSection(),

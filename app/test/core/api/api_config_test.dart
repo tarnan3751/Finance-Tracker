@@ -1,10 +1,12 @@
 // buildDio: the HTTPS rule, the base URL, timeouts, the User-Agent, no certificate
-// override, a build with no server, and the dev-only request log.
+// override, a build with no server, an address entered while the client runs (and prod's
+// refusal of a plain one), and the dev-only request log.
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:finance_tracker/core/api/api_config.dart';
 import 'package:finance_tracker/core/api/http_finance_api.dart';
 import 'package:finance_tracker/core/api/problems.dart';
+import 'package:finance_tracker/core/api/server_address.dart';
 import 'package:finance_tracker/core/api/token_store.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/time/clock.dart';
@@ -90,6 +92,58 @@ void main() {
         ),
       ),
     );
+  });
+
+  test('an entered address is used from the next request on', () async {
+    final List<Uri> asked = [];
+    final ScriptedAdapter adapter = ScriptedAdapter((options, _) {
+      asked.add(options.uri);
+      return ok({'status': 'ok', 'version': contractVersion});
+    });
+    final ServerAddress address = ServerAddress();
+    final HttpFinanceApi api = HttpFinanceApi(
+      buildDio(
+        AppConfig.prod(),
+        adapter: adapter,
+        address: address,
+        version: _version,
+      ),
+      tokens: InMemoryTokenStore(),
+      clock: _clock,
+    );
+    await expectLater(
+      api.getHealth(),
+      throwsA(
+        isA<NetworkError>().having(
+          (e) => e.kind,
+          'kind',
+          NetworkErrorKind.notConfigured,
+        ),
+      ),
+    );
+    expect(asked, isEmpty);
+
+    address.entered = Uri.parse('https://money.example.com/ft/');
+    await api.getHealth();
+    expect(asked.single, Uri.parse('https://money.example.com/ft/v1/health'));
+  });
+
+  test('prod refuses an entered address that is not https', () async {
+    final ScriptedAdapter adapter = ScriptedAdapter(
+      (_, _) => ok({'status': 'ok', 'version': contractVersion}),
+    );
+    final HttpFinanceApi api = HttpFinanceApi(
+      buildDio(
+        AppConfig.prod(),
+        adapter: adapter,
+        address: ServerAddress(entered: Uri.parse('http://money.example.com')),
+        version: _version,
+      ),
+      tokens: InMemoryTokenStore(),
+      clock: _clock,
+    );
+    await expectLater(api.getHealth(), throwsA(anything));
+    expect(adapter.requests, isEmpty);
   });
 
   test(

@@ -32,7 +32,6 @@ library;
 
 import 'dart:async';
 
-import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/plaid/plaid_pull.dart';
@@ -188,7 +187,7 @@ SnapshotWriter snapshotWriter(Ref ref) => SnapshotWriter(
   liabilities: ref.watch(liabilityRepositoryProvider),
   snapshots: ref.watch(balanceSnapshotRepositoryProvider),
   meta: ref.watch(appMetaStoreProvider),
-  demo: ref.watch(appConfigProvider).flavor == Flavor.demo,
+  demo: ref.watch(appConfigProvider).isDemo,
 );
 
 /// Replaces today's snapshots in [container] now, from what its sync left, and

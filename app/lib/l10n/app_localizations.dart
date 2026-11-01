@@ -7617,6 +7617,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The rows could not be read for review. Try again, or go back and choose another file.'**
   String get importReviewFailed;
+
+  /// Screen-reader label of the progress indicator while the app restarts on the mode chosen on the Welcome screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting…'**
+  String get startingApp;
+
+  /// Headline while the demo's data is erased after the user chose to leave the demo.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaving the demo…'**
+  String get leavingDemoTitle;
 }
 
 class _AppLocalizationsDelegate

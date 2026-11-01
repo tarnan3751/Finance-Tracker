@@ -136,7 +136,6 @@ flutter:
     # monthly report's PDF (features/export/).
     - assets/fonts/Roboto-Regular.ttf
     - assets/fonts/Roboto-Bold.ttf
-    # The demo flavor's receipt photo (a synthetic one), for its fake image source.
-    - path: assets/demo/receipt.jpg
-      flavors:
-        - demo
+    # The demo's receipt photo (a synthetic one), for its fake image source: in every
+    # flavor, since dev and prod run the demo too when it is chosen on the Welcome screen.
+    - assets/demo/receipt.jpg

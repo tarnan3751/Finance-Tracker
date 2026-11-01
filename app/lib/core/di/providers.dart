@@ -1,18 +1,21 @@
 /// The app-wide providers: the flavor's configuration, the clock, the repositories, and the
-/// overrides `bootstrap` installs for a flavor.
+/// overrides `bootstrap` installs for a flavor and its app mode.
 ///
 /// Feature providers live in their feature's `application/` folder; what is here is what
 /// every feature may depend on. With no override, the repositories are the in-memory ones
 /// over one shared [InMemoryStore] (what tests get), recording into an in-memory sync
-/// store, and the receipts are in memory; [overridesFor] gives dev and prod the Drift
+/// store, and the receipts are in memory; [overridesFor] gives the live mode the Drift
 /// repositories over the encrypted database, recording into the Drift sync store, with
 /// the receipts as files in the app's support directory (which the local wipe deletes
 /// with the database files), the bill reminders through
 /// `flutter_local_notifications` and the exported files through the "Save as" dialog and
-/// the share sheet, and the demo flavor the demo ones, which record nothing, with the
-/// fake image source (and, as by default, the fake reminder scheduler and file
-/// exporter); every flavor gets the window's secure flag and the monotonic clock through
-/// the app's own channels, and the app lock's check through `local_auth`.
+/// the share sheet, and the demo mode (the demo flavor's, and dev's and prod's when the
+/// demo was chosen) the demo ones, which record nothing, with the fake image source (and,
+/// as by default, the fake reminder scheduler and file exporter); before a mode is chosen
+/// (the Welcome screen) the in-memory defaults, so nothing is written to the device. Dev
+/// and prod keep the app mode in the preferences and wipe through them in every mode;
+/// every flavor gets the window's secure flag and the monotonic clock through the app's
+/// own channels, and the app lock's check through `local_auth`.
 library;
 
 import 'dart:async';
@@ -23,6 +26,7 @@ import 'package:finance_tracker/core/api/api_models.dart' as wire;
 import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/background/background_dispatcher.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
+import 'package:finance_tracker/core/config/app_mode_store.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/database_exceptions.dart';
@@ -295,12 +299,14 @@ Duration syncBackoffAfter(int failures) {
   return delay > cap ? cap : delay;
 }
 
-/// The persona the demo flavor shows: [initialDemoPersona] at start, then what Settings →
-/// Demo data selects.
+/// The persona the demo shows: the one the device stores (`AppConfig.demoPersona`, chosen
+/// on the Welcome screen) or else [initialDemoPersona] at start, then what Settings → Demo
+/// data selects.
 @Riverpod(keepAlive: true)
 class DemoPersona extends _$DemoPersona {
   @override
-  PersonaId build() => initialDemoPersona();
+  PersonaId build() =>
+      ref.watch(appConfigProvider).demoPersona ?? initialDemoPersona();
 
   /// Shows [persona] instead.
   void select(PersonaId persona) => state = persona;
@@ -481,6 +487,7 @@ LocalWipe localWipe(Ref ref) => InMemoryLocalWipe(
   tokens: ref.watch(tokenStoreProvider),
   reminders: ref.watch(reminderSchedulerProvider),
   background: ref.watch(backgroundWorkProvider),
+  modes: ref.watch(appModeStoreProvider),
 );
 
 /// Stops the app, wipes its local data, confirms and starts it again: `bootstrap`
@@ -488,6 +495,19 @@ LocalWipe localWipe(Ref ref) => InMemoryLocalWipe(
 @Riverpod(keepAlive: true)
 WipeLocalData wipeLocalData(Ref ref) =>
     (_) => throw UnsupportedError('the local wipe is supplied by bootstrap');
+
+/// Where the device keeps the app mode, the demo's household and the entered server URL
+/// (`core/config/app_mode_store.dart`): in memory by default and in the demo flavor, the
+/// preferences in dev and prod.
+@Riverpod(keepAlive: true)
+AppModeStore appModeStore(Ref ref) => InMemoryAppModeStore();
+
+/// Stops the app and starts it again on the mode [appModeStore] now holds, behind a plain
+/// starting screen: `bootstrap` supplies it; anywhere else (the tests) it is unavailable
+/// unless overridden.
+@Riverpod(keepAlive: true)
+Future<void> Function() appModeRestart(Ref ref) =>
+    () => throw UnsupportedError('the mode restart is supplied by bootstrap');
 
 /// Where the Plaid pull keeps its cursors: in memory by default (beside the in-memory
 /// store, so a new store starts it afresh), `sync_meta` in dev and prod.
@@ -584,13 +604,17 @@ final List<Override> _platformOverrides = [
 
 final PlatformLaunchIntent _platformLaunchIntent = PlatformLaunchIntent();
 
-/// The system's file dialogs in dev and prod (`flutter_file_dialog` and `share_plus`):
-/// the file exporter, the backup picker and the CSV picker; the fakes elsewhere, the
-/// demo's CSV picker answering its sample export. Apart from
-/// [localDataOverridesFor], so a test on the dev wiring keeps the fakes.
-List<Override> filePickerOverridesFor(AppConfig config) =>
-    switch (config.flavor) {
-      Flavor.dev || Flavor.prod => [
+/// The system's file dialogs outside the demo (`flutter_file_dialog` and `share_plus`):
+/// the file exporter, the backup picker and the CSV picker; in the demo the fakes, its
+/// CSV picker answering its sample export. Apart from [localDataOverridesFor], so a test
+/// on the dev wiring keeps the fakes.
+List<Override> filePickerOverridesFor(AppConfig config) => config.isDemo
+    ? [
+        csvPickerProvider.overrideWith(
+          (ref) => DemoCsvPicker(ref.watch(clockProvider)),
+        ),
+      ]
+    : [
         fileExporterProvider.overrideWith(
           (ref) => PlatformFileExporter(getTemporaryDirectory),
         ),
@@ -600,21 +624,17 @@ List<Override> filePickerOverridesFor(AppConfig config) =>
         csvPickerProvider.overrideWith(
           (ref) => const PlatformBackupPicker(mimeTypesFilter: csvMimeTypes),
         ),
-      ],
-      Flavor.demo => [
-        csvPickerProvider.overrideWith(
-          (ref) => DemoCsvPicker(ref.watch(clockProvider)),
-        ),
-      ],
-    };
+      ];
 
-/// [overridesFor] without the API's: the flavor and its local data. For a test that
-/// supplies its own API (a fake server shared by several app instances), whatever
-/// `FT_FAKE_SERVER` says.
+/// [overridesFor] without the API's: the flavor and its local data, by app mode (Drift
+/// when live, the demo's in the demo, the in-memory defaults before a mode is chosen),
+/// and in dev and prod the device's app mode store and the wipe through the preferences
+/// in every mode. For a test that supplies its own API (a fake server shared by several
+/// app instances), whatever `FT_FAKE_SERVER` says.
 List<Override> localDataOverridesFor(AppConfig config) => [
   appConfigProvider.overrideWithValue(config),
-  ...switch (config.flavor) {
-    Flavor.dev || Flavor.prod => [
+  ...switch (config.mode) {
+    AppMode.live => [
       ..._driftOverrides,
       backgroundWorkProvider.overrideWith(
         (ref) => WorkmanagerBackgroundWork(
@@ -625,11 +645,33 @@ List<Override> localDataOverridesFor(AppConfig config) => [
         ),
       ),
     ],
-    Flavor.demo => _demoOverrides,
+    AppMode.demo => _demoOverrides,
+    null => const <Override>[],
   },
+  if (config.flavor != Flavor.demo) ..._deviceOverrides,
 ];
 
-/// dev and prod: the Drift repositories over the encrypted database, recording into the
+/// dev and prod, in every mode: the app mode in the preferences, and the wipe of the
+/// files and the preferences, so leaving the demo is finished after a cut too and clears
+/// the stored mode.
+final List<Override> _deviceOverrides = [
+  appModeStoreProvider.overrideWith((ref) => deviceAppModeStore()),
+  localWipeProvider.overrideWith(
+    (ref) => DriftLocalWipe(
+      directory: getApplicationSupportDirectory,
+      receipts: ref.watch(receiptStoreProvider),
+      widgets: ref.watch(widgetWriterProvider),
+      preferences: SharedPreferences.getInstance,
+      keys: ref.watch(databaseKeyStoreProvider),
+      tokens: ref.watch(tokenStoreProvider),
+      reminders: ref.watch(reminderSchedulerProvider),
+      background: ref.watch(backgroundWorkProvider),
+      modes: ref.watch(appModeStoreProvider),
+    ),
+  ),
+];
+
+/// The live mode: the Drift repositories over the encrypted database, recording into the
 /// Drift sync store with the device clock, and that data syncs.
 final List<Override> _driftOverrides = [
   localDataSyncsProvider.overrideWithValue(true),
@@ -766,18 +808,6 @@ final List<Override> _driftOverrides = [
   receiptStoreProvider.overrideWith(
     (ref) => FileReceiptStore(getApplicationSupportDirectory),
   ),
-  localWipeProvider.overrideWith(
-    (ref) => DriftLocalWipe(
-      directory: getApplicationSupportDirectory,
-      receipts: ref.watch(receiptStoreProvider),
-      widgets: ref.watch(widgetWriterProvider),
-      preferences: SharedPreferences.getInstance,
-      keys: ref.watch(databaseKeyStoreProvider),
-      tokens: ref.watch(tokenStoreProvider),
-      reminders: ref.watch(reminderSchedulerProvider),
-      background: ref.watch(backgroundWorkProvider),
-    ),
-  ),
   connectivityProvider.overrideWith((ref) => PlatformConnectivity()),
   systemSettingsProvider.overrideWithValue(const ChannelSystemSettings()),
   notificationChannelsProvider.overrideWith(
@@ -812,10 +842,10 @@ final List<Override> _driftOverrides = [
   }),
 ];
 
-/// The demo flavor: everything in memory, from the selected persona's demo seed dated to
-/// the clock's today; choosing another persona rebuilds the store (the demo's edits go).
-/// Receipt photos come from the fake image source (the bundled demo receipt) and stay in
-/// memory.
+/// The demo, the flavor's or the mode's: everything in memory, from the selected
+/// persona's demo seed dated to the clock's today; choosing another persona rebuilds the
+/// store (the demo's edits go). Receipt photos come from the fake image source (the
+/// bundled demo receipt) and stay in memory.
 final List<Override> _demoOverrides = [
   imageSourceProvider.overrideWith((ref) => FakeImageSource.demo()),
   databaseProvider.overrideWith(

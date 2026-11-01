@@ -755,18 +755,21 @@ final class SyncBackoffProvider
 
 String _$syncBackoffHash() => r'b4df0a1c8f61be454feb6f74ad5d9ad354faeceb';
 
-/// The persona the demo flavor shows: [initialDemoPersona] at start, then what Settings →
-/// Demo data selects.
+/// The persona the demo shows: the one the device stores (`AppConfig.demoPersona`, chosen
+/// on the Welcome screen) or else [initialDemoPersona] at start, then what Settings → Demo
+/// data selects.
 
 @ProviderFor(DemoPersona)
 final demoPersonaProvider = DemoPersonaProvider._();
 
-/// The persona the demo flavor shows: [initialDemoPersona] at start, then what Settings →
-/// Demo data selects.
+/// The persona the demo shows: the one the device stores (`AppConfig.demoPersona`, chosen
+/// on the Welcome screen) or else [initialDemoPersona] at start, then what Settings → Demo
+/// data selects.
 final class DemoPersonaProvider
     extends $NotifierProvider<DemoPersona, PersonaId> {
-  /// The persona the demo flavor shows: [initialDemoPersona] at start, then what Settings →
-  /// Demo data selects.
+  /// The persona the demo shows: the one the device stores (`AppConfig.demoPersona`, chosen
+  /// on the Welcome screen) or else [initialDemoPersona] at start, then what Settings → Demo
+  /// data selects.
   DemoPersonaProvider._()
     : super(
         from: null,
@@ -794,10 +797,11 @@ final class DemoPersonaProvider
   }
 }
 
-String _$demoPersonaHash() => r'6646595be34595249fceb3ae52383d10e5f57c03';
+String _$demoPersonaHash() => r'4e74ea8c783e7800f6abd16213804c978c98d1ed';
 
-/// The persona the demo flavor shows: [initialDemoPersona] at start, then what Settings →
-/// Demo data selects.
+/// The persona the demo shows: the one the device stores (`AppConfig.demoPersona`, chosen
+/// on the Welcome screen) or else [initialDemoPersona] at start, then what Settings → Demo
+/// data selects.
 
 abstract class _$DemoPersona extends $Notifier<PersonaId> {
   PersonaId build();
@@ -1883,7 +1887,7 @@ final class LocalWipeProvider
   }
 }
 
-String _$localWipeHash() => r'13480f8f81b00464b49c46c899d584768b425fa0';
+String _$localWipeHash() => r'4f4505e6ea0275f22c2041a2130fc41133bad454';
 
 /// Stops the app, wipes its local data, confirms and starts it again: `bootstrap`
 /// supplies it; anywhere else (the tests) it is unavailable unless overridden.
@@ -1933,6 +1937,116 @@ final class WipeLocalDataProvider
 }
 
 String _$wipeLocalDataHash() => r'ac0f7379aedf0b5e086823928036195af0f5678a';
+
+/// Where the device keeps the app mode, the demo's household and the entered server URL
+/// (`core/config/app_mode_store.dart`): in memory by default and in the demo flavor, the
+/// preferences in dev and prod.
+
+@ProviderFor(appModeStore)
+final appModeStoreProvider = AppModeStoreProvider._();
+
+/// Where the device keeps the app mode, the demo's household and the entered server URL
+/// (`core/config/app_mode_store.dart`): in memory by default and in the demo flavor, the
+/// preferences in dev and prod.
+
+final class AppModeStoreProvider
+    extends $FunctionalProvider<AppModeStore, AppModeStore, AppModeStore>
+    with $Provider<AppModeStore> {
+  /// Where the device keeps the app mode, the demo's household and the entered server URL
+  /// (`core/config/app_mode_store.dart`): in memory by default and in the demo flavor, the
+  /// preferences in dev and prod.
+  AppModeStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'appModeStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$appModeStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<AppModeStore> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  AppModeStore create(Ref ref) {
+    return appModeStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AppModeStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AppModeStore>(value),
+    );
+  }
+}
+
+String _$appModeStoreHash() => r'd60d0f026b851fdb50fea57d2f5bb8c81ea6f23d';
+
+/// Stops the app and starts it again on the mode [appModeStore] now holds, behind a plain
+/// starting screen: `bootstrap` supplies it; anywhere else (the tests) it is unavailable
+/// unless overridden.
+
+@ProviderFor(appModeRestart)
+final appModeRestartProvider = AppModeRestartProvider._();
+
+/// Stops the app and starts it again on the mode [appModeStore] now holds, behind a plain
+/// starting screen: `bootstrap` supplies it; anywhere else (the tests) it is unavailable
+/// unless overridden.
+
+final class AppModeRestartProvider
+    extends
+        $FunctionalProvider<
+          Future<void> Function(),
+          Future<void> Function(),
+          Future<void> Function()
+        >
+    with $Provider<Future<void> Function()> {
+  /// Stops the app and starts it again on the mode [appModeStore] now holds, behind a plain
+  /// starting screen: `bootstrap` supplies it; anywhere else (the tests) it is unavailable
+  /// unless overridden.
+  AppModeRestartProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'appModeRestartProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$appModeRestartHash();
+
+  @$internal
+  @override
+  $ProviderElement<Future<void> Function()> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  Future<void> Function() create(Ref ref) {
+    return appModeRestart(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Future<void> Function() value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Future<void> Function()>(value),
+    );
+  }
+}
+
+String _$appModeRestartHash() => r'04f40325f074e668fd347ec6134f265e14786117';
 
 /// Where the Plaid pull keeps its cursors: in memory by default (beside the in-memory
 /// store, so a new store starts it afresh), `sync_meta` in dev and prod.

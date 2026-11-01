@@ -37,7 +37,6 @@ import 'dart:convert';
 
 import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/api/problems.dart';
-import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/drift_sync_store.dart';
 import 'package:finance_tracker/core/db/tables/sync_meta.dart';
@@ -90,7 +89,7 @@ class SyncController extends _$SyncController {
 
   @override
   SyncStatus build() {
-    if (ref.watch(appConfigProvider).flavor == Flavor.demo ||
+    if (ref.watch(appConfigProvider).isDemo ||
         !ref.watch(localDataSyncsProvider)) {
       _settleFirst();
       return SyncStatus.unavailable;

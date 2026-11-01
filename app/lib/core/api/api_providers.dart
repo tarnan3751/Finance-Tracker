@@ -1,8 +1,11 @@
 /// The API's providers: the token store, the fake server and the `FinanceApi`, and the
 /// overrides that put a flavor on the fake (`apiOverridesFor`).
 ///
-/// - dev and prod: `HttpFinanceApi` on the network, the session in secure storage.
-/// - demo: the in-app fake server behind the real client, over the persona engine's
+/// - dev and prod in the live mode, or before a mode is chosen: `HttpFinanceApi` on the
+///   network at the [ServerAddress] (the compiled URL or the entered one), the session in
+///   secure storage.
+/// - the demo (the flavor, and dev and prod in the demo mode): the in-app fake server
+///   behind the real client, over the persona engine's
 ///   household the demo shows plus Houndstooth Bank (`demoLinkableBank`), seeded with the
 ///   demo user (`demoEmail`), the household's Items linked and synced, and that user
 ///   signed in, so the demo never shows sign-in and makes no network call; linking a bank
@@ -20,6 +23,7 @@ import 'package:finance_tracker/core/api/fake/fake_dataset.dart';
 import 'package:finance_tracker/core/api/fake/fake_server.dart';
 import 'package:finance_tracker/core/api/finance_api.dart';
 import 'package:finance_tracker/core/api/http_finance_api.dart';
+import 'package:finance_tracker/core/api/server_address.dart';
 import 'package:finance_tracker/core/api/token_store.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
@@ -66,6 +70,17 @@ ResettableHttpClientAdapter httpConnections(Ref ref) {
   return adapter;
 }
 
+/// The server the API talks to: the compiled URL, or the one entered on the sign-in screen
+/// (`server_address.dart`); the fake server's wherever it runs.
+@Riverpod(keepAlive: true)
+ServerAddress serverAddress(Ref ref) {
+  final AppConfig config = ref.watch(appConfigProvider);
+  return ServerAddress(
+    compiled: config.serverBaseUrl,
+    entered: config.enteredServerUrl,
+  );
+}
+
 /// The API, over the network.
 @Riverpod(keepAlive: true)
 FinanceApi financeApi(Ref ref) {
@@ -73,6 +88,7 @@ FinanceApi financeApi(Ref ref) {
     buildDio(
       ref.watch(appConfigProvider),
       adapter: ref.watch(httpConnectionsProvider),
+      address: ref.watch(serverAddressProvider),
       version: () => ref.read(appVersionProvider.future),
     ),
     tokens: ref.watch(tokenStoreProvider),
@@ -82,20 +98,20 @@ FinanceApi financeApi(Ref ref) {
   return api;
 }
 
-/// The API's overrides for [config]: none for dev and prod on the network, the fake
-/// server for demo (signed in) and for dev under `FT_FAKE_SERVER` (signed out).
-List<Override> apiOverridesFor(AppConfig config) => switch (config.flavor) {
-  Flavor.demo => fakeApiOverrides(signedIn: true, personaSeed: true),
-  Flavor.dev when fakeServerInDev => fakeApiOverrides(signedIn: false),
-  Flavor.dev || Flavor.prod => const [],
-};
+/// The API's overrides for [config]: the fake server for the demo (signed in) and for dev
+/// under `FT_FAKE_SERVER` (signed out), none on the network.
+List<Override> apiOverridesFor(AppConfig config) => config.isDemo
+    ? fakeApiOverrides(signedIn: true, personaSeed: true)
+    : config.flavor == Flavor.dev && fakeServerInDev
+    ? fakeApiOverrides(signedIn: false)
+    : const [];
 
 /// The fake server over a dataset, a session in memory and the API on the fake: the
 /// dataset is the demo flavor's persona seed (`demoSeedProvider`) followed by
 /// [demoLinkableBank] when [personaSeed], else the sample dated to the clock's today. When
 /// [signedIn], the demo user exists, the persona's Items (with [personaSeed]) or the
 /// sample's are linked and synced, and its session is stored. Plaid Link is the fake
-/// launcher over the fake server.
+/// launcher over the fake server, and the server's address is the fake's.
 List<Override> fakeApiOverrides({
   required bool signedIn,
   bool personaSeed = false,
@@ -145,6 +161,9 @@ List<Override> fakeApiOverrides({
     return InMemoryTokenStore(session: session, installUserId: session.userId);
   }),
   fakeFinanceApiOverride,
+  serverAddressProvider.overrideWith(
+    (ref) => ServerAddress(compiled: FakeServer.baseUrl),
+  ),
   linkLauncherProvider.overrideWith(
     (ref) => FakeLinkLauncher(ref.watch(fakeServerProvider)),
   ),

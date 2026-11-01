@@ -13,7 +13,7 @@
 ///
 /// The window is secure (`core/platform/screen_security.dart`) whenever the lock is
 /// enabled, which also blanks the task switcher's thumbnail, or "Block screenshots" is on;
-/// that setting starts at the flavor's `AppConfig.secureScreenDefault`. The flag is applied
+/// that setting starts at `AppConfig.secureScreenDefault`: on in prod's live mode only. The flag is applied
 /// once the settings are read, before the first frame, and again on every change.
 library;
 

@@ -214,7 +214,7 @@ final class WidgetDataProvider
   }
 }
 
-String _$widgetDataHash() => r'9d347367a75ff22bdb46a5d0e4abf4d7d00c04be';
+String _$widgetDataHash() => r'85fec4588c2fc7d9f7cca99d46a01aa168eac12c';
 
 /// Keeps the widgets current while listened to (see the library comment); its state is
 /// when it last wrote. Not kept alive: it follows [widgetDataProvider], which follows the

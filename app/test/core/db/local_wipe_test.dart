@@ -1,6 +1,7 @@
 // The local wipe on real files: an encrypted database with its side files, the plain
 // debug database, receipts, the home screen widgets' snapshot, the legacy keys and the
-// three secure-storage values, all gone, the reminders and notifications cleared, the pending record set from the first
+// three secure-storage values, all gone, the reminders and notifications cleared, the
+// app mode, the demo's household and the entered server URL removed, the pending record set from the first
 // step to the last, a second run harmless, a cut at each step leaving exactly the later
 // steps' data and the wipe pending, a run after the cut finishing it, and the next open a
 // fresh database under a new key. The in-memory wipe clears the same stores.
@@ -8,6 +9,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:finance_tracker/core/api/token_store.dart';
+import 'package:finance_tracker/core/config/app_config.dart';
+import 'package:finance_tracker/core/config/app_mode_store.dart';
 import 'package:finance_tracker/core/db/app_database.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/db/database_key_store.dart';
@@ -88,6 +91,11 @@ final class _BackgroundCut extends Fake implements BackgroundWork {
   Future<void> cancelAll() async => throw _cut;
 }
 
+final class _ModeCut extends Fake implements AppModeStore {
+  @override
+  Future<void> clear() async => throw _cut;
+}
+
 /// The steps in their order, as what each leaves on the install.
 const List<String> _steps = [
   'legacy',
@@ -99,6 +107,7 @@ const List<String> _steps = [
   'marker',
   'reminders',
   'background',
+  'mode',
 ];
 
 void main() {
@@ -119,6 +128,9 @@ void main() {
       'incomes': '[]',
       'totalBalance': '0',
       'unrelated': 'kept',
+      PreferencesAppModeStore.modeKey: 'demo',
+      PreferencesAppModeStore.personaKey: 'family',
+      PreferencesAppModeStore.serverUrlKey: 'https://money.example.com',
     });
     reminders = FakeReminderScheduler();
     widgets = FakeWidgetWriter();
@@ -144,6 +156,12 @@ void main() {
         : SecureTokenStore(),
     reminders: cut == 'reminders' ? _RemindersCut() : reminders,
     background: cut == 'background' ? _BackgroundCut() : background,
+    modes: cut == 'mode'
+        ? _ModeCut()
+        : PreferencesAppModeStore(
+            preferences: SharedPreferences.getInstance,
+            installUser: () async => null,
+          ),
   );
 
   Future<AppDatabase> open() async => AppDatabase(
@@ -203,6 +221,10 @@ void main() {
       if (secure.containsKey(SecureTokenStore.installUserKey)) 'marker',
       if ((await reminders.pending()).isNotEmpty) 'reminders',
       if (background.scheduled) 'background',
+      if (preferences.containsKey(PreferencesAppModeStore.modeKey) ||
+          preferences.containsKey(PreferencesAppModeStore.personaKey) ||
+          preferences.containsKey(PreferencesAppModeStore.serverUrlKey))
+        'mode',
     };
   }
 
@@ -294,6 +316,7 @@ void main() {
     await widgets.write(
       WidgetData.signedOut(updatedAt: DateTime.utc(2026), updatedText: ''),
     );
+    final InMemoryAppModeStore modes = InMemoryAppModeStore(mode: AppMode.demo);
     final InMemoryLocalWipe wipe = InMemoryLocalWipe(
       receipts: receipts,
       widgets: widgets,
@@ -301,6 +324,7 @@ void main() {
       tokens: tokens,
       reminders: reminders,
       background: background,
+      modes: modes,
     );
 
     await wipe.wipe(WipeReason.deviceErased);
@@ -313,6 +337,8 @@ void main() {
     expect(tokens.installUserId, isNull);
     expect(reminders.cleared, 1);
     expect(background.calls.map((c) => c.method), ['cancel']);
+    expect(modes.mode, isNull);
+    expect(modes.clears, 1);
     expect(wipe.wipes, 1);
     expect(await wipe.pending(), isNull);
   });

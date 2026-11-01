@@ -6,7 +6,6 @@ library;
 
 import 'dart:async';
 
-import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
@@ -93,7 +92,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final bool demo = ref.watch(appConfigProvider).flavor == Flavor.demo;
+    final bool demo = ref.watch(appConfigProvider).isDemo;
     final AsyncValue<MonthlyReportData> report = ref.watch(
       monthlyReportDataProvider(_offset),
     );

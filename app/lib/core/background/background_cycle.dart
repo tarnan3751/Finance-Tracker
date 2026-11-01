@@ -2,7 +2,8 @@
 /// WorkManager task runs in its own engine (`background_dispatcher.dart`), and what the
 /// integration test runs in its own isolate over the fakes.
 ///
-/// 1. The demo flavor has nothing to sync: done.
+/// 1. Outside the live mode (the demo, or no mode chosen yet) there is nothing to sync:
+///    done.
 /// 2. The `ft.background` lock is taken first (`background_ports.dart`): a live cycle
 ///    holding it already is done. Then the app's isolate is asked: busy (a restore or a
 ///    wipe) is done; a sync it ran is its outcome; either way the lock goes. With no app
@@ -196,8 +197,8 @@ final class BackgroundEnvironment {
 
 /// Runs one cycle on [env]; true when done, false to be retried.
 Future<bool> runBackgroundCycle(BackgroundEnvironment env) async {
-  if (env.config.flavor == Flavor.demo) {
-    _log.info('background: demo, nothing to sync');
+  if (!env.config.isLive) {
+    _log.info('background: not live, nothing to sync');
     return true;
   }
   // The lock first, then the app: each side registers before it looks at the other's.

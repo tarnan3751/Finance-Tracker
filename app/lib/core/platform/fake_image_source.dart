@@ -1,12 +1,13 @@
-/// The [ImageSource] of the demo flavor and the tests: no camera and no photo picker.
-/// The demo's gives the bundled synthetic receipt (`assets/demo/receipt.jpg`, an asset of
-/// the demo flavor only) from both; a test gives what it likes and counts the picks.
+/// The [ImageSource] of the demo and the tests: no camera and no photo picker. The
+/// demo's gives the bundled synthetic receipt (`assets/demo/receipt.jpg`, an asset of
+/// every flavor, which can each run the demo) from both; a test gives what it likes and
+/// counts the picks.
 library;
 
 import 'package:finance_tracker/core/platform/image_source.dart';
 import 'package:flutter/services.dart';
 
-/// The demo flavor's receipt photo: a synthetic "DEMO RECEIPT", not a real purchase.
+/// The demo's receipt photo: a synthetic "DEMO RECEIPT", not a real purchase.
 const String demoReceiptAsset = 'assets/demo/receipt.jpg';
 
 /// Photos without a camera or a picker.

@@ -15,7 +15,6 @@ library;
 import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 
-import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/sync/sync_controller.dart';
@@ -77,7 +76,7 @@ AppLocalizations widgetLocalizations(Ref ref) => lookupAppLocalizations(
 Future<WidgetData> widgetData(Ref ref) async {
   final Clock clock = ref.watch(clockProvider);
   final AppLocalizations l10n = ref.watch(widgetLocalizationsProvider);
-  final bool demo = ref.watch(appConfigProvider).flavor == Flavor.demo;
+  final bool demo = ref.watch(appConfigProvider).isDemo;
   final SessionState session = ref.watch(sessionControllerProvider);
   // Before the stored session is read (a fresh container's first moments) nothing is
   // known: the snapshot waits for the read rather than say "signed out".

@@ -196,6 +196,55 @@ final class HttpConnectionsProvider
 
 String _$httpConnectionsHash() => r'3aaf85f4d1b26037db2e54a6f2d6720f522dff85';
 
+/// The server the API talks to: the compiled URL, or the one entered on the sign-in screen
+/// (`server_address.dart`); the fake server's wherever it runs.
+
+@ProviderFor(serverAddress)
+final serverAddressProvider = ServerAddressProvider._();
+
+/// The server the API talks to: the compiled URL, or the one entered on the sign-in screen
+/// (`server_address.dart`); the fake server's wherever it runs.
+
+final class ServerAddressProvider
+    extends $FunctionalProvider<ServerAddress, ServerAddress, ServerAddress>
+    with $Provider<ServerAddress> {
+  /// The server the API talks to: the compiled URL, or the one entered on the sign-in screen
+  /// (`server_address.dart`); the fake server's wherever it runs.
+  ServerAddressProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'serverAddressProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$serverAddressHash();
+
+  @$internal
+  @override
+  $ProviderElement<ServerAddress> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ServerAddress create(Ref ref) {
+    return serverAddress(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ServerAddress value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ServerAddress>(value),
+    );
+  }
+}
+
+String _$serverAddressHash() => r'68241b6231663dc6c7460da0322a36e088a8eedc';
+
 /// The API, over the network.
 
 @ProviderFor(financeApi)
@@ -240,4 +289,4 @@ final class FinanceApiProvider
   }
 }
 
-String _$financeApiHash() => r'3bbbc9370d71d7ee08b0fe1cef3d97ea4b548816';
+String _$financeApiHash() => r'1a1cb9c44b6fcd27b849876d0ac58920a1968638';

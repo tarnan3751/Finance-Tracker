@@ -1,6 +1,7 @@
 /// What the app shows while the local wipe runs with the app stopped (`bootstrap`'s
-/// wipe, `core/db/local_wipe.dart`): a plain screen saying the data is being erased; then
-/// the confirmation, whose Done starts the app again on the fresh install; or, when the
+/// wipe, `core/db/local_wipe.dart`): a plain screen saying the data is being erased (or
+/// that the demo is being left); then the confirmation, whose Done starts the app again
+/// on the fresh install (none for leaving the demo, which goes on to Welcome); or, when the
 /// wipe failed, that it did and Try again, which runs it again. The app never starts on
 /// a wipe that did not finish. One that keeps failing (the second failure in a row, or
 /// any failure of a wipe resumed at startup) also points at Android's storage settings,
@@ -71,7 +72,12 @@ class ErasingApp extends StatelessWidget {
                 final AppLocalizations l10n = AppLocalizations.of(context);
                 final TextTheme text = Theme.of(context).textTheme;
                 final (String title, String? body) = switch (value) {
-                  Erasing() => (l10n.erasingTitle, null),
+                  Erasing() => (
+                    reason == WipeReason.demoLeft
+                        ? l10n.leavingDemoTitle
+                        : l10n.erasingTitle,
+                    null,
+                  ),
                   EraseFailed(:final repeated) => (
                     l10n.eraseFailedTitle,
                     l10n.eraseFailedBody(repeated.toString()),
@@ -85,6 +91,8 @@ class ErasingApp extends StatelessWidget {
                       l10n.erasedDeviceTitle,
                       l10n.erasedDeviceBody,
                     ),
+                    // Leaving the demo restarts without a confirmation.
+                    WipeReason.demoLeft => (l10n.leavingDemoTitle, null),
                   },
                 };
                 return Column(

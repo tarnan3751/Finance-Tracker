@@ -45,20 +45,20 @@ class AccountSection extends ConsumerWidget {
           trailing: const Icon(Icons.chevron_right),
           onTap: () => openDetail(context, const ItemsRoute().location),
         ),
-        if (config.flavor != Flavor.demo)
+        if (!config.isDemo)
           ListTile(
             leading: const Icon(Icons.devices),
             title: Text(l10n.settingsDevices),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => openDetail(context, const DevicesRoute().location),
           ),
-        if (config.flavor != Flavor.demo)
+        if (!config.isDemo)
           ListTile(
             leading: const Icon(Icons.logout),
             title: Text(l10n.settingsSignOut),
             onTap: () => ref.read(sessionControllerProvider.notifier).signOut(),
           ),
-        if (config.flavor != Flavor.demo) ...[
+        if (!config.isDemo) ...[
           ListTile(
             leading: const Icon(Icons.phonelink_erase),
             title: Text(l10n.settingsEraseDevice),
