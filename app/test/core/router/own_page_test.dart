@@ -36,7 +36,7 @@ import '../../helpers/seed.dart';
 
 /// A recorder whose writes wait, while held, until released: the repositories' writes
 /// land on demand.
-final class _HeldRecorder implements ChangeRecorder {
+final class _HeldRecorder extends ChangeRecorder {
   Completer<void>? _held;
 
   /// How many records have waited.

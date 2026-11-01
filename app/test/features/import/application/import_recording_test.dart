@@ -1,7 +1,8 @@
 // The import on the dev wiring (Drift, the change recorder): every row written is
 // recorded once for sync as an `import` upsert, and the undo records a tombstone for each.
 // With 10,000 rows, every row lands, the parse and the write each well inside two
-// minutes (about a quarter of a second and twelve seconds on the development Mac).
+// minutes (about a quarter of a second and two and a half seconds on the
+// development Mac).
 import 'dart:convert';
 
 import 'package:drift/native.dart';

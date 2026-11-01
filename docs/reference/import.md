@@ -187,9 +187,9 @@ runner's `writeNow` included, so a write that outlives its provider, or the scre
 finishes.
 
 The write is all or nothing on purpose (`PLAN.md` §12, "9a plan rulings"): a bank export
-is hundreds to a few thousand rows, and 10,000 rows take about 12 s on the development
+is hundreds to a few thousand rows, and 10,000 rows take about 2.5 s on the development
 Mac (Drift in memory, the change recorder on; the parse and review about a quarter of a
-second), most of it the one `upsertAll`. While it runs the screen shows its progress bar
+second; 12 s before the batched write path of Phase 11), most of it the one `upsertAll`. While it runs the screen shows its progress bar
 and back is held. A chunked import is later scope.
 
 `undo(batch)` deletes the batch's transactions still live, edited ones included, through

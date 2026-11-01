@@ -115,7 +115,8 @@ Android (checked on the harness AVD by `transactions_search_test.dart`).
   same text re-indexed the row before), and delete (removes the FTS row, then the key); on
   `transaction_tags`, insert and delete. Each but the insert deletes the transaction's FTS
   row through its key and inserts it again from the view. A write that rewrites a row's
-  tags runs the tag triggers once per tag.
+  tags runs the tag triggers once per tag; a write whose tags (or splits) equal the
+  stored ones leaves them, and their triggers, alone (`writeTransactionRow`).
 - **At open.** `beforeOpen` checks `sqlite_compileoption_used('ENABLE_FTS5')` and records
   the answer as `AppDatabase.fullTextSearch` (a future, completed at open; it opens the
   database when asked first). With FTS5, `ensureFullTextSearch` creates whatever is
@@ -310,7 +311,13 @@ The rules every implementation keeps:
   for one written unchanged. A `plaid` transaction in a batch must already be stored and
   may change only the seven fields the user owns and `updatedAt`
   (`checkPlaidOverridesOnly` in `repository_support.dart`). `deleteAll(ids)` deletes as
-  `delete` does, in one write. A repeated id in `upsertAll` is an `ArgumentError` before
+  `delete` does, in one write. The Drift repository spends a few statements per chunk of
+  500, not several per row: one read of the stored rows with their tags and splits and
+  one of their accounts, every row checked in list order, the chunk's rows in one batch
+  (each row with its tags and splits in `writeTransactionRow`'s statements) and one
+  `ChangeRecorder.recordAll` (`sync-app.md`, **Recording**); `test/perf/write_path_statements_test.dart`
+  holds the counts under ceilings, and `test/core/db/batched_write_equivalence_test.dart`
+  holds the result to the one-at-a-time path's. A repeated id in `upsertAll` is an `ArgumentError` before
   anything is read; any transaction a batch refuses makes it write and record nothing and
   throw `TransactionBatchException` with that transaction's id and, as the cause, the
   failure it alone would have raised (`AccountNotFoundException`,

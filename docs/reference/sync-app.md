@@ -65,7 +65,13 @@ the first delete. While a record is held, its values come from `held_records` in
 a later local edit merges against the whole record, never against what the row could
 keep.
 
-**Writing** a record saves its clocks and materializes it:
+**Writing** a record saves its clocks and materializes it (`writeAll` writes a batch so, in a
+few statements per 500 records: one read of the stored clocks and multi-row upserts of
+the ones that changed, one read of the transaction rows, the rows to write in one batch, one delete of the held rows and
+one read of the conflicts per type; a transaction row that already holds what the
+record says, as a local edit's does since its repository wrote it just before, is not
+written again; `readAll` reads a batch's clocks, held records and transaction rows in
+one query each per 500):
 
 - a **complete** record (its create merged) of an account, transaction, category, rule,
   budget, bill, goal or contribution replaces the row, tags and splits included, as the record says. The repositories' write
@@ -138,7 +144,8 @@ device overwrote within ten minutes (`sync.md`, **Conflicts**; `PLAN.md` §12,
   goal; a stream override's display name; else none) and when it was seen (UTC). A newer
   conflict on the field replaces the older. One on an audit instant (`created_at`,
   `updated_at`), which every edit moves, is not kept.
-- **Settling.** Every `write` of a record settles its conflicts: all of them go when the
+- **Settling.** Every `write` of a record settles its conflicts (`writeAll` reads a
+  batch's with one query per type and 500 records and applies the same rule to each): all of them go when the
   record is deleted (a pulled delete included), and each one whose field's clock is no
   longer the clock that won (a later edit from anywhere, "Keep this device's value"
   included); the rest take the entity's current name as their label. So a conflict
@@ -213,7 +220,13 @@ transaction's `receipt_path`, the same `receipts/<id>.jpg` on every device, and 
 Every user-authored repository write calls `ChangeRecorder.record(type, id, before,
 after)` once per entity it changed, with record fields, inside the write's own transaction
 (`data.md`, **Repositories**). `EngineChangeRecorder` runs the engine's `LocalEditor` over
-the sync store, reading the device clock inside the store transaction. `before` is the
+the sync store, reading the device clock inside the store transaction. A batch goes
+through `ChangeRecorder.recordAll(type, changes)`, which applies the same filter to each
+change and records the user-authored ones with one `LocalEditor.recordChanges`, so the
+store reads, writes and appends them in one pass (`sync.md`, **Local edits**); the
+transaction repository's `upsertAll` and `deleteAll` and `recordEach` (every
+repository's multi-entity writes) use it, and the recorders that record nothing or
+only in tests take its default, one `record` per change. `before` is the
 stored entity (the snapshot an edit screen started from is Phase 7's `basedOn`). Settings
 are recorded as updates against what is stored (the defaults before any save), so first
 saves on two devices merge field by field.

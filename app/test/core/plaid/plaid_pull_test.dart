@@ -949,7 +949,7 @@ final class _PlaidSourced implements FinanceApi {
 
 /// Records through [_inner], then throws for transaction [_failOn]: a write that fails
 /// after its row and its entry are written.
-final class _ThrowingRecorder implements ChangeRecorder {
+final class _ThrowingRecorder extends ChangeRecorder {
   _ThrowingRecorder(this._inner, this._failOn);
 
   final ChangeRecorder _inner;

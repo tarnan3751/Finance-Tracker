@@ -21,7 +21,7 @@ import 'package:shared_models/shared_models.dart';
 import '../../contract/repository_fixture.dart';
 
 /// A recorder that fails as a programming error would, once [failing] is set.
-final class _FailingRecorder implements ChangeRecorder {
+final class _FailingRecorder extends ChangeRecorder {
   bool failing = false;
 
   @override

@@ -2,7 +2,7 @@
 /// (`docs/reference/sync-app.md`, **Recording**).
 ///
 /// Every repository write to user-authored data calls [ChangeRecorder.record] once per
-/// entity it changed, with the entity's record fields before and after
+/// entity it changed (or [ChangeRecorder.recordAll] once for a batch), with the entity's record fields before and after
 /// (`entity_codec.dart`), inside the write's own transaction. Which changes are
 /// user-authored is decided here, by `source`, for both implementations
 /// ([userAuthoredChange]); the engine never reads `source`.
@@ -16,8 +16,12 @@ import 'package:finance_tracker/core/sync/entity_codec.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:sync_engine/sync_engine.dart';
 
-/// Records changes to entities for sync.
-abstract interface class ChangeRecorder {
+/// Records changes to entities for sync. An implementation extends this class to take
+/// [recordAll]'s default, which records each change in turn.
+abstract class ChangeRecorder {
+  /// Const, so implementations can be.
+  const ChangeRecorder();
+
   /// Records that entity [type] [id] changed from [before] (null for a new entity) to
   /// [after], both record fields, when the change is user-authored and changes anything.
   Future<void> record(
@@ -26,10 +30,17 @@ abstract interface class ChangeRecorder {
     Map<String, Object?>? before,
     Map<String, Object?> after,
   );
+
+  /// Records [changes] to distinct entities of [type], each as [record] would, in order.
+  Future<void> recordAll(EntityType type, List<LocalChange> changes) async {
+    for (final LocalChange c in changes) {
+      await record(type, c.id, c.before, c.after);
+    }
+  }
 }
 
 /// The recorder of the demo flavor, which never syncs: records nothing.
-final class NoChangeRecorder implements ChangeRecorder {
+final class NoChangeRecorder extends ChangeRecorder {
   /// The recorder.
   const NoChangeRecorder();
 
@@ -40,6 +51,9 @@ final class NoChangeRecorder implements ChangeRecorder {
     Map<String, Object?>? before,
     Map<String, Object?> after,
   ) async {}
+
+  @override
+  Future<void> recordAll(EntityType type, List<LocalChange> changes) async {}
 }
 
 /// Records through the engine's [LocalEditor] over [store], stamping with the device's
@@ -47,7 +61,10 @@ final class NoChangeRecorder implements ChangeRecorder {
 /// never interleave with an edit) at [nowWallMillis]. Inside a repository's transaction
 /// on the same database, the record, its clocks and its outbox entry commit with the
 /// repository's own write.
-final class EngineChangeRecorder implements ChangeRecorder {
+///
+/// [recordAll] records a batch through one [LocalEditor.recordChanges], so the store
+/// reads, writes and appends the batch in a few statements rather than several per entity.
+final class EngineChangeRecorder extends ChangeRecorder {
   /// A recorder over [store].
   EngineChangeRecorder(this.store, this.clock, this.nowWallMillis);
 
@@ -77,21 +94,39 @@ final class EngineChangeRecorder implements ChangeRecorder {
       ).recordChange(type, id, change.before, change.after, nowWallMillis()),
     );
   }
+
+  @override
+  Future<void> recordAll(EntityType type, List<LocalChange> changes) async {
+    final List<LocalChange> authored = [
+      for (final LocalChange c in changes)
+        if (userAuthoredChange(type, c.before, c.after) case final change?)
+          (id: c.id, before: change.before, after: change.after),
+    ];
+    if (authored.isEmpty) return;
+    await store.transaction(
+      () async => LocalEditor(
+        store,
+        await clock(),
+      ).recordChanges(type, authored, nowWallMillis),
+    );
+  }
 }
 
 /// Records, through [recorder], each entity of [after] (record fields by id) that differs
-/// from [before]: one entry per entity a write changed.
+/// from [before]: one entry per entity a write changed, in one [ChangeRecorder.recordAll].
 Future<void> recordEach(
   ChangeRecorder recorder,
   EntityType type,
   Map<String, Map<String, Object?>> before,
   Map<String, Map<String, Object?>> after,
 ) async {
-  for (final MapEntry<String, Map<String, Object?>> e in after.entries) {
-    final Map<String, Object?>? old = before[e.key];
-    if (old != null && jsonEncode(old) == jsonEncode(e.value)) continue;
-    await recorder.record(type, e.key, old, e.value);
-  }
+  final List<LocalChange> changes = [
+    for (final MapEntry<String, Map<String, Object?>> e in after.entries)
+      if (before[e.key] case final Map<String, Object?>? old
+          when old == null || jsonEncode(old) != jsonEncode(e.value))
+        (id: e.key, before: old, after: e.value),
+  ];
+  if (changes.isNotEmpty) await recorder.recordAll(type, changes);
 }
 
 /// The part of a change that is user-authored, or null when none is (`PLAN.md` §6.4,

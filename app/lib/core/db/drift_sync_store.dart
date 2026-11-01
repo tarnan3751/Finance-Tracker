@@ -122,6 +122,107 @@ final class DriftSyncStore extends SyncStore {
     );
   });
 
+  /// [read] of each of [ids], per 500 ids one query of the clocks, one of the held
+  /// records and, for transactions, one of the rows with their tags and splits (the
+  /// other types read their rows one by one).
+  @override
+  Future<Map<String, EntityRecord>> readAll(
+    EntityType type,
+    Iterable<String> ids,
+  ) => _database.transaction(() async {
+    final String name = snakeName(type);
+    final Map<String, EntityRecord> records = {};
+    for (final List<String> chunk in _chunks(ids.toSet().toList())) {
+      final Map<String, Map<String, Hlc>> clocks = {};
+      final Map<String, Hlc> created = {};
+      for (final RecordClockRow row
+          in await (_database.select(_database.recordClocks)..where(
+                (c) => c.entityType.equals(name) & c.entityId.isIn(chunk),
+              ))
+              .get()) {
+        if (row.field == createClockField) {
+          created[row.entityId] = Hlc.parse(row.hlc);
+        } else {
+          (clocks[row.entityId] ??= {})[row.field] = Hlc.parse(row.hlc);
+        }
+      }
+      final List<String> recorded = [
+        for (final String id in chunk)
+          if (clocks.containsKey(id) || created.containsKey(id)) id,
+      ];
+      if (recorded.isEmpty) continue;
+      final Map<String, Map<String, Object?>> values = {
+        for (final HeldRecordRow row
+            in await (_database.select(_database.heldRecords)..where(
+                  (h) => h.entityType.equals(name) & h.entityId.isIn(recorded),
+                ))
+                .get())
+          row.entityId: jsonDecode(row.fields) as Map<String, Object?>,
+      };
+      final List<String> unheld = [
+        for (final String id in recorded)
+          if (!values.containsKey(id)) id,
+      ];
+      if (type == EntityType.transaction) {
+        for (final MapEntry<String, _StoredTransaction> e
+            in (await _storedTransactions(unheld)).entries) {
+          if (e.value.transaction case final Transaction t) {
+            values[e.key] = transactionRecordJson(
+              t,
+              deletedWithAccount: e.value.deletedWithAccount,
+            );
+          }
+        }
+      } else {
+        for (final String id in unheld) {
+          if (await _entityFields(type, id) case final Map<String, Object?> v) {
+            values[id] = v;
+          }
+        }
+      }
+      for (final String id in recorded) {
+        final Map<String, Object?>? v = values[id];
+        if (v == null) {
+          throw StateError('$name $id has clocks but no row and is not held');
+        }
+        final Map<String, Hlc> fieldClocks = clocks[id] ?? const {};
+        records[id] = EntityRecord(
+          type: type,
+          id: id,
+          fields: {for (final String f in fieldClocks.keys) f: v[f]},
+          fieldClocks: fieldClocks,
+          createdAt: created[id],
+        );
+      }
+    }
+    return records;
+  });
+
+  // The transaction rows [ids] hold, with their tags and splits; an id without a row maps
+  // to no transaction.
+  Future<Map<String, _StoredTransaction>> _storedTransactions(
+    List<String> ids,
+  ) async {
+    final Map<String, _StoredTransaction> stored = {
+      for (final String id in ids)
+        id: (transaction: null, deletedWithAccount: false),
+    };
+    if (ids.isEmpty) return stored;
+    final List<TransactionRow> rows = await (_database.select(
+      _database.transactions,
+    )..where((t) => t.id.isIn(ids))).get();
+    final Map<String, bool> cascaded = {
+      for (final TransactionRow row in rows) row.id: row.deletedWithAccount,
+    };
+    for (final Transaction t in await transactionsWithChildren(
+      _database,
+      rows,
+    )) {
+      stored[t.id] = (transaction: t, deletedWithAccount: cascaded[t.id]!);
+    }
+    return stored;
+  }
+
   @override
   Future<void> write(EntityRecord record) => _database.transaction(() async {
     final String name = snakeName(record.type);
@@ -130,22 +231,7 @@ final class DriftSyncStore extends SyncStore {
         ))
         .go();
     await _database.batch(
-      (batch) => batch.insertAll(_database.recordClocks, [
-        for (final MapEntry<String, Hlc> e in record.fieldClocks.entries)
-          RecordClocksCompanion.insert(
-            entityType: name,
-            entityId: record.id,
-            field: e.key,
-            hlc: e.value.pack(),
-          ),
-        if (record.createdAt case final Hlc created)
-          RecordClocksCompanion.insert(
-            entityType: name,
-            entityId: record.id,
-            field: createClockField,
-            hlc: created.pack(),
-          ),
-      ]),
+      (batch) => batch.insertAll(_database.recordClocks, _clockRows(record)),
     );
     final HeldReason? reason = await _materialize(record);
     if (reason == null) {
@@ -154,19 +240,195 @@ final class DriftSyncStore extends SyncStore {
           ))
           .go();
     } else {
-      await _database
-          .into(_database.heldRecords)
-          .insertOnConflictUpdate(
-            HeldRecordsCompanion.insert(
-              entityType: name,
-              entityId: record.id,
-              fields: jsonEncode(record.fields),
-              reason: snakeName(reason),
-            ),
-          );
+      await _hold(record, reason);
     }
-    await _settleConflicts(record);
+    final List<ConflictRow> conflicts =
+        await (_database.select(_database.conflicts)..where(
+              (c) => c.entityType.equals(name) & c.entityId.equals(record.id),
+            ))
+            .get();
+    await _settleConflicts(record, conflicts);
   });
+
+  /// [write] of each of [records], in order, per 500 records: one read of the stored
+  /// clocks and a few multi-row upserts of those that changed, one read of the transaction rows with their tags
+  /// and splits, a transaction row written only when it does not already hold what the
+  /// record says (a local edit's row, which its repository wrote just before), one delete
+  /// of the held rows and one read of the conflicts, per type. Records naming one entity
+  /// twice are written one at a time, as [write] would.
+  @override
+  Future<void> writeAll(List<EntityRecord> records) async {
+    if ({for (final EntityRecord r in records) r.key}.length !=
+        records.length) {
+      return super.writeAll(records);
+    }
+    if (records.isEmpty) return;
+    await _database.transaction(() async {
+      for (final List<EntityRecord> chunk in _chunks(records)) {
+        await _writeChunk(chunk);
+      }
+    });
+  }
+
+  Future<void> _writeChunk(List<EntityRecord> chunk) async {
+    final Map<EntityType, List<String>> idsByType = {};
+    for (final EntityRecord r in chunk) {
+      (idsByType[r.type] ??= []).add(r.id);
+    }
+    // Only the clocks that changed are written: a bulk edit moves two or three of the
+    // two dozen. An entity that lost a clock (a merge never drops one) has all its
+    // clocks replaced, as [write] replaces them.
+    final Map<EntityKey, Map<String, String>> current = {};
+    for (final MapEntry<EntityType, List<String>> e in idsByType.entries) {
+      for (final RecordClockRow row
+          in await (_database.select(_database.recordClocks)..where(
+                (c) =>
+                    c.entityType.equals(snakeName(e.key)) &
+                    c.entityId.isIn(e.value),
+              ))
+              .get()) {
+        (current[(type: e.key, id: row.entityId)] ??= {})[row.field] = row.hlc;
+      }
+    }
+    final List<RecordClocksCompanion> clocks = [];
+    final Map<EntityType, List<String>> replaced = {};
+    for (final EntityRecord r in chunk) {
+      final List<RecordClocksCompanion> rows = _clockRows(r);
+      final Map<String, String> stored = current[r.key] ?? const {};
+      final Set<String> fields = {
+        for (final RecordClocksCompanion c in rows) c.field.value,
+      };
+      if (stored.keys.any((f) => !fields.contains(f))) {
+        (replaced[r.type] ??= []).add(r.id);
+        clocks.addAll(rows);
+      } else {
+        clocks.addAll([
+          for (final RecordClocksCompanion c in rows)
+            if (stored[c.field.value] != c.hlc.value) c,
+        ]);
+      }
+    }
+    for (final MapEntry<EntityType, List<String>> e in replaced.entries) {
+      await (_database.delete(_database.recordClocks)..where(
+            (c) =>
+                c.entityType.equals(snakeName(e.key)) &
+                c.entityId.isIn(e.value),
+          ))
+          .go();
+    }
+    // Four variables a row, far below SQLite's limit of 32766.
+    for (int start = 0; start < clocks.length; start += 1000) {
+      final List<RecordClocksCompanion> rows = clocks.sublist(
+        start,
+        start + 1000 > clocks.length ? clocks.length : start + 1000,
+      );
+      await _database.customInsert(
+        'INSERT INTO record_clocks (entity_type, entity_id, field, hlc) VALUES '
+        '${List.filled(rows.length, '(?, ?, ?, ?)').join(', ')} '
+        'ON CONFLICT (entity_type, entity_id, field) DO UPDATE SET hlc = excluded.hlc',
+        variables: [
+          for (final RecordClocksCompanion c in rows) ...[
+            Variable.withString(c.entityType.value),
+            Variable.withString(c.entityId.value),
+            Variable.withString(c.field.value),
+            Variable.withString(c.hlc.value),
+          ],
+        ],
+        updates: {_database.recordClocks},
+      );
+    }
+    final Map<String, _StoredTransaction> stored = await _storedTransactions(
+      idsByType[EntityType.transaction] ?? const [],
+    );
+    final Map<EntityType, List<String>> released = {};
+    final List<void Function(Batch)> rows = [];
+    for (final EntityRecord r in chunk) {
+      final HeldReason? reason = await _materialize(
+        r,
+        stored: r.type == EntityType.transaction ? stored[r.id] : null,
+        deferred: rows,
+      );
+      if (reason == null) {
+        (released[r.type] ??= []).add(r.id);
+      } else {
+        await _hold(r, reason);
+      }
+    }
+    if (rows.isNotEmpty) {
+      await _database.batch((b) {
+        for (final void Function(Batch) write in rows) {
+          write(b);
+        }
+      });
+    }
+    for (final MapEntry<EntityType, List<String>> e in released.entries) {
+      await (_database.delete(_database.heldRecords)..where(
+            (h) =>
+                h.entityType.equals(snakeName(e.key)) &
+                h.entityId.isIn(e.value),
+          ))
+          .go();
+    }
+    final Map<EntityKey, List<ConflictRow>> conflicts = {};
+    for (final MapEntry<EntityType, List<String>> e in idsByType.entries) {
+      for (final ConflictRow row
+          in await (_database.select(_database.conflicts)..where(
+                (c) =>
+                    c.entityType.equals(snakeName(e.key)) &
+                    c.entityId.isIn(e.value),
+              ))
+              .get()) {
+        (conflicts[(type: e.key, id: row.entityId)] ??= []).add(row);
+      }
+    }
+    for (final EntityRecord r in chunk) {
+      await _settleConflicts(r, conflicts[r.key] ?? const []);
+    }
+  }
+
+  /// [append] of each of [entries], in order, in one batch.
+  @override
+  Future<void> appendAll(List<ChangeLogEntry> entries) async {
+    if (entries.isEmpty) return;
+    await _database.batch(
+      (batch) => batch.insertAll(_database.changeLog, [
+        for (final ChangeLogEntry e in entries) _logRow(e),
+      ]),
+    );
+  }
+
+  // The clock rows of [record], its create's included.
+  List<RecordClocksCompanion> _clockRows(EntityRecord record) {
+    final String name = snakeName(record.type);
+    return [
+      for (final MapEntry<String, Hlc> e in record.fieldClocks.entries)
+        RecordClocksCompanion.insert(
+          entityType: name,
+          entityId: record.id,
+          field: e.key,
+          hlc: e.value.pack(),
+        ),
+      if (record.createdAt case final Hlc created)
+        RecordClocksCompanion.insert(
+          entityType: name,
+          entityId: record.id,
+          field: createClockField,
+          hlc: created.pack(),
+        ),
+    ];
+  }
+
+  // Keeps [record] whole in `held_records`, held for [reason].
+  Future<void> _hold(EntityRecord record, HeldReason reason) => _database
+      .into(_database.heldRecords)
+      .insertOnConflictUpdate(
+        HeldRecordsCompanion.insert(
+          entityType: snakeName(record.type),
+          entityId: record.id,
+          fields: jsonEncode(record.fields),
+          reason: snakeName(reason),
+        ),
+      );
 
   @override
   Future<void> holdUnknownType(UnknownTypeEntry entry) => _database.transaction(
@@ -392,8 +654,15 @@ final class DriftSyncStore extends SyncStore {
     _database.goalContributions,
   )..where((c) => c.id.equals(id))).getSingleOrNull();
 
-  // Writes [record] into its entity's table, or returns why it is held.
-  Future<HeldReason?> _materialize(EntityRecord record) async {
+  // Writes [record] into its entity's table, or returns why it is held. [stored] is a
+  // transaction's row as it stands, when the caller has read it: a row that already holds
+  // what the record says is not written again, and the write of one that does not is
+  // added to [deferred] for the caller's batch.
+  Future<HeldReason?> _materialize(
+    EntityRecord record, {
+    _StoredTransaction? stored,
+    List<void Function(Batch)>? deferred,
+  }) async {
     final EntityType type = record.type;
     final HeldReason? unknown =
         record.fields.keys.every(knownRecordFields(type).contains)
@@ -458,9 +727,17 @@ final class DriftSyncStore extends SyncStore {
     if (record.isComplete) {
       fields = record.fields;
     } else {
-      final Map<String, Object?>? stored = await _entityFields(type, record.id);
-      if (stored == null) return HeldReason.incomplete;
-      fields = {...stored, ...record.fields};
+      final Map<String, Object?>? current = stored == null
+          ? await _entityFields(type, record.id)
+          : switch (stored.transaction) {
+              final Transaction t => transactionRecordJson(
+                t,
+                deletedWithAccount: stored.deletedWithAccount,
+              ),
+              null => null,
+            };
+      if (current == null) return HeldReason.incomplete;
+      fields = {...current, ...record.fields};
     }
     final DateTime? createdAt = switch (type) {
       EntityType.account => (await _accountRow(record.id))?.createdAt,
@@ -475,7 +752,14 @@ final class DriftSyncStore extends SyncStore {
       _ => null,
     };
     try {
-      await _rowWriter(type, record.id, fields, createdAt)();
+      await _rowWriter(
+        type,
+        record.id,
+        fields,
+        createdAt,
+        stored: stored,
+        deferred: deferred,
+      )();
       return unknown;
     } on _Unrepresentable {
       if (type != EntityType.transaction) return HeldReason.unrepresentable;
@@ -484,10 +768,14 @@ final class DriftSyncStore extends SyncStore {
     // do not decode): every other field still lands, deterministically, with no splits,
     // so devices holding the same record show the same row.
     try {
-      await _rowWriter(type, record.id, {
-        ...fields,
-        'splits': const <Object?>[],
-      }, createdAt)();
+      await _rowWriter(
+        type,
+        record.id,
+        {...fields, 'splits': const <Object?>[]},
+        createdAt,
+        stored: stored,
+        deferred: deferred,
+      )();
     } on _Unrepresentable {
       // Nothing decodes: the row stays as it was.
     }
@@ -500,10 +788,19 @@ final class DriftSyncStore extends SyncStore {
     EntityType type,
     String id,
     Map<String, Object?> fields,
-    DateTime? createdAt,
-  ) {
+    DateTime? createdAt, {
+    _StoredTransaction? stored,
+    List<void Function(Batch)>? deferred,
+  }) {
     try {
-      return _decodedRowWriter(type, id, fields, createdAt);
+      return _decodedRowWriter(
+        type,
+        id,
+        fields,
+        createdAt,
+        stored: stored,
+        deferred: deferred,
+      );
     } on Object catch (e) {
       // The fields do not decode into the entity, or not into its table.
       throw _Unrepresentable(e);
@@ -514,8 +811,10 @@ final class DriftSyncStore extends SyncStore {
     EntityType type,
     String id,
     Map<String, Object?> fields,
-    DateTime? createdAt,
-  ) {
+    DateTime? createdAt, {
+    _StoredTransaction? stored,
+    List<void Function(Batch)>? deferred,
+  }) {
     final DateTime now = _clock.nowUtc();
     switch (type) {
       case EntityType.account:
@@ -544,12 +843,29 @@ final class DriftSyncStore extends SyncStore {
           }
         }
         final bool cascaded = deletedWithAccountOf(fields);
+        if (stored != null &&
+            stored.transaction == transaction &&
+            stored.deletedWithAccount == cascaded) {
+          return () async {}; // The row already holds the record.
+        }
+        if (deferred != null) {
+          final void Function(Batch) write = transactionRowWriter(
+            _database,
+            transaction,
+            currency: currency,
+            deletedAt: Value(transaction.deletedAt),
+            deletedWithAccount: Value(cascaded),
+            stored: stored == null ? null : (row: stored.transaction),
+          );
+          return () async => deferred.add(write);
+        }
         return () => writeTransactionRow(
           _database,
           transaction,
           currency: currency,
           deletedAt: Value(transaction.deletedAt),
           deletedWithAccount: Value(cascaded),
+          stored: stored == null ? null : (row: stored.transaction),
         );
       case EntityType.category:
         final Category category = Category.fromJson(fields);
@@ -667,15 +983,13 @@ final class DriftSyncStore extends SyncStore {
           ))
           .go();
 
-  // After [record] is written: drops its conflicts when it is deleted, and each one whose
-  // field's clock has moved on; relabels the rest.
-  Future<void> _settleConflicts(EntityRecord record) async {
+  // After [record] is written: drops its conflicts [rows] when it is deleted, and each
+  // one whose field's clock has moved on; relabels the rest.
+  Future<void> _settleConflicts(
+    EntityRecord record,
+    List<ConflictRow> rows,
+  ) async {
     final String name = snakeName(record.type);
-    final List<ConflictRow> rows =
-        await (_database.select(_database.conflicts)..where(
-              (c) => c.entityType.equals(name) & c.entityId.equals(record.id),
-            ))
-            .get();
     if (rows.isEmpty) return;
     final String? label = record.isDeleted
         ? null
@@ -717,18 +1031,17 @@ final class DriftSyncStore extends SyncStore {
   // The outbox --------------------------------------------------------------------------
 
   @override
-  Future<void> append(ChangeLogEntry entry) => _database
-      .into(_database.changeLog)
-      .insert(
-        ChangeLogCompanion.insert(
-          entityType: snakeName(entry.entityType),
-          entityId: entry.entityId,
-          operation: snakeName(entry.operation),
-          payload: jsonEncode(entry.payload),
-          hlc: entry.hlc.pack(),
-          deviceId: entry.deviceId,
-        ),
-      );
+  Future<void> append(ChangeLogEntry entry) =>
+      _database.into(_database.changeLog).insert(_logRow(entry));
+
+  ChangeLogCompanion _logRow(ChangeLogEntry entry) => ChangeLogCompanion.insert(
+    entityType: snakeName(entry.entityType),
+    entityId: entry.entityId,
+    operation: snakeName(entry.operation),
+    payload: jsonEncode(entry.payload),
+    hlc: entry.hlc.pack(),
+    deviceId: entry.deviceId,
+  );
 
   @override
   Future<List<ChangeLogEntry>> unsynced({int limit = 200}) async => [
@@ -876,4 +1189,21 @@ final class _Unrepresentable implements Exception {
 
   @override
   String toString() => '_Unrepresentable(${cause.runtimeType})';
+}
+
+/// A transaction's row as the store read it: the transaction with its tags and splits
+/// (null when there is no row) and its `deleted_with_account`.
+typedef _StoredTransaction = ({
+  Transaction? transaction,
+  bool deletedWithAccount,
+});
+
+// [items] in chunks of 500, so every IN list stays far below SQLite's variable limit.
+Iterable<List<T>> _chunks<T>(List<T> items) sync* {
+  for (int start = 0; start < items.length; start += 500) {
+    yield items.sublist(
+      start,
+      start + 500 > items.length ? items.length : start + 500,
+    );
+  }
 }

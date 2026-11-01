@@ -17,6 +17,7 @@ import 'package:finance_tracker/features/transactions/domain/transaction_query.d
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_usage.dart';
 import 'package:shared_models/shared_models.dart';
+import 'package:sync_engine/sync_engine.dart' show LocalChange;
 
 /// Transactions in [AppDatabase]. A query is one SELECT over `transactions` with the
 /// filters as SQL (see [_filter]); the page's tags and splits are loaded after it. The
@@ -105,43 +106,162 @@ final class DriftTransactionRepository implements TransactionRepository {
     return found;
   }
 
+  // Each chunk of 500: one read of the stored rows with their tags and splits and one of
+  // their accounts, every row checked as upsert checks it, then the rows in one batch
+  // and the changes in one recording.
   @override
   Future<void> upsertAll(List<Transaction> batch) async {
     checkDistinctIds([for (final Transaction t in batch) t.id]);
     if (batch.isEmpty) return;
     await _database.transaction(() async {
-      for (final Transaction t in batch) {
-        await _refusedAs(t.id, () => _upsert(t, overridesOnly: true));
+      for (final List<Transaction> chunk in _chunks(batch)) {
+        final Map<String, ({TransactionRow row, Transaction stored})> existing =
+            await _stored([for (final Transaction t in chunk) t.id]);
+        final Map<String, AccountRow> accounts = {
+          for (final AccountRow a
+              in await (_database.select(_database.accounts)..where(
+                    (a) =>
+                        a.id.isIn({
+                          for (final Transaction t in chunk) t.accountId,
+                        }) &
+                        a.deletedAt.isNull(),
+                  ))
+                  .get())
+            a.id: a,
+        };
+        final List<void Function(Batch)> writes = [];
+        final List<LocalChange> changes = [];
+        for (final Transaction t in chunk) {
+          _refusedAs(t.id, () {
+            checkAuditInstants(t);
+            final ({TransactionRow row, Transaction stored})? old =
+                existing[t.id];
+            if (old != null && old.row.deletedAt != null) {
+              throw EntityDeletedException('transaction', t.id);
+            }
+            final AccountRow? account = accounts[t.accountId];
+            if (account == null) throw AccountNotFoundException(t.accountId);
+            checkPlaidOverridesOnly(t, old?.stored);
+            writes.add(
+              transactionRowWriter(
+                _database,
+                t,
+                currency: account.currency,
+                stored: (row: old?.stored),
+              ),
+            );
+            changes.add((
+              id: t.id,
+              before: old == null
+                  ? null
+                  : transactionRecordJson(
+                      old.stored,
+                      deletedWithAccount: old.row.deletedWithAccount,
+                    ),
+              after: transactionRecordJson(t.copyWith(deletedAt: null)),
+            ));
+          });
+        }
+        await _database.batch((b) {
+          for (final void Function(Batch) write in writes) {
+            write(b);
+          }
+        });
+        await _recorder.recordAll(EntityType.transaction, changes);
       }
     });
   }
 
+  // Each chunk of 500: one read of the rows, every one checked as delete checks it, the
+  // tombstones in one batch, one read of the rows as they now are and the changes in one
+  // recording.
   @override
   Future<void> deleteAll(List<String> ids) async {
     if (ids.isEmpty) return;
     await _database.transaction(() async {
-      for (final String id in ids) {
-        await _refusedAs(id, () => delete(id));
+      for (final List<String> chunk in _chunks(ids)) {
+        final Map<String, ({TransactionRow row, Transaction stored})> existing =
+            await _stored(chunk);
+        final List<String> deleted = [];
+        final Map<String, DateTime> stamps = {};
+        for (final String id in chunk) {
+          final ({TransactionRow row, Transaction stored})? old = existing[id];
+          if (old == null ||
+              old.row.deletedAt != null ||
+              stamps.containsKey(id)) {
+            continue;
+          }
+          _refusedAs(id, () {
+            if (old.row.source == DataSource.plaid) {
+              throw BankDataNotDeletableException('transaction', id);
+            }
+          });
+          deleted.add(id);
+          stamps[id] = _clock.nowUtc();
+        }
+        if (deleted.isEmpty) continue;
+        await _database.batch((b) {
+          for (final String id in deleted) {
+            b.update(
+              _transactions,
+              TransactionsCompanion(
+                deletedAt: Value(stamps[id]),
+                updatedAt: Value(stamps[id]!),
+              ),
+              where: (t) => t.id.equals(id),
+            );
+          }
+        });
+        final Map<String, ({TransactionRow row, Transaction stored})> now =
+            await _stored(deleted);
+        await _recorder.recordAll(EntityType.transaction, [
+          for (final String id in deleted)
+            (
+              id: id,
+              before: transactionRecordJson(
+                existing[id]!.stored,
+                deletedWithAccount: existing[id]!.row.deletedWithAccount,
+              ),
+              after: transactionRecordJson(
+                now[id]!.stored,
+                deletedWithAccount: now[id]!.row.deletedWithAccount,
+              ),
+            ),
+        ]);
       }
     });
   }
 
-  // Runs [write] for transaction [id] of a batch, reporting a refusal as the batch's.
-  Future<void> _refusedAs(String id, Future<void> Function() write) async {
+  // The rows of [ids] that exist, deleted or not, each with its transaction (tags and
+  // splits included).
+  Future<Map<String, ({TransactionRow row, Transaction stored})>> _stored(
+    List<String> ids,
+  ) async {
+    final List<TransactionRow> rows = await (_database.select(
+      _transactions,
+    )..where((t) => t.id.isIn(ids))).get();
+    final List<Transaction> stored = await transactionsWithChildren(
+      _database,
+      rows,
+    );
+    return {
+      for (int i = 0; i < rows.length; i++)
+        rows[i].id: (row: rows[i], stored: stored[i]),
+    };
+  }
+
+  // Runs [check] for transaction [id] of a batch, reporting a refusal as the batch's.
+  void _refusedAs(String id, void Function() check) {
     try {
-      await write();
+      check();
     } on Object catch (e) {
       if (!isBatchRefusal(e)) rethrow;
       throw TransactionBatchException(id, e);
     }
   }
 
-  // upsert's write, inside the caller's database transaction; with [overridesOnly], a
-  // `plaid` row may change only the fields the user owns (upsertAll).
-  Future<void> _upsert(
-    Transaction transaction, {
-    bool overridesOnly = false,
-  }) async {
+  // upsert's write, inside the caller's database transaction.
+  Future<void> _upsert(Transaction transaction) async {
     checkAuditInstants(transaction);
     final String id = transaction.id;
     final TransactionRow? existing = await (_database.select(
@@ -161,7 +281,6 @@ final class DriftTransactionRepository implements TransactionRepository {
     final Transaction? stored = existing == null
         ? null
         : (await transactionsWithChildren(_database, [existing])).single;
-    if (overridesOnly) checkPlaidOverridesOnly(transaction, stored);
     final Map<String, Object?>? before = stored == null
         ? null
         : transactionRecordJson(
@@ -172,6 +291,7 @@ final class DriftTransactionRepository implements TransactionRepository {
       _database,
       transaction,
       currency: account.currency,
+      stored: (row: stored),
     );
     await _recorder.record(
       EntityType.transaction,
@@ -202,28 +322,39 @@ final class DriftTransactionRepository implements TransactionRepository {
           }
         }
         final List<Transaction> inserted = [];
+        final List<void Function(Batch)> writes = [];
         for (final Transaction t in page) {
           final Transaction? old = stored[t.id];
           if (old == null && t.deletedAt != null) continue;
           final Transaction row = old == null ? t : withPlaidOverrides(t, old);
-          await writeTransactionRow(
-            _database,
-            row,
-            currency: row.amount.currencyCode,
-            deletedAt: Value(row.deletedAt),
+          writes.add(
+            transactionRowWriter(
+              _database,
+              row,
+              currency: row.amount.currencyCode,
+              deletedAt: Value(row.deletedAt),
+              stored: (row: old),
+            ),
           );
           if (row.deletedAt != null) {
             // Plaid removed it (a pending row its posted one replaced included): its
             // sync record carries no tombstone, so its conflicts go here.
-            await (_database.delete(_database.conflicts)..where(
-                  (c) =>
-                      c.entityType.equals('transaction') &
-                      c.entityId.equals(t.id),
-                ))
-                .go();
+            writes.add(
+              (b) => b.deleteWhere(
+                _database.conflicts,
+                (c) =>
+                    c.entityType.equals('transaction') &
+                    c.entityId.equals(t.id),
+              ),
+            );
           }
           if (old == null) inserted.add(row);
         }
+        await _database.batch((b) {
+          for (final void Function(Batch) write in writes) {
+            write(b);
+          }
+        });
         return inserted;
       });
 
@@ -535,78 +666,136 @@ Future<List<Transaction>> transactionsWithChildren(
 }
 
 /// Writes [transaction]'s row, replacing its tags and splits, with its amount and splits
-/// in [currency] (the account's for a local edit). `deleted_at` and
-/// `deleted_with_account` are written only when given. Throws
-/// `CurrencyMismatchException` when the amount or a split is in another currency.
+/// in [currency] (the account's for a local edit), in one batch. `deleted_at` and
+/// `deleted_with_account` are written only when given. [stored], when given, is the row
+/// as it stands (`row` null: there is none): tags or splits equal to its own are left as
+/// they are. Throws `CurrencyMismatchException` when the amount or a split is in another
+/// currency.
 Future<void> writeTransactionRow(
   AppDatabase database,
   Transaction transaction, {
   required String currency,
   Value<DateTime?> deletedAt = const Value.absent(),
   Value<bool> deletedWithAccount = const Value.absent(),
+  ({Transaction? row})? stored,
 }) async {
+  final void Function(Batch) write = transactionRowWriter(
+    database,
+    transaction,
+    currency: currency,
+    deletedAt: deletedAt,
+    deletedWithAccount: deletedWithAccount,
+    stored: stored,
+  );
+  await database.batch(write);
+}
+
+/// [writeTransactionRow]'s statements, added to a batch: the currency checks run when
+/// this is called, so a refusal is thrown before anything is written.
+void Function(Batch) transactionRowWriter(
+  AppDatabase database,
+  Transaction transaction, {
+  required String currency,
+  Value<DateTime?> deletedAt = const Value.absent(),
+  Value<bool> deletedWithAccount = const Value.absent(),
+  ({Transaction? row})? stored,
+}) {
   final String id = transaction.id;
   final int amount = minorUnitsIn(transaction.amount, currency)!;
   final List<int> splitAmounts = [
     for (final TransactionSplit split in transaction.splits)
       minorUnitsIn(split.amount, currency)!,
   ];
-  await database
-      .into(database.transactions)
-      .insertOnConflictUpdate(
-        TransactionsCompanion(
-          id: Value(id),
-          accountId: Value(transaction.accountId),
-          amountMinor: Value(amount),
-          currency: Value(currency),
-          date: Value(transaction.date),
-          authorizedDate: Value(transaction.authorizedDate),
-          pending: Value(transaction.pending),
-          pendingTransactionId: Value(transaction.pendingTransactionId),
-          name: Value(transaction.name),
-          merchantName: Value(transaction.merchantName),
-          merchantLogoUrl: Value(transaction.merchantLogoUrl),
-          plaidPrimaryCategory: Value(transaction.plaidPrimaryCategory),
-          plaidDetailedCategory: Value(transaction.plaidDetailedCategory),
-          userCategoryId: Value(transaction.userCategoryId),
-          notes: Value(transaction.notes),
-          receiptPath: Value(transaction.receiptPath),
-          receiptSha256: Value(transaction.receiptSha256),
-          hidden: Value(transaction.hidden),
-          source: Value(transaction.source),
-          createdAt: Value(transaction.createdAt),
-          updatedAt: Value(transaction.updatedAt),
-          deletedAt: deletedAt,
-          syncVersion: Value(transaction.syncVersion),
-          deletedWithAccount: deletedWithAccount,
-        ),
-      );
-  await (database.delete(
-    database.transactionTags,
-  )..where((t) => t.transactionId.equals(id))).go();
-  await (database.delete(
-    database.transactionSplits,
-  )..where((s) => s.transactionId.equals(id))).go();
-  await database.batch((batch) {
-    batch.insertAll(database.transactionTags, [
-      for (int i = 0; i < transaction.tags.length; i++)
-        TransactionTagsCompanion.insert(
-          transactionId: id,
-          position: i,
-          tag: transaction.tags[i],
-        ),
-    ]);
-    batch.insertAll(database.transactionSplits, [
-      for (int i = 0; i < transaction.splits.length; i++)
-        TransactionSplitsCompanion.insert(
-          transactionId: id,
-          position: i,
-          categoryId: transaction.splits[i].categoryId,
-          amountMinor: splitAmounts[i],
-          note: Value(transaction.splits[i].note),
-        ),
-    ]);
-  });
+  final Transaction? row = stored?.row;
+  // Without a stored row there are no children to replace; with one, only those that
+  // differ. Unknown: replace both.
+  final bool tags =
+      stored == null ||
+      (row == null
+          ? transaction.tags.isNotEmpty
+          : !_sameList(row.tags, transaction.tags));
+  final bool splits =
+      stored == null ||
+      (row == null
+          ? transaction.splits.isNotEmpty
+          : row.amount.currencyCode != currency ||
+                !_sameList(row.splits, transaction.splits));
+  final bool hadRow = stored == null || row != null;
+  final TransactionsCompanion companion = TransactionsCompanion(
+    id: Value(id),
+    accountId: Value(transaction.accountId),
+    amountMinor: Value(amount),
+    currency: Value(currency),
+    date: Value(transaction.date),
+    authorizedDate: Value(transaction.authorizedDate),
+    pending: Value(transaction.pending),
+    pendingTransactionId: Value(transaction.pendingTransactionId),
+    name: Value(transaction.name),
+    merchantName: Value(transaction.merchantName),
+    merchantLogoUrl: Value(transaction.merchantLogoUrl),
+    plaidPrimaryCategory: Value(transaction.plaidPrimaryCategory),
+    plaidDetailedCategory: Value(transaction.plaidDetailedCategory),
+    userCategoryId: Value(transaction.userCategoryId),
+    notes: Value(transaction.notes),
+    receiptPath: Value(transaction.receiptPath),
+    receiptSha256: Value(transaction.receiptSha256),
+    hidden: Value(transaction.hidden),
+    source: Value(transaction.source),
+    createdAt: Value(transaction.createdAt),
+    updatedAt: Value(transaction.updatedAt),
+    deletedAt: deletedAt,
+    syncVersion: Value(transaction.syncVersion),
+    deletedWithAccount: deletedWithAccount,
+  );
+  return (Batch batch) {
+    batch.insert(
+      database.transactions,
+      companion,
+      onConflict: DoUpdate((_) => companion),
+    );
+    if (tags) {
+      if (hadRow) {
+        batch.deleteWhere(
+          database.transactionTags,
+          (t) => t.transactionId.equals(id),
+        );
+      }
+      batch.insertAll(database.transactionTags, [
+        for (int i = 0; i < transaction.tags.length; i++)
+          TransactionTagsCompanion.insert(
+            transactionId: id,
+            position: i,
+            tag: transaction.tags[i],
+          ),
+      ]);
+    }
+    if (splits) {
+      if (hadRow) {
+        batch.deleteWhere(
+          database.transactionSplits,
+          (s) => s.transactionId.equals(id),
+        );
+      }
+      batch.insertAll(database.transactionSplits, [
+        for (int i = 0; i < transaction.splits.length; i++)
+          TransactionSplitsCompanion.insert(
+            transactionId: id,
+            position: i,
+            categoryId: transaction.splits[i].categoryId,
+            amountMinor: splitAmounts[i],
+            note: Value(transaction.splits[i].note),
+          ),
+      ]);
+    }
+  };
+}
+
+bool _sameList<T>(List<T> a, List<T> b) {
+  if (a.length != b.length) return false;
+  for (int i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
 }
 
 /// Whether the transaction [id] matches every one of [terms] in the full-text index:
