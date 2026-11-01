@@ -89,7 +89,7 @@ containers without one.
 
 ## The gate
 
-`FinanceTrackerApp`'s `MaterialApp.builder` wraps everything (the flavor banner and the
+`SpendthriftApp`'s `MaterialApp.builder` wraps everything (the flavor banner and the
 router) in `LockGate`, so the lock screen covers every route, sheet and dialog. While
 locked, the app below stays built (its state survives) inside `ExcludeSemantics` and
 `ExcludeFocus`, the opaque `LockScreen` takes every touch, and the gate's

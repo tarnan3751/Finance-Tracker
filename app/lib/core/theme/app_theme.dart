@@ -3,7 +3,7 @@
 /// Both are built by hand from the brand's palette ([AppTheme.lightScheme], paper and ink,
 /// and [AppTheme.darkScheme], the night print) unless the device supplies dynamic color
 /// schemes and the user has dynamic color on, in which case those schemes are used
-/// (`FinanceTrackerApp` decides). Each carries the matching [FinanceColors], harmonized
+/// (`SpendthriftApp` decides). Each carries the matching [FinanceColors], harmonized
 /// with a dynamic scheme's primary color. Surfaces carry no tint.
 ///
 /// The type is Syne for the display and headline styles and `titleLarge` (800 for

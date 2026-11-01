@@ -23,8 +23,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The app. Needs a `ProviderScope` with `appConfigProvider` overridden.
-class FinanceTrackerApp extends ConsumerWidget {
-  const FinanceTrackerApp({super.key});
+class SpendthriftApp extends ConsumerWidget {
+  const SpendthriftApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -91,7 +91,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const FinanceTrackerApp(),
+          child: const SpendthriftApp(),
         ),
       );
 

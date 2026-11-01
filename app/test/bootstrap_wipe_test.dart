@@ -46,16 +46,15 @@ void main() {
       () => startApp(AppConfig.demo(), overrides: overrides),
     );
     await settleWipe(tester);
-    ProviderContainer running() => ProviderScope.containerOf(
-      tester.element(find.byType(FinanceTrackerApp)),
-    );
+    ProviderContainer running() =>
+        ProviderScope.containerOf(tester.element(find.byType(SpendthriftApp)));
     final ProviderContainer first = running();
     expect(first.read(sessionControllerProvider), isA<SignedIn>());
 
     unawaited(first.read(wipeLocalDataProvider)(WipeReason.accountDeleted));
     await settleWipe(tester);
     expect(find.text(l10n.eraseFailedTitle), findsOneWidget);
-    expect(find.byType(FinanceTrackerApp), findsNothing);
+    expect(find.byType(SpendthriftApp), findsNothing);
     expect(find.text(l10n.eraseFailedBody('false')), findsOneWidget);
 
     // A double tap counts once.
@@ -101,7 +100,7 @@ void main() {
     );
     await settleWipe(tester);
     unawaited(
-      ProviderScope.containerOf(tester.element(find.byType(FinanceTrackerApp)))
+      ProviderScope.containerOf(tester.element(find.byType(SpendthriftApp)))
           .read(wipeLocalDataProvider)(WipeReason.deviceErased),
     );
     await settleWipe(tester);

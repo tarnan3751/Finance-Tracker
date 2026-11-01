@@ -187,7 +187,7 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: a.container,
-        child: const FinanceTrackerApp(),
+        child: const SpendthriftApp(),
       ),
     );
     await pumpUntil(tester, find.text('Joint account'));

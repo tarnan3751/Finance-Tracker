@@ -48,7 +48,7 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
    opens at its location; then the sync controller starts
    (`sync-app.md`, **The controller**), the background sync's watcher keeps the periodic
    sync scheduled while someone is signed in (`background.md`, **Scheduling**);
-10. `runApp(UncontrolledProviderScope(container: container, child: FinanceTrackerApp()))`;
+10. `runApp(UncontrolledProviderScope(container: container, child: SpendthriftApp()))`;
 11. after the first frame, in every flavor, the budget alert watcher (`budgets.md`,
     **Alerts**), the recurring detector (`recurring.md`, **The detector**) and the weekly
     summary's notice (`reports.md`, **The weekly summary**) are listened to, so their
@@ -84,7 +84,7 @@ starting screen, the same two frames and `stopApp()`, then `startApp` again, whi
 the mode just stored (`onboarding.md`, **Welcome**); leaving the demo is the wipe for
 `WipeReason.demoLeft`, which starts again on Welcome with no confirmation.
 
-`FinanceTrackerApp` (`app.dart`) is a `ConsumerWidget` returning `MaterialApp.router` with
+`SpendthriftApp` (`app.dart`) is a `ConsumerWidget` returning `MaterialApp.router` with
 the router, both themes inside a `DynamicColorBuilder`, the theme mode from settings, the
 localization delegates, the supported locales and the language chosen on this device
 (**Localization**), the title from `AppConfig.appName`, and a
@@ -817,7 +817,7 @@ committed. Read strings with `AppLocalizations.of(context)`. `flutter pub get`, 
 - **The language choice.** In dev and demo, Settings → Appearance → Language offers
   System, English and Pseudo (`features/settings/domain/app_language.dart`,
   `application/app_language_controller.dart`), kept in `app_meta` under `app_language`
-  and never synced; `FinanceTrackerApp` passes it as `MaterialApp.locale`. Prod offers no
+  and never synced; `SpendthriftApp` passes it as `MaterialApp.locale`. Prod offers no
   choice and leaves `en_XA` out of `supportedLocales`.
 - **Formatting.** Amounts (`Money.format`, `Money.parse`) and dates (`DateFormat`)
   format in intl's default locale, which `bootstrap` sets to the device's locale (en_US

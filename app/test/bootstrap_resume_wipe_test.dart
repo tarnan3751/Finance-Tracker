@@ -54,7 +54,7 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 50));
     });
     await settleWipe(tester);
-    expect(find.byType(FinanceTrackerApp), findsNothing);
+    expect(find.byType(SpendthriftApp), findsNothing);
     expect(find.text(l10n.eraseFailedTitle), findsOneWidget);
     // Resumed at startup, a failure is already a repeated one.
     expect(find.text(l10n.eraseFailedBody('true')), findsOneWidget);

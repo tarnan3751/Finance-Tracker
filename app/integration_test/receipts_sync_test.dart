@@ -228,7 +228,7 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: a.container,
-        child: const FinanceTrackerApp(),
+        child: const SpendthriftApp(),
       ),
     );
     await tester.tap(find.text('Settings'));

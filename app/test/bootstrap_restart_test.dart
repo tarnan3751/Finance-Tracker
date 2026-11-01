@@ -50,7 +50,7 @@ void main() {
     );
     await settleWipe(tester);
     final ProviderContainer first = ProviderScope.containerOf(
-      tester.element(find.byType(FinanceTrackerApp)),
+      tester.element(find.byType(SpendthriftApp)),
     );
     final AppDatabase database = first.read(databaseProvider);
 
@@ -97,7 +97,7 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.runAsync(() => databaseClosing[database]!);
     final ProviderContainer second = ProviderScope.containerOf(
-      tester.element(find.byType(FinanceTrackerApp)),
+      tester.element(find.byType(SpendthriftApp)),
     );
     expect(second, isNot(same(first)));
     expect(second.read(databaseProvider), isNot(same(database)));

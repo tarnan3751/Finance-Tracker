@@ -1,5 +1,5 @@
 // Builds and pumps the real app for widget and golden tests: the real ProviderScope,
-// FinanceTrackerApp (router, themes, localizations, flavor banner), with the dependencies
+// SpendthriftApp (router, themes, localizations, flavor banner), with the dependencies
 // a test must pin overridden: the flavor, the clock, the package info and the settings.
 // The flavor's own wiring (overridesFor: the Drift or demo repositories) is not applied,
 // so every test runs on the in-memory repositories whatever its flavor. The API is the
@@ -66,7 +66,7 @@ final PackageInfo testPackageInfo = PackageInfo(
 final Clock testClock = FixedClock(DateTime.utc(2026, 10, 24, 15), tz.UTC);
 
 /// The app as a widget, for goldens (which pump it themselves) and for [pumpApp]: the
-/// real `ProviderScope` with [testOverrides] around `FinanceTrackerApp`.
+/// real `ProviderScope` with [testOverrides] around `SpendthriftApp`.
 Widget buildTestApp({
   List<Override> overrides = const [],
   AppConfig? config,
@@ -87,7 +87,7 @@ Widget buildTestApp({
       signedIn: signedIn,
       router: router,
     ),
-    child: const FinanceTrackerApp(),
+    child: const SpendthriftApp(),
   );
 }
 

@@ -179,7 +179,7 @@ void main() {
 
     // Settings → Backup on the source: the passphrase twice, then Save as.
     await tester.pumpWidget(
-      UncontrolledProviderScope(container: a, child: const FinanceTrackerApp()),
+      UncontrolledProviderScope(container: a, child: const SpendthriftApp()),
     );
     await pumpUntil(tester, find.text('Cash jar'));
     await tester.tap(find.text('Settings'));

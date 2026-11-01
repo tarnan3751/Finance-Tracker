@@ -81,7 +81,7 @@ void main() {
         await settleWipe(tester);
       }
       // Finished first, before anything opens, and confirmed for its reason.
-      expect(find.byType(FinanceTrackerApp), findsNothing);
+      expect(find.byType(SpendthriftApp), findsNothing);
       expect(find.text(l10n.erasedDeviceTitle), findsOneWidget);
       expect(await wipe.pending(), isNull);
       await tester.runAsync(() async {
@@ -100,7 +100,7 @@ void main() {
       expect(find.byType(WelcomeScreen), findsOneWidget);
       expect((await modes.read()).mode, isNull);
       final ProviderContainer container = ProviderScope.containerOf(
-        tester.element(find.byType(FinanceTrackerApp)),
+        tester.element(find.byType(SpendthriftApp)),
       );
       expect(container.read(appConfigProvider).mode, isNull);
       // The new start's first frame runs its post-frame setup before it stops.

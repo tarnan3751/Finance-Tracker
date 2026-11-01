@@ -26,7 +26,7 @@ import 'helpers/wipe_support.dart';
 final AppLocalizations l10n = lookupAppLocalizations(const Locale('en'));
 
 ProviderContainer _running(WidgetTester tester) =>
-    ProviderScope.containerOf(tester.element(find.byType(FinanceTrackerApp)));
+    ProviderScope.containerOf(tester.element(find.byType(SpendthriftApp)));
 
 // Taps [finder] with real time for the restart's frames and awaits, then settles.
 Future<void> _tapThrough(WidgetTester tester, Finder finder) async {
@@ -58,7 +58,7 @@ void main() {
     await settleWipe(tester);
 
     final ProviderContainer container = ProviderScope.containerOf(
-      tester.element(find.byType(FinanceTrackerApp)),
+      tester.element(find.byType(SpendthriftApp)),
     );
     final AppConfig config = container.read(appConfigProvider);
     expect(config.flavor, Flavor.prod);

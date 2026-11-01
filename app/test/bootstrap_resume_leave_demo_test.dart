@@ -74,7 +74,7 @@ void main() {
     });
     await tester.pump();
     // Finished first, before anything opens, saying the demo is being left.
-    expect(find.byType(FinanceTrackerApp), findsNothing);
+    expect(find.byType(SpendthriftApp), findsNothing);
     expect(find.text('Leaving the demo…'), findsOneWidget);
     // The wipe's file steps and the restart run on real time.
     for (
@@ -91,7 +91,7 @@ void main() {
     expect(stored.mode, isNull);
     expect(stored.demoPersona, isNull);
     final ProviderContainer container = ProviderScope.containerOf(
-      tester.element(find.byType(FinanceTrackerApp)),
+      tester.element(find.byType(SpendthriftApp)),
     );
     expect(container.read(appConfigProvider).mode, isNull);
     expect(tester.takeException(), isNull);
