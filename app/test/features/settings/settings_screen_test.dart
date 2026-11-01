@@ -52,9 +52,8 @@ void main() {
     expect(_currentTheme(tester).brightness, Brightness.light);
   });
 
-  testWidgets('dynamic color uses the device colors until switched off', (
-    tester,
-  ) async {
+  testWidgets('dynamic color is off until switched on, then uses the device '
+      'colors', (tester) async {
     tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
       _dynamicColorChannel,
       (call) async => switch (call.method) {
@@ -70,24 +69,29 @@ void main() {
     );
     final Color devicePrimary = ColorScheme.fromSeed(seedColor: _deviceAccent)
         .primary;
-    final Color seedPrimary = AppTheme.light().colorScheme.primary;
-    expect(devicePrimary, isNot(seedPrimary));
+    final Color brandPrimary = AppTheme.light().colorScheme.primary;
+    expect(devicePrimary, isNot(brandPrimary));
 
     await pumpApp(tester, initialLocation: '/settings');
-    expect(_currentTheme(tester).colorScheme.primary, devicePrimary);
-
-    await tester.tap(_dynamicColor);
-    await tester.pumpAndSettle();
     expect(tester.widget<SwitchListTile>(_dynamicColor).value, isFalse);
-    expect(_currentTheme(tester).colorScheme.primary, seedPrimary);
+    expect(_currentTheme(tester).colorScheme.primary, brandPrimary);
 
     await tester.tap(_dynamicColor);
     await tester.pumpAndSettle();
+    expect(tester.widget<SwitchListTile>(_dynamicColor).value, isTrue);
     expect(_currentTheme(tester).colorScheme.primary, devicePrimary);
+
+    await tester.tap(_dynamicColor);
+    await tester.pumpAndSettle();
+    expect(_currentTheme(tester).colorScheme.primary, brandPrimary);
   });
 
-  testWidgets('without device colors the seed colors are used', (tester) async {
+  testWidgets('without device colors the brand colors are used', (
+    tester,
+  ) async {
     await pumpApp(tester, initialLocation: '/settings');
+    await tester.tap(_dynamicColor);
+    await tester.pumpAndSettle();
 
     expect(tester.widget<SwitchListTile>(_dynamicColor).value, isTrue);
     expect(

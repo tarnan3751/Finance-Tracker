@@ -425,11 +425,11 @@ void runRecordingContract(
       'settings: each save an update of what changed, from the defaults',
       () async {
         await f.settings.save(
-          const Settings(themeMode: AppThemeMode.dark, useDynamicColor: true),
+          const Settings(themeMode: AppThemeMode.dark, useDynamicColor: false),
         );
         expect(await recorded(), ['settings/local update theme_mode']);
         await f.settings.save(
-          const Settings(themeMode: AppThemeMode.dark, useDynamicColor: false),
+          const Settings(themeMode: AppThemeMode.dark, useDynamicColor: true),
         );
         expect(await recorded(), ['settings/local update use_dynamic_color']);
       },

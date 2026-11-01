@@ -549,16 +549,17 @@ void main() {
   test('settings saved on both devices merge field by field', () async {
     final Device a = device('dev-a');
     final Device b = device('dev-b');
+    // Each changes one field from the defaults (system, dynamic color off).
     await a.settings.save(
-      const Settings(themeMode: AppThemeMode.dark, useDynamicColor: true),
+      const Settings(themeMode: AppThemeMode.dark, useDynamicColor: false),
     );
     await b.settings.save(
-      const Settings(themeMode: AppThemeMode.system, useDynamicColor: false),
+      const Settings(themeMode: AppThemeMode.system, useDynamicColor: true),
     );
     await expectConverged([a, b]);
     const Settings both = Settings(
       themeMode: AppThemeMode.dark,
-      useDynamicColor: false,
+      useDynamicColor: true,
     );
     expect(await a.settings.read(), both);
     expect(await b.settings.read(), both);

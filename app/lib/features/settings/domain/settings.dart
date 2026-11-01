@@ -20,10 +20,11 @@ final class Settings {
   /// Settings with every field given.
   const Settings({required this.themeMode, required this.useDynamicColor});
 
-  /// The settings of a fresh install: follow the system theme, use dynamic color.
+  /// The settings of a fresh install: follow the system theme, and the brand's colors
+  /// rather than the device's, so the brand shows.
   const Settings.defaults()
     : themeMode = AppThemeMode.system,
-      useDynamicColor = true;
+      useDynamicColor = false;
 
   final AppThemeMode themeMode;
 

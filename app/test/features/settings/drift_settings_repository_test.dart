@@ -34,14 +34,14 @@ void main() {
       const Settings.defaults(),
     );
     await database.customStatement(
-      "UPDATE app_settings SET value = 'false' WHERE key = 'use_dynamic_color'",
+      "UPDATE app_settings SET value = 'true' WHERE key = 'use_dynamic_color'",
     );
     expect(
       await DriftSettingsRepository(
         database,
         recorder: const NoChangeRecorder(),
       ).read(),
-      const Settings.defaults().copyWith(useDynamicColor: false),
+      const Settings.defaults().copyWith(useDynamicColor: true),
     );
   });
 }
