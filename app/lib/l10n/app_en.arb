@@ -4321,6 +4321,10 @@
       }
     }
   },
+  "billPaidFailed": "The bill could not be saved. Try again.",
+  "@billPaidFailed": {
+    "description": "Snack bar when marking a bill paid, or undoing it, could not be saved."
+  },
   "billDueIn": "{days, plural, =0{Due today} =1{Due tomorrow} other{Due in {days} days}}",
   "@billDueIn": {
     "description": "A bill's due date within the next week.",

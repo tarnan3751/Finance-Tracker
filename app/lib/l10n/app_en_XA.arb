@@ -764,6 +764,7 @@
   "billMarkPaid": "[Ṁåŕķ þåîð ~~~~]",
   "billMarkPaidLabel": "[Ṁåŕķ {name} þåîð ƒöŕ {date} ~~~~~]",
   "billMarkedPaid": "[{name} ɱåŕķéð þåîð ~~~~]",
+  "billPaidFailed": "[Ţĥé ƀîļļ çöûļð ñöţ ƀé šåṽéð. Ţŕý åĝåîñ. ~~~~~ ~~~~~ ~~]",
   "billDueIn": "[{days, plural, =0{Ðûé ţöðåý ~~~~} =1{Ðûé ţöɱöŕŕöŵ ~~~~~} other{Ðûé îñ {days} ðåýš ~~~~}}]",
   "billDueAgo": "[{days, plural, =1{Ðûé ýéšţéŕðåý ~~~~~} other{Ðûé {days} ðåýš åĝö ~~~~}}]",
   "billDueOn": "[Ðûé {date} ~~]",

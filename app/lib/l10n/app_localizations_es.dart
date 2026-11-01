@@ -3071,6 +3071,9 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get billPaidFailed => 'The bill could not be saved. Try again.';
+
+  @override
   String billDueIn(int days) {
     String _temp0 = intl.Intl.pluralLogic(
       days,

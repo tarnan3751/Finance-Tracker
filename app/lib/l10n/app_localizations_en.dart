@@ -3071,6 +3071,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get billPaidFailed => 'The bill could not be saved. Try again.';
+
+  @override
   String billDueIn(int days) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
@@ -8152,6 +8155,10 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
   String billMarkedPaid(String name) {
     return '[$name ɱåŕķéð þåîð ~~~~]';
   }
+
+  @override
+  String get billPaidFailed =>
+      '[Ţĥé ƀîļļ çöûļð ñöţ ƀé šåṽéð. Ţŕý åĝåîñ. ~~~~~ ~~~~~ ~~]';
 
   @override
   String billDueIn(int days) {

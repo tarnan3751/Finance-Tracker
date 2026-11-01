@@ -1,6 +1,6 @@
 // The Bills segment on testClock's today, 24 October 2026: the Overdue, Due soon and
 // Later groups and the folded Paused group, Mark paid on the occurrence that is due or
-// missed (with Undo), the missed-bill badge on the Plan tab, the calendar's month
+// missed (with Undo), saying so when either is not saved, the missed-bill badge on the Plan tab, the calendar's month
 // navigation and day selection in America/New_York across a month end, the suggestions'
 // Add and Dismiss (remembered on the device) and their Show all after three, and the
 // empty state.
@@ -25,7 +25,7 @@ import '../../../helpers/stream_seed.dart';
 void main() {
   setUpAll(tzdata.initializeTimeZones);
 
-  late InMemoryBillRepository bills;
+  late _Failing bills;
   late InMemoryAppMetaStore meta;
 
   Future<void> open(
@@ -38,7 +38,7 @@ void main() {
     bool keepMeta = false,
   }) async {
     final Clock at = clock ?? testClock;
-    bills = InMemoryBillRepository(
+    bills = _Failing(
       at,
       recorder: const NoChangeRecorder(),
       initial: initial ?? testBills(),
@@ -135,6 +135,43 @@ void main() {
       LocalDate(2026, 9, 1),
     ]);
     expect(find.text('Overdue'), findsOneWidget);
+  });
+
+  testWidgets('a Mark paid or Undo not saved says so and changes nothing', (
+    tester,
+  ) async {
+    await open(tester);
+
+    bills.failing = true;
+    await tester.tap(inTile('Rent', find.text('Mark paid')));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('The bill could not be saved. Try again.'),
+      findsOneWidget,
+    );
+    expect(find.text('Rent marked paid'), findsNothing);
+    expect((await stored(tester, 'rent')).paidOccurrences, [
+      LocalDate(2026, 9, 1),
+    ]);
+    expect(find.text('Overdue'), findsOneWidget);
+    expect(inTile('Rent', find.text('Mark paid')), findsOneWidget);
+
+    bills.failing = false;
+    await tester.tap(inTile('Rent', find.text('Mark paid')));
+    await tester.pumpAndSettle();
+    expect(find.text('Rent marked paid'), findsOneWidget);
+    bills.failing = true;
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('The bill could not be saved. Try again.'),
+      findsOneWidget,
+    );
+    expect((await stored(tester, 'rent')).paidOccurrences, [
+      LocalDate(2026, 9, 1),
+      LocalDate(2026, 10, 1),
+    ]);
+    expect(find.text('Overdue'), findsNothing);
   });
 
   testWidgets('Mark paid on a due bill marks the occurrence it shows', (
@@ -313,4 +350,18 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.widgetWithText(AppBar, 'New bill'), findsOneWidget);
   });
+}
+
+/// The in-memory repository, whose writes fail while [failing], as once its database
+/// has closed.
+final class _Failing extends InMemoryBillRepository {
+  _Failing(super.clock, {required super.recorder, super.initial});
+
+  bool failing = false;
+
+  @override
+  Future<void> upsert(BillReminder bill) async {
+    if (failing) throw StateError('the stream ended with no value');
+    await super.upsert(bill);
+  }
 }

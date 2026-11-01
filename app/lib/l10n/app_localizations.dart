@@ -4719,6 +4719,12 @@ abstract class AppLocalizations {
   /// **'{name} marked paid'**
   String billMarkedPaid(String name);
 
+  /// Snack bar when marking a bill paid, or undoing it, could not be saved.
+  ///
+  /// In en, this message translates to:
+  /// **'The bill could not be saved. Try again.'**
+  String get billPaidFailed;
+
   /// A bill's due date within the next week.
   ///
   /// In en, this message translates to:

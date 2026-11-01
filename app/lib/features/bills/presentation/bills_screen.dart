@@ -20,6 +20,7 @@ import 'package:finance_tracker/core/router/plan_scaffold.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
+import 'package:finance_tracker/core/widgets/visible_messenger.dart';
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
 import 'package:finance_tracker/features/bills/domain/bill_schedule.dart';
 import 'package:finance_tracker/features/bills/domain/bill_status.dart';
@@ -33,7 +34,10 @@ import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:logging/logging.dart';
 import 'package:shared_models/shared_models.dart';
+
+final Logger _log = Logger('bills');
 
 /// The bills segment.
 class BillsScreen extends ConsumerStatefulWidget {
@@ -347,9 +351,24 @@ class _BillTile extends ConsumerWidget {
     LocalDate due,
   ) async {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final ScaffoldMessengerState messenger = VisibleMessenger.of(context).pane;
     final BillActions actions = ref.read(billActionsProvider);
-    await actions.setPaid(bill.id, due, paid: true);
+    // Marks the occurrence paid or not, saying so when the write failed (the database
+    // closed under it); true when it was written.
+    Future<bool> setPaid({required bool paid}) async {
+      try {
+        await actions.setPaid(bill.id, due, paid: paid);
+        return true;
+      } on Object catch (e) {
+        _log.warning('a bill payment was not saved: ${e.runtimeType}');
+        messenger
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(l10n.billPaidFailed)));
+        return false;
+      }
+    }
+
+    if (!await setPaid(paid: true)) return;
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -359,8 +378,7 @@ class _BillTile extends ConsumerWidget {
           persist: false,
           action: SnackBarAction(
             label: l10n.undo,
-            onPressed: () =>
-                unawaited(actions.setPaid(bill.id, due, paid: false)),
+            onPressed: () => unawaited(setPaid(paid: false)),
           ),
         ),
       );

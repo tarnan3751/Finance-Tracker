@@ -218,7 +218,8 @@ The list:
   2026"), the expected amount,
   a chip (Missed in the error colour; Paid; Autopay for an autopay bill not yet paid), and
   **Mark paid** when the occurrence shown is due or missed: `setPaid(id, due, paid:
-  true)` for that occurrence, with an Undo. Tapping a row opens the editor.
+  true)` for that occurrence, with an Undo; either one not saved (the database closed
+  under it) says so and leaves the bill as it was. Tapping a row opens the editor.
 - **Paused (N)**, folded: the inactive bills ("5c review rulings" item 8), with no chip,
   no Mark paid and no date; tapping one opens the editor, where the Active switch is.
 
