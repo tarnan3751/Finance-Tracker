@@ -1,6 +1,9 @@
 # CI: the gate on every push and pull request (a failing golden's images uploaded as an
-# artifact), then the demo debug APK as an artifact and the prod release build as the R8
-# and obfuscation canary, and the contract job: the OpenAPI document validated by
+# artifact); a lane pushes its series to `lane/<name>` so this gate runs it off the
+# development machine, and a green run on the delivered tree stands in for the reviewer's
+# and the landing's gate (CLAUDE.md, **Lanes**, **Delivery and landing**). On main and on
+# tags only: the demo debug APK as an artifact and the prod release build as the R8 and
+# obfuscation canary, and the contract job: the OpenAPI document validated by
 # openapi-generator itself and the committed client proved current by regenerating it.
 # The Flutter version comes from .fvmrc, so CI runs the same SDK as every lane. The
 # signed release on a v* tag is release.yml's; this prod build is debug-signed.
@@ -43,6 +46,7 @@ jobs:
 
   apk:
     needs: gate
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -73,6 +77,7 @@ jobs:
 
   contract:
     needs: gate
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     env:
       OPENAPI_GENERATOR_VERSION: 7.26.0
