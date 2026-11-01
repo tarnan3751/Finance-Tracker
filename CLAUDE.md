@@ -18,7 +18,7 @@ heading of this file or of a doc.
 
 ## Status
 
-**Phases 0 to 10 have landed and passed their gates; the project is at its second pre-release:** the
+**Phases 0 to 11 have landed and passed their gates; the project is at its third pre-release:** the
 app runs on its Riverpod and go_router core with manual accounts, transactions and categories on the
 encrypted Drift database (schema v14 with the change log, field clocks, Items, rules, budgets and
 their alerts, dismissed duplicate pairs, saved filters, a full-text index, recurring streams and
@@ -71,9 +71,13 @@ with dynamic colour off by default, Syne and Work Sans bundled under the OFL wit
 ink-line cards and pill switchers with no elevation, one hero card per tab with its pink
 misregistration, charts and category and merchant colours in the brand's hues, a duotone S launcher
 icon and paper splash, every CI golden regenerated and compared with a tolerance for the
-Linux-versus-macOS anti-aliasing of the bundled fonts, and the README media retaken; the dev flavor
-carries a developer menu for the Sandbox controls. The repository is the pub workspace of **Folder
-layout**, Android only. The app runs in three flavors (`dev`, `demo`, `prod`) through
+Linux-versus-macOS anti-aliasing of the bundled fonts, and the README media retaken; it records a
+batch of local changes in one store pass (a 10,000-row import in about 1.8 s on the host),
+re-indexes a transaction only when its text changed, starts its whole-ledger watchers after the
+first frame on one shared watch, pages the transactions list one page at a time, and carries a
+performance harness under `tools/perf/` with its baseline in `docs/reference/performance.md`; the
+dev flavor carries a developer menu for the Sandbox controls. The repository is the pub workspace of
+**Folder layout**, Android only. The app runs in three flavors (`dev`, `demo`, `prod`) through
 `app/lib/bootstrap.dart`; `server/` is the development server implementing the contract with a fake
 Plaid client (`docs/reference/server.md`); `api/openapi.yaml` is the v1 contract, with
 `packages/api_client` generated from it and `packages/contract_test` checking against it; the
@@ -194,6 +198,7 @@ full gate, not six.
 | Build: workspace, flavors, Android configuration, signing, R8 | `pubspec.yaml`, `app/android/`, `app/lib/core/config/` | `docs/reference/build.md` |
 | Release: the tag workflow, the release notes and signature-check scripts, the expected certificate, the community files | `.github/workflows/release.yml`, `tools/release/`, `LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `PRIVACY.md` | `docs/reference/testing-tools.md` (Cutting a release), `docs/reference/build.md` (Signing) |
 | Testing and tools: gate, test runner, emulator harness, landing, the secrets sweep, scripts | `*/test/`, `app/integration_test/`, `tools/` | `docs/reference/testing-tools.md` |
+| Performance: the harness scripts, the baseline records, the statement-count and perf tests | `tools/perf/`, `docs/reference/perf-baselines/`, `app/test/perf/` | `docs/reference/performance.md` |
 
 ## Architecture rules
 
@@ -315,8 +320,8 @@ PLAN.md          the plan: gitignored, read from the main tree
   `weekly_summary_raised`, `payoff_entries`, `lock_enabled`, `lock_timeout_seconds`,
   `secure_screen`, `app_language`, `background_sync_enabled`, `background_last_run`,
   `session_ended_in_background`, `notification_permission_asked`, `sync_problems_told`,
-  `background_last_unheld_run`, `import_presets`, `import_history`) and never syncs; `app_settings`
-  syncs.
+  `background_last_unheld_run`, `import_presets`, `import_history`, `categories_seeded_version`) and
+  never syncs; `app_settings` syncs.
 - A pulled change-log entry whose `entity_type` this build does not know is held under its raw
   type name and released, at a schema step or at any later open, by a build that knows it; a pull
   never fails on an unknown type (`docs/reference/sync-app.md`, Unknown types). The first build
@@ -436,6 +441,15 @@ PLAN.md          the plan: gitignored, read from the main tree
 - One overflow menu per app bar: a segment's menu items go through the scaffold's `menuEntries` into
   the `HelpMenuButton`; the `SegmentSwitcher` fills the width when its labels fit and scrolls with a
   trailing fade when they do not.
+- Test tags: `perf` marks the timed perf tests (`tools/perf/` runs them; the gate runs only
+  `write_path_statements_test`, whose statement counts are deterministic); `convergence_full` marks
+  the every-seed convergence runs, skipped by default and run with `flutter test --run-skipped
+  --tags convergence_full test/sync/`, which CI runs on main and tags.
+- A write to user data goes through `recordAll`/`recordChanges` in one store pass: a repository that
+  writes several entities records them as one batch (distinct ids; a duplicate is refused), and the
+  statement-count test fails a path that goes back to a round trip per row.
+- Whole-ledger readers share `liveLedgerProvider`; the detector, alert and weekly-summary listeners
+  start in the post-frame callback and return if the app was stopped before its first frame.
 
 ## Seeing the app
 
