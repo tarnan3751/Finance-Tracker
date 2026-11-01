@@ -22,6 +22,11 @@ abstract interface class TransactionRepository {
   /// The live transaction [id], or null when there is none or it is deleted.
   Stream<Transaction?> watchById(String id);
 
+  /// The live transactions among [ids], by id, read once: one that does not exist or is
+  /// deleted is absent. A batch's reads in one query per few hundred ids, where a
+  /// [watchById] each would cost a query each.
+  Future<Map<String, Transaction>> getByIds(Iterable<String> ids);
+
   /// Inserts or replaces [transaction] with its tags and splits, in one write. Its audit
   /// fields are stored as given, except `deletedAt`, which only [delete] sets.
   ///

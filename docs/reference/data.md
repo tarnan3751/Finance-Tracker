@@ -252,7 +252,7 @@ and exposes streams that start with the current value and emit again only when i
 | Interface | Methods |
 |---|---|
 | `AccountRepository` | `watchAll()` (visible first, then hidden; by `displayOrder`, then id), `watchById`, `upsert`, `create(account, {openingBalance})`, `delete`, `restore`, `applyPlaid(accounts)`, `watchDerivedBalance(id)`, `watchDerivedBalances()` |
-| `TransactionRepository` | `watch(TransactionQuery)`, `watchById`, `upsert`, `upsertAll(batch)`, `delete`, `deleteAll(ids)`, `restore`, `applyPlaid(page)`, `count(TransactionQuery)`, `watchUsage({recentLimit})` |
+| `TransactionRepository` | `watch(TransactionQuery)`, `watchById`, `getByIds(ids)` (the live ones among `ids`, by id, read once), `upsert`, `upsertAll(batch)`, `delete`, `deleteAll(ids)`, `restore`, `applyPlaid(page)`, `count(TransactionQuery)`, `watchUsage({recentLimit})` |
 | `CategoryRepository` | `watchAll()` (by name ignoring ASCII case, then id), `watchById`, `upsert`, `delete`, `ensureSeeded()` |
 | `ItemRepository` | `watchAll()` (by institution name ignoring ASCII case, then id), `watchById`, `applyPlaid(items, pulledAt:)`, `applyPlaidItem`, `saveLogo`, `markLoginRequired` |
 | `RuleRepository` | `watchAll()` (by `position`, then id), `upsert`, `delete`, `restore`, `reorder(ids)` (`rules.md`) |

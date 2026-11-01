@@ -89,6 +89,23 @@ final class DriftTransactionRepository implements TransactionRepository {
       _database.transaction(() => _upsert(transaction));
 
   @override
+  Future<Map<String, Transaction>> getByIds(Iterable<String> ids) async {
+    final List<String> wanted = ids.toSet().toList();
+    final Map<String, Transaction> found = {};
+    for (final List<String> chunk in _chunks(wanted)) {
+      for (final Transaction t in await transactionsWithChildren(
+        _database,
+        await (_database.select(
+          _transactions,
+        )..where((t) => t.id.isIn(chunk) & t.deletedAt.isNull())).get(),
+      )) {
+        found[t.id] = t;
+      }
+    }
+    return found;
+  }
+
+  @override
   Future<void> upsertAll(List<Transaction> batch) async {
     checkDistinctIds([for (final Transaction t in batch) t.id]);
     if (batch.isEmpty) return;
@@ -629,3 +646,13 @@ String _ftsString(String term) =>
 /// [text] with `\`, `%` and `_` escaped by a backslash, for `LIKE ... ESCAPE '\'`.
 String _escapeLike(String text) =>
     text.replaceAllMapped(RegExp(r'[\\%_]'), (m) => '\\${m[0]}');
+
+// [items] in chunks of 500, so every IN list stays far below SQLite's variable limit.
+Iterable<List<T>> _chunks<T>(List<T> items) sync* {
+  for (int start = 0; start < items.length; start += 500) {
+    yield items.sublist(
+      start,
+      start + 500 > items.length ? items.length : start + 500,
+    );
+  }
+}

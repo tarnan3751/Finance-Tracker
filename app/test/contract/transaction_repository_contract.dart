@@ -161,6 +161,33 @@ void runTransactionRepositoryContract(
       expect(await transactions.watchById('p1').first, plaid);
     });
 
+    test('getByIds reads the live ones among the ids, by id', () async {
+      expect(await transactions.getByIds(const []), isEmpty);
+      final List<Transaction> rows = [
+        for (int i = 0; i < 600; i++)
+          testTransaction(
+            't$i',
+            i.isEven ? 'a1' : 'a2',
+            -i,
+            tags: i % 3 == 0 ? ['x$i', 'y'] : const [],
+          ),
+      ];
+      await transactions.upsertAll(rows);
+      await transactions.delete('t7');
+      final Map<String, Transaction> read = await transactions.getByIds([
+        for (int i = 0; i < 600; i++) 't$i',
+        't3',
+        'missing',
+      ]);
+      expect(read.keys.toSet(), {
+        for (int i = 0; i < 600; i++)
+          if (i != 7) 't$i',
+      });
+      for (final Transaction t in rows) {
+        if (t.id != 't7') expect(read[t.id], t);
+      }
+    });
+
     test('a delete hides the transaction; restore brings it back, updatedAt stamped', () async {
       final Transaction t = testTransaction(
         't1',

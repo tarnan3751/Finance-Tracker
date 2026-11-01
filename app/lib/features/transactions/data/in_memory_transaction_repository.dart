@@ -30,6 +30,12 @@ base class InMemoryTransactionRepository implements TransactionRepository {
       store.watch(() => store.transaction(id));
 
   @override
+  Future<Map<String, Transaction>> getByIds(Iterable<String> ids) async => {
+    for (final String id in ids)
+      if (store.transaction(id) case final Transaction t) id: t,
+  };
+
+  @override
   Future<void> upsert(Transaction transaction) =>
       _recorded(transaction.id, () => store.upsertTransaction(transaction));
 
