@@ -2239,7 +2239,7 @@ abstract class AppLocalizations {
   /// **'Sign out'**
   String get settingsSignOut;
 
-  /// Settings row (dev builds only) showing the server the app talks to.
+  /// Settings row showing the server the app talks to: in dev builds, and in any build when the server was entered at sign-in.
   ///
   /// In en, this message translates to:
   /// **'Server'**
@@ -7707,6 +7707,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Leave'**
   String get leaveDemoConfirm;
+
+  /// Label of the field, on the sign-in and registration screens, where the user enters the address of their own Finance Tracker server.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get serverFieldLabel;
+
+  /// Example address shown in the empty server field. A web address, not translated words.
+  ///
+  /// In en, this message translates to:
+  /// **'https://money.example.com'**
+  String get serverFieldHint;
+
+  /// Help text under the server field on the sign-in and registration screens.
+  ///
+  /// In en, this message translates to:
+  /// **'The address of your own Finance Tracker server.'**
+  String get serverFieldHelper;
+
+  /// Error under the server field when it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your server\'s address.'**
+  String get serverUrlEmpty;
+
+  /// Error under the server field when what was typed is not a web address the app can use.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a full web address, such as https://money.example.com.'**
+  String get serverUrlInvalid;
+
+  /// Error under the server field when the address is not secure (https), which release builds require.
+  ///
+  /// In en, this message translates to:
+  /// **'The address must start with https://.'**
+  String get serverUrlNotHttps;
+
+  /// Error under the server field when nothing answered at the address.
+  ///
+  /// In en, this message translates to:
+  /// **'The server could not be reached. Check the address and your connection.'**
+  String get serverUnreachable;
+
+  /// Error under the server field when something answered at the address, but not a Finance Tracker server.
+  ///
+  /// In en, this message translates to:
+  /// **'That address did not answer as a Finance Tracker server.'**
+  String get serverNotFinanceTracker;
+
+  /// Button on the sign-in screen of a new install that goes back to the welcome screen, where the demo can be chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Try the demo instead'**
+  String get signInTryDemo;
 }
 
 class _AppLocalizationsDelegate

@@ -92,7 +92,7 @@ Widget buildTestApp({
 /// [testPackageInfo], settings whose theme mode gives
 /// [brightness], the fake server with the demo user signed in when [signedIn] (the
 /// device named "Pixel 6"), and the flavor's router opening at [initialLocation] ([router]
-/// instead when given); then [overrides], which win.
+/// instead when given); then [overrides], which win: a default they override is left out.
 /// A test that overrides `settingsRepositoryProvider` itself sets the theme mode there.
 List<Override> testOverrides({
   List<Override> overrides = const [],
@@ -102,6 +102,33 @@ List<Override> testOverrides({
   Clock? clock,
   bool signedIn = true,
   GoRouter Function(Ref ref)? router,
+}) {
+  final Set<Object?> own = {
+    // ignore: invalid_use_of_visible_for_testing_member
+    for (final Override o in overrides) o.origin,
+  };
+  return [
+    for (final Override o in _defaults(
+      config: config,
+      initialLocation: initialLocation,
+      brightness: brightness,
+      clock: clock,
+      signedIn: signedIn,
+      router: router,
+    ))
+      // ignore: invalid_use_of_visible_for_testing_member
+      if (!own.contains(o.origin)) o,
+    ...overrides,
+  ];
+}
+
+List<Override> _defaults({
+  required AppConfig? config,
+  required String initialLocation,
+  required Brightness brightness,
+  required Clock? clock,
+  required bool signedIn,
+  required GoRouter Function(Ref ref)? router,
 }) => [
   appConfigProvider.overrideWithValue(config ?? AppConfig.prod()),
   clockProvider.overrideWithValue(clock ?? testClock),
@@ -125,7 +152,6 @@ List<Override> testOverrides({
     (ref) =>
         router?.call(ref) ?? routerFor(ref, initialLocation: initialLocation),
   ),
-  ...overrides,
 ];
 
 /// Pumps [buildTestApp] at [phoneSize] (or [size]) and [textScale], and settles.

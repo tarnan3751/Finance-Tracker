@@ -1,19 +1,26 @@
-/// The sign-in screen (`/sign-in`): email and password, a link to registration, and the
-/// failure inline (wrong credentials, too many attempts, no server, another account on
-/// this install). After the server ended this device's session it says so, once. While
+/// The sign-in screen (`/sign-in`): the server's address while none is compiled in
+/// (`server_field.dart`, checked before anything is sent), email and password, a link to
+/// registration, and the failure inline (wrong credentials, too many attempts, no server,
+/// another account on this install). After the server ended this device's session it says so, once. While
 /// the install still holds an account's data (its user is recorded), a line under the
 /// form offers to erase this device's data (the local wipe, after a confirmation): the
 /// way out for an install whose account is gone, deleted elsewhere or by a deletion
 /// whose answer was lost. A successful sign-in needs no navigation: the router follows
-/// the session to the shell.
+/// the session to the shell. On an install that chose the live mode on the Welcome screen
+/// and holds no account yet, "Try the demo instead" clears the choice and restarts on
+/// Welcome (`docs/reference/onboarding.md`).
 library;
 
+import 'package:finance_tracker/core/api/api_providers.dart';
+import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/features/auth/application/install_user.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
 import 'package:finance_tracker/features/auth/domain/session_state.dart';
 import 'package:finance_tracker/features/auth/presentation/auth_form.dart';
 import 'package:finance_tracker/features/auth/presentation/erase_device_dialog.dart';
+import 'package:finance_tracker/features/auth/presentation/server_field.dart';
+import 'package:finance_tracker/features/onboarding/presentation/mode_choice.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,6 +38,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
+  final TextEditingController _server = TextEditingController();
+  String? _serverError;
   bool _busy = false;
   Exception? _error;
   Map<String, String> _fieldErrors = const {};
@@ -39,6 +48,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   @override
   void initState() {
     super.initState();
+    _server.text = ref.read(serverAddressProvider).entered?.toString() ?? '';
     // Taken once, as the screen opens.
     _endedRemotely = ref
         .read(sessionControllerProvider.notifier)
@@ -47,6 +57,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
   @override
   void dispose() {
+    _server.dispose();
     _email.dispose();
     _password.dispose();
     super.dispose();
@@ -65,15 +76,20 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       _fieldErrors = const {};
     });
     if (!_form.currentState!.validate()) return;
+    final AppLocalizations l10n = AppLocalizations.of(context);
     setState(() => _busy = true);
     try {
+      final String? server = await confirmServer(ref, l10n, _server.text);
+      if (server != null) {
+        if (mounted) setState(() => _serverError = server);
+        return;
+      }
       await ref
           .read(sessionControllerProvider.notifier)
           .signIn(email: _email.text.trim(), password: _password.text);
       TextInput.finishAutofillContext();
     } on Exception catch (e) {
       if (!mounted) return;
-      final AppLocalizations l10n = AppLocalizations.of(context);
       setState(() {
         _error = e;
         _fieldErrors = fieldErrors(l10n, e);
@@ -81,6 +97,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  // Forgets the live mode chosen on Welcome and starts again there.
+  Future<void> _tryDemo() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    final bool stored = await storeChoiceAndRestart(
+      context,
+      ref,
+      (modes) => modes.clear(),
+    );
+    if (!stored && mounted) setState(() => _busy = false);
   }
 
   @override
@@ -105,6 +133,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (ref.watch(serverAddressProvider).editable) ...[
+                ServerUrlField(
+                  controller: _server,
+                  errorText: _serverError,
+                  onChanged: (_) {
+                    if (_serverError != null) {
+                      setState(() => _serverError = null);
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
               TextFormField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
@@ -151,6 +191,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           TextButton(
             onPressed: _busy ? null : () => confirmAndEraseDevice(context, ref),
             child: Text(l10n.signInEraseDevice),
+          ),
+        if (ref.watch(installUserProvider) case AsyncData(value: null)
+            when ref.watch(appConfigProvider).choosesMode)
+          TextButton(
+            onPressed: _busy ? null : _tryDemo,
+            child: Text(l10n.signInTryDemo),
           ),
       ],
     );

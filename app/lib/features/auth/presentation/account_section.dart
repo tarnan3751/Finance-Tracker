@@ -1,12 +1,14 @@
 /// The Settings screen's Account section: who is signed in, the linked banks, Devices
 /// (not in demo), Sign out,
 /// Sign out and erase this device, and Delete account (none of the three in demo, which
-/// is always the demo user), and in dev the server the app talks to. Nothing while
-/// signed out, which outside demo the router never shows.
+/// is always the demo user), and the server the app talks to in dev, or in any flavor
+/// when it was entered on the sign-in screen. Nothing while signed out, which outside
+/// demo the router never shows.
 library;
 
 import 'package:finance_tracker/core/api/api_config.dart';
 import 'package:finance_tracker/core/api/api_providers.dart';
+import 'package:finance_tracker/core/api/server_address.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/layout/two_pane.dart';
@@ -29,7 +31,11 @@ class AccountSection extends ConsumerWidget {
     final AppConfig config = ref.watch(appConfigProvider);
     final SessionState session = ref.watch(sessionControllerProvider);
     if (session is! SignedIn) return const SizedBox.shrink();
-    final Uri? server = config.serverBaseUrl;
+    final ServerAddress address = ref.watch(serverAddressProvider);
+    // Dev's compiled server, or the one entered at sign-in.
+    final Uri? server = config.flavor == Flavor.dev
+        ? config.serverBaseUrl
+        : address.entered;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -75,12 +81,12 @@ class AccountSection extends ConsumerWidget {
                 openDetail(context, const DeleteAccountRoute().location),
           ),
         ],
-        if (config.flavor == Flavor.dev)
+        if (config.flavor == Flavor.dev || address.editable && server != null)
           ListTile(
             leading: const Icon(Icons.dns_outlined),
             title: Text(l10n.settingsServer),
             subtitle: Text(
-              fakeServerInDev || server == null
+              config.isDemo || fakeServerInDev || server == null
                   ? l10n.settingsServerFake
                   : apiBaseUrl(server),
             ),

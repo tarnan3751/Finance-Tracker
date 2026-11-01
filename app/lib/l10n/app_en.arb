@@ -1914,7 +1914,7 @@
   },
   "settingsServer": "Server",
   "@settingsServer": {
-    "description": "Settings row (dev builds only) showing the server the app talks to."
+    "description": "Settings row showing the server the app talks to: in dev builds, and in any build when the server was entered at sign-in."
   },
   "settingsServerFake": "In-app fake server",
   "@settingsServerFake": {
@@ -7240,5 +7240,41 @@
   "leaveDemoConfirm": "Leave",
   "@leaveDemoConfirm": {
     "description": "Confirming button of the leave-the-demo dialog."
+  },
+  "serverFieldLabel": "Server",
+  "@serverFieldLabel": {
+    "description": "Label of the field, on the sign-in and registration screens, where the user enters the address of their own Finance Tracker server."
+  },
+  "serverFieldHint": "https://money.example.com",
+  "@serverFieldHint": {
+    "description": "Example address shown in the empty server field. A web address, not translated words."
+  },
+  "serverFieldHelper": "The address of your own Finance Tracker server.",
+  "@serverFieldHelper": {
+    "description": "Help text under the server field on the sign-in and registration screens."
+  },
+  "serverUrlEmpty": "Enter your server's address.",
+  "@serverUrlEmpty": {
+    "description": "Error under the server field when it is empty."
+  },
+  "serverUrlInvalid": "Enter a full web address, such as https://money.example.com.",
+  "@serverUrlInvalid": {
+    "description": "Error under the server field when what was typed is not a web address the app can use."
+  },
+  "serverUrlNotHttps": "The address must start with https://.",
+  "@serverUrlNotHttps": {
+    "description": "Error under the server field when the address is not secure (https), which release builds require."
+  },
+  "serverUnreachable": "The server could not be reached. Check the address and your connection.",
+  "@serverUnreachable": {
+    "description": "Error under the server field when nothing answered at the address."
+  },
+  "serverNotFinanceTracker": "That address did not answer as a Finance Tracker server.",
+  "@serverNotFinanceTracker": {
+    "description": "Error under the server field when something answered at the address, but not a Finance Tracker server."
+  },
+  "signInTryDemo": "Try the demo instead",
+  "@signInTryDemo": {
+    "description": "Button on the sign-in screen of a new install that goes back to the welcome screen, where the demo can be chosen."
   }
 }

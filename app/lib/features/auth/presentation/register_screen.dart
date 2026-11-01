@@ -1,16 +1,19 @@
-/// The registration screen (`/register`): email, a password of 8 to 128 characters, an
+/// The registration screen (`/register`): the server's address while none is compiled in
+/// (`server_field.dart`, checked before anything is sent), email, a password of 8 to 128 characters, an
 /// optional name, the name this device registers under, and the failure inline (email
 /// taken, too many attempts, no server, another account on this install, with the offer
 /// to erase this device's data beside that refusal). A successful registration needs no
 /// navigation: the router follows the session to the shell.
 library;
 
+import 'package:finance_tracker/core/api/api_providers.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/features/auth/application/device_name.dart';
 import 'package:finance_tracker/features/auth/application/session_controller.dart';
 import 'package:finance_tracker/features/auth/domain/session_state.dart';
 import 'package:finance_tracker/features/auth/presentation/auth_form.dart';
 import 'package:finance_tracker/features/auth/presentation/erase_device_dialog.dart';
+import 'package:finance_tracker/features/auth/presentation/server_field.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,12 +32,21 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _name = TextEditingController();
+  final TextEditingController _server = TextEditingController();
+  String? _serverError;
   bool _busy = false;
   Exception? _error;
   Map<String, String> _fieldErrors = const {};
 
   @override
+  void initState() {
+    super.initState();
+    _server.text = ref.read(serverAddressProvider).entered?.toString() ?? '';
+  }
+
+  @override
   void dispose() {
+    _server.dispose();
     _email.dispose();
     _password.dispose();
     _name.dispose();
@@ -54,9 +66,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       _fieldErrors = const {};
     });
     if (!_form.currentState!.validate()) return;
+    final AppLocalizations l10n = AppLocalizations.of(context);
     setState(() => _busy = true);
     final String name = _name.text.trim();
     try {
+      final String? server = await confirmServer(ref, l10n, _server.text);
+      if (server != null) {
+        if (mounted) setState(() => _serverError = server);
+        return;
+      }
       await ref
           .read(sessionControllerProvider.notifier)
           .register(
@@ -67,7 +85,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       TextInput.finishAutofillContext();
     } on Exception catch (e) {
       if (!mounted) return;
-      final AppLocalizations l10n = AppLocalizations.of(context);
       setState(() {
         _error = e;
         _fieldErrors = fieldErrors(l10n, e);
@@ -90,6 +107,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (ref.watch(serverAddressProvider).editable) ...[
+                ServerUrlField(
+                  controller: _server,
+                  errorText: _serverError,
+                  onChanged: (_) {
+                    if (_serverError != null) {
+                      setState(() => _serverError = null);
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
               TextFormField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,

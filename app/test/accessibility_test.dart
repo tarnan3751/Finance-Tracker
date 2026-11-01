@@ -27,12 +27,15 @@
 // errors showing, in test/features/auth/auth_screens_test.dart. The screens of an app
 // mode (`_modeScreens`) are checked on their own configuration: the Welcome screen and
 // the demo's households before a mode is chosen, and the shell with the demo's strip and
-// its Leave dialog while the demo runs; each also in the pseudo-locale on the dev flavor,
+// its Leave dialog while the demo runs, and the auth screens with the server field (and
+// the way back to Welcome) of a build with no compiled URL; each also in the pseudo-locale on the dev flavor,
 // which offers it.
 import 'dart:io';
 import 'dart:ui' show DisplayFeature, DisplayFeatureState, DisplayFeatureType;
 
 import 'package:finance_tracker/app.dart';
+import 'package:finance_tracker/core/api/api_providers.dart';
+import 'package:finance_tracker/core/api/server_address.dart';
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/app_meta_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
@@ -640,6 +643,12 @@ AppConfig _fresh(Flavor flavor) =>
       mode: null,
     );
 
+/// Dev or prod in the live mode, chosen on the Welcome screen.
+AppConfig _live(Flavor flavor) =>
+    (flavor == Flavor.dev ? AppConfig.dev() : AppConfig.prod()).withChoices(
+      mode: AppMode.live,
+    );
+
 /// Dev or prod running the demo.
 AppConfig _demoMode(Flavor flavor) =>
     (flavor == Flavor.dev ? AppConfig.dev() : AppConfig.prod()).withChoices(
@@ -678,6 +687,20 @@ _modeScreens = {
     config: _demoMode,
     signedIn: true,
     overrides: () => const [],
+    open: null,
+  ),
+  'Sign in with the server field': (
+    location: '/sign-in',
+    config: _live,
+    signedIn: false,
+    overrides: () => [serverAddressProvider.overrideWithValue(ServerAddress())],
+    open: null,
+  ),
+  'Register with the server field': (
+    location: '/register',
+    config: _live,
+    signedIn: false,
+    overrides: () => [serverAddressProvider.overrideWithValue(ServerAddress())],
     open: null,
   ),
   'Leave the demo dialog': (

@@ -5077,4 +5077,35 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get leaveDemoConfirm => 'Leave';
+
+  @override
+  String get serverFieldLabel => 'Server';
+
+  @override
+  String get serverFieldHint => 'https://money.example.com';
+
+  @override
+  String get serverFieldHelper =>
+      'The address of your own Finance Tracker server.';
+
+  @override
+  String get serverUrlEmpty => 'Enter your server\'s address.';
+
+  @override
+  String get serverUrlInvalid =>
+      'Enter a full web address, such as https://money.example.com.';
+
+  @override
+  String get serverUrlNotHttps => 'The address must start with https://.';
+
+  @override
+  String get serverUnreachable =>
+      'The server could not be reached. Check the address and your connection.';
+
+  @override
+  String get serverNotFinanceTracker =>
+      'That address did not answer as a Finance Tracker server.';
+
+  @override
+  String get signInTryDemo => 'Try the demo instead';
 }
