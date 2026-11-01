@@ -55,14 +55,14 @@ final class BalanceSnapshotsProvider
 String _$balanceSnapshotsHash() => r'07acc6dc901050c0318ba85590a077a340e9cf4d';
 
 /// The net worth history per currency code (`netWorthHistory`): the prefix
-/// reconstructed from the live transactions (`recurringLedgerProvider`, every live
+/// reconstructed from the live transactions (`liveLedgerProvider`, every live
 /// one), then the series of the stored snapshots, typed by the live accounts.
 
 @ProviderFor(netWorthSeries)
 final netWorthSeriesProvider = NetWorthSeriesProvider._();
 
 /// The net worth history per currency code (`netWorthHistory`): the prefix
-/// reconstructed from the live transactions (`recurringLedgerProvider`, every live
+/// reconstructed from the live transactions (`liveLedgerProvider`, every live
 /// one), then the series of the stored snapshots, typed by the live accounts.
 
 final class NetWorthSeriesProvider
@@ -76,7 +76,7 @@ final class NetWorthSeriesProvider
         $FutureModifier<Map<String, List<NetWorthPoint>>>,
         $FutureProvider<Map<String, List<NetWorthPoint>>> {
   /// The net worth history per currency code (`netWorthHistory`): the prefix
-  /// reconstructed from the live transactions (`recurringLedgerProvider`, every live
+  /// reconstructed from the live transactions (`liveLedgerProvider`, every live
   /// one), then the series of the stored snapshots, typed by the live accounts.
   NetWorthSeriesProvider._()
     : super(
@@ -104,7 +104,7 @@ final class NetWorthSeriesProvider
   }
 }
 
-String _$netWorthSeriesHash() => r'd4f89aeea3b3d1683d68b26afc9ad1dade930e4a';
+String _$netWorthSeriesHash() => r'749316283c3886f71d0c4051b94608a92e427ad7';
 
 /// The payoff entries by account id (`PayoffEntry`), kept on this device only under
 /// `AppMetaKeys.payoffEntries` (never synced). The changes are applied one at a time,

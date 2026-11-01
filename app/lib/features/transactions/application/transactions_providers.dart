@@ -66,6 +66,15 @@ class TransactionListController extends _$TransactionListController {
 /// The loaded transactions of the list and whether more match.
 typedef TransactionPage = ({List<Transaction> transactions, bool hasMore});
 
+/// Every live transaction, in the repository's order (newest first): the one watch of the
+/// whole ledger, shared by everything that reads all of it (the recurring detector and
+/// merged streams, the duplicates, the rules' preview, the reports, anomalies and weekly
+/// summary, the forecast, net worth and the export), so a write loads it once however
+/// many listen. Kept while anything listens.
+@riverpod
+Stream<List<Transaction>> liveLedger(Ref ref) =>
+    ref.watch(transactionRepositoryProvider).watch(TransactionQuery.all);
+
 /// The live categories by id and by Plaid code, from which the screens take each
 /// transaction's effective category (`effectiveCategory`): its user category, else the
 /// system category of its Plaid code.

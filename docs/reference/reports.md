@@ -272,7 +272,7 @@ opens the screen.
 | `reportCurrencyProvider` | The currency (**Periods**) |
 | `reportCreditAccountIdsProvider` | The live credit accounts' ids, which pair the card payments (**Classification**) |
 | `reportPeriodOffsetProvider` | The period shown as an offset from today's, the screen's own (not the budgets'); `select(offset)` |
-| `reportProvider(offset)` | The `Report` of that period over every live transaction (`recurringLedgerProvider`) |
+| `reportProvider(offset)` | The `Report` of that period over every live transaction (`liveLedgerProvider`) |
 | `anomaliesProvider(window)` | The flags in a window, less the dismissed ones |
 | `dismissedAnomaliesProvider` | The dismissed ids; `dismiss(id)`, `restore(id)` |
 | `weeklyReportProvider` | The two weeks |

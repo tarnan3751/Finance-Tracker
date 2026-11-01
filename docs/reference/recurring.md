@@ -109,7 +109,6 @@ demo changes nothing for the persona's Items.
 | `subscriptionsProvider` | of `mergedStreamsProvider`'s list, the active, unmuted streams whose resolved `isSubscription` is true, each with its annual cost: the average's magnitude times 52 (weekly), 26 (biweekly), 24 (semi-monthly), 12 (monthly), 4 (quarterly) or 1 (annually), positive; null for an unknown cadence, which stays listed |
 | `streamActionsProvider` | `StreamActions`: `mute(id, muted:)`, `setSubscription(id, bool?)`, `rename(id, name)` (trimmed; blank restores the merchant's) and `reset(id)` (clears every choice); each writes only its field |
 | `mergedStreamsProvider` | (`merged_streams.dart`) the stored streams merged again and classified, the list the screens read (**Merging**) |
-| `recurringLedgerProvider` | (`merged_streams.dart`) every live transaction, which the merged list and the runner read |
 | `detectorRunnerProvider` | (`detector_runner.dart`) recomputes the detected streams while listened to (**The detector**) |
 
 ## The detector
@@ -222,7 +221,7 @@ cannot be seen then. The list is sorted by merchant name, then id.
 in the repository's order (merchant name ignoring ASCII case, then id; `mergeStreams`'s
 own order is not used): the stored streams (`watchAll()`) merged again when read, so a pull landing
 between two detector runs never shows a stream twice, and each server stream classified
-over its members in the ledger (`recurringLedgerProvider`, every live transaction): its
+over its members in the ledger (`liveLedgerProvider`, every live transaction, `transactions.md`): its
 flag is set when its source flags it or the classifier says so, and `StreamView`'s
 `isSubscription` lets the user's override win over both. Detected streams are kept as the
 runner stored them, already classified.

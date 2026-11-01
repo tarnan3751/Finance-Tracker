@@ -8,52 +8,6 @@ part of 'duplicates_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The transactions the detector looks at: every live one.
-
-@ProviderFor(duplicateSource)
-final duplicateSourceProvider = DuplicateSourceProvider._();
-
-/// The transactions the detector looks at: every live one.
-
-final class DuplicateSourceProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<Transaction>>,
-          List<Transaction>,
-          Stream<List<Transaction>>
-        >
-    with
-        $FutureModifier<List<Transaction>>,
-        $StreamProvider<List<Transaction>> {
-  /// The transactions the detector looks at: every live one.
-  DuplicateSourceProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'duplicateSourceProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$duplicateSourceHash();
-
-  @$internal
-  @override
-  $StreamProviderElement<List<Transaction>> $createElement(
-    $ProviderPointer pointer,
-  ) => $StreamProviderElement(pointer);
-
-  @override
-  Stream<List<Transaction>> create(Ref ref) {
-    return duplicateSource(ref);
-  }
-}
-
-String _$duplicateSourceHash() => r'5d2da665efa7ef80996138b7250f339a6201c978';
-
 /// The pairs the user dismissed.
 
 @ProviderFor(dismissedPairs)
@@ -98,14 +52,14 @@ final class DismissedPairsProvider
 
 String _$dismissedPairsHash() => r'fc4e0ff48b7b0f8327f270e7fe98d38013c945ef';
 
-/// The likely duplicate pairs, ranked (`findDuplicates`), recomputed when the
-/// transactions or the dismissed pairs change.
+/// The likely duplicate pairs among every live transaction (`liveLedgerProvider`), ranked
+/// (`findDuplicates`), recomputed when the transactions or the dismissed pairs change.
 
 @ProviderFor(duplicateCandidates)
 final duplicateCandidatesProvider = DuplicateCandidatesProvider._();
 
-/// The likely duplicate pairs, ranked (`findDuplicates`), recomputed when the
-/// transactions or the dismissed pairs change.
+/// The likely duplicate pairs among every live transaction (`liveLedgerProvider`), ranked
+/// (`findDuplicates`), recomputed when the transactions or the dismissed pairs change.
 
 final class DuplicateCandidatesProvider
     extends
@@ -117,8 +71,8 @@ final class DuplicateCandidatesProvider
     with
         $FutureModifier<List<DuplicateCandidate>>,
         $FutureProvider<List<DuplicateCandidate>> {
-  /// The likely duplicate pairs, ranked (`findDuplicates`), recomputed when the
-  /// transactions or the dismissed pairs change.
+  /// The likely duplicate pairs among every live transaction (`liveLedgerProvider`), ranked
+  /// (`findDuplicates`), recomputed when the transactions or the dismissed pairs change.
   DuplicateCandidatesProvider._()
     : super(
         from: null,
@@ -146,7 +100,7 @@ final class DuplicateCandidatesProvider
 }
 
 String _$duplicateCandidatesHash() =>
-    r'323d610cb0e67ddae9054473778507d331c72cf6';
+    r'993eb5c10b148a2067d6768f480f5987b48c0743';
 
 /// The writes of the duplicate review.
 

@@ -15,7 +15,7 @@ import 'package:finance_tracker/features/net_worth/domain/net_worth_series.dart'
 import 'package:finance_tracker/features/net_worth/domain/payoff.dart';
 import 'package:finance_tracker/features/net_worth/domain/payoff_entries.dart';
 import 'package:finance_tracker/features/net_worth/domain/reconstruction.dart';
-import 'package:finance_tracker/features/recurring/application/merged_streams.dart';
+import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_models/shared_models.dart';
 
@@ -27,7 +27,7 @@ Stream<List<BalanceSnapshot>> balanceSnapshots(Ref ref) =>
     ref.watch(balanceSnapshotRepositoryProvider).watchAll();
 
 /// The net worth history per currency code (`netWorthHistory`): the prefix
-/// reconstructed from the live transactions (`recurringLedgerProvider`, every live
+/// reconstructed from the live transactions (`liveLedgerProvider`, every live
 /// one), then the series of the stored snapshots, typed by the live accounts.
 @riverpod
 Future<Map<String, List<NetWorthPoint>>> netWorthSeries(Ref ref) async {
@@ -35,9 +35,7 @@ Future<Map<String, List<NetWorthPoint>>> netWorthSeries(Ref ref) async {
     balanceSnapshotsProvider.future,
   );
   final List<Account> accounts = await ref.watch(accountsProvider.future);
-  final List<Transaction> ledger = await ref.watch(
-    recurringLedgerProvider.future,
-  );
+  final List<Transaction> ledger = await ref.watch(liveLedgerProvider.future);
   return netWorthHistory(snapshots, {
     for (final Account a in accounts) a.id: a.type,
   }, ledger);

@@ -11,10 +11,10 @@ import 'package:finance_tracker/core/platform/in_app_notifications.dart';
 import 'package:finance_tracker/core/platform/notifier.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
-import 'package:finance_tracker/features/recurring/application/merged_streams.dart';
 import 'package:finance_tracker/features/reports/application/reports_providers.dart';
 import 'package:finance_tracker/features/reports/domain/transaction_kind.dart';
 import 'package:finance_tracker/features/reports/domain/weekly_summary.dart';
+import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -37,9 +37,7 @@ Future<WeeklyReport> weeklyReport(Ref ref) async {
     reportCreditAccountIdsProvider.future,
   );
   final List<Category> categories = await ref.watch(categoriesProvider.future);
-  final List<Transaction> ledger = await ref.watch(
-    recurringLedgerProvider.future,
-  );
+  final List<Transaction> ledger = await ref.watch(liveLedgerProvider.future);
   final CategoryLookup lookup = categoryLookup(categories);
   final List<ReportEntry> entries = reportEntries(
     ledger,

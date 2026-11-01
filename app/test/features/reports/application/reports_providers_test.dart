@@ -5,11 +5,11 @@
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
-import 'package:finance_tracker/features/recurring/application/merged_streams.dart';
 import 'package:finance_tracker/features/reports/application/reports_providers.dart';
 import 'package:finance_tracker/features/reports/application/weekly_summary_providers.dart';
 import 'package:finance_tracker/features/reports/domain/report.dart';
 import 'package:finance_tracker/features/reports/domain/transaction_kind.dart';
+import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 import 'package:flutter_test/flutter_test.dart';
@@ -127,7 +127,7 @@ void main() {
 
     // The same household with the rent hidden, in a store of its own, so the report
     // read is never one computed before the write.
-    final Transaction rent = (await c.read(recurringLedgerProvider.future))
+    final Transaction rent = (await c.read(liveLedgerProvider.future))
         .firstWhere((t) => t.id == 'rent-2026-10');
     final InMemoryStore hidden = reportStore()
       ..upsertTransaction(rent.copyWith(hidden: true));

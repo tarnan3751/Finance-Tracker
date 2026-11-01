@@ -51,61 +51,15 @@ final class RulesProvider
 
 String _$rulesHash() => r'dd22d8777fccacf84cf44df1efce69b0a626b9bf';
 
-/// Every live transaction, newest first: what a rule is previewed on.
-
-@ProviderFor(ruleHistory)
-final ruleHistoryProvider = RuleHistoryProvider._();
-
-/// Every live transaction, newest first: what a rule is previewed on.
-
-final class RuleHistoryProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<Transaction>>,
-          List<Transaction>,
-          Stream<List<Transaction>>
-        >
-    with
-        $FutureModifier<List<Transaction>>,
-        $StreamProvider<List<Transaction>> {
-  /// Every live transaction, newest first: what a rule is previewed on.
-  RuleHistoryProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'ruleHistoryProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$ruleHistoryHash();
-
-  @$internal
-  @override
-  $StreamProviderElement<List<Transaction>> $createElement(
-    $ProviderPointer pointer,
-  ) => $StreamProviderElement(pointer);
-
-  @override
-  Stream<List<Transaction>> create(Ref ref) {
-    return ruleHistory(ref);
-  }
-}
-
-String _$ruleHistoryHash() => r'5c6788dff55ddb5fca5e1fddf95eaa29799848f3';
-
-/// What [rule], as the editor holds it, would change in the live transactions on live
-/// accounts (`evaluateRuleOnHistory`), recomputed when they, the accounts or the
+/// What [rule], as the editor holds it, would change in the live transactions
+/// (`liveLedgerProvider`) on live accounts (`evaluateRuleOnHistory`), recomputed when they, the accounts or the
 /// categories change.
 
 @ProviderFor(rulePreview)
 final rulePreviewProvider = RulePreviewFamily._();
 
-/// What [rule], as the editor holds it, would change in the live transactions on live
-/// accounts (`evaluateRuleOnHistory`), recomputed when they, the accounts or the
+/// What [rule], as the editor holds it, would change in the live transactions
+/// (`liveLedgerProvider`) on live accounts (`evaluateRuleOnHistory`), recomputed when they, the accounts or the
 /// categories change.
 
 final class RulePreviewProvider
@@ -116,8 +70,8 @@ final class RulePreviewProvider
           FutureOr<RulePreview>
         >
     with $FutureModifier<RulePreview>, $FutureProvider<RulePreview> {
-  /// What [rule], as the editor holds it, would change in the live transactions on live
-  /// accounts (`evaluateRuleOnHistory`), recomputed when they, the accounts or the
+  /// What [rule], as the editor holds it, would change in the live transactions
+  /// (`liveLedgerProvider`) on live accounts (`evaluateRuleOnHistory`), recomputed when they, the accounts or the
   /// categories change.
   RulePreviewProvider._({
     required RulePreviewFamily super.from,
@@ -163,10 +117,10 @@ final class RulePreviewProvider
   }
 }
 
-String _$rulePreviewHash() => r'5eafdeef180a3f24baff7316a78f172c155b8f57';
+String _$rulePreviewHash() => r'3e4e5a133c49205bc013bf8c7d782b42cd9b1432';
 
-/// What [rule], as the editor holds it, would change in the live transactions on live
-/// accounts (`evaluateRuleOnHistory`), recomputed when they, the accounts or the
+/// What [rule], as the editor holds it, would change in the live transactions
+/// (`liveLedgerProvider`) on live accounts (`evaluateRuleOnHistory`), recomputed when they, the accounts or the
 /// categories change.
 
 final class RulePreviewFamily extends $Family
@@ -180,8 +134,8 @@ final class RulePreviewFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// What [rule], as the editor holds it, would change in the live transactions on live
-  /// accounts (`evaluateRuleOnHistory`), recomputed when they, the accounts or the
+  /// What [rule], as the editor holds it, would change in the live transactions
+  /// (`liveLedgerProvider`) on live accounts (`evaluateRuleOnHistory`), recomputed when they, the accounts or the
   /// categories change.
 
   RulePreviewProvider call(Rule rule) =>

@@ -12,6 +12,7 @@ import 'package:finance_tracker/features/categories/domain/category_repository.d
 import 'package:finance_tracker/features/rules/application/rule_preview.dart';
 import 'package:finance_tracker/features/rules/application/rule_support.dart';
 import 'package:finance_tracker/features/rules/domain/rule_repository.dart';
+import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:finance_tracker/features/transactions/domain/transaction_repository.dart';
@@ -27,18 +28,13 @@ part 'rules_providers.g.dart';
 Stream<List<Rule>> rules(Ref ref) =>
     ref.watch(ruleRepositoryProvider).watchAll();
 
-/// Every live transaction, newest first: what a rule is previewed on.
-@riverpod
-Stream<List<Transaction>> ruleHistory(Ref ref) =>
-    ref.watch(transactionRepositoryProvider).watch(TransactionQuery());
-
-/// What [rule], as the editor holds it, would change in the live transactions on live
-/// accounts (`evaluateRuleOnHistory`), recomputed when they, the accounts or the
+/// What [rule], as the editor holds it, would change in the live transactions
+/// (`liveLedgerProvider`) on live accounts (`evaluateRuleOnHistory`), recomputed when they, the accounts or the
 /// categories change.
 @riverpod
 Future<RulePreview> rulePreview(Ref ref, Rule rule) async {
   final List<Transaction> transactions = onLiveAccounts(
-    await ref.watch(ruleHistoryProvider.future),
+    await ref.watch(liveLedgerProvider.future),
     await ref.watch(accountsProvider.future),
   );
   final CategoryLookup lookup = categoryLookup(

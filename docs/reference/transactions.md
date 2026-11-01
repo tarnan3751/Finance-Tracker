@@ -302,6 +302,12 @@ a blob by its hash (`data.md`, **Receipts**; `sync-app.md`, **Receipts**).
 - A Plaid transaction takes a receipt like its category: `receipt_path` and
   `receipt_sha256` are among the fields the user owns on it (`sync-app.md`).
 
+`liveLedgerProvider` is every live transaction, newest first: the one watch of the whole
+ledger, which everything that reads all of it shares (the recurring detector and merged
+streams, the duplicates, the rules' preview, the reports, anomalies and weekly summary, the
+forecast, net worth and the export), so a write loads it once however many listen; it is
+kept while anything listens.
+
 `transactionUsageProvider` (`TransactionRepository.watchUsage`, `data.md`: limited and
 distinct queries, never a scan of every transaction) gives the editor and the filter sheet
 the tags in use and the recently used categories and accounts; `localReceiptProvider(id,

@@ -16,7 +16,7 @@ import 'package:finance_tracker/features/categories/application/categories_provi
 import 'package:finance_tracker/features/export/application/export_providers.dart';
 import 'package:finance_tracker/features/export/domain/monthly_report.dart';
 import 'package:finance_tracker/features/export/presentation/export_runner.dart';
-import 'package:finance_tracker/features/recurring/application/merged_streams.dart';
+import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -180,7 +180,7 @@ class _TransactionsExport extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final LocalDate today = ref.watch(todayProvider);
-    final List<Transaction>? ledger = ref.watch(recurringLedgerProvider).value;
+    final List<Transaction>? ledger = ref.watch(liveLedgerProvider).value;
     final List<Account>? all = ref.watch(accountsProvider).value;
     final List<Category>? categories = ref.watch(categoriesProvider).value;
     if (ledger == null || all == null || categories == null) {

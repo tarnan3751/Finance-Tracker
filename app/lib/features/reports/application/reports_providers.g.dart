@@ -202,21 +202,21 @@ abstract class _$ReportPeriodOffset extends $Notifier<int> {
 }
 
 /// The report of the period [offset] periods after today's, over every live
-/// transaction (`recurringLedgerProvider`), hidden ones left out, a credit card
+/// transaction (`liveLedgerProvider`), hidden ones left out, a credit card
 /// payment paired against the live credit accounts' inflows.
 
 @ProviderFor(report)
 final reportProvider = ReportFamily._();
 
 /// The report of the period [offset] periods after today's, over every live
-/// transaction (`recurringLedgerProvider`), hidden ones left out, a credit card
+/// transaction (`liveLedgerProvider`), hidden ones left out, a credit card
 /// payment paired against the live credit accounts' inflows.
 
 final class ReportProvider
     extends $FunctionalProvider<AsyncValue<Report>, Report, FutureOr<Report>>
     with $FutureModifier<Report>, $FutureProvider<Report> {
   /// The report of the period [offset] periods after today's, over every live
-  /// transaction (`recurringLedgerProvider`), hidden ones left out, a credit card
+  /// transaction (`liveLedgerProvider`), hidden ones left out, a credit card
   /// payment paired against the live credit accounts' inflows.
   ReportProvider._({
     required ReportFamily super.from,
@@ -261,10 +261,10 @@ final class ReportProvider
   }
 }
 
-String _$reportHash() => r'0114022dfd108cc13fecfe07cdbae88bf3b14ddc';
+String _$reportHash() => r'6ead0b97ad09845913a8aca2a4108faa78ac3ed7';
 
 /// The report of the period [offset] periods after today's, over every live
-/// transaction (`recurringLedgerProvider`), hidden ones left out, a credit card
+/// transaction (`liveLedgerProvider`), hidden ones left out, a credit card
 /// payment paired against the live credit accounts' inflows.
 
 final class ReportFamily extends $Family
@@ -279,7 +279,7 @@ final class ReportFamily extends $Family
       );
 
   /// The report of the period [offset] periods after today's, over every live
-  /// transaction (`recurringLedgerProvider`), hidden ones left out, a credit card
+  /// transaction (`liveLedgerProvider`), hidden ones left out, a credit card
   /// payment paired against the live credit accounts' inflows.
 
   ReportProvider call(int offset) =>

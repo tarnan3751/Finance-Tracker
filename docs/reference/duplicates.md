@@ -50,7 +50,7 @@ implementations pass `runDismissedPairStoreContract`.
 ## The review
 
 `duplicateCandidatesProvider` runs the detector over every live transaction
-(`duplicateSourceProvider`) and the dismissed pairs (`dismissedPairsProvider`), and
+(`liveLedgerProvider`, `transactions.md`) and the dismissed pairs (`dismissedPairsProvider`), and
 recomputes when either changes; `duplicateActionsProvider` dismisses and restores.
 
 - **The entry.** The transaction list's app bar menu (`transactions.md`; the normal app

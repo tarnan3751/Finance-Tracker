@@ -7,9 +7,9 @@ import 'package:finance_tracker/features/accounts/application/accounts_providers
 import 'package:finance_tracker/features/budgets/application/budgets_providers.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_period.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
-import 'package:finance_tracker/features/recurring/application/merged_streams.dart';
 import 'package:finance_tracker/features/reports/domain/report.dart';
 import 'package:finance_tracker/features/reports/domain/transaction_kind.dart';
+import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_models/shared_models.dart';
@@ -62,7 +62,7 @@ class ReportPeriodOffset extends _$ReportPeriodOffset {
 }
 
 /// The report of the period [offset] periods after today's, over every live
-/// transaction (`recurringLedgerProvider`), hidden ones left out, a credit card
+/// transaction (`liveLedgerProvider`), hidden ones left out, a credit card
 /// payment paired against the live credit accounts' inflows.
 @riverpod
 Future<Report> report(Ref ref, int offset) async {
@@ -73,9 +73,7 @@ Future<Report> report(Ref ref, int offset) async {
     reportCreditAccountIdsProvider.future,
   );
   final List<Category> categories = await ref.watch(categoriesProvider.future);
-  final List<Transaction> ledger = await ref.watch(
-    recurringLedgerProvider.future,
-  );
+  final List<Transaction> ledger = await ref.watch(liveLedgerProvider.future);
   final CategoryLookup lookup = categoryLookup(categories);
   return buildReport(
     period: periodAt(today, startDay, offset),

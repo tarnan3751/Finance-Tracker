@@ -161,7 +161,7 @@ fails, and the card says the entry could not be saved.
 | Provider (`application/net_worth_providers.dart`) | What |
 |---|---|
 | `balanceSnapshotsProvider` | `BalanceSnapshotRepository.watchAll()` |
-| `netWorthSeriesProvider` | `netWorthHistory` per currency from the snapshots, the live accounts' types and every live transaction (`recurringLedgerProvider`); the screen reads only this |
+| `netWorthSeriesProvider` | `netWorthHistory` per currency from the snapshots, the live accounts' types and every live transaction (`liveLedgerProvider`); the screen reads only this |
 | `payoffEntriesControllerProvider` | The entries (**Payoff**) |
 | `liabilityPayoffsProvider` | Every live credit and loan account that owes something, hidden ones included (net worth counts them), in the accounts' order, with its terms, its entry, its projection at the payment and, with an extra, at the payment plus the extra |
 

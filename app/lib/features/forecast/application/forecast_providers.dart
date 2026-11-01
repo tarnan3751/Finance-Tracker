@@ -2,7 +2,7 @@
 /// account selection, kept on the device in `app_meta`, the plan of the series shown, and
 /// the series for each horizon. The inputs are the accounts with their balances, the
 /// merged streams (`mergedStreamsProvider`) with their members in the live ledger
-/// (`recurringLedgerProvider`), the bills with their payments (`billPaymentsProvider`),
+/// (`liveLedgerProvider`), the bills with their payments (`billPaymentsProvider`),
 /// the categories and today.
 library;
 
@@ -21,6 +21,7 @@ import 'package:finance_tracker/features/forecast/domain/forecast_plan.dart';
 import 'package:finance_tracker/features/forecast/domain/forecast_selection.dart';
 import 'package:finance_tracker/features/recurring/application/merged_streams.dart';
 import 'package:finance_tracker/features/recurring/domain/stream_view.dart';
+import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_models/shared_models.dart';
@@ -101,9 +102,7 @@ Future<ForecastPlan?> forecastPlan(Ref ref) async {
   final List<StreamView> streams = await ref.watch(
     mergedStreamsProvider.future,
   );
-  final List<Transaction> ledger = await ref.watch(
-    recurringLedgerProvider.future,
-  );
+  final List<Transaction> ledger = await ref.watch(liveLedgerProvider.future);
   final List<Category> categories = await ref.watch(categoriesProvider.future);
   final List<BillReminder> bills = await ref.watch(billsProvider.future);
   final Map<String, LocalDate> liabilityDue = await ref.watch(

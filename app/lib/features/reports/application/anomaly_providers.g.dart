@@ -135,7 +135,7 @@ final class AnomaliesProvider
   }
 }
 
-String _$anomaliesHash() => r'194c636709f88285453633938ca5f612cce54916';
+String _$anomaliesHash() => r'2e0ee13bd4d37bdac59a91e12bc43dab8accc530';
 
 /// The flags on the live, visible transactions dated in [window], less the dismissed
 /// ones: judged on every live transaction, with the merged recurring streams' members as

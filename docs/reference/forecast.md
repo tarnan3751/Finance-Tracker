@@ -35,7 +35,7 @@ One series is projected per currency, over the covered accounts in that currency
   transactions (`shownBalance`, `accounts.md`);
 - the **streams**: of `mergedStreamsProvider`'s list (`recurring.md`), the active, unmuted
   streams on a covered account in the currency, with their live member transactions from
-  `recurringLedgerProvider`. A muted stream leaves the forecast entirely: its occurrences
+  `liveLedgerProvider`. A muted stream leaves the forecast entirely: its occurrences
   are not projected, and its members stay out of the allowance as every stream's do;
 - the **bills** (**Bills**);
 - the **allowance** (**The allowance**).

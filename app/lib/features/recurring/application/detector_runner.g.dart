@@ -140,7 +140,7 @@ final class DetectorRunnerProvider
   }
 }
 
-String _$detectorRunnerHash() => r'3dd511652604e294c831ad569be0db82e7bad347';
+String _$detectorRunnerHash() => r'18123c61743dc6c5ceb428cda48630e1a1f8d84c';
 
 /// Runs the detector [detectorDebounce] after its input last changed, while something
 /// listens.

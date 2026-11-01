@@ -16,13 +16,13 @@ import 'package:finance_tracker/core/db/repository_support.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/today_provider.dart';
 import 'package:finance_tracker/features/categories/application/categories_providers.dart';
-import 'package:finance_tracker/features/recurring/application/merged_streams.dart';
 import 'package:finance_tracker/features/recurring/application/recurring_providers.dart';
 import 'package:finance_tracker/features/recurring/domain/recurring_detector.dart';
 import 'package:finance_tracker/features/recurring/domain/recurring_stream_repository.dart';
 import 'package:finance_tracker/features/recurring/domain/stream_merge.dart';
 import 'package:finance_tracker/features/recurring/domain/stream_view.dart';
 import 'package:finance_tracker/features/recurring/domain/subscription_classifier.dart';
+import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:flutter/foundation.dart' show compute;
 import 'package:logging/logging.dart';
@@ -110,7 +110,7 @@ class DetectorRunner extends _$DetectorRunner {
     });
 
     void changed() {
-      final List<Transaction>? ledger = ref.read(recurringLedgerProvider).value;
+      final List<Transaction>? ledger = ref.read(liveLedgerProvider).value;
       final List<Category>? categories = ref.read(categoriesProvider).value;
       final List<StreamView>? views = ref.read(recurringStreamsProvider).value;
       if (ledger == null || categories == null || views == null) return;
@@ -137,7 +137,7 @@ class DetectorRunner extends _$DetectorRunner {
       _timer = Timer(debounce, () => unawaited(_run(streams, threshold)));
     }
 
-    ref.listen(recurringLedgerProvider, (_, _) => changed());
+    ref.listen(liveLedgerProvider, (_, _) => changed());
     ref.listen(categoriesProvider, (_, _) => changed());
     ref.listen(recurringStreamsProvider, (_, _) => changed());
     ref.listen(todayProvider, (_, _) => changed(), fireImmediately: true);

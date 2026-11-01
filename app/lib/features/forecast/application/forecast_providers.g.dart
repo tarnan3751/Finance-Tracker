@@ -130,7 +130,7 @@ final class ForecastPlanProvider
   }
 }
 
-String _$forecastPlanHash() => r'f5a1f56ab6b401bf9a3b6f234f32365f147779e6';
+String _$forecastPlanHash() => r'16a99446be59d1d8b0792904e548585772206c19';
 
 /// The forecast for [horizonDays] days (30 or 90, `forecastHorizons`), or null when no
 /// account is covered.

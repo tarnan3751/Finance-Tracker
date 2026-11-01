@@ -72,6 +72,64 @@ abstract class _$TransactionListController
   }
 }
 
+/// Every live transaction, in the repository's order (newest first): the one watch of the
+/// whole ledger, shared by everything that reads all of it (the recurring detector and
+/// merged streams, the duplicates, the rules' preview, the reports, anomalies and weekly
+/// summary, the forecast, net worth and the export), so a write loads it once however
+/// many listen. Kept while anything listens.
+
+@ProviderFor(liveLedger)
+final liveLedgerProvider = LiveLedgerProvider._();
+
+/// Every live transaction, in the repository's order (newest first): the one watch of the
+/// whole ledger, shared by everything that reads all of it (the recurring detector and
+/// merged streams, the duplicates, the rules' preview, the reports, anomalies and weekly
+/// summary, the forecast, net worth and the export), so a write loads it once however
+/// many listen. Kept while anything listens.
+
+final class LiveLedgerProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Transaction>>,
+          List<Transaction>,
+          Stream<List<Transaction>>
+        >
+    with
+        $FutureModifier<List<Transaction>>,
+        $StreamProvider<List<Transaction>> {
+  /// Every live transaction, in the repository's order (newest first): the one watch of the
+  /// whole ledger, shared by everything that reads all of it (the recurring detector and
+  /// merged streams, the duplicates, the rules' preview, the reports, anomalies and weekly
+  /// summary, the forecast, net worth and the export), so a write loads it once however
+  /// many listen. Kept while anything listens.
+  LiveLedgerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'liveLedgerProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$liveLedgerHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<Transaction>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<Transaction>> create(Ref ref) {
+    return liveLedger(ref);
+  }
+}
+
+String _$liveLedgerHash() => r'f8087e0ff060bbefa67140700330f0fdb1dbfab6';
+
 /// The live categories by id and by Plaid code, from which the screens take each
 /// transaction's effective category (`effectiveCategory`): its user category, else the
 /// system category of its Plaid code.

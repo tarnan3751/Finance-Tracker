@@ -15,26 +15,19 @@ import 'package:finance_tracker/features/recurring/domain/recurring_detector.dar
 import 'package:finance_tracker/features/recurring/domain/stream_merge.dart';
 import 'package:finance_tracker/features/recurring/domain/stream_view.dart';
 import 'package:finance_tracker/features/recurring/domain/subscription_classifier.dart';
+import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
-import 'package:finance_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_models/shared_models.dart';
 
 part 'merged_streams.g.dart';
-
-/// Every live transaction, which the detector and the classifier read.
-@riverpod
-Stream<List<Transaction>> recurringLedger(Ref ref) =>
-    ref.watch(transactionRepositoryProvider).watch(TransactionQuery.all);
 
 /// The stored streams merged and classified ([mergedViews]), in the repository's order
 /// (merchant name ignoring ASCII case, then id); muted ones included.
 @riverpod
 Stream<List<StreamView>> mergedStreams(Ref ref) async* {
   final List<Category> categories = await ref.watch(categoriesProvider.future);
-  final List<Transaction> ledger = await ref.watch(
-    recurringLedgerProvider.future,
-  );
+  final List<Transaction> ledger = await ref.watch(liveLedgerProvider.future);
   final CategoryLookup lookup = categoryLookup(categories);
   yield* ref
       .watch(recurringStreamRepositoryProvider)

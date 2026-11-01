@@ -115,7 +115,8 @@ change without it; it only ever removes a change, so the result is the one askin
 every row gives (a test compares them).
 
 - **The preview.** `rulePreviewProvider(rule)` evaluates the rule as the editor holds it,
-  saved or not, against the repository's live transactions, accounts and categories, and
+  saved or not, against the live transactions (`liveLedgerProvider`, `transactions.md`), accounts and
+  categories, and
   recomputes when they change. It writes nothing.
 - **Apply.** `RuleActions.applyToHistory(rule)` evaluates the same way and writes the
   changed rows, all inside one transaction of the recording sync store: the database's in

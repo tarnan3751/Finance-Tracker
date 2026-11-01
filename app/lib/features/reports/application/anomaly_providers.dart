@@ -11,6 +11,7 @@ import 'package:finance_tracker/features/recurring/application/merged_streams.da
 import 'package:finance_tracker/features/recurring/domain/stream_view.dart';
 import 'package:finance_tracker/features/reports/domain/anomalies.dart';
 import 'package:finance_tracker/features/rules/application/rules_providers.dart';
+import 'package:finance_tracker/features/transactions/application/transactions_providers.dart';
 import 'package:finance_tracker/features/transactions/domain/effective_category.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_models/shared_models.dart';
@@ -55,9 +56,7 @@ class DismissedAnomalies extends _$DismissedAnomalies {
 /// the scheduled payments and the live rules.
 @riverpod
 Future<List<AnomalyFlag>> anomalies(Ref ref, LocalDateRange window) async {
-  final List<Transaction> ledger = await ref.watch(
-    recurringLedgerProvider.future,
-  );
+  final List<Transaction> ledger = await ref.watch(liveLedgerProvider.future);
   final List<Category> categories = await ref.watch(categoriesProvider.future);
   final List<StreamView> streams = await ref.watch(
     mergedStreamsProvider.future,
