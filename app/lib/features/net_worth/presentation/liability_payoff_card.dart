@@ -7,6 +7,8 @@
 library;
 
 import 'package:finance_tracker/core/theme/finance_colors.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/brand_card.dart';
 import 'package:finance_tracker/features/net_worth/application/net_worth_providers.dart';
 import 'package:finance_tracker/features/net_worth/domain/payoff.dart';
 import 'package:finance_tracker/features/net_worth/domain/payoff_entries.dart';
@@ -188,10 +190,20 @@ class _LiabilityPayoffCardState extends ConsumerState<LiabilityPayoffCard> {
         : _dragging == null
         ? (stored ?? extraAt(base, 0))
         : extraAt(base, _dragging!);
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        SpendthriftTokens.space16,
+        0,
+        SpendthriftTokens.space16,
+        SpendthriftTokens.space12,
+      ),
+      child: BrandCard(
+        padding: const EdgeInsets.fromLTRB(
+          SpendthriftTokens.space16,
+          SpendthriftTokens.space12,
+          SpendthriftTokens.space16,
+          SpendthriftTokens.space8,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -201,7 +213,7 @@ class _LiabilityPayoffCardState extends ConsumerState<LiabilityPayoffCard> {
                 children: [
                   // A wrap, so with large text the amount goes under the name.
                   Wrap(
-                    spacing: 8,
+                    spacing: SpendthriftTokens.space8,
                     alignment: WrapAlignment.spaceBetween,
                     children: [
                       Text(p.account.name, style: theme.textTheme.titleMedium),
@@ -216,7 +228,7 @@ class _LiabilityPayoffCardState extends ConsumerState<LiabilityPayoffCard> {
                   Text(rate, style: muted),
                   Text(payment, style: muted),
                   if (projection != null) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: SpendthriftTokens.space4),
                     Text(
                       payoffText(projection, l10n),
                       style: theme.textTheme.bodyLarge?.copyWith(
@@ -231,7 +243,7 @@ class _LiabilityPayoffCardState extends ConsumerState<LiabilityPayoffCard> {
             ),
             if (rateEditable || paymentEditable)
               Wrap(
-                spacing: 8,
+                spacing: SpendthriftTokens.space8,
                 children: [
                   if (rateEditable)
                     TextButton(
@@ -254,7 +266,7 @@ class _LiabilityPayoffCardState extends ConsumerState<LiabilityPayoffCard> {
                 ],
               ),
             if (base != null && terms.rateBasisPoints != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: SpendthriftTokens.space8),
               Text(
                 l10n.netWorthExtra(shownExtra!.format()),
                 style: theme.textTheme.labelLarge,

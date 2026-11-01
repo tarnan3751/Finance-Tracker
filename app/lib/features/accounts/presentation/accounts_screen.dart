@@ -11,6 +11,7 @@ import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/routes.dart';
 import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/widgets/amount_text.dart';
+import 'package:finance_tracker/core/widgets/brand_card.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/core/widgets/hero_card.dart';
 import 'package:finance_tracker/core/widgets/merchant_avatar.dart';
@@ -121,11 +122,14 @@ class _AccountListState extends ConsumerState<_AccountList> {
   ShownBalance _balanceOf(Account account) =>
       shownBalance(account, widget.balances);
 
-  Widget _card(Account account, {Key? key}) => _AccountCard(
+  Widget _card(Account account, {Key? key}) => Padding(
     key: key,
-    account: account,
-    balance: _balanceOf(account),
-    bank: widget.banks[account.itemId],
+    padding: const EdgeInsets.only(bottom: SpendthriftTokens.space12),
+    child: _AccountCard(
+      account: account,
+      balance: _balanceOf(account),
+      bank: widget.banks[account.itemId],
+    ),
   );
 
   Future<void> _onReorder(int oldIndex, int newIndex) async {
@@ -162,7 +166,12 @@ class _AccountListState extends ConsumerState<_AccountList> {
     }
     return ReorderableListView.builder(
       // Room under the last card for the floating button.
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 88),
+      padding: const EdgeInsets.fromLTRB(
+        SpendthriftTokens.space16,
+        0,
+        SpendthriftTokens.space16,
+        88,
+      ),
       header: totals.isEmpty
           ? null
           : _Totals(totals.values.toList(), reported: reported),
@@ -195,13 +204,8 @@ class _Totals extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     return Padding(
-      // In line with the cards' margins.
-      padding: const EdgeInsets.fromLTRB(
-        SpendthriftTokens.space4,
-        SpendthriftTokens.space4,
-        SpendthriftTokens.space4,
-        SpendthriftTokens.space12,
-      ),
+      // The list gives the sides.
+      padding: const EdgeInsets.symmetric(vertical: SpendthriftTokens.space16),
       child: HeroCard(
         label: l10n.accountsTotals,
         figure: Wrap(
@@ -221,7 +225,6 @@ class _Totals extends StatelessWidget {
 
 class _AccountCard extends StatelessWidget {
   const _AccountCard({
-    super.key,
     required this.account,
     required this.balance,
     required this.bank,
@@ -284,55 +287,45 @@ class _AccountCard extends StatelessWidget {
     Widget balanceColumn, {
     required bool stacked,
   }) {
-    return Card(
-      margin: const EdgeInsets.all(SpendthriftTokens.space4),
-      child: MergeSemantics(
-        child: InkWell(
-          borderRadius: BorderRadius.circular(SpendthriftTokens.radius),
-          onTap: () =>
-              openDetail(context, AccountDetailRoute(account.id).location),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
+    return BrandCard(
+      onTap: () => openDetail(context, AccountDetailRoute(account.id).location),
+      child: Row(
+        children: [
+          switch (bank) {
+            // The institution's only cue on the card: labelled.
+            LinkedBank(:final Institution institution, :final logo) =>
+              MerchantAvatar(
+                name: institution.name,
+                color: institutionColor(institution),
+                logoBytes: logo,
+                radius: 12,
+                semanticsLabel: institution.name,
+              ),
+            null => Icon(
+              accountTypeIcon(account.type),
+              color: theme.colorScheme.primary,
+            ),
+          },
+          const SizedBox(width: SpendthriftTokens.space16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                switch (bank) {
-                  // The institution's only cue on the card: labelled.
-                  LinkedBank(:final Institution institution, :final logo) =>
-                    MerchantAvatar(
-                      name: institution.name,
-                      color: institutionColor(institution),
-                      logoBytes: logo,
-                      radius: 12,
-                      semanticsLabel: institution.name,
-                    ),
-                  null => Icon(
-                    accountTypeIcon(account.type),
-                    color: theme.colorScheme.primary,
+                Text(account.name, style: theme.textTheme.titleMedium),
+                Text(accountTypeLabel(l10n, account.type), style: caption),
+                if (stacked)
+                  Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: balanceColumn,
                   ),
-                },
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(account.name, style: theme.textTheme.titleMedium),
-                      Text(
-                        accountTypeLabel(l10n, account.type),
-                        style: caption,
-                      ),
-                      if (stacked)
-                        Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: balanceColumn,
-                        ),
-                    ],
-                  ),
-                ),
-                if (!stacked) ...[const SizedBox(width: 12), balanceColumn],
               ],
             ),
           ),
-        ),
+          if (!stacked) ...[
+            const SizedBox(width: SpendthriftTokens.space12),
+            balanceColumn,
+          ],
+        ],
       ),
     );
   }

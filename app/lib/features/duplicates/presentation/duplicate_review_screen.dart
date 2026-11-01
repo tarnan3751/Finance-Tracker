@@ -7,6 +7,8 @@
 library;
 
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/brand_card.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
 import 'package:finance_tracker/features/duplicates/application/duplicates_providers.dart';
@@ -43,10 +45,15 @@ class DuplicateReviewScreen extends ConsumerWidget {
           body: l10n.duplicatesEmptyBody,
         ),
         final List<DuplicateCandidate> pairs => ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          padding: const EdgeInsets.fromLTRB(
+            SpendthriftTokens.space16,
+            SpendthriftTokens.space8,
+            SpendthriftTokens.space16,
+            SpendthriftTokens.space24,
+          ),
           children: [
             Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.only(bottom: SpendthriftTokens.space12),
               child: Text(
                 l10n.duplicatesIntro,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -138,7 +145,9 @@ class _PairCard extends ConsumerWidget {
           Align(
             alignment: AlignmentDirectional.centerEnd,
             child: Padding(
-              padding: const EdgeInsetsDirectional.only(end: 8),
+              padding: const EdgeInsetsDirectional.only(
+                end: SpendthriftTokens.space8,
+              ),
               child: TextButton(
                 onPressed: () => _hide(context, ref, t),
                 child: Text(
@@ -152,15 +161,21 @@ class _PairCard extends ConsumerWidget {
       );
     }
 
-    return Card.outlined(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: SpendthriftTokens.space12),
+      child: BrandCard(
+        // The rows reach the card's sides, as list rows do.
+        padding: const EdgeInsets.symmetric(vertical: SpendthriftTokens.space8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+              padding: const EdgeInsets.fromLTRB(
+                SpendthriftTokens.space16,
+                SpendthriftTokens.space4,
+                SpendthriftTokens.space16,
+                0,
+              ),
               child: Text(
                 l10n.duplicatesDaysApart(pair.dayDistance),
                 style: theme.textTheme.titleSmall,
@@ -170,7 +185,12 @@ class _PairCard extends ConsumerWidget {
             const Divider(indent: 16, endIndent: 16),
             side(pair.second),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+              padding: const EdgeInsets.fromLTRB(
+                SpendthriftTokens.space16,
+                SpendthriftTokens.space4,
+                SpendthriftTokens.space16,
+                SpendthriftTokens.space4,
+              ),
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: OutlinedButton(

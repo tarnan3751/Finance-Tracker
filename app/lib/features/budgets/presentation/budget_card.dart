@@ -15,6 +15,8 @@
 library;
 
 import 'package:finance_tracker/core/theme/finance_colors.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/brand_card.dart';
 import 'package:finance_tracker/features/budgets/domain/budget_math.dart';
 import 'package:finance_tracker/features/categories/presentation/category_icons.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -71,75 +73,74 @@ class BudgetCard extends StatelessWidget {
         ? null
         : status.thresholdsCrossed.lastOrNull;
     final String? period = this.period;
-    return Card.outlined(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      clipBehavior: Clip.antiAlias,
-      child: MergeSemantics(
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        SpendthriftTokens.space16,
+        0,
+        SpendthriftTokens.space16,
+        SpendthriftTokens.space12,
+      ),
+      child: BrandCard(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    Icon(
-                      category == null
-                          ? fallbackCategoryIcon
-                          : categoryIconFor(category.icon),
-                      color: category == null
-                          ? colors.outline
-                          : categoryColor(context, category.color),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(name, style: theme.textTheme.titleMedium),
-                          if (groupSize > 0)
-                            Text(
-                              l10n.budgetGroupIncludes(groupSize),
-                              style: caption,
-                            ),
-                          if (period != null) Text(period, style: caption),
-                          if (threshold != null) ...[
-                            const SizedBox(height: 4),
-                            _ThresholdBadge(threshold),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
+                Icon(
+                  category == null
+                      ? fallbackCategoryIcon
+                      : categoryIconFor(category.icon),
+                  color: category == null
+                      ? colors.outline
+                      : categoryColor(context, category.color),
                 ),
-                const SizedBox(height: 12),
-                Text(amount, style: theme.textTheme.bodyLarge),
-                if (offset > 0)
-                  status.available.isNegative
-                      ? Text(
-                          l10n.budgetOver((-status.available).format()),
-                          style: caption?.copyWith(
-                            color: FinanceColors.of(context).outflow,
-                          ),
-                        )
-                      : Text(
-                          l10n.budgetAvailable(status.available.format()),
+                const SizedBox(width: SpendthriftTokens.space12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name, style: theme.textTheme.titleMedium),
+                      if (groupSize > 0)
+                        Text(
+                          l10n.budgetGroupIncludes(groupSize),
                           style: caption,
-                        )
-                else ...[
-                  const SizedBox(height: 8),
-                  _Progress(status: status, name: name),
-                  const SizedBox(height: 8),
-                  _SpentAndLeft(status),
-                  if (offset == 0) ...[
-                    const SizedBox(height: 4),
-                    _Projection(status),
-                  ],
-                ],
+                        ),
+                      if (period != null) Text(period, style: caption),
+                      if (threshold != null) ...[
+                        const SizedBox(height: SpendthriftTokens.space4),
+                        _ThresholdBadge(threshold),
+                      ],
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
+            const SizedBox(height: SpendthriftTokens.space12),
+            Text(amount, style: theme.textTheme.bodyLarge),
+            if (offset > 0)
+              status.available.isNegative
+                  ? Text(
+                      l10n.budgetOver((-status.available).format()),
+                      style: caption?.copyWith(
+                        color: FinanceColors.of(context).outflow,
+                      ),
+                    )
+                  : Text(
+                      l10n.budgetAvailable(status.available.format()),
+                      style: caption,
+                    )
+            else ...[
+              const SizedBox(height: SpendthriftTokens.space8),
+              _Progress(status: status, name: name),
+              const SizedBox(height: SpendthriftTokens.space8),
+              _SpentAndLeft(status),
+              if (offset == 0) ...[
+                const SizedBox(height: SpendthriftTokens.space4),
+                _Projection(status),
+              ],
+            ],
+          ],
         ),
       ),
     );
@@ -195,7 +196,7 @@ class _Progress extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: SpendthriftTokens.space12),
           Flexible(
             child: Text(
               basisPoints == null
@@ -225,7 +226,7 @@ class _SpentAndLeft extends StatelessWidget {
     final Money remaining = status.remaining;
     return Wrap(
       alignment: WrapAlignment.spaceBetween,
-      spacing: 12,
+      spacing: SpendthriftTokens.space12,
       children: [
         Text(
           l10n.budgetSpent(status.spent.format()),
@@ -267,7 +268,7 @@ class _Projection extends StatelessWidget {
           size: 18,
           color: color,
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: SpendthriftTokens.space8),
         Expanded(
           child: Text(
             over
@@ -307,12 +308,15 @@ class _ThresholdBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(
+          horizontal: SpendthriftTokens.space8,
+          vertical: SpendthriftTokens.space4,
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.notifications_active, size: 16, color: foreground),
-            const SizedBox(width: 4),
+            const SizedBox(width: SpendthriftTokens.space4),
             Flexible(
               child: Text(
                 l10n.budgetThresholdReached(basisPoints ~/ 100),

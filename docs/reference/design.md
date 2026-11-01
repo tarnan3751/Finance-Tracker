@@ -15,11 +15,11 @@ Where a screen composes these is each feature's own reference file.
 | The tokens | `app/lib/core/theme/tokens.dart` (`SpendthriftTokens`) |
 | The schemes, the type, the component themes | `app/lib/core/theme/app_theme.dart` (`AppTheme`) |
 | The semantic colors and the chart inks | `app/lib/core/theme/finance_colors.dart` (`FinanceColors`) |
-| The hero card, the empty state, amounts, avatars, the flavor banner | `app/lib/core/widgets/` |
+| The hero card, the brand card, the empty state, amounts, avatars, the flavor banner | `app/lib/core/widgets/` |
 | The demo strip | `app/lib/features/onboarding/presentation/demo_strip.dart` |
 | The fonts and their licences | `app/assets/fonts/`, `app/lib/features/help/application/licenses.dart` |
 | The launcher icon, the splash, the widgets' colors | `app/android/app/src/main/res/` (`build.md`, **Icon and splash**; `widgets.md`, **Colours**) |
-| The tests | `app/test/core/theme/`, `app/test/core/widgets/hero_card_test.dart`, `empty_state_test.dart` |
+| The tests | `app/test/core/theme/`, `app/test/core/widgets/hero_card_test.dart`, `brand_card_test.dart`, `empty_state_test.dart` |
 
 ## Tokens
 
@@ -136,6 +136,19 @@ All in `app_theme.dart`; elevation zero and no tint on every surface:
   misregistration: its shape (`_MisregisteredBorder`) paints the copy where it shows past
   the button, so every floating button gets it through the theme and the copy never
   covers the button.
+
+## Cards
+
+`BrandCard` (`core/widgets/brand_card.dart`) is every other card: the card theme's paper,
+ink line and radius 8 with no shadow, the content inside `space16` (or the padding a site
+needs: the duplicate review's rows reach its sides), an optional title in
+`titleMedium` over the content and an optional widget at its end; with `onTap` it inks its
+whole face and reads its title and content as one button node, a trailing button staying a
+node of its own; `enabled: false` dims the content to 38 %, reads as disabled and does
+nothing on a tap. The screens space their cards themselves: `space16` at the sides and
+`space12` between. The accounts, the linked banks, the conflicts, the liabilities'
+payoffs, the duplicate pairs, the budgets and the goals are `BrandCard`s; a card that is
+not a `BrandCard` is a hero card.
 
 ## The hero card and misregistration
 

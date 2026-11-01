@@ -8,6 +8,8 @@
 library;
 
 import 'package:finance_tracker/core/theme/finance_colors.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/brand_card.dart';
 import 'package:finance_tracker/features/goals/application/goals_providers.dart';
 import 'package:finance_tracker/features/goals/domain/goal_math.dart';
 import 'package:finance_tracker/features/transactions/presentation/transaction_dates.dart';
@@ -23,17 +25,16 @@ class GoalCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) => Card.outlined(
-    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-    clipBehavior: Clip.antiAlias,
-    child: MergeSemantics(
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: GoalSummary(view: view),
-        ),
-      ),
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(
+      SpendthriftTokens.space16,
+      0,
+      SpendthriftTokens.space16,
+      SpendthriftTokens.space12,
+    ),
+    child: BrandCard(
+      onTap: onTap,
+      child: GoalSummary(view: view),
     ),
   );
 }
@@ -74,15 +75,15 @@ class GoalSummary extends StatelessWidget {
             l10n.goalTargetDateCaption(shortDateLabel(targetDate)),
             style: caption,
           ),
-        const SizedBox(height: 12),
+        const SizedBox(height: SpendthriftTokens.space12),
         GoalProgressBar(view: view),
-        const SizedBox(height: 8),
+        const SizedBox(height: SpendthriftTokens.space8),
         Text(
           l10n.goalProgressOf(view.progress.format(), goal.target.format()),
           style: theme.textTheme.bodyLarge,
         ),
         if (statusText != null) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: SpendthriftTokens.space4),
           Text(
             statusText,
             style: theme.textTheme.labelLarge?.copyWith(
@@ -95,7 +96,7 @@ class GoalSummary extends StatelessWidget {
           ),
         ],
         if (suggestion != null) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: SpendthriftTokens.space4),
           Text(l10n.goalSuggestion(suggestion.format()), style: caption),
         ],
       ],

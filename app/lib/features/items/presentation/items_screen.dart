@@ -10,8 +10,10 @@
 library;
 
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
+import 'package:finance_tracker/core/widgets/brand_card.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/core/widgets/merchant_avatar.dart';
 import 'package:finance_tracker/features/items/application/items_providers.dart';
@@ -52,7 +54,12 @@ class ItemsScreen extends ConsumerWidget {
         children: [
           if (newLink != null)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              padding: const EdgeInsets.fromLTRB(
+                SpendthriftTokens.space16,
+                SpendthriftTokens.space12,
+                SpendthriftTokens.space16,
+                0,
+              ),
               child: _ActionLine(action: newLink),
             ),
           Expanded(
@@ -70,7 +77,12 @@ class ItemsScreen extends ConsumerWidget {
                   ),
                 ),
               AsyncValue(value: final List<LinkedBank> list) => ListView(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 88),
+                padding: const EdgeInsets.fromLTRB(
+                  SpendthriftTokens.space16,
+                  SpendthriftTokens.space8,
+                  SpendthriftTokens.space16,
+                  88,
+                ),
                 children: [
                   for (final LinkedBank bank in list)
                     _BankCard(bank: bank, action: actions.byItem[bank.id]),
@@ -105,10 +117,15 @@ class _BankCard extends ConsumerWidget {
     final ItemStatus status = bank.item.status;
     final DateTime? lastSync = bank.item.lastSuccessfulSyncAt;
     final String name = bank.institution.name;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: SpendthriftTokens.space12),
+      child: BrandCard(
+        padding: const EdgeInsets.fromLTRB(
+          SpendthriftTokens.space16,
+          SpendthriftTokens.space12,
+          SpendthriftTokens.space8,
+          SpendthriftTokens.space4,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -116,7 +133,7 @@ class _BankCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _Logo(bank: bank),
-                const SizedBox(width: 16),
+                const SizedBox(width: SpendthriftTokens.space16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +149,7 @@ class _BankCard extends ConsumerWidget {
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: SpendthriftTokens.space8),
                       _StatusChip(status: status),
                     ],
                   ),
@@ -141,7 +158,10 @@ class _BankCard extends ConsumerWidget {
             ),
             if (action case final ItemAction current)
               Padding(
-                padding: const EdgeInsets.only(top: 12, right: 8),
+                padding: const EdgeInsets.only(
+                  top: SpendthriftTokens.space12,
+                  right: SpendthriftTokens.space8,
+                ),
                 child: _ActionLine(
                   action: current,
                   unlinked: status == ItemStatus.removed,
@@ -306,7 +326,10 @@ class _StatusChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: const EdgeInsets.symmetric(
+            horizontal: SpendthriftTokens.space8,
+            vertical: SpendthriftTokens.space4,
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -350,7 +373,7 @@ class _ActionLine extends StatelessWidget {
               dimension: 16,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: SpendthriftTokens.space12),
             Expanded(
               child: Text(switch (step) {
                 ItemStep.linking => l10n.itemsStepLinking,
@@ -411,7 +434,12 @@ class _UnlinkDialogState extends State<_UnlinkDialog> {
     final AppLocalizations l10n = AppLocalizations.of(context);
     return AlertDialog(
       title: Text(l10n.itemsUnlinkTitle(widget.institution)),
-      contentPadding: const EdgeInsets.fromLTRB(8, 16, 8, 0),
+      contentPadding: const EdgeInsets.fromLTRB(
+        SpendthriftTokens.space8,
+        SpendthriftTokens.space16,
+        SpendthriftTokens.space8,
+        0,
+      ),
       content: SingleChildScrollView(
         child: RadioGroup<bool>(
           groupValue: _keep,

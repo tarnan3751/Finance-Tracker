@@ -11,8 +11,10 @@ library;
 
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/l10n/joins.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/core/time/date_time_format.dart';
+import 'package:finance_tracker/core/widgets/brand_card.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/core/widgets/visible_messenger.dart';
 import 'package:finance_tracker/features/accounts/application/accounts_providers.dart';
@@ -49,10 +51,15 @@ class ConflictsScreen extends ConsumerWidget {
           body: l10n.conflictsEmptyBody,
         ),
         final List<SyncConflict> list => ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          padding: const EdgeInsets.fromLTRB(
+            SpendthriftTokens.space16,
+            SpendthriftTokens.space8,
+            SpendthriftTokens.space16,
+            SpendthriftTokens.space24,
+          ),
           children: [
             Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.only(bottom: SpendthriftTokens.space12),
               child: Text(
                 l10n.conflictsIntro,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -141,7 +148,7 @@ class _ConflictCardState extends ConsumerState<_ConflictCard> {
     final String fieldName = conflictFieldName(l10n, c.field);
 
     Widget side(String label, Object? v, Hlc hlc) => Padding(
-      padding: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.only(top: SpendthriftTokens.space12),
       child: MergeSemantics(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,17 +167,16 @@ class _ConflictCardState extends ConsumerState<_ConflictCard> {
       ),
     );
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: SpendthriftTokens.space12),
+      child: BrandCard(
+        title: switch (c.entityLabel) {
+          final String label => l10n.captionPair(kind, label),
+          null => kind,
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(switch (c.entityLabel) {
-              final String label => l10n.captionPair(kind, label),
-              null => kind,
-            }, style: theme.textTheme.titleMedium),
             Text(
               fieldName,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -179,10 +185,12 @@ class _ConflictCardState extends ConsumerState<_ConflictCard> {
             ),
             side(l10n.conflictThisValue, c.localValue, c.localClock),
             side(l10n.conflictOtherValue, c.remoteValue, c.remoteClock),
-            const SizedBox(height: 12),
+            const SizedBox(height: SpendthriftTokens.space12),
             if (!canKeep)
               Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.only(
+                  bottom: SpendthriftTokens.space8,
+                ),
                 child: Text(
                   l10n.conflictPhotoGone,
                   style: theme.textTheme.bodyMedium?.copyWith(
@@ -192,8 +200,8 @@ class _ConflictCardState extends ConsumerState<_ConflictCard> {
               ),
             Wrap(
               alignment: WrapAlignment.end,
-              spacing: 8,
-              runSpacing: 4,
+              spacing: SpendthriftTokens.space8,
+              runSpacing: SpendthriftTokens.space4,
               children: [
                 TextButton(
                   onPressed: _busy ? null : () => _run((a) => a.keepOther(c)),
