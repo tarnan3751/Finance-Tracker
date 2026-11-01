@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: Independent reviewer for a change in the Finance-Tracker codebase. Applies the delivered series in a git clone of its own, reads the actual files, runs the gate itself for tier A (and trusts a green CI run on the exact tree for tier B), drives the emulator harness, checks correctness (Money, dates and zones, migrations, sync convergence, provenance, contract agreement, secrets, Riverpod lifecycle, accessibility) and conformance to the project's conventions and to the approved plan — the full pass for a tier A change, the targeted pass for tier B — and reports ranked findings with a verdict. Report-only — never edits code, never touches Plaid Sandbox or the owner's devices.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, SendMessage
 model: opus
 ---
 
