@@ -71,8 +71,11 @@ with the flavor's sink (prod keeps sanitised records in memory, `app-core.md`,
 symbols (`initializeDateFormatting()`: the app has them from flutter_localizations at its
 first frame, which this engine never draws, and a step formatting a date in another
 locale, such as the widgets' snapshot, would throw without them); the database opener
-sets SQLite's temporary directory itself. It then runs `runBackgroundCycle` on the flavor's own wiring
-(`overridesFor`), in a new `ProviderContainer`.
+sets SQLite's temporary directory itself. Its configuration is the flavor's (from the task's input data) with the app mode and
+the entered server URL the device keeps (`resolveAppConfig`, `onboarding.md`), so a prod
+build without a compiled URL syncs with the one entered at sign-in. It then runs
+`runBackgroundCycle` on that configuration's own wiring (`overridesFor`), in a new
+`ProviderContainer`.
 
 ## One session at a time
 
@@ -122,7 +125,8 @@ that start together always see each other.
 `runBackgroundCycle(BackgroundEnvironment)` returns true (done) or false (WorkManager
 retries on its backoff), in order:
 
-1. The demo flavor has no server: done ("background: demo, nothing to sync").
+1. Outside the live mode (the demo, or no mode chosen) there is no server: done
+   ("background: not live, nothing to sync").
 2. The `ft.background` lock is taken, then the app is asked (**One session at a time**):
    a live cycle holding the lock, a busy app or an app that ran the sync ends the cycle.
 3. Guards, before anything is opened, each done with nothing touched: a pending wipe

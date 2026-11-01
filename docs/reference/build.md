@@ -38,8 +38,12 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
 |---|---|---|---|---|---|
 | `dev` | `lib/main_dev.dart` | `dev.tarnan.financetracker` | Finance Tracker Dev | `FT_SERVER_URL`, default `http://10.0.2.2:8080` | `DEV` |
 | `demo` | `lib/main_demo.dart` | `dev.tarnan.financetracker.demo` | Finance Tracker Demo | none | `DEMO` |
-| `prod` | `lib/main_prod.dart` | `dev.tarnan.financetracker` | Finance Tracker | `FT_SERVER_URL`, no default; must be `https` | none |
+| `prod` | `lib/main_prod.dart` | `dev.tarnan.financetracker` | Finance Tracker | `FT_SERVER_URL`, no default; must be `https`; without it, entered at sign-in | none |
 
+- dev and prod open on a Welcome screen until the demo or the user's own server is
+  chosen, and the choice is kept on the device (`onboarding.md`, **The app mode**): the
+  release APK runs the demo as the demo flavor does. A prod build without
+  `FT_SERVER_URL` asks for the server's `https` address on sign-in and keeps it.
 - `FT_SERVER_URL` is a `--dart-define`. `bootstrap` throws a `StateError` before `runApp`
   when `prod` is given a URL whose scheme is not `https`.
 - dev and prod share the id registered with Plaid; demo never touches Plaid and installs
@@ -66,8 +70,8 @@ configuration. Each entry point builds an `AppConfig` and calls `bootstrap`.
 - The launcher label is the `app_name` string each flavor sets with `resValue`; AGP 9
   disables `resValue` by default, so `buildFeatures.resValues` turns it on.
 - `assets/demo/receipt.jpg`, the demo's synthetic receipt photo (`app-core.md`, **The
-  image source**), is declared in `app/pubspec.yaml` with `flavors: [demo]`, so only the
-  demo APK carries it.
+  image source**), is declared in `app/pubspec.yaml` for every flavor, since dev and prod
+  run the demo too when it is chosen.
 - `assets/fonts/Roboto-Regular.ttf` and `Roboto-Bold.ttf` (Apache-2.0, `LICENSE.txt`
   beside them, the files Flutter's `material_fonts` ship) are declared for every flavor:
   the monthly report's PDF embeds them (`export.md`).

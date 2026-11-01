@@ -24,11 +24,13 @@ Each entry point (`main_dev.dart`, `main_demo.dart`, `main_prod.dart`) builds an
 6. in dev and prod, the process's `ft.app` port is registered once, through which the
    background sync's worker asks the running app to sync instead of running its own
    session (`background.md`, **One session at a time**);
-7. `startApp(config)`, the rest, which can run again in the same process: in dev and
-   prod it first waits, at most 45 s, for a cycle the worker runs on its own to end, then
-   builds a `ProviderContainer` with `overridesFor(config)` (or the overrides a test
-   gives);
-8. in dev and prod, `openLocalData(container)`: the database opens (`data.md`,
+7. `startApp(config, modes:)`, the rest, which can run again in the same process: in dev
+   and prod it first reads the app mode, the demo's household and the entered server URL
+   the device keeps (`onboarding.md`, **The app mode**; the demo flavor reads nothing),
+   then in the live mode waits, at most 45 s, for a cycle the worker runs on its own to
+   end, then builds a `ProviderContainer` with `overridesFor(config)` for that mode (or
+   the overrides a test gives);
+8. in the live mode, `openLocalData(container)`: the database opens (`data.md`,
    **Encryption and the key**), the held records of every type this build knows are
    released (`sync-app.md`, **Unknown types**; a failure is logged by type and leaves
    them held), `install_date` is recorded on the first launch, the system categories are
@@ -74,6 +76,10 @@ with Try again, never the app on half-wiped data), then the confirmation for the
 and, on Done, `startApp` again, which finds no database and no key and creates both.
 Before it opens anything local, `startApp` reads the wipe's pending record and, when a
 wipe was cut short, finishes it the same way first (`data.md`, **The local wipe**).
+A choice on the Welcome screen restarts it through `appModeRestartProvider`: the plain
+starting screen, the same two frames and `stopApp()`, then `startApp` again, which reads
+the mode just stored (`onboarding.md`, **Welcome**); leaving the demo is the wipe for
+`WipeReason.demoLeft`, which starts again on Welcome with no confirmation.
 
 `FinanceTrackerApp` (`app.dart`) is a `ConsumerWidget` returning `MaterialApp.router` with
 the router, both themes inside a `DynamicColorBuilder`, the theme mode from settings, the
@@ -93,10 +99,12 @@ the scope's `retry` says otherwise (the tests turn it off).
 
 | Provider | Where | What |
 |---|---|---|
-| `appConfigProvider` | `core/di/providers.dart` | The flavor's `AppConfig`; throws unless overridden, and `overridesFor(config)` overrides it |
+| `appConfigProvider` | `core/di/providers.dart` | The flavor's `AppConfig` with its app mode; throws unless overridden, and `overridesFor(config)` overrides it |
+| `appModeStoreProvider`, `appModeRestartProvider` | `core/di/providers.dart` | Where the device keeps the app mode, the demo's household and the entered server URL (in memory by default and in the demo flavor, the preferences in dev and prod), and the restart onto the mode stored, which `startApp` supplies (`onboarding.md`) |
+| `serverAddressProvider`, `serverCheckProvider` | `core/api/api_providers.dart`, `features/auth/application/server_check.dart` | The server the API talks to, the compiled URL or the entered one (the fake's wherever the fake runs), and the health check of an entered one (`onboarding.md`, **The server URL**) |
 | `clockProvider` | `core/di/providers.dart` | `SystemClock` (**Time**) |
 | `databaseKeyStoreProvider` | `core/di/providers.dart` | `SecureDatabaseKeyStore` (`data.md`) |
-| `databaseProvider` | `core/di/providers.dart` | The encrypted `AppDatabase` of dev and prod, closed with the container; a `StateError` in demo |
+| `databaseProvider` | `core/di/providers.dart` | The encrypted `AppDatabase` of the live mode, closed with the container; a `StateError` in the demo |
 | `inMemoryStoreProvider` | `core/di/providers.dart` | The `InMemoryStore` behind the in-memory and demo repositories; the demo flavor's holds the system categories and the demo seed |
 | `accountRepositoryProvider`, `transactionRepositoryProvider`, `categoryRepositoryProvider`, `itemRepositoryProvider`, `ruleRepositoryProvider`, `budgetRepositoryProvider`, `settingsRepositoryProvider` | `core/di/providers.dart` | In memory by default; Drift in dev and prod and demo in demo, through `overridesFor` |
 | `recurringStreamRepositoryProvider`, `liabilityRepositoryProvider` | `core/di/providers.dart` | The recurring streams with their overrides and the liabilities (`recurring.md`, `liabilities.md`): in memory by default, Drift in dev and prod, demo in demo (the persona's, rebuilt with it) |
@@ -145,7 +153,10 @@ Each feature's own providers (the screens' streams, derived values and writes) a
 statuses and the alert watcher, which `bootstrap` listens to in every flavor; `bills.md`:
 the bill statuses and the reminder watcher, which it listens to from the first frame).
 
-`overridesFor(AppConfig)` is the one place a flavor's wiring is decided (it is
+`overridesFor(AppConfig)` is the one place a flavor's wiring is decided, by its app mode
+(`onboarding.md`, **The app mode**: dev and prod in the demo mode are wired as the demo
+flavor is, and before a mode is chosen run on the in-memory defaults; below, "dev and
+prod" is the live mode and "demo" the demo either way) (it is
 `localDataOverridesFor(config)`, the flavor and its local data, then `apiOverridesFor`;
 a test that brings its own API, such as the two-device integration test sharing one fake
 server, takes the first alone): the Drift repositories and the Plaid pull's `sync_meta`
@@ -287,7 +298,8 @@ client (`api.md`), which nothing outside this folder imports.
 | `finance_api.dart` | `FinanceApi`: one method per contract operation (the webhook receiver aside), taking and returning `shared_models` values, the sync engine's `PushResult` and `PullPage`, and `api_models.dart`'s values; and `sessionEnded`, fired when the client ended the session itself |
 | `api_models.dart` | The values in the contract's own shapes: `AuthResult`, `LinkToken`, `LinkedItem` (an `Item` with its `Institution`), `SyncRun`, `VersionPage<T>`, `Health`, the liability values with their `source` (read into `shared_models`' `Liability` by `Liabilities.toEntities`, the rates in basis points through `basisPointsOf`), and the holding, security and investment-transaction values with their `source` (`Money` amounts, `LocalDate` dates, `Decimal` strings; read into `shared_models`' entities of the same names, the `Decimal`s parsed, by `Holdings.toEntities` and `InvestmentTransaction.toEntity`), each with the contract's JSON |
 | `http_finance_api.dart` | `HttpFinanceApi`: the implementation over the generated client |
-| `api_config.dart` | `buildDio(config, {adapter, baseUrl, version})`, `apiBaseUrl`, `contractVersion` |
+| `api_config.dart` | `buildDio(config, {adapter, baseUrl, address, version})`, `apiBaseUrl`, `contractVersion` |
+| `server_address.dart` | `ServerAddress` (the compiled or entered server) and `checkServerUrl`, the entered URL's rule (`onboarding.md`) |
 | `auth_interceptor.dart` | Bearer tokens and the single-flight refresh |
 | `problems.dart` | `ApiException` and its subtypes |
 | `token_store.dart` | `TokenStore`, `Session`, `SecureTokenStore`, `InMemoryTokenStore` (`auth.md`) |
@@ -302,15 +314,18 @@ client (`api.md`), which nothing outside this folder imports.
   UTC milliseconds. Pushed entries travel without `synced`; pulled ones come back
   `synced: true`, without `seq`, their payload plain JSON. A refused push entry's `code`
   becomes the engine's `PushRejectionReason`.
-- **`buildDio`.** The base URL is the flavor's server URL plus `/v1` (dev:
-  `http://10.0.2.2:8080/v1`). In prod a non-`https` URL is a `StateError` before any
-  request (`PLAN.md` §12: Dart's `HttpClient` ignores Android's network security config,
+- **`buildDio`.** The base URL is the server's plus `/v1` (dev:
+  `http://10.0.2.2:8080/v1`): the `ServerAddress` read for every request, the flavor's
+  compiled URL or else the one entered at sign-in (`onboarding.md`, **The server URL**).
+  In prod a non-`https` compiled URL is a `StateError` before any request, and a request
+  to a non-`https` entered one fails with one (`PLAN.md` §12: Dart's `HttpClient` ignores Android's network security config,
   so the rule holds here and in `bootstrap`). Certificate checks are never relaxed: the
   adapter is Dio's default with no `createHttpClient` or `validateCertificate`, wrapped in
   `ResettableHttpClientAdapter` (`httpConnectionsProvider`), whose `reset()` closes the
   pool without force and opens a new one (Sync now and a returning network call it,
-  `sync-app.md`). A build
-  with no server URL fails every request as a `NetworkError` (`notConfigured`). Timeouts
+  `sync-app.md`). With no
+  server URL (none compiled in, none entered yet) every request fails as a `NetworkError`
+  (`notConfigured`). Timeouts
   are 10 s to connect, 30 s to send a body and 30 s to receive; every request sends `User-Agent:
   finance-tracker/<version> (<flavor>)`. In dev only, `DevLogInterceptor` logs one line
   per answer on the `api` logger: method, path template, status, duration and the
@@ -447,6 +462,9 @@ keeping its own navigation stack.
 | | `ExportRoute` | `/settings/export` | `features/export/presentation/export_screen.dart` (`export.md`): the monthly report as a PDF, the transactions as a CSV |
 | | `ImportRoute` | `/settings/import` | `features/import/presentation/import_screen.dart` (`import.md`): a bank's CSV export into an account |
 | | `BackupRoute` | `/settings/backup` | `features/backup/presentation/backup_screen.dart` (`backup.md`): export a backup, restore one |
+| | `HelpRoute` | `/settings/help` | `features/help/presentation/help_screen.dart` (`onboarding.md`, **Help**): the help's sections |
+| | `HelpSectionRoute` | `/settings/help/:section` | `help_section_screen.dart`: one section, from the list or a tab's menu |
+| | `PrivacyRoute` | `/settings/privacy` | `features/help/presentation/privacy_screen.dart` (`onboarding.md`, **Privacy and About**) |
 
 - The router opens at `/accounts`, and `/` redirects there (`createRouter` in
   `app_router.dart`; `routerFor(ref, initialLocation:)` builds the flavor's router, which
@@ -454,7 +472,11 @@ keeping its own navigation stack.
 - **The session gate.** Outside the shell, `SignInRoute` (`/sign-in`) and
   `RegisterRoute` (`/register`) are the auth screens. In dev and prod the router follows
   the session (`refreshListenable`): a signed-out user goes to `/sign-in`, a signed-in one
-  on an auth screen to `/accounts` (`auth.md`, **The gate**). The demo flavor has no gate.
+  on an auth screen to `/accounts` (`auth.md`, **The gate**). The demo has no gate.
+- **The Welcome hold.** Outside the shell, `WelcomeRoute` (`/welcome`) and
+  `WelcomeDemoRoute` (`/welcome/demo`) are the Welcome screen and the demo's households.
+  Before an app mode is chosen every location goes to `/welcome` (or stays on either);
+  once one is, both go where `/` would (`onboarding.md`, **Welcome**).
 - **The restore offer.** Outside the shell, `RestoreOfferRoute` (`/restore`) is the fresh
   install's offer (`backup.md`, **Restore**). In dev and prod the router also follows
   `restoreOfferProvider`: while it is pending a signed-in user is held at `/restore`;

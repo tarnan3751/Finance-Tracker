@@ -509,7 +509,7 @@ No path is logged anywhere; a failure is logged by its type.
 ## The local wipe
 
 `core/db/local_wipe.dart`. Account deletion and "Sign out and erase this device"
-(`auth.md`) end with everything the install keeps of its account erased, so the next
+(`auth.md`), and leaving the demo (`onboarding.md`), end with everything the install keeps of its account erased, so the next
 start is a fresh install (`PLAN.md` §6.6). `bootstrap` runs it with the app stopped: the
 container disposed (sync, the reminder planner and every watcher with it) and the
 database closed (`app-core.md`, **Startup**). `LocalWipe.wipe(reason)` first records the
@@ -533,10 +533,14 @@ skipping what is already gone, so a wipe runs again from the top:
 6. every pending reminder and every shown notification (`ReminderScheduler.clearAll`):
    a bill's name in the tray is data; then the background sync's schedule
    (`BackgroundWork.cancelAll`, `background.md`);
+7. the app mode, the demo's household and the entered server URL
+   (`AppModeStore.clear`, `onboarding.md`), last, so a wipe still pending starts in the
+   mode it was cut short in, and the fresh install opens on Welcome;
 
 and only then removes the pending record. `app_meta`, the full-text objects and the
-change log go with the database file. `DriftLocalWipe` (dev and prod) does every step;
-`InMemoryLocalWipe` (the default: the tests and the demo flavor, which never offers it)
+change log go with the database file. `DriftLocalWipe` (dev and prod, in every app mode)
+does every step; `InMemoryLocalWipe` (the default: the tests and the demo flavor, which
+never offers it)
 skips the files and the preferences, keeps the pending record in memory and clears the
 same stores. Going through the stores, not the raw secure storage, means a test that
 overrides them is wiped for real. Nothing is logged but a failure's type.
@@ -563,8 +567,9 @@ recorded (`auth.md`, **Screens**).
 `core/db/demo_seed.dart`. The demo flavor's data is the persona engine's demo seed
 (`persona.md`): `demoSeedProvider` is `generateDemoSeed(persona, 1, clock.today())` over the
 engine's full window, for the persona `demoPersonaProvider` holds: `initialDemoPersona()`
-(the `FT_DEMO_PERSONA` dart-define's slug, `renter` when unset or unknown) at start, then
-what Settings → Demo data selects. The demo `inMemoryStoreProvider` seeds the system
+(the `FT_DEMO_PERSONA` dart-define's slug, `renter` when unset or unknown) at start, or
+in dev and prod's demo mode the household the device stores (`onboarding.md`), then what
+Settings → Demo data selects (stored too in dev and prod). The demo `inMemoryStoreProvider` seeds the system
 categories and loads it with `loadDemoSeed`, through the store's rules: the household's
 accounts, then one `Opening balance` transaction (`source: demo`, id
 `<account>-opening`) per non-zero opening balance, dated the day before the window, then

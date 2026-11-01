@@ -117,7 +117,8 @@ compare-and-clear and the restore's user write all go through `update`.
 
 The restore offer is pending on a signed-in install whose database is empty until it is
 answered (`backup.md`, **Restore**), so the first sign-in or registration of a new
-install lands on `/restore` first. The demo flavor has no gate: it is always the demo
+install lands on `/restore` first. The demo (the flavor, and dev and prod in the demo
+mode) has no gate: it is always the demo
 user, signed in by its fake server.
 
 ## Screens
@@ -126,14 +127,18 @@ user, signed in by its fake server.
 field rules, the password field with its show and hide button, the inline error and the
 submit button with its progress indicator.
 
-- **Sign-in** (`sign_in_screen.dart`, `/sign-in`): email, password, Sign in, and "Create
-  an account"; after a remote sign-out, its notice, once. While the install's user is
+- **Sign-in** (`sign_in_screen.dart`, `/sign-in`): the Server field while no server URL
+  is compiled in (`onboarding.md`, **The server URL**: checked with `GET /v1/health`
+  before anything is sent, then kept), email, password, Sign in, and "Create an account";
+  on an install whose live mode was chosen on Welcome and that holds no account yet, "Try
+  the demo instead"; after a remote sign-out, its notice, once. While the install's user is
   recorded (the install still holds an account's data; `installUserProvider`), a line of
   its own under the form: "Erase this device's data" (the erase's confirmation and
   wipe). It is the way out for an install whose account is gone, deleted from another
   device or by a deletion whose 204 was lost and whose retry then found the session
   revoked, where sign-in can only answer wrong credentials.
-- **Registration** (`register_screen.dart`, `/register`): email, a password of 8 to 128
+- **Registration** (`register_screen.dart`, `/register`): the Server field as on sign-in,
+  email, a password of 8 to 128
   characters (counted as the server counts, in characters), an optional name of at most
   100, the device name it registers under, Create account, and a link back to sign-in; beside the another-account refusal, "Erase this device's data".
 - **Validation** runs before anything is sent. A `validation_failed` answer marks the
@@ -145,8 +150,8 @@ submit button with its progress indicator.
 
 **Settings** (`account_section.dart`): "Signed in as <email>" with the display name,
 Linked banks (`items.md`); outside demo, Devices, Sign out, Sign out and erase this
-device, and Delete account; and in dev the server the app talks to ("In-app fake server"
-under `FT_FAKE_SERVER`).
+device, and Delete account; and the server the app talks to in dev ("In-app fake server"
+under `FT_FAKE_SERVER`) and in any flavor when it was entered at sign-in.
 
 ## Deleting the account and erasing this device
 

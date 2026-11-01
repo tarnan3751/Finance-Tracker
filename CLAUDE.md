@@ -148,6 +148,7 @@ seat that touches them. Agents use the fakes and the demo flavor.
 | The local wipe, account deletion, erasing this device, the devices list and the remote sign-out notice | `app/lib/core/db/local_wipe.dart`, `app/lib/features/auth/` | `docs/reference/auth.md`, `docs/reference/data.md` |
 | Linked banks: Items, Plaid Link, repair, unlink, the Plaid pull and the arrival seam | `app/lib/features/items/`, `app/lib/core/plaid/` | `docs/reference/items.md` |
 | Rules: the engine, the runner on arrival and on demand, the rules screens | `app/lib/features/rules/` | `docs/reference/rules.md` |
+| Onboarding: the app mode (demo or live) of dev and prod, the Welcome screen, the demo's strip and leaving it, the entered server URL, the in-app help, the privacy page and About's licences | `app/lib/core/config/`, `app/lib/core/api/server_address.dart`, `app/lib/features/onboarding/`, `app/lib/features/help/`, `PRIVACY.md` | `docs/reference/onboarding.md` |
 | Developer menu (dev flavor only): the Sandbox controls, provisioning, diagnostics | `app/lib/features/developer/` | `docs/reference/developer.md` |
 | Budgets: periods, spending, rollover, projection, alerts, the Budgets segment of the Plan tab | `app/lib/features/budgets/`, `app/lib/core/platform/notifier.dart` | `docs/reference/budgets.md` |
 | Duplicates: the detector, dismissed pairs, the review | `app/lib/features/duplicates/` | `docs/reference/duplicates.md` |

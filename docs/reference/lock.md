@@ -116,7 +116,7 @@ The Security section of Settings, between Appearance and Data:
 |---|---|---|
 | Require unlock | `lock_enabled` | `true`, `false`; absent is off |
 | Lock after | `lock_timeout_seconds` | `0`, `60`, `300`, `900`, or `off` ("Only when the app starts"); absent is `off` |
-| Block screenshots | `secure_screen` | `true`, `false`; absent is `AppConfig.secureScreenDefault` (prod on, dev and demo off) |
+| Block screenshots | `secure_screen` | `true`, `false`; absent is `AppConfig.secureScreenDefault`: on in prod's live mode only; off in dev (the developer's tool, whose screens the acceptance reads), in the demo (the demo flavor, and prod running it; `onboarding.md`) and before a mode is chosen |
 
 They describe the device, so they live in `app_meta`, which never syncs; in the demo
 flavor `app_meta` is in memory and they last as long as the process. "Require unlock" is
@@ -157,7 +157,7 @@ unsupported.
 - the hold around Link (`test/features/items/application/link_controller_test.dart`) and
   the share sheet (`test/features/export/presentation/export_screen_test.dart`);
 - `app/test/core/platform/platform_channels_test.dart`: the two channels and
-  `secureScreenDefault`;
+  `secureScreenDefault` by flavor and app mode;
 - on the harness, `app/integration_test/lock_test.dart`: the demo with the fake check and
   the lock on shows the lock screen, keeps it after a cancel, and shows the accounts
   after a pass; `MainActivity`'s two channels answer.
