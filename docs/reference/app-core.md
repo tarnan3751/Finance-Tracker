@@ -568,11 +568,11 @@ keeping its own navigation stack.
 - `MerchantAvatar` (`core/widgets/merchant_avatar.dart`) is the round avatar of a merchant
   or an institution: a logo URL through `Image.network` or stored bytes through
   `Image.memory`, shown on white once decoded, else (and while loading or when either
-  fails) the name's first letter or digit on the given ARGB color, in black or white,
-  whichever contrasts more (always above WCAG AA; the brand's ink and paper would not
-  be, so the avatar keeps the extremes). Decorative unless given a
-  `semanticsLabel`. Its colors come from the enrichment fallback (`transactions.md`,
-  **Merchants**).
+  fails) the name's first letter or digit on one of the brand's eight hues, which the
+  name's hash chooses (`avatarHue`, `transactions.md`, **Merchants**): the disc is the
+  hue's tint over `surfaceContainer` and the letter its text-safe variant, at least 4.8:1
+  on that tint in both themes (`design.md`, **Avatars**). Decorative unless given a
+  `semanticsLabel`.
 
 ## Large screens and foldables
 
