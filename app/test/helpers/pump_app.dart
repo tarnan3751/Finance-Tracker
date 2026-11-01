@@ -5,7 +5,8 @@
 // so every test runs on the in-memory repositories whatever its flavor. The API is the
 // real client on the in-app fake server (fakeServerProvider), and the app starts signed
 // in as the demo user unless `signedIn: false`; the router is the flavor's, so dev and
-// prod tests go through the session gate.
+// prod tests go through the session gate; a persona's demo seed is the file's shared one
+// (seed.dart's cachedDemoSeed).
 //
 //   await pumpApp(tester, initialLocation: '/settings', brightness: Brightness.dark);
 //
@@ -30,6 +31,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:timezone/timezone.dart' as tz;
+
+import 'seed.dart';
 
 /// The phone size goldens and screen tests use, in logical pixels.
 const Size phoneSize = Size(412, 915);
@@ -156,6 +159,7 @@ List<Override> _defaults({
     (ref) =>
         router?.call(ref) ?? routerFor(ref, initialLocation: initialLocation),
   ),
+  cachedDemoSeedOverride,
 ];
 
 /// Pumps [buildTestApp] at [phoneSize] (or [size]) and [textScale], and settles.

@@ -8,11 +8,19 @@
 //   await pumpApp(tester, overrides: [storeOverride(store)]);
 //
 // The test keeps the store, so it can read back what the screen wrote.
+//
+// A persona's demo seed (the demo flavor's data) is generated once per test file and
+// shared ([cachedDemoSeed]): the persona engine gives the same seed for the same
+// arguments, and nothing writes to one. pumpApp's demoSeedProvider is on the cache.
+import 'package:finance_tracker/core/db/demo_seed.dart' show demoSeedFor;
 import 'package:finance_tracker/core/db/in_memory_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/time/clock.dart';
 import 'package:finance_tracker/features/items/domain/item_repository.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:persona_engine/persona_engine.dart'
+    as engine
+    show DemoSeed, PersonaId;
 import 'package:shared_models/shared_models.dart';
 
 import 'pump_app.dart';
@@ -31,6 +39,24 @@ InMemoryStore seededStore({
   loadDemoSeed(store, seed ?? buildDemoSeed(storeClock.today()));
   return store;
 }
+
+final Map<(engine.PersonaId, LocalDate), engine.DemoSeed> _personaSeeds = {};
+
+/// The demo seed of [persona] as of [today] (`demoSeedFor`), generated the first time a
+/// test file asks for it and shared after.
+engine.DemoSeed cachedDemoSeed(engine.PersonaId persona, LocalDate today) =>
+    _personaSeeds.putIfAbsent((
+      persona,
+      today,
+    ), () => demoSeedFor(persona, today));
+
+/// `demoSeedProvider` on [cachedDemoSeed]: the selected persona as of the clock's today.
+final Override cachedDemoSeedOverride = demoSeedProvider.overrideWith(
+  (ref) => cachedDemoSeed(
+    ref.watch(demoPersonaProvider),
+    ref.watch(clockProvider).today(),
+  ),
+);
 
 /// The override that puts the in-memory repositories on [store].
 Override storeOverride(InMemoryStore store) =>

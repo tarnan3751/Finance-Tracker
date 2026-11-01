@@ -901,7 +901,10 @@ The repository contract is `test/contract/settings_repository_contract.dart`,
   clock (or the `clock` passed) with the system categories and the test seed (`test/helpers/test_seed.dart`, the Phase 1 demo seed) dated to that
   clock's today (or a seed the test passes), and `storeOverride(store)` puts the in-memory repositories on it;
   the test keeps the store to read back what a screen wrote. `testTransaction(...)` builds a
-  manual transaction relative to the test clock. Widget tests whose rows must all be laid
+  manual transaction relative to the test clock. A persona's demo seed is generated once
+  per test file (`cachedDemoSeed(persona, today)`, the persona engine being deterministic
+  and nothing writing to a seed), and `pumpApp` and `modeWiring` put `demoSeedProvider` on
+  that cache. Widget tests whose rows must all be laid
   out pump a taller `size`: the test font draws every character as a square, so rows are
   taller than on a device.
 - **Doubles.** `test/helpers/test_doubles.dart` holds the doubles more than one test file
