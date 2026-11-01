@@ -77,13 +77,7 @@ void main() {
     expect(find.byType(SpendthriftApp), findsNothing);
     expect(find.text('Leaving the demo…'), findsOneWidget);
     // The wipe's file steps and the restart run on real time.
-    for (
-      int i = 0;
-      i < 3 && find.byType(WelcomeScreen).evaluate().isEmpty;
-      i++
-    ) {
-      await settleWipe(tester);
-    }
+    await settleWipeUntil(tester, find.byType(WelcomeScreen));
 
     expect(find.byType(WelcomeScreen), findsOneWidget);
     expect(await wipe.pending(), isNull);

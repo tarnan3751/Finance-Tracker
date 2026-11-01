@@ -87,3 +87,18 @@ Future<void> settleWipe(WidgetTester tester) async {
     await tester.pump(const Duration(milliseconds: 100));
   }
 }
+
+/// Rounds of [settleWipe] until [finder] finds a widget, for up to [within] of wall time:
+/// the wipe's file steps and the restart run partly on real time, which a loaded machine
+/// stretches, so the wait ends on what the screen shows, not after a fixed count of
+/// rounds.
+Future<void> settleWipeUntil(
+  WidgetTester tester,
+  Finder finder, {
+  Duration within = const Duration(seconds: 20),
+}) async {
+  final Stopwatch waited = Stopwatch()..start();
+  while (finder.evaluate().isEmpty && waited.elapsed < within) {
+    await settleWipe(tester);
+  }
+}

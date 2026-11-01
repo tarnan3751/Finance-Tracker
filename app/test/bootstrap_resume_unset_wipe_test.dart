@@ -73,13 +73,7 @@ void main() {
         await Future<void>.delayed(const Duration(milliseconds: 50));
       });
       // The wipe's file steps run on real time.
-      for (
-        int i = 0;
-        i < 3 && find.text(l10n.erasedDone).evaluate().isEmpty;
-        i++
-      ) {
-        await settleWipe(tester);
-      }
+      await settleWipeUntil(tester, find.text(l10n.erasedDone));
       // Finished first, before anything opens, and confirmed for its reason.
       expect(find.byType(SpendthriftApp), findsNothing);
       expect(find.text(l10n.erasedDeviceTitle), findsOneWidget);
@@ -89,13 +83,7 @@ void main() {
         await tester.pump();
         await Future<void>.delayed(const Duration(milliseconds: 50));
       });
-      for (
-        int i = 0;
-        i < 3 && find.byType(WelcomeScreen).evaluate().isEmpty;
-        i++
-      ) {
-        await settleWipe(tester);
-      }
+      await settleWipeUntil(tester, find.byType(WelcomeScreen));
 
       expect(find.byType(WelcomeScreen), findsOneWidget);
       expect((await modes.read()).mode, isNull);
