@@ -15,7 +15,9 @@ apk="$1"
 expected="$(tr -d '[:space:]' <"$(dirname "$0")/expected_cert_sha256.txt")"
 
 sdk="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}}"
-version="$(ls "$sdk/build-tools" 2>/dev/null | sort -V | tail -1)"
+# The newest stable build-tools; a release-candidate directory only when nothing else exists.
+version="$(ls "$sdk/build-tools" 2>/dev/null | grep -vi 'rc' | sort -V | tail -1)"
+[ -n "$version" ] || version="$(ls "$sdk/build-tools" 2>/dev/null | sort -V | tail -1)"
 apksigner="$sdk/build-tools/$version/apksigner"
 [ -n "$version" ] && [ -x "$apksigner" ] ||
   { echo "check_signature: no apksigner under $sdk/build-tools" >&2; exit 2; }
@@ -26,11 +28,15 @@ if ! out="$("$apksigner" verify --print-certs "$apk" 2>&1)"; then
   exit 1
 fi
 # apksigner prints the digest as lower-case hex without separators; the expected value is
-# colon-separated upper case.
-digests="$(sed -n 's/^Signer #[0-9]* certificate SHA-256 digest: *\([0-9a-fA-F]*\)$/\1/p' <<<"$out")"
+# colon-separated upper case. The signer line reads "Signer #1 certificate SHA-256 digest:" on
+# most builds and "Signer (minSdkVersion=…) certificate SHA-256 digest:" on some, so match
+# the digest wherever the line puts it, and count distinct certificates. On a failure print
+# what apksigner said (names and digests only), so a run elsewhere can be diagnosed.
+digests="$(tr -d '\r' <<<"$out" | sed -nE 's/^.*certificate SHA-256 digest:[[:space:]]*([0-9a-fA-F]{64}).*$/\1/p' | tr '[:upper:]' '[:lower:]' | sort -u)"
 count="$(grep -c . <<<"$digests")"
 if [ "$count" -ne 1 ]; then
-  echo "check_signature FAILED: $apk has $count signer certificates, expected one" >&2
+  echo "check_signature FAILED: $apk has $count distinct signer certificates, expected one; apksigner said:" >&2
+  echo "$out" >&2
   exit 1
 fi
 found="$(tr '[:lower:]' '[:upper:]' <<<"$digests" | sed 's/../&:/g; s/:$//')"
