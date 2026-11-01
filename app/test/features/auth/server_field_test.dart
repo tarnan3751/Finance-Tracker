@@ -116,7 +116,7 @@ void main() {
     expect(find.text(l10n.serverUnreachable), findsOneWidget);
     answer = (_, _) => problem(404, 'not_found');
     await _submit(tester, l10n.signInSubmit);
-    expect(find.text(l10n.serverNotFinanceTracker), findsOneWidget);
+    expect(find.text(l10n.serverNotSpendthrift), findsOneWidget);
     expect(server.calls.where((c) => c.contains('login')), isEmpty);
     expect(modes.serverUrl, isNull);
     expect(address.entered, isNull);

@@ -51,7 +51,7 @@ Future<String?> confirmServer(
     case ServerCheckOutcome.unreachable:
       return l10n.serverUnreachable;
     case ServerCheckOutcome.notAServer:
-      return l10n.serverNotFinanceTracker;
+      return l10n.serverNotSpendthrift;
   }
 }
 

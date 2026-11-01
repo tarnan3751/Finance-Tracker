@@ -7227,8 +7227,8 @@
   "@serverUnreachable": {
     "description": "Error under the server field when nothing answered at the address."
   },
-  "serverNotFinanceTracker": "That address did not answer as a Spendthrift server.",
-  "@serverNotFinanceTracker": {
+  "serverNotSpendthrift": "That address did not answer as a Spendthrift server.",
+  "@serverNotSpendthrift": {
     "description": "Error under the server field when something answered at the address, but not a Spendthrift server."
   },
   "signInTryDemo": "Try the demo instead",

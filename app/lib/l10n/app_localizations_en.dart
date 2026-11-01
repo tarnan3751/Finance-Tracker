@@ -5079,7 +5079,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The server could not be reached. Check the address and your connection.';
 
   @override
-  String get serverNotFinanceTracker =>
+  String get serverNotSpendthrift =>
       'That address did not answer as a Spendthrift server.';
 
   @override
@@ -10749,7 +10749,7 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
       '[Ţĥé šéŕṽéŕ çöûļð ñöţ ƀé ŕéåçĥéð. Çĥéçķ ţĥé åððŕéšš åñð ýöûŕ çöññéçţîöñ. ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~]';
 
   @override
-  String get serverNotFinanceTracker =>
+  String get serverNotSpendthrift =>
       '[Ţĥåţ åððŕéšš ðîð ñöţ åñšŵéŕ åš å Šþéñðţĥŕîƒţ šéŕṽéŕ. ~~~~~ ~~~~~ ~~~~~ ~~~]';
 
   @override

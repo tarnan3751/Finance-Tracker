@@ -7724,7 +7724,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'That address did not answer as a Spendthrift server.'**
-  String get serverNotFinanceTracker;
+  String get serverNotSpendthrift;
 
   /// Button on the sign-in screen of a new install that goes back to the welcome screen, where the demo can be chosen.
   ///

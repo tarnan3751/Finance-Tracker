@@ -5079,7 +5079,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'The server could not be reached. Check the address and your connection.';
 
   @override
-  String get serverNotFinanceTracker =>
+  String get serverNotSpendthrift =>
       'That address did not answer as a Spendthrift server.';
 
   @override
