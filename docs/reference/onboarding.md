@@ -61,13 +61,16 @@ The demo's receipt photo (`assets/demo/receipt.jpg`) ships in every flavor.
 
 ## Welcome
 
-`/welcome` (`welcome_screen.dart`): the app's name (`AppConfig.appName`), one sentence,
-"Try the demo" and "Use my own server". The router holds every location at `/welcome`
+`/welcome` (`welcome_screen.dart`): the brand's mark over the wordmark of the app's name
+(`AppConfig.appName`; `BrandMark` and `Wordmark`, `design.md`, **The mark and the
+wordmark**), one sentence, "Try the demo" as a `FilledButton` and "Use my own server" as
+an `OutlinedButton`. The router holds every location at `/welcome`
 or `/welcome/demo` while no mode is chosen, and sends both to where `/` goes once one is
 (`app-core.md`, **Routing and the shell**).
 
 - **Try the demo** opens `/welcome/demo` (`demo_persona_screen.dart`): the persona
-  engine's four households with the lines Settings → Demo data shows
+  engine's four households, each a `BrandCard` (dimmed and read as disabled while a choice
+  is being stored), with the lines Settings → Demo data shows
   (`demoPersonaName`, `demoPersonaDetail`). Choosing one stores it and `demo`, then
   calls `appModeRestartProvider`.
 - **Use my own server** stores `live` and restarts the same way, onto sign-in.

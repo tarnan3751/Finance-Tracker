@@ -1,15 +1,21 @@
 // The Welcome screen of a fresh dev or prod install: every location held there, the demo
 // step listing the four households with their lines, a household chosen storing it and
-// the demo mode and restarting once (a second tap ignored), "Use my own server" storing
+// the demo mode and restarting once (a second tap ignored, the cards read as disabled
+// meanwhile), "Use my own server" storing
 // the live mode and restarting, a store that refuses leaving both screens usable and
 // saying so, and both screens at twice the text size.
+import 'dart:async';
+import 'dart:ui' show Tristate;
+
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/config/app_mode_store.dart';
 import 'package:finance_tracker/core/di/providers.dart';
+import 'package:finance_tracker/core/widgets/brand_mark.dart';
 import 'package:finance_tracker/features/onboarding/presentation/demo_persona_screen.dart';
 import 'package:finance_tracker/features/onboarding/presentation/welcome_screen.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show SemanticsAction, SemanticsData;
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:persona_engine/persona_engine.dart' show PersonaId;
@@ -44,7 +50,50 @@ final class _RefusingStore extends Fake implements AppModeStore {
   }
 }
 
+/// A store whose writes wait for [done].
+final class _SlowStore extends Fake implements AppModeStore {
+  final Completer<void> done = Completer<void>();
+
+  @override
+  Future<void> writeMode(AppMode mode) => done.future;
+
+  @override
+  Future<void> writeDemoPersona(PersonaId persona) => done.future;
+}
+
 void main() {
+  testWidgets('while a household is being stored, the cards read as disabled', (
+    tester,
+  ) async {
+    final SemanticsHandle semantics = tester.ensureSemantics();
+    final _SlowStore modes = _SlowStore();
+    await pumpApp(
+      tester,
+      config: fresh,
+      signedIn: false,
+      overrides: [
+        appModeStoreProvider.overrideWithValue(modes),
+        appModeRestartProvider.overrideWithValue(() async {}),
+      ],
+    );
+    await tester.tap(find.text(l10n.welcomeTryDemo));
+    await tester.pumpAndSettle();
+    final SemanticsData before = tester
+        .getSemantics(find.text(l10n.demoPersonaStudent))
+        .getSemanticsData();
+    expect(before.flagsCollection.isEnabled, Tristate.isTrue);
+    await tester.tap(find.text(l10n.demoPersonaFamily));
+    await tester.pump();
+    final SemanticsData busy = tester
+        .getSemantics(find.text(l10n.demoPersonaStudent))
+        .getSemanticsData();
+    expect(busy.flagsCollection.isEnabled, Tristate.isFalse);
+    expect(busy.hasAction(SemanticsAction.tap), isFalse);
+    modes.done.complete();
+    await tester.pumpAndSettle();
+    semantics.dispose();
+  });
+
   testWidgets('a fresh install opens on Welcome, wherever it starts', (
     tester,
   ) async {
@@ -56,7 +105,15 @@ void main() {
       overrides: _overrides(InMemoryAppModeStore(), []),
     );
     expect(find.byType(WelcomeScreen), findsOneWidget);
-    expect(find.text(AppConfig.prod().appName), findsOneWidget);
+    // The wordmark: the name in the blue over its pink copy, read once.
+    expect(
+      find.descendant(
+        of: find.byType(Wordmark),
+        matching: find.text(AppConfig.prod().appName),
+      ),
+      findsNWidgets(2),
+    );
+    expect(find.byType(BrandMark), findsOneWidget);
     expect(find.text(l10n.welcomeBody), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing);
   });

@@ -16,11 +16,11 @@ Where a screen composes these is each feature's own reference file.
 | The schemes, the type, the component themes | `app/lib/core/theme/app_theme.dart` (`AppTheme`) |
 | The semantic colors and the chart inks | `app/lib/core/theme/finance_colors.dart` (`FinanceColors`) |
 | The eight brand hues of the categories | `app/lib/core/theme/brand_hues.dart` |
-| The hero card, the brand card, the section header, the empty state, amounts, avatars, the flavor banner | `app/lib/core/widgets/` |
+| The hero card, the brand card, the section header, the empty state, the mark and the wordmark, amounts, avatars, the flavor banner | `app/lib/core/widgets/` |
 | The demo strip | `app/lib/features/onboarding/presentation/demo_strip.dart` |
 | The fonts and their licences | `app/assets/fonts/`, `app/lib/features/help/application/licenses.dart` |
 | The launcher icon, the splash, the widgets' colors | `app/android/app/src/main/res/` (`build.md`, **Icon and splash**; `widgets.md`, **Colours**) |
-| The tests | `app/test/core/theme/`, `app/test/core/widgets/hero_card_test.dart`, `brand_card_test.dart`, `empty_state_test.dart` |
+| The tests | `app/test/core/theme/`, `app/test/core/widgets/hero_card_test.dart`, `brand_card_test.dart`, `section_header_test.dart`, `brand_mark_test.dart`, `empty_state_test.dart` |
 
 ## Tokens
 
@@ -213,6 +213,15 @@ feature's reference file says what its figure is.
 Misregistration is the brand's one ornament: the pink copy under the hero card and the
 floating button (5), and under the empty state's icon (3, two `Icon`s, blue over pink).
 Nothing else is offset, and nothing casts a shadow.
+
+## The mark and the wordmark
+
+`BrandMark` (`core/widgets/brand_mark.dart`) is the launcher icon's duotone S drawn in
+Flutter: the same path stroked twice with a `CustomPaint`, the blue at 82 % slipped up and
+to the start and the pink at 92 % down and to the end, decorative. `Wordmark` is a name in
+Syne 800 at `displaySmall` in the blue over its pink copy, offset by the icon
+misregistration (3); the copy is excluded from semantics, so the name is read once, as a
+heading. The Welcome screen shows the mark over the wordmark.
 
 ## Strips
 

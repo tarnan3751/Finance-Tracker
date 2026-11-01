@@ -1,6 +1,6 @@
 /// The Welcome screen (`/welcome`, `docs/reference/onboarding.md`): where dev and prod
-/// open while no app mode is chosen (the router sends every location here). The app's
-/// name, one sentence, and the two ways in: "Try the demo", which opens the demo's
+/// open while no app mode is chosen (the router sends every location here). The brand's
+/// mark over the wordmark (`brand_mark.dart`), one sentence, and the two ways in: "Try the demo", which opens the demo's
 /// households (`demo_persona_screen.dart`), and "Use my own server", which stores the
 /// live mode and restarts the app on it, at sign-in.
 library;
@@ -8,6 +8,8 @@ library;
 import 'package:finance_tracker/core/config/app_config.dart';
 import 'package:finance_tracker/core/di/providers.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/brand_mark.dart';
 import 'package:finance_tracker/features/onboarding/presentation/mode_choice.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -43,40 +45,29 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(SpendthriftTokens.space24),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 480),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(
-                    Icons.account_balance_wallet_outlined,
-                    size: 56,
-                    color: theme.colorScheme.primary,
-                  ),
-                  const SizedBox(height: 24),
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      ref.watch(appConfigProvider).appName,
-                      style: theme.textTheme.headlineMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
+                  const Center(child: BrandMark()),
+                  const SizedBox(height: SpendthriftTokens.space24),
+                  Center(child: Wordmark(ref.watch(appConfigProvider).appName)),
+                  const SizedBox(height: SpendthriftTokens.space12),
                   Text(
                     l10n.welcomeBody,
                     style: theme.textTheme.bodyLarge,
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: SpendthriftTokens.space32),
                   FilledButton(
                     onPressed: _busy
                         ? null
                         : () => const WelcomeDemoRoute().push<void>(context),
                     child: Text(l10n.welcomeTryDemo),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: SpendthriftTokens.space12),
                   OutlinedButton(
                     onPressed: _busy ? null : _useServer,
                     child: Text(l10n.welcomeUseServer),

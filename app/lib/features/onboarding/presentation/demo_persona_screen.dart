@@ -1,9 +1,11 @@
 /// The demo's households (`/welcome/demo`, `docs/reference/onboarding.md`): the persona
-/// engine's four, each with its one line (the names Settings → Demo data shows). Choosing
+/// engine's four, each a card with its one line (the names Settings → Demo data shows). Choosing
 /// one stores it and the demo mode and restarts the app on them, on the Accounts tab.
 library;
 
 import 'package:finance_tracker/core/config/app_config.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
+import 'package:finance_tracker/core/widgets/brand_card.dart';
 import 'package:finance_tracker/features/onboarding/presentation/mode_choice.dart';
 import 'package:finance_tracker/features/settings/presentation/demo_data_section.dart';
 import 'package:finance_tracker/l10n/app_localizations.dart';
@@ -37,24 +39,39 @@ class _DemoPersonaScreenState extends ConsumerState<DemoPersonaScreen> {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
+    final ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.welcomeDemoTitle)),
       body: ListView(
+        padding: const EdgeInsets.symmetric(
+          horizontal: SpendthriftTokens.space16,
+        ),
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            padding: const EdgeInsets.symmetric(
+              vertical: SpendthriftTokens.space8,
+            ),
             child: Text(
               l10n.welcomeDemoNote,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: theme.textTheme.bodyMedium,
             ),
           ),
           for (final PersonaId persona in PersonaId.values)
-            ListTile(
-              enabled: !_busy,
-              title: Text(demoPersonaName(l10n, persona)),
-              subtitle: Text(demoPersonaDetail(l10n, persona)),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _choose(persona),
+            Padding(
+              padding: const EdgeInsets.only(bottom: SpendthriftTokens.space12),
+              child: BrandCard(
+                title: demoPersonaName(l10n, persona),
+                trailing: const Icon(Icons.chevron_right),
+                // Off while a choice is being stored: dimmed and read as disabled.
+                enabled: !_busy,
+                onTap: () => _choose(persona),
+                child: Text(
+                  demoPersonaDetail(l10n, persona),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
             ),
         ],
       ),
