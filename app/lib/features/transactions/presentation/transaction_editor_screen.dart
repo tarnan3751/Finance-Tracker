@@ -849,6 +849,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
+              elevation: 0,
               initialValue: _accountId,
               isExpanded: true,
               decoration: InputDecoration(

@@ -280,6 +280,7 @@ class _ImportMappingViewState extends State<ImportMappingView> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               DropdownButtonFormField<int>(
+                elevation: 0,
                 key: ValueKey('header-${_draft.headerRow}'),
                 initialValue: _draft.headerRow,
                 isExpanded: true,
@@ -316,6 +317,7 @@ class _ImportMappingViewState extends State<ImportMappingView> {
               ),
               gap,
               DropdownButtonFormField<String>(
+                elevation: 0,
                 key: ValueKey('delimiter-${widget.table.delimiter}'),
                 initialValue: widget.table.delimiter,
                 isExpanded: true,
@@ -365,6 +367,7 @@ class _ImportMappingViewState extends State<ImportMappingView> {
               for (final ImportRole role in _rolesFor(_draft.debitCredit)) ...[
                 gap,
                 DropdownButtonFormField<int?>(
+                  elevation: 0,
                   key: ValueKey(
                     'role-${role.name}-${_draft.headerRow}-'
                     '${_draft.columns[role]}',
@@ -460,6 +463,7 @@ class _ImportMappingViewState extends State<ImportMappingView> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               DropdownButtonFormField<String?>(
+                elevation: 0,
                 key: ValueKey(
                   'account-${_draft.newAccount}-${_draft.accountId}',
                 ),
@@ -603,6 +607,7 @@ class _DateFormatChoice extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         DropdownButtonFormField<ImportDateFormat>(
+          elevation: 0,
           key: ValueKey('date-${draft.dateFormat}'),
           initialValue: draft.dateFormat,
           isExpanded: true,

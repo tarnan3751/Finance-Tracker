@@ -259,6 +259,7 @@ class _CategoryFormState extends ConsumerState<_CategoryForm> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String?>(
+              elevation: 0,
               initialValue: parents.any((p) => p.id == _parentId)
                   ? _parentId
                   : null,

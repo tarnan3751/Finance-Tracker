@@ -9,6 +9,7 @@ library;
 
 import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/widgets/amount_text.dart';
 import 'package:finance_tracker/core/widgets/empty_state.dart';
 import 'package:finance_tracker/core/widgets/merchant_avatar.dart';
@@ -295,9 +296,10 @@ class _AccountCard extends StatelessWidget {
     required bool stacked,
   }) {
     return Card(
+      margin: const EdgeInsets.all(SpendthriftTokens.space4),
       child: MergeSemantics(
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(SpendthriftTokens.radius),
           onTap: () =>
               openDetail(context, AccountDetailRoute(account.id).location),
           child: Padding(

@@ -1,5 +1,9 @@
 // The brand's schemes, hex by hex, the tokens, and the contrast of every text color on
-// every surface it is drawn on (4.5:1), light and dark.
+// every surface it is drawn on (4.5:1), light and dark; the type; the flat components
+// with their ink line, and the floating button's pink copy.
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
 import 'package:finance_tracker/core/theme/app_theme.dart';
 import 'package:finance_tracker/core/theme/finance_colors.dart';
 import 'package:finance_tracker/core/theme/tokens.dart';
@@ -269,5 +273,159 @@ void main() {
     expect(figure.fontWeight, FontWeight.w700);
     expect(figure.fontFeatures, AppTheme.tabularFigures);
     expect(figure.fontSize, headline!.fontSize);
+  });
+
+  for (final ThemeData theme in [AppTheme.light(), AppTheme.dark()]) {
+    final ColorScheme s = theme.colorScheme;
+    final String name = s.brightness.name;
+    final BorderSide ink = BorderSide(
+      color: s.outline,
+      width: SpendthriftTokens.inkLine,
+    );
+
+    test('the $name components are flat and drawn with the ink line', () {
+      expect(theme.appBarTheme.elevation, 0);
+      expect(theme.appBarTheme.scrolledUnderElevation, 0);
+      expect(theme.navigationBarTheme.elevation, 0);
+      expect(theme.navigationBarTheme.indicatorColor, s.primaryContainer);
+      expect(theme.cardTheme.elevation, 0);
+      expect(theme.cardTheme.margin, EdgeInsets.zero);
+      expect(
+        theme.cardTheme.shape,
+        RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SpendthriftTokens.radius),
+          side: ink,
+        ),
+      );
+      expect(theme.dialogTheme.elevation, 0);
+      expect(
+        theme.dialogTheme.shape,
+        RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SpendthriftTokens.radiusLarge),
+          side: ink,
+        ),
+      );
+      expect(theme.bottomSheetTheme.modalElevation, 0);
+      expect(theme.popupMenuTheme.elevation, 0);
+      expect(theme.menuTheme.style!.elevation!.resolve({}), 0);
+      expect(theme.dropdownMenuTheme.menuStyle!.elevation!.resolve({}), 0);
+      expect(theme.snackBarTheme.backgroundColor, s.inverseSurface);
+      expect(theme.floatingActionButtonTheme.elevation, 0);
+      expect(theme.floatingActionButtonTheme.highlightElevation, 0);
+      expect(theme.floatingActionButtonTheme.backgroundColor, s.primary);
+      final InputDecorationThemeData fields = theme.inputDecorationTheme;
+      expect((fields.enabledBorder! as OutlineInputBorder).borderSide, ink);
+      expect(
+        (fields.focusedBorder! as OutlineInputBorder).borderSide,
+        BorderSide(color: s.primary, width: SpendthriftTokens.focusLine),
+      );
+      final ButtonStyle segments = theme.segmentedButtonTheme.style!;
+      expect(segments.side!.resolve({}), ink);
+      expect(
+        segments.backgroundColor!.resolve({WidgetState.selected}),
+        s.primary,
+      );
+      expect(
+        segments.foregroundColor!.resolve({WidgetState.selected}),
+        s.onPrimary,
+      );
+    });
+
+    test('the $name snack bar action reaches 4.5:1 on its ink', () {
+      expect(
+        _contrast(
+          theme.snackBarTheme.actionTextColor!,
+          theme.snackBarTheme.backgroundColor!,
+        ),
+        greaterThanOrEqualTo(4.5),
+      );
+    });
+  }
+
+  testWidgets('the floating button prints its pink copy past its corner', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        home: Scaffold(
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {},
+            child: const Icon(Icons.add),
+          ),
+        ),
+      ),
+    );
+    final ShapeBorder shape = tester
+        .widget<Material>(
+          find.descendant(
+            of: find.byType(FloatingActionButton),
+            matching: find.byType(Material),
+          ),
+        )
+        .shape!;
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final Canvas canvas = Canvas(recorder);
+    shape.paint(canvas, const Rect.fromLTWH(0, 0, 56, 56));
+    final ByteData bytes = (await tester.runAsync<ByteData?>(() async {
+      final ui.Image image = await recorder.endRecording().toImage(64, 64);
+      return image.toByteData();
+    }))!;
+    int pixel(int x, int y) {
+      final int i = (y * 64 + x) * 4;
+      return Color.fromARGB(
+        bytes.getUint8(i + 3),
+        bytes.getUint8(i),
+        bytes.getUint8(i + 1),
+        bytes.getUint8(i + 2),
+      ).toARGB32();
+    }
+
+    // Past the button's lower edge, under it: the accent.
+    expect(pixel(30, 59), FinanceColors.light.accent.toARGB32());
+    // On the button itself: nothing, so the copy never covers it.
+    expect(pixel(30, 30), 0);
+  });
+
+  test('the floating button keeps its copy through a theme animation', () {
+    final ShapeBorder light = AppTheme.light().floatingActionButtonTheme.shape!;
+    final ShapeBorder dark = AppTheme.dark().floatingActionButtonTheme.shape!;
+    expect(ShapeBorder.lerp(light, dark, 0.5).runtimeType, light.runtimeType);
+    expect(
+      ThemeData.lerp(
+        AppTheme.light(),
+        AppTheme.dark(),
+        0.5,
+      ).floatingActionButtonTheme.shape.runtimeType,
+      light.runtimeType,
+    );
+    // From a plain rounded border (a button given its own shape) the copy grows in.
+    final ShapeBorder plain = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(SpendthriftTokens.radius),
+    );
+    expect(ShapeBorder.lerp(plain, light, 0.5).runtimeType, light.runtimeType);
+    // copyWith keeps the copy and honours its arguments.
+    const BorderSide side = BorderSide(width: 2);
+    final OutlinedBorder sided = (light as OutlinedBorder).copyWith(side: side);
+    expect(sided.runtimeType, light.runtimeType);
+    expect(sided.side, side);
+  });
+
+  testWidgets('halfway through a theme animation the copy still prints', (
+    tester,
+  ) async {
+    final ShapeBorder mid = ShapeBorder.lerp(
+      AppTheme.light().floatingActionButtonTheme.shape,
+      AppTheme.dark().floatingActionButtonTheme.shape,
+      0.5,
+    )!;
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    mid.paint(Canvas(recorder), const Rect.fromLTWH(0, 0, 56, 56));
+    final ByteData bytes = (await tester.runAsync<ByteData?>(() async {
+      final ui.Image image = await recorder.endRecording().toImage(64, 64);
+      return image.toByteData();
+    }))!;
+    // Past the button's lower edge: opaque.
+    expect(bytes.getUint8((59 * 64 + 30) * 4 + 3), 255);
   });
 }

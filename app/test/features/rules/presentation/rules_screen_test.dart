@@ -175,6 +175,8 @@ void main() {
   testWidgets('Settings leads to the rules', (tester) async {
     await _pump(tester, location: '/settings');
     await tester.scrollUntilVisible(find.text('Rules'), 200);
+    // The last scroll brings the tile into view at the next frame.
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Rules'));
     await tester.pumpAndSettle();
     expect(find.text('Coffee on the card'), findsOneWidget);

@@ -40,6 +40,7 @@ import 'package:finance_tracker/core/l10n/joins.dart';
 import 'package:finance_tracker/core/layout/two_pane.dart';
 import 'package:finance_tracker/core/layout/window_size_class.dart';
 import 'package:finance_tracker/core/router/routes.dart';
+import 'package:finance_tracker/core/theme/tokens.dart';
 import 'package:finance_tracker/core/widgets/visible_messenger.dart';
 import 'package:finance_tracker/features/accounts/presentation/accounts_screen.dart';
 import 'package:finance_tracker/features/bills/application/bills_providers.dart';
@@ -204,21 +205,31 @@ class _AppShellState extends ConsumerState<AppShell> {
           ),
       ],
     );
+    final BorderSide inkLine = BorderSide(
+      color: Theme.of(context).colorScheme.outline,
+      width: SpendthriftTokens.inkLine,
+    );
     if (size == WindowSizeClass.compact) {
       return Scaffold(
         body: branches(twoPanes: false),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: current,
-          onDestinationSelected: select,
-          destinations: [
-            for (final _Destination d in destinations)
-              NavigationDestination(
-                icon: d.icon,
-                selectedIcon: d.selectedIcon,
-                label: d.label,
-                tooltip: d.tooltip,
-              ),
-          ],
+        // The bar is paper under the ink line (`docs/reference/design.md`).
+        bottomNavigationBar: DecoratedBox(
+          // Over the bar's own paper, which would cover it.
+          position: DecorationPosition.foreground,
+          decoration: BoxDecoration(border: Border(top: inkLine)),
+          child: NavigationBar(
+            selectedIndex: current,
+            onDestinationSelected: select,
+            destinations: [
+              for (final _Destination d in destinations)
+                NavigationDestination(
+                  icon: d.icon,
+                  selectedIcon: d.selectedIcon,
+                  label: d.label,
+                  tooltip: d.tooltip,
+                ),
+            ],
+          ),
         ),
       );
     }
@@ -254,7 +265,11 @@ class _AppShellState extends ConsumerState<AppShell> {
               ],
             ),
           ),
-          const VerticalDivider(width: 1),
+          VerticalDivider(
+            width: inkLine.width,
+            thickness: inkLine.width,
+            color: inkLine.color,
+          ),
           Expanded(
             child: Semantics(
               container: true,

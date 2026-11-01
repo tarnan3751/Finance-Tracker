@@ -439,6 +439,7 @@ class _BillFormState extends ConsumerState<_BillForm> {
             ),
             gap,
             DropdownButtonFormField<RecurringCadence?>(
+              elevation: 0,
               initialValue: cadenceChoices.contains(_cadence) ? _cadence : null,
               isExpanded: true,
               decoration: InputDecoration(
@@ -459,6 +460,7 @@ class _BillFormState extends ConsumerState<_BillForm> {
             ),
             gap,
             DropdownButtonFormField<String?>(
+              elevation: 0,
               initialValue: widget.accounts.any((a) => a.id == _accountId)
                   ? _accountId
                   : null,

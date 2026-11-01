@@ -540,6 +540,7 @@ class _RuleFormState extends ConsumerState<_RuleForm> {
           onRemove: remove,
           children: [
             DropdownButtonFormField<String>(
+              elevation: 0,
               initialValue: known ? c.choice : null,
               isExpanded: true,
               decoration: InputDecoration(

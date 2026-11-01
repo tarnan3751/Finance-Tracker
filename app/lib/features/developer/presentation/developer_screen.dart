@@ -132,6 +132,7 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
           else ...[
             _Padded(
               DropdownButtonFormField<String>(
+                elevation: 0,
                 key: ValueKey('item-$itemId'),
                 initialValue: itemId,
                 isExpanded: true,
@@ -183,6 +184,7 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
             ),
             _Padded(
               DropdownButtonFormField<SandboxWebhookCode>(
+                elevation: 0,
                 initialValue: _webhook,
                 isExpanded: true,
                 decoration: InputDecoration(
@@ -267,6 +269,7 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
         children: [
           _Padded(
             DropdownButtonFormField<String>(
+              elevation: 0,
               key: ValueKey('account-${account.id}'),
               initialValue: account.id,
               isExpanded: true,
@@ -394,6 +397,7 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
         children: [
           _Padded(
             DropdownButtonFormField<ProvisionPersona>(
+              elevation: 0,
               initialValue: _persona,
               isExpanded: true,
               decoration: InputDecoration(
